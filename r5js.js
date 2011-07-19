@@ -89,20 +89,6 @@ scanner.nextToken = function(text, offset) {
     };
 
 
-    /* <syntactic keyword> -> <expression keyword> | else | => | define
-     | unquote | unquote-splicing
-     */
-    scan['syntactic-keyword'] = function(text, offset) {
-        // todo bl orphan rule: doesn't appear in any RHS
-    };
-
-    /* <expression keyword> -> quote | lambda | if | set! | begin | cond | and
-     | or | case | let | let* | letrec | do | delay | quasiquote
-     */
-    scan['expression-keyword'] = function(text, offset) {
-        // todo bl orphan rule: doesn't appear in any RHS
-    };
-
 // <boolean> -> #t | #f
     scan['boolean'] = function(text, offset) {
         var maybeBool = text.substr(offset, 2);
@@ -552,6 +538,8 @@ scanner.nextToken = function(text, offset) {
 
 scanner.runTests = function() {
 
+    // todo bl add negative tests (properly raises errors)
+
     function abbrevToken(token) {
         return {type: token.tokenType, value: token.value};
     }
@@ -622,7 +610,90 @@ scanner.runTests = function() {
 
 };
 
-scanner.runTests();
+//scanner.runTests();
 
 
-var invalidIdentifiers = ['0', '\\', 'iden/tifier'];
+var parse = {};
+
+function isSyntacticKeyword(str) {
+    var kws = ['else', '=>', 'define', 'unquote', 'unquote-splicing', 'quote', 'lambda',
+        'if', 'set!', 'begin', 'cond', 'and', 'or', 'case', 'let', 'let*', 'letrec', 'do',
+        'delay', 'quasiquote'];
+
+    for (var i = 0; i < kws.length; ++i)
+        if (str === kws[i])
+            return true;
+
+    return false;
+}
+
+var tokenStream = new (function(text) {
+    this.text = text;
+    this.textOffset = 0;
+    this.readyTokens = [];
+    this.nextTokenToReturn = 0;
+    this.next = function() {
+        while (this.nextTokenToReturn >= this.readyTokens.length) {
+            var token = scanner.nextToken(this.text, this.textOffset);
+            this.readyTokens.push(token);
+            this.textOffset = token.offset;
+        }
+        return this.readyTokens[this.nextTokenToReturn++];
+    };
+    this.putBack = function(tokens) {
+        // should never go negative...i hope
+        this.nextTokenToReturn -= tokens.length;
+    };
+    this.flush = function() {
+        this.readyTokens = [];
+        this.nextTokenToReturn = 0;
+    }
+})("hello");
+
+
+/* <expression> -> <variable>
+ | <literal>
+ | <procedure call>
+ | <lambda expression>
+ | <conditional>
+ | <assignment>
+ | <derived expression>
+ | <macro use>
+ | <macro block>
+ */
+parse['expression'] = function() {
+
+    var rhses = ['variable', 'literal', 'procedure-call', 'lambda-expression',
+        'conditional', 'assignment', 'derived-expression', 'macro-use', 'macro-block'];
+
+    var maybeSuccess;
+    for (var i = 0; i < rhses.length; ++i)
+        if ((maybeSuccess = parse[rhses[i]](tokenStream)).success)
+            return maybeSuccess;
+
+    return maybeSuccess;
+
+};
+
+function parseOk(type, tokens) {
+    tokenStream.flush();
+    return {success: true, type: type, tokens: tokens};
+}
+
+function parseError(type, tokensToPutBack, firstBadToken, msg) {
+    tokenStream.putBack(tokensToPutBack);
+    return {success: false, type: type, token: firstBadToken, msg: msg || 'parse error'};
+}
+
+parse['variable'] = function() {
+
+    var maybeVar = tokenStream.next();
+    return (maybeVar.tokenType === 'identifier'
+        && !isSyntacticKeyword(maybeVar.value))
+        ? parseOk('variable', [maybeVar])
+        : parseError('variable', [maybeVar]);
+};
+
+console.log(parse['expression']());
+
+
