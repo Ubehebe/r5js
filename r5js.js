@@ -5,22 +5,22 @@ scanner.nextToken = function(text, offset) {
     var scan = {};
 
     /* <token> -> <identifier> | <boolean> | <number> | <character>
-       | <string> | ( | ) | #( | ' | ` | , | ,@ | .
-    */
+     | <string> | ( | ) | #( | ' | ` | , | ,@ | .
+     */
     scan['token'] = function(text, offset) {
 
         var unigraph = text.charAt(offset);
         var digraph;
 
         /* The dot has to be handled differently because it can also be a decimal
-	   point or the beginning of an ellipsis. We have to peek ahead with
-	   requireTokenEnd() to figure out what to do. */
+         point or the beginning of an ellipsis. We have to peek ahead with
+         requireTokenEnd() to figure out what to do. */
         if (unigraph === '.') {
             var maybeDot = requireTokenEnd(unigraph, unigraph, text, offset + 1);
             if (maybeDot.success)
                 return maybeDot;
             /* If it is not the end of the token, fall through to below to try the
-	       decimal point and ellipsis interpretations. */
+             decimal point and ellipsis interpretations. */
 
 
         } else if ("()'`,".indexOf(unigraph) !== -1) {
@@ -46,10 +46,10 @@ scanner.nextToken = function(text, offset) {
     // <identifier> -> <initial> <subsequent>* | <peculiar identifier>
     scan['identifier'] = function(text, offset) {
 
-	// <initial> -> <letter> | <special initial>
+        // <initial> -> <letter> | <special initial>
         var validInitial = function(c) {
             return c.length === 1
-	    && ((c >= 'a' && c <= 'z') // <letter> -> a | b | ... | z | A | B | ... | Z
+                && ((c >= 'a' && c <= 'z') // <letter> -> a | b | ... | z | A | B | ... | Z
                 || (c >= 'A' && c <= 'Z')
                 || '!$%&*/:<=>?^_~'.indexOf(c) !== -1); // <special initial>
         };
@@ -57,7 +57,7 @@ scanner.nextToken = function(text, offset) {
         // <subsequent> -> <initial> | <digit 10> | <special subsequent>
         var validSubsequent = function(c) {
             return c.length === 1
-	    && (validInitial(c)
+                && (validInitial(c)
                 || (c >= '0' && c <= '9')
                 || '+-.@'.indexOf(c) !== -1); // special subsequents
         };
@@ -80,8 +80,8 @@ scanner.nextToken = function(text, offset) {
         if (maybePeculiar === '+' || maybePeculiar === '-')
             return requireTokenEnd('identifier', maybePeculiar, text, offset + 1);
         /* todo bl: unreachable. we will always parse '...' as type '.' first.
-	   the grammar is ambiguous: is '...' an actual peculiar identfier or
-	   an ellipsis denoting an open class of peculiar identifiers? */
+         the grammar is ambiguous: is '...' an actual peculiar identfier or
+         an ellipsis denoting an open class of peculiar identifiers? */
         else if (text.substr(offset, 3) === '...')
             return requireTokenEnd('identifier', '...', text, offset + 3);
         else
@@ -91,23 +91,23 @@ scanner.nextToken = function(text, offset) {
 
     // <boolean> -> #t | #f
     /* Since booleans are self-evaluating, we go ahead and convert them
-       to JavaScript booleans here, in the scanner. */
+     to JavaScript booleans here, in the scanner. */
     scan['boolean'] = function(text, offset) {
         var maybeBool = text.substr(offset, 2);
         switch (maybeBool) {
-	case '#t':
-	    return scanOk('boolean', true, offset + 2);
-	case '#f':
-	    return scanOk('boolean', false, offset + 2);
-	default:
-	    return scanError('boolean', offset);
+            case '#t':
+                return scanOk('boolean', true, offset + 2);
+            case '#f':
+                return scanOk('boolean', false, offset + 2);
+            default:
+                return scanError('boolean', offset);
         }
     };
 
     // <character> -> #\ <any character> | #\ <character name>
     // <character name> -> space | newline
     /* Since characters are self-evaluating, we go ahead and convert them
-       to JavaScript strings here, in the scanner. */
+     to JavaScript strings here, in the scanner. */
     scan['character'] = function(text, offset) {
         var requiredPrefix = text.substr(offset, 2);
         if (requiredPrefix !== '#\\')
@@ -126,14 +126,14 @@ scanner.nextToken = function(text, offset) {
             return scanError('string', offset, 'expected "');
 
         /* We can't use the generic consumeWhile() because of the valid
-	   digraphs \" and \\ */
+         digraphs \" and \\ */
         var len = 0;
         while (validStringElement(text, offset + ++len))
             ;
 
         return (text.charAt(offset + len) === '"')
-	? scanOk('string', text.substr(offset + 1, offset + len - 1), offset + len)
-	: scanError('string', offset, 'unterminated string literal');
+            ? scanOk('string', text.substr(offset + 1, offset + len - 1), offset + len)
+            : scanError('string', offset, 'unterminated string literal');
 
         // <string element> -> <any character other than " or \> | \" | \\
         function validStringElement(text, offset) {
@@ -141,15 +141,15 @@ scanner.nextToken = function(text, offset) {
             if (cur.length === 1 && cur !== '"' && cur !== '\\')
                 return true;
             else return (cur = text.substr(offset, 2)) === '\\"'
-		     || cur === '\\\\';
+                || cur === '\\\\';
         }
     };
 
     // <number> -> <num 2> | <num 8> | <num 10> | <num 16>
     /* Since numbers are self-evaluating, we should go ahead and represent
-       them as JavaScript numbers here, in the scanner. In simple cases we
-       can parse them as native JavaScript numbers, but there are more complex
-       cases. */
+     them as JavaScript numbers here, in the scanner. In simple cases we
+     can parse them as native JavaScript numbers, but there are more complex
+     cases. */
     scan['number'] = function(text, offset) {
         var bases = [10,16,8,2]; // order by common case
         var ans;
@@ -168,22 +168,22 @@ scanner.nextToken = function(text, offset) {
             return prefix;
         var complex = scan['complex'](base, text, prefix.offset);
         return complex.success
-	? requireTokenEnd('num', prefix.value + complex.value, text, complex.offset)
-	: complex;
+            ? requireTokenEnd('num', prefix.value + complex.value, text, complex.offset)
+            : complex;
     };
 
     /*
-      <complex R> -> <real R>
-      | <real R> @ <real R>
-      | <real R> + <ureal R> i
-      | <real R> - <ureal R> i
-      | <real R> + i
-      | <real R> - i
-      | + <ureal R> i
-      | - <ureal R> i
-      | + i
-      | - i
-    */
+     <complex R> -> <real R>
+     | <real R> @ <real R>
+     | <real R> + <ureal R> i
+     | <real R> - <ureal R> i
+     | <real R> + i
+     | <real R> - i
+     | + <ureal R> i
+     | - <ureal R> i
+     | + i
+     | - i
+     */
     scan['complex'] = function(base, text, offset) {
 
 
@@ -237,8 +237,8 @@ scanner.nextToken = function(text, offset) {
                 return mustBeUreal;
             var mustBeI = text.charAt(text, mustBeUreal.offset)
             return (mustBeI === 'i' || mustBeI === 'I')
-	    ? requireTokenEnd('complex', sign.value + mustBeUreal.value + 'i', text, mustBeUreal.offset + 1)
-	    : scanError('complex', mustBeUreal.offset, 'expected i');
+                ? requireTokenEnd('complex', sign.value + mustBeUreal.value + 'i', text, mustBeUreal.offset + 1)
+                : scanError('complex', mustBeUreal.offset, 'expected i');
         }
     };
 
@@ -253,15 +253,15 @@ scanner.nextToken = function(text, offset) {
         var ureal = scan['ureal'](base, text, sign.offset);
 
         return ureal.success
-	? scanOk('real', sign.value + ureal.value, ureal.offset)
-	: ureal;
+            ? scanOk('real', sign.value + ureal.value, ureal.offset)
+            : ureal;
     };
 
     /*
-      <ureal R> -> <uinteger R>
-      | <uinteger R> / <uinteger R>
-      | <decimal R>
-    */
+     <ureal R> -> <uinteger R>
+     | <uinteger R> / <uinteger R>
+     | <decimal R>
+     */
     scan['ureal'] = function(base, text, offset) {
 
         // <ureal 10> -> <decimal 10>
@@ -285,10 +285,10 @@ scanner.nextToken = function(text, offset) {
     };
 
     /* <decimal 10> -> <uinteger 10> <suffix> (i.e. <digit 10>+ #* <suffix>)
-       | . <digit 10>+ #* <suffix>
-       | <digit 10>+ . <digit 10>+ #* <suffix>
-       | <digit 10>+ #+ . #* <suffix>
-    */
+     | . <digit 10>+ #* <suffix>
+     | <digit 10>+ . <digit 10>+ #* <suffix>
+     | <digit 10>+ #+ . #* <suffix>
+     */
     scan['decimal'] = function(text, offset) {
 
         var leadingDot = text.charAt(offset) === '.';
@@ -296,8 +296,8 @@ scanner.nextToken = function(text, offset) {
         if (!firstDigitBlock.success)
             return firstDigitBlock;
         var afterHashes = consumeWhile(text, firstDigitBlock.offset, function(c) {
-		return c === '#';
-	    });
+            return c === '#';
+        });
         var suffix;
 
         // <decimal 10> -> . <digit 10>+ #* <suffix>
@@ -326,8 +326,8 @@ scanner.nextToken = function(text, offset) {
                 var afterSecondHashes = consumeWhile(text, afterHashes + 1, isHash);
                 suffix = scan['suffix'](text, afterSecondHashes);
                 return suffix.success
-		? scanOk('decimal', firstDigitBlock.value + '.' + suffix.value, suffix.offset)
-		: suffix;
+                    ? scanOk('decimal', firstDigitBlock.value + '.' + suffix.value, suffix.offset)
+                    : suffix;
             }
 
             // Note that the above rule has #+, not #*, so we need at least one.
@@ -338,8 +338,8 @@ scanner.nextToken = function(text, offset) {
         else {
             suffix = scan['suffix'](text, afterHashes);
             return suffix.success
-	    ? scanOk('decimal', firstDigitBlock.value + suffix.value, suffix.offset)
-	    : suffix;
+                ? scanOk('decimal', firstDigitBlock.value + suffix.value, suffix.offset)
+                : suffix;
         }
     };
 
@@ -351,8 +351,8 @@ scanner.nextToken = function(text, offset) {
             return digits;
 
         var finalOffset = consumeWhile(text, digits.offset, function(c) {
-		return c === '#';
-	    });
+            return c === '#';
+        });
 
         return scanOk('uinteger', digits.value, finalOffset);
     };
@@ -372,8 +372,8 @@ scanner.nextToken = function(text, offset) {
                 return exactness1;
             var radix2 = scan['radix'](base, text, offset);
             return radix2.success
-	    ? scanOk('prefix', exactness1.value + radix2.value, radix2.offset)
-	    : radix2;
+                ? scanOk('prefix', exactness1.value + radix2.value, radix2.offset)
+                : radix2;
         }
     };
 
@@ -428,10 +428,10 @@ scanner.nextToken = function(text, offset) {
     };
 
     /* <radix 2> -> #b
-       <radix 8> -> #o
-       <radix 10> -> <empty> | #d
-       <radix 16> -> #x
-    */
+     <radix 8> -> #o
+     <radix 10> -> <empty> | #d
+     <radix 16> -> #x
+     */
     scan['radix'] = function(base, text, offset) {
 
         var expected = {2: 'b', 8: 'o', 10: 'd', 16: 'x'};
@@ -452,17 +452,17 @@ scanner.nextToken = function(text, offset) {
     };
 
     /* <digit 2> -> 0 | 1
-       <digit 8> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
-       <digit 10> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-       <digit 16> -> 0 | 1 | 2 | 3 |4 | 5| 6 | 7 | 8 | 9 | a | b | c | d | e | f
-    */
+     <digit 8> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+     <digit 10> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+     <digit 16> -> 0 | 1 | 2 | 3 |4 | 5| 6 | 7 | 8 | 9 | a | b | c | d | e | f
+     */
     scan['digits'] = function(base, text, offset, zeroLengthAllowed) {
 
         var validDigit = function(c) {
             var acceptable = {2: '01',
-			      8: '01234567',
-			      10: '0123456789',
-			      16: '0123456789abcdefABCDEF'};
+                8: '01234567',
+                10: '0123456789',
+                16: '0123456789abcdefABCDEF'};
             return c.length === 1 && acceptable[base].indexOf(c) !== -1;
         };
 
@@ -470,8 +470,8 @@ scanner.nextToken = function(text, offset) {
         var numDigits = finalOffset - offset;
 
         return (zeroLengthAllowed || numDigits > 0)
-	? scanOk('digits', text.substr(offset, numDigits), finalOffset)
-	: scanError('digits', offset, 'expected digits-' + base);
+            ? scanOk('digits', text.substr(offset, numDigits), finalOffset)
+            : scanError('digits', offset, 'expected digits-' + base);
     };
 
     function scanError(type, offset, msg) {
@@ -487,14 +487,14 @@ scanner.nextToken = function(text, offset) {
     }
 
     /* 7.1.1: "Tokens which require implicit termination (identifiers, numbers,
-       characters, and dot) may be terminated by any <delimiter>, but not
-       necessarily by anything else." */
+     characters, and dot) may be terminated by any <delimiter>, but not
+     necessarily by anything else." */
     function requireTokenEnd(type, value, text, nextOffset) {
         /* Note that 'blah'.indexOf('') is 0, so this will work for tokens
-	   ending at the end of a file. */
+         ending at the end of a file. */
         return '()"; \t\n'.indexOf(text.charAt(nextOffset)) === -1
-	? scanError(type, nextOffset, 'expected end of token')
-	: scanOk(type, value, nextOffset);
+            ? scanError(type, nextOffset, 'expected end of token')
+            : scanOk(type, value, nextOffset);
     }
 
     function consumeWhile(text, offset, predicate) {
@@ -559,7 +559,7 @@ scanner.runTests = function() {
             console.error(ans);
         } else if (type && type !== ans.tokenType) {
             console.error("parse error on " + text + ": expected type " + type
-			  + ", actual type " + ans.tokenType);
+                + ", actual type " + ans.tokenType);
         } else console.log(abbrevToken(ans));
     }
 
@@ -572,49 +572,49 @@ scanner.runTests = function() {
 
     validTokens['number'] = (function() {
 
-	    var bases = ['', '#b', '#B', '#o', '#O', '#d', '#D', '#x', '#X'];
-	    var exactnesses = ['', '#e', '#E', '#i', '#I'];
+        var bases = ['', '#b', '#B', '#o', '#O', '#d', '#D', '#x', '#X'];
+        var exactnesses = ['', '#e', '#E', '#i', '#I'];
 
-	    var prefixes = [];
-	    for (var i = 0; i < bases.length; ++i) {
-		for (var j = 0; j < exactnesses.length; ++j) {
-		    prefixes.push(bases[i] + exactnesses[j])
-			prefixes.push(exactnesses[j] + bases[i]);
-		}
-	    }
+        var prefixes = [];
+        for (var i = 0; i < bases.length; ++i) {
+            for (var j = 0; j < exactnesses.length; ++j) {
+                prefixes.push(bases[i] + exactnesses[j])
+                prefixes.push(exactnesses[j] + bases[i]);
+            }
+        }
 
-	    var exponentMarkers = ['e', 's', 'f', 'd', 'l', 'E', 'S', 'F', 'D', 'L'];
-	    var signs = ['', '+', '-'];
+        var exponentMarkers = ['e', 's', 'f', 'd', 'l', 'E', 'S', 'F', 'D', 'L'];
+        var signs = ['', '+', '-'];
 
-	    var suffixes = [''];
-	    for (var i = 0; i < exponentMarkers.length; ++i)
-		for (var j = 0; j < signs.length; ++j)
-		    suffixes.push(exponentMarkers[i] + signs[j] + "2387");
+        var suffixes = [''];
+        for (var i = 0; i < exponentMarkers.length; ++i)
+            for (var j = 0; j < signs.length; ++j)
+                suffixes.push(exponentMarkers[i] + signs[j] + "2387");
 
-	    var decimals = ["8762",
-			    "4987566###",
-			    ".765",
-			    ".549867#",
-			    "0.",
-			    "37.###",
-			    "565.54",
-			    "3765.4499##",
-			    "4##.",
-			    "56#.",
-			    "587##.#"];
+        var decimals = ["8762",
+            "4987566###",
+            ".765",
+            ".549867#",
+            "0.",
+            "37.###",
+            "565.54",
+            "3765.4499##",
+            "4##.",
+            "56#.",
+            "587##.#"];
 
-	    var ans = [];
-	    for (var i = 0; i < decimals.length; ++i)
-		for (var j = 0; j < suffixes.length; ++j)
-		    ans.push(decimals[i] + suffixes[j]);
+        var ans = [];
+        for (var i = 0; i < decimals.length; ++i)
+            for (var j = 0; j < suffixes.length; ++j)
+                ans.push(decimals[i] + suffixes[j]);
 
-	    return ans;
-	})();
+        return ans;
+    })();
 
     for (var type in validTokens)
         validTokens[type].forEach(function(text) {
-		assertValidToken(text, type);
-	    });
+            assertValidToken(text, type);
+        });
 
 };
 
@@ -625,8 +625,8 @@ var parse = {};
 
 function isSyntacticKeyword(str) {
     var kws = ['else', '=>', 'define', 'unquote', 'unquote-splicing', 'quote', 'lambda',
-	       'if', 'set!', 'begin', 'cond', 'and', 'or', 'case', 'let', 'let*', 'letrec', 'do',
-	       'delay', 'quasiquote'];
+        'if', 'set!', 'begin', 'cond', 'and', 'or', 'case', 'let', 'let*', 'letrec', 'do',
+        'delay', 'quasiquote'];
 
     for (var i = 0; i < kws.length; ++i)
         if (str === kws[i])
@@ -682,7 +682,7 @@ function parseOk(type, attrs) {
         if (!ans[k])
             ans[k] = attrs[k];
         else throw new InternalParserError('attempting to redefine attribute '
-					   + k + ', previous value was ' + ans[k] + '. should never happen');
+            + k + ', previous value was ' + ans[k] + '. should never happen');
     }
     return ans;
 }
@@ -692,285 +692,378 @@ function parseError(type, msg) {
     return {success: false, type: type, msg: msg || 'parse error'};
 }
 
-function parseOption(tokenStream, rhses) {
-    var ans;
-    for (var i = 0; i < rhses.length,++i)
-        if ((ans = parse[rhses[i]](tokenStream)).success)
-            return ans;
+function alternation(lhs, tokenStream) {
+    var possibleRhs;
+    for (var i = 2; i < arguments.length; ++i) {
+        possibleRhs = rhs.apply(null, [lhs, tokenStream].concat(arguments[i])); // todo bl varargs problem
+        if (possibleRhs.success)
+            return possibleRhs;
+    }
+    return possibleRhs;
+}
+
+function rhs(lhsName, tokenStream) {
+    var ans = {success: true, type: lhsName};
+    for (var i = 2; i < arguments.length; ++i) {
+        var element = arguments[i];
+
+        // Invoke the scanner
+        if (element.terminal) {
+
+            // todo bl test for presence of atLeast: 0, 1 for * and +
+
+            /* todo bl figure out how to determine the type of value -- it can be
+             either a string, so that we compare the next token to it, or a function,
+             which we use as a predicate.
+             */
+
+            if (!tokenStream.assertNextValue(element.value))
+                return parseError(lhsName, 'expected ' + element.value);
+        }
+
+        // Invoke the parser
+        else {
+            var parsed = parse[element.value](tokenStream);
+            if (!parsed.success)
+                return parsed;
+            else
+                ans[element.value] = parsed;
+        }
+    }
     return ans;
 }
 
 
 /* <expression> -> <variable>
-   | <literal>
-   | <procedure call>
-   | <lambda expression>
-   | <conditional>
-   | <assignment>
-   | <derived expression>
-   | <macro use>
-   | <macro block>
-*/
+ | <literal>
+ | <procedure call>
+ | <lambda expression>
+ | <conditional>
+ | <assignment>
+ | <derived expression>
+ | <macro use>
+ | <macro block>
+ */
 parse['expression'] = function(tokenStream) {
-    return parseOption(tokenStream, ['variable', 'literal', 'procedure-call', 'lambda-expression',
-				     'conditional', 'assignment', 'derived-expression', 'macro-use', 'macro-block']);
+    return alternation('expression', tokenStream,
+        [
+            {value: 'variable'}
+        ],
+        [
+            {value: 'literal'}
+        ],
+        [
+            {value: 'procedure-call'}
+        ],
+        [
+            {value: 'lambda-expression'}
+        ],
+        [
+            {value: 'conditional'}
+        ],
+        [
+            {value: 'assignment'}
+        ],
+        [
+            {value: 'derived-expression'}
+        ],
+        [
+            {value: 'macro-use'}
+        ],
+        [
+            {value: 'macro-block'}
+        ]);
 };
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 parse['variable'] = function(tokenStream) {
-    var maybeVar = tokenStream.assertNext(function(t) {
-	    return t.tokenType === 'identifier' && !isSyntacticKeyword(t.value);
-	});
-    return maybeVar
-    ? parseOk('variable', {text: maybeVar.value})
-    : parseError('variable');
+    return rhs('variable', tokenStream,
+        {value: function(token) {
+            return token.tokenType === 'identifier'
+                && !isSyntacticKeyword(token.value);
+        }, terminal: true}
+    );
 };
 
 // <literal> -> <quotation> | <self-evaluating>
 parse['literal'] = function(tokenStream) {
-    return parseOption(tokenStream, ['quotation', 'self-evaluating']);
+    return alternation('literal', tokenStream,
+        [
+            {value: 'quotation'}
+        ],
+        [
+            {value: 'self-evaluating'}
+        ]);
 };
 
 // <quotation> -> '<datum> | (quote <datum>)
 parse['quotation'] = function(tokenStream) {
-    if (tokenStream.assertNextType("'")) {
-        return parse['datum'](tokenStream);
-    } else if (tokenStream.assertNextType('(')) {
-        return tokenStream.assertNextValue('quote')
-	? parse['datum'](tokenStream)
-	: parseError('quotation', 'expected quote');
-    } else return parseError('quotation');
+
+    return alternation('quotation', tokenStream,
+        [
+            {value: "'", terminal: true},
+            {value: 'datum', terminal: false}
+        ],
+        [
+            {value: '(', terminal: true},
+            {value: 'quote', terminal: true},
+            {value: 'datum', terminal: false}
+        ]);
 };
 
 parse['self-evaluating'] = function(tokenStream) {
     var token = tokenStream.assertNext(function(t) {
-	    switch (t.tokenType) {
+        switch (t.tokenType) {
             case 'number':
             case 'boolean':
             case 'string':
             case 'character':
-	    return true;
+                return true;
             default:
-	    return false;
-	    }
-	});
+                return false;
+        }
+    });
     return token
-    ? parseOk('self-evaluating', {subtype: token.type, text: token.value})
-    : parseError('self-evaluating', 'not a self-evaluating type');
+        ? parseOk('self-evaluating', {subtype: token.type, text: token.value})
+        : parseError('self-evaluating', 'not a self-evaluating type');
 };
 
 // <datum> -> <simple datum> | <compound datum>
 parse['datum'] = function(tokenStream) {
-    return parseOption(tokenStream, ['simple-datum', 'compound-datum']);
+    return alternation('datum', tokenStream,
+        [
+            {value: 'simple-datum'}
+        ],
+        [
+            {value: 'compound-datum'}
+        ]);
 };
 
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
 // <symbol> -> <identifier>
 parse['simple-datum'] = function(tokenStream) {
 
-    var token = tokenStream.assertNext(function(t) {
-	    switch (t.tokenType) {
-            case 'boolean':
-            case 'number':
-            case 'character':
-            case 'string':
-            case 'identifier':
-	    return true;
-            default:
-	    return false;
-	    }
-	});
-    return token
-    ? parseOk('simple-datum', {subtype: token.type, text: token.value})
-    : parseError('simple-datum');
+    return alternation('simple-datum', tokenStream,
+        [
+            {value: 'boolean', terminal: true}
+        ],
+        [
+            {value: 'number', terminal: true}
+        ],
+        [
+            {value: 'character', terminal: true}
+        ],
+        [
+            {value: 'string', terminal: true}
+        ],
+        [
+            {value: 'identifier', terminal: true}
+        ]);
 };
 
 // <compound datum> -> <list> | <vector>
 parse['compound-datum'] = function(tokenStream) {
-    return parseOption(tokenStream, ['list', 'vector']);
+    return alternation('compound-datum', tokenStream,
+        [
+            {value: 'list'}
+        ],
+        [
+            {value: 'vector'}
+        ]);
 };
 
 // <list> -> (<datum>*) | (<datum>+ . <datum>) | <abbreviation>
 parse['list'] = function(tokenStream) {
-    if (!tokenStream.assertNextType('('))
-        return parseError('list');
 
-    var maybeAbbrev = parse['abbreviation'](tokenStream);
-    if (maybeAbbrev.success)
-        return maybeAbbrev;
-
-    var data = [];
-    var datum;
-    while ((datum = parse['datum'](tokenStream)).success)
-        data.push(datum);
-    if (tokenStream.assertNextType('.')) {
-        if (data.length === 0)
-            return parseError('list');
-    }
-
-    if (!tokenStream.assertNextType(')'))
-        return parseError('list', 'expected )');
-
-    return parseOk('list', {data: data});
+    return alternation('list', tokenStream,
+        [
+            {value: '(', terminal: true},
+            {value: 'datum', atLeast: 0},
+            {value: ')', terminal: true}
+        ],
+        [
+            {value: '(', terminal: true},
+            {value: 'datum', atLeast: 1},
+            {value: '.', terminal: true},
+            {value: 'datum'},
+            {value: ')', terminal: true}
+        ],
+        [
+            {value: 'abbreviation'}
+        ]);
 };
 
 // <vector> -> #(<datum>*)
 parse['vector'] = function(tokenStream) {
-    if (!tokenStream.assertNextType('#('))
-        return parseError('vector');
-    var data = [];
-    var datum;
-    while ((datum = parse['datum'](tokenStream)).success)
-        data.push(datum);
-    return tokenStream.assertNextType(')')
-    ? parseOk('vector', {data: data})
-    : parseError('vector', 'expected )');
+
+    return rhs('vector', tokenStream,
+        {value: '#(', terminal: true},
+        {value: 'datum', atLeast: 0},
+        {value: ')', terminal: true}
+    );
 };
 
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
 parse['abbreviation'] = function(tokenStream) {
-    var prefix = tokenStream.assertNext(function(t) {
-	    switch (t.tokenType) {
-            case "'":
-            case '`':
-            case '.':
-            case ',@':
-	    return true;
-            default:
-	    return false;
-	    }
-	});
 
-    if (!prefix)
-        return parseError('abbreviation');
-
-    var datum = parse['datum'](tokenStream);
-    return datum.success
-    ? parseOk('abbreviation', {prefix: prefix.value, datum: datum})
-    : datum;
+    return rhs('abbreviation', tokenStream,
+        {value: function(token) {
+            switch (token.tokenType) {
+                case "'":
+                case '`':
+                case '.':
+                case ',@':
+                    return true;
+                default:
+                    return false;
+            }
+        }, terminal: true},
+        {value: 'datum'}
+    );
 };
 
 // <procedure call> -> (<operator> <operand>*)
 // <operator> -> <expression>
 // <operand> -> <expression>
 parse['procedure-call'] = function(tokenStream) {
-    if (!tokenStream.assertNextType('('))
-        return parseError('procedure-call');
-    var operator = parse['expression'](tokenStream);
-    if (!operator.success)
-        return operator;
-    var operands = [];
-    var operand;
-    while ((operand = parse['expression'](tokenStream)).success)
-        operands.push(operand);
-    return tokenStream.assertNextType(')')
-    ? parseOk('procedure-call', {operator: operator, operands: operands})
-    : parseError('procedure-call', 'expected )');
+
+    return rhs('procedure-call', tokenStream,
+        {value: '(', terminal: true},
+        {value: 'expression', name: 'operator'}, // todo bl support name aliases
+        {value: 'expression', name: 'operand', atLeast: 0},
+        {value: ')', terminal: true});
 };
 
 // <lambda expression> -> (lambda <formals> <body>)
 parse['lambda-expression'] = function(tokenStream) {
-    if (!tokenStream.assertNextType('('))
-        return parseError('lambda-expression', 'expected (');
-    if (!tokenStream.assertNextValue('lambda'))
-        return parseError('lambda-expression', 'expected lambda');
 
-    var formals = parse['formals'](tokenStream);
-    if (!formals.success)
-        return formals;
-
-    var body = parse['body'](tokenStream);
-    if (!body.success)
-        return body;
-
-    if (!tokenStream.assertNextType(')'))
-        return parseError('lambda-expression', 'expected )');
-
-    return parseOk('lambda-expression', {formals: formals, body: body});
+    return rhs('lambda-expression', tokenStream,
+        {value: '(', terminal: true},
+        {value: 'lambda', terminal: true},
+        {value: 'formals'},
+        {value: 'body'},
+        {value: ')', terminal: true});
 };
 
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
 parse['formals'] = function(tokenStream) {
 
-    var variable;
-
-    if (tokenStream.assertNextType('(')) {
-
-        var variables = [];
-        while ((variable = parse['variable'](tokenStream)).success)
-            variables.push(variable);
-
-        if (tokenStream.assertNextType('.')) {
-            if (variables.length === 0)
-                return parseError('formals', 'expected at least one variable');
-            variable = parse['variable'](tokenStream);
-            if (!variable.success)
-                return parseError('formals', 'expected final variable');
-            variables.push(variable);
-        }
-
-        return tokenStream.assertNextType(')')
-            ? parseOk('formals', {variables: variables})
-            : parseError('formals', 'expected )');
-
-
-    } else {
-        variable = parse['variable'](tokenStream);
-        return variable.success
-	? parseOk('formals', {variables: [variable]})
-	: variable;
-    }
-
+    return alternation('formals', tokenStream,
+        [
+            {value: '(', terminal: true},
+            {value: 'variable', atLeast: 0},
+            {value: ')', terminal: true}
+        ],
+        [
+            {value: 'variable'}
+        ],
+        [
+            {value: '(', terminal: true},
+            {value: 'variable', atLeast: 1},
+            {value: '.', terminal: true},
+            {value: 'variable'},
+            {value: ')', terminal: true}
+        ]);
 };
 
 // <body> -> <definition>* <sequence>
 parse['body'] = function(tokenStream) {
 
-    var defs = [];
-    var def;
-    while ((def = parse['definition'](tokenStream)).success)
-        defs.push(def);
-    var seq = parse['sequence'](tokenStream);
-    return seq.success
-    ? parseOk('body', {definitions: defs, sequence: seq})
-    : seq;
+    return rhs('body', tokenStream,
+        {value: 'definition', atLeast: 0},
+        {value: 'sequence'});
 };
 
 /* <definition> -> (define <variable> <expression>)
-   | (define (<variable> <def formals>) <body>)
-   | (begin <definition>*)
-*/
+ | (define (<variable> <def formals>) <body>)
+ | (begin <definition>*)
+ */
 parse['definition'] = function(tokenStream) {
 
-    if (!tokenStream.assertNextType('('))
-        return parseError('definition', 'expected (');
+    return alternation('definition', tokenStream,
+        [
+            {value: '(', terminal: true},
+            {value: 'define', terminal: true},
+            {value: 'variable'},
+            {value: 'expression'},
+            {value: ')', terminal: true}
+        ],
+        [
+            {value: '(', terminal: true},
+            {value: 'define', terminal: true},
+            {value: '(', terminal: true},
+            {value: 'variable'},
+            {value: 'def-formals'},
+            {value: ')', terminal: true},
+            {value: 'body'},
+            {value: ')', terminal: true}
+        ],
+        [
+            {value: '(', terminal: true},
+            {value: 'begin', terminal: true},
+            {value: 'definition', atLeast: 0},
+            {value: ')', terminal: true}
+        ]);
 
-    if (tokenStream.assertNextValue('define')) {
+};
 
-        var variable;
+// <sequence> -> <command>* <expression>
+// <command> -> <expression>
+parse['sequence'] = function(tokenStream) {
 
-        // <definition> -> (define (<variable> <def formals>) <body>)
-        if (tokenStream.assertNextType('(')) {
+    return rhs('sequence', tokenStream,
+        {value: 'expression', name: 'command', atLeast: 0},
+        {value: 'expression'});
+};
 
-            if (!(variable = parse['variable'](tokenStream)).success)
-                return variable;
-            var defFormals = parse['def-formals'](tokenStream);
-        } 
+// <conditional> -> (if <test> <consequent> <alternate>)
+// <test> -> <expression>
+// <consequent> -> <expression>
+// <alternate> -> <expression> | <empty>
+parse['conditional'] = function(tokenStream) {
 
-        // <definition> -> (define <variable> <expression>)
-        else {
+    return alternation('conditional', tokenStream,
+        [
+            {value: '(', terminal: true},
+            {value: 'if', terminal: true},
+            {value: 'expression', name: 'test'},
+            {value: 'expression', name: 'consequent'},
+            {value: 'expression', name: 'alternate'},
+            {value: ')', terminal: true}
+        ],
+        [
+            {value: '(', terminal: true},
+            {value: 'if', terminal: true},
+            {value: 'expression', name: 'test'},
+            {value: 'expression', name: 'consequent'},
+            {value: ')', terminal: true}
+        ]);
+};
 
 
-        }
+// <assignment> -> (set! <variable> <expression>)
+parse['assignment'] = function(tokenStream) {
 
-    }
+    return rhs('assignment', tokenStream,
+        {value: '(', terminal: true},
+        {value: 'set!', terminal: true},
+        {value: 'variable'},
+        {value: 'expression'},
+        {value: ')', terminal: true});
+};
 
-    // <definition> -> (begin <definition>*)
-    else if (tokenStream.assertNextValue('begin')) {
+// <macro use> -> (<keyword> <datum>*)
+// <keyword> -> <identifier>
+parse['macro-use'] = function(tokenStream) {
 
-    } else return parseError('definition', 'expected define or begin');
-
+    return rhs('macro-use', tokenStream,
+        {value: '(', terminal: true},
+        {value: function(token) {
+            return token.tokenType === 'identifier';
+        }, name: 'keyword', terminal: true},
+        {value: 'datum', atLeast: 0},
+        {value: ')', terminal: true});
 };
 
 console.log(parse['expression']());
