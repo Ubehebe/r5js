@@ -621,7 +621,126 @@ scanner.runTests = function() {
 //scanner.runTests();
 
 
-var parse = {};
+function Parser(text) {
+    this.text = text;
+    this.textOffset = 0;
+    this.readyTokens = [];
+    this.nextTokenToReturn = 0;
+    this.curLhs = 'expression'; // 'program'?
+}
+
+Parser.prototype.nextToken = function() {
+    while (this.nextTokenToReturn >= this.readyTokens.length) {
+        var token = scanner.nextToken(this.text, this.textOffset);
+        this.readyTokens.push(token);
+        this.textOffset = token.offset;
+    }
+    return this.readyTokens[this.nextTokenToReturn++];
+};
+
+Parser.prototype.assertNextToken = function(predicate) {
+    var n = this.nextToken();
+    return predicate(n) ? n : this.backup(n, 'expected ' + predicate);
+};
+
+Parser.prototype.assertNextTokenValue = function(value) {
+    var n = this.nextToken();
+    return n.value === value ? n : this.backup(n, 'expected ' + value);
+};
+
+Parser.prototype.backup = function(token, msg) {
+    this.nextTokenToReturn--;
+    return {success: false, offset: token.offset, msg: msg || 'parse error'};
+};
+
+Parser.prototype.nonterminal = {};
+
+Parser.prototype.rhs = function() { // varargs
+    var ans = {success: true, type: this.curLhs};
+    var parseFunction;
+
+    for (var i = 0; i < arguments.length; ++i) {
+        var element = arguments[i];
+        /* Prefer an explicit node name, but if none is given, default
+         to the type. This is to simplify rules like <command> -> <expression>
+         where we want to parse an expression but have the node say it is a "command".
+         */
+        element.nodeName = element.nodeName || element.type;
+        this.curLhs = element.type;
+        var cur = (parseFunction = this.nonterminal[element.type])
+            ? handleNonterminal(ans, element, parseFunction)
+            : handleTerminal(ans, element);
+        if (!cur.success)
+            return cur;
+    }
+
+    return ans;
+
+    function handleNonterminal(ansBuffer, element, parseFunction) {
+
+        // Handle * and +
+        if (element.atLeast !== undefined) {
+            var repeated = [];
+            var rep;
+            while ((rep = parseFunction()).success)
+                repeated.push(rep);
+
+            if (repeated.length >= element.atLeast) {
+                ansBuffer[element.nodeName] = repeated;
+                return ansBuffer;
+            } else {
+                this.nextTokenToReturn -= repeated.length;
+                return {success: false, msg: 'expected at least '
+                    + element.atLeast + element.nodeName + ', got ' + repeated.length};
+            }
+        }
+
+        // The normal case is exactly one of element.
+        else {
+            var parsed = parseFunction();
+            if (!parsed.success)
+                return parsed;
+            else {
+                ansBuffer[element.nodeName] = parsed;
+                return ansBuffer;
+            }
+        }
+    }
+
+    function handleTerminal(ans, element) {
+
+        // Note that we don't support + or * applied to terminals.
+        // This is just because the grammar of Scheme doesn't require it.
+
+        var token;
+        // Usually, we want to check the string value of the next token.
+        if (typeof element.type === 'string')
+            token = this.assertNextTokenValue(element.type);
+        // But in some situations, we check the next token against an arbitrary predicate.
+        else if (typeof element.type === 'function')
+            token = this.assertNextToken(element.type);
+
+        if (token.success) {
+            /* Most terminals, like ( and ), can be left out of the parse tree.
+             But things like identifiers we need to remember.
+             todo bl: are identifiers the *only* thing we need to remember?
+             If so, we could dispense with rememberTerminalText. */
+            if (element.rememberTerminalText)
+                ans[element.nodeName] = token.value;
+            return ans;
+        } else return token;
+    }
+};
+
+Parser.prototype.alternation = function() {
+    var possibleRhs;
+    for (var i = 0; i < arguments.length; ++i) {
+        possibleRhs = this.rhs.apply(this, arguments[i]); // todo bl possible varargs problem
+        if (possibleRhs.success)
+            return possibleRhs;
+    }
+    return possibleRhs;
+}
 
 function isSyntacticKeyword(str) {
     var kws = ['else', '=>', 'define', 'unquote', 'unquote-splicing', 'quote', 'lambda',
@@ -634,43 +753,6 @@ function isSyntacticKeyword(str) {
 
     return false;
 }
-
-function TokenStream(text) {
-    this.text = text;
-    this.textOffset = 0;
-    this.readyTokens = [];
-    this.nextTokenToReturn = 0;
-    this.next = function() {
-        while (this.nextTokenToReturn >= this.readyTokens.length) {
-            var token = scanner.nextToken(this.text, this.textOffset);
-            this.readyTokens.push(token);
-            this.textOffset = token.offset;
-        }
-        return this.readyTokens[this.nextTokenToReturn++];
-    };
-    this.putBack = function(tokens) {
-        // should never go negative...i hope
-        this.nextTokenToReturn -= tokens.length;
-    };
-    this.backup = function(numToReject) {
-        this.nextTokenToReturn -= (numToReject || 1);
-        return null; // because backup is usually called in failure contexts
-    };
-    this.assertNextType = function(type) {
-        var n = this.next();
-        return n.tokenType === type ? n : this.backup();
-    };
-    this.assertNextValue = function(value) {
-        var n = this.next();
-        return n.value === value ? n : this.backup();
-    };
-    this.assertNext = function(predicate) {
-        var n = this.next();
-        return predicate(n) ? n : this.backup();
-    }
-}
-
-var tokenStream = new TokenStream("hello");
 
 function InternalParserError(msg) {
     this.msg = msg;
@@ -687,52 +769,6 @@ function parseOk(type, attrs) {
     return ans;
 }
 
-function parseError(type, msg) {
-    // todo bl this HAS to rewind the token stream!
-    return {success: false, type: type, msg: msg || 'parse error'};
-}
-
-function alternation(lhs, tokenStream) {
-    var possibleRhs;
-    for (var i = 2; i < arguments.length; ++i) {
-        possibleRhs = rhs.apply(null, [lhs, tokenStream].concat(arguments[i])); // todo bl varargs problem
-        if (possibleRhs.success)
-            return possibleRhs;
-    }
-    return possibleRhs;
-}
-
-function rhs(lhsName, tokenStream) {
-    var ans = {success: true, type: lhsName};
-    for (var i = 2; i < arguments.length; ++i) {
-        var element = arguments[i];
-
-        // Invoke the scanner
-        if (element.terminal) {
-
-            // todo bl test for presence of atLeast: 0, 1 for * and +
-
-            /* todo bl figure out how to determine the type of value -- it can be
-             either a string, so that we compare the next token to it, or a function,
-             which we use as a predicate.
-             */
-
-            if (!tokenStream.assertNextValue(element.value))
-                return parseError(lhsName, 'expected ' + element.value);
-        }
-
-        // Invoke the parser
-        else {
-            var parsed = parse[element.value](tokenStream);
-            if (!parsed.success)
-                return parsed;
-            else
-                ans[element.value] = parsed;
-        }
-    }
-    return ans;
-}
-
 
 /* <expression> -> <variable>
  | <literal>
@@ -744,171 +780,174 @@ function rhs(lhsName, tokenStream) {
  | <macro use>
  | <macro block>
  */
-parse['expression'] = function(tokenStream) {
-    return alternation('expression', tokenStream,
+Parser.prototype.nonterminal['expression'] = function() {
+    return this.alternation(
         [
-            {value: 'variable'}
+            {type: 'variable'}
         ],
         [
-            {value: 'literal'}
+            {type: 'literal'}
         ],
         [
-            {value: 'procedure-call'}
+            {type: 'procedure-call'}
         ],
         [
-            {value: 'lambda-expression'}
+            {type: 'lambda-expression'}
         ],
         [
-            {value: 'conditional'}
+            {type: 'conditional'}
         ],
         [
-            {value: 'assignment'}
+            {type: 'assignment'}
         ],
         [
-            {value: 'derived-expression'}
+            {type: 'derived-expression'}
         ],
         [
-            {value: 'macro-use'}
+            {type: 'macro-use'}
         ],
         [
-            {value: 'macro-block'}
+            {type: 'macro-block'}
         ]);
 };
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
-parse['variable'] = function(tokenStream) {
-    return rhs('variable', tokenStream,
-        {value: function(token) {
+Parser.prototype.nonterminal['variable'] = function() {
+    return this.rhs({type: function(token) {
             return token.tokenType === 'identifier'
                 && !isSyntacticKeyword(token.value);
-        }, terminal: true}
+        }, nodeName: 'identifier', rememberTerminalText: true}
     );
 };
 
 // <literal> -> <quotation> | <self-evaluating>
-parse['literal'] = function(tokenStream) {
-    return alternation('literal', tokenStream,
+Parser.prototype.nonterminal['literal'] = function() {
+    return this.alternation(
         [
-            {value: 'quotation'}
+            {type: 'quotation'}
         ],
         [
-            {value: 'self-evaluating'}
+            {type: 'self-evaluating'}
         ]);
 };
 
 // <quotation> -> '<datum> | (quote <datum>)
-parse['quotation'] = function(tokenStream) {
+Parser.prototype.nonterminal['quotation'] = function() {
 
-    return alternation('quotation', tokenStream,
+    return this.alternation(
         [
-            {value: "'", terminal: true},
-            {value: 'datum', terminal: false}
+            {type: "'"},
+            {type: 'datum'}
         ],
         [
-            {value: '(', terminal: true},
-            {value: 'quote', terminal: true},
-            {value: 'datum', terminal: false}
+            {type: '('},
+            {type: 'quote'},
+            {type: 'datum'},
+            {type: ')'}
         ]);
 };
 
-parse['self-evaluating'] = function(tokenStream) {
-    var token = tokenStream.assertNext(function(t) {
-        switch (t.tokenType) {
-            case 'number':
-            case 'boolean':
-            case 'string':
-            case 'character':
-                return true;
-            default:
-                return false;
-        }
-    });
-    return token
-        ? parseOk('self-evaluating', {subtype: token.type, text: token.value})
-        : parseError('self-evaluating', 'not a self-evaluating type');
+// <self-evaluating> -> <boolean> | <number> | <character> | <string>
+Parser.prototype.nonterminal['self-evaluating'] = function() {
+
+    return this.alternation(
+        [
+            {type: 'boolean', rememberTerminalText: true}
+        ],
+        [
+            {type: 'number', rememberTerminalText: true}
+        ],
+        [
+            {type: 'character', rememberTerminalText: true}
+        ],
+        [
+            {type: 'string', rememberTerminalText: true}
+        ]
+    );
+
 };
 
 // <datum> -> <simple datum> | <compound datum>
-parse['datum'] = function(tokenStream) {
-    return alternation('datum', tokenStream,
+Parser.prototype.nonterminal['datum'] = function() {
+    return this.alternation(
         [
-            {value: 'simple-datum'}
+            {type: 'simple-datum'}
         ],
         [
-            {value: 'compound-datum'}
+            {type: 'compound-datum'}
         ]);
 };
 
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
 // <symbol> -> <identifier>
-parse['simple-datum'] = function(tokenStream) {
+Parser.prototype.nonterminal['simple-datum'] = function() {
 
-    return alternation('simple-datum', tokenStream,
+    return this.alternation(
         [
-            {value: 'boolean', terminal: true}
+            {type: 'boolean', rememberTerminalText: true}
         ],
         [
-            {value: 'number', terminal: true}
+            {type: 'number', rememberTerminalText: true}
         ],
         [
-            {value: 'character', terminal: true}
+            {type: 'character', rememberTerminalText: true}
         ],
         [
-            {value: 'string', terminal: true}
+            {type: 'string', rememberTerminalText: true}
         ],
         [
-            {value: 'identifier', terminal: true}
+            {type: 'identifier', nodeName: 'symbol', rememberTerminalText: true}
         ]);
 };
 
 // <compound datum> -> <list> | <vector>
-parse['compound-datum'] = function(tokenStream) {
-    return alternation('compound-datum', tokenStream,
+Parser.prototype.nonterminal['compound-datum'] = function() {
+    return this.alternation(
         [
-            {value: 'list'}
+            {type: 'list'}
         ],
         [
-            {value: 'vector'}
+            {type: 'vector'}
         ]);
 };
 
 // <list> -> (<datum>*) | (<datum>+ . <datum>) | <abbreviation>
-parse['list'] = function(tokenStream) {
+Parser.prototype.nonterminal['list'] = function() {
 
-    return alternation('list', tokenStream,
+    return this.alternation(
         [
-            {value: '(', terminal: true},
-            {value: 'datum', atLeast: 0},
-            {value: ')', terminal: true}
+            {type: '('},
+            {type: 'datum', atLeast: 0},
+            {type: ')'}
         ],
         [
-            {value: '(', terminal: true},
-            {value: 'datum', atLeast: 1},
-            {value: '.', terminal: true},
-            {value: 'datum'},
-            {value: ')', terminal: true}
+            {type: '('},
+            {type: 'datum', atLeast: 1},
+            {type: '.'},
+            {type: 'datum'},
+            {type: ')'}
         ],
         [
-            {value: 'abbreviation'}
+            {type: 'abbreviation'}
         ]);
 };
 
 // <vector> -> #(<datum>*)
-parse['vector'] = function(tokenStream) {
+Parser.prototype.nonterminal['vector'] = function() {
 
-    return rhs('vector', tokenStream,
-        {value: '#(', terminal: true},
-        {value: 'datum', atLeast: 0},
-        {value: ')', terminal: true}
+    return this.rhs(
+        {type: '#('},
+        {type: 'datum', atLeast: 0},
+        {type: ')'}
     );
 };
 
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
-parse['abbreviation'] = function(tokenStream) {
+Parser.prototype.nonterminal['abbreviation'] = function() {
 
-    return rhs('abbreviation', tokenStream,
-        {value: function(token) {
+    return this.rhs(
+        {type: function(token) {
             switch (token.tokenType) {
                 case "'":
                 case '`':
@@ -918,154 +957,152 @@ parse['abbreviation'] = function(tokenStream) {
                 default:
                     return false;
             }
-        }, terminal: true},
-        {value: 'datum'}
+        }, nodeName: 'abbrev-prefix', rememberTerminalText: true},
+        {type: 'datum'}
     );
 };
 
 // <procedure call> -> (<operator> <operand>*)
 // <operator> -> <expression>
 // <operand> -> <expression>
-parse['procedure-call'] = function(tokenStream) {
+Parser.prototype.nonterminal['procedure-call'] = function() {
 
-    return rhs('procedure-call', tokenStream,
-        {value: '(', terminal: true},
-        {value: 'expression', name: 'operator'}, // todo bl support name aliases
-        {value: 'expression', name: 'operand', atLeast: 0},
-        {value: ')', terminal: true});
+    return this.rhs(
+        {type: '('},
+        {type: 'expression', nodeName: 'operator'},
+        {type: 'expression', nodeName: 'operand', atLeast: 0},
+        {type: ')'});
 };
 
 // <lambda expression> -> (lambda <formals> <body>)
-parse['lambda-expression'] = function(tokenStream) {
+Parser.prototype.nonterminal['lambda-expression'] = function() {
 
-    return rhs('lambda-expression', tokenStream,
-        {value: '(', terminal: true},
-        {value: 'lambda', terminal: true},
-        {value: 'formals'},
-        {value: 'body'},
-        {value: ')', terminal: true});
+    return this.rhs(
+        {type: '('},
+        {type: 'lambda'},
+        {type: 'formals'},
+        {type: 'body'},
+        {type: ')'});
 };
 
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
-parse['formals'] = function(tokenStream) {
+Parser.prototype.nonterminal['formals'] = function() {
 
-    return alternation('formals', tokenStream,
+    return this.alternation(
         [
-            {value: '(', terminal: true},
-            {value: 'variable', atLeast: 0},
-            {value: ')', terminal: true}
+            {type: '('},
+            {type: 'variable', atLeast: 0},
+            {type: ')'}
         ],
         [
-            {value: 'variable'}
+            {type: 'variable'}
         ],
         [
-            {value: '(', terminal: true},
-            {value: 'variable', atLeast: 1},
-            {value: '.', terminal: true},
-            {value: 'variable'},
-            {value: ')', terminal: true}
+            {type: '('},
+            {type: 'variable', atLeast: 1},
+            {type: '.'},
+            {type: 'variable'},
+            {type: ')'}
         ]);
 };
 
 // <body> -> <definition>* <sequence>
-parse['body'] = function(tokenStream) {
+Parser.prototype.nonterminal['body'] = function() {
 
-    return rhs('body', tokenStream,
-        {value: 'definition', atLeast: 0},
-        {value: 'sequence'});
+    return this.rhs(
+        {type: 'definition', atLeast: 0},
+        {type: 'sequence'});
 };
 
 /* <definition> -> (define <variable> <expression>)
  | (define (<variable> <def formals>) <body>)
  | (begin <definition>*)
  */
-parse['definition'] = function(tokenStream) {
+Parser.prototype.nonterminal['definition'] = function() {
 
-    return alternation('definition', tokenStream,
+    return this.alternation(
         [
-            {value: '(', terminal: true},
-            {value: 'define', terminal: true},
-            {value: 'variable'},
-            {value: 'expression'},
-            {value: ')', terminal: true}
+            {type: '('},
+            {type: 'define'},
+            {type: 'variable'},
+            {type: 'expression'},
+            {type: ')'}
         ],
         [
-            {value: '(', terminal: true},
-            {value: 'define', terminal: true},
-            {value: '(', terminal: true},
-            {value: 'variable'},
-            {value: 'def-formals'},
-            {value: ')', terminal: true},
-            {value: 'body'},
-            {value: ')', terminal: true}
+            {type: '('},
+            {type: 'define'},
+            {type: '('},
+            {type: 'variable'},
+            {type: 'def-formals'},
+            {type: ')'},
+            {type: 'body'},
+            {type: ')'}
         ],
         [
-            {value: '(', terminal: true},
-            {value: 'begin', terminal: true},
-            {value: 'definition', atLeast: 0},
-            {value: ')', terminal: true}
+            {type: '('},
+            {type: 'begin'},
+            {type: 'definition', atLeast: 0},
+            {type: ')'}
         ]);
 
 };
 
 // <sequence> -> <command>* <expression>
 // <command> -> <expression>
-parse['sequence'] = function(tokenStream) {
+Parser.prototype.nonterminal['sequence'] = function() {
 
-    return rhs('sequence', tokenStream,
-        {value: 'expression', name: 'command', atLeast: 0},
-        {value: 'expression'});
+    return this.rhs(
+        {type: 'expression', nodeName: 'command', atLeast: 0},
+        {type: 'expression'});
 };
 
 // <conditional> -> (if <test> <consequent> <alternate>)
 // <test> -> <expression>
 // <consequent> -> <expression>
 // <alternate> -> <expression> | <empty>
-parse['conditional'] = function(tokenStream) {
+Parser.prototype.nonterminal['conditional'] = function() {
 
-    return alternation('conditional', tokenStream,
+    return this.alternation(
         [
-            {value: '(', terminal: true},
-            {value: 'if', terminal: true},
-            {value: 'expression', name: 'test'},
-            {value: 'expression', name: 'consequent'},
-            {value: 'expression', name: 'alternate'},
-            {value: ')', terminal: true}
+            {type: '('},
+            {type: 'if'},
+            {type: 'expression', nodeName: 'test'},
+            {type: 'expression', nodeName: 'consequent'},
+            {type: 'expression', nodeName: 'alternate'},
+            {type: ')'}
         ],
         [
-            {value: '(', terminal: true},
-            {value: 'if', terminal: true},
-            {value: 'expression', name: 'test'},
-            {value: 'expression', name: 'consequent'},
-            {value: ')', terminal: true}
+            {type: '('},
+            {type: 'if'},
+            {type: 'expression', nodeName: 'test'},
+            {type: 'expression', nodeName: 'consequent'},
+            {type: ')'}
         ]);
 };
 
-
 // <assignment> -> (set! <variable> <expression>)
-parse['assignment'] = function(tokenStream) {
+Parser.prototype.nonterminal['assignment'] = function() {
 
-    return rhs('assignment', tokenStream,
-        {value: '(', terminal: true},
-        {value: 'set!', terminal: true},
-        {value: 'variable'},
-        {value: 'expression'},
-        {value: ')', terminal: true});
+    return this.rhs(
+        {type: '('},
+        {type: 'set!'},
+        {type: 'variable'},
+        {type: 'expression'},
+        {type: ')'});
 };
 
 // <macro use> -> (<keyword> <datum>*)
 // <keyword> -> <identifier>
-parse['macro-use'] = function(tokenStream) {
+Parser.prototype.nonterminal['macro-use'] = function() {
 
-    return rhs('macro-use', tokenStream,
-        {value: '(', terminal: true},
-        {value: function(token) {
+    return this.rhs(
+        {type: '('},
+        {type: function(token) {
             return token.tokenType === 'identifier';
-        }, name: 'keyword', terminal: true},
-        {value: 'datum', atLeast: 0},
-        {value: ')', terminal: true});
+        }, nodeName: 'keyword', rememberTerminalText: true},
+        {type: 'datum', atLeast: 0},
+        {type: ')'});
 };
 
 console.log(parse['expression']());
-
 
