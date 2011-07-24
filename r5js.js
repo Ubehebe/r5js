@@ -1,4 +1,4 @@
-var scanner = {};
+var scanner = {}; // todo bl make object-oriented
 
 scanner.nextToken = function(text, offset) {
 
@@ -653,11 +653,11 @@ Parser.prototype.backup = function(token, msg) {
     return {success: false, offset: token.offset, msg: msg || 'parse error'};
 };
 
-Parser.prototype.nonterminal = {};
-
 Parser.prototype.rhs = function() { // varargs
     var ans = {success: true, type: this.curLhs};
     var parseFunction;
+
+    console.log(this.curLhs + ' ->');
 
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
@@ -666,70 +666,76 @@ Parser.prototype.rhs = function() { // varargs
          where we want to parse an expression but have the node say it is a "command".
          */
         element.nodeName = element.nodeName || element.type;
-        this.curLhs = element.type;
-        var cur = (parseFunction = this.nonterminal[element.type])
-            ? handleNonterminal(ans, element, parseFunction)
-            : handleTerminal(ans, element);
-        if (!cur.success)
+        console.log('-> ' + element.nodeName + '?')
+        this.curLhs = (typeof element.type === 'function') ? element.nodeName : element.type;
+        var cur = (parseFunction = this[element.type]) // unfortunate the nonterminals share a namespace with other stuff
+            ? this.handleNonterminal(ans, element, parseFunction)
+            : this.handleTerminal(ans, element);
+        if (!cur.success) {
+            console.log('abort ' + element.nodeName);
             return cur;
+        }
     }
 
     return ans;
+};
 
-    function handleNonterminal(ansBuffer, element, parseFunction) {
+Parser.prototype.handleNonterminal = function(ansBuffer, element, parseFunction) {
 
-        // Handle * and +
-        if (element.atLeast !== undefined) {
-            var repeated = [];
-            var rep;
-            while ((rep = parseFunction()).success)
-                repeated.push(rep);
+    // Handle * and +
+    if (element.atLeast !== undefined) {
+        var repeated = [];
+        var rep;
+        while ((rep = parseFunction.apply(this)).success)
+            repeated.push(rep);
 
-            if (repeated.length >= element.atLeast) {
-                ansBuffer[element.nodeName] = repeated;
-                return ansBuffer;
-            } else {
-                this.nextTokenToReturn -= repeated.length;
-                return {success: false, msg: 'expected at least '
-                    + element.atLeast + element.nodeName + ', got ' + repeated.length};
-            }
+        if (repeated.length >= element.atLeast) {
+            ansBuffer[element.nodeName] = repeated;
+            return ansBuffer;
+        } else {
+            this.nextTokenToReturn -= repeated.length;
+            return {success: false, msg: 'expected at least '
+                + element.atLeast + element.nodeName + ', got ' + repeated.length};
         }
+    }
 
-        // The normal case is exactly one of element.
+    // The normal case is exactly one of element.
+    else {
+        var parsed = parseFunction.apply(this);
+        if (!parsed.success)
+            return parsed;
         else {
-            var parsed = parseFunction();
-            if (!parsed.success)
-                return parsed;
-            else {
-                ansBuffer[element.nodeName] = parsed;
-                return ansBuffer;
-            }
+            ansBuffer[element.nodeName] = parsed;
+            return ansBuffer;
         }
     }
+};
 
-    function handleTerminal(ans, element) {
+Parser.prototype.handleTerminal = function(ansBuffer, element) {
 
-        // Note that we don't support + or * applied to terminals.
-        // This is just because the grammar of Scheme doesn't require it.
+    console.log('handleTerminal ' + element.nodeName);
 
-        var token;
-        // Usually, we want to check the string value of the next token.
-        if (typeof element.type === 'string')
-            token = this.assertNextTokenValue(element.type);
-        // But in some situations, we check the next token against an arbitrary predicate.
-        else if (typeof element.type === 'function')
-            token = this.assertNextToken(element.type);
+    // Note that we don't support + or * applied to terminals.
+    // This is just because the grammar of Scheme doesn't require it.
 
-        if (token.success) {
-            /* Most terminals, like ( and ), can be left out of the parse tree.
-             But things like identifiers we need to remember.
-             todo bl: are identifiers the *only* thing we need to remember?
-             If so, we could dispense with rememberTerminalText. */
-            if (element.rememberTerminalText)
-                ans[element.nodeName] = token.value;
-            return ans;
-        } else return token;
-    }
+    var token;
+    // Usually, we want to check the string value of the next token.
+    if (typeof element.type === 'string')
+        token = this.assertNextTokenValue(element.type);
+    // But in some situations, we check the next token against an arbitrary predicate.
+    else if (typeof element.type === 'function')
+        token = this.assertNextToken(element.type);
+
+    if (token.success) {
+        console.log('success!');
+        /* Most terminals, like ( and ), can be left out of the parse tree.
+         But things like identifiers we need to remember.
+         todo bl: are identifiers the *only* thing we need to remember?
+         If so, we could dispense with rememberTerminalText. */
+        if (element.rememberTerminalText)
+            ansBuffer[element.nodeName] = token.value;
+        return ansBuffer;
+    } else return token;
 };
 
 Parser.prototype.alternation = function() {
@@ -740,7 +746,7 @@ Parser.prototype.alternation = function() {
             return possibleRhs;
     }
     return possibleRhs;
-}
+};
 
 function isSyntacticKeyword(str) {
     var kws = ['else', '=>', 'define', 'unquote', 'unquote-splicing', 'quote', 'lambda',
@@ -754,22 +760,6 @@ function isSyntacticKeyword(str) {
     return false;
 }
 
-function InternalParserError(msg) {
-    this.msg = msg;
-}
-
-function parseOk(type, attrs) {
-    var ans = {success: true, type: type};
-    for (var k in attrs) {
-        if (!ans[k])
-            ans[k] = attrs[k];
-        else throw new InternalParserError('attempting to redefine attribute '
-            + k + ', previous value was ' + ans[k] + '. should never happen');
-    }
-    return ans;
-}
-
-
 /* <expression> -> <variable>
  | <literal>
  | <procedure call>
@@ -780,7 +770,7 @@ function parseOk(type, attrs) {
  | <macro use>
  | <macro block>
  */
-Parser.prototype.nonterminal['expression'] = function() {
+Parser.prototype['expression'] = function() {
     return this.alternation(
         [
             {type: 'variable'}
@@ -805,14 +795,14 @@ Parser.prototype.nonterminal['expression'] = function() {
         ],
         [
             {type: 'macro-use'}
-        ],
-        [
-            {type: 'macro-block'}
         ]);
+      /*  [
+            {type: 'macro-block'}
+        ]);*/
 };
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
-Parser.prototype.nonterminal['variable'] = function() {
+Parser.prototype['variable'] = function() {
     return this.rhs({type: function(token) {
             return token.tokenType === 'identifier'
                 && !isSyntacticKeyword(token.value);
@@ -821,7 +811,7 @@ Parser.prototype.nonterminal['variable'] = function() {
 };
 
 // <literal> -> <quotation> | <self-evaluating>
-Parser.prototype.nonterminal['literal'] = function() {
+Parser.prototype['literal'] = function() {
     return this.alternation(
         [
             {type: 'quotation'}
@@ -832,7 +822,7 @@ Parser.prototype.nonterminal['literal'] = function() {
 };
 
 // <quotation> -> '<datum> | (quote <datum>)
-Parser.prototype.nonterminal['quotation'] = function() {
+Parser.prototype['quotation'] = function() {
 
     return this.alternation(
         [
@@ -848,7 +838,7 @@ Parser.prototype.nonterminal['quotation'] = function() {
 };
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
-Parser.prototype.nonterminal['self-evaluating'] = function() {
+Parser.prototype['self-evaluating'] = function() {
 
     return this.alternation(
         [
@@ -868,7 +858,7 @@ Parser.prototype.nonterminal['self-evaluating'] = function() {
 };
 
 // <datum> -> <simple datum> | <compound datum>
-Parser.prototype.nonterminal['datum'] = function() {
+Parser.prototype['datum'] = function() {
     return this.alternation(
         [
             {type: 'simple-datum'}
@@ -880,7 +870,7 @@ Parser.prototype.nonterminal['datum'] = function() {
 
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
 // <symbol> -> <identifier>
-Parser.prototype.nonterminal['simple-datum'] = function() {
+Parser.prototype['simple-datum'] = function() {
 
     return this.alternation(
         [
@@ -901,7 +891,7 @@ Parser.prototype.nonterminal['simple-datum'] = function() {
 };
 
 // <compound datum> -> <list> | <vector>
-Parser.prototype.nonterminal['compound-datum'] = function() {
+Parser.prototype['compound-datum'] = function() {
     return this.alternation(
         [
             {type: 'list'}
@@ -912,7 +902,7 @@ Parser.prototype.nonterminal['compound-datum'] = function() {
 };
 
 // <list> -> (<datum>*) | (<datum>+ . <datum>) | <abbreviation>
-Parser.prototype.nonterminal['list'] = function() {
+Parser.prototype['list'] = function() {
 
     return this.alternation(
         [
@@ -933,7 +923,7 @@ Parser.prototype.nonterminal['list'] = function() {
 };
 
 // <vector> -> #(<datum>*)
-Parser.prototype.nonterminal['vector'] = function() {
+Parser.prototype['vector'] = function() {
 
     return this.rhs(
         {type: '#('},
@@ -944,7 +934,7 @@ Parser.prototype.nonterminal['vector'] = function() {
 
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
-Parser.prototype.nonterminal['abbreviation'] = function() {
+Parser.prototype['abbreviation'] = function() {
 
     return this.rhs(
         {type: function(token) {
@@ -965,7 +955,7 @@ Parser.prototype.nonterminal['abbreviation'] = function() {
 // <procedure call> -> (<operator> <operand>*)
 // <operator> -> <expression>
 // <operand> -> <expression>
-Parser.prototype.nonterminal['procedure-call'] = function() {
+Parser.prototype['procedure-call'] = function() {
 
     return this.rhs(
         {type: '('},
@@ -975,7 +965,7 @@ Parser.prototype.nonterminal['procedure-call'] = function() {
 };
 
 // <lambda expression> -> (lambda <formals> <body>)
-Parser.prototype.nonterminal['lambda-expression'] = function() {
+Parser.prototype['lambda-expression'] = function() {
 
     return this.rhs(
         {type: '('},
@@ -986,7 +976,7 @@ Parser.prototype.nonterminal['lambda-expression'] = function() {
 };
 
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
-Parser.prototype.nonterminal['formals'] = function() {
+Parser.prototype['formals'] = function() {
 
     return this.alternation(
         [
@@ -1007,7 +997,7 @@ Parser.prototype.nonterminal['formals'] = function() {
 };
 
 // <body> -> <definition>* <sequence>
-Parser.prototype.nonterminal['body'] = function() {
+Parser.prototype['body'] = function() {
 
     return this.rhs(
         {type: 'definition', atLeast: 0},
@@ -1018,7 +1008,7 @@ Parser.prototype.nonterminal['body'] = function() {
  | (define (<variable> <def formals>) <body>)
  | (begin <definition>*)
  */
-Parser.prototype.nonterminal['definition'] = function() {
+Parser.prototype['definition'] = function() {
 
     return this.alternation(
         [
@@ -1049,7 +1039,7 @@ Parser.prototype.nonterminal['definition'] = function() {
 
 // <sequence> -> <command>* <expression>
 // <command> -> <expression>
-Parser.prototype.nonterminal['sequence'] = function() {
+Parser.prototype['sequence'] = function() {
 
     return this.rhs(
         {type: 'expression', nodeName: 'command', atLeast: 0},
@@ -1060,7 +1050,7 @@ Parser.prototype.nonterminal['sequence'] = function() {
 // <test> -> <expression>
 // <consequent> -> <expression>
 // <alternate> -> <expression> | <empty>
-Parser.prototype.nonterminal['conditional'] = function() {
+Parser.prototype['conditional'] = function() {
 
     return this.alternation(
         [
@@ -1081,7 +1071,7 @@ Parser.prototype.nonterminal['conditional'] = function() {
 };
 
 // <assignment> -> (set! <variable> <expression>)
-Parser.prototype.nonterminal['assignment'] = function() {
+Parser.prototype['assignment'] = function() {
 
     return this.rhs(
         {type: '('},
@@ -1093,7 +1083,7 @@ Parser.prototype.nonterminal['assignment'] = function() {
 
 // <macro use> -> (<keyword> <datum>*)
 // <keyword> -> <identifier>
-Parser.prototype.nonterminal['macro-use'] = function() {
+Parser.prototype['macro-use'] = function() {
 
     return this.rhs(
         {type: '('},
@@ -1104,5 +1094,11 @@ Parser.prototype.nonterminal['macro-use'] = function() {
         {type: ')'});
 };
 
-console.log(parse['expression']());
+Parser.prototype.parse = function() {
+    return this[this.curLhs = 'expression']();
+};
+
+var p = new Parser('(+ x y)');
+console.log(p.parse());
+
 
