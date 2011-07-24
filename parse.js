@@ -3,7 +3,7 @@ function Parser(text) {
     this.textOffset = 0;
     this.readyTokens = [];
     this.nextTokenToReturn = 0;
-    this.curLhs = 'expression'; // 'program'?
+    this.curLhs = 'program';
 }
 
 Parser.prototype.nextToken = function() {
@@ -17,13 +17,11 @@ Parser.prototype.nextToken = function() {
 
 Parser.prototype.assertNextToken = function(predicate) {
     var n = this.nextToken();
-    console.log('READ TOKEN ' + n.value);
     return predicate(n) ? n : this.fail(n, 'expected ' + predicate);
 };
 
 Parser.prototype.assertNextTokenValue = function(value) {
     var n = this.nextToken();
-    console.log('READ TOKEN ' + n.value);
     return n.value === value ? n : this.fail(n, 'expected ' + value);
 };
 
@@ -36,10 +34,7 @@ Parser.prototype.rhs = function() { // varargs
     var parseFunction;
 
     var oldLhs = this.curLhs;
-
     var tokenStreamStart = this.nextTokenToReturn;
-
-    console.log(this.curLhs + ' ->');
 
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
@@ -48,7 +43,6 @@ Parser.prototype.rhs = function() { // varargs
          where we want to parse an expression but have the node say it is a "command".
          */
         element.nodeName = element.nodeName || element.type;
-        console.log('-> ' + element.nodeName + '?')
         this.curLhs = (typeof element.type === 'function') ? element.nodeName : element.type; // todo bl cleanup
         var cur = (parseFunction = this[element.type]) // unfortunate the nonterminals share a namespace with other stuff
             ? this.handleNonterminal(ans, element, parseFunction)
@@ -96,8 +90,6 @@ Parser.prototype.handleNonterminal = function(ansBuffer, element, parseFunction)
 
 Parser.prototype.handleTerminal = function(ansBuffer, element) {
 
-    console.log('handleTerminal ' + element.nodeName);
-
     // Note that we don't support + or * applied to terminals.
     // This is just because the grammar of Scheme doesn't require it.
 
@@ -110,7 +102,6 @@ Parser.prototype.handleTerminal = function(ansBuffer, element) {
         token = this.assertNextToken(element.type);
 
     if (!token.fail) {
-        console.log('success!');
         /* Most terminals, like ( and ), can be left out of the parse tree.
          But things like identifiers we need to remember.
          todo bl: are identifiers the *only* thing we need to remember?
@@ -178,10 +169,10 @@ Parser.prototype['expression'] = function() {
         ],
         [
             {type: 'macro-use'}
+        ],
+        [
+            {type: 'macro-block'}
         ]);
-    /*  [
-     {type: 'macro-block'}
-     ]);*/
 };
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
@@ -487,6 +478,226 @@ Parser.prototype['macro-use'] = function() {
         {type: ')'});
 };
 
+/* <macro block> -> (let-syntax (<syntax spec>*) <body>)
+ | (letrec-syntax (<syntax-spec>*) <body>) */
+Parser.prototype['macro-block'] = function() {
+    return this.alternation(
+        [
+            {type: '('},
+            {type: 'let-syntax'},
+            {type: '('},
+            {type: 'syntax-spec', atLeast: 0},
+            {type: ')'},
+            {type: 'body'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'letrec-syntax'},
+            {type: '('},
+            {type: 'syntax-spec', atLeast: 0},
+            {type: ')'},
+            {type: 'body'},
+            {type: ')'}
+        ]);
+};
+
+// <syntax spec> -> (<keyword> <transformer spec>)
+// <keyword> -> <identifier>
+Parser.prototype['syntax-spec'] = function() {
+    return this.rhs(
+        {type: '('},
+        {type: function(token) {
+            return token.tokenType === 'identifier';
+        }, nodeName: 'keyword', rememberTerminalText: true
+        },
+        {type: 'transformer-spec'},
+        {type: ')'}
+    );
+};
+
+// <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
+Parser.prototype['transformer-spec'] = function() {
+    return this.rhs(
+        {type: '('},
+        {type: 'syntax-rules'}, // a terminal
+        {type: '('},
+        {type: function(token) {
+            return token.tokenType === 'identifier';
+        },
+            rememberTerminalText: true, atLeast: 0},
+        {type: ')'},
+        {type: 'syntax-rule', atLeast: 0}, // a nonterminal
+        {type: ')'}
+    );
+};
+
+// <syntax rule> -> (<pattern> <template>)
+Parser.prototype['syntax-rule'] = function() {
+    return this.rhs(
+        {type: '('},
+        {type: 'pattern'},
+        {type: 'template'},
+        {type: ')'}
+    );
+};
+
+/* <pattern> -> <pattern identifier>
+ | (<pattern>*)
+ | (<pattern>+ . <pattern>)
+ | (<pattern>+ <ellipsis>)
+ | #(<pattern>*)
+ | #(<pattern>+ <ellipsis>)
+ | <pattern datum>
+ */
+Parser.prototype['pattern'] = function() {
+    return this.alternation(
+        [
+            {type: 'pattern-identifier'}
+        ],
+        [
+            {type: '('},
+            {type: 'pattern', atLeast: 0},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'pattern', atLeast: 1},
+            {type: '.'},
+            {type: 'pattern'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'pattern', atLeast: 1},
+            {type: '...'},
+            {type: ')'}
+        ], // todo bl do I support the identifier ...?
+        [
+            {type: '#('},
+            {type: 'pattern', atLeast: 0},
+            {type: ')'}
+        ],
+        [
+            {type: '#('},
+            {type: 'pattern', atLeast: 1},
+            {type: '...'},
+            {type: ')'}
+        ],
+        [
+            {type: 'pattern-datum'}
+        ]
+    );
+};
+
+// <pattern datum> -> <string> | <character> | <boolean> | <number>
+Parser.prototype['pattern-datum'] = function() {
+    return this['self-evaluating'](); // any reason not to reuse this?
+};
+
+/* <template> -> <pattern identifier>
+ | (<template element>*)
+ | (<template element>+ . <template>)
+ | #(<template element>*)
+ | <template datum>
+ <template datum> -> <pattern datum>
+ */
+Parser.prototype['template'] = function() {
+    return this.alternation(
+        [
+            {type: 'pattern-identifier'}
+        ],
+        [
+            {type: '('},
+            {type: 'template-element', atLeast: 0},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'template-element', atLeast: 1},
+            {type: '.'},
+            {type: 'template'},
+            {type: ')'}
+        ],
+        [
+            {type: '#('},
+            {type: 'template-element', atLeast: 0},
+            {type: ')'}
+        ],
+        [
+            {type: 'pattern-datum', nodeName: 'template-datum'}
+        ]
+    );
+};
+
+// <template element> -> <template> | <template> <ellipsis>
+Parser.prototype['template-element'] = function() {
+    return this.alternation(
+        [
+            {type: 'template'},
+            {type: '...'}
+        ],
+        [
+            {type: 'template'}
+        ]
+    );
+};
+
+// <pattern identifier> -> <any identifier except ...>
+Parser.prototype['pattern-identifier'] = function() {
+    return this.rhs(
+        {type: function(token) {
+            return token.tokenType === 'identifier' && token.value !== '...';
+        },
+            rememberTerminalText: true
+        }
+    );
+};
+
+// <program> -> <command or definition>*
+Parser.prototype['program'] = function() {
+    return this.rhs(
+        {type: 'command-or-definition', atLeast: 0}
+    );
+};
+
+/* <command or definition> -> <command>
+ | <definition>
+ | <syntax definition>
+ | (begin <command or definition>*)
+ <command> -> <expression>
+ */
+Parser.prototype['command-or-definition'] = function() {
+    return this.alternation(
+        [
+            {type: 'expression', nodeName: 'command'}
+        ],
+        [
+            {type: 'definition'}
+        ],
+        [
+            {type: 'syntax-definition'}
+        ],
+        [
+            {type: '('},
+            {type: 'begin'},
+            {type: 'command-or-definition', atLeast: 0},
+            {type: ')'}
+        ]);
+};
+
+// <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
+Parser.prototype['syntax-definition'] = function() {
+    return this.rhs(
+        {type: '('},
+        {type: 'define-syntax'},
+        {type: 'identifier', nodeName: 'keyword', rememberTerminalText: true},
+        {type: 'transformer-spec'},
+        {type: ')'}
+    );
+};
+
+
 Parser.prototype.parse = function() {
-    return this[this.curLhs = 'expression']();
+    return this[this.curLhs = 'program']();
 };
