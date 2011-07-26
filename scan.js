@@ -522,26 +522,26 @@ scanner.nextToken = function(text, offset) {
         }
     }
 
-    function tokenize(raw) {
-        var tokens = [];
-        var offset = 0;
-        var token;
-        while (offset < raw.length) {
-            token = scan['token'](raw, offset);
-            if (token.success) {
-                tokens.push(abbrevToken(token));
-                offset = consumeIntertokenSpace(raw, token.offset);
-            } else return token;
-        }
-        return tokens;
-    }
-
     function isHash(c) {
         return c === '#';
     }
 
     return scan['token'](text, consumeIntertokenSpace(text, offset));
 
+};
+
+scanner.tokenize = function(raw) {
+    var tokens = [];
+    var offset = 0;
+    var token;
+    while (offset < raw.length) {
+        token = scanner.nextToken(raw, offset);
+        if (token.success) {
+            tokens.push(token);
+            offset = token.offset;
+        } else return token;
+    }
+    return tokens;
 };
 
 scanner.runTests = function() {
@@ -617,5 +617,7 @@ scanner.runTests = function() {
         });
 
 };
+
+//console.log(scanner.tokenize("(define x '1)"));
 
 //scanner.runTests();

@@ -90,6 +90,7 @@ Parser.prototype.handleNonterminal = function(ansBuffer, element, parseFunction)
 
 Parser.prototype.handleTerminal = function(ansBuffer, element) {
 
+
     // Note that we don't support + or * applied to terminals.
     // This is just because the grammar of Scheme doesn't require it.
 
@@ -98,8 +99,9 @@ Parser.prototype.handleTerminal = function(ansBuffer, element) {
     if (typeof element.type === 'string')
         token = this.assertNextTokenValue(element.type);
     // But in some situations, we check the next token against an arbitrary predicate.
-    else if (typeof element.type === 'function')
+    else if (typeof element.type === 'function') {
         token = this.assertNextToken(element.type);
+    }
 
     if (!token.fail) {
         /* Most terminals, like ( and ), can be left out of the parse tree.
@@ -254,20 +256,29 @@ Parser.prototype['simple-datum'] = function() {
 
     return this.alternation(
         [
-            {type: 'boolean', rememberTerminalText: true}
-        ],
-        [
-            {type: 'number', rememberTerminalText: true}
-        ],
-        [
-            {type: 'character', rememberTerminalText: true}
-        ],
-        [
-            {type: 'string', rememberTerminalText: true}
-        ],
-        [
             {type: 'identifier', nodeName: 'symbol', rememberTerminalText: true}
+        ],
+        [
+            {type: function(token) {
+                return token.tokenType === 'boolean';
+            }, nodeName: 'boolean', rememberTerminalText: true}
+        ],
+        [
+            {type: function(token) {
+                return token.tokenType === 'number';
+            }, nodeName: 'number', rememberTerminalText: true}
+        ],
+        [
+            {type: function(token) {
+                return token.tokenType === 'string';
+            }, nodeName: 'string', rememberTerminalText: true}
+        ],
+        [
+            {type: function(token) {
+                return token.tokenType === 'character';
+            }, nodeName: 'character', rememberTerminalText: true}
         ]);
+
 };
 
 // <compound datum> -> <list> | <vector>
