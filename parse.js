@@ -30,7 +30,7 @@ Parser.prototype.fail = function(token, msg) {
 };
 
 Parser.prototype.rhs = function() { // varargs
-    var ans = {type: this.curLhs};
+    var ans = {};
     var parseFunction;
 
     var oldLhs = this.curLhs;
@@ -382,7 +382,7 @@ Parser.prototype['formals'] = function() {
             {type: '('},
             {type: 'variable', atLeast: 1},
             {type: '.'},
-            {type: 'variable'},
+            {type: 'variable', nodeName: '.variable'},
             {type: ')'}
         ]);
 };
@@ -398,6 +398,7 @@ Parser.prototype['body'] = function() {
 /* <definition> -> (define <variable> <expression>)
  | (define (<variable> <def formals>) <body>)
  | (begin <definition>*)
+ <def formals> -> <variable>* | <variable>* . <variable>
  */
 Parser.prototype['definition'] = function() {
 
@@ -413,8 +414,18 @@ Parser.prototype['definition'] = function() {
             {type: '('},
             {type: 'define'},
             {type: '('},
-            {type: 'variable'},
-            {type: 'def-formals'},
+            {type: 'variable', atLeast: 0},
+            {type: '.'},
+            {type: 'variable', nodeName: '.variable'},
+            {type: ')'},
+            {type: 'body'},
+            {type: ')'}
+        ],
+          [
+            {type: '('},
+            {type: 'define'},
+            {type: '('},
+            {type: 'variable', atLeast: 0},
             {type: ')'},
             {type: 'body'},
             {type: ')'}
@@ -575,7 +586,7 @@ Parser.prototype['pattern'] = function() {
             {type: '('},
             {type: 'pattern', atLeast: 1},
             {type: '.'},
-            {type: 'pattern'},
+            {type: 'pattern', nodeName: '.pattern'},
             {type: ')'}
         ],
         [
@@ -627,7 +638,7 @@ Parser.prototype['template'] = function() {
             {type: '('},
             {type: 'template-element', atLeast: 1},
             {type: '.'},
-            {type: 'template'},
+            {type: 'template', nodeName: '.template'},
             {type: ')'}
         ],
         [
