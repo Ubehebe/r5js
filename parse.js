@@ -256,36 +256,22 @@ Parser.prototype['datum'] = function() {
 
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
 // <symbol> -> <identifier>
-// todo bl: unify with self-evaluating above?
 Parser.prototype['simple-datum'] = function() {
 
-    return this.alternation(
-        [
-            {type: function(token) {
-                return token.tokenType === 'identifier';
-            }, nodeName: 'symbol', rememberTerminalText: true}
-        ],
-        [
-            {type: function(token) {
-                return token.tokenType === 'boolean';
-            }, nodeName: 'boolean', rememberTerminalText: true}
-        ],
-        [
-            {type: function(token) {
-                return token.tokenType === 'number';
-            }, nodeName: 'number', rememberTerminalText: true}
-        ],
-        [
-            {type: function(token) {
-                return token.tokenType === 'string';
-            }, nodeName: 'string', rememberTerminalText: true}
-        ],
-        [
-            {type: function(token) {
-                return token.tokenType === 'character';
-            }, nodeName: 'character', rememberTerminalText: true}
-        ]);
-
+    return this.rhs(
+        {type: function(token) {
+            switch (token.tokenType) {
+                case 'identifier':
+                case 'boolean':
+                case 'number':
+                case 'character':
+                case 'string':
+                case 'symbol':
+                    return true;
+                default:
+                    return false;
+            }
+        }, nodeName: 'text', rememberTerminalText: true});
 };
 
 // <compound datum> -> <list> | <vector>
@@ -429,7 +415,7 @@ Parser.prototype['definition'] = function() {
             {type: 'body'},
             {type: ')'}
         ],
-          [
+        [
             {type: '('},
             {type: 'define'},
             {type: '('},
