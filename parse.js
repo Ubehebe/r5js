@@ -40,8 +40,7 @@ Parser.prototype.rhs = function() { // varargs
         var element = arguments[i];
         /* Prefer an explicit node name, but if none is given, default
          to the type. This is to simplify rules like <command> -> <expression>
-         where we want to parse an expression but have the node say it is a "command".
-         */
+         where we want to parse an expression but have the node say it is a "command". */
         element.nodeName = element.nodeName || element.type;
         this.curLhs = (typeof element.type === 'function') ? element.nodeName : element.type; // todo bl cleanup
         var cur = (parseFunction = this[element.type]) // unfortunate the nonterminals share a namespace with other stuff
@@ -71,7 +70,7 @@ Parser.prototype.handleNonterminal = function(ansBuffer, element, parseFunction)
             return ansBuffer;
         } else {
             this.nextTokenToReturn -= repeated.length;
-            return {success: false, msg: 'expected at least '
+            return {fail: true, msg: 'expected at least '
                 + element.atLeast + element.nodeName + ', got ' + repeated.length};
         }
     }
@@ -116,12 +115,17 @@ Parser.prototype.handleTerminal = function(ansBuffer, element) {
 
 Parser.prototype.alternation = function() {
     var possibleRhs;
+    // The most informative error is probably the failed parse
+    // that got furthest through the input.
+    var mostInformativeError = null;
     for (var i = 0; i < arguments.length; ++i) {
-        possibleRhs = this.rhs.apply(this, arguments[i]); // todo bl possible varargs problem
+        possibleRhs = this.rhs.apply(this, arguments[i]);
         if (!possibleRhs.fail)
             return possibleRhs;
+        else if (!mostInformativeError || possibleRhs.offset > mostInformativeError.offset)
+            mostInformativeError = possibleRhs;
     }
-    return possibleRhs;
+    return mostInformativeError;
 };
 
 function isSyntacticKeyword(str) {
@@ -252,11 +256,14 @@ Parser.prototype['datum'] = function() {
 
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
 // <symbol> -> <identifier>
+// todo bl: unify with self-evaluating above?
 Parser.prototype['simple-datum'] = function() {
 
     return this.alternation(
         [
-            {type: 'identifier', nodeName: 'symbol', rememberTerminalText: true}
+            {type: function(token) {
+                return token.tokenType === 'identifier';
+            }, nodeName: 'symbol', rememberTerminalText: true}
         ],
         [
             {type: function(token) {
@@ -305,7 +312,7 @@ Parser.prototype['list'] = function() {
             {type: '('},
             {type: 'datum', atLeast: 1},
             {type: '.'},
-            {type: 'datum'},
+            {type: 'datum', nodeName: '.datum'},
             {type: ')'}
         ],
         [
@@ -325,6 +332,7 @@ Parser.prototype['vector'] = function() {
 
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
+// todo bl i have never used these abbreviations but they have to do with quasiquotation
 Parser.prototype['abbreviation'] = function() {
 
     return this.rhs(
@@ -438,6 +446,7 @@ Parser.prototype['definition'] = function() {
         ]);
 
 };
+
 
 // <sequence> -> <command>* <expression>
 // <command> -> <expression>
@@ -720,6 +729,6 @@ Parser.prototype['syntax-definition'] = function() {
 };
 
 
-Parser.prototype.parse = function() {
-    return this[this.curLhs = 'program']();
+Parser.prototype.parse = function(lhs) {
+    return this[this.curLhs = (lhs || 'program')]();
 };
