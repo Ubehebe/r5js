@@ -8,7 +8,7 @@
     <script type="text/javascript" src="parse_test.js"></script>
     <script type="text/javascript" src="eval.js"></script>
     <script type="text/javascript">
-        console.log(_eval['quotation'](new Parser("'(1 2 3 4)").parse('quotation')));
+        console.log(_Eval(new Parser('(+ 1 2)').parse('procedure-call'), {}, 'procedure-call'));
     </script>
 
 </head>
