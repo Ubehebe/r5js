@@ -45,7 +45,7 @@ function _Eval(tree, env, lhs) {
         }
 
         // A non-primitive procedure, represented by a JavaScript hash.
-        else if (proc instanceof Procedure) {
+        else if (proc instanceof SchemeProcedure) {
             for (var i = 0; i < proc.formals.length; ++i)
                 proc.lexicalScope[proc.formals[i]] = args[i];
             return _eval['body'](tree['body'], proc.lexicalScope);

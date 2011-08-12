@@ -1,92 +1,107 @@
-function requireArgTypes(primitiveName, args, type) {
-
-    var ordinalNames = {
-        0: 'first',
-        1: 'second',
-        2: 'third',
-        3: 'fourth',
-        4: 'fifth',
-        5: 'sixth',
-        6: 'seventh',
-        7: 'eighth',
-        8: 'ninth',
-        9: 'tenth'
-    };
-
-    for (var i = 0; i < args.length; ++i)
-        if (!builtins[type + '?'](args[i]))
-            throw new SemanticError('The object '
-                + args[i]
-                + ', passed as the '
-                + (ordinalNames[i] || (i + 1) + 'th')
-                + ' argument to '
-                + primitiveName
-                + ', is not the correct type '
-                + type);
-}
-
-function requireNumArgs(primitiveName, actual, atLeast, isExact) {
-    if (actual.length < atLeast) {
-        throw new SemanticError('The procedure '
-            + primitiveName
-            + ' has been called with '
-            + actual.length
-            + 'arguments; it requires at least '
-            + atLeast
-            + ' arguments.')
-    }
-
-    else if (isExact && actual.length !== atLeast) {
-        throw new SemanticError('The procedure '
-            + primitiveName
-            + ' has been called with '
-            + actual.length
-            + 'arguments; it requires exactly '
-            + atLeast
-            + ' arguments.')
-    }
-}
-
-
-builtins = {};
-
-function Pair(car, cdr) {
+function SchemePair(car, cdr) {
     this.car = car;
     this.cdr = cdr;
 }
 
 function listToArray(list) {
     var ans = [];
-    while (list instanceof Pair) {
+    while (list instanceof SchemePair) {
         ans.push(list.car);
         list = list.cdr;
     }
     return ans;
 }
 
-function Char(c) {
+function SchemeChar(c) {
     this.c = c;
 }
 
-function Symbol(s) {
+function SchemeString(s) {
     this.s = s;
 }
 
-function Procedure(expr) {
+function SchemeProcedure(expr) {
     this.expr = expr;
 }
 
-function Port(portno) {
+function SchemePort(portno) {
     this.portno = portno;
 }
 
-builtins['boolean?'] = function(x) {
-    requireNumArgs('boolean?', arguments, 1, true);
-    return typeof x === 'boolean';
-};
-builtins['number?'] = function(x) {
-    requireNumArgs('number?', arguments, 1, true);
-    return typeof x === 'number';
+var builtinTypeProcs = {
+
+    // Represent Scheme booleans by JavaScript booleans
+    'boolean?': {
+        argc: 1,
+        proc: function(x) {
+            return typeof x === 'boolean';
+        }
+    },
+
+    // Represent Scheme symbols by JavaScript strings since both are immutable
+    'symbol?': {
+        argc: 1,
+        proc: function(s) {
+            return typeof s === 'string';
+        }
+    },
+
+    /* In JavaScript, characters are strings of length 1, but in Scheme they are
+     *  distinct types. */
+    'char?': {
+        argc: 1,
+        proc: function(c) {
+            return c instanceof SchemeChar;
+        }
+    },
+
+    // Represent Scheme vectors by JavaScript arrays
+    'vector?': {
+        argc: 1,
+        proc: function(v) {
+            return v instanceof Array;
+        }
+    },
+
+    // Builtin procedures are just JavaScript procedures.
+    'procedure?': {
+        argc: 1,
+        proc: function(p) {
+            return typeof p === 'function' || p instanceof SchemeProcedure;
+        }
+    },
+
+    'pair?': {
+        argc: 1,
+        proc: function(p) {
+            return p instanceof SchemePair;
+        }
+    },
+
+    // Represent Scheme numbers by JavaScript numbers
+    'number?': {
+        argc: 1,
+        proc: function(x) {
+            return typeof x === 'number';
+        }
+    },
+
+    /* Scheme strings are mutable, but JavaScript strings are not.
+     Therefore we cannot represent Scheme strings directly as JavaScript
+     strings; we have to wrap them. */
+    'string?': {
+        argc: 1,
+        proc: function(ss) {
+            return ss instanceof SchemeString;
+        }
+    },
+
+    'port?': {
+        argc: 1,
+        proc: function(p) {
+            return p instanceof SchemePort;
+        }
+    }
 };
 
 var builtinNumberProcs = {
@@ -123,7 +138,7 @@ var builtinNumberProcs = {
         proc: function(x) {
             return false;
         }
-    }, // In JavaScript every number is a float.
+    }, // In JavaScript every number is a double.
 
     'inexact?': {
         argc: 1,
@@ -245,7 +260,7 @@ var builtinNumberProcs = {
         proc: function(p, q) {
             return p % q;
         }
-    }
+    },
 
     // todo bl finish number builtins:
     'quotient': {},
@@ -275,25 +290,17 @@ var builtinNumberProcs = {
     'exact->inexact': {},
     'inexact->exact': {},
     'number->string': {},
-    'string->number': {},
-
-
+    'string->number': {}
 };
-
 
 var builtinPairProcs = {
 
-    'pair?': {
-        argc: 1,
-        proc: function(p) {
-            return p instanceof Pair;
-        }
-    },
+
 
     'cons': {
         argc: 2,
         proc: function(car, cdr) {
-            return new Pair(car, cdr);
+            return new SchemePair(car, cdr);
         }
     },
 
@@ -332,37 +339,25 @@ var builtinPairProcs = {
 
 var builtinSymbolProcs = {
 
-    'symbol?': {
-        argc: 1,
-        proc: function(s) {
-            return s instanceof Symbol;
-        }
-    },
-
     'symbol->string': {
         argc: 1,
         argtypes: ['symbol'],
         proc: function(sym) {
-            return sym.s;
+            return new SchemeString(sym);
         }
     },
 
     'string->symbol': {
         argc: 1,
         argtypes: ['string'],
-        proc: function(s) {
-            return new Symbol(s);
+        proc: function(ss) {
+            return ss.s;
         }
     }
 };
 
 var builtinCharProcs = {
-    'char?': {
-        argc: 1,
-        proc: function(c) {
-            return c instanceof Char;
-        }
-    },
+
     'char=?': {
         argc: 2,
         argtypes: ['character', 'character'],
@@ -414,18 +409,11 @@ var builtinCharProcs = {
     }
 };
 
-// todo bl: Scheme strings are mutable, but JavaScript strings aren't.
-// Therefore it's a bad idea to represent Scheme strings by JavaScript ones.
-// Perhaps use JavaScript strings for Scheme symbols or chars.
 var builtinStringProcs = {
-    'string?': {
-        argc: 1,
-        proc: function(s) {
-            return typeof s === 'string';
-        }
-    },
+
+
     'make-string': {
-        argc: {min: 1, max: 2}, // todo bl implement ranges of arguments
+        argc: {min: 1, max: 2},
         argtypes: ['number', 'character'],
         proc: function(n, c) {
             var s = '';
@@ -433,39 +421,38 @@ var builtinStringProcs = {
                 for (var i = 0; i < n; ++i)
                     s += c;
             }
-            return s;
+            return new SchemeString(s);
         }
     },
     'string-length': {
         argc: 1,
         argtypes: ['string'],
-        proc: function(s) {
-            return s.length;
+        proc: function(ss) {
+            return ss.s.length;
         }
     },
     'string-ref': {
         argc: 2,
         argtypes: ['string', 'number'],
-        proc: function(s, i) {
-            return s.charAt(i);
+        proc: function(ss, i) {
+            return ss.s.charAt(i);
         }
     },
     'string-set!': {
         argc: 3,
         argtypes: ['string', 'number', 'character'],
-        proc: function(s, k, c) {
-            // uh oh!
+        proc: function(ss, k, c) {
+            var ans = '';
+            for (var i = 0; i < ss.s.length; ++i)
+                ans += i === k ? c.c : ss.s.charAt(i);
+            return new SchemeString(ans);
         }
     }
 };
 
 var builtinVectorProcs = {
-    'vector?': {
-        argc: 1,
-        proc: function(v) {
-            return v instanceof Array;
-        }
-    },
+
+
     'make-vector': {
         argc: {min: 1, max: 2},
         argtypes: ['number'],
@@ -494,7 +481,7 @@ var builtinVectorProcs = {
     },
     'vector-set!': {
         argc: 3,
-        argypes: ['vector', 'number'],
+        argtypes: ['vector', 'number'],
         proc: function(v, k, fill) {
             v[k] = fill;
         }
@@ -502,12 +489,7 @@ var builtinVectorProcs = {
 };
 
 var builtinControlProcs = {
-    'procedure?': {
-        argc: 1,
-        proc: function(p) {
-            return typeof p === 'function' || p instanceof Procedure;
-        }
-    },
+
     'apply': {
         argc: 2,
         argtypes: ['procedure', 'list'], // todo bl list isn't a primitive type
@@ -529,7 +511,7 @@ var builtinControlProcs = {
 builtinEvalProcs = {
     'eval': {},
     'scheme-report-environment': {},
-    'null-environment': {},
+    'null-environment': {}
 };
 
 // todo bl
@@ -552,6 +534,121 @@ var builtinIOProcs = {
     'char-ready?': {},
     'write-char': {}
 };
+
+function registerBuiltin(name, argc, argtypes, proc, targetEnv) {
+
+    if (targetEnv[name])
+        console.log('warning, redefining ' + name);
+
+    requirePresenceOf(name, argtypes, targetEnv);
+
+    targetEnv[name] = function() {
+
+        // Check correct number of arguments
+        if (argc) {
+            if (typeof argc === 'number' && arguments.length !== argc)
+                throw new IncorrectNumArgs(name, argc, arguments.length);
+            else if (argc.min && arguments.length < argc.min)
+                throw new TooFewArgs(name, argc.min, arguments.length);
+            else if (argc.max && arguments.length > argc.max)
+                throw new TooManyArgs(name, argc.max, arguments.length);
+        }
+
+        // Check correct argument types
+        if (argtypes) {
+
+            /* If argtypes is something like 'number', that means every argument
+             must be a number. */
+            if (typeof argtypes === 'string') {
+                var classifier = targetEnv[argtypes + '?'];
+                for (var i = 0; i < arguments.length; ++i)
+                    if (!classifier(arguments[i]))
+                        throw new ArgumentTypeError(arguments[i], i, name, argtypes);
+            }
+
+            /* If argtypes is something like ['number', 'string'], we should go down
+             the arguments array and ensure each argument has its expected type. */
+            else if (argtypes instanceof Array) {
+                for (var i = 0; i < arguments.length; ++i)
+                    if (argtypes[i] && !targetEnv[argtypes[i] + '?'](arguments[i]))
+                        throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
+            }
+        }
+
+        // If everything checks out, call the JavaScript builtin
+        return proc.apply(null, arguments);
+    };
+}
+
+function requirePresenceOf(name, argtypes, targetEnv) {
+    if (argtypes) {
+        if (typeof argtypes === 'string' && !targetEnv[argtypes + '?'])
+            throw new InternalInterpreterError('builtin procedure '
+                + name
+                + ' requires an argument to have type '
+                + argtypes
+                + ", but the default environment doesn't know about that type yet");
+        else if (argtypes instanceof Array) {
+            for (var i = 0; i < argtypes.length; ++i)
+                if (!targetEnv[argtypes[i] + '?'])
+                    throw new InternalInterpreterError('builtin procedure '
+                        + name
+                        + ' requires an argument to have type '
+                        + argtypes[i]
+                        + ", but the default environment doesn't know about that type yet");
+        }
+    }
+}
+
+function TooFewArgs(name, minNumArgs, actualNumArgs) {
+    this.msg = 'The procedure '
+        + name
+        + ' has been called with '
+        + actualNumArgs
+        + ' arguments; it requires at least '
+        + minNumArgs
+        + 'argument'
+        + (minNumArgs === 1 ? '' : 's');
+}
+
+function TooManyArgs(name, maxNumArgs, actualNumArgs) {
+    this.msg = 'The procedure '
+        + name
+        + ' has been called with '
+        + actualNumArgs
+        + ' arguments; it requires at most '
+        + maxNumArgs
+        + 'argument'
+        + (maxNumArgs === 1 ? '' : 's');
+}
+
+function IncorrectNumArgs(name, expectedNumArgs, actualNumArgs) {
+    this.msg = 'The procedure '
+        + name
+        + ' has been called with '
+        + actualNumArgs
+        + ' arguments; it requires exactly '
+        + expectedNumArgs
+        + 'argument'
+        + (expectedNumArgs === 1 ? '' : 's');
+}
+
+function InternalInterpreterError(msg) {
+    this.msg = msg;
+}
+
+function ArgumentTypeError(argument, which, procName, expectedType) {
+    this.msg = 'The object '
+        + arguments[i].toString()
+        + ', passed as argument '
+        + which
+        + ' to '
+        + procName
+        + ', is not of the correct type '
+        + expectedType;
+}
+
+
 
 
 
