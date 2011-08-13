@@ -4,16 +4,19 @@ function SemanticError(msg) {
 
 function _Eval(tree, env, lhs) {
 
-    var _eval = {};
-
-    _eval['expression'] = function(tree, env) {
+    var valueOfOnlyChild = function(tree, env) {
         for (var childType in tree)
-            return _eval[childType](tree[childType], env);
+            return valueOf[childType](tree[childType], env);
     };
+
+    var valueOf = {};
+
+    valueOf['expression'] = valueOfOnlyChild;
+    valueOf['literal'] = valueOfOnlyChild;
 
     /* 4.1.1: The value of the variable reference is the value stored in the location
      to which the variable is bound. It is an error to reference an unbound variable. */
-    _eval['variable'] = function(tree, env) {
+    valueOf['variable'] = function(tree, env) {
         var maybeAns = env[tree['identifier']];
         if (maybeAns !== undefined)
             return maybeAns;
@@ -23,20 +26,33 @@ function _Eval(tree, env, lhs) {
     /* 4.1.2: (quote <datum>) evaluates to <datum>.
      (quote <datum>) may be abbreviated as '<datum>.
      The two notations are equivalent in all respects. */
-    _eval['quotation'] = function(tree, env) {
+    valueOf['quotation'] = function(tree, env) {
         return externalRepresentation(tree['datum']);
+    };
+
+    /* 4.1.2: Numerical constants, string constants, character constants,
+        and boolean constants evaluate "to themselves". */
+    valueOf['self-evaluating'] = function(tree, env) {
+        if (tree['boolean'] !== undefined)
+            return tree['boolean'];
+        else if (tree['number'])
+            return parseFloat(tree['number']);
+        else if (tree['string'])
+            return new SchemeString(tree['string']);
+        else if (tree['character'])
+            return new SchemeChar(tree['character']); // todo bl scanner/parser uses 'character', eval/stdlib uses 'char'
     };
 
     /* 4.1.3: A procedure call is written by simply enclosing in parentheses
      expressions for the procedure to be called and the arguments to be passed to it.
      The operator and operand expressions are evaluated (in an unspecified order)
      and the resulting procedure is passed the resulting arguments. */
-    _eval['procedure-call'] = function(tree, env) {
+    valueOf['procedure-call'] = function(tree, env) {
 
-        var proc = _eval['expression'](tree['operator'], env);
+        var proc = valueOf['expression'](tree['operator'], env);
 
         var args = tree['operand'].map(function(node) { // ecmascript compatibility?
-            return _eval['expression'](node, env);
+            return valueOf['expression'](node, env);
         });
 
         // A primitive procedure, represented by a JavaScript function.
@@ -48,14 +64,14 @@ function _Eval(tree, env, lhs) {
         else if (proc instanceof SchemeProcedure) {
             for (var i = 0; i < proc.formals.length; ++i)
                 proc.lexicalScope[proc.formals[i]] = args[i];
-            return _eval['body'](tree['body'], proc.lexicalScope);
+            return valueOf['body'](tree['body'], proc.lexicalScope);
         } else throw new SemanticError('The object ' + proc.name + 'is not applicable');
     };
 
     /* 4.1.4: A lambda expression evaluates to a procedure.
      The environment in effect when the lambda expression was evaluated
      is remembered as part of the procedure. */
-    _eval['lambda-expression'] = function(tree, env) {
+    valueOf['lambda-expression'] = function(tree, env) {
         return {
             formals: tree['formals'],
             lexicalScope: env,
@@ -105,7 +121,7 @@ function _Eval(tree, env, lhs) {
     }
 
     try {
-        return _eval[lhs || 'program'](tree, env);
+        return valueOf[lhs || 'program'](tree, env);
     } catch (x) {
         console.log(x);
     }
