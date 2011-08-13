@@ -495,7 +495,7 @@ var builtins = (function() {
 
         'apply': {
             argc: 2,
-            argtypes: ['procedure', 'list'], // todo bl list isn't a primitive type
+            argtypes: ['procedure', 'list'] // todo bl list isn't a primitive type
             /*proc: function(p, args) {
              return typeof p === 'function'
              ? p.apply(null, listToArray(args))

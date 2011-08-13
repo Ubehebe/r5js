@@ -617,7 +617,3 @@ scanner.runTests = function() {
         });
 
 };
-
-//console.log(scanner.tokenize("(define x '1)"));
-
-//scanner.runTests();

@@ -9,11 +9,25 @@
     <script type="text/javascript" src="eval.js"></script>
     <script type="text/javascript" src="stdproc.js"></script>
     <script type="text/javascript">
-        console.log(_Eval(new Parser('(/ 1 2)').parse('procedure-call'), builtins, 'procedure-call'));
+
+        function doScan() {
+            console.log(scanner.tokenize(document.getElementById('toEval').value));
+        }
+
+        function doParse() {
+            console.log(new Parser(document.getElementById('toEval').value).parse('expression'));
+        }
+
+        function doEval() {
+            console.log(_Eval(new Parser(document.getElementById('toEval').value).parse('expression'), builtins, 'expression'));
+        }
     </script>
 
 </head>
 <body>
-
+<textarea id='toEval' rows="5" cols="80"></textarea>
+<button onclick="doScan()">scan</button>
+<button onclick='doParse()'>parse</button>
+<button onclick='doEval()'>eval</button>
 </body>
 </html>
