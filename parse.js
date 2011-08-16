@@ -171,7 +171,7 @@ Parser.prototype['expression'] = function() {
             {type: 'assignment'}
         ],
         [
-            {type: 'derived-expression'}
+            {type: 'derived-expression'} // todo bl!!!
         ],
         [
             {type: 'macro-use'}
@@ -437,12 +437,6 @@ Parser.prototype['definition'] = function() {
 // <sequence> -> <command>* <expression>
 // <command> -> <expression>
 Parser.prototype['sequence'] = function() {
-
-    /* The following breaks the parser due to the greediness of *:
-     return this.rhs({type: 'expression', nodeName: 'command', atLeast: 0},
-     {type: 'expression'});
-     */
-
     return this.rhs(
         {type: 'expression', nodeName: 'command+expr', atLeast: 1});
 };
@@ -687,9 +681,6 @@ Parser.prototype['program'] = function() {
 Parser.prototype['command-or-definition'] = function() {
     return this.alternation(
         [
-            {type: 'expression', nodeName: 'command'}
-        ],
-        [
             {type: 'definition'}
         ],
         [
@@ -700,6 +691,9 @@ Parser.prototype['command-or-definition'] = function() {
             {type: 'begin'},
             {type: 'command-or-definition', atLeast: 0},
             {type: ')'}
+        ],
+        [
+            {type: 'expression', nodeName: 'command'}
         ]);
 };
 

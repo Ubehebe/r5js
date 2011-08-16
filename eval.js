@@ -9,10 +9,29 @@ function _Eval(tree, env, lhs) {
             return valueOf[childType](tree[childType], env);
     };
 
+    var valueOfLastChild = function(tree, env) {
+        for (var childType in tree) {
+            var children = tree[childType];
+            var val;
+            for (var i = 0; i < children.length; ++i)
+                val = valueOf[childType](children[i], env);
+            return val;
+        }
+    };
+
     var valueOf = {};
 
     valueOf['expression'] = valueOfOnlyChild;
-    valueOf['literal'] = valueOfOnlyChild;
+
+    // todo bl explicit aliasing is dumb, should be done in the parser
+    // perhaps by re-separating the node name and type.
+    valueOf['operator'] = valueOf['expression'];
+     valueOf['operand'] = valueOf['expression'];
+     valueOf['command+expr'] = valueOf['expression'];
+     valueOf['test'] = valueOf['expression'];
+     valueOf['consequent'] = valueOf['expression'];
+     valueOf['alternate'] = valueOf['expression'];
+     valueOf['command'] = valueOf['expression'];
 
     /* 4.1.1: The value of the variable reference is the value stored in the location
      to which the variable is bound. It is an error to reference an unbound variable. */
@@ -23,6 +42,8 @@ function _Eval(tree, env, lhs) {
         else throw new SemanticError('unbound variable ' + tree['identifier']);
     };
 
+    valueOf['literal'] = valueOfOnlyChild;
+
     /* 4.1.2: (quote <datum>) evaluates to <datum>.
      (quote <datum>) may be abbreviated as '<datum>.
      The two notations are equivalent in all respects. */
@@ -31,7 +52,7 @@ function _Eval(tree, env, lhs) {
     };
 
     /* 4.1.2: Numerical constants, string constants, character constants,
-        and boolean constants evaluate "to themselves". */
+     and boolean constants evaluate "to themselves". */
     valueOf['self-evaluating'] = function(tree, env) {
         if (tree['boolean'] !== undefined)
             return tree['boolean'];
@@ -48,7 +69,6 @@ function _Eval(tree, env, lhs) {
      The operator and operand expressions are evaluated (in an unspecified order)
      and the resulting procedure is passed the resulting arguments. */
     valueOf['procedure-call'] = function(tree, env) {
-
         var proc = valueOf['expression'](tree['operator'], env);
 
         var args = tree['operand'].map(function(node) { // ecmascript compatibility?
@@ -60,24 +80,40 @@ function _Eval(tree, env, lhs) {
             return proc.apply(null, args);
         }
 
-        // A non-primitive procedure, represented by a JavaScript hash.
+        // A non-primitive procedure, represented by a SchemeProcedure object.
         else if (proc instanceof SchemeProcedure) {
-            for (var i = 0; i < proc.formals.length; ++i)
-                proc.lexicalScope[proc.formals[i]] = args[i];
-            return valueOf['body'](tree['body'], proc.lexicalScope);
-        } else throw new SemanticError('The object ' + proc.name + 'is not applicable');
+            proc.checkNumArgs(args.length);
+            return valueOf['body'](proc.body, proc.bindArgs(args));
+        }
+
+        else throw new SemanticError('The object ' + proc + 'is not applicable');
     };
+
+    valueOf['body'] = function(tree, env) {
+        var definitions = tree['definition'];
+        for (var i=0; i< definitions.length; ++i)
+            valueOf['definition'](definitions[i], env);
+        return valueOf['sequence'](tree['sequence'], env);
+    };
+
+    valueOf['sequence'] = valueOfLastChild;
 
     /* 4.1.4: A lambda expression evaluates to a procedure.
      The environment in effect when the lambda expression was evaluated
      is remembered as part of the procedure. */
     valueOf['lambda-expression'] = function(tree, env) {
-        return {
-            formals: tree['formals'],
-            lexicalScope: env,
-            body: tree['body']
-        };
+        var formals = tree['formals'];
+        var requiredFormals = formals['variable'] instanceof Array
+            ? formals['variable'].map(function(v) { // the usual case: e.g. (lambda (x y) ...)
+            return v.identifier;
+        })
+            : formals['variable'].identifier; // e.g. (lambda x ...)
+        var maybeDottedFormal = formals['.variable'] ? formals['.variable'].identifier : null;
+        return new SchemeProcedure(requiredFormals, maybeDottedFormal, env, tree['body']);
     };
+
+    valueOf['program'] = valueOfLastChild;
+    valueOf['command-or-definition'] = valueOfOnlyChild;
 
 // todo bl investigate doing this in the parser
     function externalRepresentation(datum) {
@@ -120,10 +156,7 @@ function _Eval(tree, env, lhs) {
             + 'should never happen -- indicates logical bug in parser', datum);
     }
 
-    try {
+    if (typeof valueOf[lhs || 'program'] === 'function')
         return valueOf[lhs || 'program'](tree, env);
-    } catch (x) {
-        console.log(x);
-    }
-
+    else throw new Error('valueOf[' + (lhs || 'program') + '] is not a function!');
 }

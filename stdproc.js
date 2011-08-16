@@ -12,6 +12,16 @@ function listToArray(list) {
     return ans;
 }
 
+function arrayToList(array) {
+    var cur = null;
+    var prev;
+    for (var i=array.length-1; i >=0; i--) {
+        prev = new SchemePair(array[i], cur);
+        cur = prev;
+    }
+    return cur;
+}
+
 function SchemeChar(c) {
     this.c = c;
 }
@@ -20,8 +30,36 @@ function SchemeString(s) {
     this.s = s;
 }
 
-function SchemeProcedure(expr) {
-    this.expr = expr;
+// todo bl: lambdas don't have names, but it is useful for debugging to
+// import the name from the definition if it is associated with one.
+function SchemeProcedure(requiredFormals, maybeDottedFormal, env, body) {
+    this.requiredFormals = requiredFormals;
+    this.maybeDottedFormal = maybeDottedFormal;
+    this.env = shallowCopy(env);
+    this.body = body;
+}
+
+SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
+    if (numActuals < this.requiredFormals.length)
+        throw new TooFewArgs(this.toString(), this.requiredFormals.length, numActuals);
+    if (!this.maybeDottedFormal && numActuals > this.requiredFormals.length)
+        throw new IncorrectNumArgs(this.toString(), this.requiredFormals.length, numActuals);
+};
+
+SchemeProcedure.prototype.bindArgs = function(args) {
+    var envCopy = shallowCopy(this.env);
+    for (var i=0; i<this.requiredFormals.length; ++i)
+        envCopy[this.requiredFormals[i]] = args[i];
+    if (this.maybeDottedFormal)
+        envCopy[this.maybeDottedFormal] = arrayToList(args.slice(this.requiredFormals.length, args.length));
+    return envCopy;
+};
+
+function shallowCopy(hash) {
+    var ans = {};
+    for (var k in hash)
+        ans[k] = hash[k];
+    return ans;
 }
 
 function SchemePort(portno) {
@@ -545,7 +583,7 @@ var builtins = (function() {
         var proc = value.proc;
 
         if (!proc) {
-            //console.log('warning, builtin ' + name + ' unspecified, skipping');
+            console.log('warning, builtin ' + name + ' unspecified, skipping');
             return targetEnv;
         }
 
@@ -612,53 +650,6 @@ var builtins = (function() {
         }
     }
 
-    function TooFewArgs(name, minNumArgs, actualNumArgs) {
-        this.msg = 'The procedure '
-            + name
-            + ' has been called with '
-            + actualNumArgs
-            + ' arguments; it requires at least '
-            + minNumArgs
-            + ' argument'
-            + (minNumArgs === 1 ? '' : 's');
-    }
-
-    function TooManyArgs(name, maxNumArgs, actualNumArgs) {
-        this.msg = 'The procedure '
-            + name
-            + ' has been called with '
-            + actualNumArgs
-            + ' arguments; it requires at most '
-            + maxNumArgs
-            + ' argument'
-            + (maxNumArgs === 1 ? '' : 's');
-    }
-
-    function IncorrectNumArgs(name, expectedNumArgs, actualNumArgs) {
-        this.msg = 'The procedure '
-            + name
-            + ' has been called with '
-            + actualNumArgs
-            + ' arguments; it requires exactly '
-            + expectedNumArgs
-            + ' argument'
-            + (expectedNumArgs === 1 ? '' : 's');
-    }
-
-    function InternalInterpreterError(msg) {
-        this.msg = msg;
-    }
-
-    function ArgumentTypeError(argument, which, procName, expectedType) {
-        this.msg = 'The object '
-            + arguments[i].toString()
-            + ', passed as argument '
-            + which
-            + ' to '
-            + procName
-            + ', is not of the correct type '
-            + expectedType;
-    }
 
     var builtins = {};
 
