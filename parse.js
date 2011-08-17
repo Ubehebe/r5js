@@ -407,7 +407,7 @@ Parser.prototype['definition'] = function() {
             {type: '('},
             {type: 'define'},
             {type: '('},
-            {type: 'variable', atLeast: 0},
+            {type: 'variable', atLeast: 1},
             {type: '.'},
             {type: 'variable', nodeName: '.variable'},
             {type: ')'},
@@ -418,7 +418,7 @@ Parser.prototype['definition'] = function() {
             {type: '('},
             {type: 'define'},
             {type: '('},
-            {type: 'variable', atLeast: 0},
+            {type: 'variable', atLeast: 1},
             {type: ')'},
             {type: 'body'},
             {type: ')'}

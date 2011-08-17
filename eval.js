@@ -75,15 +75,6 @@ function _Eval(tree, env, lhs) {
         else throw new SemanticError('The object ' + proc + 'is not applicable');
     };
 
-    valueOf['body'] = function(tree, env) {
-        var definitions = tree['definition'];
-        for (var i = 0; i < definitions.length; ++i)
-            valueOf['definition'](definitions[i], env);
-        return valueOf['sequence'](tree['sequence'], env);
-    };
-
-    valueOf['sequence'] = valueOfLastChild;
-
     /* 4.1.4: A lambda expression evaluates to a procedure.
      The environment in effect when the lambda expression was evaluated
      is remembered as part of the procedure. */
@@ -97,6 +88,47 @@ function _Eval(tree, env, lhs) {
         var maybeDottedFormal = formals['.variable'] ? formals['.variable'].identifier : null;
         return new SchemeProcedure(requiredFormals, maybeDottedFormal, env, tree['body']);
     };
+
+    valueOf['body'] = function(tree, env) {
+        var definitions = tree['definition'];
+        for (var i = 0; i < definitions.length; ++i)
+            valueOf['definition'](definitions[i], env);
+        return valueOf['sequence'](tree['sequence'], env);
+    };
+
+    valueOf['definition'] = function(tree, env) {
+
+        // There are no explicit returns because the "value" of  definition is not useful
+
+        // (begin (define x 1) (define y 2))
+        if (tree['definition']) {
+            valueOfLastChild(tree, env);
+        }
+
+        /* (define (foo x y) (+ x y))
+            means
+            (define foo (lambda (x y) (+ x y))) */
+        else if (tree['variable'] instanceof Array) {
+            var nameAndFormals = tree['variable'];
+            var name = nameAndFormals[0].identifier;
+            var requiredFormals = [];
+            for (var i=1; i<nameAndFormals.length; ++i)
+                requiredFormals.push(nameAndFormals[i].identifier);
+            var maybeDottedFormal = tree['.variable'] ? tree['.variable'].identifier : null;
+            env[name] = new SchemeProcedure(requiredFormals, maybeDottedFormal, env, tree['body']);
+            // no useful return value
+
+        }
+
+        // (define x 1)
+        else {
+            env[tree['variable'].identifier] = valueOf['expression'](tree['expression'], env);
+        }
+    };
+
+    valueOf['sequence'] = valueOfLastChild;
+
+
 
     valueOf['program'] = valueOfLastChild;
     valueOf['command-or-definition'] = valueOfOnlyChild;
