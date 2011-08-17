@@ -132,7 +132,7 @@ scanner.nextToken = function(text, offset) {
             ;
 
         return (text.charAt(offset + len) === '"')
-            ? scanOk('string', text.substr(offset + 1, offset + len - 1), offset + len)
+            ? scanOk('string', text.substr(offset + 1, len-1), offset + len + 1)
             : scanError('string', offset, 'unterminated string literal');
 
         // <string element> -> <any character other than " or \> | \" | \\
