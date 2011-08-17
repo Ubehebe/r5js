@@ -3,7 +3,6 @@ function Parser(text) {
     this.textOffset = 0;
     this.readyTokens = [];
     this.nextTokenToReturn = 0;
-    this.curLhs = 'program';
 }
 
 Parser.prototype.nextToken = function() {
@@ -29,11 +28,10 @@ Parser.prototype.fail = function(token, msg) {
     return {fail: true, offset: token.offset, msg: msg || 'parse error'};
 };
 
-Parser.prototype.rhs = function() { // varargs
+Parser.prototype.rhs = function() {
     var ans = {};
     var parseFunction;
 
-    var oldLhs = this.curLhs;
     var tokenStreamStart = this.nextTokenToReturn;
 
     for (var i = 0; i < arguments.length; ++i) {
@@ -48,7 +46,6 @@ Parser.prototype.rhs = function() { // varargs
             : this.handleTerminal(ans, element);
         if (cur.fail) {
             this.nextTokenToReturn = tokenStreamStart;
-            this.curLhs = oldLhs;
             return cur;
         }
     }
@@ -710,5 +707,5 @@ Parser.prototype['syntax-definition'] = function() {
 
 
 Parser.prototype.parse = function(lhs) {
-    return this[this.curLhs = (lhs || 'program')]();
+    return this[lhs || 'program']();
 };
