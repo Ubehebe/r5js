@@ -1,20 +1,16 @@
-function SemanticError(msg) {
-    this.msg = msg;
-}
-
 function _Eval(tree, env, lhs) {
 
     var valueOfOnlyChild = function(tree, env) {
-        for (var childType in tree)
-            return valueOf[childType](tree[childType], env);
+        for (var child in tree)
+            return valueOf[tree[child].type](tree[child], env);
     };
 
     var valueOfLastChild = function(tree, env) {
-        for (var childType in tree) {
-            var children = tree[childType];
+        for (var child in tree) {
+            var siblings = tree[child];
             var val;
-            for (var i = 0; i < children.length; ++i)
-                val = valueOf[childType](children[i], env);
+            for (var i = 0; i < siblings.length; ++i)
+                val = valueOf[siblings[i].type](siblings[i], env);
             return val;
         }
     };
@@ -22,16 +18,6 @@ function _Eval(tree, env, lhs) {
     var valueOf = {};
 
     valueOf['expression'] = valueOfOnlyChild;
-
-    // todo bl explicit aliasing is dumb, should be done in the parser
-    // perhaps by re-separating the node name and type.
-    valueOf['operator'] = valueOf['expression'];
-     valueOf['operand'] = valueOf['expression'];
-     valueOf['command+expr'] = valueOf['expression'];
-     valueOf['test'] = valueOf['expression'];
-     valueOf['consequent'] = valueOf['expression'];
-     valueOf['alternate'] = valueOf['expression'];
-     valueOf['command'] = valueOf['expression'];
 
     /* 4.1.1: The value of the variable reference is the value stored in the location
      to which the variable is bound. It is an error to reference an unbound variable. */
@@ -91,7 +77,7 @@ function _Eval(tree, env, lhs) {
 
     valueOf['body'] = function(tree, env) {
         var definitions = tree['definition'];
-        for (var i=0; i< definitions.length; ++i)
+        for (var i = 0; i < definitions.length; ++i)
             valueOf['definition'](definitions[i], env);
         return valueOf['sequence'](tree['sequence'], env);
     };
@@ -156,7 +142,5 @@ function _Eval(tree, env, lhs) {
             + 'should never happen -- indicates logical bug in parser', datum);
     }
 
-    if (typeof valueOf[lhs || 'program'] === 'function')
-        return valueOf[lhs || 'program'](tree, env);
-    else throw new Error('valueOf[' + (lhs || 'program') + '] is not a function!');
+    return valueOf[lhs || 'program'](tree, env);
 }

@@ -40,10 +40,9 @@ Parser.prototype.rhs = function() {
          to the type. This is to simplify rules like <command> -> <expression>
          where we want to parse an expression but have the node say it is a "command". */
         element.nodeName = element.nodeName || element.type;
-        this.curLhs = (typeof element.type === 'function') ? element.nodeName : element.type; // todo bl cleanup
         var cur = (parseFunction = this[element.type]) // unfortunate the nonterminals share a namespace with other stuff
-            ? this.handleNonterminal(ans, element, parseFunction)
-            : this.handleTerminal(ans, element);
+            ? this.onNonterminal(ans, element, parseFunction)
+            : this.onTerminal(ans, element);
         if (cur.fail) {
             this.nextTokenToReturn = tokenStreamStart;
             return cur;
@@ -53,14 +52,16 @@ Parser.prototype.rhs = function() {
     return ans;
 };
 
-Parser.prototype.handleNonterminal = function(ansBuffer, element, parseFunction) {
+Parser.prototype.onNonterminal = function(ansBuffer, element, parseFunction) {
 
     // Handle * and +
     if (element.atLeast !== undefined) {
         var repeated = [];
         var rep;
-        while (!(rep = parseFunction.apply(this)).fail)
+        while (!(rep = parseFunction.apply(this)).fail) {
+            rep.type = element.type;
             repeated.push(rep);
+        }
 
         if (repeated.length >= element.atLeast) {
             ansBuffer[element.nodeName] = repeated;
@@ -78,13 +79,14 @@ Parser.prototype.handleNonterminal = function(ansBuffer, element, parseFunction)
         if (parsed.fail)
             return parsed;
         else {
+            parsed.type = element.type;
             ansBuffer[element.nodeName] = parsed;
             return ansBuffer;
         }
     }
 };
 
-Parser.prototype.handleTerminal = function(ansBuffer, element) {
+Parser.prototype.onTerminal = function(ansBuffer, element) {
 
 
     // Note that we don't support + or * applied to terminals.

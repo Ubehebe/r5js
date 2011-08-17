@@ -1,3 +1,7 @@
+function SemanticError(msg) {
+    this.msg = msg;
+}
+
 function TooFewArgs(name, minNumArgs, actualNumArgs) {
     this.msg = 'The procedure '
         + name
