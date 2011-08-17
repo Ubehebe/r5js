@@ -98,7 +98,8 @@ function _Eval(tree, env, lhs) {
 
     valueOf['definition'] = function(tree, env) {
 
-        // There are no explicit returns because the "value" of  definition is not useful
+        // todo bl -- make the evaluator more functional?
+        // perhaps return the new environment explicitly?
 
         // (begin (define x 1) (define y 2))
         if (tree['definition']) {
@@ -106,29 +107,36 @@ function _Eval(tree, env, lhs) {
         }
 
         /* (define (foo x y) (+ x y))
-            means
-            (define foo (lambda (x y) (+ x y))) */
+         means
+         (define foo (lambda (x y) (+ x y))) */
         else if (tree['variable'] instanceof Array) {
             var nameAndFormals = tree['variable'];
             var name = nameAndFormals[0].identifier;
             var requiredFormals = [];
-            for (var i=1; i<nameAndFormals.length; ++i)
+            for (var i = 1; i < nameAndFormals.length; ++i)
                 requiredFormals.push(nameAndFormals[i].identifier);
             var maybeDottedFormal = tree['.variable'] ? tree['.variable'].identifier : null;
             env[name] = new SchemeProcedure(requiredFormals, maybeDottedFormal, env, tree['body']);
-            // no useful return value
-
         }
 
         // (define x 1)
         else {
             env[tree['variable'].identifier] = valueOf['expression'](tree['expression'], env);
         }
+
+        // no useful "value" of a definition
+        return undefined;
     };
 
     valueOf['sequence'] = valueOfLastChild;
 
-
+    valueOf['conditional'] = function(tree, env) {
+     /* 6.3.1: Of all the standard Scheme values, only #f counts
+     as false in conditional expressions. */
+        return (valueOf['expression'](tree['test'], env) === false)
+            ? (tree['alternate'] ? valueOf['expression'](tree['alternate'], env) : undefined)
+            : valueOf['expression'](tree['consequent'], env);
+    };
 
     valueOf['program'] = valueOfLastChild;
     valueOf['command-or-definition'] = valueOfOnlyChild;
