@@ -26,9 +26,13 @@ function SchemeChar(c) {
     this.c = c;
 }
 
+SchemeChar.prototype.toString = function() { return this.c; }
+
 function SchemeString(s) {
     this.s = s;
 }
+
+SchemeString.prototype.toString = function() { return this.s; };
 
 // todo bl: lambdas don't have names, but it is useful for debugging to
 // import the name from the definition if it is associated with one.

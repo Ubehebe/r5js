@@ -55,7 +55,7 @@ Parser.prototype.rhs = function() {
 Parser.prototype.onNonterminal = function(ansBuffer, element, parseFunction) {
 
     // Handle * and +
-    if (element.atLeast !== undefined) {
+    if (element.atLeast !== undefined) { // explicit undefined since 0 should be valid
         var repeated = [];
         var rep;
         while (!(rep = parseFunction.apply(this)).fail) {
@@ -69,7 +69,7 @@ Parser.prototype.onNonterminal = function(ansBuffer, element, parseFunction) {
         } else {
             this.nextTokenToReturn -= repeated.length;
             return {fail: true, msg: 'expected at least '
-                + element.atLeast + element.nodeName + ', got ' + repeated.length};
+                + element.atLeast + ' ' + element.nodeName + ', got ' + repeated.length};
         }
     }
 
@@ -87,11 +87,6 @@ Parser.prototype.onNonterminal = function(ansBuffer, element, parseFunction) {
 };
 
 Parser.prototype.onTerminal = function(ansBuffer, element) {
-
-
-    // Note that we don't support + or * applied to terminals.
-    // This is just because the grammar of Scheme doesn't require it.
-
     var token;
     // Usually, we want to check the string value of the next token.
     if (typeof element.type === 'string')
@@ -532,10 +527,10 @@ Parser.prototype['transformer-spec'] = function() {
         {type: '('},
         {type: 'syntax-rules'}, // a terminal
         {type: '('},
-        {type: function(token) {
-            return token.tokenType === 'identifier';
-        },
-            rememberTerminalText: true, atLeast: 0},
+        /* todo bl: this should be an identifier (terminal), not a variable (nonterminal).
+            But my parser doesn't support + and * with terminals. The reason is that it doesn't
+            have the machinery to back up the token stream with terminals. */
+        {type: 'variable', atLeast: 0},
         {type: ')'},
         {type: 'syntax-rule', atLeast: 0}, // a nonterminal
         {type: ')'}
@@ -659,6 +654,7 @@ Parser.prototype['pattern-identifier'] = function() {
         {type: function(token) {
             return token.tokenType === 'identifier' && token.value !== '...';
         },
+            nodeName: 'identifier',
             rememberTerminalText: true
         }
     );
@@ -707,7 +703,10 @@ Parser.prototype['syntax-definition'] = function() {
     );
 };
 
-
 Parser.prototype.parse = function(lhs) {
-    return this[lhs || 'program']();
+    var fun = this[lhs || 'program'];
+    if (fun)
+        return fun.apply(this);
+    else
+        throw new SemanticError('unknown lhs: ' + lhs);
 };

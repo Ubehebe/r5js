@@ -25,7 +25,7 @@ function _Eval(tree, env, lhs) {
         var maybeAns = env[tree['identifier']];
         if (maybeAns !== undefined)
             return maybeAns;
-        else throw new SemanticError('unbound variable ' + tree['identifier']);
+        else throw new UnboundVariable(tree['identifier']);
     };
 
     valueOf['literal'] = valueOfOnlyChild;
@@ -130,12 +130,29 @@ function _Eval(tree, env, lhs) {
 
     valueOf['sequence'] = valueOfLastChild;
 
+    /* 4.1.5: first, <test> is evaluated. If it yields a true value, then <consequent>
+     is evaluated and its value(s) is (are) returned. Otherwise <alternate> is evaluated
+     and its value(s) is (are) returned. If <test> yields a false value and no <alternate>
+     is specified, then the result of the expression is unspecified. */
     valueOf['conditional'] = function(tree, env) {
-     /* 6.3.1: Of all the standard Scheme values, only #f counts
-     as false in conditional expressions. */
+        /* 6.3.1: Of all the standard Scheme values, only #f counts
+         as false in conditional expressions. */
         return (valueOf['expression'](tree['test'], env) === false)
             ? (tree['alternate'] ? valueOf['expression'](tree['alternate'], env) : undefined)
             : valueOf['expression'](tree['consequent'], env);
+    };
+
+    /* 4.1.6: (set! <variable> <expression>)
+     <Expression> is evaluated, and the resulting value is stored
+     in the location to which <variable> is bound. <Variable> must be bound either in
+     some region enclosing the set! expression or at top level.
+     The result of the set! expression is unspecified. */
+    valueOf['assignment'] = function(tree, env) {
+        var id = tree['variable'].identifier;
+        if (env[id]) {
+            env[id] = valueOf['expression'](tree['expression'], env);
+            return undefined;
+        } else throw new UnboundVariable(id);
     };
 
     valueOf['program'] = valueOfLastChild;

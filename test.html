@@ -16,19 +16,34 @@
         }
 
         function doParse() {
-            console.log(new Parser(document.getElementById('toEval').value).parse());
+            console.log((new Parser(document.getElementById('toEval').value)).parse(document.getElementById('lhs').value));
         }
 
         function doEval() {
-            console.log(_Eval(new Parser(document.getElementById('toEval').value).parse(), builtins, 'program'));
+            try {
+                var ans = _Eval(new Parser(document.getElementById('toEval').value).parse(), builtins, 'program');
+                console.log(ans);
+                document.getElementById('result').value = '' + ans;
+            } catch (x) {
+                document.getElementById('result').value = x.toString();
+            }
         }
     </script>
 
 </head>
 <body>
 <textarea id='toEval' rows="5" cols="80"></textarea>
-<button onclick="doScan()">scan</button>
-<button onclick='doParse()'>parse</button>
-<button onclick='doEval()'>eval</button>
+<textarea id='result' rows="1" cols="80"></textarea>
+
+<p>
+    <button onclick="doScan()">scan</button>
+</p>
+<p>
+    <button onclick='doParse()'>parse</button>
+    <label>as:</label><textarea id = 'lhs' rows="1" cols="20"></textarea>
+</p>
+<p>
+    <button onclick='doEval()'>eval</button>
+</p>
 </body>
 </html>
