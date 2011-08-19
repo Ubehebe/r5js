@@ -1,57 +1,75 @@
 function SemanticError(msg) {
-    this.msg = msg;
+    this.toString = function() {
+        return msg
+    };
+}
+
+function UnboundVariable(name) {
+    this.toString = function() {
+        return 'unbound variable ' + name;
+    };
 }
 
 function TooFewArgs(name, minNumArgs, actualNumArgs) {
-    this.msg = 'The procedure '
-        + name
-        + ' has been called with '
-        + actualNumArgs
-        + ' argument'
-        + (actualNumArgs === 1 ? '' : 's')
-        + '; it requires at least '
-        + minNumArgs
-        + ' argument'
-        + (minNumArgs === 1 ? '' : 's');
+    this.toString = function() {
+        return 'The procedure '
+            + name
+            + ' has been called with '
+            + actualNumArgs
+            + ' argument'
+            + (actualNumArgs === 1 ? '' : 's')
+            + '; it requires at least '
+            + minNumArgs
+            + ' argument'
+            + (minNumArgs === 1 ? '' : 's');
+    };
 }
 
 function TooManyArgs(name, maxNumArgs, actualNumArgs) {
-    this.msg = 'The procedure '
-        + name
-        + ' has been called with '
-        + actualNumArgs
-        + ' argument'
-        + (actualNumArgs === 1 ? '' : 's')
-        + '; it requires at most '
-        + maxNumArgs
-        + ' argument'
-        + (maxNumArgs === 1 ? '' : 's');
+    this.toString = function() {
+        return 'The procedure '
+            + name
+            + ' has been called with '
+            + actualNumArgs
+            + ' argument'
+            + (actualNumArgs === 1 ? '' : 's')
+            + '; it requires at most '
+            + maxNumArgs
+            + ' argument'
+            + (maxNumArgs === 1 ? '' : 's');
+    };
 }
 
 function IncorrectNumArgs(name, expectedNumArgs, actualNumArgs) {
-    this.msg = 'The procedure '
-        + name
-        + ' has been called with '
-        + actualNumArgs
-        + ' argument'
-        + (actualNumArgs === 1 ? '' : 's')
-        + '; it requires exactly '
-        + expectedNumArgs
-        + ' argument'
-        + (expectedNumArgs === 1 ? '' : 's');
+    this.toString = function() {
+        return 'The procedure '
+            + name
+            + ' has been called with '
+            + actualNumArgs
+            + ' argument'
+            + (actualNumArgs === 1 ? '' : 's')
+            + '; it requires exactly '
+            + expectedNumArgs
+            + ' argument'
+            + (expectedNumArgs === 1 ? '' : 's');
+    };
 }
 
 function InternalInterpreterError(msg) {
-    this.msg = msg;
+    this.toString = function() {
+        return msg;
+    };
 }
 
 function ArgumentTypeError(argument, which, procName, expectedType) {
-    this.msg = 'The object '
-        + arguments[i].toString()
-        + ', passed as argument '
-        + which
-        + ' to '
-        + procName
-        + ', is not of the correct type '
-        + expectedType;
+    this.toString = function() {
+        return 'The object '
+            + argument.toString()
+            + ', passed as argument '
+            + which
+            + ' to '
+            + procName
+            + ', is not of the correct type '
+            + expectedType;
+    };
 }
