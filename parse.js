@@ -527,13 +527,25 @@ Parser.prototype['transformer-spec'] = function() {
         {type: '('},
         {type: 'syntax-rules'}, // a terminal
         {type: '('},
-        /* todo bl: this should be an identifier (terminal), not a variable (nonterminal).
-            But my parser doesn't support + and * with terminals. The reason is that it doesn't
-            have the machinery to back up the token stream with terminals. */
-        {type: 'variable', atLeast: 0},
+        /* The parser currently doesn't support + and * applied to terminals.
+            This would require writing token stream backup logic that is built in to
+            onNonterminal. I decided it was easier to add a vacuous nonterminal
+            'transformer-spec-identifier' to the grammar, so we can reuse the token
+            stream backup logic. */
+        {type: 'transformer-spec-identifier', atLeast: 0},
         {type: ')'},
         {type: 'syntax-rule', atLeast: 0}, // a nonterminal
         {type: ')'}
+    );
+};
+
+Parser.prototype['transformer-spec-identifier'] = function() {
+    return this.rhs(
+        {type: function(token) {
+            return token.tokenType === 'identifier';
+        },
+            nodeName: 'identifier',
+            rememberTerminalText: true}
     );
 };
 
