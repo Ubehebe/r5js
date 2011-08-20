@@ -1,24 +1,3 @@
-function Env() {
-    this.env = {};
-    this.syntaxEnv = {};
-}
-
-Env.prototype.free = function(name) {
-    return this.env[name] === undefined;
-};
-
-Env.prototype.bound = function(name) {
-    return this.env[name] !== undefined;
-};
-
-Env.prototype.lookup = function(name) {
-    return this.env[name];
-};
-
-Env.prototype.bindVar = function(name, val) {
-    this.env[name] = val;
-};
-
 function _Eval(tree, env, lhs) {
 
     var valueOfOnlyChild = function(tree, env) {
@@ -43,7 +22,7 @@ function _Eval(tree, env, lhs) {
     /* 4.1.1: The value of the variable reference is the value stored in the location
      to which the variable is bound. It is an error to reference an unbound variable. */
     valueOf['variable'] = function(tree, env) {
-        var maybeAns = env.lookup(tree['identifier']);
+        var maybeAns = env[tree['identifier']];
         if (maybeAns !== undefined)
             return maybeAns;
         else throw new UnboundVariable(tree['identifier']);
@@ -119,6 +98,9 @@ function _Eval(tree, env, lhs) {
 
     valueOf['definition'] = function(tree, env) {
 
+        // todo bl -- make the evaluator more functional?
+        // perhaps return the new environment explicitly?
+
         // (begin (define x 1) (define y 2))
         if (tree['definition']) {
             valueOfLastChild(tree, env);
@@ -134,12 +116,12 @@ function _Eval(tree, env, lhs) {
             for (var i = 1; i < nameAndFormals.length; ++i)
                 requiredFormals.push(nameAndFormals[i].identifier);
             var maybeDottedFormal = tree['.variable'] ? tree['.variable'].identifier : null;
-            env.bindVar(name, new SchemeProcedure(requiredFormals, maybeDottedFormal, env, tree['body']));
+            env[name] = new SchemeProcedure(requiredFormals, maybeDottedFormal, env, tree['body']);
         }
 
         // (define x 1)
         else {
-            env.bindVar(tree['variable'].identifier, valueOf['expression'](tree['expression'], env));
+            env[tree['variable'].identifier] = valueOf['expression'](tree['expression'], env);
         }
 
         // no useful "value" of a definition
@@ -167,14 +149,20 @@ function _Eval(tree, env, lhs) {
      The result of the set! expression is unspecified. */
     valueOf['assignment'] = function(tree, env) {
         var id = tree['variable'].identifier;
-        if (env.bound(id)) {
-            env.bindVar(id, valueOf['expression'](tree['expression'], env));
+        if (env[id] !== undefined) {
+            env[id] = valueOf['expression'](tree['expression'], env);
             return undefined;
         } else throw new UnboundVariable(id);
     };
 
     valueOf['program'] = valueOfLastChild;
     valueOf['command-or-definition'] = valueOfOnlyChild;
+
+    /* 5.3: The top-level syntactic environment is extended by
+     binding the <keyword> to the specified transformer. */
+    valueOf['syntax-definition'] = function(tree, env) {
+        env[tree.keyword] = new SchemeMacro(tree['keyword'], tree['transformer-spec']);
+    };
 
 // todo bl investigate doing this in the parser
     function externalRepresentation(datum) {

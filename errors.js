@@ -73,3 +73,10 @@ function ArgumentTypeError(argument, which, procName, expectedType) {
             + expectedType;
     };
 }
+
+function MacroError(keyword, msg) {
+    this.toString = function() {
+        return 'Error in macro '
+        + keyword + ': ' + msg;
+    };
+}

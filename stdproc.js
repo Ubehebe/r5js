@@ -15,7 +15,7 @@ function listToArray(list) {
 function arrayToList(array) {
     var cur = null;
     var prev;
-    for (var i=array.length-1; i >=0; i--) {
+    for (var i = array.length - 1; i >= 0; i--) {
         prev = new SchemePair(array[i], cur);
         cur = prev;
     }
@@ -26,13 +26,17 @@ function SchemeChar(c) {
     this.c = c;
 }
 
-SchemeChar.prototype.toString = function() { return this.c; }
+SchemeChar.prototype.toString = function() {
+    return this.c;
+}
 
 function SchemeString(s) {
     this.s = s;
 }
 
-SchemeString.prototype.toString = function() { return this.s; };
+SchemeString.prototype.toString = function() {
+    return this.s;
+};
 
 // todo bl: lambdas don't have names, but it is useful for debugging to
 // import the name from the definition if it is associated with one.
@@ -52,12 +56,14 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
 
 SchemeProcedure.prototype.bindArgs = function(args) {
     var envCopy = shallowCopy(this.env);
-    for (var i=0; i<this.requiredFormals.length; ++i)
+    for (var i = 0; i < this.requiredFormals.length; ++i)
         envCopy[this.requiredFormals[i]] = args[i];
     if (this.maybeDottedFormal)
         envCopy[this.maybeDottedFormal] = arrayToList(args.slice(this.requiredFormals.length, args.length));
     return envCopy;
 };
+
+
 
 function shallowCopy(hash) {
     var ans = {};
@@ -591,12 +597,12 @@ var builtins = (function() {
             return targetEnv;
         }
 
-        if (targetEnv.bound(name))
+        if (targetEnv[name])
             console.log('warning, redefining ' + name);
 
         requirePresenceOf(name, argtypes, targetEnv);
 
-        targetEnv.bindVar(name, function() {
+        targetEnv[name] = function() {
 
             // Check correct number of arguments
             if (argc) {
@@ -614,7 +620,7 @@ var builtins = (function() {
                 /* If argtypes is something like 'number', that means every argument
                  must be a number. */
                 if (typeof argtypes === 'string') {
-                    var classifier = targetEnv.lookup(argtypes + '?');
+                    var classifier = targetEnv[argtypes + '?'];
                     for (var i = 0; i < arguments.length; ++i)
                         if (!classifier(arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes);
@@ -624,19 +630,19 @@ var builtins = (function() {
                  the arguments array and ensure each argument has its expected type. */
                 else if (argtypes instanceof Array) {
                     for (var i = 0; i < arguments.length; ++i)
-                        if (argtypes[i] && !targetEnv.lookup(argtypes[i] + '?')(arguments[i]))
+                        if (argtypes[i] && !targetEnv[argtypes[i] + '?'](arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
                 }
             }
 
             // If everything checks out, call the JavaScript builtin
             return proc.apply(null, arguments);
-        });
+        };
     }
 
     function requirePresenceOf(name, argtypes, targetEnv) {
         if (argtypes) {
-            if (typeof argtypes === 'string' && !targetEnv.bound(argtypes + '?'))
+            if (typeof argtypes === 'string' && !targetEnv[argtypes + '?'])
                 throw new InternalInterpreterError('builtin procedure '
                     + name
                     + ' requires an argument to have type '
@@ -644,7 +650,7 @@ var builtins = (function() {
                     + ", but the default environment doesn't know about that type yet");
             else if (argtypes instanceof Array) {
                 for (var i = 0; i < argtypes.length; ++i)
-                    if (!targetEnv.bound(argtypes[i] + '?'))
+                    if (!targetEnv[argtypes[i] + '?'])
                         throw new InternalInterpreterError('builtin procedure '
                             + name
                             + ' requires an argument to have type '
@@ -655,7 +661,7 @@ var builtins = (function() {
     }
 
 
-    var builtins = new Env();
+    var builtins = {};
 
     [builtinTypeProcs,
         builtinCharProcs,

@@ -528,10 +528,10 @@ Parser.prototype['transformer-spec'] = function() {
         {type: 'syntax-rules'}, // a terminal
         {type: '('},
         /* The parser currently doesn't support + and * applied to terminals.
-            This would require writing token stream backup logic that is built in to
-            onNonterminal. I decided it was easier to add a vacuous nonterminal
-            'transformer-spec-identifier' to the grammar, so we can reuse the token
-            stream backup logic. */
+         This would require writing token stream backup logic that is built in to
+         onNonterminal. I decided it was easier to add a vacuous nonterminal
+         'transformer-spec-identifier' to the grammar, so we can reuse the token
+         stream backup logic. */
         {type: 'transformer-spec-identifier', atLeast: 0},
         {type: ')'},
         {type: 'syntax-rule', atLeast: 0}, // a nonterminal
@@ -566,7 +566,7 @@ Parser.prototype['syntax-rule'] = function() {
  | #(<pattern>*)
  | #(<pattern>+ <ellipsis>)
  | <pattern datum>
- */
+*/
 Parser.prototype['pattern'] = function() {
     return this.alternation(
         [
@@ -709,7 +709,10 @@ Parser.prototype['syntax-definition'] = function() {
     return this.rhs(
         {type: '('},
         {type: 'define-syntax'},
-        {type: 'identifier', nodeName: 'keyword', rememberTerminalText: true},
+        {type: function(token) {
+            return token.tokenType === 'identifier';
+        },
+            nodeName: 'keyword', rememberTerminalText: true},
         {type: 'transformer-spec'},
         {type: ')'}
     );
