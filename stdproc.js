@@ -591,12 +591,12 @@ var builtins = (function() {
             return targetEnv;
         }
 
-        if (targetEnv[name])
+        if (targetEnv.bound(name))
             console.log('warning, redefining ' + name);
 
         requirePresenceOf(name, argtypes, targetEnv);
 
-        targetEnv[name] = function() {
+        targetEnv.bindVar(name, function() {
 
             // Check correct number of arguments
             if (argc) {
@@ -614,7 +614,7 @@ var builtins = (function() {
                 /* If argtypes is something like 'number', that means every argument
                  must be a number. */
                 if (typeof argtypes === 'string') {
-                    var classifier = targetEnv[argtypes + '?'];
+                    var classifier = targetEnv.lookup(argtypes + '?');
                     for (var i = 0; i < arguments.length; ++i)
                         if (!classifier(arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes);
@@ -624,19 +624,19 @@ var builtins = (function() {
                  the arguments array and ensure each argument has its expected type. */
                 else if (argtypes instanceof Array) {
                     for (var i = 0; i < arguments.length; ++i)
-                        if (argtypes[i] && !targetEnv[argtypes[i] + '?'](arguments[i]))
+                        if (argtypes[i] && !targetEnv.lookup(argtypes[i] + '?')(arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
                 }
             }
 
             // If everything checks out, call the JavaScript builtin
             return proc.apply(null, arguments);
-        };
+        });
     }
 
     function requirePresenceOf(name, argtypes, targetEnv) {
         if (argtypes) {
-            if (typeof argtypes === 'string' && !targetEnv[argtypes + '?'])
+            if (typeof argtypes === 'string' && !targetEnv.bound(argtypes + '?'))
                 throw new InternalInterpreterError('builtin procedure '
                     + name
                     + ' requires an argument to have type '
@@ -644,7 +644,7 @@ var builtins = (function() {
                     + ", but the default environment doesn't know about that type yet");
             else if (argtypes instanceof Array) {
                 for (var i = 0; i < argtypes.length; ++i)
-                    if (!targetEnv[argtypes[i] + '?'])
+                    if (!targetEnv.bound(argtypes[i] + '?'))
                         throw new InternalInterpreterError('builtin procedure '
                             + name
                             + ' requires an argument to have type '
@@ -655,7 +655,7 @@ var builtins = (function() {
     }
 
 
-    var builtins = {};
+    var builtins = new Env();
 
     [builtinTypeProcs,
         builtinCharProcs,
