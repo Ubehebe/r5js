@@ -320,7 +320,7 @@ Parser.prototype['abbreviation'] = function() {
             switch (token.tokenType) {
                 case "'":
                 case '`':
-                case '.':
+                case ',':
                 case ',@':
                     return true;
                 default:
