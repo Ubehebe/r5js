@@ -21,8 +21,11 @@ function SchemeMacro(keyword, transformerSpec) {
     }
 }
 
-function SyntaxPattern(tree) {
-    this.tree = tree;
+function contains(array, x) {
+    for (var i = 0; i < array.length; ++i)
+        if (array[i] === x)
+            return true;
+    return false;
 }
 
 /* 4.3.2: An input form F matches a pattern P if and only if:
@@ -40,28 +43,62 @@ function SyntaxPattern(tree) {
  respectively, and each remaining element of F matches Pn+1; or
  (8) P is a datum and F is equal to P in the sense of the equal? procedure.
  */
-SyntaxPattern.prototype.matches = function(datum) {
+function syntaxPatternMatches(pattern, datum, literals, definitionEnv, useEnv) {
+
+    var patternIsId = pattern['pattern-identifier'];
+    var patternIsLiteralId = patternIsId && contains(literals, patternIsId.identifier);
+    var datumIsId = datum['simple-datum'];
+
+    var patternIsList = pattern['pattern'] instanceof Array;
+    var patternProperList = patternIsList && !pattern['.pattern'] && pattern['pattern'];
+    var datumIsList = datum['compound-datum'] && datum['compound-datum'].list;
+    var datumProperList = datumIsList && !datum['compound-datum'].list['.datum']
+        && datum['compound-datum'].list.datum;
 
     // rule 1
-    if (this.tree['pattern-identifier'] /* todo bl: && is literal */)
+    if (patternIsId && !patternIsLiteralId)
         return true;
 
     // rule 2
-    else if (this.tree['pattern-identifier'] /* todo bl: && is not literal */
-        && datum['simple-datum']
-        && datum['simple-datum'].text === this.tree['pattern-identifier'].identifier)
-        return true;
+    /* 4.3.2: A subform in the input matches a literal identifier if and only if
+     it is an identifier and either both its occurrence in the macro expression
+     and its occurrence in the macro definition have the same lexical binding,
+     or the two identifiers are equal and both have no lexical binding. */
+    else if (patternIsLiteralId && datumIsId) {
+        var definitionBinding = definitionEnv[patternIsId.identifier];
+        var useBinding = useEnv[datumIsId.text];
+        if (definitionBinding === undefined
+            && useBinding === undefined
+            && patternIsId.identifier === datumIsId.text)
+            return true;
+        else if (definitionBinding !== undefined
+            && useBinding !== undefined
+            && definitionBinding === useBinding)
+            return true;
+        else return false;
+    }
 
     // rule 3
-    else if (this.tree['pattern'] instanceof Array
-        && datum.list
-        && datum.list.datum.length == this.tree['pattern'].length) {
-        var patterns = this.tree['pattern'];
-        var forms = datum.list.datum;
-        for (var i=0; i<patterns.length; ++i)
-            if (!patterns[i].matches(forms[i]))
+    else if (patternProperList && datumProperList) {
+        if (patternProperList.length !== datumProperList.length)
+            return false;
+        for (var i = 0; i < patternProperList.length; ++i)
+            if (!syntaxPatternMatches(patternProperList[i], datumProperList[i], literals, definitionEnv, useEnv))
                 return false;
         return true;
+    }
+
+    else if (patternIsList && !patternProperList && datumIsList) {
+        if (datum['compound-datum'].list.datum.length < pattern.pattern.length+1)
+            return false;
+        else if (datumProperList) {
+            var patternImproperList = pattern['pattern'];
+            for (var i=0; i<patternImproperList.length; ++i)
+                if (!syntaxPatternMatches(patternImproperList[i], datumProperList[i], literals, definitionEnv, useEnv))
+                    return false;
+            // Ugh, artificially construct the nth cdr since our structures aren't recursive
+            var datumNthCdr = 
+        }
     }
 
 
@@ -70,4 +107,5 @@ SyntaxPattern.prototype.matches = function(datum) {
     // ...
     else return false;
 
-};
+}
+;
