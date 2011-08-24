@@ -14,6 +14,17 @@ Parser.prototype.nextToken = function() {
     return this.readyTokens[this.nextTokenToReturn++];
 };
 
+// todo bl: tokens should already have start and stop offsets.
+// Once I rewrite the scanner to do that, this can go away.
+Parser.prototype.prevTokenOffset = function() {
+    /* Because of the postincrement in nextToken(),
+        this.nextTokenToReturn-1 would return the *current* token */
+    var peek = this.nextTokenToReturn-2;
+    return peek >= 0 && peek < this.readyTokens.length
+        ? this.readyTokens[peek].offset
+        : 0;
+};
+
 Parser.prototype.assertNextToken = function(predicate) {
     var n = this.nextToken();
     return predicate(n) ? n : this.fail(n, 'expected ' + predicate);
@@ -31,7 +42,6 @@ Parser.prototype.fail = function(token, msg) {
 Parser.prototype.rhs = function() {
     var ans = {};
     var parseFunction;
-
     var tokenStreamStart = this.nextTokenToReturn;
 
     for (var i = 0; i < arguments.length; ++i) {
@@ -55,7 +65,7 @@ Parser.prototype.rhs = function() {
 Parser.prototype.onNonterminal = function(ansBuffer, element, parseFunction) {
 
     // Handle * and +
-    if (element.atLeast !== undefined) { // explicit undefined since 0 should be valid
+    if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
         var repeated = [];
         var rep;
         while (!(rep = parseFunction.apply(this)).fail) {
@@ -103,6 +113,11 @@ Parser.prototype.onTerminal = function(ansBuffer, element) {
          If so, we could dispense with rememberTerminalText. */
         if (element.rememberTerminalText)
             ansBuffer[element.nodeName] = token.value;
+        // Only the first terminal in a rule should record this
+        if (ansBuffer.start === undefined)
+            ansBuffer.start = this.prevTokenOffset();
+        // Only the last terminal in a rule should record this
+        ansBuffer.stop = token.offset;
         return ansBuffer;
     } else return token;
 };

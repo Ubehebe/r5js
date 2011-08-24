@@ -97,15 +97,10 @@ function syntaxPatternMatches(pattern, datum, literals, definitionEnv, useEnv) {
                 if (!syntaxPatternMatches(patternImproperList[i], datumProperList[i], literals, definitionEnv, useEnv))
                     return false;
             // Ugh, artificially construct the nth cdr since our structures aren't recursive
-            var datumNthCdr = 
         }
     }
-
-
-
 
     // ...
     else return false;
 
 }
-;

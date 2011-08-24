@@ -17,7 +17,7 @@
         }
 
         function doParse() {
-            console.log((new Parser(document.getElementById('toEval').value)).parse(document.getElementById('lhs').value));
+            console.log(new Parser(document.getElementById('toEval').value).parse(document.getElementById('lhs').value));
         }
 
         function doEval() {
@@ -28,6 +28,14 @@
             } catch (x) {
                 document.getElementById('result').value = x.toString();
             }
+        }
+
+        function doReparse() {
+            var text = document.getElementById('toEval').value;
+            var node = new Parser(text).parse(document.getElementById('reparseFrom').value);
+            var newText = recoverText(node, text);
+            var newParse = new Parser(newText).parse(document.getElementById('reparseTo').value);
+            console.log(newParse);
         }
     </script>
 
@@ -45,6 +53,11 @@
 </p>
 <p>
     <button onclick='doEval()'>eval</button>
+</p>
+<p>
+    <button onclick='doReparse()'>reparse</button>
+    <label>from:</label><textarea id='reparseFrom' rows="1" cols="20"></textarea>
+    <label>to:</label><textarea id='reparseTo' rows="1" cols="20"></textarea>
 </p>
 </body>
 </html>

@@ -55,7 +55,16 @@ function _Eval(tree, env, lhs) {
      The operator and operand expressions are evaluated (in an unspecified order)
      and the resulting procedure is passed the resulting arguments. */
     valueOf['procedure-call'] = function(tree, env) {
+
         var proc = valueOf['expression'](tree['operator'], env);
+
+        if (tree['operator'].variable && proc instanceof SchemeMacro) {
+            var datums = tree['operand'].map(function(expr) {
+                return exprToDatum(expr);
+            });
+            var syntheticMacroTree = {keyword: tree['operator'].variable.identifier, datum: datums };
+            return valueOf['macro-use'](syntheticMacroTree, env);
+        }
 
         var args = tree['operand'].map(function(node) { // ecmascript compatibility?
             return valueOf['expression'](node, env);
@@ -206,4 +215,46 @@ function _Eval(tree, env, lhs) {
     }
 
     return valueOf[lhs || 'program'](tree, env);
+}
+
+function recoverText(node, text) {
+    var start = findStart(node);
+    var stop = findStop(node);
+    return text.substr(start, stop - start);
+}
+
+function findStart(node) {
+    var ans;
+    var candidate;
+    for (var k in node) {
+        var child = node[k];
+        if (child.start !== undefined)
+            candidate = child.start;
+        // The first entry in the array is guaranteed to have the lowest start
+        else if (child instanceof Array && child.length > 0)
+            candidate = findStart(child[0]);
+        else if (typeof child === 'object')
+            candidate = findStart(child);
+        if (ans === undefined || candidate < ans)
+            ans = candidate;
+    }
+    return ans;
+}
+
+function findStop(node) {
+    var ans;
+    var candidate;
+    for (var k in node) {
+        var child = node[k];
+        if (child.stop !== undefined)
+            candidate = child.stop;
+        // The last entry in the array is guaranteed to have the highest start
+        else if (child instanceof Array && child.length > 0)
+            candidate = findStop(child[child.length-1]);
+        else if (typeof child === 'object')
+            candidate = findStop(child);
+        if (ans === undefined || candidate > ans)
+            ans = candidate;
+    }
+    return ans;
 }
