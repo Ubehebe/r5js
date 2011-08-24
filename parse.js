@@ -238,14 +238,18 @@ Parser.prototype['self-evaluating'] = function() {
 };
 
 // <datum> -> <simple datum> | <compound datum>
+// <compound datum> -> <list> | <vector>
 Parser.prototype['datum'] = function() {
     return this.alternation(
         [
             {type: 'simple-datum'}
         ],
         [
-            {type: 'compound-datum'}
-        ]);
+            {type: 'list'}
+        ],
+        [
+            {type: 'vector'}
+        ])
 };
 
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
@@ -266,17 +270,6 @@ Parser.prototype['simple-datum'] = function() {
                     return false;
             }
         }, nodeName: 'text', rememberTerminalText: true});
-};
-
-// <compound datum> -> <list> | <vector>
-Parser.prototype['compound-datum'] = function() {
-    return this.alternation(
-        [
-            {type: 'list'}
-        ],
-        [
-            {type: 'vector'}
-        ]);
 };
 
 // <list> -> (<datum>*) | (<datum>+ . <datum>) | <abbreviation>
@@ -566,7 +559,7 @@ Parser.prototype['syntax-rule'] = function() {
  | #(<pattern>*)
  | #(<pattern>+ <ellipsis>)
  | <pattern datum>
-*/
+ */
 Parser.prototype['pattern'] = function() {
     return this.alternation(
         [
