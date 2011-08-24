@@ -238,11 +238,25 @@ Parser.prototype['self-evaluating'] = function() {
 };
 
 // <datum> -> <simple datum> | <compound datum>
+// <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
 // <compound datum> -> <list> | <vector>
+// <symbol> -> <identifier>
 Parser.prototype['datum'] = function() {
     return this.alternation(
         [
-            {type: 'simple-datum'}
+            {type: function(token) {
+                switch (token.tokenType) {
+                    case 'identifier':
+                    case 'boolean':
+                    case 'number':
+                    case 'character':
+                    case 'string':
+                    case 'symbol':
+                        return true;
+                    default:
+                        return false;
+                }
+            }, nodeName: 'text', rememberTerminalText: true}
         ],
         [
             {type: 'list'}
@@ -250,26 +264,6 @@ Parser.prototype['datum'] = function() {
         [
             {type: 'vector'}
         ])
-};
-
-// <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
-// <symbol> -> <identifier>
-Parser.prototype['simple-datum'] = function() {
-
-    return this.rhs(
-        {type: function(token) {
-            switch (token.tokenType) {
-                case 'identifier':
-                case 'boolean':
-                case 'number':
-                case 'character':
-                case 'string':
-                case 'symbol':
-                    return true;
-                default:
-                    return false;
-            }
-        }, nodeName: 'text', rememberTerminalText: true});
 };
 
 // <list> -> (<datum>*) | (<datum>+ . <datum>) | <abbreviation>
