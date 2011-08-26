@@ -165,13 +165,27 @@ function _Eval(tree, env, text) {
         } else throw new UnboundVariable(id);
     };
 
+    /* 4.3.2: A use of a macro whose keyword is associated with a transformer
+        specified by syntax-rules is matched against the patterns contained in the
+        <syntax rule>s, beginning with the leftmost <syntax rule>. When a match
+        is found, the macro use is transcribed hygienically according to the template. */
+    valueOf['macro-use'] = function(tree, env, text) {
+
+        var macro = env[tree.keyword];
+        var rule = macro.matchInput(tree.datum, env);
+        if (rule) {
+            var toReparse = rule.hygienicTranscription(tree); // todo bl
+            return _Eval(new Parser(toReparse), env, text);
+        } else throw new MacroError(tree.keyword, "macro use did not match any rule");
+    };
+
     valueOf['program'] = valueOfLastChild;
     valueOf['command-or-definition'] = valueOfOnlyChild;
 
     /* 5.3: The top-level syntactic environment is extended by
      binding the <keyword> to the specified transformer. */
     valueOf['syntax-definition'] = function(tree, env, text) {
-        env[tree.keyword] = new SchemeMacro(tree['keyword'], tree['transformer-spec']);
+        env[tree.keyword] = new SchemeMacro(tree['keyword'], tree['transformer-spec'], env);
     };
 
     var ans = valueOf[tree.type || 'program'](tree, env, text);
