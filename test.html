@@ -3,6 +3,7 @@
 <html>
 <head>
     <title></title>
+    <script type="text/javascript" src="types.js"></script>
     <script type="text/javascript" src="errors.js"></script>
     <script type="text/javascript" src="scan.js"></script>
     <script type="text/javascript" src="parse.js"></script>
@@ -22,7 +23,8 @@
 
         function doEval() {
             try {
-                var ans = _Eval(new Parser(document.getElementById('toEval').value).parse(), builtins, 'program');
+                var text = document.getElementById('toEval').value;
+                var ans = _Eval(new Parser(text).parse(), builtins, text);
                 console.log(ans);
                 document.getElementById('result').value = '' + ans;
             } catch (x) {

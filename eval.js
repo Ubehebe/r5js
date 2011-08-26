@@ -1,16 +1,16 @@
-function _Eval(tree, env, lhs) {
+function _Eval(tree, env, text) {
 
-    var valueOfOnlyChild = function(tree, env) {
+    var valueOfOnlyChild = function(tree, env, text) {
         for (var child in tree)
-            return valueOf[tree[child].type](tree[child], env);
+            return valueOf[tree[child].type](tree[child], env, text);
     };
 
-    var valueOfLastChild = function(tree, env) {
+    var valueOfLastChild = function(tree, env, text) {
         for (var child in tree) {
             var siblings = tree[child];
             var val;
             for (var i = 0; i < siblings.length; ++i)
-                val = valueOf[siblings[i].type](siblings[i], env);
+                val = valueOf[siblings[i].type](siblings[i], env, text);
             return val;
         }
     };
@@ -21,7 +21,7 @@ function _Eval(tree, env, lhs) {
 
     /* 4.1.1: The value of the variable reference is the value stored in the location
      to which the variable is bound. It is an error to reference an unbound variable. */
-    valueOf['variable'] = function(tree, env) {
+    valueOf['variable'] = function(tree, env, text) {
         var maybeAns = env[tree['identifier']];
         if (maybeAns !== undefined)
             return maybeAns;
@@ -33,13 +33,14 @@ function _Eval(tree, env, lhs) {
     /* 4.1.2: (quote <datum>) evaluates to <datum>.
      (quote <datum>) may be abbreviated as '<datum>.
      The two notations are equivalent in all respects. */
-    valueOf['quotation'] = function(tree, env) {
-        return externalRepresentation(tree['datum']);
+    valueOf['quotation'] = function(tree, env, text) {
+        // Notice that this returns a parse tree!
+        return new SchemeDatum(tree['datum'], text);
     };
 
     /* 4.1.2: Numerical constants, string constants, character constants,
      and boolean constants evaluate "to themselves". */
-    valueOf['self-evaluating'] = function(tree, env) {
+    valueOf['self-evaluating'] = function(tree, env, text) {
         if (tree['boolean'] !== undefined)
             return tree['boolean'];
         else if (tree['number'])
@@ -54,20 +55,23 @@ function _Eval(tree, env, lhs) {
      expressions for the procedure to be called and the arguments to be passed to it.
      The operator and operand expressions are evaluated (in an unspecified order)
      and the resulting procedure is passed the resulting arguments. */
-    valueOf['procedure-call'] = function(tree, env) {
+    valueOf['procedure-call'] = function(tree, env, text) {
 
-        var proc = valueOf['expression'](tree['operator'], env);
+        var proc = valueOf['expression'](tree['operator'], env, text);
 
+        /* A macro use is syntactically indistinguishable from a procedure call, except
+         tha the "operator" must be an identifier (while in a procedure call it can be
+         any expression). So we evaluate the "operator". If it is syntactically an identifier
+         that refers to a macro, we switch to the macro evaluation.
+
+         7.1.2: Note that any string that parses as an <expression> will also parse
+         as a <datum>. */
         if (tree['operator'].variable && proc instanceof SchemeMacro) {
-            var datums = tree['operand'].map(function(expr) {
-                return exprToDatum(expr);
-            });
-            var syntheticMacroTree = {keyword: tree['operator'].variable.identifier, datum: datums };
-            return valueOf['macro-use'](syntheticMacroTree, env);
+            return valueOf['macro-use'](new Parser(recoverText(tree, text)).parse('macro-use'), env, text);
         }
 
         var args = tree['operand'].map(function(node) { // ecmascript compatibility?
-            return valueOf['expression'](node, env);
+            return valueOf['expression'](node, env, text);
         });
 
         // A primitive procedure, represented by a JavaScript function.
@@ -78,7 +82,7 @@ function _Eval(tree, env, lhs) {
         // A non-primitive procedure, represented by a SchemeProcedure object.
         else if (proc instanceof SchemeProcedure) {
             proc.checkNumArgs(args.length);
-            return valueOf['body'](proc.body, proc.bindArgs(args));
+            return valueOf['body'](proc.body, proc.bindArgs(args), text);
         }
 
         else throw new SemanticError('The object ' + proc + 'is not applicable');
@@ -87,7 +91,7 @@ function _Eval(tree, env, lhs) {
     /* 4.1.4: A lambda expression evaluates to a procedure.
      The environment in effect when the lambda expression was evaluated
      is remembered as part of the procedure. */
-    valueOf['lambda-expression'] = function(tree, env) {
+    valueOf['lambda-expression'] = function(tree, env, text) {
         var formals = tree['formals'];
         var requiredFormals = formals['variable'] instanceof Array
             ? formals['variable'].map(function(v) { // the usual case: e.g. (lambda (x y) ...)
@@ -98,21 +102,18 @@ function _Eval(tree, env, lhs) {
         return new SchemeProcedure(requiredFormals, maybeDottedFormal, env, tree['body']);
     };
 
-    valueOf['body'] = function(tree, env) {
+    valueOf['body'] = function(tree, env, text) {
         var definitions = tree['definition'];
         for (var i = 0; i < definitions.length; ++i)
             valueOf['definition'](definitions[i], env);
-        return valueOf['sequence'](tree['sequence'], env);
+        return valueOf['sequence'](tree['sequence'], env, text);
     };
 
-    valueOf['definition'] = function(tree, env) {
-
-        // todo bl -- make the evaluator more functional?
-        // perhaps return the new environment explicitly?
+    valueOf['definition'] = function(tree, env, text) {
 
         // (begin (define x 1) (define y 2))
         if (tree['definition']) {
-            valueOfLastChild(tree, env);
+            valueOfLastChild(tree, env, text);
         }
 
         /* (define (foo x y) (+ x y))
@@ -130,7 +131,7 @@ function _Eval(tree, env, lhs) {
 
         // (define x 1)
         else {
-            env[tree['variable'].identifier] = valueOf['expression'](tree['expression'], env);
+            env[tree['variable'].identifier] = valueOf['expression'](tree['expression'], env, text);
         }
 
         // no useful "value" of a definition
@@ -143,12 +144,12 @@ function _Eval(tree, env, lhs) {
      is evaluated and its value(s) is (are) returned. Otherwise <alternate> is evaluated
      and its value(s) is (are) returned. If <test> yields a false value and no <alternate>
      is specified, then the result of the expression is unspecified. */
-    valueOf['conditional'] = function(tree, env) {
+    valueOf['conditional'] = function(tree, env, text) {
         /* 6.3.1: Of all the standard Scheme values, only #f counts
          as false in conditional expressions. */
-        return (valueOf['expression'](tree['test'], env) === false)
-            ? (tree['alternate'] ? valueOf['expression'](tree['alternate'], env) : undefined)
-            : valueOf['expression'](tree['consequent'], env);
+        return (valueOf['expression'](tree['test'], env, text) === false)
+            ? (tree['alternate'] ? valueOf['expression'](tree['alternate'], env, text) : undefined)
+            : valueOf['expression'](tree['consequent'], env, text);
     };
 
     /* 4.1.6: (set! <variable> <expression>)
@@ -156,10 +157,10 @@ function _Eval(tree, env, lhs) {
      in the location to which <variable> is bound. <Variable> must be bound either in
      some region enclosing the set! expression or at top level.
      The result of the set! expression is unspecified. */
-    valueOf['assignment'] = function(tree, env) {
+    valueOf['assignment'] = function(tree, env, text) {
         var id = tree['variable'].identifier;
         if (env[id] !== undefined) {
-            env[id] = valueOf['expression'](tree['expression'], env);
+            env[id] = valueOf['expression'](tree['expression'], env, text);
             return undefined;
         } else throw new UnboundVariable(id);
     };
@@ -169,52 +170,14 @@ function _Eval(tree, env, lhs) {
 
     /* 5.3: The top-level syntactic environment is extended by
      binding the <keyword> to the specified transformer. */
-    valueOf['syntax-definition'] = function(tree, env) {
+    valueOf['syntax-definition'] = function(tree, env, text) {
         env[tree.keyword] = new SchemeMacro(tree['keyword'], tree['transformer-spec']);
     };
 
-// todo bl investigate doing this in the parser
-    function externalRepresentation(datum) {
-        var node;
-        var ans = [];
-        if (node = datum['simple-datum']) {
-            return node['text'];
-        } else if (node = datum['compound-datum']) {
-
-            if (node = node['list']) {
-
-                if (node['abbreviation']) {
-
-                    console.log(node);
-
-                    throw new Error("todo bl!");
-
-                } else {
-
-                    for (var i = 0; i < node['datum'].length; ++i)
-                        ans.push(externalRepresentation(node['datum'][i]));
-                    if (node['.datum']) {
-                        ans.push('.');
-                        ans.push(externalRepresentation(node['.datum']));
-                    }
-                    return '(' + ans.join(' ') + ')';
-                }
-
-
-            } else if (node = datum['compound-datum']['vector']) {
-                for (var i = 0; i < node['datum'].length; ++i)
-                    ans.push(externalRepresentation(node['datum'][i]));
-                return '#(' + ans.join(' ') + ')';
-            }
-
-            else throw new Error('compound-datum that is neither list nor vector, ' +
-                    'should never happen -- indicates logical bug in parser', datum['compound-datum']);
-
-        } else throw new Error('datum that is neither simple-datum nor compound-datum, '
-            + 'should never happen -- indicates logical bug in parser', datum);
-    }
-
-    return valueOf[lhs || 'program'](tree, env);
+    var ans = valueOf[tree.type || 'program'](tree, env, text);
+    return (ans instanceof Object && ans.toString !== undefined)
+        ? ans.toString()
+        : ans;
 }
 
 function recoverText(node, text) {
@@ -224,7 +187,7 @@ function recoverText(node, text) {
 }
 
 function findStart(node) {
-    var ans;
+    var ans = node.start;
     var candidate;
     for (var k in node) {
         var child = node[k];
@@ -242,7 +205,7 @@ function findStart(node) {
 }
 
 function findStop(node) {
-    var ans;
+    var ans = node.stop;
     var candidate;
     for (var k in node) {
         var child = node[k];
@@ -250,7 +213,7 @@ function findStop(node) {
             candidate = child.stop;
         // The last entry in the array is guaranteed to have the highest start
         else if (child instanceof Array && child.length > 0)
-            candidate = findStop(child[child.length-1]);
+            candidate = findStop(child[child.length - 1]);
         else if (typeof child === 'object')
             candidate = findStop(child);
         if (ans === undefined || candidate > ans)
