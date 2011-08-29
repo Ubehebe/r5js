@@ -1,10 +1,49 @@
+function Token(type, start, stop) {
+    this.type = type;
+    this.start = start;
+    this.stop = stop;
+}
+
+Token.prototype.setPayload = function(payload) {
+    this.payload = payload;
+    return this;
+};
+
+/* 7.1.1: Tokens which require implicit termination (identifiers, numbers,
+ characters, and dot) may be terminated by any <delimiter>, but not
+ necessarily by anything else. */
+Token.prototype.requiresDelimiterTermination = function() {
+    switch (this.type) {
+        case 'identifier':
+
+        case 'number':
+        case 'character':
+        case '.':
+            return true;
+        default:
+            return false;
+    }
+};
+
+Token.prototype.rememberPayload = function() {
+    switch (this.type) {
+        case 'identifier':
+        case 'boolean':
+        case 'number':
+        case 'character':
+        case 'string':
+        return true;
+        default:
+        return false;
+    }
+};
+
 function Scanner(text) {
     this.text = text;
     this.offset = 0;
     this.lastTypeScanned = null;
     this.payload = null;
     this.numberBase = null;
-    this.rememberText = null;
 }
 
 Scanner.prototype.nextToken = function() {
@@ -13,17 +52,18 @@ Scanner.prototype.nextToken = function() {
     while (!this.isEof() && this['intertoken-space']())
         ;
 
+    var start = this.offset;
+
     if (!this.isEof() && this['token']()) {
-        // todo bl offset information?
-        var ans = {type: this.lastTypeScanned};
-        if (this.payload) {
-            ans.payload = this.payload;
-            this.payload = null;
-        }
-        // should every token be thus delimited?
-        return (!this.isEof() && ' \n()";'.indexOf(this.text.charAt(this.offset)) === -1)
-            ? null
-            : ans;
+        var token = new Token(this.lastTypeScanned, start, this.offset);
+        if (token.rememberPayload())
+            token.setPayload(this.text.substr(start, this.offset-start));
+        this.payload = null;
+        if (token.requiresDelimiterTermination()
+            && !this.isEof()
+            && ' \n()";'.indexOf(this.text.charAt(this.offset)) === -1) {
+            return null;
+        } else return token;
     } else return null; // todo bl error reporting?
 };
 
@@ -78,8 +118,6 @@ Scanner.prototype.tryAtLeast = function(arg) {
 
 Scanner.prototype.tryOne = function(arg) {
 
-    var result;
-
     // A token class specified by a string literal
     if (arg.is)
         return this.tryExactMatch(arg.is);
@@ -99,8 +137,6 @@ Scanner.prototype.tryExactMatch = function(exactString) {
     if (s === exactString) {
         this.offset += exactString.length;
         this.lastTypeScanned = exactString;
-        if (this.rememberText)
-            this.payload = exactString;
         return true;
     } else return false;
 };
@@ -109,8 +145,6 @@ Scanner.prototype.tryCharPredicate = function(charPredicate) {
     var c = this.text.charAt(this.offset).toLowerCase();
     if (c.length === 1 && charPredicate(c)) {
         ++this.offset;
-        if (this.rememberText)
-            this.payload = c;
         return true;
     }
     else return false;
@@ -120,8 +154,6 @@ Scanner.prototype.tryType = function(type) {
     var before = this.offset;
     if (this[type]()) {
         this.lastTypeScanned = type;
-        if (this.rememberText)
-            this.payload = this.text.substr(before, this.offset - before);
         return true;
     } else return false;
 };
@@ -169,7 +201,7 @@ Scanner.prototype['token'] = function() {
             {is: '`'}
         ],
         [
-            {is: ',@'} // must precede '.' rule below
+            {is: ',@'} // must precede ',' rule below
         ],
         [
             {is: ','}
@@ -239,7 +271,6 @@ Scanner.prototype['atmosphere'] = function() {
  (But I use atLeast 1, otherwise the scanner would report whitespace without
  consuming anything.) */
 Scanner.prototype['intertoken-space'] = function() {
-    this.rememberText = false;
     return this.rhs(
         {type: 'atmosphere', atLeast: 1}
     );
@@ -247,7 +278,6 @@ Scanner.prototype['intertoken-space'] = function() {
 
 // <identifier> -> <initial> <subsequent>* | <peculiar identifier>
 Scanner.prototype['identifier'] = function() {
-    this.rememberText = true;
     return this.alternation(
         [
             {type: 'initial'},
@@ -403,7 +433,6 @@ Scanner.prototype['expression-keyword'] = function() {
 
 // <boolean> -> #t | #f
 Scanner.prototype['boolean'] = function() {
-    this.rememberText = true;
     return this.alternation(
         [
             {is: '#t'}
@@ -417,7 +446,6 @@ Scanner.prototype['boolean'] = function() {
 // <character> -> #\ <any character> | #\ <character name>
 // <character name> -> space | newline
 Scanner.prototype['character'] = function() {
-    this.rememberText = true;
     return this.alternation(
         [
             {is: '#\\'},
@@ -438,7 +466,6 @@ Scanner.prototype['character'] = function() {
 
 // <string> -> " ⟨string element⟩* "
 Scanner.prototype['string'] = function() {
-    this.rememberText = true;
     return this.rhs(
         {is: '"'},
         {type: 'string-element', atLeast: 0},
@@ -465,7 +492,6 @@ Scanner.prototype['string-element'] = function() {
 
 // <number> -> <num 2> | <num 8> | <num 10> | <num 16>
 Scanner.prototype['number'] = function() {
-    this.rememberText = true;
     return this.alternation(
         [
             {type: 'num-10'}
@@ -1387,76 +1413,3 @@ scanner.tokenize = function(raw) {
     return tokens;
 };
 
-scanner.runTests = function() {
-
-    // todo bl add negative tests (properly raises errors)
-
-    function abbrevToken(token) {
-        return {type: token.tokenType, value: token.value};
-    }
-
-    function assertValidToken(text, type) {
-        var ans = scanner.nextToken(text, 0);
-        if (!ans.success) {
-            console.error("parse error on valid token " + text + ': ');
-            console.error(ans);
-        } else if (type && type !== ans.tokenType) {
-            console.error("parse error on " + text + ": expected type " + type
-                + ", actual type " + ans.tokenType);
-        } else console.log(abbrevToken(ans));
-    }
-
-    var validTokens = {
-        'identifier': ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>', '?', '~', '_', '^', '&+', 'h+...@@@-.'],
-        'character': ['#\\c', '#\\space', '#\\newline', '#\\\\'],
-        'string': ['""', '"hello, world"', '" \\" "', '"\\\\"'],
-        'boolean': ['#t', '#f']
-    };
-
-    validTokens['number'] = (function() {
-
-        var bases = ['', '#b', '#B', '#o', '#O', '#d', '#D', '#x', '#X'];
-        var exactnesses = ['', '#e', '#E', '#i', '#I'];
-
-        var prefixes = [];
-        for (var i = 0; i < bases.length; ++i) {
-            for (var j = 0; j < exactnesses.length; ++j) {
-                prefixes.push(bases[i] + exactnesses[j])
-                prefixes.push(exactnesses[j] + bases[i]);
-            }
-        }
-
-        var exponentMarkers = ['e', 's', 'f', 'd', 'l', 'E', 'S', 'F', 'D', 'L'];
-        var signs = ['', '+', '-'];
-
-        var suffixes = [''];
-        for (var i = 0; i < exponentMarkers.length; ++i)
-            for (var j = 0; j < signs.length; ++j)
-                suffixes.push(exponentMarkers[i] + signs[j] + "2387");
-
-        var decimals = ["8762",
-            "4987566###",
-            ".765",
-            ".549867#",
-            "0.",
-            "37.###",
-            "565.54",
-            "3765.4499##",
-            "4##.",
-            "56#.",
-            "587##.#"];
-
-        var ans = [];
-        for (var i = 0; i < decimals.length; ++i)
-            for (var j = 0; j < suffixes.length; ++j)
-                ans.push(decimals[i] + suffixes[j]);
-
-        return ans;
-    })();
-
-    for (var type in validTokens)
-        validTokens[type].forEach(function(text) {
-            assertValidToken(text, type);
-        });
-
-};
