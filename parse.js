@@ -1,42 +1,40 @@
 function Parser(text) {
-    this.text = text;
-    this.textOffset = 0;
+    this.scanner = new Scanner(text);
     this.readyTokens = [];
     this.nextTokenToReturn = 0;
 }
 
 Parser.prototype.nextToken = function() {
     while (this.nextTokenToReturn >= this.readyTokens.length) {
-        var token = scanner.nextToken(this.text, this.textOffset);
+        var token = this.scanner.nextToken();
+        if (!token)
+            return null;
         this.readyTokens.push(token);
-        this.textOffset = token.offset;
     }
     return this.readyTokens[this.nextTokenToReturn++];
 };
 
-// todo bl: tokens should already have start and stop offsets.
-// Once I rewrite the scanner to do that, this can go away.
-Parser.prototype.prevTokenOffset = function() {
-    /* Because of the postincrement in nextToken(),
-        this.nextTokenToReturn-1 would return the *current* token */
-    var peek = this.nextTokenToReturn-2;
-    return peek >= 0 && peek < this.readyTokens.length
-        ? this.readyTokens[peek].offset
-        : 0;
-};
-
 Parser.prototype.assertNextToken = function(predicate) {
-    var n = this.nextToken();
-    return predicate(n) ? n : this.fail(n, 'expected ' + predicate);
+    var token = this.nextToken();
+    if (!token) return this.eof();
+    return predicate(token) ? token : this.fail(token, 'expected ' + predicate);
 };
 
-Parser.prototype.assertNextTokenValue = function(value) {
-    var n = this.nextToken();
-    return n.value === value ? n : this.fail(n, 'expected ' + value);
+Parser.prototype.assertNextTokenPayload = function(payload) {
+    var token = this.nextToken();
+    if (!token) return this.eof();
+    // Tokens like "define" have token.payload = "define", token.type = "identifier"
+    // Tokens like "(" have token.type = "(" and no token.payload
+    var compareTo = token.payload || token.type;
+    return compareTo === payload ? token : this.fail(token, 'expected ' + payload);
+};
+
+Parser.prototype.eof = function() {
+    return {fail: true, stop: this.scanner.offset, msg: 'eof'}
 };
 
 Parser.prototype.fail = function(token, msg) {
-    return {fail: true, offset: token.offset, msg: msg || 'parse error'};
+    return {fail: true, stop: token.stop, msg: msg || 'parse error'};
 };
 
 Parser.prototype.rhs = function() {
@@ -100,24 +98,20 @@ Parser.prototype.onTerminal = function(ansBuffer, element) {
     var token;
     // Usually, we want to check the string value of the next token.
     if (typeof element.type === 'string')
-        token = this.assertNextTokenValue(element.type);
+        token = this.assertNextTokenPayload(element.type);
     // But in some situations, we check the next token against an arbitrary predicate.
     else if (typeof element.type === 'function') {
         token = this.assertNextToken(element.type);
     }
 
     if (!token.fail) {
-        /* Most terminals, like ( and ), can be left out of the parse tree.
-         But things like identifiers we need to remember.
-         todo bl: are identifiers the *only* thing we need to remember?
-         If so, we could dispense with rememberTerminalText. */
-        if (element.rememberTerminalText)
-            ansBuffer[element.nodeName] = token.value;
+        if (token.payload && !isSyntacticKeyword(token.payload))
+            ansBuffer[element.nodeName] = token.payload;
         // Only the first terminal in a rule should record this
         if (ansBuffer.start === undefined)
-            ansBuffer.start = this.prevTokenOffset();
+            ansBuffer.start = token.start;
         // Only the last terminal in a rule should record this
-        ansBuffer.stop = token.offset;
+        ansBuffer.stop = token.stop;
         return ansBuffer;
     } else return token;
 };
@@ -131,7 +125,7 @@ Parser.prototype.alternation = function() {
         possibleRhs = this.rhs.apply(this, arguments[i]);
         if (!possibleRhs.fail)
             return possibleRhs;
-        else if (!mostInformativeError || possibleRhs.offset > mostInformativeError.offset)
+        else if (!mostInformativeError || possibleRhs.stop > mostInformativeError.stop)
             mostInformativeError = possibleRhs;
     }
     return mostInformativeError;
@@ -193,9 +187,9 @@ Parser.prototype['expression'] = function() {
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 Parser.prototype['variable'] = function() {
     return this.rhs({type: function(token) {
-            return token.tokenType === 'identifier'
-                && !isSyntacticKeyword(token.value);
-        }, nodeName: 'identifier', rememberTerminalText: true}
+            return token.type === 'identifier'
+                && !isSyntacticKeyword(token.payload);
+        }, nodeName: 'identifier'}
     );
 };
 
@@ -232,23 +226,23 @@ Parser.prototype['self-evaluating'] = function() {
     return this.alternation(
         [
             {type: function(token) {
-                return token.tokenType === 'boolean';
-            }, nodeName: 'boolean', rememberTerminalText: true}
+                return token.type === 'boolean';
+            }, nodeName: 'boolean'}
         ],
         [
             {type: function(token) {
-                return token.tokenType === 'number';
-            }, nodeName: 'number', rememberTerminalText: true}
+                return token.type === 'number';
+            }, nodeName: 'number'}
         ],
         [
             {type: function(token) {
-                return token.tokenType === 'string';
-            }, nodeName: 'string', rememberTerminalText: true}
+                return token.type === 'string';
+            }, nodeName: 'string'}
         ],
         [
             {type: function(token) {
-                return token.tokenType === 'character';
-            }, nodeName: 'character', rememberTerminalText: true}
+                return token.type === 'character';
+            }, nodeName: 'character'}
         ]);
 };
 
@@ -260,7 +254,7 @@ Parser.prototype['datum'] = function() {
     return this.alternation(
         [
             {type: function(token) {
-                switch (token.tokenType) {
+                switch (token.type) {
                     case 'identifier':
                     case 'boolean':
                     case 'number':
@@ -271,7 +265,7 @@ Parser.prototype['datum'] = function() {
                     default:
                         return false;
                 }
-            }, nodeName: 'text', rememberTerminalText: true}
+            }, nodeName: 'text'}
         ],
         [
             {type: 'list'}
@@ -319,7 +313,7 @@ Parser.prototype['abbreviation'] = function() {
 
     return this.rhs(
         {type: function(token) {
-            switch (token.tokenType) {
+            switch (token.type) {
                 case "'":
                 case '`':
                 case ',':
@@ -328,7 +322,7 @@ Parser.prototype['abbreviation'] = function() {
                 default:
                     return false;
             }
-        }, nodeName: 'abbrev-prefix', rememberTerminalText: true},
+        }, nodeName: 'abbrev-prefix'},
         {type: 'datum'}
     );
 };
@@ -479,8 +473,8 @@ Parser.prototype['macro-use'] = function() {
     return this.rhs(
         {type: '('},
         {type: function(token) {
-            return token.tokenType === 'identifier';
-        }, nodeName: 'keyword', rememberTerminalText: true},
+            return token.type === 'identifier';
+        }, nodeName: 'keyword'},
         {type: 'datum', atLeast: 0},
         {type: ')'});
 };
@@ -515,9 +509,8 @@ Parser.prototype['syntax-spec'] = function() {
     return this.rhs(
         {type: '('},
         {type: function(token) {
-            return token.tokenType === 'identifier';
-        }, nodeName: 'keyword', rememberTerminalText: true
-        },
+            return token.type === 'identifier';
+        }, nodeName: 'keyword'},
         {type: 'transformer-spec'},
         {type: ')'}
     );
@@ -544,10 +537,9 @@ Parser.prototype['transformer-spec'] = function() {
 Parser.prototype['transformer-spec-identifier'] = function() {
     return this.rhs(
         {type: function(token) {
-            return token.tokenType === 'identifier';
+            return token.type === 'identifier';
         },
-            nodeName: 'identifier',
-            rememberTerminalText: true}
+            nodeName: 'identifier'}
     );
 };
 
@@ -666,11 +658,9 @@ Parser.prototype['template-element'] = function() {
 Parser.prototype['pattern-identifier'] = function() {
     return this.rhs(
         {type: function(token) {
-            return token.tokenType === 'identifier' && token.value !== '...';
+            return token.type === 'identifier' && token.payload!== '...';
         },
-            nodeName: 'identifier',
-            rememberTerminalText: true
-        }
+            nodeName: 'identifier'}
     );
 };
 
@@ -712,9 +702,9 @@ Parser.prototype['syntax-definition'] = function() {
         {type: '('},
         {type: 'define-syntax'},
         {type: function(token) {
-            return token.tokenType === 'identifier';
+            return token.type === 'identifier';
         },
-            nodeName: 'keyword', rememberTerminalText: true},
+            nodeName: 'keyword'},
         {type: 'transformer-spec'},
         {type: ')'}
     );
@@ -725,5 +715,5 @@ Parser.prototype.parse = function(lhs) {
     if (fun)
         return fun.apply(this);
     else
-        throw new SemanticError('unknown lhs: ' + lhs);
+        throw new InternalInterpreterError('unknown lhs: ' + lhs);
 };
