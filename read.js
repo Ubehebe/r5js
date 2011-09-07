@@ -1,6 +1,31 @@
 function Datum() {
 }
 
+Datum.prototype.hasType = function(type) {
+    return this[type] !== undefined; // todo bl improper list
+};
+
+Datum.prototype.payload = function() {
+    return this['identifier']
+        || this['number']
+        || this['string']
+        || this['boolean']
+        || this['character'];
+};
+
+Datum.prototype.setParse = function(type) {
+    if (!this.nonterminals)
+        this.nonterminals = [];
+    this.nonterminals.push(type);
+};
+
+Datum.prototype.unsetParse = function() {
+    this.nonterminals = [];
+    for (var child in this)
+        if (child instanceof Datum)
+            child.unsetParse();
+};
+
 function Reader(text) {
     this.scanner = new Scanner(text);
     this.readyTokens = [];
@@ -80,9 +105,13 @@ Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
     // Handle * and +
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
         var repeated = [];
-        var rep;
-        while (rep = parseFunction.apply(this)) {
-            repeated.push(rep);
+        var prev;
+        var cur;
+        while (cur = parseFunction.apply(this)) {
+            if (prev)
+                prev.nextSibling = cur;
+            repeated.push(cur);
+            prev = cur;
         }
 
         if (repeated.length >= element.atLeast) {
@@ -121,11 +150,6 @@ Reader.prototype.onTerminal = function(ansDatum, element) {
     if (token) {
         if (token.payload)
             ansDatum[element.nodeName] = token.payload;
-        // Only the first terminal in a rule should record this
-        /*if (ansDatum.start === undefined)
-         ansDatum.start = token.start;
-         // Only the last terminal in a rule should record this
-         ansDatum.stop = token.stop;*/
         return ansDatum;
     } else return null;
 };
@@ -217,12 +241,12 @@ Reader.prototype['datum'] = function() {
                         return false;
                 }
             }},
-            {type: 'datum', nodeName: 'abbrev'}
+            {type: 'datum', nodeName: 'abbreviation'}
         ]
     );
 };
 
 Reader.prototype.read = function() {
-    ans = this['datum']();
+    var ans = this['datum']();
     return ans ? ans : {token: this.errorToken, msg: this.errorMsg};
 };
