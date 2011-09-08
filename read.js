@@ -1,17 +1,10 @@
 function Datum() {
+    /*this.firstChild = null;
+     this.nextSibling = null;
+     this.type = null;
+     this.payload = null;
+     this.nonterminals = [];*/
 }
-
-Datum.prototype.hasType = function(type) {
-    return this[type] !== undefined; // todo bl improper list
-};
-
-Datum.prototype.payload = function() {
-    return this['identifier']
-        || this['number']
-        || this['string']
-        || this['boolean']
-        || this['character'];
-};
 
 Datum.prototype.setParse = function(type) {
     if (!this.nonterminals)
@@ -24,6 +17,19 @@ Datum.prototype.unsetParse = function() {
     for (var child in this)
         if (child instanceof Datum)
             child.unsetParse();
+};
+
+Datum.prototype.appendSibling = function(sibling) {
+    if (!this.nextSibling)
+        this.nextSibling = sibling;
+    else
+        this.nextSibling.appendSibling(sibling);
+};
+
+Datum.prototype.appendChild = function(child) {
+    if (!this.firstChild)
+        this.firstChild = child;
+    else this.firstChild.appendSibling(child);
 };
 
 function Reader(text) {
@@ -44,35 +50,17 @@ Reader.prototype.nextToken = function() {
     return this.readyTokens[this.nextTokenToReturn++];
 };
 
-Reader.prototype.assertNextToken = function(predicate) {
+Reader.prototype.assertNextTokenType = function(type) {
     var token = this.nextToken();
     if (!token) {
         this.errorMsg = 'eof';
         return null;
     }
-    if (predicate(token)) {
+    if (token.type === type) {
         return token;
     } else {
         this.errorToken = token;
-        this.errorMsg = 'expected ' + predicate;
-        return null;
-    }
-};
-
-Reader.prototype.assertNextTokenPayload = function(payload) {
-    var token = this.nextToken();
-    if (!token) {
-        this.errorMsg = 'eof';
-        return null;
-    }
-    // Tokens like "define" have token.payload = "define", token.type = "identifier"
-    // Tokens like "(" have token.type = "(" and no token.payload
-    var compareTo = token.payload || token.type;
-    if (compareTo === payload) {
-        return token;
-    } else {
-        this.errorToken = token;
-        this.errorMsg = 'expected ' + payload;
+        this.errorMsg = 'expected ' + type;
         return null;
     }
 };
@@ -84,11 +72,7 @@ Reader.prototype.rhs = function() {
 
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
-        /* Prefer an explicit node name, but if none is given, default
-         to the type. This is to simplify rules like <command> -> <expression>
-         where we want to parse an expression but have the node say it is a "command". */
-        element.nodeName = element.nodeName || element.type;
-        var cur = (parseFunction = this[element.type]) // unfortunate the nonterminals share a namespace with other stuff
+        var cur = (parseFunction = this[element.type])
             ? this.onNonterminal(ansDatum, element, parseFunction)
             : this.onTerminal(ansDatum, element);
         if (!cur) {
@@ -104,23 +88,25 @@ Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
 
     // Handle * and +
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
-        var repeated = [];
-        var prev;
-        var cur;
+        var prev, cur, firstChild;
+        var num = 0;
         while (cur = parseFunction.apply(this)) {
+            ++num;
+            if (!firstChild)
+                firstChild = cur;
             if (prev)
                 prev.nextSibling = cur;
-            repeated.push(cur);
             prev = cur;
         }
 
-        if (repeated.length >= element.atLeast) {
-            ansDatum[element.nodeName] = repeated;
+        if (num >= element.atLeast) {
+            ansDatum.type = element.name || element.type;
+            ansDatum.appendChild(firstChild);
             return ansDatum;
         } else {
-            this.nextTokenToReturn -= repeated.length;
+            this.nextTokenToReturn -= num;
             this.errorMsg = 'expected at least '
-                + element.atLeast + ' ' + element.nodeName + ', got ' + repeated.length;
+                + element.atLeast + ' ' + element.nodeName + ', got ' + num;
             return null;
         }
     }
@@ -131,25 +117,20 @@ Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
         if (!parsed)
             return parsed;
         else {
-            ansDatum[element.nodeName] = parsed;
+            ansDatum.type = element.name || element.type;
+            ansDatum.appendChild(parsed);
             return ansDatum;
         }
     }
 };
 
 Reader.prototype.onTerminal = function(ansDatum, element) {
-    var token;
-    // Usually, we want to check the string value of the next token.
-    if (typeof element.type === 'string')
-        token = this.assertNextTokenPayload(element.type);
-    // But in some situations, we check the next token against an arbitrary predicate.
-    else if (typeof element.type === 'function') {
-        token = this.assertNextToken(element.type);
-    }
-
+    var token = this.assertNextTokenType(element.type);
     if (token) {
-        if (token.payload)
-            ansDatum[element.nodeName] = token.payload;
+        if (token.payload) {
+            ansDatum.payload = token.payload;
+            ansDatum.type = token.type;
+        }
         return ansDatum;
     } else return null;
 };
@@ -187,63 +168,54 @@ Reader.prototype.alternation = function() {
 Reader.prototype['datum'] = function() {
     return this.alternation(
         [
-            {type: function(token) {
-                return token.type == 'identifier';
-            }, nodeName: 'identifier'}
+            {type: 'identifier'}
         ],
         [
-            {type: function(token) {
-                return token.type === 'boolean';
-            }, nodeName: 'boolean'}
+            {type: 'boolean'}
         ],
         [
-            {type: function(token) {
-                return token.type === 'number';
-            }, nodeName: 'number'}
+            {type: 'number'}
         ],
         [
-            {type: function(token) {
-                return token.type === 'character';
-            }, nodeName: 'character'}
+            {type: 'character'}
         ],
         [
-            {type: function(token) {
-                return token.type === 'string';
-            }, nodeName: 'string'}
+            {type: 'string'}
         ],
         [
             {type: '('},
-            {type: 'datum', atLeast: 0, nodeName: 'list'},
+            {type: 'datum', atLeast: 0, name: 'list'},
             {type: ')'}
         ],
         [
             {type: '('},
-            {type: 'datum', atLeast: 1, nodeName: 'list'},
+            {type: 'datum', atLeast: 1, name: 'improper-list'},
             {type: '.'},
-            {type: 'datum', nodeName: '.list'},
+            {type: 'datum', name: 'improper-list'},
             {type: ')'}
         ],
         [
             {type: '#('},
-            {type: 'datum', atLeast: 0, nodeName: 'vector'},
+            {type: 'datum', atLeast: 0, name: 'vector'},
             {type: ')'}
         ],
         [
-            {type: function(token) {
-                switch (token.type) {
-                    // todo bl will need to remember these payloads!
-                    case "'":
-                    case '`':
-                    case ',':
-                    case ',@':
-                        return true;
-                    default:
-                        return false;
-                }
-            }},
-            {type: 'datum', nodeName: 'abbreviation'}
-        ]
-    );
+            {type: "'"},
+            {type: 'datum', name: "'"}
+        ],
+        [
+            {type: '`'},
+            {type: 'datum', name: '`'}
+        ],
+        [
+            {type: ','},
+            {type: 'datum', name: ','}
+        ],
+        [
+            {type: ',@'},
+            {type: 'datum', name: ',@'}
+        ]);
+
 };
 
 Reader.prototype.read = function() {
