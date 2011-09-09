@@ -7,18 +7,28 @@
     <script type="text/javascript" src="errors.js"></script>
     <script type="text/javascript" src="scan.js"></script>
     <script type="text/javascript" src="parse.js"></script>
+    <script type="text/javascript" src="read.js"></script>
     <script type="text/javascript" src="parse_test.js"></script>
     <script type="text/javascript" src="macro.js"></script>
     <script type="text/javascript" src="eval.js"></script>
     <script type="text/javascript" src="stdproc.js"></script>
+    <script type="text/javascript" src="unit_test.js"></script>
     <script type="text/javascript">
 
         function doScan() {
             console.log(scanner.tokenize(document.getElementById('toEval').value));
         }
 
+        function doNewScan() {
+            console.log(new Scanner(document.getElementById('toEval').value).tokenize());
+        }
+
+        function doRead() {
+            console.log(new Reader(document.getElementById('toEval').value).read());
+        }
+
         function doParse() {
-            console.log(new Parser(document.getElementById('toEval').value).parse(document.getElementById('lhs').value));
+            console.log(new Parser(new Reader(document.getElementById('toEval').value).read()).parse(document.getElementById('lhs').value));
         }
 
         function doEval() {
@@ -32,12 +42,10 @@
             }
         }
 
-        function doReparse() {
-            var text = document.getElementById('toEval').value;
-            var node = new Parser(text).parse(document.getElementById('reparseFrom').value);
-            var newText = recoverText(node, text);
-            var newParse = new Parser(newText).parse(document.getElementById('reparseTo').value);
-            console.log(newParse);
+        function doTemplateToString() {
+            var template = new Parser(document.getElementById('toEval').value).parse('template');
+            console.log(template);
+            document.getElementById('result').value = templateToString(template);
         }
     </script>
 
@@ -50,16 +58,20 @@
     <button onclick="doScan()">scan</button>
 </p>
 <p>
+    <button onclick="doNewScan()">new scan</button>
+</p>
+<p>
+    <button onclick="testScanner()">new scanner unit tests</button>
+</p>
+<p>
+    <button onclick='doRead()'>read</button>
+</p>
+<p>
     <button onclick='doParse()'>parse</button>
     <label>as:</label><textarea id = 'lhs' rows="1" cols="20"></textarea>
 </p>
 <p>
     <button onclick='doEval()'>eval</button>
-</p>
-<p>
-    <button onclick='doReparse()'>reparse</button>
-    <label>from:</label><textarea id='reparseFrom' rows="1" cols="20"></textarea>
-    <label>to:</label><textarea id='reparseTo' rows="1" cols="20"></textarea>
 </p>
 </body>
 </html>

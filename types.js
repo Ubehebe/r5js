@@ -80,12 +80,3 @@ SchemePort.prototype.toString = function() {
     return "[Port " + this.portno + "]";
 };
 
-function SchemeDatum(tree, programText) {
-    this.tree = tree;
-    this.programText = programText;
-    this.datumText = null;
-}
-
-SchemeDatum.prototype.toString = function() {
-    return this.datumText || (this.datumText = recoverText(this.tree, this.programText));
-};
