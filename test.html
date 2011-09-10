@@ -16,10 +16,6 @@
     <script type="text/javascript">
 
         function doScan() {
-            console.log(scanner.tokenize(document.getElementById('toEval').value));
-        }
-
-        function doNewScan() {
             console.log(new Scanner(document.getElementById('toEval').value).tokenize());
         }
 
@@ -58,10 +54,7 @@
     <button onclick="doScan()">scan</button>
 </p>
 <p>
-    <button onclick="doNewScan()">new scan</button>
-</p>
-<p>
-    <button onclick="testScanner()">new scanner unit tests</button>
+    <button onclick="testScanner()">scanner unit tests</button>
 </p>
 <p>
     <button onclick='doRead()'>read</button>
