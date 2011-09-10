@@ -20,8 +20,14 @@ Datum.prototype.unsetParse = function() {
 };
 
 Datum.prototype.appendSibling = function(sibling) {
-    if (!this.nextSibling)
+    if (!this.nextSibling) {
+        if (this.parent) {
+            // Propagate the parent field
+            sibling.parent = this.parent;
+            this.parent = null;
+        }
         this.nextSibling = sibling;
+    }
     else
         this.nextSibling.appendSibling(sibling);
 };
@@ -102,6 +108,7 @@ Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
         if (num >= element.atLeast) {
             ansDatum.type = element.name || element.type;
             ansDatum.appendChild(firstChild);
+            prev.parent = ansDatum;
             return ansDatum;
         } else {
             this.nextTokenToReturn -= num;
