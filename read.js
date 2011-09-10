@@ -108,7 +108,8 @@ Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
         if (num >= element.atLeast) {
             ansDatum.type = element.name || element.type;
             ansDatum.appendChild(firstChild);
-            prev.parent = ansDatum;
+            if (prev)
+                prev.parent = ansDatum;
             return ansDatum;
         } else {
             this.nextTokenToReturn -= num;

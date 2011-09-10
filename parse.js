@@ -1,5 +1,6 @@
 function Parser(root) {
     this.root = root;
+    this.prev = null;
     this.next = root;
 }
 
@@ -49,8 +50,6 @@ Parser.prototype.rewriteImproperList = function(rhsArgs) {
 
 Parser.prototype.onNonterminal = function(element, parseFunction) {
 
-    console.log('onNonterminal ' + element.type);
-
     var start = this.next;
     var parsed;
 
@@ -59,8 +58,6 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
         var numParsed = 0;
         while (parsed = parseFunction.apply(this)) {
             parsed.setParse(element.type);
-            console.log('onNonterminal: successfully parsed ' + element.type);
-            this.next = parsed.nextSibling;
             ++numParsed;
         }
 
@@ -82,7 +79,6 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
             return null;
         } else {
             parsed.setParse(element.type);
-            console.log('onNonterminal: successfully parsed ' + element.type);
             this.next = parsed.nextSibling;
             return start;
         }
@@ -92,10 +88,7 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
 Parser.prototype.advanceToChildIf = function(predicate) {
     var ans = this.next && predicate(this.next);
     if (ans) {
-        console.log('advanceToChildIf: from');
-        console.log(this.next);
-        console.log('to')
-        console.log(this.next.firstChild);
+        this.prev = this.next;
         this.next = this.next.firstChild;
     }
     return ans;
@@ -104,10 +97,7 @@ Parser.prototype.advanceToChildIf = function(predicate) {
 Parser.prototype.advanceToSiblingIf = function(predicate) {
     var ans = this.next && predicate(this.next);
     if (ans) {
-        console.log('advanceToSiblingIf: from');
-        console.log(this.next);
-        console.log('to');
-        console.log(this.next.nextSibling);
+        this.prev = this.next;
         this.next = this.next.nextSibling;
     }
     return ans;
@@ -140,10 +130,16 @@ Parser.prototype.onDatum = function(element) {
                     return datum.type === element.type;
                 });
             case ')':
-                return !this.next;
+                if (!this.next) {
+                    // todo bl YIKES (to deal with empty lists)
+                    if (!this.prev.nextSibling)
+                        this.next = this.prev.parent.nextSibling;
+                    else
+                        this.next = this.prev.nextSibling;
+                    return true;
+                } else return false;
             default:
                 return this.advanceToSiblingIf(function(datum) {
-                    console.log('comparing ' + datum.payload + ' to ' + element.type);
                     return datum.payload === element.type;
                 });
         }
