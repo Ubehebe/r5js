@@ -1,5 +1,4 @@
 function Parser(root) {
-    this.root = root;
     this.prev = null;
     this.next = root;
 }
@@ -28,9 +27,11 @@ Parser.prototype.rhs = function() {
 
 Parser.prototype.alternation = function() {
     var possibleRhs;
-    for (var i = 0; i < arguments.length; ++i)
+    for (var i = 0; i < arguments.length; ++i) {
         if (possibleRhs = this.rhs.apply(this, arguments[i]))
             return possibleRhs;
+        else console.log('alternation: failed ' + arguments[i]);
+    }
     return null;
 };
 
@@ -131,11 +132,38 @@ Parser.prototype.onDatum = function(element) {
                 });
             case ')':
                 if (!this.next) {
-                    // todo bl YIKES (to deal with empty lists)
-                    if (!this.prev.nextSibling)
-                        this.next = this.prev.parent.nextSibling;
-                    else
-                        this.next = this.prev.nextSibling;
+                    /* This is subtle. A few invariants:
+                     - this.prev is read only once in the parser, in this block.
+                     - this.prev is updated only when we move from a parent
+                     to a child or a sibling to a sibling; it is not updated when we
+                     move from a child back up to the parent.
+                     Thus, this.prev does not always point to the "correct" location.
+                     For example, after reading the first closing paren in ((foo) 1),
+                     this.prev points to foo, and it remains pointing to foo for the
+                     rest of the expression. The reason this is okay is because we
+                     will never look at this.prev until the conclusion of the next list,
+                     by which time it *will* be correct. For example, in ((foo) (bar)),
+                     this.prev will be set to bar by the time the second-to-last closing
+                     paren is read.
+
+                     If we are here, we are done parsing the current list.
+                     Normally, this means that this.prev is the last element in the list
+                     and this.next is null. this.prev.parent is the head of the current
+                     list, so the next datum to parse should be
+                     this.prev.parent.nextSibling.
+
+                     A corner case arises with empty lists. In that case, this.next is
+                     null, and this.prev points to the head of the empty list. When
+                     the empty list has a next sibling, as in (lambda () "hi"), we should parse
+                     that sibling next: this.prev.nextSibling.
+
+                     What if the empty list has no next sibling? I am not sure if this
+                     code is correct in that case, but I believe it is a nonissue; I can't
+                     think of where that could occur in the grammar of Scheme.
+                     */
+                    this.next = this.prev.nextSibling
+                        ? this.prev.nextSibling
+                        : this.prev.parent.nextSibling;
                     return true;
                 } else return false;
             default:
@@ -151,8 +179,8 @@ Parser.prototype.onDatum = function(element) {
 
 
 function isSyntacticKeyword(str) {
-    var kws = ['else', '=>', 'define', 'unquote', 'unquote-splicing', 'quote', 'lambda',
-        'if', 'set!', 'begin', 'cond', 'and', 'or', 'case', 'let', 'let*', 'letrec', 'do',
+    var kws = ['else', '=>', 'define', 'define-syntax', 'unquote', 'unquote-splicing', 'quote', 'lambda',
+        'if', 'set!', 'begin', 'cond', 'and', 'or', 'case', 'let', 'let*', 'letrec', 'let-syntax', 'letrec-syntax', 'do',
         'delay', 'quasiquote'];
 
     for (var i = 0; i < kws.length; ++i)
@@ -191,13 +219,13 @@ Parser.prototype['expression'] = function() {
         ],
         [
             {type: 'assignment'}
-        ]/*,
-         [
-         {type: 'derived-expression'} // todo bl!!!
-         ],*/
-            [
-        {type: 'macro-use'}
-            ],
+        ],
+        [
+            {type: 'derived-expression'}
+        ],
+        [
+            {type: 'macro-use'}
+        ],
         [
             {type: 'macro-block'}
         ]);
@@ -282,8 +310,6 @@ Parser.prototype['operand'] = function() {
 
 // <lambda expression> -> (lambda <formals> <body>)
 // <body> -> <definition>* <sequence>
-// <sequence> -> <command>* <expression>
-// <command> -> <expression>
 Parser.prototype['lambda-expression'] = function() {
 
     return this.rhs(
@@ -291,8 +317,14 @@ Parser.prototype['lambda-expression'] = function() {
         {type: 'lambda'},
         {type: 'formals'},
         {type: 'definition', atLeast: 0},
-        {type: 'expression', atLeast: 1},
+        {type: 'sequence'},
         {type: ')'});
+};
+
+// <sequence> -> <command>* <expression>
+// <command> -> <expression>
+Parser.prototype['sequence'] = function() {
+    return this.rhs({type: 'expression', atLeast: 1});
 };
 
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
@@ -408,6 +440,234 @@ Parser.prototype['assignment'] = function() {
         {type: 'expression'},
         {type: ')'});
 };
+
+/* <derived expression> -> (cond <cond clause>+ )
+ | (cond <cond clause>* (else <sequence>))
+ | (case <expression> <case clause>+)
+ | (case <expression> <case clause>* (else <sequence>))
+ | (and <test>*)
+ | (or <test>*)
+ | (let (<binding spec>*) <body>)
+ | (let <variable> (<binding spec>*) <body>)
+ | (let* (<binding spec>*) <body>)
+ | (letrec (<binding spec>*) <body>)
+ | (begin <sequence>)
+ | (do (<iteration spec>*) (<test> <do result>) <command>*)
+ | (delay <expression>)
+ | <quasiquotation>
+ <do result> -> <sequence> | <empty>
+ */
+Parser.prototype['derived-expression'] = function() {
+    return this.alternation(
+        [
+            {type: '('},
+            {type: 'cond'},
+            {type: 'cond-clause', atLeast: 0},
+            {type: '('},
+            {type: 'else'},
+            {type: 'sequence'},
+            {type: ')'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'case'},
+            {type: 'expression'},
+            {type: 'case-clause', atLeast: 1},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'case'},
+            {type: 'expression'},
+            {type: 'case-clause', atLeast: 0},
+            {type: '('},
+            {type: 'else'},
+            {type: 'sequence'},
+            {type: ')'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'and'},
+            {type: 'test', atLeast: 0},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'or'},
+            {type: 'test', atLeast: 0},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'let'},
+            {type: '('},
+            {type: 'binding-spec', atLeast: 0},
+            {type: ')'},
+            {type: 'definition', atLeast: 0},
+            {type: 'sequence'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'let'},
+            {type: 'variable'},
+            {type: '('},
+            {type: 'binding-spec', atLeast: 0},
+            {type: ')'},
+            {type: 'definition', atLeast: 0},
+            {type: 'sequence'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'let*'},
+            {type: '('},
+            {type: 'binding-spec', atLeast: 0},
+            {type: ')'},
+            {type: 'definition', atLeast: 0},
+            {type: 'sequence'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'letrec'},
+            {type: '('},
+            {type: 'binding-spec', atLeast: 0},
+            {type: ')'},
+            {type: 'definition', atLeast: 0},
+            {type: 'sequence'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'begin'},
+            {type: 'sequence'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'do'},
+            {type: '('},
+            {type: 'iteration-spec', atLeast: 0},
+            {type: ')'},
+            {type: '('},
+            {type: 'test'},
+            {type: 'sequence'},
+            {type: ')'},
+            {type: 'command', atLeast: 0},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'do'},
+            {type: '('},
+            {type: 'iteration-spec', atLeast: 0},
+            {type: ')'},
+            {type: '('},
+            {type: 'test'},
+            {type: ')'},
+            {type: 'command', atLeast: 0},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'delay'},
+            {type: 'expression'},
+            {type: ')'}
+        ]/*,
+         [
+         {type: 'quasiquotation'} // todo bl
+         ]*/
+    );
+};
+
+/*
+ <cond clause> -> (<test> <sequence>)
+ | (<test>)
+ | (<test> => <recipient>) */
+Parser.prototype['cond-clause'] = function() {
+    return this.alternation(
+        [
+            {type: '('},
+            {type: 'test'},
+            {type: 'sequence'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'test'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: '=>'},
+            {type: 'recipient'},
+            {type: ')'}
+        ]
+    );
+};
+
+// <recipient> -> <expression>
+Parser.prototype['recipient'] = function() {
+    return this.rhs({type: 'expression'});
+};
+
+// <case clause> -> ((<datum>*) <sequence>)
+Parser.prototype['case-clause'] = function() {
+    return this.rhs(
+        {type: '('},
+        {type: '('},
+        {type: function(datum) {
+            return true;
+        }, atLeast: 0},
+        {type: ')'},
+        {type: 'sequence'},
+        {type: ')'}
+    );
+};
+
+// <binding spec> -> (<variable> <expression>)
+Parser.prototype['binding-spec'] = function() {
+    return this.rhs(
+        {type: '('},
+        {type: 'variable'},
+        {type: 'expression'},
+        {type: ')'}
+    );
+};
+
+/* <iteration spec> -> (<variable> <init> <step>)
+ | (<variable> <init>) */
+Parser.prototype['iteration-spec'] = function() {
+    return this.alternation(
+        [
+            {type: '('},
+            {type: 'variable'},
+            {type: 'init'},
+            {type: 'step'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'variable'},
+            {type: 'init'},
+            {type: ')'}
+        ]
+    );
+};
+
+// <init> -> <expression>
+Parser.prototype['init'] = function() {
+    return this.rhs({type: 'expression'});
+};
+
+// <step> -> <expression>
+Parser.prototype['step'] = function() {
+    return this.rhs({type: 'expression'});
+};
+
 
 // <macro use> -> (<keyword> <datum>*)
 Parser.prototype['macro-use'] = function() {
@@ -583,7 +843,8 @@ Parser.prototype['template'] = function() {
             {type: '('},
             {type: 'template-element', atLeast: 1},
             {type: '.'},
-            {type: 'template'}, // todo bl: uh oh. Only spot in grammar where (A+ . B), A != B. Unsupported.
+            {type: 'template'},
+            // todo bl: uh oh. Only spot in grammar where (A+ . B), A != B. Unsupported.
             {type: ')'}
         ],
         [
@@ -599,7 +860,7 @@ Parser.prototype['template'] = function() {
 
 // <template datum> -> <pattern datum>
 Parser.prototype['template-datum'] = function() {
-  return this.rhs({type: 'pattern-datum'});
+    return this.rhs({type: 'pattern-datum'});
 };
 
 // <template element> -> <template> | <template> <ellipsis>
@@ -658,7 +919,7 @@ Parser.prototype['command-or-definition'] = function() {
 
 // <command> -> <expression>
 Parser.prototype['command'] = function() {
-  return this.rhs({type: 'expression'});
+    return this.rhs({type: 'expression'});
 };
 
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
