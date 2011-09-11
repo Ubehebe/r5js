@@ -8,6 +8,12 @@ Parser.prototype.rhs = function() {
 
     var root = this.next;
 
+    /* This is a convenience function: we want to specify parse rules like
+     (<variable>+ . <variable>) as if we don't know ahead of time whether
+     the list is going to be dotted or not, but of course, the reader already knows.
+     Proper and improper lists are both represented as first-child-next-sibling
+     linked lists; the only difference is the type ('(' vs. '.('). So we rewrite the
+     parse rules to conform to the reader's knowledge. */
     this.rewriteImproperList(arguments);
 
     for (var i = 0; i < arguments.length; ++i) {
@@ -35,17 +41,33 @@ Parser.prototype.alternation = function() {
 };
 
 Parser.prototype.rewriteImproperList = function(rhsArgs) {
-    if (rhsArgs.length < 1 || rhsArgs[0].type !== '(')
-        return;
+    // example: (define (x . y) 1) => (define .( x . ) 1)
+    /* No RHS in the grammar has more than one dot.
+        This will break if such a rule is added. */
 
-    for (var i = 1; i < rhsArgs.length - 1; ++i) {
+    var indexOfDot = -1;
+    for (var i = 0; i < rhsArgs.length; ++i) {
         if (rhsArgs[i].type === '.') {
-            rhsArgs[0].type = '.(';
-            rhsArgs[i + 1].type = '.';
-            return;
+            indexOfDot = i;
+            break;
         }
     }
 
+    if (indexOfDot !== -1) {
+        /* Change the datum following the dot to be vacuous -- it has already
+            been read as part of the list preceding the dot.
+            todo bl: this will cause problems with exactly one part of the grammar:
+            <template> -> (<template element>+ . <template>)
+            I think it's easier to check for this in the evaluator. */
+        rhsArgs[i+1].type = '.';
+    // Find the closest opening paren to the left of the dot and rewrite it as .(
+        for (var i = indexOfDot-1; i >= 0; --i) {
+            if (rhsArgs[i].type === '(') {
+                rhsArgs[i].type = '.(';
+                return;
+            }
+        }
+    }
 };
 
 Parser.prototype.onNonterminal = function(element, parseFunction) {
@@ -110,7 +132,9 @@ Parser.prototype.onDatum = function(element) {
         switch (element.type) {
             // just for convenience; if the reader succeeded, everything is already a datum
             case 'datum':
-                return this.advanceToSiblingIf(function (datum) { return true; });
+                return this.advanceToSiblingIf(function (datum) {
+                    return true;
+                });
             // vacuous; we already rewrote ( ... . as .( ...
             case '.':
                 return true;
