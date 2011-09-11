@@ -13,10 +13,9 @@ Datum.prototype.setParse = function(type) {
 };
 
 Datum.prototype.unsetParse = function() {
-    this.nonterminals = [];
-    for (var child in this)
-        if (child instanceof Datum)
-            child.unsetParse();
+    this.nonterminals = null;
+    for (var child = this.firstChild; child; child = child.nextSibling)
+        child.unsetParse();
 };
 
 Datum.prototype.appendSibling = function(sibling) {
@@ -32,6 +31,14 @@ Datum.prototype.appendSibling = function(sibling) {
         this.nextSibling.appendSibling(sibling);
 };
 
+/* If we used this to append n children in a row, it would take time O(n^2).
+ But we don't actually use it like that. When building a list like (X*), we build
+ up the list of X's in linear time, then call appendChild once to append the
+ whole list as a child of the list root. We do incur some overhead when building
+ a list like (X+ . X): in this case, the X+ list is appended in one go, and then
+ we have to re-traverse that list once to append the final X. I expect this to be
+ rare enough not to matter in practice, but if necessary we could keep track of
+ the root's final child. */
 Datum.prototype.appendChild = function(child) {
     if (!this.firstChild)
         this.firstChild = child;
@@ -223,10 +230,12 @@ Reader.prototype['datum'] = function() {
             {type: ',@'},
             {type: 'datum', name: ',@'}
         ]);
+};
 
+Reader.prototype['datums'] = function() {
+    return this.rhs({type: 'datum', name: 'datums', atLeast: 0});
 };
 
 Reader.prototype.read = function() {
-    var ans = this['datum']();
-    return ans ? ans : {token: this.errorToken, msg: this.errorMsg};
+    return this['datums']().firstChild; // hand the parser the first real datum
 };
