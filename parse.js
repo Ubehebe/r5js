@@ -110,6 +110,7 @@ Parser.prototype.onDatum = function(element) {
         switch (element.type) {
             // just for convenience; if the reader succeeded, everything is already a datum
             case 'datum':
+                return this.advanceToSiblingIf(function (datum) { return true; });
             // vacuous; we already rewrote ( ... . as .( ...
             case '.':
                 return true;
@@ -450,6 +451,12 @@ Parser.prototype['assignment'] = function() {
  */
 Parser.prototype['derived-expression'] = function() {
     return this.alternation(
+        [
+            {type: '('},
+            {type: 'cond'},
+            {type: 'cond-clause', atLeast: 1},
+            {type: ')'}
+        ],
         [
             {type: '('},
             {type: 'cond'},
