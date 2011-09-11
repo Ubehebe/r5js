@@ -5,7 +5,7 @@ function Token(type, start, stop) {
 }
 
 Token.prototype.setPayload = function(payload) {
-    this.payload = payload;
+    this.payload = payload.toLowerCase();
     return this;
 };
 
