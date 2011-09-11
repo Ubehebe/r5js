@@ -806,7 +806,7 @@ Parser.prototype['pattern'] = function() {
             {type: 'pattern', atLeast: 1},
             {type: '...'},
             {type: ')'}
-        ], // todo bl do I support the identifier ...?
+        ],
         [
             {type: '#('},
             {type: 'pattern', atLeast: 0},
@@ -904,7 +904,6 @@ Parser.prototype['pattern-identifier'] = function() {
     );
 };
 
-// todo bl headless!
 // <program> -> <command or definition>*
 Parser.prototype['program'] = function() {
     return this.rhs(
