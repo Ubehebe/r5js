@@ -108,22 +108,14 @@ Parser.prototype.onDatum = function(element) {
     if (typeof element.type === 'string') {
 
         switch (element.type) {
+            // just for convenience; if the reader succeeded, everything is already a datum
             case 'datum':
-            return true;
-            case '(':
-                return this.advanceToChildIf(function(datum) {
-                    return datum.type === 'list';
-                });
-            case '.(':
-                return this.advanceToChildIf(function(datum) {
-                    return datum.type === 'improper-list';
-                });
-            case '#(':
-                return this.advanceToChildIf(function(datum) {
-                    return datum.type === 'vector';
-                });
+            // vacuous; we already rewrote ( ... . as .( ...
             case '.':
-                return true; // vacuous; we already rewrote ( ... . as .( ...
+                return true;
+            case '(': // the reader's notation for proper list
+            case '.(': // the reader's notation for improper (dotted) list
+            case '#(': // the reader's notation for vector
             case "'":
             case '`':
             case ',':
@@ -181,7 +173,7 @@ Parser.prototype.onDatum = function(element) {
 
 function isSyntacticKeyword(str) {
     /* todo bl: why are define-syntax, let-syntax, letrec-syntax not listed
-        in 7.1.1 as syntactic keywords? */
+     in 7.1.1 as syntactic keywords? */
     var kws = ['else', '=>', 'define', 'define-syntax', 'unquote', 'unquote-splicing', 'quote', 'lambda',
         'if', 'set!', 'begin', 'cond', 'and', 'or', 'case', 'let', 'let*', 'letrec', 'let-syntax', 'letrec-syntax', 'do',
         'delay', 'quasiquote'];
