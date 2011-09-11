@@ -130,13 +130,7 @@ Parser.prototype.onDatum = function(element) {
     if (typeof element.type === 'string') {
 
         switch (element.type) {
-            // just for convenience; if the reader succeeded, everything is already a datum
-            case 'datum':
-                return this.advanceToSiblingIf(function (datum) {
-                    return true;
-                });
-            // vacuous; we already rewrote ( ... . as .( ...
-            case '.':
+            case '.': // vacuous; we already rewrote ( ... . as .( ...
                 return true;
             case '(': // the reader's notation for proper list
             case '.(': // the reader's notation for improper (dotted) list
@@ -285,6 +279,10 @@ Parser.prototype['quotation'] = function() {
             {type: 'datum'},
             {type: ')'}
         ]);
+};
+
+Parser.prototype['datum'] = function() {
+    return this.rhs({type: function(datum) { return true; } });
 };
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
@@ -614,7 +612,7 @@ Parser.prototype['cond-clause'] = function() {
         [
             {type: '('},
             {type: 'test'},
-            {type: 'sequence'},
+            {type: 'expression', atLeast: 1},
             {type: ')'}
         ],
         [
@@ -624,6 +622,7 @@ Parser.prototype['cond-clause'] = function() {
         ],
         [
             {type: '('},
+            {type: 'test'},
             {type: '=>'},
             {type: 'recipient'},
             {type: ')'}
@@ -641,9 +640,9 @@ Parser.prototype['case-clause'] = function() {
     return this.rhs(
         {type: '('},
         {type: '('},
-        {type: 'datum'},
+        {type: 'datum', atLeast: 0},
         {type: ')'},
-        {type: 'sequence'},
+        {type: 'expression', atLeast: 1},
         {type: ')'}
     );
 };
@@ -861,8 +860,10 @@ Parser.prototype['template'] = function() {
             {type: '('},
             {type: 'template-element', atLeast: 1},
             {type: '.'},
-            {type: 'template'},
-            // todo bl: uh oh. Only spot in grammar where (A+ . B), A != B. Unsupported.
+            /* The reader, and thus the parser, do not support (X+ . Y) where X != Y.
+                This appears to be the only part of the grammar where this occurs, so
+                we can manually check in the evaluator. */
+            {type: 'template-element'},
             {type: ')'}
         ],
         [
@@ -952,7 +953,7 @@ Parser.prototype['syntax-definition'] = function() {
 };
 
 Parser.prototype.parse = function(lhs) {
-    var fun = this[lhs || 'expression'];
+    var fun = this[lhs || 'program'];
     if (fun)
         return fun.apply(this);
     else
