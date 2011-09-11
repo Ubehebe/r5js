@@ -192,19 +192,19 @@ Reader.prototype['datum'] = function() {
         ],
         [
             {type: '('},
-            {type: 'datum', atLeast: 0, name: 'list'},
+            {type: 'datum', atLeast: 0, name: '('},
             {type: ')'}
         ],
         [
             {type: '('},
-            {type: 'datum', atLeast: 1, name: 'improper-list'},
+            {type: 'datum', atLeast: 1, name: '.('},
             {type: '.'},
-            {type: 'datum', name: 'improper-list'},
+            {type: 'datum', name: '.('},
             {type: ')'}
         ],
         [
             {type: '#('},
-            {type: 'datum', atLeast: 0, name: 'vector'},
+            {type: 'datum', atLeast: 0, name: '#('},
             {type: ')'}
         ],
         [

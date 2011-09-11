@@ -30,7 +30,6 @@ Parser.prototype.alternation = function() {
     for (var i = 0; i < arguments.length; ++i) {
         if (possibleRhs = this.rhs.apply(this, arguments[i]))
             return possibleRhs;
-        else console.log('alternation: failed ' + arguments[i]);
     }
     return null;
 };
@@ -109,20 +108,14 @@ Parser.prototype.onDatum = function(element) {
     if (typeof element.type === 'string') {
 
         switch (element.type) {
-            case '(':
-                return this.advanceToChildIf(function(datum) {
-                    return datum.type === 'list';
-                });
-            case '.(':
-                return this.advanceToChildIf(function(datum) {
-                    return datum.type === 'improper-list';
-                });
-            case '#(':
-                return this.advanceToChildIf(function(datum) {
-                    return datum.type === 'vector';
-                });
+            // just for convenience; if the reader succeeded, everything is already a datum
+            case 'datum':
+            // vacuous; we already rewrote ( ... . as .( ...
             case '.':
-                return true; // vacuous; we already rewrote ( ... . as .( ...
+                return true;
+            case '(': // the reader's notation for proper list
+            case '.(': // the reader's notation for improper (dotted) list
+            case '#(': // the reader's notation for vector
             case "'":
             case '`':
             case ',':
@@ -179,6 +172,8 @@ Parser.prototype.onDatum = function(element) {
 
 
 function isSyntacticKeyword(str) {
+    /* todo bl: why are define-syntax, let-syntax, letrec-syntax not listed
+     in 7.1.1 as syntactic keywords? */
     var kws = ['else', '=>', 'define', 'define-syntax', 'unquote', 'unquote-splicing', 'quote', 'lambda',
         'if', 'set!', 'begin', 'cond', 'and', 'or', 'case', 'let', 'let*', 'letrec', 'let-syntax', 'letrec-syntax', 'do',
         'delay', 'quasiquote'];
@@ -257,16 +252,12 @@ Parser.prototype['quotation'] = function() {
     return this.alternation(
         [
             {type: "'"},
-            {type: function(datum) {
-                return true;
-            } }
+            {type: 'datum'}
         ],
         [
             {type: '('},
             {type: 'quote'},
-            {type: function(datum) {
-                return true;
-            } },
+            {type: 'datum'},
             {type: ')'}
         ]);
 };
@@ -619,9 +610,7 @@ Parser.prototype['case-clause'] = function() {
     return this.rhs(
         {type: '('},
         {type: '('},
-        {type: function(datum) {
-            return true;
-        }, atLeast: 0},
+        {type: 'datum'},
         {type: ')'},
         {type: 'sequence'},
         {type: ')'}
@@ -675,9 +664,7 @@ Parser.prototype['macro-use'] = function() {
     return this.rhs(
         {type: '('},
         {type: 'keyword'},
-        {type: function(datum) {
-            return true;
-        }, atLeast: 0},
+        {type: 'datum', atLeast: 0},
         {type: ')'});
 };
 
