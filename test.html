@@ -15,33 +15,42 @@
     <script type="text/javascript">
 
         function doScan() {
-            console.log(new Scanner(document.getElementById('toEval').value).tokenize());
+            console.log(
+                    new Scanner(
+                            document.getElementById('toEval').value).tokenize());
         }
 
         function doRead() {
-            console.log(new Reader(document.getElementById('toEval').value).read());
+            console.log(
+                    new Reader(
+                            new Scanner(
+                                    document.getElementById('toEval').value)
+                    ).read());
         }
 
         function doParse() {
-            console.log(new Parser(new Reader(document.getElementById('toEval').value).read()).parse(document.getElementById('lhs').value));
+            console.log(
+                    new Parser(
+                            new Reader(
+                                    new Scanner(document.getElementById('toEval').value)
+                            ).read()
+                    ).parse(document.getElementById('lhs').value));
         }
 
         function doEval() {
-            try {
-                var text = document.getElementById('toEval').value;
-                var ans = _Eval(new Parser(text).parse(), builtins, text);
-                console.log(ans);
-                document.getElementById('result').value = '' + ans;
-            } catch (x) {
-                document.getElementById('result').value = x.toString();
-            }
+            var lhs = document.getElementById('lhs').value;
+            var ans =
+                    new Evaluator(
+                            new Parser(
+                                    new Reader(
+                                            new Scanner(document.getElementById('toEval').value)
+                                    ).read()
+                            ).parse(lhs)
+                    ).evaluate(builtins, lhs);
+            console.log(ans);
+            document.getElementById('result').value = ans;
         }
 
-        function doTemplateToString() {
-            var template = new Parser(document.getElementById('toEval').value).parse('template');
-            console.log(template);
-            document.getElementById('result').value = templateToString(template);
-        }
     </script>
 
 </head>
@@ -56,14 +65,14 @@
     <button onclick="testScanner()">scanner unit tests</button>
 </p>
 <p>
-  <button onclick="testParser()">parser unit tests</button>
+    <button onclick="testParser()">parser unit tests</button>
 </p>
 <p>
     <button onclick='doRead()'>read</button>
 </p>
 <p>
     <button onclick='doParse()'>parse</button>
-    <label>as:</label><textarea id = 'lhs' rows="1" cols="20"></textarea>
+    <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
 </p>
 <p>
     <button onclick='doEval()'>eval</button>

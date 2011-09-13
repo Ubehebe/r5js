@@ -18,6 +18,20 @@ Datum.prototype.unsetParse = function() {
         child.unsetParse();
 };
 
+Datum.prototype.getParse = function() {
+  return this.nonterminals.pop();
+};
+
+Datum.prototype.peekParse = function() {
+    if (this.nonterminals) {
+        var len = this.nonterminals.length;
+        if (len > 0)
+            return this.nonterminals[len-1];
+    }
+
+    return null;
+};
+
 Datum.prototype.appendSibling = function(sibling) {
     if (!this.nextSibling) {
         if (this.parent) {
@@ -45,8 +59,8 @@ Datum.prototype.appendChild = function(child) {
     else this.firstChild.appendSibling(child);
 };
 
-function Reader(text) {
-    this.scanner = new Scanner(text);
+function Reader(scanner) {
+    this.scanner = scanner;
     this.readyTokens = [];
     this.nextTokenToReturn = 0;
     this.errorToken = null;
