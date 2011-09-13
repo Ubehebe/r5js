@@ -18,6 +18,11 @@ Datum.prototype.unsetParse = function() {
         child.unsetParse();
 };
 
+Datum.prototype.sanitize = function() {
+    this.parent = null;
+    this.unsetParse();
+};
+
 Datum.prototype.getParse = function() {
   return this.nonterminals.pop();
 };
