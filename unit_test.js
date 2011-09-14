@@ -246,7 +246,7 @@ function testParser() {
     for (var type in tests) {
         var testsForType = tests[type];
         for (var toParse in testsForType) {
-            var datumRoot = new Reader(toParse).read();
+            var datumRoot = new Reader(new Scanner(toParse)).read();
             var ans = (datumRoot instanceof Datum) && new Parser(datumRoot).parse(type);
             if (!!ans ^ testsForType[toParse]) {
                 ++numErrors;
