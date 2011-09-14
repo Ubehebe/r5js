@@ -75,6 +75,8 @@ function testScanner() {
 
 function testParser() {
 
+    // todo bl add lots of unit tests focusing on headless clauses (sequence, body)
+
 
     var tests = {};
 
@@ -127,6 +129,7 @@ function testParser() {
     tests['lambda-expression'] = {
         '(lambda () 1)': true,
         '(lambda x 1)': true,
+        '(lambda (x) y z)': true,
         '(lambda (x y) (x y))': true,
         '(lambda (x y))': false,
         '(lambda (x . y) z)': true,

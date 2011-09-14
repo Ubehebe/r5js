@@ -43,7 +43,7 @@ Parser.prototype.alternation = function() {
 Parser.prototype.rewriteImproperList = function(rhsArgs) {
     // example: (define (x . y) 1) => (define .( x . ) 1)
     /* No RHS in the grammar has more than one dot.
-        This will break if such a rule is added. */
+     This will break if such a rule is added. */
 
     var indexOfDot = -1;
     for (var i = 0; i < rhsArgs.length; ++i) {
@@ -55,13 +55,13 @@ Parser.prototype.rewriteImproperList = function(rhsArgs) {
 
     if (indexOfDot !== -1) {
         /* Change the datum following the dot to be vacuous -- it has already
-            been read as part of the list preceding the dot.
-            todo bl: this will cause problems with exactly one part of the grammar:
-            <template> -> (<template element>+ . <template>)
-            I think it's easier to check for this in the evaluator. */
-        rhsArgs[i+1].type = '.';
-    // Find the closest opening paren to the left of the dot and rewrite it as .(
-        for (var i = indexOfDot-1; i >= 0; --i) {
+         been read as part of the list preceding the dot.
+         todo bl: this will cause problems with exactly one part of the grammar:
+         <template> -> (<template element>+ . <template>)
+         I think it's easier to check for this in the evaluator. */
+        rhsArgs[i + 1].type = '.';
+        // Find the closest opening paren to the left of the dot and rewrite it as .(
+        for (var i = indexOfDot - 1; i >= 0; --i) {
             if (rhsArgs[i].type === '(') {
                 rhsArgs[i].type = '.(';
                 return;
@@ -177,7 +177,9 @@ Parser.prototype.onDatum = function(element) {
                         ? this.prev.nextSibling
                         : this.prev.parent.nextSibling;
                     return true;
-                } else return false;
+                } else {
+                    return false;
+                }
             default:
                 return this.advanceToSiblingIf(function(datum) {
                     return datum.payload === element.type;
@@ -282,7 +284,9 @@ Parser.prototype['quotation'] = function() {
 };
 
 Parser.prototype['datum'] = function() {
-    return this.rhs({type: function(datum) { return true; } });
+    return this.rhs({type: function(datum) {
+        return true;
+    } });
 };
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
@@ -324,6 +328,8 @@ Parser.prototype['operand'] = function() {
 
 // <lambda expression> -> (lambda <formals> <body>)
 // <body> -> <definition>* <sequence>
+// <sequence> -> <command>* <expression>
+// <command> -> <expression>
 Parser.prototype['lambda-expression'] = function() {
 
     return this.rhs(
@@ -331,14 +337,8 @@ Parser.prototype['lambda-expression'] = function() {
         {type: 'lambda'},
         {type: 'formals'},
         {type: 'definition', atLeast: 0},
-        {type: 'sequence'},
+        {type: 'expression', atLeast: 1},
         {type: ')'});
-};
-
-// <sequence> -> <command>* <expression>
-// <command> -> <expression>
-Parser.prototype['sequence'] = function() {
-    return this.rhs({type: 'expression', atLeast: 1});
 };
 
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
@@ -485,7 +485,7 @@ Parser.prototype['derived-expression'] = function() {
             {type: 'cond-clause', atLeast: 0},
             {type: '('},
             {type: 'else'},
-            {type: 'sequence'},
+            {type: 'expression', atLeast: 1},
             {type: ')'},
             {type: ')'}
         ],
@@ -503,7 +503,7 @@ Parser.prototype['derived-expression'] = function() {
             {type: 'case-clause', atLeast: 0},
             {type: '('},
             {type: 'else'},
-            {type: 'sequence'},
+            {type: 'expression', atLeast: 1},
             {type: ')'},
             {type: ')'}
         ],
@@ -526,7 +526,7 @@ Parser.prototype['derived-expression'] = function() {
             {type: 'binding-spec', atLeast: 0},
             {type: ')'},
             {type: 'definition', atLeast: 0},
-            {type: 'sequence'},
+            {type: 'expression', atLeast: 1},
             {type: ')'}
         ],
         [
@@ -537,7 +537,7 @@ Parser.prototype['derived-expression'] = function() {
             {type: 'binding-spec', atLeast: 0},
             {type: ')'},
             {type: 'definition', atLeast: 0},
-            {type: 'sequence'},
+            {type: 'expression', atLeast: 1},
             {type: ')'}
         ],
         [
@@ -547,7 +547,7 @@ Parser.prototype['derived-expression'] = function() {
             {type: 'binding-spec', atLeast: 0},
             {type: ')'},
             {type: 'definition', atLeast: 0},
-            {type: 'sequence'},
+            {type: 'expression', atLeast: 1},
             {type: ')'}
         ],
         [
@@ -557,13 +557,13 @@ Parser.prototype['derived-expression'] = function() {
             {type: 'binding-spec', atLeast: 0},
             {type: ')'},
             {type: 'definition', atLeast: 0},
-            {type: 'sequence'},
+            {type: 'expression', atLeast: 1},
             {type: ')'}
         ],
         [
             {type: '('},
             {type: 'begin'},
-            {type: 'sequence'},
+            {type: 'expression', atLeast: 1},
             {type: ')'}
         ],
         [
@@ -574,7 +574,7 @@ Parser.prototype['derived-expression'] = function() {
             {type: ')'},
             {type: '('},
             {type: 'test'},
-            {type: 'sequence'},
+            {type: 'expression', atLeast: 1},
             {type: ')'},
             {type: 'command', atLeast: 0},
             {type: ')'}
@@ -861,8 +861,8 @@ Parser.prototype['template'] = function() {
             {type: 'template-element', atLeast: 1},
             {type: '.'},
             /* The reader, and thus the parser, do not support (X+ . Y) where X != Y.
-                This appears to be the only part of the grammar where this occurs, so
-                we can manually check in the evaluator. */
+             This appears to be the only part of the grammar where this occurs, so
+             we can manually check in the evaluator. */
             {type: 'template-element'},
             {type: ')'}
         ],
