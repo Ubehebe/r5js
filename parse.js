@@ -341,6 +341,31 @@ Parser.prototype['lambda-expression'] = function() {
         {type: ')'});
 };
 
+/* Why are there no <body> or <sequence> nonterminals?
+    Because there is no datum associated with those nonterminals.
+    For example, in (lambda () (define x 1) x), the text of <body>
+    is (define x 1) x, which is not a datum.
+
+    We could of course change the datum tree to accomodate this -- perhaps
+    most easily by inserting a vacuous parent node. But as I understand it, the
+    whole purpose of keeping the datum tree around during parsing is to make
+    on-the-fly reinterpretation of the datum tree easy. For example, perhaps we
+    parsed (foo x y) as a procedure call and now it needs to be reparsed as a
+    macro use. If we had made changes to the datum tree, we might have to undo
+    them now.
+
+    I think that the only nonterminals that don't correspond to datums are:
+
+    <body> -> <definition>* <sequence>
+    <sequence> -> <command>* <expression>
+    <def formals> -> <variable>* | <variable>* . <variable>
+    <program> -> <command or definition>*
+
+    So I decided to modify the grammar to replace these nonterminals by their
+    RHSes.
+
+ */
+
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
 Parser.prototype['formals'] = function() {
 

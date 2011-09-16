@@ -134,7 +134,10 @@ function testParser() {
         '(lambda (x y))': false,
         '(lambda (x . y) z)': true,
         '(lambda x . y z)': false,
-        '(lambda lambda)': false
+        '(lambda lambda)': false,
+        '(lambda () (define x 1) (define y 2))': false,
+        '(lambda () (define x 1) (define y 2) x)': true,
+        '(lambda () (define x 1) (define y 2) x y)': true
     };
 
     tests['formals'] = {
@@ -178,6 +181,22 @@ function testParser() {
         '(set! x)': false
     };
 
+    tests['derived-expression'] = {
+        '(cond (else #t))': true,
+        '(cond (else (define x 1))': false,
+        '(cond (else 1 2 3))': true,
+        '(case)': false,
+        '(case x (else 1 2 3))': true,
+        '(and)': true,
+        '(or)': true,
+        '(let () x)': true,
+        '(let () (define x 1))': false,
+        '(let x () 1 2 3))': true,
+        '(let x () (define x 1))': false,
+        '(begin)': false,
+        '(do () (#t))': true,
+    };
+
     tests['cond-clause'] = {
         '(1 2 3)': true,
         '(1)': true,
@@ -208,7 +227,7 @@ function testParser() {
     };
 
     tests['transformer-spec'] = {
-      '(syntax-rules ())': true,
+        '(syntax-rules ())': true,
         '(syntax-rules)': false
     };
 
