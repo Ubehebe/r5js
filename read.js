@@ -1,69 +1,3 @@
-function Datum() {
-    /*this.firstChild = null;
-     this.nextSibling = null;
-     this.type = null;
-     this.payload = null;
-     this.nonterminals = [];*/
-}
-
-Datum.prototype.setParse = function(type) {
-    if (!this.nonterminals)
-        this.nonterminals = [];
-    this.nonterminals.push(type);
-};
-
-Datum.prototype.unsetParse = function() {
-    this.nonterminals = null;
-    for (var child = this.firstChild; child; child = child.nextSibling)
-        child.unsetParse();
-};
-
-Datum.prototype.sanitize = function() {
-    this.parent = null;
-    this.unsetParse();
-};
-
-Datum.prototype.getParse = function() {
-  return this.nonterminals.pop();
-};
-
-Datum.prototype.peekParse = function() {
-    if (this.nonterminals) {
-        var len = this.nonterminals.length;
-        if (len > 0)
-            return this.nonterminals[len-1];
-    }
-
-    return null;
-};
-
-Datum.prototype.appendSibling = function(sibling) {
-    if (!this.nextSibling) {
-        if (this.parent) {
-            // Propagate the parent field
-            sibling.parent = this.parent;
-            this.parent = null;
-        }
-        this.nextSibling = sibling;
-    }
-    else
-        this.nextSibling.appendSibling(sibling);
-};
-
-/* If we used this to append n children in a row, it would take time O(n^2).
- But we don't actually use it like that. When building a list like (X*), we build
- up the list of X's in linear time, then call appendChild once to append the
- whole list as a child of the list root. We do incur some overhead when building
- a list like (X+ . X): in this case, the X+ list is appended in one go, and then
- we have to re-traverse that list once to append the final X. I expect this to be
- rare enough not to matter in practice, but if necessary we could keep track of
- the root's final child. */
-Datum.prototype.appendChild = function(child) {
-    if (!this.firstChild)
-        this.firstChild = child;
-    else this.firstChild.appendSibling(child);
-};
-
 function Reader(scanner) {
     this.scanner = scanner;
     this.readyTokens = [];
@@ -257,4 +191,42 @@ Reader.prototype['datums'] = function() {
 
 Reader.prototype.read = function() {
     return this['datums']().firstChild; // hand the parser the first real datum
+};
+
+// This is the inverse of Reader.prototype.read, which is why it's here.
+Datum.prototype.toString = function() {
+
+    var ans, child;
+    var endDelimiter = "";
+
+    switch (this.type) {
+        case 'identifier':
+        case 'boolean':
+        case 'number':
+        case 'character':
+        case 'string':
+            return this.payload;
+        case '(':
+        case '#(':
+            endDelimiter = ')';
+        // fallthrough
+        case "'":
+        case '`':
+        case ',':
+        case ',@':
+            ans = this.type;
+            for (child = this.firstChild; child && child.nextSibling; child = child.nextSibling)
+                ans += child.toString() + ' ';
+            var lastChildString = child ? child.toString() : '';
+            return ans + lastChildString + endDelimiter;
+        case '.(':
+            ans = '(';
+            for (child = this.firstChild;
+                 child && child.nextSibling && child.nextSibling.nextSibling;
+                 child = child.nextSibling)
+                ans += child.toString() + ' ';
+            return ans + child.toString() + ' . ' + child.nextSibling.toString() + ')';
+        default:
+            throw new InternalInterpreterError('unknown datum type ' + this.type);
+    }
 };

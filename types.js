@@ -38,10 +38,11 @@ SchemeString.prototype.toString = function() {
     return this.s;
 };
 
-function SchemeProcedure(requiredFormals, maybeDottedFormal, env, body) {
-    this.requiredFormals = requiredFormals;
-    this.maybeDottedFormal = maybeDottedFormal;
-    this.env = shallowCopy(env);
+function SchemeProcedure(formalRoot, env, body) {
+    this.formals = formals;
+    /* Since lambdas can include definitions (for example: (lambda () (define x 1) x)),
+        env should already have the lambda's definitions installed. */
+    this.env = env;
     this.body = body;
 }
 

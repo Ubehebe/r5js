@@ -1,46 +1,38 @@
 function Evaluator(root) {
-    this.cur = root;
+    this.root = root;
 }
 
-Evaluator.prototype.valueOfOnlyChild = function(env) {
-    if (this.cur.firstChild && !this.cur.firstChild.nextSibling)
-        return this[this.cur.firstChild.getParse()](env);
+Evaluator.prototype.valueOfOnlyChild = function(root, env) {
+    if (root.firstChild && !root.firstChild.nextSibling)
+        return this[root.firstChild.getParse()](env);
     else throw new InternalInterpreterError('expected exactly one child, got '
-        + (this.cur.firstChild ? 'more than one' : 'none'));
+        + (root.firstChild ? 'more than one' : 'none'));
 };
 
-Evaluator.prototype.matchChild = function(predicate) {
-    for (var child = this.cur.firstChild; child; child = child.nextSibling)
-        if (predicate(child))
-            return child;
-    return null;
+Evaluator.prototype.valueOfUnderlying = function(root, env) {
+    var type = root.getParse();
+    return this[type](root, env);
 };
 
-Evaluator.prototype.valueOfUnderlying = function(env) {
-    return this[this.cur.getParse()](env);
-};
-
-Evaluator.prototype.valueOfChildWithType = function(env, type) {
-  var child = this.matchChild(function(node) { return node.peekParse() === type; });
+Evaluator.prototype.valueOfChildWithParse = function(node, type, env) {
+    var child = node.childWithParse(type);
     if (child) {
-        this.cur = child;
-        return this[type](env);
+        return this[type](child, env);
     } else return null;
 };
 
-Evaluator.prototype.valuesOfChildrenWithType = function(env, type) {
-
+Evaluator.prototype.valuesOfChildrenWithParse = function(root, type, env) {
     var ans = [];
-    for (var child = this.cur.firstChild; child; child = child.nextSibling) {
+    for (var child = root.firstChild; child; child = child.nextSibling) {
         if (child.peekParse() === type) {
-            this.cur = child;
-            ans.push(this[type](env));
+            ans.push(this[type](child, env));
         }
     }
     return ans;
 };
 
 Evaluator.prototype['expression'] = Evaluator.prototype.valueOfUnderlying;
+Evaluator.prototype['literal'] = Evaluator.prototype.valueOfUnderlying;
 Evaluator.prototype['operator'] = Evaluator.prototype.valueOfUnderlying;
 Evaluator.prototype['operand'] = Evaluator.prototype.valueOfUnderlying;
 Evaluator.prototype['test'] = Evaluator.prototype.valueOfUnderlying;
@@ -55,70 +47,83 @@ Evaluator.prototype['pattern-identifier'] = Evaluator.prototype.valueOfUnderlyin
 Evaluator.prototype['command'] = Evaluator.prototype.valueOfUnderlying;
 
 
-Evaluator.prototype['expression'] = function(env) {
-    return this.valueOfUnderlying(env);
-};
-
 /* 4.1.1: The value of the variable reference is the value stored in the location
  to which the variable is bound. It is an error to reference an unbound variable. */
-Evaluator.prototype['variable'] = function(env) {
-    var ans = env[this.cur.payload];
+Evaluator.prototype['variable'] = function(root, env) {
+    var ans = env[root.payload];
     if (ans !== undefined)
         return ans;
-    else throw new UnboundVariable(this.cur.payload);
+    else throw new UnboundVariable(root.payload);
 };
 
-Evaluator.prototype['literal'] = function(env) {
-    return this.valueOfUnderlying(env);
-};
-
-Evaluator.prototype['self-evaluating'] = function(env) {
-    switch (this.cur.type) {
+Evaluator.prototype['self-evaluating'] = function(node, env) {
+    switch (node.type) {
         case 'boolean':
-            return this.cur.payload === '#t'; // lowercase conversion already done
+            return node.payload === '#t'; // lowercase conversion already done
         case 'number':
-            return parseFloat(this.cur.payload);
+            return parseFloat(node.payload);
         case 'character':
-            return new SchemeChar(this.cur.payload);
+            return new SchemeChar(node.payload);
         case 'string':
-            return new SchemeString(this.cur.payload);
+            return new SchemeString(node.payload);
         default:
             throw new InternalInterpreterError('unknown self-evaluating type '
-                + this.cur.type);
+                + node.type);
     }
 };
 
 /* 4.1.2: (quote <datum>) evaluates to <datum>.
  (quote <datum>) may be abbreviated as '<datum>.
  The two notations are equivalent in all respects. */
-Evaluator.prototype['quotation'] = function(env) {
-    return this.valueOfChildWithType(env, 'datum');
+Evaluator.prototype['quotation'] = function(node, env) {
+    return this.valueOfChildWithParse(node, 'datum', env);
 };
 
-Evaluator.prototype['datum'] = function(env) {
-    this.cur.sanitize();
-    return this.cur; // we are returning a parse tree as a value!
+Evaluator.prototype['datum'] = function(node, env) {
+    return node.sanitize(); // we are returning a parse tree as a value!
 };
 
 /* 4.1.3: A procedure call is written by simply enclosing in parentheses
  expressions for the procedure to be called and the arguments to be passed to it.
  The operator and operand expressions are evaluated (in an unspecified order)
  and the resulting procedure is passed the resulting arguments. */
-Evaluator.prototype['procedure-call'] = function(env) {
+Evaluator.prototype['procedure-call'] = function(node, env) {
 
-    var begin = this.cur;
+    var proc = this.valueOfChildWithParse(node, 'operator', env);
+    var args = this.valuesOfChildrenWithParse(node, 'operand', env);
 
-    var proc = this.valueOfChildWithType(env, 'operator');
 
+        // A primitive procedure, represented by a JavaScript function.
     if (typeof proc === 'function') {
-        this.cur = begin;
-        var args = this.valuesOfChildrenWithType(env, 'operand');
         return proc.apply(null, args);
     }
+
+      // A non-primitive procedure, represented by a SchemeProcedure object.
+        else if (proc instanceof SchemeProcedure) {
+            proc.checkNumArgs(args.length);
+            return this['sequence'](proc.body, proc.bindArgs(args));
+        }
+
+    // todo bl
+};
+
+/* 4.1.4: A lambda expression evaluates to a procedure.
+ The environment in effect when the lambda expression was evaluated
+ is remembered as part of the procedure. */
+Evaluator.prototype['lambda-expression'] = function(node, env) {
+
+    var formals = node.childWithParse('formals');
+    var newEnv = shallowCopy(env);
+
+    // todo bl install the definitions into newEnv
+
+    return new SchemeProcedure(formals,
+        newEnv,
+        node.childWithParse('sequence'));
 };
 
 Evaluator.prototype.evaluate = function(env, lhs) {
-    return this[lhs || 'expression'](env);
+    return this[lhs || 'expression'](this.root, env);
 };
 
 function _Eval(tree, env) {
@@ -136,42 +141,6 @@ function _Eval(tree, env) {
                 val = valueOf[siblings[i].type](siblings[i], env);
             return val;
         }
-    };
-
-    var valueOf = {};
-
-    valueOf['expression'] = valueOfOnlyChild;
-
-    /* 4.1.1: The value of the variable reference is the value stored in the location
-     to which the variable is bound. It is an error to reference an unbound variable. */
-    valueOf['variable'] = function(tree, env) {
-        var maybeAns = env[tree['identifier']];
-        if (maybeAns !== undefined)
-            return maybeAns;
-        else throw new UnboundVariable(tree['identifier']);
-    };
-
-    valueOf['literal'] = valueOfOnlyChild;
-
-    /* 4.1.2: (quote <datum>) evaluates to <datum>.
-     (quote <datum>) may be abbreviated as '<datum>.
-     The two notations are equivalent in all respects. */
-    valueOf['quotation'] = function(tree, env) {
-        // Notice that this returns a parse tree!
-        return new SchemeDatum(tree['datum']);
-    };
-
-    /* 4.1.2: Numerical constants, string constants, character constants,
-     and boolean constants evaluate "to themselves". */
-    valueOf['self-evaluating'] = function(tree, env) {
-        if (tree['boolean'] !== undefined)
-            return tree['boolean'];
-        else if (tree['number'])
-            return parseFloat(tree['number']);
-        else if (tree['string'])
-            return new SchemeString(tree['string']);
-        else if (tree['character'])
-            return new SchemeChar(tree['character']); // todo bl scanner/parser uses 'character', eval/stdlib uses 'char'
     };
 
     /* 4.1.3: A procedure call is written by simply enclosing in parentheses
@@ -196,7 +165,6 @@ function _Eval(tree, env) {
             return valueOf['expression'](node, env);
         });
 
-        // A primitive procedure, represented by a JavaScript function.
         if (typeof proc === 'function') {
             return proc.apply(null, args);
         }
