@@ -18,15 +18,28 @@ Parser.prototype.rhs = function() {
 
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
-        var parsed = (parseFunction = this[element.type])
-            ? this.onNonterminal(element, parseFunction)
-            : this.onDatum(element);
-        if (!parsed) {
-            if (root)
-                root.unsetParse();
-            this.next = root;
-            return null;
+
+        // Process parsing actions
+        if (element.type) {
+            var parsed = (parseFunction = this[element.type])
+                ? this.onNonterminal(element, parseFunction)
+                : this.onDatum(element);
+            if (!parsed) {
+                if (root)
+                    root.unsetParse();
+                this.next = root;
+                return null;
+            }
         }
+        // Store semantic actions for later evaluation
+        else if (element.value) {
+            if (i !== arguments.length - 1)
+                throw new InternalInterpreterError('unexpected semantic action '
+                    + element.value
+                    + ' at index ' + i + ', only allowed in last position');
+            if (root) root.setValue(element.value);
+        }
+
     }
     return root;
 };
@@ -252,7 +265,14 @@ Parser.prototype['variable'] = function() {
     return this.rhs({type: function(datum) {
             return datum.type === 'identifier'
                 && !isSyntacticKeyword(datum.payload);
-        }}
+        }},
+        {value: function(node, env) {
+            var val = env[node.payload];
+            if (val !== undefined)
+                return val;
+            else throw new UnboundVariable(node.payload);
+        }
+        }
     );
 };
 
@@ -273,20 +293,32 @@ Parser.prototype['quotation'] = function() {
     return this.alternation(
         [
             {type: "'"},
-            {type: 'datum'}
+            {type: 'datum'},
+            {value: function(node, env) {
+                return node.at('datum').eval(env);
+            }
+            }
         ],
         [
             {type: '('},
             {type: 'quote'},
             {type: 'datum'},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                return node.at('datum').eval(env);
+            }
+            }
         ]);
 };
 
 Parser.prototype['datum'] = function() {
     return this.rhs({type: function(datum) {
-        return true;
-    } });
+            return true;
+        } },
+        {value: function(node, env) {
+            return node.sanitize();
+        }
+        });
 };
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
@@ -303,7 +335,25 @@ Parser.prototype['self-evaluating'] = function() {
                 default:
                     return false;
             }
-        }});
+        }},
+        {value: function(node, env) {
+            switch (node.type) {
+                case 'boolean':
+                    return node.payload === '#t'; // lowercase conversion already done
+                case 'number':
+                    return parseFloat(node.payload);
+                case 'character':
+                    return new SchemeChar(node.payload);
+                case 'string':
+                    return new SchemeString(node.payload);
+                default:
+                    throw new InternalInterpreterError('unknown self-evaluating type '
+                        + node.type);
+
+            }
+        }
+        }
+    );
 };
 
 // <procedure call> -> (<operator> <operand>*)
@@ -315,7 +365,20 @@ Parser.prototype['procedure-call'] = function() {
         {type: '('},
         {type: 'operator'},
         {type: 'operand', atLeast: 0},
-        {type: ')'});
+        {type: ')'},
+        {value: function(node, env) {
+            var proc = node.at('operator').eval(env);
+            var args = node.at('operand').evalSiblingsReturnAll(env);
+            if (typeof proc === 'function')
+                return proc.apply(null, args);
+            else if (proc instanceof SchemeProcedure) {
+                proc.checkNumArgs(args.length);
+                return proc.body.evalSiblingsReturnLast(proc.bindArgs(args));
+            } else {
+                // todo bl reinterpret as macro. My finest hour!
+            }
+        }
+        });
 };
 
 Parser.prototype['operator'] = function() {
@@ -338,31 +401,43 @@ Parser.prototype['lambda-expression'] = function() {
         {type: 'formals'},
         {type: 'definition', atLeast: 0},
         {type: 'expression', atLeast: 1},
-        {type: ')'});
+        {type: ')'},
+        {value: function(node, env) {
+            var formalRoot = node.at('formals');
+            var dotted = formalRoot.isImproperList();
+            var formals = dotted || formalRoot.isList()
+                ? formalRoot.mapChildren(function(child) {
+                return child.payload;
+            })
+                : [formalRoot.payload];
+            return new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env);
+        }
+        }
+    );
 };
 
 /* Why are there no <body> or <sequence> nonterminals?
-    Because there is no datum associated with those nonterminals.
-    For example, in (lambda () (define x 1) x), the text of <body>
-    is (define x 1) x, which is not a datum.
+ Because there is no datum associated with those nonterminals.
+ For example, in (lambda () (define x 1) x), the text of <body>
+ is (define x 1) x, which is not a datum.
 
-    We could of course change the datum tree to accomodate this -- perhaps
-    most easily by inserting a vacuous parent node. But as I understand it, the
-    whole purpose of keeping the datum tree around during parsing is to make
-    on-the-fly reinterpretation of the datum tree easy. For example, perhaps we
-    parsed (foo x y) as a procedure call and now it needs to be reparsed as a
-    macro use. If we had made changes to the datum tree, we might have to undo
-    them now.
+ We could of course change the datum tree to accomodate this -- perhaps
+ most easily by inserting a vacuous parent node. But as I understand it, the
+ whole purpose of keeping the datum tree around during parsing is to make
+ on-the-fly reinterpretation of the datum tree easy. For example, perhaps we
+ parsed (foo x y) as a procedure call and now it needs to be reparsed as a
+ macro use. If we had made changes to the datum tree, we might have to undo
+ them now.
 
-    I think that the only nonterminals that don't correspond to datums are:
+ I think that the only nonterminals that don't correspond to datums are:
 
-    <body> -> <definition>* <sequence>
-    <sequence> -> <command>* <expression>
-    <def formals> -> <variable>* | <variable>* . <variable>
-    <program> -> <command or definition>*
+ <body> -> <definition>* <sequence>
+ <sequence> -> <command>* <expression>
+ <def formals> -> <variable>* | <variable>* . <variable>
+ <program> -> <command or definition>*
 
-    So I decided to modify the grammar to replace these nonterminals by their
-    RHSes.
+ So I decided to modify the grammar to replace these nonterminals by their
+ RHSes.
 
  */
 
@@ -400,7 +475,12 @@ Parser.prototype['definition'] = function() {
             {type: 'define'},
             {type: 'variable'},
             {type: 'expression'},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                env[node.at('variable').payload] = node.at('expression').eval(env);
+                return undefined;
+            }
+            }
         ],
         [
             {type: '('},
@@ -412,7 +492,16 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                var formalsList = node.at('(');
+                var formals = formalsList.mapChildren(function(child) {
+                    return child.payload;
+                });
+                var name = formals.shift();
+                env[name] = new SchemeProcedure(formals, true, formalsList.nextSibling, env);
+                return undefined;
+            }}
         ],
         [
             {type: '('},
@@ -422,13 +511,26 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                var formalsList = node.at('(');
+                var formals = formalsList.mapChildren(function(child) {
+                    return child.payload;
+                });
+                var name = formals.shift();
+                env[name] = new SchemeProcedure(formals, false, formalsList.nextSibling, env);
+                return undefined;
+            }}
         ],
         [
             {type: '('},
             {type: 'begin'},
             {type: 'definition', atLeast: 0},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                return node.at('definition').evalSiblingsReturnLast(env);
+            }
+            }
         ]);
 
 };
@@ -443,14 +545,26 @@ Parser.prototype['conditional'] = function() {
             {type: 'test'},
             {type: 'consequent'},
             {type: 'alternate'},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                return node.at('test').eval(env)
+                    ? node.at('consequent').eval(env)
+                    : node.at('alternate').eval(env);
+            }
+            }
         ],
         [
             {type: '('},
             {type: 'if'},
             {type: 'test'},
             {type: 'consequent'},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                return node.at('test').eval(env)
+                    ? node.at('consequent').eval(env)
+                    : undefined;
+            }
+            }
         ]);
 };
 
@@ -477,7 +591,12 @@ Parser.prototype['assignment'] = function() {
         {type: 'set!'},
         {type: 'variable'},
         {type: 'expression'},
-        {type: ')'});
+        {type: ')'},
+        {value: function(node, env) {
+            env[node.at('variable').payload] = node.at('expression').eval(env);
+            return undefined;
+        }
+        });
 };
 
 /* <derived expression> -> (cond <cond clause>+ )
@@ -930,10 +1049,14 @@ Parser.prototype['pattern-identifier'] = function() {
 };
 
 // <program> -> <command or definition>*
+// todo bl: maybe wrap in a begin-block?
 Parser.prototype['program'] = function() {
     return this.rhs(
-        {type: 'command-or-definition', atLeast: 0}
-    );
+        {type: 'command-or-definition', atLeast: 0},
+        {value: function(node, env) {
+            return node.evalSiblingsReturnLast(env);
+        }
+        });
 };
 
 /* <command or definition> -> <command>
@@ -953,7 +1076,11 @@ Parser.prototype['command-or-definition'] = function() {
             {type: '('},
             {type: 'begin'},
             {type: 'command-or-definition', atLeast: 0},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                return node.at('command-or-definition').evalSiblingsReturnLast(env);
+            }
+            }
         ],
         [
             {type: 'command'}

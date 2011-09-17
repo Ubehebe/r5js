@@ -3,25 +3,6 @@ function SchemePair(car, cdr) {
     this.cdr = cdr;
 } // bl do we need this as a primitive?
 
-function listToArray(list) {
-    var ans = [];
-    while (list instanceof SchemePair) {
-        ans.push(list.car);
-        list = list.cdr;
-    }
-    return ans;
-}
-
-function arrayToList(array) {
-    var cur = null;
-    var prev;
-    for (var i = array.length - 1; i >= 0; i--) {
-        prev = new SchemePair(array[i], cur);
-        cur = prev;
-    }
-    return cur;
-}
-
 function SchemeChar(c) {
     this.c = c;
 }
@@ -38,12 +19,11 @@ SchemeString.prototype.toString = function() {
     return this.s;
 };
 
-function SchemeProcedure(formalRoot, env, body) {
-    this.formals = formals;
-    /* Since lambdas can include definitions (for example: (lambda () (define x 1) x)),
-        env should already have the lambda's definitions installed. */
-    this.env = env;
-    this.body = body;
+function SchemeProcedure(formalsArray, isDotted, bodyStart, env) {
+    this.formalsArray = formalsArray;
+    this.isDotted = isDotted;
+    this.body = bodyStart;
+    this.env = shallowCopy(env);
 }
 
 SchemeProcedure.prototype.toString = function() {
@@ -51,18 +31,47 @@ SchemeProcedure.prototype.toString = function() {
 };
 
 SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
-    if (numActuals < this.requiredFormals.length)
-        throw new TooFewArgs(this.toString(), this.requiredFormals.length, numActuals);
-    if (!this.maybeDottedFormal && numActuals > this.requiredFormals.length)
-        throw new IncorrectNumArgs(this.toString(), this.requiredFormals.length, numActuals);
+
+    if (!this.isDotted) {
+        if (numActuals !== this.formalsArray.length)
+            throw new IncorrectNumArgs(this.toString(), this.formalsArray.length, numActuals);
+    } else {
+        var minNumArgs = this.formalsArray.length - 1;
+        if (numActuals < minNumArgs)
+            throw new TooFewArgs(this.toString(), minNumArgs, numActuals);
+    }
 };
 
 SchemeProcedure.prototype.bindArgs = function(args) {
     var envCopy = shallowCopy(this.env);
-    for (var i = 0; i < this.requiredFormals.length; ++i)
-        envCopy[this.requiredFormals[i]] = args[i];
-    if (this.maybeDottedFormal)
-        envCopy[this.maybeDottedFormal] = arrayToList(args.slice(this.requiredFormals.length, args.length));
+
+
+    for (var i = 0; i < this.formalsArray.length - 1; ++i)
+        envCopy[this.formalsArray[i]] = args[i];
+
+    if (!this.isDotted) {
+        envCopy[this.formalsArray[this.formalsArray.length - 1]]
+            = args[this.formalsArray.length - 1];
+    } else {
+        var cur, prev, first;
+        for (var i = this.formalsArray.length - 1; i < args.length; ++i) {
+            if (!first) {
+                first = args[i];
+                prev = first;
+            } else {
+                cur = args[i];
+                prev.appendSibling(cur);
+                prev = cur;
+            }
+        }
+        var remainder = new Datum();
+        remainder.type = '(';
+        remainder.appendChild(first);
+
+        // todo bl I'm quite sure this isn't right...
+
+        envCopy[this.formalsArray[this.formalsArray.length - 1]] = remainder;
+    }
     return envCopy;
 };
 

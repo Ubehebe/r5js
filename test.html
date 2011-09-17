@@ -41,13 +41,11 @@
         function doEval() {
             var lhs = document.getElementById('lhs').value;
             var ans =
-                    new Evaluator(
-                            new Parser(
-                                    new Reader(
-                                            new Scanner(document.getElementById('toEval').value)
-                                    ).read()
-                            ).parse(lhs)
-                    ).evaluate(builtins, lhs);
+                    new Parser(
+                            new Reader(
+                                    new Scanner(document.getElementById('toEval').value)
+                            ).read()
+                    ).parse(lhs).eval(builtins);
             console.log(ans);
             document.getElementById('result').value = ans;
         }

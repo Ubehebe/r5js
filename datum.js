@@ -4,7 +4,8 @@ function Datum() {
      this.nextSibling = null;
      this.type = null;
      this.payload = null;
-     this.nonterminals = [];*/
+     this.nonterminals = [];
+     this.values = []; */
 }
 
 Datum.prototype.setParse = function(type) {
@@ -13,8 +14,15 @@ Datum.prototype.setParse = function(type) {
     this.nonterminals.push(type);
 };
 
+Datum.prototype.setValue = function(semanticAction) {
+    if (!this.values)
+        this.values = [];
+    this.values.push(semanticAction);
+};
+
 Datum.prototype.unsetParse = function() {
     this.nonterminals = null;
+    this.values = null;
     for (var child = this.firstChild; child; child = child.nextSibling)
         child.unsetParse();
 };
@@ -46,8 +54,12 @@ Datum.prototype.matchChild = function(predicate) {
     return null;
 };
 
-Datum.prototype.childWithParse = function(type) {
-  return this.matchChild(function(datum) { return datum.peekParse() === type; });
+Datum.prototype.at = function(type) {
+  var ans = this.matchChild(function(datum) { return datum.peekParse() === type; });
+    /* If there is no match, we return a fake Datum for convenience. This function
+        is often followed by evalSiblings, and calling new Datum().evalSiblings() gives
+        []. This is just what we want in the case of an empty list. */
+    return ans ? ans : new Datum();
 };
 
 Datum.prototype.appendSibling = function(sibling) {
@@ -78,20 +90,28 @@ Datum.prototype.appendChild = function(child) {
     else this.firstChild.appendSibling(child);
 };
 
-Datum.prototype.collectPayloads = function(ansBuffer) {
-    if (!ansBuffer)
-        ansBuffer = [];
-    if (this.payload) {
-        ansBuffer.push(this.payload);
-    }
-    else {
-        for (var child = this.firstChild; child; child = child.nextSibling)
-            child.collectPayloads(ansBuffer);
-    }
-    return ansBuffer;
+/* Map isn't the best word, since the function returns an array but the children
+    are represented as a linked list. */
+Datum.prototype.mapChildren = function(f) {
+    var ans = [];
+    for (var cur = this.firstChild; cur; cur = cur.nextSibling)
+        ans.push(f(cur));
+    return ans;
 };
 
-// Convenience function
+// Convenience functions
 Datum.prototype.isImproperList = function() {
     return this.type === '.(';
+};
+
+Datum.prototype.isList = function() {
+    return this.type === '(';
+};
+
+Datum.prototype.isIdentifier = function() {
+    return this.type === 'identifier';
+};
+
+Datum.prototype.startsWith = function(payload) {
+  return this.firstChild && this.firstChild.payload === payload;
 };
