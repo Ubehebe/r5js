@@ -3,6 +3,19 @@ function SchemePair(car, cdr) {
     this.cdr = cdr;
 } // bl do we need this as a primitive?
 
+// todo bl do we need this type?
+function EmptyList() {}
+EmptyList.prototype.toString = function() { return '()'; };
+var emptyList = new EmptyList();
+
+SchemePair.prototype.toString = function() {
+    // Feels dirty doing iteration on cars and cdrs
+    var buf = [];
+    for (var cur = this; cur; cur = cur.cdr)
+        buf.push(cur.car.toString());
+    return '(' + buf.join(' ') + ')';
+};
+
 function SchemeChar(c) {
     this.c = c;
 }
@@ -55,22 +68,15 @@ SchemeProcedure.prototype.bindArgs = function(args) {
     } else {
         var cur, prev, first;
         for (var i = this.formalsArray.length - 1; i < args.length; ++i) {
-            if (!first) {
-                first = args[i];
-                prev = first;
-            } else {
-                cur = args[i];
-                prev.appendSibling(cur);
-                prev = cur;
-            }
+            cur = new SchemePair(args[i], null);
+            if (!first)
+                first = cur;
+            else
+                prev.cdr = cur;
+
+            prev = cur;
         }
-        var remainder = new Datum();
-        remainder.type = '(';
-        remainder.appendChild(first);
-
-        // todo bl I'm quite sure this isn't right...
-
-        envCopy[this.formalsArray[this.formalsArray.length - 1]] = remainder;
+        envCopy[this.formalsArray[this.formalsArray.length - 1]] = first ? first : emptyList;
     }
     return envCopy;
 };
