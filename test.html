@@ -58,20 +58,16 @@
 <textarea id='result' rows="1" cols="80"></textarea>
 
 <p>
-    <button onclick="doScan()">scan</button>
-</p>
-<p>
-    <button onclick="testScanner()">scanner unit tests</button>
-</p>
-<p>
-    <button onclick="testParser()">parser unit tests</button>
-</p>
-<p>
     <button onclick='doRead()'>read</button>
+</p>
+<p>
+    <button onclick="doScan()">scan</button>
+    <button onclick="testScanner()">scanner unit tests</button>
 </p>
 <p>
     <button onclick='doParse()'>parse</button>
     <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
+    <button onclick="testParser()">parser unit tests</button>
 </p>
 <p>
     <button onclick='doEval()'>eval</button>
