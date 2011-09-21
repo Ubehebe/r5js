@@ -87,6 +87,7 @@ Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
         else {
             ansDatum.type = element.name || element.type;
             ansDatum.appendChild(parsed);
+            parsed.parent = ansDatum;
             return ansDatum;
         }
     }
