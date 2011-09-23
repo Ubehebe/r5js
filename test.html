@@ -39,15 +39,34 @@
         }
 
         function doEval() {
-            var lhs = document.getElementById('lhs').value;
             var ans =
                     new Parser(
                             new Reader(
                                     new Scanner(document.getElementById('toEval').value)
                             ).read()
-                    ).parse(lhs).eval(builtins);
+                    ).parse(document.getElementById('lhs').value).eval(builtins);
             console.log(ans);
             document.getElementById('result').value = ans;
+        }
+
+        function doTranscribe() {
+            var datums = new Reader(
+                    new Scanner(
+                            document.getElementById('toEval').value)
+            ).read();
+
+            var replacement = new Reader(
+                    new Scanner(
+                            document.getElementById('identifierReplacement').value
+                    )
+            ).read();
+
+            var replacementDict = {};
+            replacementDict[document.getElementById('identifier').value] = replacement;
+            var ans = datums.replaceSiblings(replacementDict);
+            console.log(ans);
+            document.getElementById('result').value = ans.toString();
+
         }
 
     </script>
@@ -71,6 +90,11 @@
 </p>
 <p>
     <button onclick='doEval()'>eval</button>
+</p>
+<p>
+    <button onclick='doTranscribe()'>transcribe</button>
+    <label>identifier:</label><textarea id='identifier' rows='1' cols='10'></textarea>
+    <label>with:</label><textarea id='identifierReplacement' rows='1' cols='20'></textarea>
 </p>
 </body>
 </html>

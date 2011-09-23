@@ -55,10 +55,12 @@ Datum.prototype.matchChild = function(predicate) {
 };
 
 Datum.prototype.at = function(type) {
-  var ans = this.matchChild(function(datum) { return datum.peekParse() === type; });
+    var ans = this.matchChild(function(datum) {
+        return datum.peekParse() === type;
+    });
     /* If there is no match, we return a fake Datum for convenience. This function
-        is often followed by evalSiblings, and calling new Datum().evalSiblings() gives
-        []. This is just what we want in the case of an empty list. */
+     is often followed by evalSiblings, and calling new Datum().evalSiblings() gives
+     []. This is just what we want in the case of an empty list. */
     return ans ? ans : new Datum();
 };
 
@@ -91,7 +93,7 @@ Datum.prototype.appendChild = function(child) {
 };
 
 /* Map isn't the best word, since the function returns an array but the children
-    are represented as a linked list. */
+ are represented as a linked list. */
 Datum.prototype.mapChildren = function(f) {
     var ans = [];
     for (var cur = this.firstChild; cur; cur = cur.nextSibling)
@@ -112,6 +114,35 @@ Datum.prototype.isIdentifier = function() {
     return this.type === 'identifier';
 };
 
+Datum.prototype.isQuote = function() {
+    return this.type === "'"
+        || (this.isList()
+        && this.firstChild
+        && this.firstChild.payload === 'quote'); // todo bl should datums know about this?
+};
+
 Datum.prototype.startsWith = function(payload) {
-  return this.firstChild && this.firstChild.payload === payload;
+    return this.firstChild && this.firstChild.payload === payload;
+};
+
+Datum.prototype.replaceSiblings = function(replacementDict) {
+    var prev;
+    var first;
+    for (var cur = this; cur; prev = cur,cur = cur.nextSibling) {
+        if (cur.payload) {
+            var replacementValue = replacementDict[cur.payload];
+            if (replacementValue) {
+                if (prev)
+                    prev.nextSibling = replacementValue;
+                replacementValue.nextSibling = cur.nextSibling;
+                cur = replacementValue;
+            }
+        } else if (!cur.isQuote() && cur.firstChild) {
+            cur.firstChild = cur.firstChild.replaceSiblings(replacementDict);
+        }
+
+        if (!first)
+            first = cur;
+    }
+    return first;
 };
