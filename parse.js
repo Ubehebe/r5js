@@ -375,7 +375,10 @@ Parser.prototype['procedure-call'] = function() {
                 proc.checkNumArgs(args.length);
                 return proc.body.evalSiblingsReturnLast(proc.bindArgs(args));
             } else {
-                // todo bl reinterpret as macro. My finest hour!
+                node.unsetParse();
+                /* Homoiconicity to the rescue: dynamically reparse and evaluate as a
+                 macro. */
+                return new Parser(node).parse('macro-use').eval(env);
             }
         }
         });
@@ -839,7 +842,18 @@ Parser.prototype['macro-use'] = function() {
         {type: '('},
         {type: 'keyword'},
         {type: 'datum', atLeast: 0},
-        {type: ')'});
+        {type: ')'},
+        {value: function(node, env) {
+            var kw = node.at('keyword').payload;
+            var macro = env[kw];
+            if (macro instanceof SchemeMacro) {
+                var template = macro.selectTemplate(node, env);
+                if (template)
+                 return new Parser(hygienicTranscription(template)).parse('expression' /* todo bl: program? */).eval(env);
+                 else throw new MacroError(kw, 'no matching template');
+            } else throw new UnboundVariable(kw);
+        }
+        });
 };
 
 // <keyword> -> <identifier>
@@ -862,7 +876,12 @@ Parser.prototype['macro-block'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                node.at('syntax-spec').evalSiblingsReturnLast(env);
+                node.at('definition').evalSiblingsReturnLast(env);
+            }
+            }
         ],
         [
             {type: '('},
@@ -872,7 +891,12 @@ Parser.prototype['macro-block'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'}
+            {type: ')'},
+            {value: function(node, env) {
+                node.at('syntax-spec').evalSiblingsReturnLast(env);
+                node.at('definition').evalSiblingsReturnLast(env);
+            }
+            }
         ]);
 };
 
@@ -882,7 +906,16 @@ Parser.prototype['syntax-spec'] = function() {
         {type: '('},
         {type: 'keyword'},
         {type: 'transformer-spec'},
-        {type: ')'}
+        {type: ')'},
+        {value: function(node, env) {
+            var kw = node.at('keyword').payload;
+            var macro = node.at('transformer-spec').eval(env);
+            if (macro.allPatternsBeginWith(kw)) {
+                env[kw] = macro;
+                return undefined;
+            } else throw new MacroError(kw, 'all patterns must begin with keyword');
+        }
+        }
     );
 };
 
@@ -891,17 +924,31 @@ Parser.prototype['transformer-spec'] = function() {
     return this.rhs(
         {type: '('},
         {type: 'syntax-rules'}, // a terminal
-        {type: '('},
-        /* The parser currently doesn't support + and * applied to terminals.
-         I decided it was easier to add a vacuous nonterminal
-         'transformer-spec-identifier' to the grammar. */
-        {type: 'transformer-spec-identifier', atLeast: 0},
-        {type: ')'},
+        {type: 'transformer-spec-identifiers'},
         {type: 'syntax-rule', atLeast: 0}, // a nonterminal
+        {type: ')'},
+        {value: function(node, env) {
+            var ids = node.at('transformer-spec-identifiers').mapChildren(function(n) {
+                return n.payload;
+            });
+            var rules = node.at('syntax-rule');
+            return new SchemeMacro(ids, rules, env);
+        }
+        }
+    );
+};
+
+Parser.prototype['transformer-spec-identifiers'] = function() {
+    return this.rhs(
+        {type: '('},
+        {type: 'transformer-spec-identifier', atLeast: 0},
         {type: ')'}
     );
 };
 
+/* The parser currently doesn't support + and * applied to terminals.
+ I decided it was easier to add a vacuous nonterminal
+ 'transformer-spec-identifier' to the grammar. */
 Parser.prototype['transformer-spec-identifier'] = function() {
     return this.rhs(
         {type: function(datum) {
@@ -1099,7 +1146,16 @@ Parser.prototype['syntax-definition'] = function() {
         {type: 'define-syntax'},
         {type: 'keyword'},
         {type: 'transformer-spec'},
-        {type: ')'}
+        {type: ')'},
+        {value: function(node, env) {
+            var kw = node.at('keyword').payload;
+            var macro = node.at('transformer-spec').eval(env);
+            if (macro.allPatternsBeginWith(kw)) {
+                env[kw] = macro;
+                return undefined;
+            } else throw new MacroError(kw, 'all patterns must begin with ' + kw);
+        }
+        }
     );
 };
 
