@@ -102,7 +102,7 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
             if (start)
                 start.unsetParse();
             this.errorMsg = 'expected at least '
-                + element.atLeast + ' ' + element.nodeName + ', got ' + numParsed;
+                + element.atLeast + ' ' + element.type + ', got ' + numParsed;
             return null;
         }
     }
@@ -253,10 +253,10 @@ Parser.prototype['expression'] = function() {
             {type: 'derived-expression'}
         ],
         [
-            {type: 'macro-use'}
+            {type: 'macro-block'}
         ],
         [
-            {type: 'macro-block'}
+            {type: 'macro-use'}
         ]);
 };
 
@@ -368,10 +368,12 @@ Parser.prototype['procedure-call'] = function() {
         {type: ')'},
         {value: function(node, env) {
             var proc = node.at('operator').eval(env);
-            var args = node.at('operand').evalSiblingsReturnAll(env);
-            if (typeof proc === 'function')
+            if (typeof proc === 'function') {
+                var args = node.at('operand').evalSiblingsReturnAll(env);
                 return proc.apply(null, args);
+            }
             else if (proc instanceof SchemeProcedure) {
+                var args = node.at('operand').evalSiblingsReturnAll(env);
                 proc.checkNumArgs(args.length);
                 return proc.body.evalSiblingsReturnLast(proc.bindArgs(args));
             } else {
@@ -849,8 +851,8 @@ Parser.prototype['macro-use'] = function() {
             if (macro instanceof SchemeMacro) {
                 var template = macro.selectTemplate(node, env);
                 if (template)
-                 return new Parser(hygienicTranscription(template)).parse('expression' /* todo bl: program? */).eval(env);
-                 else throw new MacroError(kw, 'no matching template');
+                    return new Parser(template.hygienicTranscription()).parse('expression' /* todo bl: program? */).eval(env);
+                else throw new MacroError(kw, 'no matching template');
             } else throw new UnboundVariable(kw);
         }
         });
@@ -871,9 +873,7 @@ Parser.prototype['macro-block'] = function() {
         [
             {type: '('},
             {type: 'let-syntax'},
-            {type: '('},
-            {type: 'syntax-spec', atLeast: 0},
-            {type: ')'},
+            {type: 'syntax-specs'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
@@ -886,9 +886,7 @@ Parser.prototype['macro-block'] = function() {
         [
             {type: '('},
             {type: 'letrec-syntax'},
-            {type: '('},
-            {type: 'syntax-spec', atLeast: 0},
-            {type: ')'},
+            {type: 'syntax-specs'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
@@ -898,6 +896,15 @@ Parser.prototype['macro-block'] = function() {
             }
             }
         ]);
+};
+
+// <syntax specs> -> (<syntax spec>*)
+// todo bl: problem: a nonterminal followed by a ) obliterates the next pointer!
+// that's why I introduced this nonterminal.
+Parser.prototype['syntax-specs'] = function() {
+  return this.rhs({type: '('},
+      {type: 'syntax-spec', atLeast: 0},
+      {type: ')'});
 };
 
 // <syntax spec> -> (<keyword> <transformer spec>)
