@@ -22,11 +22,13 @@
         }
 
         function doRead() {
-            console.log(
+                    var ans =
                     new Reader(
                             new Scanner(
                                     document.getElementById('toEval').value)
-                    ).read());
+                    ).read();
+            console.log(ans);
+            document.getElementById('result').value = ans;
         }
 
         function doParse() {
