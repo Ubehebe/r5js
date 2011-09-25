@@ -2,11 +2,33 @@ function Datum() {
     /* No need to set this stuff until it's needed, just here for documentation
      this.firstChild = null;
      this.nextSibling = null;
+     this.parent = null; // only for last children
      this.type = null;
      this.payload = null;
      this.nonterminals = [];
      this.values = []; */
 }
+
+Datum.prototype.clone = function() {
+
+    var ans = new Datum();
+
+    // Note that we do _not_ want to clone the parent pointer!
+    if (this.type)
+        ans.type = this.type;
+    if (this.payload)
+        ans.payload = this.payload;
+    if (this.nonterminals)
+        ans.nonterminals = shallowCopy(this.nonterminals);
+    if (this.values)
+        ans.values = shallowCopy(this.values);
+    if (this.firstChild)
+        ans.firstChild = this.firstChild.clone();
+    if (this.nextSibling)
+        ans.nextSibling = this.nextSibling.clone();
+
+    return ans;
+};
 
 Datum.prototype.setParse = function(type) {
     if (!this.nonterminals)
@@ -114,6 +136,10 @@ Datum.prototype.isIdentifier = function() {
     return this.type === 'identifier';
 };
 
+Datum.prototype.isVector = function() {
+    return this.type === '#(';
+};
+
 Datum.prototype.isQuote = function() {
     return this.type === "'"
         || (this.isList()
@@ -128,10 +154,13 @@ Datum.prototype.startsWith = function(payload) {
 Datum.prototype.replaceSiblings = function(replacementDict) {
     var prev;
     var first;
-    for (var cur = this; cur; prev = cur,cur = cur.nextSibling) {
+    for (var cur = this; cur; prev = cur, cur = cur.nextSibling) {
         if (cur.payload) {
-            var replacementValue = replacementDict[cur.payload];
-            if (replacementValue) {
+            var src = replacementDict[cur.payload];
+            if (src) {
+                var replacementValue = src.clone();
+                if (cur.parent)
+                    replacementValue.parent = cur.parent;
                 if (prev)
                     prev.nextSibling = replacementValue;
                 replacementValue.nextSibling = cur.nextSibling;
@@ -144,5 +173,35 @@ Datum.prototype.replaceSiblings = function(replacementDict) {
         if (!first)
             first = cur;
     }
+
+
     return first;
+};
+
+Datum.prototype.lastSibling = function() {
+    return this.nextSibling ? this.nextSibling.lastSibling() : this;
+};
+
+/* Notice that our representation of lists is not recursive: the "second element"
+ of (x y z) is y, not (y z). So we provide this function as an aid whenever
+ we want that recursive property (which in practice is seldom).
+
+ Why not use car/cdr-style lists? I've gone back and forth (and back) on this, and
+ may still change my mind. The current first-child/next-sibling representation
+ works; I'm sure I'd break something (especially with the hacky "parent" pointers)
+ by changing to car/cdr. Also, car/cdr would double memory usage for lists.
+ Consider this list as an example: (x y (1 2)). In first-child/next-sibling, this
+ allocates six Datum objects, one for each atom and one for the head of each list.
+ In car/cdr, this would allocate five Pair objects and four Atom objects (they would
+ have to be a separate datatype).
+
+ Also, first-child/next-sibling is easier to draw by hand, something that's important
+ to me.
+ */
+Datum.prototype.siblingsToList = function(dotted) {
+    var ans = new Datum();
+    ans.type = dotted ? '.(' : '(';
+    ans.firstChild = this;
+    this.lastSibling().parent = ans;
+    return ans;
 };
