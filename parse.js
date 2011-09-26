@@ -337,20 +337,7 @@ Parser.prototype['self-evaluating'] = function() {
             }
         }},
         {value: function(node, env) {
-            switch (node.type) {
-                case 'boolean': // primitive; lowercase conversion already done
-                    return node.payload === '#t';
-                case 'number': // primitive (but constrains us to JavaScript number semantics)
-                    return parseFloat(node.payload);
-                case 'character': // boxed (could we use JavaScript strings of length 1?)
-                    return new SchemeChar(node.payload);
-                case 'string': // boxed (Scheme strings are mutable, JavaScript strings aren't)
-                    return new SchemeString(node.payload);
-                default:
-                    throw new InternalInterpreterError('unknown self-evaluating type '
-                        + node.type);
-
-            }
+            return maybeWrapResult(node.payload, node.type);
         }
         }
     );

@@ -202,8 +202,11 @@ Datum.prototype.toString = function() {
 
     switch (this.type) {
         case 'identifier':
+            return this.payload;
         case 'boolean':
+            return this.payload ? '#t' : '#f';
         case 'number':
+            return this.payload + '';
         case 'character':
         case 'string':
             return this.payload;

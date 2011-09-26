@@ -9,29 +9,7 @@ function Datum() {
      this.values = []; */
 }
 
-function datumForValue(selfEval) {
 
-    // Just for convenience: we want this to be a no-op for lists, vectors, etc.
-    if (selfEval instanceof Datum)
-        return selfEval;
-
-    var ans = new Datum();
-    if (typeof selfEval === 'boolean') {
-        ans.type = 'boolean';
-        ans.payload = selfEval ? '#t' : '#f';
-    } else if (typeof selfEval === 'number') {
-        ans.type = 'number';
-        ans.payload = selfEval + '';
-    } else if (selfEval instanceof SchemeChar) {
-        ans.type = 'character';
-        ans.payload = selfEval.c;
-    } else if (selfEval instanceof SchemeString) {
-        ans.type = 'string';
-        ans.payload = selfEval.s;
-    } else throw new InternalInterpreterError('unknown self-evaluating value ' + selfEval);
-
-    return ans;
-}
 
 function newEmptyList() {
     var ans = new Datum();
@@ -164,6 +142,34 @@ Datum.prototype.isImproperList = function() {
     return this.type === '.(';
 };
 
+// todo bl once we have hidden these types behind functions, we can
+// switch their representations to ints instead of strings
+
+function maybeWrapResult(result, type) {
+
+    if (result instanceof Datum)
+        return result; // no-op, strictly for convenience
+
+    var ans = new Datum();
+    ans.payload = result;
+    if (type)
+        ans.type = type;
+    // If no type was supplied, we can deduce it in most (not all) cases
+    else {
+        var inferredType = typeof result;
+        switch (inferredType) {
+            case 'boolean':
+            case 'number':
+                ans.type = inferredType;
+            break;
+            default:
+                throw new InternalInterpreterError('cannot deduce type from value '
+                    + result + ': noninjective mapping from values to types');
+        }
+    }
+    return ans;
+}
+
 Datum.prototype.isList = function() {
     return this.type === '(';
 };
@@ -174,6 +180,26 @@ Datum.prototype.isIdentifier = function() {
 
 Datum.prototype.isVector = function() {
     return this.type === '#(';
+};
+
+Datum.prototype.isBoolean = function() {
+    return this.type === 'boolean';
+};
+
+Datum.prototype.isIdentifier = function() {
+    return this.type === 'identifier';
+};
+
+Datum.prototype.isCharacter = function() {
+    return this.type === 'character';
+};
+
+Datum.prototype.isNumber = function() {
+    return this.type === 'number';
+};
+
+Datum.prototype.isString = function() {
+    return this.type === 'string';
 };
 
 Datum.prototype.isQuote = function() {

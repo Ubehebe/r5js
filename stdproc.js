@@ -1,41 +1,39 @@
 var builtins = (function() {
 
-
     var builtinTypeProcs = {
 
-        // Represent Scheme booleans by JavaScript booleans
         'boolean?': {
             argc: 1,
-            proc: function(x) {
-                return typeof x === 'boolean';
+            proc: function(node) {
+                return node.isBoolean();
             }
         },
 
-        // Represent Scheme symbols by JavaScript strings since both are immutable
         'symbol?': {
             argc: 1,
-            proc: function(s) {
-                return typeof s === 'string';
+            proc: function(node) {
+                return node.isIdentifier();
             }
         },
 
-        /* In JavaScript, characters are strings of length 1, but in Scheme they are
-         *  distinct types. */
         'char?': {
             argc: 1,
-            proc: function(c) {
-                return c instanceof SchemeChar;
+            proc: function(node) {
+                return node.isCharacter();
             }
         },
 
-        // Represent Scheme vectors by JavaScript arrays
+        // todo bl vectors should behave as if self-evaluating:
+        // (list? (1 2)) => error (parses as procedure-call)
+        // (vector? #(1 2)) => should be ok
         'vector?': {
             argc: 1,
-            proc: function(v) {
-                return v instanceof Array;
+            proc: function(node) {
+                return node.isVector();
             }
         },
 
+        // todo bl this should look for a node whose payload is a proc!!
         'procedure?': {
             argc: 1,
             proc: function(p) {
@@ -46,31 +44,27 @@ var builtins = (function() {
 
         'pair?': {
             argc: 1,
-            proc: function(p) {
-                return p instanceof Datum
-                    && (p.isList() || p.isImproperList())
-                    && p.firstChild; // 3.2: (pair? '()) => #f
+            proc: function(node) {
+                return (node.isList() || node.isImproperList())
+                    && !!node.firstChild; // 3.2: (pair? '()) => #f
             }
         },
 
-        // Represent Scheme numbers by JavaScript numbers
         'number?': {
             argc: 1,
-            proc: function(x) {
-                return typeof x === 'number';
+            proc: function(node) {
+                return node.isNumber();
             }
         },
 
-        /* Scheme strings are mutable, but JavaScript strings are not.
-         Therefore we cannot represent Scheme strings directly as JavaScript
-         strings; we have to wrap them. */
         'string?': {
             argc: 1,
-            proc: function(ss) {
-                return ss instanceof SchemeString;
+            proc: function(node) {
+                return node.isString();
             }
         },
 
+        // todo bl have no idea...
         'port?': {
             argc: 1,
             proc: function(p) {
@@ -90,26 +84,28 @@ var builtins = (function() {
 
         'real?': {
             argc: 1,
-            proc: function(x) {
-                return typeof x === 'number';
+            proc: function(node) {
+                return node.isNumber();
             }
         },
+
         'rational?': {
             argc: 1,
-            proc: function(x) {
-                return typeof x === 'number';
+            proc: function(node) {
+                return node.isNumber();
             }
         },
 
         'integer?': {
             argc: 1,
-            proc: function(x) {
-                return typeof x === 'number' && Math.round(x) === x;
+            proc: function(node) {
+                return node.isNumber() && Math.round(node.payload) === node.payload;
             }
         },
 
         'exact?': {
             argc: 1,
+            argtypes: 'number',
             proc: function(x) {
                 return false;
             }
@@ -117,8 +113,9 @@ var builtins = (function() {
 
         'inexact?': {
             argc: 1,
+            argtypes: 'number',
             proc: function(x) {
-                return typeof x === 'number';
+                return true;
             }
         },
 
@@ -273,8 +270,9 @@ var builtins = (function() {
         'cons': {
             argc: 2,
             proc: function(car, cdr) {
-                var realCar = datumForValue(car);
-                var realCdr = datumForValue(cdr);
+                // todo bl this is really expensive! can we cut down on the copying?
+                var realCar = car.clone();
+                var realCdr = cdr.clone();
                 // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
                 if (realCdr.isList() || realCdr.isImproperList()) {
                     realCdr.prependChild(realCar);
@@ -528,6 +526,7 @@ var builtins = (function() {
 
         var argc = value.argc;
         var argtypes = value.argtypes;
+        var resultType = value.resultType;
         var proc = value.proc;
 
         if (!proc) {
@@ -552,29 +551,45 @@ var builtins = (function() {
                     throw new TooManyArgs(name, argc.max, arguments.length);
             }
 
-            // Check correct argument types
+            var maybeUnwrappedArgs;
+
+            /* If type checking was requested, do the type checking and
+                also unwrap the arguments (so that a datum representing 1
+                gets unwrapped to a JavaScript number 1). This makes sense
+                because if you're writing a procedure that doesn't do any type
+                checking, you should be prepared to handle arbitrary objects
+                (i.e. Datum objects) in the procedure itself. */
             if (argtypes) {
+                maybeUnwrappedArgs = [];
 
                 /* If argtypes is something like 'number', that means every argument
                  must be a number. */
                 if (typeof argtypes === 'string') {
                     var classifier = targetEnv[argtypes + '?'];
-                    for (var i = 0; i < arguments.length; ++i)
-                        if (!classifier(arguments[i]))
+                    for (var i = 0; i < arguments.length; ++i) {
+                        if (classifier(arguments[i]))
+                            maybeUnwrappedArgs.push(arguments[i].payload);
+                        else
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes);
+                    }
                 }
 
                 /* If argtypes is something like ['number', 'string'], we should go down
                  the arguments array and ensure each argument has its expected type. */
                 else if (argtypes instanceof Array) {
-                    for (var i = 0; i < arguments.length; ++i)
+                    for (var i = 0; i < arguments.length; ++i) {
                         if (argtypes[i] && !targetEnv[argtypes[i] + '?'](arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
+                        else
+                            maybeUnwrappedArgs.push(arguments[i].payload);
+                    }
                 }
             }
 
-            // If everything checks out, call the JavaScript builtin
-            return proc.apply(null, arguments);
+            // If no type checking was requested, don't unwrap the args
+            else maybeUnwrappedArgs = arguments;
+
+            return maybeWrapResult(proc.apply(null, maybeUnwrappedArgs), resultType);
         };
     }
 

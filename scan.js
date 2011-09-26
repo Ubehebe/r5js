@@ -5,7 +5,42 @@ function Token(type, start, stop) {
 }
 
 Token.prototype.setPayload = function(payload) {
-    this.payload = payload.toLowerCase();
+    /* As a small optimization, we 'evaluate' these payloads here, rather than in
+        semantic actions attached in the parser. This should be a little more efficient
+        when creating self-evaluating datums on the fly. For example:
+
+        (let-syntax ((foo (syntax-rules () ((foo x) (+ x x x x x x))))) (foo 24))
+
+        As the macro facility currently works, this will create a datum corresponding
+        to 24, clone it six times, and insert the datums as siblings into the datum tree,
+        bypassing the scanner. It is less work to parse the string "24" into the number
+        24 before the cloning than after. */
+    switch (this.type) {
+        case 'identifier':
+            this.payload = payload.toLowerCase();
+            break;
+        case 'boolean':
+            this.payload = payload === '#t' || payload === '#T';
+            break;
+        case 'number':
+            this.payload = parseFloat(payload);
+            break;
+        case 'character':
+            var afterSlash = payload.substr(2);
+            if (afterSlash.length === 1)
+                this.payload = afterSlash;
+            else if (afterSlash === 'space')
+                this.payload = ' ';
+            else if (afterSlash === 'newline')
+                this.payload = '\n';
+            else throw new InternalInterpreterError('invalid character payload ' + payload);
+            break;
+        case 'string':
+            this.payload = payload;
+            break;
+        default:
+            throw new InternalInterpreterError('invalid token type ' + this.type);
+    }
     return this;
 };
 
@@ -15,7 +50,6 @@ Token.prototype.setPayload = function(payload) {
 Token.prototype.requiresDelimiterTermination = function() {
     switch (this.type) {
         case 'identifier':
-
         case 'number':
         case 'character':
         case '.':
@@ -32,9 +66,9 @@ Token.prototype.shouldRememberPayload = function() {
         case 'number':
         case 'character':
         case 'string':
-        return true;
+            return true;
         default:
-        return false;
+            return false;
     }
 };
 
@@ -57,7 +91,7 @@ Scanner.prototype.nextToken = function() {
     if (!this.isEof() && this['token']()) {
         var token = new Token(this.lastTypeScanned, start, this.offset);
         if (token.shouldRememberPayload())
-            token.setPayload(this.text.substr(start, this.offset-start));
+            token.setPayload(this.text.substr(start, this.offset - start));
         this.payload = null;
         if (token.requiresDelimiterTermination()
             && !this.isEof()

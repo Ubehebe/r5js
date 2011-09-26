@@ -51,7 +51,7 @@ SchemeProcedure.prototype.bindArgs = function(args) {
         var list = newEmptyList();
         // Go backwards and do prepends to avoid quadratic performance
         for (var i = args.length - 1; i >= this.formalsArray.length - 1; --i)
-            list.prependChild(datumForValue(args[i]));
+            list.prependChild(args[i]);
         envCopy[this.formalsArray[this.formalsArray.length - 1]] = list;
     }
     return envCopy;
