@@ -1,21 +1,3 @@
-function SchemePair(car, cdr) {
-    this.car = car;
-    this.cdr = cdr;
-} // bl do we need this as a primitive?
-
-// todo bl do we need this type?
-function EmptyList() {}
-EmptyList.prototype.toString = function() { return '()'; };
-var emptyList = new EmptyList();
-
-SchemePair.prototype.toString = function() {
-    // Feels dirty doing iteration on cars and cdrs
-    var buf = [];
-    for (var cur = this; cur; cur = cur.cdr)
-        buf.push(cur.car.toString());
-    return '(' + buf.join(' ') + ')';
-};
-
 function SchemeChar(c) {
     this.c = c;
 }
@@ -58,7 +40,6 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
 SchemeProcedure.prototype.bindArgs = function(args) {
     var envCopy = shallowCopy(this.env);
 
-
     for (var i = 0; i < this.formalsArray.length - 1; ++i)
         envCopy[this.formalsArray[i]] = args[i];
 
@@ -66,17 +47,12 @@ SchemeProcedure.prototype.bindArgs = function(args) {
         envCopy[this.formalsArray[this.formalsArray.length - 1]]
             = args[this.formalsArray.length - 1];
     } else {
-        var cur, prev, first;
-        for (var i = this.formalsArray.length - 1; i < args.length; ++i) {
-            cur = new SchemePair(args[i], null);
-            if (!first)
-                first = cur;
-            else
-                prev.cdr = cur;
-
-            prev = cur;
-        }
-        envCopy[this.formalsArray[this.formalsArray.length - 1]] = first ? first : emptyList;
+        // Roll up the remaining arguments into a list
+        var list = newEmptyList();
+        // Go backwards and do prepends to avoid quadratic performance
+        for (var i = args.length - 1; i >= this.formalsArray.length - 1; --i)
+            list.prependChild(datumForValue(args[i]));
+        envCopy[this.formalsArray[this.formalsArray.length - 1]] = list;
     }
     return envCopy;
 };

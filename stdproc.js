@@ -1,5 +1,3 @@
-
-
 var builtins = (function() {
 
 
@@ -38,18 +36,20 @@ var builtins = (function() {
             }
         },
 
-        // Builtin procedures are just JavaScript procedures.
         'procedure?': {
             argc: 1,
             proc: function(p) {
-                return typeof p === 'function' || p instanceof SchemeProcedure;
+                return typeof p === 'function' // builtin
+                    || p instanceof SchemeProcedure; // not builtin
             }
         },
 
         'pair?': {
             argc: 1,
             proc: function(p) {
-                return p instanceof SchemePair;
+                return p instanceof Datum
+                    && (p.isList() || p.isImproperList())
+                    && p.firstChild; // 3.2: (pair? '()) => #f
             }
         },
 
@@ -270,12 +270,23 @@ var builtins = (function() {
 
     var builtinPairProcs = {
 
-
-
         'cons': {
             argc: 2,
             proc: function(car, cdr) {
-                return new SchemePair(car, cdr);
+                var realCar = datumForValue(car);
+                var realCdr = datumForValue(cdr);
+                // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
+                if (realCdr.isList() || realCdr.isImproperList()) {
+                    realCdr.prependChild(realCar);
+                    return realCdr;
+                } else {
+                    var ans = new Datum();
+                    ans.type = '.(';
+                    ans.appendChild(realCar);
+                    ans.appendChild(realCdr);
+                    // todo bl hmm the parent field isn't getting set...is that ok?
+                    return ans;
+                }
             }
         },
 
@@ -283,7 +294,7 @@ var builtins = (function() {
             argc: 1,
             argtypes: ['pair'],
             proc: function(p) {
-                return p.car;
+                return p.firstChild;
             }
         },
 
@@ -291,7 +302,10 @@ var builtins = (function() {
             argc: 1,
             argtypes: ['pair'],
             proc: function(p) {
-                return p.cdr;
+                var startOfCdr = p.firstChild.nextSibling;
+                return startOfCdr
+                    ? startOfCdr.siblingsToList(p.isImproperList())
+                    : newEmptyList();
             }
         },
 

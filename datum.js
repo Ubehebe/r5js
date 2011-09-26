@@ -9,6 +9,36 @@ function Datum() {
      this.values = []; */
 }
 
+function datumForValue(selfEval) {
+
+    // Just for convenience: we want this to be a no-op for lists, vectors, etc.
+    if (selfEval instanceof Datum)
+        return selfEval;
+
+    var ans = new Datum();
+    if (typeof selfEval === 'boolean') {
+        ans.type = 'boolean';
+        ans.payload = selfEval ? '#t' : '#f';
+    } else if (typeof selfEval === 'number') {
+        ans.type = 'number';
+        ans.payload = selfEval + '';
+    } else if (selfEval instanceof SchemeChar) {
+        ans.type = 'character';
+        ans.payload = selfEval.c;
+    } else if (selfEval instanceof SchemeString) {
+        ans.type = 'string';
+        ans.payload = selfEval.s;
+    } else throw new InternalInterpreterError('unknown self-evaluating value ' + selfEval);
+
+    return ans;
+}
+
+function newEmptyList() {
+    var ans = new Datum();
+    ans.type = '(';
+    return ans;
+}
+
 Datum.prototype.clone = function() {
 
     var ans = new Datum();
@@ -112,6 +142,12 @@ Datum.prototype.appendChild = function(child) {
     if (!this.firstChild)
         this.firstChild = child;
     else this.firstChild.appendSibling(child);
+};
+
+Datum.prototype.prependChild = function(child) {
+    var oldFirstChild = this.firstChild;
+    this.firstChild = child;
+    child.nextSibling = oldFirstChild;
 };
 
 /* Map isn't the best word, since the function returns an array but the children
