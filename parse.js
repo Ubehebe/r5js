@@ -368,6 +368,7 @@ Parser.prototype['procedure-call'] = function() {
         {type: ')'},
         {value: function(node, env) {
             var proc = node.at('operator').eval(env);
+            //  We don't evaluate the operands unless we're sure it's a procedure
             if (typeof proc === 'function') {
                 var args = node.at('operand').evalSiblingsReturnAll(env);
                 return proc.apply(null, args);
@@ -490,40 +491,17 @@ Parser.prototype['definition'] = function() {
         [
             {type: '('},
             {type: 'define'},
-            {type: '('},
-            {type: 'variable', atLeast: 1},
-            {type: '.'},
-            {type: 'variable'},
-            {type: ')'},
+            {type: 'variables'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {value: function(node, env) {
-                var formalsList = node.at('(');
+                var formalsList = node.at('variables');
                 var formals = formalsList.mapChildren(function(child) {
                     return child.payload;
                 });
                 var name = formals.shift();
-                env[name] = new SchemeProcedure(formals, true, formalsList.nextSibling, env);
-                return undefined;
-            }}
-        ],
-        [
-            {type: '('},
-            {type: 'define'},
-            {type: '('},
-            {type: 'variable', atLeast: 1},
-            {type: ')'},
-            {type: 'definition', atLeast: 0},
-            {type: 'expression', atLeast: 1},
-            {type: ')'},
-            {value: function(node, env) {
-                var formalsList = node.at('(');
-                var formals = formalsList.mapChildren(function(child) {
-                    return child.payload;
-                });
-                var name = formals.shift();
-                env[name] = new SchemeProcedure(formals, false, formalsList.nextSibling, env);
+                env[name] = new SchemeProcedure(formals, formalsList.isImproperList(), formalsList.nextSibling, env);
                 return undefined;
             }}
         ],
@@ -533,11 +511,30 @@ Parser.prototype['definition'] = function() {
             {type: 'definition', atLeast: 0},
             {type: ')'},
             {value: function(node, env) {
-                return node.at('definition').evalSiblingsReturnLast(env);
+                node.at('definition').evalSiblingsReturnNone(env);
+                return undefined;
             }
             }
         ]);
 
+};
+
+// todo bl another yuck -- vacuous nonterminal to save the "next" pointer
+Parser.prototype['variables'] = function() {
+    return this.alternation(
+        [
+            {type: '('},
+            {type: 'variable', atLeast: 1},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'variable', atLeast: 1},
+            {type: '.'},
+            {type: 'variable'},
+            {type: ')'}
+        ]
+    );
 };
 
 // <conditional> -> (if <test> <consequent> <alternate>)
@@ -878,8 +875,9 @@ Parser.prototype['macro-block'] = function() {
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {value: function(node, env) {
-                node.at('syntax-spec').evalSiblingsReturnLast(env);
-                node.at('definition').evalSiblingsReturnLast(env);
+                node.at('syntax-specs').eval(env);
+                node.at('definition').evalSiblingsReturnNone(env);
+                return node.at('expression').evalSiblingsReturnLast(env);
             }
             }
         ],
@@ -891,8 +889,9 @@ Parser.prototype['macro-block'] = function() {
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {value: function(node, env) {
-                node.at('syntax-spec').evalSiblingsReturnLast(env);
-                node.at('definition').evalSiblingsReturnLast(env);
+                node.at('syntax-specs').eval(env);
+                node.at('definition').evalSiblingsReturnNone(env);
+                return node.at('expression').evalSiblingsReturnLast(env);
             }
             }
         ]);
@@ -902,9 +901,14 @@ Parser.prototype['macro-block'] = function() {
 // todo bl: problem: a nonterminal followed by a ) obliterates the next pointer!
 // that's why I introduced this nonterminal.
 Parser.prototype['syntax-specs'] = function() {
-  return this.rhs({type: '('},
-      {type: 'syntax-spec', atLeast: 0},
-      {type: ')'});
+    return this.rhs({type: '('},
+        {type: 'syntax-spec', atLeast: 0},
+        {type: ')'},
+        {value: function(node, env) {
+            node.at('syntax-spec').evalSiblingsReturnNone(env);
+            return undefined;
+        }
+        });
 };
 
 // <syntax spec> -> (<keyword> <transformer spec>)
