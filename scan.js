@@ -6,15 +6,15 @@ function Token(type, start, stop) {
 
 Token.prototype.setPayload = function(payload) {
     /* As a small optimization, we 'evaluate' these payloads here, rather than in
-        semantic actions attached in the parser. This should be a little more efficient
-        when creating self-evaluating datums on the fly. For example:
+     semantic actions attached in the parser. This should be a little more efficient
+     when creating self-evaluating datums on the fly. For example:
 
-        (let-syntax ((foo (syntax-rules () ((foo x) (+ x x x x x x))))) (foo 24))
+     (let-syntax ((foo (syntax-rules () ((foo x) (+ x x x x x x))))) (foo 24))
 
-        As the macro facility currently works, this will create a datum corresponding
-        to 24, clone it six times, and insert the datums as siblings into the datum tree,
-        bypassing the scanner. It is less work to parse the string "24" into the number
-        24 before the cloning than after. */
+     As the macro facility currently works, this will create a datum corresponding
+     to 24, clone it six times, and insert the datums as siblings into the datum tree,
+     bypassing the scanner. It is less work to parse the string "24" into the number
+     24 before the cloning than after. */
     switch (this.type) {
         case 'identifier':
             this.payload = payload.toLowerCase();
@@ -163,7 +163,6 @@ Scanner.prototype.tryOne = function(arg) {
     // A token class specified by further rules
     else if (arg.type)
         return this.tryType(arg.type);
-
 };
 
 Scanner.prototype.tryExactMatch = function(exactString) {
@@ -185,7 +184,6 @@ Scanner.prototype.tryCharPredicate = function(charPredicate) {
 };
 
 Scanner.prototype.tryType = function(type) {
-    var before = this.offset;
     if (this[type]()) {
         this.lastTypeScanned = type;
         return true;
@@ -205,13 +203,13 @@ Scanner.prototype.alternation = function() {
 Scanner.prototype['token'] = function() {
     return this.alternation(
         [
+            {type: 'number'} // must appear before identifier to catch leading +, -
+        ],
+        [
             {type: 'identifier'}
         ],
         [
             {type: 'boolean'}
-        ],
-        [
-            {type: 'number'}
         ],
         [
             {type: 'character'}
