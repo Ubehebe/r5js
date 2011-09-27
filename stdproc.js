@@ -35,12 +35,11 @@ var builtins = (function() {
             }
         },
 
-        // todo bl this should look for a node whose payload is a proc!!
         'procedure?': {
             argc: 1,
             proc: function(p) {
                 return typeof p === 'function' // builtin
-                    || p instanceof SchemeProcedure; // not builtin
+                    || (p instanceof Datum && p.isProcedure()); // not builtin
             }
         },
 

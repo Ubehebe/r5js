@@ -215,7 +215,7 @@ Datum.prototype.isQuote = function() {
 };
 
 Datum.prototype.isProcedure = function() {
-    return this.type = 'lambda';
+    return this.type === 'lambda';
 };
 
 // Convenience function for builtin evaluation: unwrap the argument if it's "primitive"
