@@ -23,9 +23,11 @@ var builtins = (function() {
             }
         },
 
-        // todo bl vectors should behave as if self-evaluating:
-        // (list? (1 2)) => error (parses as procedure-call)
-        // (vector? #(1 2)) => should be ok
+        /* 6.3.6: "Like list constants, vector constants must be quoted."
+            (Neither lists nor vectors appear anywhere in the non-datum grammar).
+            Thus (vector? '#()) => #t, but (vector? #()) is a parse error. Nevertheless,
+            both PLT and MIT Scheme have it evaluate to #t. In those implementations,
+            it seems vectors (but not lists?) are self-evaluating. */
         'vector?': {
             argc: 1,
             proc: function(node) {
@@ -568,7 +570,7 @@ var builtins = (function() {
                     var classifier = targetEnv[argtypes + '?'];
                     for (var i = 0; i < arguments.length; ++i) {
                         if (classifier(arguments[i]))
-                            maybeUnwrappedArgs.push(arguments[i].payload);
+                            maybeUnwrappedArgs.push(arguments[i].unwrap());
                         else
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes);
                     }
@@ -581,7 +583,7 @@ var builtins = (function() {
                         if (argtypes[i] && !targetEnv[argtypes[i] + '?'](arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
                         else
-                            maybeUnwrappedArgs.push(arguments[i].payload);
+                            maybeUnwrappedArgs.push(arguments[i].unwrap());
                     }
                 }
             }

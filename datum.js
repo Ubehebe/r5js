@@ -9,11 +9,16 @@ function Datum() {
      this.values = []; */
 }
 
-
-
 function newEmptyList() {
     var ans = new Datum();
     ans.type = '(';
+    return ans;
+}
+
+function newProcedureDatum(procedure) {
+    var ans = new Datum();
+    ans.type = 'lambda';
+    ans.payload = procedure;
     return ans;
 }
 
@@ -207,6 +212,15 @@ Datum.prototype.isQuote = function() {
         || (this.isList()
         && this.firstChild
         && this.firstChild.payload === 'quote'); // todo bl should datums know about this?
+};
+
+Datum.prototype.isProcedure = function() {
+    return this.type = 'lambda';
+};
+
+// Convenience function for builtin evaluation: unwrap the argument if it's "primitive"
+Datum.prototype.unwrap = function() {
+    return this.payload !== undefined ? this.payload : this;
 };
 
 Datum.prototype.startsWith = function(payload) {

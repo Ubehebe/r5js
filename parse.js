@@ -355,19 +355,30 @@ Parser.prototype['procedure-call'] = function() {
         {type: ')'},
         {value: function(node, env) {
             var proc = node.at('operator').eval(env);
-            //  We don't evaluate the operands unless we're sure it's a procedure
+            var args; //  We don't evaluate the operands unless we're sure it's a procedure
+
+            // A builtin procedure: (+ 1 100)
             if (typeof proc === 'function') {
-                var args = node.at('operand').evalSiblingsReturnAll(env);
+                args = node.at('operand').evalSiblingsReturnAll(env);
                 return proc.apply(null, args);
             }
-            else if (proc instanceof SchemeProcedure) {
-                var args = node.at('operand').evalSiblingsReturnAll(env);
-                proc.checkNumArgs(args.length);
-                return proc.body.evalSiblingsReturnLast(proc.bindArgs(args));
-            } else {
+
+            /* A defined procedure: (let ((foo (lambda (x) x))) (foo 1)), or simply
+                ((lambda (x) x) 1). Note that to get lambdas to work in other syntactic
+                contexts (example: (cons (lambda () 1) (lambda () 2))), we have to wrap
+                them in datum objects. For consistency, we store them in the environment
+                wrapped as well. */
+            else if (proc.isProcedure()) {
+                var unwrappedProc = proc.payload;
+                args = node.at('operand').evalSiblingsReturnAll(env);
+                unwrappedProc.checkNumArgs(args.length);
+                return unwrappedProc.body.evalSiblingsReturnLast(unwrappedProc.bindArgs(args));
+            }
+
+            /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
+                evaluate. This may be the coolest line in this implementation. */
+            else {
                 node.unsetParse();
-                /* Homoiconicity to the rescue: dynamically reparse and evaluate as a
-                 macro. */
                 return new Parser(node).parse('macro-use').eval(env);
             }
         }
@@ -403,7 +414,8 @@ Parser.prototype['lambda-expression'] = function() {
                 return child.payload;
             })
                 : [formalRoot.payload];
-            return new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env);
+            return newProcedureDatum(
+                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env));
         }
         }
     );
@@ -488,7 +500,14 @@ Parser.prototype['definition'] = function() {
                     return child.payload;
                 });
                 var name = formals.shift();
-                env[name] = new SchemeProcedure(formals, formalsList.isImproperList(), formalsList.nextSibling, env);
+                /* Note that we store the procedure wrapped in a datum.
+                    This is just for consistency; to use procedures generally, they have
+                    to be wrapped in datums, so we can do things like
+                    (cons (lambda () 0) (lambda () 1)). */
+                env[name] =
+                    newProcedureDatum(
+                        new SchemeProcedure(
+                            formals, formalsList.isImproperList(), formalsList.nextSibling, env));
                 return undefined;
             }}
         ],

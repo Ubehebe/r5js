@@ -201,6 +201,8 @@ Datum.prototype.toString = function() {
     var endDelimiter = "";
 
     switch (this.type) {
+        case 'lambda':
+            return '#<procedure>'; // todo bl represent text of proc?
         case 'identifier':
             return this.payload;
         case 'boolean':
