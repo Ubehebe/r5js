@@ -22,13 +22,19 @@ function newProcedureDatum(procedure) {
     return ans;
 }
 
+Datum.prototype.stripParent = function() {
+    this.parent = null;
+    return this;
+};
+
 Datum.prototype.clone = function() {
 
     var ans = new Datum();
 
-    // Note that we do _not_ want to clone the parent pointer!
     if (this.type)
         ans.type = this.type;
+    if (this.parent)
+        ans.parent = this.parent;
     if (this.payload)
         ans.payload = this.payload;
     if (this.nonterminals)
@@ -236,10 +242,10 @@ Datum.prototype.replaceSiblings = function(replacementDict) {
             if (src) {
                 var replacementValue = src.clone();
                 if (cur.parent)
-                    replacementValue.parent = cur.parent;
+                    replacementValue.lastSibling().parent = cur.parent;
                 if (prev)
                     prev.nextSibling = replacementValue;
-                replacementValue.nextSibling = cur.nextSibling;
+                replacementValue.lastSibling().nextSibling = cur.nextSibling;
                 cur = replacementValue;
             }
         } else if (!cur.isQuote() && cur.firstChild) {
@@ -252,6 +258,12 @@ Datum.prototype.replaceSiblings = function(replacementDict) {
 
 
     return first;
+};
+
+Datum.prototype.filterSiblings = function(predicate) {
+  for (var cur = this; cur; cur = cur.nextSibling) {
+      // todo bl;
+  }
 };
 
 Datum.prototype.lastSibling = function() {

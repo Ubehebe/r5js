@@ -50,12 +50,19 @@ SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
 };
 
 function Template(datum, bindings) {
-    this.datum = datum;
+    this.datum = datum.filterSiblings(function(node) {
+        return node.payload !== '...';
+    });
     this.bindings = bindings;
 }
 
 Template.prototype.hygienicTranscription = function() {
-    
+    var before = this.datum.toString();
+    console.log('hygienicTranscription: bindings');
+    console.log(this.bindings);
+    var ans = this.datum.replaceSiblings(this.bindings);
+    console.log('hygienicTranscription: ' + before + ' => ' + ans.toString());
+    return ans;
 };
 
 /* 4.3.2: An input form F matches a pattern P if and only if:
@@ -75,10 +82,7 @@ Template.prototype.hygienicTranscription = function() {
  */
 SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
 
-    console.log('patternMatch: patternDatum:');
-    console.log(patternDatum);
-    console.log('inputDatum:');
-    console.log(inputDatum);
+    console.log('trying to match ' + inputDatum.toString() + ' against ' + patternDatum.toString());
 
     var isIdentifier = patternDatum.payload;
     var isLiteralIdentifier = isIdentifier && contains(this.literalIdentifiers, patternDatum.payload);
@@ -87,7 +91,10 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
      Example: (let-syntax ((foo (syntax-rules () ((foo x) "aha!")))) (foo (1 2 3))) => "aha!"
      ((1 2 3) would be a procedure-call error if evaluated, but it is never evaluated.) */
     if (isIdentifier && !isLiteralIdentifier) {
-        ansDict[isIdentifier] = inputDatum;
+        // todo bl too subtle: stick on the first datum that is followed by an ellipsis
+        if (!ansDict[isIdentifier])
+            ansDict[isIdentifier] = inputDatum;
+        console.log('matched ' + inputDatum.toString() + ' against ' + patternDatum.toString());
         return true;
     }
 
@@ -120,16 +127,63 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
                 && this.definitionEnv[isIdentifier] === undefined
                 && useEnv[isIdentifier] === undefined)
                 || (this.definitionEnv[isIdentifier] === useEnv[isIdentifier])) {
-                ansDict[isIdentifier] = inputDatum;
+                if (!ansDict[isIdentifier])
+                    ansDict[isIdentifier] = inputDatum;
+                console.log('matched ' + inputDatum.toString() + ' against ' + patternDatum.toString());
                 return true;
             }
         }
         return false;
     }
 
-    /* (3) P is a list (P1 ... Pn) and F is a list of n forms that match P1 through Pn, respectively
-     Example: (let-syntax ((foo (syntax-rules () ((foo (x y z)) y)))) (foo (1 2 3))) => 2 */
-    else if (patternDatum.isList() && inputDatum.isList()) {
+    /*
+     (3) P is a list (P1 ... Pn) and F is a list of n forms that match P1 through Pn, respectively
+     (5) P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
+     and F is a proper list of at least n forms, the first n of which match P1 through Pn,
+     respectively, and each remaining element of F matches Pn+1
+     (6) P is a vector of the form #(P1 ...Pn) and F is a vector of n forms that match P1 through Pn
+     (7) P is of the form #(P1 . . . Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
+     and F is a vector of n or more forms the first n of which match P1 through Pn,
+     respectively, and each remaining element of F matches Pn+1
+
+     todo bl add examples of each of these in the comments
+
+     */
+    else if ((patternDatum.isList() && inputDatum.isList())
+        || (patternDatum.isVector() && inputDatum.isVector())) {
+        var patternElement = patternDatum.firstChild;
+        var inputElement = inputDatum.firstChild;
+        var ellipsisPattern;
+        if (ignoreLeadingKeyword) {
+            patternElement = patternElement.nextSibling;
+            inputElement = inputElement.nextSibling;
+        }
+
+        for (/* already initialized */;
+            patternElement && inputElement;
+            patternElement = ellipsisPattern || patternElement.nextSibling,
+                inputElement = inputElement.nextSibling) {
+
+            if (!ellipsisPattern
+                && patternElement.nextSibling
+                && patternElement.nextSibling.payload === '...')
+                ellipsisPattern = patternElement;
+
+            if (!this.patternMatch(patternElement, inputElement, useEnv, ansDict))
+                return false;
+        }
+        return ellipsisPattern || !(patternElement || inputElement);
+    }
+
+    /* (4) P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or improper list
+     of n or more forms that match P1 through Pn, respectively,
+     and whose nth “cdr” matches Pn+1.
+     Example: (let-syntax ((foo (syntax-rules () ((foo x . y) y)))) (foo 1 . 2) => 2
+     (foo 1 + 2 3) => 5 (because y matches (+ 2 3))
+     */
+    else if (patternDatum.isImproperList()
+        && (inputDatum.isImproperList() || inputDatum.isList())) {
+
         var patternElement = patternDatum.firstChild;
         var inputElement = inputDatum.firstChild;
         if (ignoreLeadingKeyword) {
@@ -138,14 +192,30 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
         }
 
         for (/* already initialized */;
-            patternElement && inputElement;
+            patternElement && patternElement.nextSibling;
             patternElement = patternElement.nextSibling,
                 inputElement = inputElement.nextSibling) {
-            if (!this.patternMatch(patternElement, inputElement, useEnv, ansDict))
+
+            if (!inputElement // The input list is shorter than the pattern list. Failure.
+                || !this.patternMatch(patternElement, inputElement, useEnv, ansDict))
                 return false;
         }
-        return !(patternElement || inputElement);
+
+        /* Now we have to compare the part of the pattern after the dot with
+         the remainder of the input. Note that since our lists aren't recursive,
+         we have to explicitly manufacture a list from the pointer. */
+        var manufacturedList = inputElement.siblingsToList(inputDatum.isImproperList());
+        console.log('remainder list is');
+        console.log(manufacturedList);
+        return inputElement
+            && this.patternMatch(
+            patternElement,
+            manufacturedList,
+            useEnv,
+            ansDict);
     }
+
+    else return false;
 };
 
 function contains(array, x) {
@@ -153,27 +223,4 @@ function contains(array, x) {
         if (array[i] === x)
             return true;
     return false;
-}
-
-function deepCopy(node) {
-    var ans = {};
-    for (var k in node)
-        ans[k] = typeof node[k] === 'object' ? deepCopy(node[k]) : node[k];
-    return ans;
-}
-
-/* 4.3.2: When a macro use is transcribed according to the template of
- the matching <syntax rule>, pattern variables that occur in the template
- are replaced by the subforms they match in the input. */
-function transformTemplate(template, replacementDatums) {
-    if (template['pattern-identifier']) {
-
-        template['pattern-identifier'].identifier = replacementDatums[template['pattern-identifier'].identifier];
-    } else if (template['template-element']) {
-        var elements = template['template-element'];
-        for (var i = 0; i < elements.length; ++i)
-            transformTemplate(elements[i].template, replacementDatums);
-        if (template['.template'])
-            transformTemplate(template['.template'])
-    }
 }

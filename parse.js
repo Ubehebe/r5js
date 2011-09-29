@@ -185,6 +185,9 @@ Parser.prototype.onDatum = function(element) {
                      What if the empty list has no next sibling? I am not sure if this
                      code is correct in that case, but I believe it is a nonissue; I can't
                      think of where that could occur in the grammar of Scheme.
+
+                     todo bl this is probably the most obscure part of the interpreter
+
                      */
                     this.next = this.prev.nextSibling
                         ? this.prev.nextSibling
@@ -368,7 +371,7 @@ Parser.prototype['procedure-call'] = function() {
                 contexts (example: (cons (lambda () 1) (lambda () 2))), we have to wrap
                 them in datum objects. For consistency, we store them in the environment
                 wrapped as well. */
-            else if (proc.isProcedure()) {
+            else if (proc instanceof Datum && proc.isProcedure()) {
                 var unwrappedProc = proc.payload;
                 args = node.at('operand').evalSiblingsReturnAll(env);
                 unwrappedProc.checkNumArgs(args.length);
