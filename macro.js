@@ -6,43 +6,43 @@ function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
 
 SchemeMacro.prototype.allPatternsBeginWith = function(keyword) {
 
-    for (var rule = this.rules; rule; rule = rule.nextSibling) {
-        var pattern = rule.at('pattern');
-        if (!pattern.isList() || pattern.firstChild.payload !== keyword)
-            return false;
-    }
+    /*for (var rule = this.rules; rule; rule = rule.nextSibling) {
+     var pattern = rule.at('pattern');
+     if (!pattern.isList() || pattern.firstChild.payload !== keyword)
+     return false;
+     }*/
     return true;
 
 };
-/* todo bl start here
 
+SchemeMacro.prototype.ellipsesMatch = function() {
+
+    for (var rule = this.rules; rule; rule = rule.nextSibling)
+        if (!ellipsesMatch(rule.at('pattern'), rule.at('template')))
+            return false;
+    return true;
+};
+
+/* 4.3.2
+ A subpattern followed by ... can match zero or more elements of the input.
+ It is an error for ... to appear in <literal>. Within a pattern the identifier ...
+ must follow the last element of a nonempty sequence of subpatterns.
+
+ Pattern variables that occur in subpatterns followed by one or more instances
+ of the identifier ... are allowed only in subtemplates that are followed
+ by as many instances of .... They are replaced in the output by all of the
+ subforms they match in the input, distributed as indicated. It is an error
+ if the output cannot be built up as specified.
  */
-/* 4.3.2: The keyword at the beginning of the pattern in a <syntax rule>
- is not involved in the matching and is not considered a pattern variable
- or literal identifier. */
-/*
- pattern.shift();
-
- this.patterns.push(pattern);
- this.templates.push(syntaxRule.template);
- }
- }
-
- function PatternMatch(replacementDatums, template) {
- this.replacementDatums = replacementDatums;
- this.template = template;
- }
-
- PatternMatch.prototype.hygienicTranscription = function() {
- return transformTemplate(this.template, this.replacementDatums);
- };*/
+function ellipsesMatch(patternDatum, templateDatum) {
+    // todo bl
+    return true;
+}
 
 SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
     for (var rule = this.rules; rule; rule = rule.nextSibling) {
         var bindings = {};
         var pattern = rule.at('pattern');
-        console.log('selectTemplate: considering pattern');
-        console.log(pattern);
         if (this.patternMatch(pattern, datum, useEnv, bindings, true))
             return new Template(rule.at('template'), bindings);
     }
@@ -50,18 +50,18 @@ SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
 };
 
 function Template(datum, bindings) {
-    this.datum = datum.filterSiblings(function(node) {
-        return node.payload !== '...';
+    /* We must clone the template datum because every macro use will
+        deform the template through the hygienic transcription. */
+    this.datum = datum.clone().filterChildren(function(node) {
+        return node.payload !== '...'
     });
     this.bindings = bindings;
 }
 
 Template.prototype.hygienicTranscription = function() {
     var before = this.datum.toString();
-    console.log('hygienicTranscription: bindings');
-    console.log(this.bindings);
     var ans = this.datum.replaceSiblings(this.bindings);
-    console.log('hygienicTranscription: ' + before + ' => ' + ans.toString());
+    console.log('hygienicTranscription: ' + before + ' => ' + ans);
     return ans;
 };
 
@@ -82,8 +82,7 @@ Template.prototype.hygienicTranscription = function() {
  */
 SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
 
-    console.log('trying to match ' + inputDatum.toString() + ' against ' + patternDatum.toString());
-
+    // todo bl document why we cannot say patternDatum.isIdentifier()
     var isIdentifier = patternDatum.payload;
     var isLiteralIdentifier = isIdentifier && contains(this.literalIdentifiers, patternDatum.payload);
 
@@ -91,10 +90,25 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
      Example: (let-syntax ((foo (syntax-rules () ((foo x) "aha!")))) (foo (1 2 3))) => "aha!"
      ((1 2 3) would be a procedure-call error if evaluated, but it is never evaluated.) */
     if (isIdentifier && !isLiteralIdentifier) {
-        // todo bl too subtle: stick on the first datum that is followed by an ellipsis
-        if (!ansDict[isIdentifier])
-            ansDict[isIdentifier] = inputDatum;
-        console.log('matched ' + inputDatum.toString() + ' against ' + patternDatum.toString());
+
+        // Temporarily slice off the input's siblings to save time during cloning
+        var savedNextSibling = inputDatum.nextSibling;
+        inputDatum.nextSibling = null;
+        var toInsert = inputDatum.clone();
+        inputDatum.nextSibling = savedNextSibling;
+
+        var alreadyBound = ansDict[isIdentifier];
+
+        /* If we don't already have a binding for the identifier, insert it,
+         remembering to chop off its siblings. Otherwise, we are in
+         an ellipsis situation. (x ...) says to match input elements
+         against x as long as that succeeds. In this case, we should
+         append the input datum as a last sibling of the existing binding. */
+        if (!alreadyBound)
+            ansDict[isIdentifier] = toInsert;
+        else
+            alreadyBound.appendSibling(toInsert); // todo bl quadratic
+
         return true;
     }
 
@@ -122,14 +136,13 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
      ((lambda (x) ((lambda (y) (foo x y)) x)) 1) */
 
     else if (isIdentifier && isLiteralIdentifier) {
-        if (inputDatum.payload) {
+        if (inputDatum.payload !== undefined) { // watch out for 0's and falses
             if ((inputDatum.payload === isIdentifier
                 && this.definitionEnv[isIdentifier] === undefined
                 && useEnv[isIdentifier] === undefined)
                 || (this.definitionEnv[isIdentifier] === useEnv[isIdentifier])) {
                 if (!ansDict[isIdentifier])
                     ansDict[isIdentifier] = inputDatum;
-                console.log('matched ' + inputDatum.toString() + ' against ' + patternDatum.toString());
                 return true;
             }
         }
@@ -205,8 +218,6 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
          the remainder of the input. Note that since our lists aren't recursive,
          we have to explicitly manufacture a list from the pointer. */
         var manufacturedList = inputElement.siblingsToList(inputDatum.isImproperList());
-        console.log('remainder list is');
-        console.log(manufacturedList);
         return inputElement
             && this.patternMatch(
             patternElement,
@@ -224,3 +235,4 @@ function contains(array, x) {
             return true;
     return false;
 }
+

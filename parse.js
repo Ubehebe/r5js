@@ -367,10 +367,10 @@ Parser.prototype['procedure-call'] = function() {
             }
 
             /* A defined procedure: (let ((foo (lambda (x) x))) (foo 1)), or simply
-                ((lambda (x) x) 1). Note that to get lambdas to work in other syntactic
-                contexts (example: (cons (lambda () 1) (lambda () 2))), we have to wrap
-                them in datum objects. For consistency, we store them in the environment
-                wrapped as well. */
+             ((lambda (x) x) 1). Note that to get lambdas to work in other syntactic
+             contexts (example: (cons (lambda () 1) (lambda () 2))), we have to wrap
+             them in datum objects. For consistency, we store them in the environment
+             wrapped as well. */
             else if (proc instanceof Datum && proc.isProcedure()) {
                 var unwrappedProc = proc.payload;
                 args = node.at('operand').evalSiblingsReturnAll(env);
@@ -379,7 +379,7 @@ Parser.prototype['procedure-call'] = function() {
             }
 
             /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
-                evaluate. This may be the coolest line in this implementation. */
+             evaluate. This may be the coolest line in this implementation. */
             else {
                 node.unsetParse();
                 return new Parser(node).parse('macro-use').eval(env);
@@ -504,9 +504,9 @@ Parser.prototype['definition'] = function() {
                 });
                 var name = formals.shift();
                 /* Note that we store the procedure wrapped in a datum.
-                    This is just for consistency; to use procedures generally, they have
-                    to be wrapped in datums, so we can do things like
-                    (cons (lambda () 0) (lambda () 1)). */
+                 This is just for consistency; to use procedures generally, they have
+                 to be wrapped in datums, so we can do things like
+                 (cons (lambda () 0) (lambda () 1)). */
                 env[name] =
                     newProcedureDatum(
                         new SchemeProcedure(
@@ -558,7 +558,8 @@ Parser.prototype['conditional'] = function() {
             {type: 'alternate'},
             {type: ')'},
             {value: function(node, env) {
-                return node.at('test').eval(env)
+                // todo bl quote R5RS on what evals to false
+                return node.at('test').eval(env).unwrap() !== false
                     ? node.at('consequent').eval(env)
                     : node.at('alternate').eval(env);
             }
@@ -571,7 +572,8 @@ Parser.prototype['conditional'] = function() {
             {type: 'consequent'},
             {type: ')'},
             {value: function(node, env) {
-                return node.at('test').eval(env)
+                // todo bl quote R5RS on what evals to false
+                return node.at('test').eval(env).unwrap() !== false
                     ? node.at('consequent').eval(env)
                     : undefined;
             }
@@ -610,7 +612,7 @@ Parser.prototype['assignment'] = function() {
         });
 };
 
-/* <derived expression> -> (cond <cond clause>+ )
+/* todo bl get rid of this -- they're all macros! <derived expression> -> (cond <cond clause>+ )
  | (cond <cond clause>* (else <sequence>))
  | (case <expression> <case clause>+)
  | (case <expression> <case clause>* (else <sequence>))
@@ -626,137 +628,137 @@ Parser.prototype['assignment'] = function() {
  | <quasiquotation>
  <do result> -> <sequence> | <empty>
  */
-Parser.prototype['derived-expression'] = function() {
-    return this.alternation(
-        [
-            {type: '('},
-            {type: 'cond'},
-            {type: 'cond-clause', atLeast: 1},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'cond'},
-            {type: 'cond-clause', atLeast: 0},
-            {type: '('},
-            {type: 'else'},
-            {type: 'expression', atLeast: 1},
-            {type: ')'},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'case'},
-            {type: 'expression'},
-            {type: 'case-clause', atLeast: 1},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'case'},
-            {type: 'expression'},
-            {type: 'case-clause', atLeast: 0},
-            {type: '('},
-            {type: 'else'},
-            {type: 'expression', atLeast: 1},
-            {type: ')'},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'and'},
-            {type: 'test', atLeast: 0},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'or'},
-            {type: 'test', atLeast: 0},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'let'},
-            {type: '('},
-            {type: 'binding-spec', atLeast: 0},
-            {type: ')'},
-            {type: 'definition', atLeast: 0},
-            {type: 'expression', atLeast: 1},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'let'},
-            {type: 'variable'},
-            {type: '('},
-            {type: 'binding-spec', atLeast: 0},
-            {type: ')'},
-            {type: 'definition', atLeast: 0},
-            {type: 'expression', atLeast: 1},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'let*'},
-            {type: '('},
-            {type: 'binding-spec', atLeast: 0},
-            {type: ')'},
-            {type: 'definition', atLeast: 0},
-            {type: 'expression', atLeast: 1},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'letrec'},
-            {type: '('},
-            {type: 'binding-spec', atLeast: 0},
-            {type: ')'},
-            {type: 'definition', atLeast: 0},
-            {type: 'expression', atLeast: 1},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'begin'},
-            {type: 'expression', atLeast: 1},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'do'},
-            {type: '('},
-            {type: 'iteration-spec', atLeast: 0},
-            {type: ')'},
-            {type: '('},
-            {type: 'test'},
-            {type: 'expression', atLeast: 1},
-            {type: ')'},
-            {type: 'command', atLeast: 0},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'do'},
-            {type: '('},
-            {type: 'iteration-spec', atLeast: 0},
-            {type: ')'},
-            {type: '('},
-            {type: 'test'},
-            {type: ')'},
-            {type: 'command', atLeast: 0},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'delay'},
-            {type: 'expression'},
-            {type: ')'}
-        ]/*,
-         [
-         {type: 'quasiquotation'} // todo bl
-         ]*/
-    );
-};
+/*Parser.prototype['derived-expression'] = function() {
+ return this.alternation(
+ [
+ {type: '('},
+ {type: 'cond'},
+ {type: 'cond-clause', atLeast: 1},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'cond'},
+ {type: 'cond-clause', atLeast: 0},
+ {type: '('},
+ {type: 'else'},
+ {type: 'expression', atLeast: 1},
+ {type: ')'},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'case'},
+ {type: 'expression'},
+ {type: 'case-clause', atLeast: 1},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'case'},
+ {type: 'expression'},
+ {type: 'case-clause', atLeast: 0},
+ {type: '('},
+ {type: 'else'},
+ {type: 'expression', atLeast: 1},
+ {type: ')'},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'and'},
+ {type: 'test', atLeast: 0},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'or'},
+ {type: 'test', atLeast: 0},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'let'},
+ {type: '('},
+ {type: 'binding-spec', atLeast: 0},
+ {type: ')'},
+ {type: 'definition', atLeast: 0},
+ {type: 'expression', atLeast: 1},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'let'},
+ {type: 'variable'},
+ {type: '('},
+ {type: 'binding-spec', atLeast: 0},
+ {type: ')'},
+ {type: 'definition', atLeast: 0},
+ {type: 'expression', atLeast: 1},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'let*'},
+ {type: '('},
+ {type: 'binding-spec', atLeast: 0},
+ {type: ')'},
+ {type: 'definition', atLeast: 0},
+ {type: 'expression', atLeast: 1},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'letrec'},
+ {type: '('},
+ {type: 'binding-spec', atLeast: 0},
+ {type: ')'},
+ {type: 'definition', atLeast: 0},
+ {type: 'expression', atLeast: 1},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'begin'},
+ {type: 'expression', atLeast: 1},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'do'},
+ {type: '('},
+ {type: 'iteration-spec', atLeast: 0},
+ {type: ')'},
+ {type: '('},
+ {type: 'test'},
+ {type: 'expression', atLeast: 1},
+ {type: ')'},
+ {type: 'command', atLeast: 0},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'do'},
+ {type: '('},
+ {type: 'iteration-spec', atLeast: 0},
+ {type: ')'},
+ {type: '('},
+ {type: 'test'},
+ {type: ')'},
+ {type: 'command', atLeast: 0},
+ {type: ')'}
+ ],
+ [
+ {type: '('},
+ {type: 'delay'},
+ {type: 'expression'},
+ {type: ')'}
+ ]*//*,
+ [
+ {type: 'quasiquotation'} // todo bl
+ ]*//*
+ );
+ };*/
 
 /*
  <cond clause> -> (<test> <sequence>)
@@ -856,8 +858,11 @@ Parser.prototype['macro-use'] = function() {
             var macro = env[kw];
             if (macro instanceof SchemeMacro) {
                 var template = macro.selectTemplate(node, env);
-                if (template)
-                    return new Parser(template.hygienicTranscription()).parse('expression' /* todo bl: program? */).eval(env);
+                if (template) {
+                    return new Parser(template.hygienicTranscription())
+                        .parse('expression' /* todo bl: program? */)
+                        .eval(env);
+                }
                 else throw new MacroError(kw, 'no matching template');
             } else throw new UnboundVariable(kw);
         }
@@ -930,10 +935,14 @@ Parser.prototype['syntax-spec'] = function() {
         {value: function(node, env) {
             var kw = node.at('keyword').payload;
             var macro = node.at('transformer-spec').eval(env);
-            if (macro.allPatternsBeginWith(kw)) {
+            if (!macro.allPatternsBeginWith(kw))
+                throw new MacroError(kw, 'all patterns must begin with keyword');
+            else if (!macro.ellipsesMatch(kw))
+                throw new MacroError(kw, 'ellipsis mismatch');
+            else {
                 env[kw] = macro;
                 return undefined;
-            } else throw new MacroError(kw, 'all patterns must begin with keyword');
+            }
         }
         }
     );
@@ -1170,10 +1179,14 @@ Parser.prototype['syntax-definition'] = function() {
         {value: function(node, env) {
             var kw = node.at('keyword').payload;
             var macro = node.at('transformer-spec').eval(env);
-            if (macro.allPatternsBeginWith(kw)) {
+            if (!macro.allPatternsBeginWith(kw))
+                throw new MacroError(kw, 'all patterns must begin with ' + kw);
+            else if (!macro.ellipsesMatch(kw))
+                throw new MacroError(kw, 'ellipsis mismatch');
+            else {
                 env[kw] = macro;
                 return undefined;
-            } else throw new MacroError(kw, 'all patterns must begin with ' + kw);
+            }
         }
         }
     );

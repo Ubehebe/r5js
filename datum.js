@@ -22,8 +22,17 @@ function newProcedureDatum(procedure) {
     return ans;
 }
 
+Datum.prototype.isEmptyList = function() {
+    return this.isList() && !this.firstChild;
+};
+
 Datum.prototype.stripParent = function() {
     this.parent = null;
+    return this;
+};
+
+Datum.prototype.stripSiblings = function() {
+    this.nextSibling = null;
     return this;
 };
 
@@ -35,7 +44,7 @@ Datum.prototype.clone = function() {
         ans.type = this.type;
     if (this.parent)
         ans.parent = this.parent;
-    if (this.payload)
+    if (this.payload !== undefined) // watch out for 0's and falses
         ans.payload = this.payload;
     if (this.nonterminals)
         ans.nonterminals = shallowCopy(this.nonterminals);
@@ -172,7 +181,7 @@ function maybeWrapResult(result, type) {
             case 'boolean':
             case 'number':
                 ans.type = inferredType;
-            break;
+                break;
             default:
                 throw new InternalInterpreterError('cannot deduce type from value '
                     + result + ': noninjective mapping from values to types');
@@ -226,7 +235,9 @@ Datum.prototype.isProcedure = function() {
 
 // Convenience function for builtin evaluation: unwrap the argument if it's "primitive"
 Datum.prototype.unwrap = function() {
-    return this.payload !== undefined ? this.payload : this;
+    return this.payload !== undefined // watch out for 0's and falses
+        ? this.payload
+        : this;
 };
 
 Datum.prototype.startsWith = function(payload) {
@@ -236,8 +247,8 @@ Datum.prototype.startsWith = function(payload) {
 Datum.prototype.replaceSiblings = function(replacementDict) {
     var prev;
     var first;
-    for (var cur = this; cur; prev = cur, cur = cur.nextSibling) {
-        if (cur.payload) {
+    for (var cur = this; cur; prev = cur,cur = cur.nextSibling) {
+        if (cur.payload !== undefined) { // watch out for 0's and falses
             var src = replacementDict[cur.payload];
             if (src) {
                 var replacementValue = src.clone();
@@ -260,10 +271,29 @@ Datum.prototype.replaceSiblings = function(replacementDict) {
     return first;
 };
 
-Datum.prototype.filterSiblings = function(predicate) {
-  for (var cur = this; cur; cur = cur.nextSibling) {
-      // todo bl;
-  }
+Datum.prototype.filterChildren = function(predicate) {
+    var prev;
+    for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
+        if (predicate(cur)) {
+            var newCur = cur.filterChildren(predicate);
+            if (prev)
+                prev.nextSibling = newCur;
+            else
+                this.firstChild = newCur;
+            prev = newCur;
+        } else if (prev) {
+            prev.nextSibling = null;
+        }
+    }
+
+    if (prev)
+        prev.parent = this;
+
+    // singleton
+    else if (this.firstChild && !predicate(this.firstChild))
+        this.firstChild = null;
+
+    return this;
 };
 
 Datum.prototype.lastSibling = function() {

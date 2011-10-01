@@ -51,6 +51,13 @@ var builtins = (function() {
             }
         },
 
+        'null?': {
+            argc: 1,
+            proc: function(node) {
+                return node.isEmptyList();
+            }
+        },
+
         'number?': {
             argc: 1,
             proc: function(node) {
@@ -272,8 +279,8 @@ var builtins = (function() {
             argc: 2,
             proc: function(car, cdr) {
                 // todo bl this is really expensive! can we cut down on the copying?
-                var realCar = car.clone();
-                var realCdr = cdr.clone();
+                var realCar = car.stripParent().clone();
+                var realCdr = cdr.stripParent().clone();
                 // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
                 if (realCdr.isList() || realCdr.isImproperList()) {
                     realCdr.prependChild(realCar);
