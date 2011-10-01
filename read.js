@@ -96,7 +96,7 @@ Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
 Reader.prototype.onTerminal = function(ansDatum, element) {
     var token = this.assertNextTokenType(element.type);
     if (token) {
-        if (token.payload) {
+        if (token.payload !== undefined) { // watch out for 0 and false!
             ansDatum.payload = token.payload;
             ansDatum.type = token.type;
         }
