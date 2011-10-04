@@ -1,12 +1,15 @@
 function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
-    this.literalIdentifiers = literalIdentifiers;
+    this.literalIdentifiers = {};
+    for (var curId = literalIdentifiers; curId; curId = curId.nextSibling)
+        this.literalIdentifiers[curId.payload] = true;
     this.rules = rules;
     this.definitionEnv = definitionEnv;
 }
 
 SchemeMacro.prototype.allPatternsBeginWith = function(keyword) {
 
-    /*for (var rule = this.rules; rule; rule = rule.nextSibling) {
+    /* todo bl incorrect -- needs to be recursive
+     for (var rule = this.rules; rule; rule = rule.nextSibling) {
      var pattern = rule.at('pattern');
      if (!pattern.isList() || pattern.firstChild.payload !== keyword)
      return false;
@@ -51,7 +54,7 @@ SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
 
 function Template(datum, bindings) {
     /* We must clone the template datum because every macro use will
-        deform the template through the hygienic transcription. */
+     deform the template through the hygienic transcription. */
     this.datum = datum.clone().filterChildren(function(node) {
         return node.payload !== '...'
     });
@@ -81,14 +84,22 @@ Template.prototype.hygienicTranscription = function() {
  (8) P is a datum and F is equal to P in the sense of the equal? procedure.
  */
 SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
+    return this.matchNonLiteralId(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword)
+        || this.matchLiteralId(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword)
+        || this.matchListOrVector(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword)
+        || this.matchImproperList(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword)
+        || this.matchDatum(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword);
+};
 
-    // todo bl document why we cannot say patternDatum.isIdentifier()
-    var isIdentifier = patternDatum.payload;
-    var isLiteralIdentifier = isIdentifier && contains(this.literalIdentifiers, patternDatum.payload);
+/* (1) P is a non-literal identifier
+ Example: (let-syntax ((foo (syntax-rules () ((foo x) "aha!")))) (foo (1 2 3))) => "aha!"
+ ((1 2 3) would be a procedure-call error if evaluated, but it is never evaluated.) */
+SchemeMacro.prototype.matchNonLiteralId
+    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
 
-    /* (1) P is a non-literal identifier
-     Example: (let-syntax ((foo (syntax-rules () ((foo x) "aha!")))) (foo (1 2 3))) => "aha!"
-     ((1 2 3) would be a procedure-call error if evaluated, but it is never evaluated.) */
+    var isIdentifier = patternDatum.isIdentifier() && patternDatum.payload;
+    var isLiteralIdentifier = isIdentifier && this.literalIdentifiers[patternDatum.payload];
+
     if (isIdentifier && !isLiteralIdentifier) {
 
         // Temporarily slice off the input's siblings to save time during cloning
@@ -110,32 +121,39 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
             alreadyBound.appendSibling(toInsert); // todo bl quadratic
 
         return true;
-    }
+    } else return false;
+};
 
-    /* (2) P is a literal identifier and F is an identifier with the same binding
-     4.3.2: A subform in the input matches a literal identifier if and only if
-     it is an identifier and either both its occurrence in the macro expression
-     and its occurrence in the macro definition have the same lexical binding,
-     or the two identifiers are equal and both have no lexical binding.
 
-     Example:
-     (let ((x 1)) (let-syntax ((foo (syntax-rules (x) ((foo x) "aha!")))) (foo x))) => "aha!"
-     x has the same lexical binding in the macro expression and the macro definition
+/* (2) P is a literal identifier and F is an identifier with the same binding
+ 4.3.2: A subform in the input matches a literal identifier if and only if
+ it is an identifier and either both its occurrence in the macro expression
+ and its occurrence in the macro definition have the same lexical binding,
+ or the two identifiers are equal and both have no lexical binding.
 
-     (let-syntax ((foo (syntax-rules (x) ((foo x) "aha!")))) (foo x)) => "aha!"
-     x has no lexical binding in either the macro expression or the macro definition
+ Example:
+ (let ((x 1)) (let-syntax ((foo (syntax-rules (x) ((foo x) "aha!")))) (foo x))) => "aha!"
+ x has the same lexical binding in the macro expression and the macro definition
 
-     todo bl: this part of the spec is really hard to understand. In particular,
-     I do not understand how two non-equal identifiers can have the same binding.
-     For example, in
+ (let-syntax ((foo (syntax-rules (x) ((foo x) "aha!")))) (foo x)) => "aha!"
+ x has no lexical binding in either the macro expression or the macro definition
 
-     (let* ((x 1) (y x)) (foo x y))
+ todo bl: this part of the spec is really hard to understand. In particular,
+ I do not understand how two non-equal identifiers can have the same binding.
+ For example, in
 
-     x and y do not have the same lexical binding in the procedure call, since this is rewritten as
+ (let* ((x 1) (y x)) (foo x y))
 
-     ((lambda (x) ((lambda (y) (foo x y)) x)) 1) */
+ x and y do not have the same lexical binding in the procedure call, since this is rewritten as
 
-    else if (isIdentifier && isLiteralIdentifier) {
+ ((lambda (x) ((lambda (y) (foo x y)) x)) 1) */
+SchemeMacro.prototype.matchLiteralId
+    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
+
+    var isIdentifier = patternDatum.isIdentifier() && patternDatum.payload;
+    var isLiteralIdentifier = isIdentifier && this.literalIdentifiers[patternDatum.payload];
+
+    if (isIdentifier && isLiteralIdentifier) {
         if (inputDatum.payload !== undefined) { // watch out for 0's and falses
             if ((inputDatum.payload === isIdentifier
                 && this.definitionEnv[isIdentifier] === undefined
@@ -146,23 +164,27 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
                 return true;
             }
         }
-        return false;
     }
 
-    /*
-     (3) P is a list (P1 ... Pn) and F is a list of n forms that match P1 through Pn, respectively
-     (5) P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
-     and F is a proper list of at least n forms, the first n of which match P1 through Pn,
-     respectively, and each remaining element of F matches Pn+1
-     (6) P is a vector of the form #(P1 ...Pn) and F is a vector of n forms that match P1 through Pn
-     (7) P is of the form #(P1 . . . Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
-     and F is a vector of n or more forms the first n of which match P1 through Pn,
-     respectively, and each remaining element of F matches Pn+1
+    return false;
+};
 
-     todo bl add examples of each of these in the comments
+/*
+ (3) P is a list (P1 ... Pn) and F is a list of n forms that match P1 through Pn, respectively
+ (5) P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
+ and F is a proper list of at least n forms, the first n of which match P1 through Pn,
+ respectively, and each remaining element of F matches Pn+1
+ (6) P is a vector of the form #(P1 ...Pn) and F is a vector of n forms that match P1 through Pn
+ (7) P is of the form #(P1 . . . Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
+ and F is a vector of n or more forms the first n of which match P1 through Pn,
+ respectively, and each remaining element of F matches Pn+1
 
-     */
-    else if ((patternDatum.isList() && inputDatum.isList())
+ todo bl add examples of each of these in the comments
+
+ */
+SchemeMacro.prototype.matchListOrVector
+    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
+    if ((patternDatum.isList() && inputDatum.isList())
         || (patternDatum.isVector() && inputDatum.isVector())) {
         var patternElement = patternDatum.firstChild;
         var inputElement = inputDatum.firstChild;
@@ -186,15 +208,19 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
                 return false;
         }
         return ellipsisPattern || !(patternElement || inputElement);
-    }
+    } else return false;
+};
 
-    /* (4) P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or improper list
-     of n or more forms that match P1 through Pn, respectively,
-     and whose nth “cdr” matches Pn+1.
-     Example: (let-syntax ((foo (syntax-rules () ((foo x . y) y)))) (foo 1 . 2) => 2
-     (foo 1 + 2 3) => 5 (because y matches (+ 2 3))
-     */
-    else if (patternDatum.isImproperList()
+/* (4) P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or improper list
+ of n or more forms that match P1 through Pn, respectively,
+ and whose nth “cdr” matches Pn+1.
+ Example: (let-syntax ((foo (syntax-rules () ((foo x . y) y)))) (foo 1 . 2) => 2
+ (foo 1 + 2 3) => 5 (because y matches (+ 2 3))
+ */
+
+SchemeMacro.prototype.matchImproperList
+    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
+    if (patternDatum.isImproperList()
         && (inputDatum.isImproperList() || inputDatum.isList())) {
 
         var patternElement = patternDatum.firstChild;
@@ -224,15 +250,11 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
             manufacturedList,
             useEnv,
             ansDict);
-    }
-
-    else return false;
+    } else return false;
 };
 
-function contains(array, x) {
-    for (var i = 0; i < array.length; ++i)
-        if (array[i] === x)
-            return true;
-    return false;
-}
-
+// (8) P is a datum and F is equal to P in the sense of the equal? procedure.
+SchemeMacro.prototype.matchDatum
+    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
+    return patternDatum.isEqual(inputDatum);
+};

@@ -194,10 +194,6 @@ Datum.prototype.isList = function() {
     return this.type === '(';
 };
 
-Datum.prototype.isIdentifier = function() {
-    return this.type === 'identifier';
-};
-
 Datum.prototype.isVector = function() {
     return this.type === '#(';
 };
@@ -231,6 +227,25 @@ Datum.prototype.isQuote = function() {
 
 Datum.prototype.isProcedure = function() {
     return this.type === 'lambda';
+};
+
+/* todo bl this could be written in Scheme (as equals?). I wrote it
+    in JavaScript because we have to call it when doing macro processing.
+ */
+Datum.prototype.isEqual = function(other) {
+    if (other instanceof Datum
+        && this.type === other.type
+        && this.payload === other.payload) {
+        var thisChild, otherChild;
+        for (thisChild = this.firstChild,otherChild = other.firstChild;
+             thisChild && otherChild;
+             thisChild = thisChild.nextSibling,otherChild = otherChild.nextSibling)
+            if (!thisChild.isEqual(otherChild))
+                return false;
+
+        return !(thisChild || otherChild);
+
+    } else return false;
 };
 
 // Convenience function for builtin evaluation: unwrap the argument if it's "primitive"

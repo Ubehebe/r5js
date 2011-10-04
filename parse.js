@@ -957,9 +957,7 @@ Parser.prototype['transformer-spec'] = function() {
         {type: 'syntax-rule', atLeast: 0}, // a nonterminal
         {type: ')'},
         {value: function(node, env) {
-            var ids = node.at('transformer-spec-identifiers').mapChildren(function(n) {
-                return n.payload;
-            });
+            var ids = node.at('transformer-spec-identifiers').firstChild;
             var rules = node.at('syntax-rule');
             return new SchemeMacro(ids, rules, env);
         }
