@@ -36,6 +36,21 @@ Datum.prototype.stripSiblings = function() {
     return this;
 };
 
+Datum.prototype.nextAncestor = function() {
+
+    if (!(this.parent || this.nextSibling)) {
+        if (this.type === 'datums')
+            return null;
+        else {
+            // todo bl document!
+            console.log('the datum invariant has been violated:');
+            console.log(this);
+        }
+    } else return this.nextSibling
+        ? this.nextSibling.nextAncestor()
+        : this.parent.nextSibling || this.parent.nextAncestor();
+};
+
 Datum.prototype.clone = function() {
 
     var ans = new Datum();
@@ -230,7 +245,7 @@ Datum.prototype.isProcedure = function() {
 };
 
 /* todo bl this could be written in Scheme (as equals?). I wrote it
-    in JavaScript because we have to call it when doing macro processing.
+ in JavaScript because we have to call it when doing macro processing.
  */
 Datum.prototype.isEqual = function(other) {
     if (other instanceof Datum

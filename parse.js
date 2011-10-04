@@ -138,6 +138,7 @@ Parser.prototype.advanceToSiblingIf = function(predicate) {
     return ans;
 };
 
+
 Parser.prototype.onDatum = function(element) {
 
     if (typeof element.type === 'string') {
@@ -156,7 +157,6 @@ Parser.prototype.onDatum = function(element) {
                     return datum.type === element.type;
                 });
             case ')':
-                if (!this.next) {
                     /* This is subtle. A few invariants:
                      - this.prev is read only once in the parser, in this block.
                      - this.prev is updated only when we move from a parent
@@ -188,14 +188,13 @@ Parser.prototype.onDatum = function(element) {
 
                      todo bl this is probably the most obscure part of the interpreter
 
+                     todo bl major changes with nextAncestor(): need to document
+
                      */
                     this.next = this.prev.nextSibling
                         ? this.prev.nextSibling
-                        : this.prev.parent.nextSibling;
+                        : this.prev.nextAncestor();
                     return true;
-                } else {
-                    return false;
-                }
             default:
                 return this.advanceToSiblingIf(function(datum) {
                     return datum.payload === element.type;
@@ -863,7 +862,7 @@ Parser.prototype['macro-use'] = function() {
                         .parse('expression' /* todo bl: program? */)
                         .eval(env);
                 }
-                else throw new MacroError(kw, 'no matching template');
+                else throw new MacroError(kw, 'no template matching ' + node.toString());
             } else throw new UnboundVariable(kw);
         }
         });
@@ -979,7 +978,7 @@ Parser.prototype['transformer-spec-identifiers'] = function() {
 Parser.prototype['transformer-spec-identifier'] = function() {
     return this.rhs(
         {type: function(datum) {
-            return datum.type === 'identifier';
+            return datum.isIdentifier();
         }}
     );
 };
