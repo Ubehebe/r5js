@@ -84,12 +84,14 @@ Template.prototype.hygienicTranscription = function() {
  (8) P is a datum and F is equal to P in the sense of the equal? procedure.
  */
 SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
-    return this.matchNonLiteralId(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword)
-        || this.matchLiteralId(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword)
-        || this.matchListOrVector(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword)
-        || this.matchImproperList(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword)
-        || this.matchDatum(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword);
+    var args = [patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword];
+    return this.matchNonLiteralId.apply(this, args)
+        || this.matchLiteralId.apply(this, args)
+        || this.matchListOrVector.apply(this, args)
+        || this.matchImproperList.apply(this, args)
+        || this.matchDatum.apply(this, args);
 };
+
 
 /* (1) P is a non-literal identifier
  Example: (let-syntax ((foo (syntax-rules () ((foo x) "aha!")))) (foo (1 2 3))) => "aha!"
