@@ -18,7 +18,7 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env) {
     this.formalsArray = formalsArray;
     this.isDotted = isDotted;
     this.body = bodyStart;
-    this.env = shallowCopy(env);
+    this.env = shallowHashCopy(env);
 }
 
 SchemeProcedure.prototype.toString = function() {
@@ -38,7 +38,7 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
 };
 
 SchemeProcedure.prototype.bindArgs = function(args) {
-    var envCopy = shallowCopy(this.env);
+    var envCopy = shallowHashCopy(this.env);
 
     for (var i = 0; i < this.formalsArray.length - 1; ++i)
         envCopy[this.formalsArray[i]] = args[i];
@@ -57,10 +57,17 @@ SchemeProcedure.prototype.bindArgs = function(args) {
     return envCopy;
 };
 
-function shallowCopy(hash) {
+function shallowArrayCopy(array) {
+    var ans = [];
+    for (var i=0; i<array.length; ++i)
+        ans[i] = array[i];
+    return ans;
+}
+
+function shallowHashCopy(hash) {
     var ans = {};
-    for (var k in hash)
-        ans[k] = hash[k];
+    for (var i in hash)
+    ans[i] = hash[i];
     return ans;
 }
 

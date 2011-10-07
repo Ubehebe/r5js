@@ -62,9 +62,9 @@ Datum.prototype.clone = function() {
     if (this.payload !== undefined) // watch out for 0's and falses
         ans.payload = this.payload;
     if (this.nonterminals)
-        ans.nonterminals = shallowCopy(this.nonterminals);
+        ans.nonterminals = shallowArrayCopy(this.nonterminals);
     if (this.values)
-        ans.values = shallowCopy(this.values);
+        ans.values = shallowArrayCopy(this.values);
     if (this.firstChild)
         ans.firstChild = this.firstChild.clone();
     if (this.nextSibling)
@@ -98,10 +98,6 @@ Datum.prototype.sanitize = function() {
     return this;
 };
 
-Datum.prototype.getParse = function() {
-    return this.nonterminals.pop();
-};
-
 Datum.prototype.peekParse = function() {
     if (this.nonterminals) {
         var len = this.nonterminals.length;
@@ -117,6 +113,10 @@ Datum.prototype.matchChild = function(predicate) {
         if (predicate(child))
             return child;
     return null;
+};
+
+Datum.prototype.nextSiblingRecursive = function() {
+    return this.nextSibling || (this.parent && this.parent.nextSiblingRecursive());
 };
 
 Datum.prototype.at = function(type) {
