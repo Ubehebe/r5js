@@ -25,8 +25,11 @@ Parser.prototype.rhs = function() {
                 ? this.onNonterminal(element, parseFunction)
                 : this.onDatum(element);
             if (!parsed) {
-                if (root)
+                //console.log('failed to parse ' + element.type + ' on ' + (this.next ? this.next.toString() : '(null)'));
+                if (root) {
+                   //console.log('removing all parse info for ' + root.toString());
                     root.unsetParse();
+                }
                 this.next = root;
                 return null;
             }
@@ -41,6 +44,7 @@ Parser.prototype.rhs = function() {
         }
 
     }
+    this.next = root.nextSiblingRecursive();
     return root;
 };
 
@@ -91,13 +95,16 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
     // Handle * and +
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
         var numParsed = 0;
-        while (parsed = parseFunction.apply(this)) {
+        var escaped = this.next && this.next.lastSibling().nextSiblingRecursive();
+        while (this.next !== escaped && (parsed = parseFunction.apply(this))) {
             parsed.setParse(element.type);
+            //console.log('after ' + element.type + ' [' + parsed.toString() + '], next is ' + (this.next ? this.next.toString() : '(null)'));
             ++numParsed;
         }
 
         if (numParsed >= element.atLeast) {
-            return start ? start : true; // dummy value to prevent empty lists registering as failure
+            //console.log('parsed ' + element.type + ' ' + numParsed + ' times');
+            return start ? start : true;
         } else {
             if (start)
                 start.unsetParse();
@@ -114,7 +121,8 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
             return null;
         } else {
             parsed.setParse(element.type);
-            this.next = parsed.nextSibling;
+            this.next = parsed.nextSiblingRecursive();
+           //console.log('after ' + element.type + ' [' + parsed.toString() + '], next is ' + (this.next ? this.next.toString() : '(null)'));
             return start;
         }
     }
@@ -133,7 +141,8 @@ Parser.prototype.advanceToSiblingIf = function(predicate) {
     var ans = this.next && predicate(this.next);
     if (ans) {
         this.prev = this.next;
-        this.next = this.next.nextSibling;
+        this.next = this.next.nextSiblingRecursive();
+        //console.log('next is now ' + this.next);
     }
     return ans;
 };
@@ -157,47 +166,32 @@ Parser.prototype.onDatum = function(element) {
                     return datum.type === element.type;
                 });
             case ')':
-                    /* This is subtle. A few invariants:
-                     - this.prev is read only once in the parser, in this block.
-                     - this.prev is updated only when we move from a parent
-                     to a child or a sibling to a sibling; it is not updated when we
-                     move from a child back up to the parent.
-                     Thus, this.prev does not always point to the "correct" location.
-                     For example, after reading the first closing paren in ((foo) 1),
-                     this.prev points to foo, and it remains pointing to foo for the
-                     rest of the expression. The reason this is okay is because we
-                     will never look at this.prev until the conclusion of the next list,
-                     by which time it *will* be correct. For example, in ((foo) (bar)),
-                     this.prev will be set to bar by the time the second-to-last closing
-                     paren is read.
+                    // empty list
 
-                     If we are here, we are done parsing the current list.
-                     Normally, this means that this.prev is the last element in the list
-                     and this.next is null. this.prev.parent is the head of the current
-                     list, so the next datum to parse should be
-                     this.prev.parent.nextSibling.
-
-                     A corner case arises with empty lists. In that case, this.next is
-                     null, and this.prev points to the head of the empty list. When
-                     the empty list has a next sibling, as in (lambda () "hi"), we should parse
-                     that sibling next: this.prev.nextSibling.
-
-                     What if the empty list has no next sibling? I am not sure if this
-                     code is correct in that case, but I believe it is a nonissue; I can't
-                     think of where that could occur in the grammar of Scheme.
-
-                     todo bl this is probably the most obscure part of the interpreter
-
-                     todo bl major changes with nextAncestor(): need to document
-
-                     */
-                    this.next = this.prev.nextSibling
-                        ? this.prev.nextSibling
-                        : this.prev.nextAncestor();
+                if (this.prev && !this.prev.firstChild /* can't use emptyList; vectors too */ && !this.next) {
+                    this.next = this.prev.nextSiblingRecursive();
                     return true;
+                }
+
+                else if (!this.prev && !this.next) {
+                    return true; // eof only?
+                }
+
+
+                else if (this.prev && this.prev.parent && this.prev.parent.nextSiblingRecursive() === this.next) {
+                    //console.log(this.prev.toString() + ' -> ' + (this.next ? this.next.toString() : '(null)'));
+                    //this.prev = this.prev.parent;
+                    //this.next = this.next && this.next.nextSiblingRecursive();
+                    return true;
+                } else {
+                    //console.log('failed to match ) to ' + (this.next ? this.next.toString() : '(null)') + '; prev was ' + (this.prev? this.prev.toString() : '(null)'));
+                    return false;
+                }
             default:
                 return this.advanceToSiblingIf(function(datum) {
-                    return datum.payload === element.type;
+                    var ans = datum.payload === element.type;
+                    //console.log('onDatum ' + element.type + ': ' + ans);
+                    return ans;
                 });
         }
 
@@ -856,11 +850,17 @@ Parser.prototype['macro-use'] = function() {
             var kw = node.at('keyword').payload;
             var macro = env[kw];
             if (macro instanceof SchemeMacro) {
+                //console.log('found macro');
+                //console.log(macro);
                 var template = macro.selectTemplate(node, env);
                 if (template) {
-                    return new Parser(template.hygienicTranscription())
-                        .parse('expression' /* todo bl: program? */)
-                        .eval(env);
+                    /* todo bl shouldn't have to go all the way back to the scanner;
+                        should be able to say
+                        template.hygienicTranscription().parse('expression').eval(env).
+                        I suspect I'm not properly sanitizing the hygienic transcription...
+                     */
+                    var newText = template.hygienicTranscription().toString();
+                    return eval(newText, env, 'expression');
                 }
                 else throw new MacroError(kw, 'no template matching ' + node.toString());
             } else throw new UnboundVariable(kw);
@@ -1070,22 +1070,35 @@ Parser.prototype['template'] = function() {
         ],
         [
             {type: '('},
-            {type: 'template-element', atLeast: 0},
+            {type: 'template', atLeast: 0},
             {type: ')'}
         ],
         [
             {type: '('},
-            {type: 'template-element', atLeast: 1},
+            {type: 'template', atLeast: 1},
+            {type: '...'},
+            {type: ')'}
+        ],
+
+        [
+            {type: '('},
+            {type: 'template', atLeast: 1},
             {type: '.'},
             /* The reader, and thus the parser, do not support (X+ . Y) where X != Y.
              This appears to be the only part of the grammar where this occurs, so
              we can manually check in the evaluator. */
-            {type: 'template-element'},
+            {type: 'template'},
             {type: ')'}
         ],
         [
             {type: '#('},
-            {type: 'template-element', atLeast: 0},
+            {type: 'template', atLeast: 0},
+            {type: ')'}
+        ],
+        [
+            {type: '#('},
+            {type: 'template', atLeast: 1},
+            {type: '...'},
             {type: ')'}
         ],
         [
@@ -1097,19 +1110,6 @@ Parser.prototype['template'] = function() {
 // <template datum> -> <pattern datum>
 Parser.prototype['template-datum'] = function() {
     return this.rhs({type: 'pattern-datum'});
-};
-
-// <template element> -> <template> | <template> <ellipsis>
-Parser.prototype['template-element'] = function() {
-    return this.alternation(
-        [
-            {type: 'template'},
-            {type: '...'}
-        ],
-        [
-            {type: 'template'}
-        ]
-    );
 };
 
 // <pattern identifier> -> <any identifier except ...>
