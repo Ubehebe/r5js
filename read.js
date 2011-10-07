@@ -191,7 +191,10 @@ Reader.prototype['datums'] = function() {
 };
 
 Reader.prototype.read = function() {
-    return this['datums']().firstChild; // hand the parser the first real datum
+    var datums = this['datums']();
+    if (datums.firstChild)
+        datums.firstChild.lastSibling().parent = null;
+    return datums.firstChild;
 };
 
 // This is the inverse of Reader.prototype.read, which is why it's here.
