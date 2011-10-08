@@ -1,8 +1,30 @@
 function Parser(root) {
-    this.prev = null;
+    /* The next datum to parse. When a parse of a node is successful,
+     the next pointer is advanced, principally through
+     nextSiblingRecursive(). In this way, this.next will only be null
+     or undefined in two cases:
+
+     1. EOF
+     2. first (nonexistent) child of an empty list.
+     */
     this.next = root;
+
+    /* The last datum parsed. We only need this in order to resolve
+     certain corner cases, principally involving empty lists. this.prev
+     is only updated in two cases:
+
+     1. Moving from a parent (= this.prev) to its first child (= this.next)
+     2. Moving from a sibling (= this.prev) to its next sibling (= this.next)
+
+     Thus, this.prev is only null until the first successful move from
+     parent to first child or from sibling to next sibling, and is never
+     thereafter null. */
+    this.prev = null;
 }
 
+/* When a parse of a node n succeeds, n is returned and this.next
+ is advanced to the next node to parse. When a parse of n fails,
+ null is returned and this.next still points to n. */
 Parser.prototype.rhs = function() {
     var parseFunction;
 
@@ -25,15 +47,15 @@ Parser.prototype.rhs = function() {
                 ? this.onNonterminal(element, parseFunction)
                 : this.onDatum(element);
             if (!parsed) {
-                //console.log('failed to parse ' + element.type + ' on ' + (this.next ? this.next.toString() : '(null)'));
-                if (root) {
-                   //console.log('removing all parse info for ' + root.toString());
+                /* This check is necessary because root may be null in the
+                 case of empty lists. */
+                if (root)
                     root.unsetParse();
-                }
                 this.next = root;
                 return null;
             }
         }
+
         // Store semantic actions for later evaluation
         else if (element.value) {
             if (i !== arguments.length - 1)
@@ -44,6 +66,9 @@ Parser.prototype.rhs = function() {
         }
 
     }
+
+    /* We do not need a null check here because, if root is null,
+     parsing has already failed. */
     this.next = root.nextSiblingRecursive();
     return root;
 };
@@ -95,20 +120,35 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
     // Handle * and +
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
         var numParsed = 0;
-        var escaped = this.next && this.next.lastSibling().nextSiblingRecursive();
+	/* nextSiblingRecursive() is powerful because it advances to the "next"
+	   datum to parse, no matter where it may be. But when parsing
+	   repeated nonterminals, we have to be careful not to rise above
+	   the node we started at. For example, consider parsing ((1 2) 3)
+	   according to ((datum*) datum):
+
+	   1 parses ok as datum -> nextSiblingRecursive is 2
+	   2 parses ok as datum -> nextSiblingRecursive is 3
+	   3 parses ok as datum ... but in the same list as 1 and 2!
+
+	   So at the beginning of dealing with * and +, we remember
+	   we would escape to, and abort parsing if we reach there.
+
+	   todo: start.lastSibling() means we iterate over the siblings twice. */
+        var escaped = start && start.lastSibling().nextSiblingRecursive();
+
         while (this.next !== escaped && (parsed = parseFunction.apply(this))) {
             parsed.setParse(element.type);
-            //console.log('after ' + element.type + ' [' + parsed.toString() + '], next is ' + (this.next ? this.next.toString() : '(null)'));
             ++numParsed;
         }
 
         if (numParsed >= element.atLeast) {
-            //console.log('parsed ' + element.type + ' ' + numParsed + ' times');
-            return start ? start : true;
+            /* In the case of an empty list, start will be null, and returning
+	       it would incorrectly indicate parsing failure. So we return true
+	       as a shim. */
+	    return start || true;
         } else {
-            if (start)
-                start.unsetParse();
-            this.errorMsg = 'expected at least '
+            // todo bl is this dead code?
+	    this.errorMsg = 'expected at least '
                 + element.atLeast + ' ' + element.type + ', got ' + numParsed;
             return null;
         }
@@ -122,7 +162,6 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
         } else {
             parsed.setParse(element.type);
             this.next = parsed.nextSiblingRecursive();
-           //console.log('after ' + element.type + ' [' + parsed.toString() + '], next is ' + (this.next ? this.next.toString() : '(null)'));
             return start;
         }
     }
@@ -137,16 +176,14 @@ Parser.prototype.advanceToChildIf = function(predicate) {
     return ans;
 };
 
-Parser.prototype.advanceToSiblingIf = function(predicate) {
+Parser.prototype.nextIf = function(predicate) {
     var ans = this.next && predicate(this.next);
     if (ans) {
         this.prev = this.next;
         this.next = this.next.nextSiblingRecursive();
-        //console.log('next is now ' + this.next);
     }
     return ans;
 };
-
 
 Parser.prototype.onDatum = function(element) {
 
@@ -158,7 +195,7 @@ Parser.prototype.onDatum = function(element) {
             case '(': // the reader's notation for proper list
             case '.(': // the reader's notation for improper (dotted) list
             case '#(': // the reader's notation for vector
-            case "'":
+            case "'": // various other reader types
             case '`':
             case ',':
             case ',@':
@@ -166,40 +203,54 @@ Parser.prototype.onDatum = function(element) {
                     return datum.type === element.type;
                 });
             case ')':
-                    // empty list
+	    /* This is subtlest (and thus most likely to be wrong) part of
+	       the whole interpreter. When we are at the end of a list
+	       (vector, etc.), we have to update the next pointer
+	       in a way that cannot be local (the next datum to parse
+	       could be the next sibling of the great-great-...-great
+	       grandmother of the current node). */
 
-                if (this.prev && !this.prev.firstChild /* can't use emptyList; vectors too */ && !this.next) {
-                    this.next = this.prev.nextSiblingRecursive();
-                    return true;
-                }
+	    /* this.next is null/undefined in two cases, EOF or empty list
+	       (see discussion inside the Parser class definition).
+	       This clause handles the empty list/vector/etc, when
+	       this.prev exists but has no first child. In that case, we
+	       should just move to the (recursive) next sibling of the empty
+	       list.
 
-                else if (!this.prev && !this.next) {
-                    return true; // eof only?
-                }
+	       todo bl it seems like this might foul up on an empty
+	       list near the end of input, since this.next would be set to
+	       null forever. But I don't observe this in practice. Is it
+	       because my tests aren't good enough?
+	       */
+            if (!this.next && this.prev && !this.prev.firstChild) {
+                this.next = this.prev.nextSiblingRecursive();
+                return true;
+            }
 
-
-                else if (this.prev && this.prev.parent && this.prev.parent.nextSiblingRecursive() === this.next) {
-                    //console.log(this.prev.toString() + ' -> ' + (this.next ? this.next.toString() : '(null)'));
-                    //this.prev = this.prev.parent;
-                    //this.next = this.next && this.next.nextSiblingRecursive();
+	    /* This clause handles the normal case of a non-empty list (etc.).
+	       In this case, this.prev points to the last element of the list,
+	       this.prev.parent points to the head of the list, and, since
+	       we have successfully parsed the last element of the list,
+	       this.next already points to the (recursive) next sibling of the
+	       head of the list. */
+            else if (this.prev
+		     && this.prev.parent 
+		     && this.prev.parent.nextSiblingRecursive() === this.next) {
                     return true;
                 } else {
-                    //console.log('failed to match ) to ' + (this.next ? this.next.toString() : '(null)') + '; prev was ' + (this.prev? this.prev.toString() : '(null)'));
                     return false;
                 }
             default:
-                return this.advanceToSiblingIf(function(datum) {
-                    var ans = datum.payload === element.type;
-                    //console.log('onDatum ' + element.type + ': ' + ans);
-                    return ans;
+	    // Convenience for things like rhs({type: 'define'})
+                return this.nextIf(function(datum) {
+                    return datum.payload === element.type;
                 });
         }
 
     } else if (typeof element.type === 'function') {
-        return this.advanceToSiblingIf(element.type);
+        return this.nextIf(element.type);
     }
 };
-
 
 function isSyntacticKeyword(str) {
     /* todo bl: why are define-syntax, let-syntax, letrec-syntax not listed
@@ -422,7 +473,7 @@ Parser.prototype['lambda-expression'] = function() {
  For example, in (lambda () (define x 1) x), the text of <body>
  is (define x 1) x, which is not a datum.
 
- We could of course change the datum tree to accomodate this -- perhaps
+ We could of course change the datum tree to accommodate this -- perhaps
  most easily by inserting a vacuous parent node. But as I understand it, the
  whole purpose of keeping the datum tree around during parsing is to make
  on-the-fly reinterpretation of the datum tree easy. For example, perhaps we
@@ -463,9 +514,10 @@ Parser.prototype['formals'] = function() {
         ]);
 };
 
-/* <definition> -> (define <variable> <expression>)
- | (define (<variable> <def formals>) <body>)
- | (begin <definition>*)
+/*
+<definition> -> (define <variable> <expression>)
+| (define (<variable> <def formals>) <body>)
+| (begin <definition>*)
  <def formals> -> <variable>* | <variable>* . <variable>
  */
 Parser.prototype['definition'] = function() {
@@ -486,12 +538,14 @@ Parser.prototype['definition'] = function() {
         [
             {type: '('},
             {type: 'define'},
-            {type: 'variables'},
+            {type: '('},
+            {type: 'variable', atLeast: 1},
+            {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {value: function(node, env) {
-                var formalsList = node.at('variables');
+                var formalsList = node.at('(').at('variable');
                 var formals = formalsList.mapChildren(function(child) {
                     return child.payload;
                 });
@@ -503,7 +557,35 @@ Parser.prototype['definition'] = function() {
                 env[name] =
                     newProcedureDatum(
                         new SchemeProcedure(
-                            formals, formalsList.isImproperList(), formalsList.nextSibling, env));
+                            formals, false, formalsList.nextSibling, env));
+                return undefined;
+            }}
+        ],
+        [
+            {type: '('},
+            {type: 'define'},
+            {type: '('},
+            {type: 'variable', atLeast: 1},
+            {type: '.'},
+            {type: 'variable'},
+            {type: ')'},
+            {type: 'definition', atLeast: 0},
+            {type: 'expression', atLeast: 1},
+            {type: ')'},
+            {value: function(node, env) {
+                var formalsList = node.at('(').at('variable');
+                var formals = formalsList.mapChildren(function(child) {
+                    return child.payload;
+                });
+                var name = formals.shift();
+                /* Note that we store the procedure wrapped in a datum.
+                 This is just for consistency; to use procedures generally, they have
+                 to be wrapped in datums, so we can do things like
+                 (cons (lambda () 0) (lambda () 1)). */
+                env[name] =
+                    newProcedureDatum(
+                        new SchemeProcedure(
+                            formals, true, formalsList.nextSibling, env));
                 return undefined;
             }}
         ],
@@ -519,24 +601,6 @@ Parser.prototype['definition'] = function() {
             }
         ]);
 
-};
-
-// todo bl another yuck -- vacuous nonterminal to save the "next" pointer
-Parser.prototype['variables'] = function() {
-    return this.alternation(
-        [
-            {type: '('},
-            {type: 'variable', atLeast: 1},
-            {type: ')'}
-        ],
-        [
-            {type: '('},
-            {type: 'variable', atLeast: 1},
-            {type: '.'},
-            {type: 'variable'},
-            {type: ')'}
-        ]
-    );
 };
 
 // <conditional> -> (if <test> <consequent> <alternate>)
@@ -605,153 +669,7 @@ Parser.prototype['assignment'] = function() {
         });
 };
 
-/* todo bl get rid of this -- they're all macros! <derived expression> -> (cond <cond clause>+ )
- | (cond <cond clause>* (else <sequence>))
- | (case <expression> <case clause>+)
- | (case <expression> <case clause>* (else <sequence>))
- | (and <test>*)
- | (or <test>*)
- | (let (<binding spec>*) <body>)
- | (let <variable> (<binding spec>*) <body>)
- | (let* (<binding spec>*) <body>)
- | (letrec (<binding spec>*) <body>)
- | (begin <sequence>)
- | (do (<iteration spec>*) (<test> <do result>) <command>*)
- | (delay <expression>)
- | <quasiquotation>
- <do result> -> <sequence> | <empty>
- */
-/*Parser.prototype['derived-expression'] = function() {
- return this.alternation(
- [
- {type: '('},
- {type: 'cond'},
- {type: 'cond-clause', atLeast: 1},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'cond'},
- {type: 'cond-clause', atLeast: 0},
- {type: '('},
- {type: 'else'},
- {type: 'expression', atLeast: 1},
- {type: ')'},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'case'},
- {type: 'expression'},
- {type: 'case-clause', atLeast: 1},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'case'},
- {type: 'expression'},
- {type: 'case-clause', atLeast: 0},
- {type: '('},
- {type: 'else'},
- {type: 'expression', atLeast: 1},
- {type: ')'},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'and'},
- {type: 'test', atLeast: 0},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'or'},
- {type: 'test', atLeast: 0},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'let'},
- {type: '('},
- {type: 'binding-spec', atLeast: 0},
- {type: ')'},
- {type: 'definition', atLeast: 0},
- {type: 'expression', atLeast: 1},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'let'},
- {type: 'variable'},
- {type: '('},
- {type: 'binding-spec', atLeast: 0},
- {type: ')'},
- {type: 'definition', atLeast: 0},
- {type: 'expression', atLeast: 1},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'let*'},
- {type: '('},
- {type: 'binding-spec', atLeast: 0},
- {type: ')'},
- {type: 'definition', atLeast: 0},
- {type: 'expression', atLeast: 1},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'letrec'},
- {type: '('},
- {type: 'binding-spec', atLeast: 0},
- {type: ')'},
- {type: 'definition', atLeast: 0},
- {type: 'expression', atLeast: 1},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'begin'},
- {type: 'expression', atLeast: 1},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'do'},
- {type: '('},
- {type: 'iteration-spec', atLeast: 0},
- {type: ')'},
- {type: '('},
- {type: 'test'},
- {type: 'expression', atLeast: 1},
- {type: ')'},
- {type: 'command', atLeast: 0},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'do'},
- {type: '('},
- {type: 'iteration-spec', atLeast: 0},
- {type: ')'},
- {type: '('},
- {type: 'test'},
- {type: ')'},
- {type: 'command', atLeast: 0},
- {type: ')'}
- ],
- [
- {type: '('},
- {type: 'delay'},
- {type: 'expression'},
- {type: ')'}
- ]*//*,
- [
- {type: 'quasiquotation'} // todo bl
- ]*//*
- );
- };*/
+// todo bl quasiquotation?
 
 /*
  <cond clause> -> (<test> <sequence>)
@@ -850,14 +768,12 @@ Parser.prototype['macro-use'] = function() {
             var kw = node.at('keyword').payload;
             var macro = env[kw];
             if (macro instanceof SchemeMacro) {
-                //console.log('found macro');
-                //console.log(macro);
                 var template = macro.selectTemplate(node, env);
                 if (template) {
                     /* todo bl shouldn't have to go all the way back to the scanner;
-                        should be able to say
-                        template.hygienicTranscription().parse('expression').eval(env).
-                        I suspect I'm not properly sanitizing the hygienic transcription...
+                     should be able to say
+                     template.hygienicTranscription().parse('expression').eval(env).
+                     I suspect I'm not properly sanitizing the hygienic transcription...
                      */
                     var newText = template.hygienicTranscription().toString();
                     return eval(newText, env, 'expression');
@@ -883,12 +799,14 @@ Parser.prototype['macro-block'] = function() {
         [
             {type: '('},
             {type: 'let-syntax'},
-            {type: 'syntax-specs'},
+            {type: '('},
+            {type: 'syntax-spec', atLeast: 0},
+            {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {value: function(node, env) {
-                node.at('syntax-specs').eval(env);
+                node.at('(').at('syntax-spec').evalSiblingsReturnNone(env);
                 node.at('definition').evalSiblingsReturnNone(env);
                 return node.at('expression').evalSiblingsReturnLast(env);
             }
@@ -897,31 +815,19 @@ Parser.prototype['macro-block'] = function() {
         [
             {type: '('},
             {type: 'letrec-syntax'},
-            {type: 'syntax-specs'},
+            {type: '('},
+            {type: 'syntax-spec', atLeast: 0},
+            {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {value: function(node, env) {
-                node.at('syntax-specs').eval(env);
+                node.at('(').at('syntax-spec').evalSiblingsReturnNone(env);
                 node.at('definition').evalSiblingsReturnNone(env);
                 return node.at('expression').evalSiblingsReturnLast(env);
             }
             }
         ]);
-};
-
-// <syntax specs> -> (<syntax spec>*)
-// todo bl: problem: a nonterminal followed by a ) obliterates the next pointer!
-// that's why I introduced this nonterminal.
-Parser.prototype['syntax-specs'] = function() {
-    return this.rhs({type: '('},
-        {type: 'syntax-spec', atLeast: 0},
-        {type: ')'},
-        {value: function(node, env) {
-            node.at('syntax-spec').evalSiblingsReturnNone(env);
-            return undefined;
-        }
-        });
 };
 
 // <syntax spec> -> (<keyword> <transformer spec>)

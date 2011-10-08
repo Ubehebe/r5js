@@ -121,7 +121,9 @@ Datum.prototype.nextSiblingRecursive = function() {
 
 Datum.prototype.at = function(type) {
     var ans = this.matchChild(function(datum) {
-        return datum.peekParse() === type;
+	/* The first clause is a convenience for things like node.at('(');
+	   the second is a convenience for things like node.at('expression') */
+        return datum.type === type || datum.peekParse() === type;
     });
     /* If there is no match, we return a fake Datum for convenience. This function
      is often followed by evalSiblings, and calling new Datum().evalSiblings() gives
