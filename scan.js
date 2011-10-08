@@ -95,7 +95,7 @@ Scanner.prototype.nextToken = function() {
         this.payload = null;
         if (token.requiresDelimiterTermination()
             && !this.isEof()
-            && ' \n()";'.indexOf(this.text.charAt(this.offset)) === -1) {
+            && ' \n\t()";'.indexOf(this.text.charAt(this.offset)) === -1) {
             return null;
         } else return token;
     } else return null; // todo bl error reporting?
@@ -270,6 +270,9 @@ Scanner.prototype['whitespace'] = function() {
     return this.alternation(
         [
             {is: ' '}
+        ],
+        [
+            {is: '\t'}
         ],
         [
             {is: '\n'}
