@@ -45,12 +45,20 @@
          a <pre> wrapper, but most browsers seem to do it. */
 
         window.addEventListener('load', function() {
-            var stdLib = document
+            var iframe = document
                     .getElementById('lib')
-                    .contentDocument
-                    .getElementsByTagName('pre')[0]
-                    .innerHTML;
-            eval(stdLib, builtins);
+                    .contentDocument;
+            if (iframe) {
+                /* todo bl possibly browser-dependent hack: when reaching
+                    into the pseudo-iframe defined by the text file, it looks
+                    like the pseudo-DOM has replaced occurrences of ">"
+                    by "&gt;". This is a problem chiefly for the Scheme token "=>".
+                    Reconstruct this here. */
+                var stdLib = iframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
+                console.log(stdLib);
+                eval(stdLib, builtins);
+                console.log('evaled std lib ok');
+            }
 
         }, false);
 
@@ -102,16 +110,18 @@
             var ans = datums.replaceSiblings(replacementDict);
             console.log(ans);
             document.getElementById('result').value = ans.toString();
-
         }
-
     </script>
 
 </head>
 <body>
 <iframe src='lib.scm' id='lib' style='display: none'></iframe>
-<textarea id='toEval' rows="5" cols="80"></textarea>
+<textarea id='toEval' rows="15" cols="80"></textarea>
 <textarea id='result' rows="1" cols="80"></textarea>
+<p>
+    <button onclick='doEval()'>eval</button>
+    <button onclick='testEvaluator()'>evaluator unit tests</button>
+</p>
 <p>
     <button onclick="doScan()">scan</button>
     <button onclick="testScanner()">scanner unit tests</button>
@@ -123,10 +133,6 @@
     <button onclick='doParse()'>parse</button>
     <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
     <button onclick="testParser()">parser unit tests</button>
-</p>
-<p>
-    <button onclick='doEval()'>eval</button>
-    <button onclick='testEvaluator()'>evaluator unit tests</button>
 </p>
 <p>
     <button onclick='doTranscribe()'>transcribe</button>
