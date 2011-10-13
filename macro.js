@@ -55,15 +55,13 @@ SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
 function Template(datum, bindings) {
     /* We must clone the template datum because every macro use will
      deform the template through the hygienic transcription. */
-    this.datum = datum.clone().filterChildren(function(node) {
-        return node.payload !== '...'
-    });
+    this.datum = datum.clone().sanitize();
     this.bindings = bindings;
 }
 
 Template.prototype.hygienicTranscription = function() {
     var before = this.datum.toString();
-    var ans = this.datum.replaceSiblings(this.bindings);
+    var ans = this.datum.transcribe(this.bindings);
     console.log('hygienicTranscription: ' + before + ' => ' + ans);
     return ans;
 };
@@ -83,13 +81,14 @@ Template.prototype.hygienicTranscription = function() {
  respectively, and each remaining element of F matches Pn+1; or
  (8) P is a datum and F is equal to P in the sense of the equal? procedure.
  */
-SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
-    var args = [patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword];
-    return this.matchNonLiteralId.apply(this, args)
-        || this.matchLiteralId.apply(this, args)
-        || this.matchListOrVector.apply(this, args)
-        || this.matchImproperList.apply(this, args)
-        || this.matchDatum.apply(this, args);
+SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
+    var args = [patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword];
+    var ans = this.matchNonLiteralId.apply(this, args) // case 1
+        || this.matchLiteralId.apply(this, args) // case 2
+        || this.matchListOrVector.apply(this, args) // cases 3, 5, 6, 7
+        || this.matchImproperList.apply(this, args) // case 4
+        || this.matchDatum.apply(this, args); // case 8
+    return ans;
 };
 
 
@@ -97,30 +96,50 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
  Example: (let-syntax ((foo (syntax-rules () ((foo x) "aha!")))) (foo (1 2 3))) => "aha!"
  ((1 2 3) would be a procedure-call error if evaluated, but it is never evaluated.) */
 SchemeMacro.prototype.matchNonLiteralId
-    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
+    = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
 
-    var isIdentifier = patternDatum.isIdentifier() && patternDatum.payload;
-    var isLiteralIdentifier = isIdentifier && this.literalIdentifiers[patternDatum.payload];
+    var patternIsId = patternDatum.isIdentifier() && patternDatum.payload;
+    var patternIsLiteralId = patternIsId && this.literalIdentifiers[patternIsId];
 
-    if (isIdentifier && !isLiteralIdentifier) {
+    /* This is to avoid an input datum that should be interpreted
+     literally from being captured by a non-literal pattern datum. I think
+     this is the right behavior. Although the spec doesn't outright say it,
+     the "official" definition of cond implies it:
+     (define-syntax cond
+     (syntax-rules (else =>)
+     ((cond (else result1 result2 ...))
+     (begin result1 result2 ...))
+     ((cond (test => result))
+     [etcetera]
+     Without this hack, an input datum like ("hello" => (lambda (x) "world"))
+     would be erroneously matched to the pattern (else result1 result2 ...)
+     */
+    var inputIsId = inputDatum.isIdentifier() && inputDatum.payload;
+    var inputIsLiteralId = inputIsId && this.literalIdentifiers[inputIsId];
+
+    if (patternIsId && !patternIsLiteralId && !inputIsLiteralId) {
 
         // Temporarily slice off the input's siblings to save time during cloning
         var savedNextSibling = inputDatum.nextSibling;
         inputDatum.nextSibling = null;
-        var toInsert = inputDatum.clone();
+        var toInsert = inputDatum.clone().sanitize();
         inputDatum.nextSibling = savedNextSibling;
 
-        var alreadyBound = ansDict[isIdentifier];
+        var alreadyBound = bindings[patternIsId];
 
         /* If we don't already have a binding for the identifier, insert it,
          remembering to chop off its siblings. Otherwise, we are in
          an ellipsis situation. (x ...) says to match input elements
          against x as long as that succeeds. In this case, we should
-         append the input datum as a last sibling of the existing binding. */
+         append the input datum as a last sibling of the existing binding.
+
+         todo bl update comment to reflect array approach
+
+         */
         if (!alreadyBound)
-            ansDict[isIdentifier] = toInsert;
+            bindings[patternIsId] = [toInsert];
         else
-            alreadyBound.appendSibling(toInsert); // todo bl quadratic
+            alreadyBound.push(toInsert);
 
         return true;
     } else return false;
@@ -150,7 +169,7 @@ SchemeMacro.prototype.matchNonLiteralId
 
  ((lambda (x) ((lambda (y) (foo x y)) x)) 1) */
 SchemeMacro.prototype.matchLiteralId
-    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
+    = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
 
     var isIdentifier = patternDatum.isIdentifier() && patternDatum.payload;
     var isLiteralIdentifier = isIdentifier && this.literalIdentifiers[patternDatum.payload];
@@ -161,8 +180,9 @@ SchemeMacro.prototype.matchLiteralId
                 && this.definitionEnv[isIdentifier] === undefined
                 && useEnv[isIdentifier] === undefined)
                 || (this.definitionEnv[isIdentifier] === useEnv[isIdentifier])) {
-                if (!ansDict[isIdentifier])
-                    ansDict[isIdentifier] = inputDatum;
+                if (!bindings[isIdentifier])
+                    bindings[isIdentifier] = [inputDatum];
+                // todo bl why aren't we pushing here?
                 return true;
             }
         }
@@ -172,44 +192,109 @@ SchemeMacro.prototype.matchLiteralId
 };
 
 /*
- (3) P is a list (P1 ... Pn) and F is a list of n forms that match P1 through Pn, respectively
- (5) P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
- and F is a proper list of at least n forms, the first n of which match P1 through Pn,
- respectively, and each remaining element of F matches Pn+1
+ (3) P is a list (P1 ... Pn) and F is a list of n forms that match
+ P1 through Pn, respectively
+
+ Example:
+ (let-syntax
+ ((foo (syntax-rules ()
+ ((foo a (b c) d) (+ b d)))))
+ (foo "NaN" (100 ()) -1)) => 99
+
+ (5) P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the
+ identifier ... and F is a proper list of at least n forms, the first n
+ of which match P1 through Pn, respectively, and each remaining element
+ of F matches Pn+1
+
+ Example:
+ (define-syntax foo
+ (syntax-rules ()
+ ((foo) 1)
+ ((foo x) 2)
+ ((foo x xs ...) (+ 1 (foo xs ...)))))
+
+ (foo) => 0
+ (foo foo) => 1
+ (foo foo foo) => 2
+ etc.
+
  (6) P is a vector of the form #(P1 ...Pn) and F is a vector of n forms that match P1 through Pn
- (7) P is of the form #(P1 . . . Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
+ (7) P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
  and F is a vector of n or more forms the first n of which match P1 through Pn,
  respectively, and each remaining element of F matches Pn+1
-
- todo bl add examples of each of these in the comments
-
  */
 SchemeMacro.prototype.matchListOrVector
-    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
+    = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
     if ((patternDatum.isList() && inputDatum.isList())
         || (patternDatum.isVector() && inputDatum.isVector())) {
         var patternElement = patternDatum.firstChild;
         var inputElement = inputDatum.firstChild;
-        var ellipsisPattern;
+
+        /* 4.3.2: "The keyword at the beginning of the pattern in a
+         <syntax rule> is not involved in the matching and is not considered
+         a pattern variable or literal identifier." ignoreLeadingKeyword is a
+         convenience parameter to support this. (If we are here, the first
+         element in the pattern should already have been verified to be
+         the keyword (see allPatternsBeginWith()), and the first element in the
+         input will already have been matched to the keyword by the parser.) */
         if (ignoreLeadingKeyword) {
             patternElement = patternElement.nextSibling;
             inputElement = inputElement.nextSibling;
         }
 
+        /* 4.3.2: "A subpattern followed by ... can match zero or more
+         elements of the input." Here's how we implement this: when an
+         ellipsis is detected in a pattern, the patternDatum pointer gets stuck
+         at the element before the ellipsis, while the inputDatum pointer
+         advances as normal. This will ensure successive input elements are
+         matched to the same pattern element. */
+        var stickyEllipsisPattern;
+
         for (/* already initialized */;
             patternElement && inputElement;
-            patternElement = ellipsisPattern || patternElement.nextSibling,
+            patternElement = stickyEllipsisPattern || patternElement.nextSibling,
                 inputElement = inputElement.nextSibling) {
 
-            if (!ellipsisPattern
+            /* Turn on "ellipsis matching mode" if it is currently off
+             and the next pattern element is an ellipsis. */
+            if (!stickyEllipsisPattern
                 && patternElement.nextSibling
                 && patternElement.nextSibling.payload === '...')
-                ellipsisPattern = patternElement;
+                stickyEllipsisPattern = patternElement;
 
-            if (!this.patternMatch(patternElement, inputElement, useEnv, ansDict))
+            if (!this.patternMatch(patternElement, inputElement, useEnv, bindings))
                 return false;
         }
-        return ellipsisPattern || !(patternElement || inputElement);
+
+        /* In cases like matching input (foo) against pattern (foo x ...),
+         the above loop will not execute and "ellipsis matching mode" will
+         incorrectly never be turned on. Check for that corner case here.
+         In such a case, we have to remember that all the identifiers
+         in the datum preceding the ellipsis should disappear from the
+         corresponding template during transcription. We signal this
+         by setting the binding to null.
+
+         todo bl update comment to reflect array approach
+
+         */
+        var ellipsisMatchedNothing = !stickyEllipsisPattern
+            && patternElement
+            && patternElement.nextSibling
+            && patternElement.nextSibling.payload === '...';
+        if (ellipsisMatchedNothing) {
+            patternElement.forEach(function(node) {
+                if (node.isIdentifier())
+                    bindings[node.payload] = [];
+            });
+        }
+
+        var inputAndPatternDone = !(inputElement || patternElement);
+
+        /* If there are no ellipses in the pattern, the pattern and the input
+         must both be successfully exhausted for the match to succeed.*/
+        return stickyEllipsisPattern
+            || ellipsisMatchedNothing
+            || inputAndPatternDone;
     } else return false;
 };
 
@@ -221,7 +306,7 @@ SchemeMacro.prototype.matchListOrVector
  */
 
 SchemeMacro.prototype.matchImproperList
-    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
+    = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
     if (patternDatum.isImproperList()
         && (inputDatum.isImproperList() || inputDatum.isList())) {
 
@@ -238,7 +323,7 @@ SchemeMacro.prototype.matchImproperList
                 inputElement = inputElement.nextSibling) {
 
             if (!inputElement // The input list is shorter than the pattern list. Failure.
-                || !this.patternMatch(patternElement, inputElement, useEnv, ansDict))
+                || !this.patternMatch(patternElement, inputElement, useEnv, bindings))
                 return false;
         }
 
@@ -251,7 +336,7 @@ SchemeMacro.prototype.matchImproperList
             patternElement,
             manufacturedList,
             useEnv,
-            ansDict);
+            bindings);
     } else return false;
 };
 

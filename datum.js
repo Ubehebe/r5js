@@ -9,6 +9,18 @@ function Datum() {
      this.values = []; */
 }
 
+// todo bl too many utility functions; reduce to minimal set
+Datum.prototype.forEach = function(f) {
+    /* Quotations are like pseudo-leaves in the datum tree, so they should
+     be opaque to this function. */
+    if (!this.isQuote()) {
+        f(this);
+        for (var cur = this.firstChild; cur; cur = cur.nextSibling)
+            if (!cur.isQuote())
+                f(cur);
+    }
+};
+
 function newEmptyList() {
     var ans = new Datum();
     ans.type = '(';
@@ -261,30 +273,96 @@ Datum.prototype.startsWith = function(payload) {
     return this.firstChild && this.firstChild.payload === payload;
 };
 
-Datum.prototype.replaceSiblings = function(replacementDict) {
+Datum.prototype.transcribe = function(bindings) {
     var prev;
     var first;
-    for (var cur = this; cur; prev = cur,cur = cur.nextSibling) {
-        if (cur.payload !== undefined) { // watch out for 0's and falses
-            var src = replacementDict[cur.payload];
-            if (src) {
-                var replacementValue = src.clone();
-                if (cur.parent)
-                    replacementValue.lastSibling().parent = cur.parent;
-                if (prev)
-                    prev.nextSibling = replacementValue;
-                replacementValue.lastSibling().nextSibling = cur.nextSibling;
-                cur = replacementValue;
-            }
-        } else if (!cur.isQuote() && cur.firstChild) {
-            cur.firstChild = cur.firstChild.replaceSiblings(replacementDict);
+    var ellipsisMode = false;
+    var curClone;
+    var success = false;
+
+    for (var cur = this; cur; prev = cur,cur = cur && cur.nextSibling) {
+
+        /* If we're in ellipsis mode, we'll need to clone the current datum
+         before trying to transcribe it, so we can re-transcribe it later. */
+        if (ellipsisMode = ellipsisMode
+            || (cur.nextSibling && cur.nextSibling.payload === '...')) {
+            var savedNextSibling = cur.nextSibling;
+            cur.nextSibling = null;
+            curClone = cur.clone();
+            cur.nextSibling = savedNextSibling;
         }
 
-        if (!first)
+
+        // Identifiers: nonrecursive case
+        if (cur.payload !== undefined) { // watch out for 0's and falses
+            var matches = bindings[cur.payload];
+            success = matches ? matches.shift() : cur;
+        }
+
+        // Lists etc.: recursive case
+        else if (cur.firstChild) {
+            success = cur.firstChild.transcribe(bindings);
+            if (success !== false) { // watch out: null is an empty list
+                cur.firstChild = success;
+                success = cur;
+            }
+        }
+
+        // Don't forget the empty list!
+        else {
+            success = cur;
+        }
+
+        if (success) {
+
+            if (success !== cur) {
+                if (cur.parent)
+                    success.parent = cur.parent;
+                if (prev)
+                    prev.nextSibling = success;
+            }
+
+            /* If transcription succeeded in ellipsis mode, append the
+             datum clone and try to transcribe it again on the next loop. */
+            if (ellipsisMode) {
+                curClone.nextSibling = cur.nextSibling;
+                success.nextSibling = curClone;
+            }
+
+            // Otherwise simply proceed.
+            else {
+                success.nextSibling = cur.nextSibling;
+            }
+            cur = success;
+        }
+
+        /* If transcription failed but we are in ellipsis mode,
+         turn off ellipsis mode, get rid of the current (failed) clone
+         datum, and proceed. */
+        else if (ellipsisMode) {
+            console.log('turning off ellipsis mode');
+
+            ellipsisMode = false;
+            var ellipsis = cur.nextSibling;
+
+            if (prev) {
+                prev.nextSibling = ellipsis.nextSibling;
+                if (ellipsis.parent)
+                    prev.parent = ellipsis.parent;
+            } else {
+                first = null;
+            }
+
+            cur.nextSibling = cur.nextSibling && cur.nextSibling.nextSibling;
+        }
+
+        /* If transcription failed and we weren't in ellipsis mode,
+         that's just plain failure. Report it. */
+        else return false; // todo bl better error message
+
+        if (first === undefined)
             first = cur;
     }
-
-
     return first;
 };
 
