@@ -869,6 +869,8 @@ Parser.prototype['transformer-spec'] = function() {
         {value: function(node, env) {
             var ids = node.at('transformer-spec-identifiers').firstChild;
             var rules = node.at('syntax-rule');
+            // todo bl implement: It is an error for the same pattern
+            // variable to appear more than once in a <pattern>.
             return new SchemeMacro(ids, rules, env);
         }
         }
@@ -915,6 +917,18 @@ Parser.prototype['syntax-rule'] = function() {
 Parser.prototype['pattern'] = function() {
     return this.alternation(
         [
+            {type: '('},
+            {type: 'pattern', atLeast: 1},
+            {type: '...'},
+            {type: ')'}
+        ],
+        [
+            {type: '#('},
+            {type: 'pattern', atLeast: 1},
+            {type: '...'},
+            {type: ')'}
+        ],
+        [
             {type: 'pattern-identifier'}
         ],
         [
@@ -930,20 +944,8 @@ Parser.prototype['pattern'] = function() {
             {type: ')'}
         ],
         [
-            {type: '('},
-            {type: 'pattern', atLeast: 1},
-            {type: '...'},
-            {type: ')'}
-        ],
-        [
             {type: '#('},
             {type: 'pattern', atLeast: 0},
-            {type: ')'}
-        ],
-        [
-            {type: '#('},
-            {type: 'pattern', atLeast: 1},
-            {type: '...'},
             {type: ')'}
         ],
         [
@@ -973,32 +975,46 @@ Parser.prototype['pattern-datum'] = function() {
  | (<template element>+ . <template>)
  | #(<template element>*)
  | <template datum>
- */
+ <template element> -> <template> | <template> <ellipsis>
+
+ The reader does not support (X+ . Y) where X != Y.
+ (Internally, it converts this into something like .(X+), so it just keeps
+ looking for X's.) The rule <template> -> (<template element>+ . <template>)
+ appears to be the only part of the grammar where this occurs. So I have
+ changed the rules for <template> to the following, which I believe is
+ equivalent:
+
+ <template> -> <pattern identifier>
+ | (<template>*)
+ | (<template>+ . <template>)
+ | #(<template element>*)
+ | <template datum>
+ | <ellipsis>
+
+ Anyway, the rules for validating templates with ellipses in them are vague
+ (4.3.2: "It is an error if the output cannot be built up [from the template]
+ as specified") and I can do this during evaluation of a macro if necessary. */
 Parser.prototype['template'] = function() {
     return this.alternation(
         [
             {type: 'pattern-identifier'}
         ],
         [
-            {type: '('},
-            {type: 'template', atLeast: 0},
-            {type: ')'}
+            {type: '...'}
         ],
         [
-            {type: '('},
-            {type: 'template', atLeast: 1},
-            {type: '...'},
-            {type: ')'}
+            {type: 'template-datum'}
         ],
-
         [
             {type: '('},
             {type: 'template', atLeast: 1},
             {type: '.'},
-            /* The reader, and thus the parser, do not support (X+ . Y) where X != Y.
-             This appears to be the only part of the grammar where this occurs, so
-             we can manually check in the evaluator. */
             {type: 'template'},
+            {type: ')'}
+        ],
+        [
+            {type: '('},
+            {type: 'template', atLeast: 0},
             {type: ')'}
         ],
         [
@@ -1006,14 +1022,12 @@ Parser.prototype['template'] = function() {
             {type: 'template', atLeast: 0},
             {type: ')'}
         ],
+        /* todo bl quotations appear in templates in the spec.
+         Instead of adding ' to the RHSes here, they should already be
+         indistinguishable from (quote ...). */
         [
-            {type: '#('},
-            {type: 'template', atLeast: 1},
-            {type: '...'},
-            {type: ')'}
-        ],
-        [
-            {type: 'template-datum'}
+            {type: "'"},
+            {type: 'template'}
         ]
     );
 };
