@@ -55,7 +55,6 @@
                     by "&gt;". This is a problem chiefly for the Scheme token "=>".
                     Reconstruct this here. */
                 var stdLib = iframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
-                console.log(stdLib);
                 eval(stdLib, builtins);
                 console.log('evaled std lib ok');
             }
@@ -92,25 +91,6 @@
             console.log(ans);
             document.getElementById('result').value = ans;
         }
-
-        function doTranscribe() {
-            var datums = new Reader(
-                    new Scanner(
-                            document.getElementById('toEval').value)
-            ).read();
-
-            var replacement = new Reader(
-                    new Scanner(
-                            document.getElementById('identifierReplacement').value
-                    )
-            ).read();
-
-            var replacementDict = {};
-            replacementDict[document.getElementById('identifier').value] = replacement;
-            var ans = datums.replaceSiblings(replacementDict);
-            console.log(ans);
-            document.getElementById('result').value = ans.toString();
-        }
     </script>
 
 </head>
@@ -133,11 +113,6 @@
     <button onclick='doParse()'>parse</button>
     <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
     <button onclick="testParser()">parser unit tests</button>
-</p>
-<p>
-    <button onclick='doTranscribe()'>transcribe</button>
-    <label>identifier:</label><textarea id='identifier' rows='1' cols='10'></textarea>
-    <label>with:</label><textarea id='identifierReplacement' rows='1' cols='20'></textarea>
 </p>
 </body>
 
