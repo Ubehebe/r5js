@@ -32,7 +32,7 @@ Parser.prototype.rhs = function() {
 
     /* This is a convenience function: we want to specify parse rules like
      (<variable>+ . <variable>) as if we don't know ahead of time whether
-     the list is going to be dotted or not, but of course, the reader already knows.
+     the list is going to be dotted or not, but the reader already knows.
      Proper and improper lists are both represented as first-child-next-sibling
      linked lists; the only difference is the type ('(' vs. '.('). So we rewrite the
      parse rules to conform to the reader's knowledge. */
@@ -612,13 +612,14 @@ Parser.prototype['conditional'] = function() {
             {type: 'if'},
             {type: 'test'},
             {type: 'consequent'},
-            {type: 'alternate'},
             {type: ')'},
             {value: function(node, env) {
-                // todo bl quote R5RS on what evals to false
+                /* 6.3.1: Except for #f, all standard Scheme values,
+                 including #t, pairs, the empty list, symbols, numbers,
+                 strings, vectors, and procedures, count as true. */
                 return node.at('test').eval(env).unwrap() !== false
                     ? node.at('consequent').eval(env)
-                    : node.at('alternate').eval(env);
+                    : undefined;
             }
             }
         ],
@@ -627,15 +628,19 @@ Parser.prototype['conditional'] = function() {
             {type: 'if'},
             {type: 'test'},
             {type: 'consequent'},
+            {type: 'alternate'},
             {type: ')'},
             {value: function(node, env) {
-                // todo bl quote R5RS on what evals to false
+                /* 6.3.1: Except for #f, all standard Scheme values,
+                 including #t, pairs, the empty list, symbols, numbers,
+                 strings, vectors, and procedures, count as true. */
                 return node.at('test').eval(env).unwrap() !== false
                     ? node.at('consequent').eval(env)
-                    : undefined;
+                    : node.at('alternate').eval(env);
             }
             }
-        ]);
+        ]
+    );
 };
 
 // <test> -> <expression>
