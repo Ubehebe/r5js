@@ -340,8 +340,6 @@ Datum.prototype.transcribe = function(bindings) {
          turn off ellipsis mode, get rid of the current (failed) clone
          datum, and proceed. */
         else if (ellipsisMode) {
-            console.log('turning off ellipsis mode');
-
             ellipsisMode = false;
             var ellipsis = cur.nextSibling;
 

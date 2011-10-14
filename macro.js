@@ -60,10 +60,8 @@ function Template(datum, bindings) {
 }
 
 Template.prototype.hygienicTranscription = function() {
-    var before = this.datum.toString();
-    var ans = this.datum.transcribe(this.bindings);
-    console.log('hygienicTranscription: ' + before + ' => ' + ans);
-    return ans;
+    return this.datum.transcribe(this.bindings);
+    // a good debugging line console.log('hygienicTranscription: ' + before + ' => ' + ans);
 };
 
 /* 4.3.2: An input form F matches a pattern P if and only if:
