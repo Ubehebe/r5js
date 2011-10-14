@@ -83,12 +83,11 @@ Template.prototype.hygienicTranscription = function() {
  */
 SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
     var args = [patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword];
-    var ans = this.matchNonLiteralId.apply(this, args) // case 1
-        || this.matchLiteralId.apply(this, args) // case 2
+    return this.matchLiteralId.apply(this, args) // case 2
+        || this.matchNonLiteralId.apply(this, args) // case 1
         || this.matchListOrVector.apply(this, args) // cases 3, 5, 6, 7
-        || this.matchImproperList.apply(this, args) // case 4
-        || this.matchDatum.apply(this, args); // case 8
-    return ans;
+        || this.matchImproperList.apply(this, args); // case 4
+        //|| this.matchDatum.apply(this, args); // case 8
 };
 
 
@@ -98,46 +97,23 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
 SchemeMacro.prototype.matchNonLiteralId
     = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
 
-    var patternIsId = patternDatum.isIdentifier() && patternDatum.payload;
-    var patternIsLiteralId = patternIsId && this.literalIdentifiers[patternIsId];
+    var patternId = patternDatum.isIdentifier() && patternDatum.payload;
+    var patternIsLiteralId = patternId && this.literalIdentifiers[patternId];
 
-    /* This is to avoid an input datum that should be interpreted
-     literally from being captured by a non-literal pattern datum. I think
-     this is the right behavior. Although the spec doesn't outright say it,
-     the "official" definition of cond implies it:
-     (define-syntax cond
-     (syntax-rules (else =>)
-     ((cond (else result1 result2 ...))
-     (begin result1 result2 ...))
-     ((cond (test => result))
-     [etcetera]
-     Without this hack, an input datum like ("hello" => (lambda (x) "world"))
-     would be erroneously matched to the pattern (else result1 result2 ...)
-     */
-    var inputIsId = inputDatum.isIdentifier() && inputDatum.payload;
-    var inputIsLiteralId = inputIsId && this.literalIdentifiers[inputIsId];
+    if (patternId && !patternIsLiteralId) {
 
-    if (patternIsId && !patternIsLiteralId && !inputIsLiteralId) {
-
-        // Temporarily slice off the input's siblings to save time during cloning
+        /* Temporarily slice off the input's siblings
+         to save time during cloning. */
         var savedNextSibling = inputDatum.nextSibling;
         inputDatum.nextSibling = null;
         var toInsert = inputDatum.clone().sanitize();
         inputDatum.nextSibling = savedNextSibling;
 
-        var alreadyBound = bindings[patternIsId];
+        var alreadyBound = bindings[patternId];
 
-        /* If we don't already have a binding for the identifier, insert it,
-         remembering to chop off its siblings. Otherwise, we are in
-         an ellipsis situation. (x ...) says to match input elements
-         against x as long as that succeeds. In this case, we should
-         append the input datum as a last sibling of the existing binding.
-
-         todo bl update comment to reflect array approach
-
-         */
+        // Push the new datum onto the list of bindings
         if (!alreadyBound)
-            bindings[patternIsId] = [toInsert];
+            bindings[patternId] = [toInsert];
         else
             alreadyBound.push(toInsert);
 
@@ -152,39 +128,67 @@ SchemeMacro.prototype.matchNonLiteralId
  and its occurrence in the macro definition have the same lexical binding,
  or the two identifiers are equal and both have no lexical binding.
 
- Example:
- (let ((x 1)) (let-syntax ((foo (syntax-rules (x) ((foo x) "aha!")))) (foo x))) => "aha!"
- x has the same lexical binding in the macro expression and the macro definition
+ Examples:
 
- (let-syntax ((foo (syntax-rules (x) ((foo x) "aha!")))) (foo x)) => "aha!"
- x has no lexical binding in either the macro expression or the macro definition
+ ((lambda (x)
+ (let-syntax
+ ((foo (syntax-rules (x)
+ ((foo x) "matched literal")
+ ((foo y) "did not match literal"))))
+ (foo x)))
+ "hello")
 
- todo bl: this part of the spec is really hard to understand. In particular,
- I do not understand how two non-equal identifiers can have the same binding.
- For example, in
+ That should evaluate to "matched literal" because x has the same lexical
+ binding in the macro expression and the macro definition.
 
- (let* ((x 1) (y x)) (foo x y))
+ ((lambda (x)
+ (let-syntax
+ ((foo (syntax-rules (x)
+ ((foo x) "matched literal")
+ ((foo y) "did not match literal"))))
+ ((lambda (x) (foo x)) "hello")))
+ "world")
 
- x and y do not have the same lexical binding in the procedure call, since this is rewritten as
+ That should evaluate to "did not match literal" because x is bound to
+ "hello" in the macro expression but bound to "world" in the macro definition.
 
- ((lambda (x) ((lambda (y) (foo x y)) x)) 1) */
+ (let-syntax
+ ((foo (syntax-rules (x)
+ ((foo x) "matched literal")
+ ((foo y) "did not match literal"))))
+ (foo x))
+
+ That should evaluate to "matched literal" because x has no binding in
+ either the macro expression or the macro definition.
+
+ (let-syntax
+ ((foo (syntax-rules (x)
+ ((foo x) "matched literal")
+ ((foo y) "did not match literal"))))
+ ((lambda (x) (foo x)) "hello"))
+
+ That should evaluate to "did not match literal" because x is bound in the
+ macro expression but not in the macro definition.
+
+ Whew! */
 SchemeMacro.prototype.matchLiteralId
     = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
 
-    var isIdentifier = patternDatum.isIdentifier() && patternDatum.payload;
-    var isLiteralIdentifier = isIdentifier && this.literalIdentifiers[patternDatum.payload];
+    var patternId = patternDatum.isIdentifier() && patternDatum.payload;
+    var patternIsLiteralId = patternId && this.literalIdentifiers[patternId];
+    var inputIsId = inputDatum.isIdentifier();
 
-    if (isIdentifier && isLiteralIdentifier) {
-        if (inputDatum.payload !== undefined) { // watch out for 0's and falses
-            if ((inputDatum.payload === isIdentifier
-                && this.definitionEnv[isIdentifier] === undefined
-                && useEnv[isIdentifier] === undefined)
-                || (this.definitionEnv[isIdentifier] === useEnv[isIdentifier])) {
-                if (!bindings[isIdentifier])
-                    bindings[isIdentifier] = [inputDatum];
-                // todo bl why aren't we pushing here?
-                return true;
-            }
+    if (patternIsLiteralId && inputIsId) {
+        if ((inputDatum.payload === patternId
+            && this.definitionEnv[patternId] === undefined
+            && useEnv[patternId] === undefined) // both have no lexical binding
+            || (this.definitionEnv[patternId] === useEnv[patternId])) { // both have same lexical binding
+            /* If we are here, bindings[patternId] will most likely be undefined.
+                The spec does not forbid repeated literals as in
+                (define-syntax foo (syntax-rules (x x) ((foo x) "hi!")))
+                but such repetition is useless and it is fine to overwrite them. */
+            bindings[patternId] = [inputDatum];
+            return true;
         }
     }
 
@@ -270,13 +274,9 @@ SchemeMacro.prototype.matchListOrVector
          the above loop will not execute and "ellipsis matching mode" will
          incorrectly never be turned on. Check for that corner case here.
          In such a case, we have to remember that all the identifiers
-         in the datum preceding the ellipsis should disappear from the
+         in the datum preceding the ellipsis should have no bindings in the
          corresponding template during transcription. We signal this
-         by setting the binding to null.
-
-         todo bl update comment to reflect array approach
-
-         */
+         by setting the bindings to empty arrays. */
         var ellipsisMatchedNothing = !stickyEllipsisPattern
             && patternElement
             && patternElement.nextSibling
@@ -288,10 +288,10 @@ SchemeMacro.prototype.matchListOrVector
             });
         }
 
-        var inputAndPatternDone = !(inputElement || patternElement);
-
         /* If there are no ellipses in the pattern, the pattern and the input
          must both be successfully exhausted for the match to succeed.*/
+        var inputAndPatternDone = !(inputElement || patternElement);
+
         return stickyEllipsisPattern
             || ellipsisMatchedNothing
             || inputAndPatternDone;
@@ -341,6 +341,7 @@ SchemeMacro.prototype.matchImproperList
 };
 
 // (8) P is a datum and F is equal to P in the sense of the equal? procedure.
+// todo bl too permissive? disabled for now
 SchemeMacro.prototype.matchDatum
     = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
     return patternDatum.isEqual(inputDatum);
