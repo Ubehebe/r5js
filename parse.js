@@ -863,36 +863,22 @@ Parser.prototype['transformer-spec'] = function() {
     return this.rhs(
         {type: '('},
         {type: 'syntax-rules'}, // a terminal
-        {type: 'transformer-spec-identifiers'},
+        {type: '('},
+        {type: 'pattern-identifier', atLeast: 0},
+        {type: ')'},
         {type: 'syntax-rule', atLeast: 0}, // a nonterminal
         {type: ')'},
         {value: function(node, env) {
-            var ids = node.at('transformer-spec-identifiers').firstChild;
+            /* 4.3.2: It is an error for ... to appear in <literals>.
+                So we can reuse the pattern-identifier nonterminal
+                to check this in the parser. Win! */
+            var ids = node.at('(').at('pattern-identifier');
             var rules = node.at('syntax-rule');
             // todo bl implement: It is an error for the same pattern
             // variable to appear more than once in a <pattern>.
             return new SchemeMacro(ids, rules, env);
         }
         }
-    );
-};
-
-Parser.prototype['transformer-spec-identifiers'] = function() {
-    return this.rhs(
-        {type: '('},
-        {type: 'transformer-spec-identifier', atLeast: 0},
-        {type: ')'}
-    );
-};
-
-/* The parser currently doesn't support + and * applied to terminals.
- I decided it was easier to add a vacuous nonterminal
- 'transformer-spec-identifier' to the grammar. */
-Parser.prototype['transformer-spec-identifier'] = function() {
-    return this.rhs(
-        {type: function(datum) {
-            return datum.isIdentifier();
-        }}
     );
 };
 
