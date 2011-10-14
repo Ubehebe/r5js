@@ -36,7 +36,7 @@ Token.prototype.setPayload = function(payload) {
             else throw new InternalInterpreterError('invalid character payload ' + payload);
             break;
         case 'string':
-            this.payload = payload;
+            this.payload = payload.substr(1, payload.length-2);
             break;
         default:
             throw new InternalInterpreterError('invalid token type ' + this.type);

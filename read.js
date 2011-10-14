@@ -214,7 +214,7 @@ Datum.prototype.toString = function() {
             return this.payload + '';
         case 'character':
         case 'string':
-            return this.payload;
+            return '"' + this.payload + '"';
         case '(':
         case '#(':
             endDelimiter = ')';
