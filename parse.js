@@ -416,7 +416,10 @@ Parser.prototype['procedure-call'] = function() {
              them in datum objects. For consistency, we store them in the environment
              wrapped as well. */
             else if (proc instanceof Datum && proc.isProcedure()) {
-                var unwrappedProc = proc.payload;
+                /* We have to clone the procedure object every time we evaluate
+                    because evaluation mutates it (specifically, it
+                    pops semantic actions off the parse tree). */
+                var unwrappedProc = proc.payload.clone();
                 args = node.at('operand').evalSiblingsReturnAll(env);
                 unwrappedProc.checkNumArgs(args.length);
                 return unwrappedProc.body.evalSiblingsReturnLast(unwrappedProc.bindArgs(args));
@@ -545,7 +548,7 @@ Parser.prototype['definition'] = function() {
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {value: function(node, env) {
-                var formalsList = node.at('(').at('variable');
+                var formalsList = node.at('(');
                 var formals = formalsList.mapChildren(function(child) {
                     return child.payload;
                 });
@@ -557,7 +560,7 @@ Parser.prototype['definition'] = function() {
                 env[name] =
                     newProcedureDatum(
                         new SchemeProcedure(
-                            formals, false, formalsList.nextSibling, env));
+                            formals, false, formalsList.nextSibling, env, name));
                 return undefined;
             }}
         ],

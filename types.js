@@ -14,12 +14,31 @@ SchemeString.prototype.toString = function() {
     return this.s;
 };
 
-function SchemeProcedure(formalsArray, isDotted, bodyStart, env) {
+function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.formalsArray = formalsArray;
     this.isDotted = isDotted;
     this.body = bodyStart;
     this.env = shallowHashCopy(env);
+
+    /* This is a convenience parameter for dealing with recursion in
+        named procedures. If we are here, we are in the midst of defining
+        a procedure, which means that the env parameter does not yet
+        have a binding for it. So we set it up manually.
+
+        todo bl: this design may be changed when I implement tail recursion.
+     */
+    if (name)
+        this.env[name] = newProcedureDatum(this);
 }
+
+SchemeProcedure.prototype.clone = function() {
+  var ans = new SchemeProcedure();
+    ans.formalsArray = shallowArrayCopy(this.formalsArray);
+    ans.isDotted = this.isDotted;
+    ans.body = this.body.clone();
+    ans.env = shallowHashCopy(this.env);
+    return ans;
+};
 
 SchemeProcedure.prototype.toString = function() {
     return "[procedure]"; // bl lame
