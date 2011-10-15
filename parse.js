@@ -313,8 +313,7 @@ Parser.prototype['expression'] = function() {
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 Parser.prototype['variable'] = function() {
     return this.rhs({type: function(datum) {
-            return datum.type === 'identifier'
-                && !isSyntacticKeyword(datum.payload);
+            return datum.isIdentifier() && !isSyntacticKeyword(datum.payload);
         }},
         {value: function(node, env) {
             var val = env[node.payload];
@@ -624,22 +623,6 @@ Parser.prototype['conditional'] = function() {
             {type: 'if'},
             {type: 'test'},
             {type: 'consequent'},
-            {type: ')'},
-            {value: function(node, env) {
-                /* 6.3.1: Except for #f, all standard Scheme values,
-                 including #t, pairs, the empty list, symbols, numbers,
-                 strings, vectors, and procedures, count as true. */
-                return node.at('test').eval(env).unwrap() !== false
-                    ? node.at('consequent').eval(env)
-                    : undefined;
-            }
-            }
-        ],
-        [
-            {type: '('},
-            {type: 'if'},
-            {type: 'test'},
-            {type: 'consequent'},
             {type: 'alternate'},
             {type: ')'},
             {value: function(node, env) {
@@ -649,6 +632,22 @@ Parser.prototype['conditional'] = function() {
                 return node.at('test').eval(env).unwrap() !== false
                     ? node.at('consequent').eval(env)
                     : node.at('alternate').eval(env);
+            }
+            }
+        ],
+        [
+            {type: '('},
+            {type: 'if'},
+            {type: 'test'},
+            {type: 'consequent'},
+            {type: ')'},
+            {value: function(node, env) {
+                /* 6.3.1: Except for #f, all standard Scheme values,
+                 including #t, pairs, the empty list, symbols, numbers,
+                 strings, vectors, and procedures, count as true. */
+                return node.at('test').eval(env).unwrap() !== false
+                    ? node.at('consequent').eval(env)
+                    : undefined;
             }
             }
         ]
