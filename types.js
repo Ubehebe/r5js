@@ -40,6 +40,10 @@ SchemeProcedure.prototype.clone = function() {
     return ans;
 };
 
+SchemeProcedure.prototype.eval = function(args) {
+    return this.body.evalSiblingsReturnLast(this.bindArgs(args));
+};
+
 SchemeProcedure.prototype.toString = function() {
     return "[procedure]"; // bl lame
 };
