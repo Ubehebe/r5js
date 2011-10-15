@@ -120,35 +120,38 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
     // Handle * and +
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
         var numParsed = 0;
-	/* nextSiblingRecursive() is powerful because it advances to the "next"
-	   datum to parse, no matter where it may be. But when parsing
-	   repeated nonterminals, we have to be careful not to rise above
-	   the node we started at. For example, consider parsing ((1 2) 3)
-	   according to ((datum*) datum):
+        var last;
+        /* nextSiblingRecursive() is powerful because it advances to the "next"
+         datum to parse, no matter where it may be. But when parsing
+         repeated nonterminals, we have to be careful not to rise above
+         the node we started at. For example, consider parsing ((1 2) 3)
+         according to ((datum*) datum):
 
-	   1 parses ok as datum -> nextSiblingRecursive is 2
-	   2 parses ok as datum -> nextSiblingRecursive is 3
-	   3 parses ok as datum ... but in the same list as 1 and 2!
+         1 parses ok as datum -> nextSiblingRecursive is 2
+         2 parses ok as datum -> nextSiblingRecursive is 3
+         3 parses ok as datum ... but in the same list as 1 and 2!
 
-	   So at the beginning of dealing with * and +, we remember
-	   we would escape to, and abort parsing if we reach there.
+         So at the beginning of dealing with * and +, we remember
+         we would escape to, and abort parsing if we reach there.
 
-	   todo: start.lastSibling() means we iterate over the siblings twice. */
+         todo: start.lastSibling() means we iterate over the siblings twice. */
         var escaped = start && start.lastSibling().nextSiblingRecursive();
 
         while (this.next !== escaped && (parsed = parseFunction.apply(this))) {
             parsed.setParse(element.type);
+            last = parsed;
             ++numParsed;
         }
 
         if (numParsed >= element.atLeast) {
+
             /* In the case of an empty list, start will be null, and returning
-	       it would incorrectly indicate parsing failure. So we return true
-	       as a shim. */
-	    return start || true;
+             it would incorrectly indicate parsing failure. So we return true
+             as a shim. */
+            return start || true;
         } else {
             // todo bl is this dead code?
-	    this.errorMsg = 'expected at least '
+            this.errorMsg = 'expected at least '
                 + element.atLeast + ' ' + element.type + ', got ' + numParsed;
             return null;
         }
@@ -401,6 +404,10 @@ Parser.prototype['procedure-call'] = function() {
         {type: 'operand', atLeast: 0},
         {type: ')'},
         {value: function(node, env) {
+
+            if (node.isTailContext())
+                console.log('note, ' + node + ' is in tail context');
+
             var proc = node.at('operator').eval(env);
             var args; //  We don't evaluate the operands unless we're sure it's a procedure
 
@@ -417,18 +424,20 @@ Parser.prototype['procedure-call'] = function() {
              wrapped as well. */
             else if (proc instanceof Datum && proc.isProcedure()) {
                 /* We have to clone the procedure object every time we evaluate
-                    because evaluation mutates it (specifically, it
-                    pops semantic actions off the parse tree). */
+                 because evaluation mutates it (specifically, it
+                 pops semantic actions off the parse tree). */
                 var unwrappedProc = proc.payload.clone();
                 args = node.at('operand').evalSiblingsReturnAll(env);
                 unwrappedProc.checkNumArgs(args.length);
-                return unwrappedProc.body.evalSiblingsReturnLast(unwrappedProc.bindArgs(args));
+                return unwrappedProc.eval(args);
             }
 
             /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
              evaluate. This may be the coolest line in this implementation. */
             else {
+                var savedParent = node.parent;
                 node.unsetParse();
+                node.parent = savedParent;
                 return new Parser(node).parse('macro-use').eval(env);
             }
         }
@@ -784,7 +793,22 @@ Parser.prototype['macro-use'] = function() {
                      I suspect I'm not properly sanitizing the hygienic transcription...
                      */
                     var newText = template.hygienicTranscription().toString();
-                    return eval(newText, env, 'expression');
+                    var newNode =
+                        new Parser(
+                            new Reader(
+                                new Scanner(newText)
+                            ).read()
+                        ).parse('expression');
+
+                    /* todo bl: right now, we have to hook up these pointers
+                     to communicate tail context info to the macro. Perhaps
+                     a cleaner way would be explicitly telling the macro it's
+                     in tail position? */
+                    if (node.parent)
+                        newNode.parent = node.parent;
+                    else if (node.nextSibling)
+                        newNode.nextSibling = node.nextSibling; // yikes
+                    return newNode.eval(env);
                 }
                 else throw new MacroError(kw, 'no template matching ' + node.toString());
             } else throw new UnboundVariable(kw);

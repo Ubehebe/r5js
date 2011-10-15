@@ -21,6 +21,38 @@ Datum.prototype.forEach = function(f) {
     }
 };
 
+// 3.5
+Datum.prototype.isTailContext = function() {
+    var headOfList = this.parent
+        && this.parent.firstChild
+        && this.parent.firstChild.payload;
+
+    /* Base case: the last expression within the body of a lambda expression
+     occurs in a tail context. */
+    if (headOfList === 'lambda')
+        return true;
+
+    /* Inductive cases: if (if test consequent alternate) or (if test consequent)
+     are in tail context, then consequent and alternate are in tail context. */
+    else if ((headOfList === 'if'
+        || headOfList === 'let-syntax'
+        || headOfList === 'letrec-syntax') && this.parent.isTailContext())
+        return true;
+
+    // Ugh, special check for consequent
+    else if (
+        (headOfList = this.nextSibling
+            && this.nextSibling.parent
+            && this.nextSibling.parent.firstChild
+            && this.nextSibling.parent.firstChild.payload
+            )
+            && headOfList === 'if'
+            && this.nextSibling.parent.isTailContext())
+        return true;
+
+    else return false;
+};
+
 function newEmptyList() {
     var ans = new Datum();
     ans.type = '(';
