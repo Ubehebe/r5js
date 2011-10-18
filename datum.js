@@ -59,10 +59,27 @@ function newEmptyList() {
     return ans;
 }
 
+function newId(name) {
+    var ans = new Datum();
+    ans.type = 'identifier';
+    ans.payload = name;
+    return ans;
+}
+
 function newProcedureDatum(procedure) {
     var ans = new Datum();
     ans.type = 'lambda';
     ans.payload = procedure;
+    return ans;
+}
+
+function newContinuationLambda(name) {
+    var soleFormal = newEmptyList();
+    soleFormal.appendChild(newId(name));
+    var ans = new Datum();
+    ans.type = '(';
+    ans.prependChild(soleFormal);
+    ans.prependChild(newId('lambda'));
     return ans;
 }
 
@@ -447,4 +464,51 @@ Datum.prototype.siblingsToList = function(dotted) {
     ans.firstChild = this;
     this.lastSibling().parent = ans;
     return ans;
+};
+
+function newCpsName() {
+    return '_' + (uniqueNodeCounter++);
+}
+
+var uniqueNodeCounter = 0; // todo bl any good way to encapsulate this?
+
+Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
+
+    if (this.isList() && this.firstChild) {
+        if (this.firstChild.isList())
+            throw new InternalInterpreterError('todo bl: unimplemented!');
+        var ans = newEmptyList();
+        var lastChild = newId(this.firstChild.payload);
+        ans.appendChild(lastChild);
+
+        var idNode;
+
+        for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
+            idNode = newId(cur.isList() ? cpsNames.shift(): cur.payload);
+            lastChild.appendSibling(idNode);
+            lastChild = idNode;
+        }
+
+        ans.appendChild(newContinuationLambda(rootName));
+        return ans;
+    } else throw new InternalInterpreterError('unsupported type ' + this.type);
+};
+
+Datum.prototype.cpsify = function(rootName, appendTo) {
+
+    var end = appendTo;
+    var cpsNames = [];
+
+    if (this.isList() && this.firstChild) {
+        for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
+            if (cur.isList()) {
+                var name = newCpsName();
+                end = cur.cpsify(name, end);
+                cpsNames.push(name);
+            }
+        }
+        var local = this.cpsifyLocal(rootName, cpsNames);
+        end.appendChild(local);
+        return local.firstChild.lastSibling();
+    } else throw new InternalInterpreterError('not a list');
 };
