@@ -205,7 +205,7 @@ Datum.prototype.toString = function() {
 
     switch (this.type) {
         case 'lambda':
-            return '#<procedure>'; // todo bl represent text of proc?
+            return this.payload;
         case 'identifier':
             return this.payload;
         case 'boolean':

@@ -59,10 +59,10 @@ function newEmptyList() {
     return ans;
 }
 
-function newId(name) {
+function newIdOrLiteral(payload, type) {
     var ans = new Datum();
-    ans.type = 'identifier';
-    ans.payload = name;
+    ans.type = type || 'identifier'; // convenience
+    ans.payload = payload;
     return ans;
 }
 
@@ -75,11 +75,11 @@ function newProcedureDatum(procedure) {
 
 function newContinuationLambda(name) {
     var soleFormal = newEmptyList();
-    soleFormal.appendChild(newId(name));
+    soleFormal.appendChild(newIdOrLiteral(name));
     var ans = new Datum();
     ans.type = '(';
     ans.prependChild(soleFormal);
-    ans.prependChild(newId('lambda'));
+    ans.prependChild(newIdOrLiteral('lambda'));
     return ans;
 }
 
@@ -205,10 +205,18 @@ Datum.prototype.appendChild = function(child) {
     else this.firstChild.appendSibling(child);
 };
 
+// todo bl deprecate in favor of prependSiblings
 Datum.prototype.prependChild = function(child) {
     var oldFirstChild = this.firstChild;
     this.firstChild = child;
     child.nextSibling = oldFirstChild;
+};
+
+Datum.prototype.prependSiblings = function(firstSibling) {
+    var lastSibling = firstSibling.lastSibling();
+    var oldFirstChild = this.firstChild;
+    this.firstChild = firstSibling;
+    lastSibling.nextSibling = oldFirstChild;
 };
 
 /* Map isn't the best word, since the function returns an array but the children
@@ -478,15 +486,15 @@ Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
         if (this.firstChild.isList())
             throw new InternalInterpreterError('todo bl: unimplemented!');
         var ans = newEmptyList();
-        var lastChild = newId(this.firstChild.payload);
+        var lastChild = newIdOrLiteral(this.firstChild.payload);
         ans.appendChild(lastChild);
 
-        var idNode;
+        var idOrLiteralNode;
 
         for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
-            idNode = newId(cur.isList() ? cpsNames.shift(): cur.payload);
-            lastChild.appendSibling(idNode);
-            lastChild = idNode;
+            idOrLiteralNode = cur.isList() ? newIdOrLiteral(cpsNames.shift()) : newIdOrLiteral(cur.payload, cur.type);
+            lastChild.appendSibling(idOrLiteralNode);
+            lastChild = idOrLiteralNode;
         }
 
         ans.appendChild(newContinuationLambda(rootName));

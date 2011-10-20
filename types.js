@@ -45,7 +45,7 @@ SchemeProcedure.prototype.eval = function(args) {
 };
 
 SchemeProcedure.prototype.toString = function() {
-    return "[procedure]"; // bl lame
+    return '(lambda (' + this.formalsArray.join(' ') + ') ' + this.body + ')'; // todo bl dot!
 };
 
 SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
@@ -60,8 +60,8 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
     }
 };
 
-SchemeProcedure.prototype.bindArgs = function(args) {
-    var envCopy = shallowHashCopy(this.env);
+SchemeProcedure.prototype.bindArgs = function(args, env) {
+    var envCopy = env || shallowHashCopy(this.env);
 
     for (var i = 0; i < this.formalsArray.length - 1; ++i)
         envCopy[this.formalsArray[i]] = args[i];

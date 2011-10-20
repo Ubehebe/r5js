@@ -275,7 +275,7 @@ function isSyntacticKeyword(str) {
  | <lambda expression>
  | <conditional>
  | <assignment>
- | <derived expression>
+ | <derived expression> (these are all macros, not needed in grammar)
  | <macro use>
  | <macro block>
  */
@@ -300,9 +300,6 @@ Parser.prototype['expression'] = function() {
             {type: 'assignment'}
         ],
         [
-            {type: 'derived-expression'}
-        ],
-        [
             {type: 'macro-block'}
         ],
         [
@@ -315,10 +312,10 @@ Parser.prototype['variable'] = function() {
     return this.rhs({type: function(datum) {
             return datum.isIdentifier() && !isSyntacticKeyword(datum.payload);
         }},
-        {value: function(node, env) {
+        {value: function(node, env, continuation) {
             var val = env[node.payload];
             if (val !== undefined)
-                return val;
+                return continuation.inject(val);
             else throw new UnboundVariable(node.payload);
         }
         }
@@ -343,8 +340,8 @@ Parser.prototype['quotation'] = function() {
         [
             {type: "'"},
             {type: 'datum'},
-            {value: function(node, env) {
-                return node.at('datum').eval(env);
+            {value: function(node, env, continuation) {
+                return continuation.inject(node.at('datum').sanitize());
             }
             }
         ],
@@ -353,8 +350,8 @@ Parser.prototype['quotation'] = function() {
             {type: 'quote'},
             {type: 'datum'},
             {type: ')'},
-            {value: function(node, env) {
-                return node.at('datum').eval(env);
+            {value: function(node, env, continuation) {
+                return continuation.inject(node.at('datum').sanitize());
             }
             }
         ]);
@@ -363,11 +360,8 @@ Parser.prototype['quotation'] = function() {
 Parser.prototype['datum'] = function() {
     return this.rhs({type: function(datum) {
             return true;
-        } },
-        {value: function(node, env) {
-            return node.sanitize();
-        }
-        });
+        } }
+    );
 };
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
@@ -385,8 +379,8 @@ Parser.prototype['self-evaluating'] = function() {
                     return false;
             }
         }},
-        {value: function(node, env) {
-            return maybeWrapResult(node.payload, node.type);
+        {value: function(node, env, continuation) {
+            return continuation.inject(maybeWrapResult(node.payload, node.type));
         }
         }
     );
@@ -403,9 +397,6 @@ Parser.prototype['procedure-call'] = function() {
         {type: 'operand', atLeast: 0},
         {type: ')'},
         {value: function(node, env) {
-
-            if (node.isTailContext())
-                console.log('note, ' + node + ' is in tail context');
 
             var proc = node.at('operator').eval(env);
             var args; //  We don't evaluate the operands unless we're sure it's a procedure
@@ -540,9 +531,10 @@ Parser.prototype['definition'] = function() {
             {type: 'variable'},
             {type: 'expression'},
             {type: ')'},
-            {value: function(node, env) {
-                env[node.at('variable').payload] = node.at('expression').eval(env);
-                return undefined;
+            {value: function(node, env, continuation) {
+                // bl do we really need a new continuation here?
+                env[node.at('variable').payload] = node.at('expression').eval(env, new Continuation());
+                return continuation.inject(undefined);
             }
             }
         ],
@@ -555,7 +547,7 @@ Parser.prototype['definition'] = function() {
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
-            {value: function(node, env) {
+            {value: function(node, env, continuation) {
                 var formalsList = node.at('(');
                 var formals = formalsList.mapChildren(function(child) {
                     return child.payload;
@@ -1063,8 +1055,8 @@ Parser.prototype['pattern-identifier'] = function() {
 Parser.prototype['program'] = function() {
     return this.rhs(
         {type: 'command-or-definition', atLeast: 0},
-        {value: function(node, env) {
-            return node.evalSiblingsReturnLast(env);
+        {value: function(node, env, continuation) {
+            return continuation.remember(node);
         }
         });
 };

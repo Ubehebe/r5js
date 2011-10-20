@@ -91,6 +91,24 @@
             console.log(ans);
             document.getElementById('result').value = ans;
         }
+
+        function doCPS() {
+            var datum = new Reader(new Scanner(document.getElementById('toEval').value)).read();
+            var ans = newEmptyList();
+            datum.cpsify('root', ans);
+            console.log(ans.firstChild);
+            document.getElementById('result').value = ans.firstChild;
+        }
+
+        function doTrampoline() {
+            var datum = new Reader(new Scanner(document.getElementById('toEval').value)).read();
+            var cpsed = newEmptyList();
+            datum.cpsify('root', cpsed);
+            cpsed = cpsed.firstChild;
+            console.log('trampoline to begin');
+            console.log(cpsed);
+            document.getElementById('result').value = trampoline(cpsed, builtins);
+        }
     </script>
 
 </head>
@@ -98,6 +116,12 @@
 <iframe src='lib.scm' id='lib' style='display: none'></iframe>
 <textarea id='toEval' rows="15" cols="80"></textarea>
 <textarea id='result' rows="1" cols="80"></textarea>
+<p>
+    <button onclick='doCPS()'>convert to CPS</button>
+</p>
+<p>
+    <button onclick='doTrampoline()'>trampoline eval</button>
+</p>
 <p>
     <button onclick='doEval()'>eval</button>
     <button onclick='testEvaluator()'>evaluator unit tests</button>
