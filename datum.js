@@ -6,7 +6,10 @@ function Datum() {
      this.type = null;
      this.payload = null;
      this.nonterminals = [];
-     this.values = []; */
+     this.values = [];
+     this.desugars = null;
+
+      */
 }
 
 // todo bl too many utility functions; reduce to minimal set
@@ -129,6 +132,12 @@ Datum.prototype.setValue = function(semanticAction) {
     if (!this.values)
         this.values = [];
     this.values.push(semanticAction);
+};
+
+Datum.prototype.setDesugar = function(desugarFunc) {
+    if (!this.desugars)
+        this.desugars = [];
+    this.desugars.push(desugarFunc);
 };
 
 Datum.prototype.unsetParse = function() {
@@ -478,13 +487,18 @@ function newCpsName() {
     return '_' + (uniqueNodeCounter++);
 }
 
+function newAnonymousLambdaName() {
+    return 'proc' + (anonymousLambdaCounter++);
+}
+
 var uniqueNodeCounter = 0; // todo bl any good way to encapsulate this?
+var anonymousLambdaCounter = 0;
 
 Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
 
     if (this.isList() && this.firstChild) {
         if (this.firstChild.isList())
-            throw new InternalInterpreterError('todo bl: unimplemented!');
+            throw new InternalInterpreterError('todo bl: unimplemented! ' + this);
         var ans = newEmptyList();
         var lastChild = newIdOrLiteral(this.firstChild.payload);
         ans.appendChild(lastChild);
@@ -492,7 +506,13 @@ Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
         var idOrLiteralNode;
 
         for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
-            idOrLiteralNode = cur.isList() ? newIdOrLiteral(cpsNames.shift()) : newIdOrLiteral(cur.payload, cur.type);
+            if (cur.isQuote()) {
+                idOrLiteralNode = cur.clone();
+            } else if (cur.isList()) {
+                idOrLiteralNode = newIdOrLiteral(cpsNames.shift());
+            } else {
+                idOrLiteralNode = newIdOrLiteral(cur.payload, cur.type);
+            }
             lastChild.appendSibling(idOrLiteralNode);
             lastChild = idOrLiteralNode;
         }
@@ -500,6 +520,13 @@ Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
         ans.appendChild(newContinuationLambda(rootName));
         return ans;
     } else throw new InternalInterpreterError('unsupported type ' + this.type);
+};
+
+Datum.prototype.toStringWithSiblings = function() {
+  var ans = '';
+  for (var cur = this; cur; cur = cur.nextSibling)
+    ans += cur.toString();
+    return ans;
 };
 
 Datum.prototype.cpsify = function(rootName, appendTo) {
@@ -518,5 +545,57 @@ Datum.prototype.cpsify = function(rootName, appendTo) {
         var local = this.cpsifyLocal(rootName, cpsNames);
         end.appendChild(local);
         return local.firstChild.lastSibling();
-    } else throw new InternalInterpreterError('not a list');
+    } else throw new InternalInterpreterError('not a list: ' + this);
+};
+
+/*
+    Continuation-passing style is
+    <cps> -> (<operator> <operand>* <continuation>)
+    <operator> -> <identifier>
+    <operand> -> <identifier> | <self evaluating>
+    <continuation> -> (lambda (<identifier>) <cps>) | (lambda (<identifier>))
+    (Not in the spec anywhere, I'm just trying to reduce the grammar to simplify
+    evaluation.)
+ */
+Datum.prototype.cpsSanityCheck = function() {
+
+    console.log('cpsSanityCheck');
+    console.log(this);
+
+    if (this.payload || this.isQuote())
+        return true;
+
+    else if (this.isList()) {
+        var cur;
+        for (cur = this.firstChild; cur && cur.nextSibling; cur = cur.nextSibling)
+            if (!(cur.payload || cur.isQuote()))
+                return false;
+
+        if (cur.isContinuation()) {
+            var maybeBody = cur.at('(').nextSibling;
+            return maybeBody ? maybeBody.cpsSanityCheck() : true;
+        }
+
+    }
+
+    return false;
+};
+
+Datum.prototype.isContinuation = function() {
+
+    var shouldBeLambda = this.firstChild
+        && this.firstChild.payload === 'lambda';
+    var shouldBeFormals = shouldBeLambda
+        && this.firstChild.nextSibling;
+    var soleFormal = shouldBeFormals
+        && shouldBeFormals.firstChild
+        && !shouldBeFormals.firstChild.nextSibling;
+
+    return soleFormal;
+};
+
+Datum.prototype.getContinuationEndpoint = function() {
+  if (!this.isContinuation())
+    throw new InternalInterpreterError('not a continuation: ' + this);
+    return this.firstChild.nextSibling;
 };

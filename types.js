@@ -27,8 +27,8 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
 
         todo bl: this design may be changed when I implement tail recursion.
      */
-    if (name)
-        this.env[name] = newProcedureDatum(this);
+    this.name = name;
+    this.env[name] = newProcedureDatum(this);
 }
 
 SchemeProcedure.prototype.clone = function() {
@@ -45,7 +45,8 @@ SchemeProcedure.prototype.eval = function(args) {
 };
 
 SchemeProcedure.prototype.toString = function() {
-    return '(lambda (' + this.formalsArray.join(' ') + ') ' + this.body + ')'; // todo bl dot!
+    return '[' + this.name + ']';
+    //return '(lambda (' + this.formalsArray.join(' ') + ') ' + this.body + ')'; // todo bl dot!
 };
 
 SchemeProcedure.prototype.checkNumArgs = function(numActuals) {

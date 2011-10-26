@@ -65,6 +65,12 @@ Parser.prototype.rhs = function() {
             if (root) root.setValue(element.value);
         }
 
+        // todo bl
+        if (element.desugar) {
+            if (root)
+                root.setDesugar(element.desugar);
+        }
+
     }
 
     /* We do not need a null check here because, if root is null,
@@ -309,17 +315,18 @@ Parser.prototype['expression'] = function() {
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 Parser.prototype['variable'] = function() {
-    return this.rhs({type: function(datum) {
+    return this.rhs(
+        {type: function(datum) {
             return datum.isIdentifier() && !isSyntacticKeyword(datum.payload);
         }},
-        {value: function(node, env, continuation) {
-            var val = env[node.payload];
-            if (val !== undefined)
-                return continuation.inject(val);
-            else throw new UnboundVariable(node.payload);
-        }
-        }
-    );
+        {value: this.semanticActionForVar});
+};
+
+Parser.prototype.semanticActionForVar = function(node, env) {
+    var val = env[node.payload];
+    if (val !== undefined)
+        return val;
+    else throw new UnboundVariable(node.payload);
 };
 
 // <literal> -> <quotation> | <self-evaluating>
@@ -340,8 +347,8 @@ Parser.prototype['quotation'] = function() {
         [
             {type: "'"},
             {type: 'datum'},
-            {value: function(node, env, continuation) {
-                return continuation.inject(node.at('datum').sanitize());
+            {value: function(node, env) {
+                return node.at('datum').eval(env);
             }
             }
         ],
@@ -350,8 +357,12 @@ Parser.prototype['quotation'] = function() {
             {type: 'quote'},
             {type: 'datum'},
             {type: ')'},
-            {value: function(node, env, continuation) {
-                return continuation.inject(node.at('datum').sanitize());
+            // seems like a good time to get rid of confusion with procedure calls
+            {desugar: function(node, env) {
+                var ans = new Datum();
+                ans.type = "'";
+                ans.firstChild = node.at('datum');
+                return ans;
             }
             }
         ]);
@@ -360,8 +371,11 @@ Parser.prototype['quotation'] = function() {
 Parser.prototype['datum'] = function() {
     return this.rhs({type: function(datum) {
             return true;
-        } }
-    );
+        } },
+        {value: function(node, env) {
+            return node.sanitize();
+        }
+        });
 };
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
@@ -379,8 +393,8 @@ Parser.prototype['self-evaluating'] = function() {
                     return false;
             }
         }},
-        {value: function(node, env, continuation) {
-            return continuation.inject(maybeWrapResult(node.payload, node.type));
+        {value: function(node, env) {
+            return maybeWrapResult(node.payload, node.type);
         }
         }
     );
@@ -396,6 +410,53 @@ Parser.prototype['procedure-call'] = function() {
         {type: 'operator'},
         {type: 'operand', atLeast: 0},
         {type: ')'},
+        {desugar: function(node, env) {
+
+            console.log('about to eval ' + node.at('operator'));
+            var proc = node.at('operator').desugar(env).eval(env); // evaling during desugaring!
+            console.log('got');
+            console.log(proc);
+
+            // Primitive and nonprimitive procedures are treated the same during desugaring
+            if (typeof proc === 'function' || (proc instanceof Datum && proc.isProcedure())) {
+                var maybeName = proc.payload && proc.payload.name;
+
+                var operands = node.at('operand');
+
+                // todo bl should node.at fail instead of returning an error-prone datum?
+                if (operands.type) {
+                    var tmp = operands.seqThrowawayAllButLast(env);
+                    node.at('operator').nextSibling = tmp;
+                }
+
+                var toCpsify = node;
+                if (maybeName) {
+                    toCpsify = newEmptyList();
+                    var opName = newIdOrLiteral(maybeName);
+                    if (operands.type)
+                        opName.nextSibling = tmp; // lol scope
+                    toCpsify.appendChild(opName);
+                }
+
+                var ans = newEmptyList();
+                toCpsify.cpsify(newCpsName(), ans);
+                return ans.firstChild;
+            }
+
+            /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
+             evaluate. This may be the coolest line in this implementation. */
+            else {
+                console.log(node.toString());
+                // todo bl shouldn't have to go back to text
+                return new Parser(
+                    new Reader(
+                        new Scanner(node.toString())
+                    ).read()
+                ).parse('macro-use')
+                    .desugar(env);
+            }
+        }
+        },
         {value: function(node, env) {
 
             var proc = node.at('operator').eval(env);
@@ -422,14 +483,9 @@ Parser.prototype['procedure-call'] = function() {
                 return unwrappedProc.eval(args);
             }
 
-            /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
-             evaluate. This may be the coolest line in this implementation. */
-            else {
-                var savedParent = node.parent;
-                node.unsetParse();
-                node.parent = savedParent;
-                return new Parser(node).parse('macro-use').eval(env);
-            }
+            // macro calls should already have been desugared
+            console.log(proc);
+            throw new InternalInterpreterError('unrecognized type ' + proc);
         }
         });
 };
@@ -455,6 +511,22 @@ Parser.prototype['lambda-expression'] = function() {
         {type: 'definition', atLeast: 0},
         {type: 'expression', atLeast: 1},
         {type: ')'},
+        {desugar: function(node, env) {
+            var formalRoot = node.at('formals');
+            var dotted = formalRoot.isImproperList();
+            var formals = dotted || formalRoot.isList()
+                ? formalRoot.mapChildren(function(child) {
+                return child.payload;
+            })
+                : [formalRoot.payload];
+            var name = newAnonymousLambdaName();
+            env[name] = newProcedureDatum(
+                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name));
+            var ans = newIdOrLiteral(name);
+            ans.values = [Parser.prototype.semanticActionForVar];
+            return ans;
+        }
+        },
         {value: function(node, env) {
             var formalRoot = node.at('formals');
             var dotted = formalRoot.isImproperList();
@@ -463,8 +535,10 @@ Parser.prototype['lambda-expression'] = function() {
                 return child.payload;
             })
                 : [formalRoot.payload];
+            var name = newAnonymousLambdaName();
+            console.log('returning lambda');
             return newProcedureDatum(
-                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env));
+                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name));
         }
         }
     );
@@ -531,10 +605,9 @@ Parser.prototype['definition'] = function() {
             {type: 'variable'},
             {type: 'expression'},
             {type: ')'},
-            {value: function(node, env, continuation) {
-                // bl do we really need a new continuation here?
-                env[node.at('variable').payload] = node.at('expression').eval(env, new Continuation());
-                return continuation.inject(undefined);
+            {desugar: function(node, env) {
+                env[node.at('variable').payload] = node.at('expression').eval(env);
+                return undefined;
             }
             }
         ],
@@ -547,7 +620,7 @@ Parser.prototype['definition'] = function() {
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
-            {value: function(node, env, continuation) {
+            {desugar: function(node, env) {
                 var formalsList = node.at('(');
                 var formals = formalsList.mapChildren(function(child) {
                     return child.payload;
@@ -575,7 +648,7 @@ Parser.prototype['definition'] = function() {
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
-            {value: function(node, env) {
+            {desugar: function(node, env) {
                 var formalsList = node.at('(').at('variable');
                 var formals = formalsList.mapChildren(function(child) {
                     return child.payload;
@@ -597,8 +670,8 @@ Parser.prototype['definition'] = function() {
             {type: 'begin'},
             {type: 'definition', atLeast: 0},
             {type: ')'},
-            {value: function(node, env) {
-                node.at('definition').evalSiblingsReturnNone(env);
+            {desugar: function(node, env) {
+                node.at('definition').seqThrowawayAllButLast(env);
                 return undefined;
             }
             }
@@ -772,7 +845,7 @@ Parser.prototype['macro-use'] = function() {
         {type: 'keyword'},
         {type: 'datum', atLeast: 0},
         {type: ')'},
-        {value: function(node, env) {
+        {desugar: function(node, env) {
             var kw = node.at('keyword').payload;
             var macro = env[kw];
             if (macro instanceof SchemeMacro) {
@@ -794,12 +867,12 @@ Parser.prototype['macro-use'] = function() {
                     /* todo bl: right now, we have to hook up these pointers
                      to communicate tail context info to the macro. Perhaps
                      a cleaner way would be explicitly telling the macro it's
-                     in tail position? */
-                    if (node.parent)
-                        newNode.parent = node.parent;
-                    else if (node.nextSibling)
-                        newNode.nextSibling = node.nextSibling; // yikes
-                    return newNode.eval(env);
+                     in tail position?
+                     if (node.parent)
+                     newNode.parent = node.parent;
+                     else if (node.nextSibling)
+                     newNode.nextSibling = node.nextSibling;*/
+                    return newNode.desugar(env);
                 }
                 else throw new MacroError(kw, 'no template matching ' + node.toString());
             } else throw new UnboundVariable(kw);
@@ -862,7 +935,7 @@ Parser.prototype['syntax-spec'] = function() {
         {type: ')'},
         {value: function(node, env) {
             var kw = node.at('keyword').payload;
-            var macro = node.at('transformer-spec').eval(env);
+            var macro = node.at('transformer-spec').desugar(env);
             if (!macro.allPatternsBeginWith(kw))
                 throw new MacroError(kw, 'all patterns must begin with keyword');
             else if (!macro.ellipsesMatch(kw))
@@ -1055,8 +1128,12 @@ Parser.prototype['pattern-identifier'] = function() {
 Parser.prototype['program'] = function() {
     return this.rhs(
         {type: 'command-or-definition', atLeast: 0},
-        {value: function(node, env, continuation) {
-            return continuation.remember(node);
+        {desugar: function(node, env) {
+            return node.seqThrowawayAllButLast(env);
+        }
+        },
+        {value: function(node, env) {
+            return node.evalSiblingsReturnLast(env);
         }
         });
 };
@@ -1102,7 +1179,7 @@ Parser.prototype['syntax-definition'] = function() {
         {type: 'keyword'},
         {type: 'transformer-spec'},
         {type: ')'},
-        {value: function(node, env) {
+        {desugar: function(node, env) {
             var kw = node.at('keyword').payload;
             var macro = node.at('transformer-spec').eval(env);
             if (!macro.allPatternsBeginWith(kw))

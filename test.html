@@ -55,7 +55,7 @@
                     by "&gt;". This is a problem chiefly for the Scheme token "=>".
                     Reconstruct this here. */
                 var stdLib = iframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
-                eval(stdLib, builtins);
+                desugar(stdLib, builtins);
                 console.log('evaled std lib ok');
             }
 
@@ -86,10 +86,10 @@
                     ).parse(document.getElementById('lhs').value));
         }
 
-        function doEval() {
-            var ans = eval(document.getElementById('toEval').value, builtins, document.getElementById('lhs').value);
-            console.log(ans);
-            document.getElementById('result').value = ans;
+        function doDesugar() {
+            var desugared = desugar(document.getElementById('toEval').value, builtins, document.getElementById('lhs').value);
+            console.log(desugared);
+            document.getElementById('result').value = desugared.toStringWithSiblings();
         }
 
         function doCPS() {
@@ -100,14 +100,29 @@
             document.getElementById('result').value = ans.firstChild;
         }
 
-        function doTrampoline() {
+        function doCPSEval() {
+            var desugared =
+                    new Parser(
+                    new Reader(
+                            new Scanner(
+                                    document.getElementById('toEval').value)).read()
+                            ).parse(document.getElementById('lhs').value)
+            .desugar(builtins);
+            var ans = trampoline(desugared, builtins);
+            console.log(ans);
+            document.getElementById('result').value = ans;
+        }
+
+        function isCPS() {
             var datum = new Reader(new Scanner(document.getElementById('toEval').value)).read();
-            var cpsed = newEmptyList();
-            datum.cpsify('root', cpsed);
-            cpsed = cpsed.firstChild;
-            console.log('trampoline to begin');
-            console.log(cpsed);
-            document.getElementById('result').value = trampoline(cpsed, builtins);
+            var ans = true;
+            for (var cur = datum; cur; cur = cur.nextSibling) {
+                if (!cur.cpsSanityCheck()) {
+                    ans = false;
+                    break;
+                }
+            }
+            console.log(ans);
         }
     </script>
 
@@ -117,14 +132,12 @@
 <textarea id='toEval' rows="15" cols="80"></textarea>
 <textarea id='result' rows="1" cols="80"></textarea>
 <p>
+        <button onclick='isCPS()'>CPS?</button>
     <button onclick='doCPS()'>convert to CPS</button>
+    <button onclick='doCPSEval()'>CPS eval</button>
 </p>
 <p>
-    <button onclick='doTrampoline()'>trampoline eval</button>
-</p>
-<p>
-    <button onclick='doEval()'>eval</button>
-    <button onclick='testEvaluator()'>evaluator unit tests</button>
+    <button onclick='doDesugar()'>desugar</button>
 </p>
 <p>
     <button onclick="doScan()">scan</button>
