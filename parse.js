@@ -413,13 +413,15 @@ Parser.prototype['procedure-call'] = function() {
         {desugar: function(node, env) {
 
             console.log('about to eval ' + node.at('operator'));
-            var proc = node.at('operator').desugar(env).eval(env); // evaling during desugaring!
+            var proc = trampoline(node.at('operator').desugar(env), env, true);
             console.log('got');
             console.log(proc);
 
             // Primitive and nonprimitive procedures are treated the same during desugaring
-            if (typeof proc === 'function' || (proc instanceof Datum && proc.isProcedure())) {
-                var maybeName = proc.payload && proc.payload.name;
+            if (proc.isIdentifier() || proc.isProcedure()) {
+                
+                var maybeName = proc.isIdentifier() ? proc.payload : proc.payload.name;
+                console.log('maybeName ' + maybeName);
 
                 var operands = node.at('operand');
 

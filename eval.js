@@ -76,20 +76,20 @@ function desugar(text, env, lhs) {
         .desugar(env);
 }
 
-function trampoline(node, env) {
+/* Executes a sequence of CPS calls without growing the stack. */
+function trampoline(node, env, dontResolveFinalId) {
 
     var ans;
     var args, next;
 
-    while (node
-        && node.isList()
-        && node.firstChild
-        && node.firstChild.payload !== undefined) {
+    while (isCpsExecutable(node)) {
 
         console.log('trampoline: ' + node);
 
         var proc = env[node.firstChild.payload];
 
+        /* If the proc is a primitive, call the JavaScript and bind the answer
+            to the beginning of the next continuation if necessary. */
         if (typeof proc === 'function') {
             args = gatherArgs(node.firstChild, env);
             next = args.pop(); // the continuation
@@ -101,6 +101,8 @@ function trampoline(node, env) {
             node = next.at('(').nextSibling;
         }
 
+        /* If the proc is written in Scheme, bind the arguments and execute
+            the proc's body, remembering the continuation. */
         else if (proc instanceof Datum && proc.isProcedure()) {
             var unwrappedProc = proc.payload.clone();
             args = gatherArgs(node.firstChild, env);
@@ -114,10 +116,29 @@ function trampoline(node, env) {
 
     }
 
-    ans = ans || node;
+    ans = ans || node; // todo bl clean up. has to do with ans not being set from non-primitive procs
 
-    console.log('end of trampoline, result ' + ans);
+    // Deal with an identifier at the end of the chain.
+    /* todo bl clean up: we call this from the top level with
+        dontResolveFinalId = false, which means ((lambda () +))
+        evaluates to the _text_ of the JavaScript primitive, not simply "+"! */
+    if (ans.isIdentifier() && !dontResolveFinalId)
+        ans = env[ans.payload];
+
+    console.log('end of trampoline, result: ');
+    console.log(ans);
     return ans;
+}
+
+/* CPS-executable form is (<operator> <operand>* <continuation>),
+    as given in Datum.prototype.cpsSanityCheck. This function just checks
+    the operator, since we want it to run in constant time from
+    the trampoline. */
+function isCpsExecutable(node) {
+    return node
+        && node.isList()
+        && node.firstChild
+        && node.firstChild.payload !== undefined;
 }
 
 function gatherArgs(operator, env) {

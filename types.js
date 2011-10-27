@@ -17,8 +17,10 @@ SchemeString.prototype.toString = function() {
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.formalsArray = formalsArray;
     this.isDotted = isDotted;
-    this.body = bodyStart;
     this.env = shallowHashCopy(env);
+
+    if (bodyStart)
+    this.body = bodyStart.seqThrowawayAllButLast(this.env);
 
     /* This is a convenience parameter for dealing with recursion in
         named procedures. If we are here, we are in the midst of defining

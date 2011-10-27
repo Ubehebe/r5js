@@ -483,6 +483,13 @@ Datum.prototype.siblingsToList = function(dotted) {
     return ans;
 };
 
+Datum.prototype.toStringWithSiblings = function() {
+  var ans = '';
+  for (var cur = this; cur; cur = cur.nextSibling)
+    ans += cur.toString();
+    return ans;
+};
+
 function newCpsName() {
     return '_' + (uniqueNodeCounter++);
 }
@@ -522,13 +529,27 @@ Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
     } else throw new InternalInterpreterError('unsupported type ' + this.type);
 };
 
-Datum.prototype.toStringWithSiblings = function() {
-  var ans = '';
-  for (var cur = this; cur; cur = cur.nextSibling)
-    ans += cur.toString();
-    return ans;
-};
+/* Continuation-passing style is a transformation of the tree structure of a
+    procedure call to make the flow of control explicit, ideally making a call
+    stack unnecessary.
 
+    For example, in order to evaluate (f (g x) (h y z)), we have to first evaluate
+    (g x) and (h y z), but we also have to remember where we were in the
+    evaluation of f so we can return there to complete the top-level evaluation.
+    By contrast, in continuation-passing style, the call is
+
+    (g x (lambda (_0) (h y z (lambda (_1) (f _0 _1 (lambda (...)))))))
+
+    (See the trampoline function for how this is actually evaluated.)
+
+    Initially, my Scheme evaluator used the JavaScript call stack to handle
+    evaluation. But Scheme requires an unlimited number of active tail calls.
+    It's possible to support this with a call stack (by discarding stack
+    frames), and it may even be possible to harness existing features
+    of JavaScript to do so (exception handling, for example).
+    But Scheme also requires a function call-with-current-continuation
+    that exposes continuations to the programmer to some extent,
+    so I decided to reify continuations. */
 Datum.prototype.cpsify = function(rootName, appendTo) {
 
     var end = appendTo;
@@ -550,10 +571,15 @@ Datum.prototype.cpsify = function(rootName, appendTo) {
 
 /*
     Continuation-passing style is
-    <cps> -> (<operator> <operand>* <continuation>)
+    <cps-expr> -> <cps-procedure-call> | <cps-branch>
+    <cps-procedure-call> -> (<operator> <operand>* <continuation>)
     <operator> -> <identifier>
     <operand> -> <identifier> | <self evaluating>
-    <continuation> -> (lambda (<identifier>) <cps>) | (lambda (<identifier>))
+    <continuation> -> (lambda (<identifier>) <cps-expr>?)
+    <cps-branch> -> (if <cps-test> <cps-consequent> <cps-alternate>?)
+    <cps-test> -> <cps-expr>
+    <cps-consequent> -> <cps-expr>
+    <cps-alternate> -> <cps-expr>
     (Not in the spec anywhere, I'm just trying to reduce the grammar to simplify
     evaluation.)
  */
