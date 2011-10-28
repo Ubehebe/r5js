@@ -530,58 +530,111 @@ Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
 };
 
 /* Continuation-passing style is a transformation of the tree structure of a
-    procedure call to make the flow of control explicit, ideally making a call
-    stack unnecessary.
+ procedure call to make the flow of control explicit, ideally making a call
+ stack unnecessary.
 
-    For example, in order to evaluate (f (g x) (h y z)), we have to first evaluate
-    (g x) and (h y z), but we also have to remember where we were in the
-    evaluation of f so we can return there to complete the top-level evaluation.
-    By contrast, in continuation-passing style, the call is
+ For example, in order to evaluate (f (g x) (h y z)), we have to first evaluate
+ (g x) and (h y z), but we also have to remember where we were in the
+ evaluation of f so we can return there to complete the top-level evaluation.
+ By contrast, in continuation-passing style, the call is
 
-    (g x (lambda (_0) (h y z (lambda (_1) (f _0 _1 (lambda (...)))))))
+ (g x (lambda (_0) (h y z (lambda (_1) (f _0 _1 (lambda (...)))))))
 
-    (See the trampoline function for how this is actually evaluated.)
+ (See the trampoline function for how this is actually evaluated.)
 
-    Initially, my Scheme evaluator used the JavaScript call stack to handle
-    evaluation. But Scheme requires an unlimited number of active tail calls.
-    It's possible to support this with a call stack (by discarding stack
-    frames), and it may even be possible to harness existing features
-    of JavaScript to do so (exception handling, for example).
-    But Scheme also requires a function call-with-current-continuation
-    that exposes continuations to the programmer to some extent,
-    so I decided to reify continuations. */
+ Initially, my Scheme evaluator used the JavaScript call stack to handle
+ evaluation. But Scheme requires an unlimited number of active tail calls.
+ It's possible to support this with a call stack (by discarding stack
+ frames), and it may even be possible to harness existing features
+ of JavaScript to do so (exception handling, for example).
+ But Scheme also requires a function call-with-current-continuation
+ that exposes continuations to the programmer to some extent,
+ so I decided to reify continuations. */
 Datum.prototype.cpsify = function(rootName, appendTo) {
 
     var end = appendTo;
     var cpsNames = [];
 
     if (this.isList() && this.firstChild) {
-        for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
-            if (cur.isList()) {
-                var name = newCpsName();
-                end = cur.cpsify(name, end);
-                cpsNames.push(name);
+
+        // Special logic to handle branching. todo: make a separate function
+        if (this.firstChild.payload === 'if') {
+
+            var test = this.firstChild.nextSibling;
+            var consequent = test.nextSibling;
+            var maybeAlternate = consequent.nextSibling;
+            var testName;
+
+            if (test.isList()) {
+                testName = newCpsName();
+                end = test.cpsify(testName, end);
             }
+
+            var modifiedLocal = newEmptyList();
+            modifiedLocal.appendChild(newIdOrLiteral('if'));
+            if (testName) {
+                modifiedLocal.appendChild(newIdOrLiteral(testName));
+            } else if (test.isQuote()) {
+                modifiedLocal.appendChild(test.clone());
+            } else {
+                modifiedLocal.appendChild(newIdOrLiteral(test.payload));
+            }
+
+            if (consequent.isList()) {
+                var fakeConsequentEndpoint = newEmptyList();
+                var fakeConsequentEndpoint2 = consequent.cpsify(rootName, fakeConsequentEndpoint);
+                modifiedLocal.appendChild(fakeConsequentEndpoint.firstChild);
+            } else if (consequent.isQuote()) {
+                modifiedLocal.appendChild(consequent.clone());
+            } else {
+                modifiedLocal.appendChild(newIdOrLiteral(consequent.payload));
+            }
+
+            if (maybeAlternate) {
+                if (maybeAlternate.isList()) {
+                    var fakeAlternateEndpoint = newEmptyList();
+                    var fakeAlternateEndpoint2 = maybeAlternate.cpsify(rootName, fakeAlternateEndpoint);
+                    modifiedLocal.appendChild(fakeAlternateEndpoint.firstChild);
+                } else if (maybeAlternate.isQuote()) {
+                    modifiedLocal.appendChild(maybeAlternate.clone());
+                } else {
+                    modifiedLocal.appendChild(newIdOrLiteral(maybeAlternate.payload));
+                }
+            }
+
+            end.appendChild(modifiedLocal);
+            return fakeConsequentEndpoint2 || fakeAlternateEndpoint2;
         }
-        var local = this.cpsifyLocal(rootName, cpsNames);
-        end.appendChild(local);
-        return local.firstChild.lastSibling();
+
+        else {
+
+            for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
+                if (cur.isList()) {
+                    var name = newCpsName();
+                    end = cur.cpsify(name, end);
+                    cpsNames.push(name);
+                }
+            }
+            var local = this.cpsifyLocal(rootName, cpsNames);
+            end.appendChild(local);
+            return local.firstChild.lastSibling();
+        }
     } else throw new InternalInterpreterError('not a list: ' + this);
 };
 
 /*
-    Continuation-passing style is
-    <cps-expr> -> <cps-procedure-call> | <cps-branch>
-    <cps-procedure-call> -> (<operator> <operand>* <continuation>)
-    <operator> -> <identifier>
-    <operand> -> <identifier> | <self evaluating>
-    <continuation> -> (lambda (<identifier>) <cps-expr>?)
-    <cps-branch> -> (if <cps-test> <cps-consequent> <cps-alternate>?)
-    <cps-test> -> <cps-expr>
-    <cps-consequent> -> <cps-expr>
-    <cps-alternate> -> <cps-expr>
-    (Not in the spec anywhere, I'm just trying to reduce the grammar to simplify
-    evaluation.)
+ Continuation-passing style is
+ <cps-expr> -> <cps-procedure-call> | <cps-branch>
+ <cps-procedure-call> -> (<operator> <operand>* <continuation>)
+ <operator> -> <identifier>
+ <operand> -> <identifier> | <self evaluating>
+ <continuation> -> (lambda (<identifier>) <cps-expr>?)
+ <cps-branch> -> (if <cps-test> <cps-consequent> <cps-alternate>?)
+ <cps-test> -> <cps-expr>
+ <cps-consequent> -> <cps-expr>
+ <cps-alternate> -> <cps-expr>
+ (Not in the spec anywhere, I'm just trying to reduce the grammar to simplify
+ evaluation.)
  */
 Datum.prototype.cpsSanityCheck = function() {
 
