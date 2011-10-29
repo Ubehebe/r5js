@@ -86,10 +86,19 @@ function trampoline(node, env, dontResolveFinalId) {
 
         console.log('trampoline: ' + node);
 
+        if (node.firstChild.payload === 'if') {
+            var test = node.firstChild.nextSibling;
+            var testResult = test.isIdentifier() ? env[test.payload] : test;
+            node = (testResult.unwrap() === false)
+                ? test.nextSibling.nextSibling // alternate
+                : test.nextSibling; // consequent
+            continue;
+        }
+
         var proc = env[node.firstChild.payload];
 
         /* If the proc is a primitive, call the JavaScript and bind the answer
-            to the beginning of the next continuation if necessary. */
+         to the beginning of the next continuation if necessary. */
         if (typeof proc === 'function') {
             args = gatherArgs(node.firstChild, env);
             next = args.pop(); // the continuation

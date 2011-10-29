@@ -62,6 +62,12 @@ function newEmptyList() {
     return ans;
 }
 
+function newCPSEscape() {
+    var ans = new Datum();
+    ans.type = 'CPS ESCAPE';
+    return ans;
+}
+
 function newIdOrLiteral(payload, type) {
     var ans = new Datum();
     ans.type = type || 'identifier'; // convenience
@@ -550,77 +556,101 @@ Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
  But Scheme also requires a function call-with-current-continuation
  that exposes continuations to the programmer to some extent,
  so I decided to reify continuations. */
+
+/* Example on (f (g x) (h y z)):
+    1. The local transformation of (g x) is (g x (lambda (g') <endpoint 1>))
+    2. The local transformation of (h y z) is (h y z (lambda (h') <endpoint 2>))
+    3. The local transformation of f is (f g' h' (lambda (f') <endpoint 3>))
+    We attach #2 to <endpoint 1>, #3 to <endpoint 2>, and return <endpoint 3>
+    as the new destination for appends in the tree.
+ */
 Datum.prototype.cpsify = function(rootName, appendTo) {
 
     var end = appendTo;
     var cpsNames = [];
 
+    // todo bl: reify CPSable datums so we don't have to do this check explicitly
     if (this.isList() && this.firstChild) {
 
-        // Special logic to handle branching. todo: make a separate function
-        if (this.firstChild.payload === 'if') {
+        // Special logic for a branch
+        if (this.firstChild.payload === 'if')
+            return cpsifyBranch(this, rootName, end);
 
-            var test = this.firstChild.nextSibling;
-            var consequent = test.nextSibling;
-            var maybeAlternate = consequent.nextSibling;
-            var testName;
-
-            if (test.isList()) {
-                testName = newCpsName();
-                end = test.cpsify(testName, end);
+        for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
+            if (cur.isList()) {
+                var name = newCpsName();
+                end = cur.cpsify(name, end);
+                cpsNames.push(name);
             }
-
-            var modifiedLocal = newEmptyList();
-            modifiedLocal.appendChild(newIdOrLiteral('if'));
-            if (testName) {
-                modifiedLocal.appendChild(newIdOrLiteral(testName));
-            } else if (test.isQuote()) {
-                modifiedLocal.appendChild(test.clone());
-            } else {
-                modifiedLocal.appendChild(newIdOrLiteral(test.payload));
-            }
-
-            if (consequent.isList()) {
-                var fakeConsequentEndpoint = newEmptyList();
-                var fakeConsequentEndpoint2 = consequent.cpsify(rootName, fakeConsequentEndpoint);
-                modifiedLocal.appendChild(fakeConsequentEndpoint.firstChild);
-            } else if (consequent.isQuote()) {
-                modifiedLocal.appendChild(consequent.clone());
-            } else {
-                modifiedLocal.appendChild(newIdOrLiteral(consequent.payload));
-            }
-
-            if (maybeAlternate) {
-                if (maybeAlternate.isList()) {
-                    var fakeAlternateEndpoint = newEmptyList();
-                    var fakeAlternateEndpoint2 = maybeAlternate.cpsify(rootName, fakeAlternateEndpoint);
-                    modifiedLocal.appendChild(fakeAlternateEndpoint.firstChild);
-                } else if (maybeAlternate.isQuote()) {
-                    modifiedLocal.appendChild(maybeAlternate.clone());
-                } else {
-                    modifiedLocal.appendChild(newIdOrLiteral(maybeAlternate.payload));
-                }
-            }
-
-            end.appendChild(modifiedLocal);
-            return fakeConsequentEndpoint2 || fakeAlternateEndpoint2;
         }
-
-        else {
-
-            for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
-                if (cur.isList()) {
-                    var name = newCpsName();
-                    end = cur.cpsify(name, end);
-                    cpsNames.push(name);
-                }
-            }
-            var local = this.cpsifyLocal(rootName, cpsNames);
-            end.appendChild(local);
-            return local.firstChild.lastSibling();
-        }
+        var local = this.cpsifyLocal(rootName, cpsNames);
+        end.appendChild(local);
+        return local.firstChild.lastSibling();
     } else throw new InternalInterpreterError('not a list: ' + this);
 };
+
+// (if (f x) (g y) (h z)) => (f x (lambda (f') (if f' (g y (lambda (g') ...)) (h z (lambda (h') ...)))))
+function cpsifyBranch(node, rootName, appendTo) {
+    var test = node.firstChild.nextSibling; // must exist
+    var consequent = test.nextSibling; // must exist
+    var maybeAlternate = consequent.nextSibling; // optional
+
+    var testName;
+
+    // This is the (f x (lambda (f') ...) part
+    if (test.isList()) {
+        testName = newCpsName();
+        appendTo = test.cpsify(testName, appendTo);
+    }
+
+    // This is the (if f' (g y (lambda (g') ...)) (h z (lambda (h') ...))) part
+    var localTransform = newEmptyList();
+    localTransform.appendChild(newIdOrLiteral('if'));
+    localTransform.appendChild(
+        testName
+            ? newIdOrLiteral(testName)
+            : (test.isQuote() ? test.clone() : newIdOrLiteral(test.payload, test.type))
+    );
+
+    // This is the (g y (lambda (g') ...)) part
+    var fakeConsequentEndpoint = newEmptyList();
+    var fakeConsequentEndpoint2;
+    if (consequent.isList()) {
+        fakeConsequentEndpoint2 = consequent.cpsify(rootName, fakeConsequentEndpoint);
+    } else {
+        fakeConsequentEndpoint2 = cpsifyIdentity(consequent.isQuote()
+            ? consequent.clone()
+            : newIdOrLiteral(consequent.payload, consequent.type),
+            rootName,
+            fakeConsequentEndpoint);
+    }
+    localTransform.appendChild(fakeConsequentEndpoint.firstChild);
+
+    // This is the (h z (lambda (h') ...)) part
+    if (maybeAlternate) {
+        var fakeAlternateEndpoint = newEmptyList();
+        var fakeAlternateEndpoint2;
+        if (maybeAlternate.isList()) {
+            fakeAlternateEndpoint2 = maybeAlternate.cpsify(rootName, fakeAlternateEndpoint);
+        } else {
+            fakeAlternateEndpoint2 = cpsifyIdentity(maybeAlternate.isQuote()
+                ? maybeAlternate.clone()
+                : newIdOrLiteral(maybeAlternate.payload, maybeAlternate.type),
+                rootName,
+                fakeAlternateEndpoint);
+        }
+        localTransform.appendChild(fakeAlternateEndpoint.firstChild);
+    }
+
+    appendTo.appendChild(localTransform);
+    
+    if (fakeAlternateEndpoint2) {
+        var sharedEndpoint = newCPSEscape();
+        fakeConsequentEndpoint2.appendChild(sharedEndpoint);
+        fakeAlternateEndpoint2.appendChild(sharedEndpoint);
+        return sharedEndpoint;
+    } else return fakeConsequentEndpoint2;
+}
 
 /*
  Continuation-passing style is
@@ -674,7 +704,25 @@ Datum.prototype.isContinuation = function() {
 };
 
 Datum.prototype.getContinuationEndpoint = function() {
-  if (!this.isContinuation())
-    throw new InternalInterpreterError('not a continuation: ' + this);
+    if (!this.isContinuation())
+        throw new InternalInterpreterError('not a continuation: ' + this);
     return this.firstChild.nextSibling;
 };
+
+// x -> (id x (lambda (x') ...))
+/* todo bl: this is a lot of allocation, but should only be used when there
+ is a top-level variable in a consequent or alternate expression in a branch.
+ Investigate. */
+function cpsifyIdentity(tokenCopy, rootName, appendTo) {
+    var ans = newEmptyList();
+    var cont = newEmptyList();
+    var formals = newEmptyList();
+    formals.appendChild(newIdOrLiteral(rootName));
+    cont.prependChild(formals);
+    cont.prependChild(newIdOrLiteral('lambda'));
+    ans.prependChild(cont);
+    ans.prependChild(tokenCopy);
+    ans.prependChild(newIdOrLiteral('id'));
+    appendTo.appendChild(ans);
+    return cont;
+}

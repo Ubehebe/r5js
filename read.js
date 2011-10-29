@@ -200,7 +200,7 @@ Reader.prototype.read = function() {
 // This is the inverse of Reader.prototype.read, which is why it's here.
 Datum.prototype.toString = function() {
 
-    var ans, child;
+    var ans, child, tmp;
     var endDelimiter = "";
 
     switch (this.type) {
@@ -224,17 +224,30 @@ Datum.prototype.toString = function() {
         case ',':
         case ',@':
             ans = this.type;
-            for (child = this.firstChild; child && child.nextSibling; child = child.nextSibling)
-                ans += child.toString() + ' ';
-            var lastChildString = child ? child.toString() : '';
+            child = this.firstChild;
+            // Somewhat awful special case for CPS glue nodes that should be invisible
+            // todo bl revert when possible
+            if (child) {
+                ans += child.toString();
+                child = child.nextSibling;
+            }
+            for (; child && child.nextSibling; child = child.nextSibling)
+                ans += ' ' + child.toString();
+            var lastChildString = child && child.toString();
+            lastChildString = lastChildString ? ' ' + lastChildString : '';
             return ans + lastChildString + endDelimiter;
         case '.(':
             ans = '(';
             for (child = this.firstChild;
                  child && child.nextSibling && child.nextSibling.nextSibling;
-                 child = child.nextSibling)
-                ans += child.toString() + ' ';
+                 child = child.nextSibling) {
+                tmp = child.toString();
+                if (tmp)
+                ans += tmp + ' ';
+            }
             return ans + child.toString() + ' . ' + child.nextSibling.toString() + ')';
+        case 'CPS ESCAPE':
+            return this.firstChild ? this.firstChild.toString() : null;
         default:
             throw new InternalInterpreterError('unknown datum type ' + this.type);
     }

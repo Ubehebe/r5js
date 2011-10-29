@@ -692,13 +692,10 @@ Parser.prototype['conditional'] = function() {
             {type: 'consequent'},
             {type: 'alternate'},
             {type: ')'},
-            {value: function(node, env) {
-                /* 6.3.1: Except for #f, all standard Scheme values,
-                 including #t, pairs, the empty list, symbols, numbers,
-                 strings, vectors, and procedures, count as true. */
-                return node.at('test').eval(env).unwrap() !== false
-                    ? node.at('consequent').eval(env)
-                    : node.at('alternate').eval(env);
+            {desugar: function(node, env) {
+                var ans = newEmptyList();
+                node.cpsify(newCpsName(), ans);
+                return ans.firstChild;
             }
             }
         ],
@@ -708,13 +705,10 @@ Parser.prototype['conditional'] = function() {
             {type: 'test'},
             {type: 'consequent'},
             {type: ')'},
-            {value: function(node, env) {
-                /* 6.3.1: Except for #f, all standard Scheme values,
-                 including #t, pairs, the empty list, symbols, numbers,
-                 strings, vectors, and procedures, count as true. */
-                return node.at('test').eval(env).unwrap() !== false
-                    ? node.at('consequent').eval(env)
-                    : undefined;
+             {desugar: function(node, env) {
+                var ans = newEmptyList();
+                node.cpsify(newCpsName(), ans);
+                return ans.firstChild;
             }
             }
         ]
