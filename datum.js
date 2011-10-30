@@ -62,16 +62,22 @@ function newEmptyList() {
     return ans;
 }
 
-function newCPSEscape() {
-    var ans = new Datum();
-    ans.type = 'CPS ESCAPE';
-    return ans;
-}
-
 function newIdOrLiteral(payload, type) {
     var ans = new Datum();
     ans.type = type || 'identifier'; // convenience
     ans.payload = payload;
+    return ans;
+}
+
+function newTrampolineIdShim() {
+    var ans = new Datum();
+    ans.type = 'id_shim';
+    return ans;
+}
+
+function newTrampolineBranchShim() {
+    var ans = new Datum();
+    ans.type = 'branch_shim';
     return ans;
 }
 
@@ -126,6 +132,11 @@ Datum.prototype.clone = function() {
         ans.nextSibling = this.nextSibling.clone();
 
     return ans;
+};
+
+Datum.prototype.severSibling = function() {
+    this.nextSibling = null;
+    return this;
 };
 
 Datum.prototype.setParse = function(type) {
@@ -609,7 +620,7 @@ function cpsifyBranch(node, rootName, appendTo) {
     localTransform.appendChild(
         testName
             ? newIdOrLiteral(testName)
-            : (test.isQuote() ? test.clone() : newIdOrLiteral(test.payload, test.type))
+            : (test.isQuote() ? test.clone().severSibling() : newIdOrLiteral(test.payload, test.type))
     );
 
     // This is the (g y (lambda (g') ...)) part
@@ -619,7 +630,7 @@ function cpsifyBranch(node, rootName, appendTo) {
         fakeConsequentEndpoint2 = consequent.cpsify(rootName, fakeConsequentEndpoint);
     } else {
         fakeConsequentEndpoint2 = cpsifyIdentity(consequent.isQuote()
-            ? consequent.clone()
+            ? consequent.clone().severSibling()
             : newIdOrLiteral(consequent.payload, consequent.type),
             rootName,
             fakeConsequentEndpoint);
@@ -634,7 +645,7 @@ function cpsifyBranch(node, rootName, appendTo) {
             fakeAlternateEndpoint2 = maybeAlternate.cpsify(rootName, fakeAlternateEndpoint);
         } else {
             fakeAlternateEndpoint2 = cpsifyIdentity(maybeAlternate.isQuote()
-                ? maybeAlternate.clone()
+                ? maybeAlternate.clone().severSibling()
                 : newIdOrLiteral(maybeAlternate.payload, maybeAlternate.type),
                 rootName,
                 fakeAlternateEndpoint);
@@ -645,7 +656,7 @@ function cpsifyBranch(node, rootName, appendTo) {
     appendTo.appendChild(localTransform);
     
     if (fakeAlternateEndpoint2) {
-        var sharedEndpoint = newCPSEscape();
+        var sharedEndpoint = newTrampolineBranchShim();
         fakeConsequentEndpoint2.appendChild(sharedEndpoint);
         fakeAlternateEndpoint2.appendChild(sharedEndpoint);
         return sharedEndpoint;
@@ -722,7 +733,7 @@ function cpsifyIdentity(tokenCopy, rootName, appendTo) {
     cont.prependChild(newIdOrLiteral('lambda'));
     ans.prependChild(cont);
     ans.prependChild(tokenCopy);
-    ans.prependChild(newIdOrLiteral('id'));
+    ans.prependChild(newTrampolineIdShim());
     appendTo.appendChild(ans);
     return cont;
 }

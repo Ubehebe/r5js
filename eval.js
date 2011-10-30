@@ -23,18 +23,20 @@ Datum.prototype.seqThrowawayAllButLast = function(env) {
     var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
         /* This check is necessary because node.desugar can return null for some
-            nodes (when it makes sense for the node to drop off the tree before
-            evaluation, e.g. for definitions). */
+         nodes (when it makes sense for the node to drop off the tree before
+         evaluation, e.g. for definitions). */
         if (tmp = cur.desugar(env)) {
-            if (!first) {
+            if (!first)
                 first = tmp;
-            }
-            else if (curEnd) {
+            else if (curEnd)
                 curEnd.nextSibling = tmp;
-            }
 
-            if (tmp.isList())
-                curEnd  = tmp.firstChild.lastSibling().getContinuationEndpoint();
+            if (tmp.isList()) {
+                // Advance to consequent if branch
+                if (tmp.firstChild.payload === 'if')
+                    tmp = tmp.firstChild.nextSibling.nextSibling;
+                curEnd = tmp.firstChild.lastSibling().getContinuationEndpoint();
+            }
         }
     }
     return first;
@@ -86,12 +88,29 @@ function trampoline(node, env, dontResolveFinalId) {
 
         console.log('trampoline: ' + node);
 
-        if (node.firstChild.payload === 'if') {
+        if (node.type === 'branch_shim') {
+            node = node.firstChild;
+            continue;
+        }
+
+        else if (node.firstChild.payload === 'if') {
             var test = node.firstChild.nextSibling;
             var testResult = test.isIdentifier() ? env[test.payload] : test;
             node = (testResult.unwrap() === false)
                 ? test.nextSibling.nextSibling // alternate
                 : test.nextSibling; // consequent
+            continue;
+        }
+
+        // Built-in identity function.
+        else if (node.firstChild.type === 'id_shim') {
+            var cur = node.firstChild.nextSibling;
+            var next = cur.nextSibling.at('(');
+            var nextName = next.firstChild.payload;
+            env[nextName] = cur.isIdentifier()
+                ? env[cur.payload]
+                : maybeWrapResult(cur.payload, cur.type);
+            node = next.nextSibling;
             continue;
         }
 
@@ -140,14 +159,16 @@ function trampoline(node, env, dontResolveFinalId) {
 }
 
 /* CPS-executable form is (<operator> <operand>* <continuation>),
-    as given in Datum.prototype.cpsSanityCheck. This function just checks
-    the operator, since we want it to run in constant time from
-    the trampoline. */
+ as given in Datum.prototype.cpsSanityCheck. This function just checks
+ the operator, since we want it to run in constant time from
+ the trampoline. */
 function isCpsExecutable(node) {
-    return node
-        && node.isList()
-        && node.firstChild
-        && node.firstChild.payload !== undefined;
+    if (!node)
+        return false;
+    return node.type === 'branch_shim' ||
+        (node.isList()
+            && node.firstChild
+            && (node.firstChild.type === 'id_shim' || node.firstChild.payload !== undefined));
 }
 
 function gatherArgs(operator, env) {
