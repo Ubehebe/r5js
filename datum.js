@@ -715,9 +715,12 @@ Datum.prototype.isContinuation = function() {
 };
 
 Datum.prototype.getContinuationEndpoint = function() {
-    if (!this.isContinuation())
+    if (!this.isList() || !this.firstChild)
         throw new InternalInterpreterError('not a continuation: ' + this);
-    return this.firstChild.nextSibling;
+    if (this.firstChild.payload === 'if')
+        return this.firstChild.nextSibling.nextSibling.getContinuationEndpoint();
+
+    return this.firstChild.lastSibling().firstChild.nextSibling; // todo bl yikes
 };
 
 // x -> (id x (lambda (x') ...))

@@ -413,7 +413,7 @@ Parser.prototype['procedure-call'] = function() {
         {desugar: function(node, env) {
 
             console.log('about to eval ' + node.at('operator'));
-            var proc = trampoline(node.at('operator').desugar(env), env, true);
+            var proc = trampoline(node.at('operator').desugar(env), env);
             console.log('got');
             console.log(proc);
 
@@ -421,8 +421,6 @@ Parser.prototype['procedure-call'] = function() {
             if (proc.isIdentifier() || proc.isProcedure()) {
                 
                 var maybeName = proc.isIdentifier() ? proc.payload : proc.payload.name;
-                console.log('maybeName ' + maybeName);
-
                 var operands = node.at('operand');
 
                 // todo bl should node.at fail instead of returning an error-prone datum?

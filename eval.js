@@ -31,12 +31,8 @@ Datum.prototype.seqThrowawayAllButLast = function(env) {
             else if (curEnd)
                 curEnd.nextSibling = tmp;
 
-            if (tmp.isList()) {
-                // Advance to consequent if branch
-                if (tmp.firstChild.payload === 'if')
-                    tmp = tmp.firstChild.nextSibling.nextSibling;
-                curEnd = tmp.firstChild.lastSibling().getContinuationEndpoint();
-            }
+            if (tmp.isList())
+                curEnd = tmp.getContinuationEndpoint();
         }
     }
     return first;
@@ -59,16 +55,6 @@ Datum.prototype.evalSiblingsReturnNone = function(env) {
         cur.eval(env);
 };
 
-// Top-level convenience function
-function eval(text, env, lhs) {
-    return new Parser(
-        new Reader(
-            new Scanner(text)
-        ).read()
-    ).parse(lhs)
-        .eval(env, new Continuation());
-}
-
 function desugar(text, env, lhs) {
     return new Parser(
         new Reader(
@@ -79,10 +65,11 @@ function desugar(text, env, lhs) {
 }
 
 /* Executes a sequence of CPS calls without growing the stack. */
-function trampoline(node, env, dontResolveFinalId) {
+function trampoline(node, env) {
 
     var ans;
     var args, next;
+    var primitiveName;
 
     while (isCpsExecutable(node)) {
 
@@ -90,6 +77,19 @@ function trampoline(node, env, dontResolveFinalId) {
 
         if (node.type === 'branch_shim') {
             node = node.firstChild;
+            continue;
+        }
+
+        // Built-in identity function.
+        else if (node.firstChild.type === 'id_shim') {
+            var cur = node.firstChild.nextSibling;
+            var next = cur.nextSibling.at('(');
+            var nextName = next.firstChild.payload;
+            ans = cur.isIdentifier()
+                ? env[cur.payload]
+                : maybeWrapResult(cur, cur.type);
+            env[nextName] = ans;
+            node = next.nextSibling;
             continue;
         }
 
@@ -102,35 +102,25 @@ function trampoline(node, env, dontResolveFinalId) {
             continue;
         }
 
-        // Built-in identity function.
-        else if (node.firstChild.type === 'id_shim') {
-            var cur = node.firstChild.nextSibling;
-            var next = cur.nextSibling.at('(');
-            var nextName = next.firstChild.payload;
-            env[nextName] = cur.isIdentifier()
-                ? env[cur.payload]
-                : maybeWrapResult(cur.payload, cur.type);
-            node = next.nextSibling;
-            continue;
-        }
-
         var proc = env[node.firstChild.payload];
 
         /* If the proc is a primitive, call the JavaScript and bind the answer
          to the beginning of the next continuation if necessary. */
         if (typeof proc === 'function') {
+            primitiveName = node.firstChild.payload;
             args = gatherArgs(node.firstChild, env);
             next = args.pop(); // the continuation
             ans = proc.apply(null, args);
             var nextName = next && next.at('(').firstChild.payload;
             if (nextName) {
                 env[nextName] = ans;
+                console.log('bound ' + ans + ' to ' + nextName);
             }
             node = next.at('(').nextSibling;
         }
 
         /* If the proc is written in Scheme, bind the arguments and execute
-            the proc's body, remembering the continuation. */
+         the proc's body, remembering the continuation. */
         else if (proc instanceof Datum && proc.isProcedure()) {
             var unwrappedProc = proc.payload.clone();
             args = gatherArgs(node.firstChild, env);
@@ -146,12 +136,11 @@ function trampoline(node, env, dontResolveFinalId) {
 
     ans = ans || node; // todo bl clean up. has to do with ans not being set from non-primitive procs
 
-    // Deal with an identifier at the end of the chain.
-    /* todo bl clean up: we call this from the top level with
-        dontResolveFinalId = false, which means ((lambda () +))
-        evaluates to the _text_ of the JavaScript primitive, not simply "+"! */
-    if (ans.isIdentifier() && !dontResolveFinalId)
-        ans = env[ans.payload];
+    /* The value of ((lambda () +)) is the identifier "+", so that in complex
+        forms like (((lambda () +)) 200 3) we can evaluate the operator
+        and look up the resulting identifier in the environment. */
+    if (typeof ans === 'function')
+        ans = primitiveName;
 
     console.log('end of trampoline, result: ');
     console.log(ans);
@@ -178,6 +167,8 @@ function gatherArgs(operator, env) {
     for (var cur = operator.nextSibling; cur && cur.nextSibling; cur = cur.nextSibling) {
         if (cur.isIdentifier())
             args.push(env[cur.payload]);
+        else if (cur.isQuote())
+            args.push(cur.firstChild);
         else if (cur.payload !== undefined)
             args.push(maybeWrapResult(cur.payload, cur.type));
         else throw new InternalInterpreterError('unexpected datum ' + cur);
