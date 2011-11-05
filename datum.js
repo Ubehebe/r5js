@@ -500,13 +500,6 @@ Datum.prototype.siblingsToList = function(dotted) {
     return ans;
 };
 
-Datum.prototype.toStringWithSiblings = function() {
-  var ans = '';
-  for (var cur = this; cur; cur = cur.nextSibling)
-    ans += cur.toString();
-    return ans;
-};
-
 function newCpsName() {
     return '_' + (uniqueNodeCounter++);
 }
@@ -518,14 +511,12 @@ function newAnonymousLambdaName() {
 var uniqueNodeCounter = 0; // todo bl any good way to encapsulate this?
 var anonymousLambdaCounter = 0;
 
-Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
+Datum.prototype.cpsifyLocal = function (rootName, cpsNames) {
 
     if (this.isList() && this.firstChild) {
         if (this.firstChild.isList())
             throw new InternalInterpreterError('todo bl: unimplemented! ' + this);
-        var ans = newEmptyList();
-        var lastChild = newIdOrLiteral(this.firstChild.payload);
-        ans.appendChild(lastChild);
+        var firstArg, lastArg;
 
         var idOrLiteralNode;
 
@@ -537,13 +528,19 @@ Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
             } else {
                 idOrLiteralNode = newIdOrLiteral(cur.payload, cur.type);
             }
-            lastChild.appendSibling(idOrLiteralNode);
-            lastChild = idOrLiteralNode;
+
+            if (!firstArg)
+                   firstArg = idOrLiteralNode;
+
+            if (lastArg)
+                lastArg.appendSibling(idOrLiteralNode);
+
+            lastArg = idOrLiteralNode;
         }
 
-        ans.appendChild(newContinuationLambda(rootName));
-        return ans;
-    } else throw new InternalInterpreterError('unsupported type ' + this.type);
+        return new ProcCall(this.firstChild.payload, firstArg, new Continuation(rootName));
+    }
+    else throw new InternalInterpreterError('unsupported type ' + this.type);
 };
 
 /* Continuation-passing style is a transformation of the tree structure of a
@@ -569,15 +566,15 @@ Datum.prototype.cpsifyLocal = function(rootName, cpsNames) {
  so I decided to reify continuations. */
 
 /* Example on (f (g x) (h y z)):
-    1. The local transformation of (g x) is (g x (lambda (g') <endpoint 1>))
-    2. The local transformation of (h y z) is (h y z (lambda (h') <endpoint 2>))
-    3. The local transformation of f is (f g' h' (lambda (f') <endpoint 3>))
-    We attach #2 to <endpoint 1>, #3 to <endpoint 2>, and return <endpoint 3>
-    as the new destination for appends in the tree.
+ 1. The local transformation of (g x) is (g x (lambda (g') <endpoint 1>))
+ 2. The local transformation of (h y z) is (h y z (lambda (h') <endpoint 2>))
+ 3. The local transformation of f is (f g' h' (lambda (f') <endpoint 3>))
+ We attach #2 to <endpoint 1>, #3 to <endpoint 2>, and return <endpoint 3>
+ as the new destination for appends in the tree.
  */
-Datum.prototype.cpsify = function(rootName, appendTo) {
+Datum.prototype.cpsify = function (rootName, endContinuation) {
 
-    var end = appendTo;
+    var end = endContinuation;
     var cpsNames = [];
 
     // todo bl: reify CPSable datums so we don't have to do this check explicitly
@@ -594,14 +591,14 @@ Datum.prototype.cpsify = function(rootName, appendTo) {
                 cpsNames.push(name);
             }
         }
-        var local = this.cpsifyLocal(rootName, cpsNames);
-        end.appendChild(local);
-        return local.firstChild.lastSibling();
+        var localProcCall = this.cpsifyLocal(rootName, cpsNames);
+        end.nextProc = localProcCall;
+        return localProcCall.continuation;
     } else throw new InternalInterpreterError('not a list: ' + this);
 };
 
 // (if (f x) (g y) (h z)) => (f x (lambda (f') (if f' (g y (lambda (g') ...)) (h z (lambda (h') ...)))))
-function cpsifyBranch(node, rootName, appendTo) {
+function cpsifyBranch(node, rootName, endContinuation) {
     var test = node.firstChild.nextSibling; // must exist
     var consequent = test.nextSibling; // must exist
     var maybeAlternate = consequent.nextSibling; // optional
@@ -611,56 +608,47 @@ function cpsifyBranch(node, rootName, appendTo) {
     // This is the (f x (lambda (f') ...) part
     if (test.isList()) {
         testName = newCpsName();
-        appendTo = test.cpsify(testName, appendTo);
+        endContinuation = test.cpsify(testName, endContinuation);
     }
 
     // This is the (if f' (g y (lambda (g') ...)) (h z (lambda (h') ...))) part
-    var localTransform = newEmptyList();
-    localTransform.appendChild(newIdOrLiteral('if'));
-    localTransform.appendChild(
-        testName
+    var testCPS = testName
             ? newIdOrLiteral(testName)
-            : (test.isQuote() ? test.clone().severSibling() : newIdOrLiteral(test.payload, test.type))
-    );
+            : (test.isQuote() ? test.clone().severSibling() : newIdOrLiteral(test.payload, test.type));
+
 
     // This is the (g y (lambda (g') ...)) part
-    var fakeConsequentEndpoint = newEmptyList();
-    var fakeConsequentEndpoint2;
+    var fakeConsequentEndpoint = new Continuation('FAKE CONSEQUENT');
+    var consequentCPS;
     if (consequent.isList()) {
-        fakeConsequentEndpoint2 = consequent.cpsify(rootName, fakeConsequentEndpoint);
+        consequent.cpsify(rootName, fakeConsequentEndpoint);
+        consequentCPS = fakeConsequentEndpoint.nextProc;
     } else {
-        fakeConsequentEndpoint2 = cpsifyIdentity(consequent.isQuote()
+        consequentCPS = consequent.isQuote()
             ? consequent.clone().severSibling()
-            : newIdOrLiteral(consequent.payload, consequent.type),
-            rootName,
-            fakeConsequentEndpoint);
+            : newIdOrLiteral(consequent.payload, consequent.type);
     }
-    localTransform.appendChild(fakeConsequentEndpoint.firstChild);
+
+    var alternateCPS;
 
     // This is the (h z (lambda (h') ...)) part
     if (maybeAlternate) {
-        var fakeAlternateEndpoint = newEmptyList();
-        var fakeAlternateEndpoint2;
+        var fakeAlternateEndpoint = new Continuation('FAKE ALTERNATE');
         if (maybeAlternate.isList()) {
-            fakeAlternateEndpoint2 = maybeAlternate.cpsify(rootName, fakeAlternateEndpoint);
+            maybeAlternate.cpsify(rootName, fakeAlternateEndpoint);
+            alternateCPS = fakeAlternateEndpoint.nextProc;
         } else {
-            fakeAlternateEndpoint2 = cpsifyIdentity(maybeAlternate.isQuote()
+            alternateCPS = maybeAlternate.isQuote()
                 ? maybeAlternate.clone().severSibling()
-                : newIdOrLiteral(maybeAlternate.payload, maybeAlternate.type),
-                rootName,
-                fakeAlternateEndpoint);
+                : newIdOrLiteral(maybeAlternate.payload, maybeAlternate.type);
         }
-        localTransform.appendChild(fakeAlternateEndpoint.firstChild);
     }
 
-    appendTo.appendChild(localTransform);
-    
-    if (fakeAlternateEndpoint2) {
-        var sharedEndpoint = newTrampolineBranchShim();
-        fakeConsequentEndpoint2.appendChild(sharedEndpoint);
-        fakeAlternateEndpoint2.appendChild(sharedEndpoint);
-        return sharedEndpoint;
-    } else return fakeConsequentEndpoint2;
+    var branch = new Branch(testCPS, consequentCPS, alternateCPS, new Continuation('branch_cont'));
+
+    endContinuation.nextProc = branch;
+
+    return branch.continuation;
 }
 
 /*

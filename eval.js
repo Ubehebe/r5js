@@ -19,20 +19,20 @@ Datum.prototype.evalSiblingsReturnAll = function(env) {
     return ans;
 };
 
-Datum.prototype.seqThrowawayAllButLast = function(env) {
+Datum.prototype.seqThrowawayAllButLast = function (env) {
     var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
         /* This check is necessary because node.desugar can return null for some
          nodes (when it makes sense for the node to drop off the tree before
          evaluation, e.g. for definitions). */
-        if (tmp = cur.desugar(env)) {
+        if (tmp = cur.desugar(env)) { // should return ProcCall or Branch
             if (!first)
                 first = tmp;
             else if (curEnd)
-                curEnd.nextSibling = tmp;
+                curEnd.nextProc = tmp;
 
-            if (tmp.isList())
-                curEnd = tmp.getContinuationEndpoint();
+            if (tmp.continuation)
+                curEnd = tmp.continuation.nextProc;
         }
     }
     return first;

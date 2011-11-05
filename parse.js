@@ -413,13 +413,14 @@ Parser.prototype['procedure-call'] = function() {
         {desugar: function(node, env) {
 
             console.log('about to eval ' + node.at('operator'));
-            var proc = trampoline(node.at('operator').desugar(env), env);
+            var operator = node.at('operator');
+            var proc = operator.isIdentifier() ? operator : trampolineNew(operator.desugar(env), env);
             console.log('got');
             console.log(proc);
 
             // Primitive and nonprimitive procedures are treated the same during desugaring
             if (proc.isIdentifier() || proc.isProcedure()) {
-                
+
                 var maybeName = proc.isIdentifier() ? proc.payload : proc.payload.name;
                 var operands = node.at('operand');
 
@@ -438,9 +439,9 @@ Parser.prototype['procedure-call'] = function() {
                     toCpsify.appendChild(opName);
                 }
 
-                var ans = newEmptyList();
+                var ans = new Continuation('?');
                 toCpsify.cpsify(newCpsName(), ans);
-                return ans.firstChild;
+                return ans.nextProc;
             }
 
             /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
@@ -691,9 +692,9 @@ Parser.prototype['conditional'] = function() {
             {type: 'alternate'},
             {type: ')'},
             {desugar: function(node, env) {
-                var ans = newEmptyList();
+                var ans = new Continuation('?');
                 node.cpsify(newCpsName(), ans);
-                return ans.firstChild;
+                return ans.nextProc;
             }
             }
         ],
@@ -704,9 +705,9 @@ Parser.prototype['conditional'] = function() {
             {type: 'consequent'},
             {type: ')'},
              {desugar: function(node, env) {
-                var ans = newEmptyList();
+                var ans = new Continuation('?');
                 node.cpsify(newCpsName(), ans);
-                return ans.firstChild;
+                return ans.nextProc;
             }
             }
         ]

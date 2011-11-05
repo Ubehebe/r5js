@@ -11,6 +11,7 @@
     <script type="text/javascript" src="read.js"></script>
     <script type="text/javascript" src="macro.js"></script>
     <script type="text/javascript" src="eval.js"></script>
+    <script type="text/javascript" src="cps.js"></script>
     <script type="text/javascript" src="stdproc.js"></script>
     <script type="text/javascript" src="unit_test.js"></script>
     <script type="text/javascript">
@@ -89,15 +90,15 @@
         function doDesugar() {
             var desugared = desugar(document.getElementById('toEval').value, builtins, document.getElementById('lhs').value);
             console.log(desugared);
-            document.getElementById('result').value = desugared.toStringWithSiblings();
+            document.getElementById('result').value = desugared;
         }
 
         function doCPS() {
             var datum = new Reader(new Scanner(document.getElementById('toEval').value)).read();
-            var ans = newEmptyList();
+            var ans = new Continuation('?');
             datum.cpsify('root', ans);
-            console.log(ans.firstChild);
-            document.getElementById('result').value = ans.firstChild;
+            console.log(ans.nextProc);
+            document.getElementById('result').value = ans.nextProc;
         }
 
         function doCPSEval() {
@@ -108,7 +109,7 @@
                                     document.getElementById('toEval').value)).read()
                             ).parse(document.getElementById('lhs').value)
             .desugar(builtins);
-            var ans = trampoline(desugared, builtins);
+            var ans = trampolineNew(desugared, builtins);
             console.log(ans);
             document.getElementById('result').value = ans;
         }
