@@ -69,32 +69,10 @@ function newIdOrLiteral(payload, type) {
     return ans;
 }
 
-function newTrampolineIdShim() {
-    var ans = new Datum();
-    ans.type = 'id_shim';
-    return ans;
-}
-
-function newTrampolineBranchShim() {
-    var ans = new Datum();
-    ans.type = 'branch_shim';
-    return ans;
-}
-
 function newProcedureDatum(procedure) {
     var ans = new Datum();
     ans.type = 'lambda';
     ans.payload = procedure;
-    return ans;
-}
-
-function newContinuationLambda(name) {
-    var soleFormal = newEmptyList();
-    soleFormal.appendChild(newIdOrLiteral(name));
-    var ans = new Datum();
-    ans.type = '(';
-    ans.prependChild(soleFormal);
-    ans.prependChild(newIdOrLiteral('lambda'));
     return ans;
 }
 
@@ -665,66 +643,3 @@ function cpsifyBranch(node, rootName, endContinuation) {
  (Not in the spec anywhere, I'm just trying to reduce the grammar to simplify
  evaluation.)
  */
-Datum.prototype.cpsSanityCheck = function() {
-
-    console.log('cpsSanityCheck');
-    console.log(this);
-
-    if (this.payload || this.isQuote())
-        return true;
-
-    else if (this.isList()) {
-        var cur;
-        for (cur = this.firstChild; cur && cur.nextSibling; cur = cur.nextSibling)
-            if (!(cur.payload || cur.isQuote()))
-                return false;
-
-        if (cur.isContinuation()) {
-            var maybeBody = cur.at('(').nextSibling;
-            return maybeBody ? maybeBody.cpsSanityCheck() : true;
-        }
-
-    }
-
-    return false;
-};
-
-Datum.prototype.isContinuation = function() {
-
-    var shouldBeLambda = this.firstChild
-        && this.firstChild.payload === 'lambda';
-    var shouldBeFormals = shouldBeLambda
-        && this.firstChild.nextSibling;
-    var soleFormal = shouldBeFormals
-        && shouldBeFormals.firstChild
-        && !shouldBeFormals.firstChild.nextSibling;
-
-    return soleFormal;
-};
-
-Datum.prototype.getContinuationEndpoint = function() {
-    if (!this.isList() || !this.firstChild)
-        throw new InternalInterpreterError('not a continuation: ' + this);
-    if (this.firstChild.payload === 'if')
-        return this.firstChild.nextSibling.nextSibling.getContinuationEndpoint();
-
-    return this.firstChild.lastSibling().firstChild.nextSibling; // todo bl yikes
-};
-
-// x -> (id x (lambda (x') ...))
-/* todo bl: this is a lot of allocation, but should only be used when there
- is a top-level variable in a consequent or alternate expression in a branch.
- Investigate. */
-function cpsifyIdentity(tokenCopy, rootName, appendTo) {
-    var ans = newEmptyList();
-    var cont = newEmptyList();
-    var formals = newEmptyList();
-    formals.appendChild(newIdOrLiteral(rootName));
-    cont.prependChild(formals);
-    cont.prependChild(newIdOrLiteral('lambda'));
-    ans.prependChild(cont);
-    ans.prependChild(tokenCopy);
-    ans.prependChild(newTrampolineIdShim());
-    appendTo.appendChild(ans);
-    return cont;
-}

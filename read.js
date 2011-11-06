@@ -204,10 +204,6 @@ Datum.prototype.toString = function() {
     var endDelimiter = "";
 
     switch (this.type) {
-        case 'id_shim': // todo bl remove
-            return 'id';
-        case 'branch_shim': // todo bl remove
-            return '(branch_shim' + (this.firstChild ? ' ' + this.firstChild.toString() : '') + ')';
         case 'lambda':
             return this.payload;
         case 'identifier':
