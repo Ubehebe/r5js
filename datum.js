@@ -570,13 +570,14 @@ Datum.prototype.cpsify = function (rootName, endContinuation) {
             }
         }
         var localProcCall = this.cpsifyLocal(rootName, cpsNames);
-        end.nextProc = localProcCall;
+        end.nextContinuable = localProcCall;
         return localProcCall.continuation;
     } else throw new InternalInterpreterError('not a list: ' + this);
 };
 
 // (if (f x) (g y) (h z)) => (f x (lambda (f') (if f' (g y (lambda (g') ...)) (h z (lambda (h') ...)))))
 function cpsifyBranch(node, rootName, endContinuation) {
+
     var test = node.firstChild.nextSibling; // must exist
     var consequent = test.nextSibling; // must exist
     var maybeAlternate = consequent.nextSibling; // optional
@@ -600,11 +601,12 @@ function cpsifyBranch(node, rootName, endContinuation) {
     var consequentCPS;
     if (consequent.isList()) {
         consequent.cpsify(rootName, fakeConsequentEndpoint);
-        consequentCPS = fakeConsequentEndpoint.nextProc;
+        consequentCPS = fakeConsequentEndpoint.nextContinuable;
     } else {
-        consequentCPS = consequent.isQuote()
+        consequentCPS = new ContinuationWrapper(consequent.isQuote()
             ? consequent.clone().severSibling()
-            : newIdOrLiteral(consequent.payload, consequent.type);
+            : newIdOrLiteral(consequent.payload, consequent.type),
+            rootName);
     }
 
     var alternateCPS;
@@ -614,17 +616,18 @@ function cpsifyBranch(node, rootName, endContinuation) {
         var fakeAlternateEndpoint = new Continuation('FAKE ALTERNATE');
         if (maybeAlternate.isList()) {
             maybeAlternate.cpsify(rootName, fakeAlternateEndpoint);
-            alternateCPS = fakeAlternateEndpoint.nextProc;
+            alternateCPS = fakeAlternateEndpoint.nextContinuable;
         } else {
-            alternateCPS = maybeAlternate.isQuote()
+            alternateCPS = new ContinuationWrapper(maybeAlternate.isQuote()
                 ? maybeAlternate.clone().severSibling()
-                : newIdOrLiteral(maybeAlternate.payload, maybeAlternate.type);
+                : newIdOrLiteral(maybeAlternate.payload, maybeAlternate.type),
+                rootName);
         }
     }
 
     var branch = new Branch(testCPS, consequentCPS, alternateCPS, new Continuation('branch_cont'));
 
-    endContinuation.nextProc = branch;
+    endContinuation.nextContinuable = branch;
 
     return branch.continuation;
 }

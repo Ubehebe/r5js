@@ -97,8 +97,8 @@
             var datum = new Reader(new Scanner(document.getElementById('toEval').value)).read();
             var ans = new Continuation('?');
             datum.cpsify('root', ans);
-            console.log(ans.nextProc);
-            document.getElementById('result').value = ans.nextProc;
+            console.log(ans.nextContinuable);
+            document.getElementById('result').value = ans.nextContinuable;
         }
 
         function doCPSEval() {

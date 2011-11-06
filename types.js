@@ -19,22 +19,37 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.isDotted = isDotted;
     this.env = shallowHashCopy(env);
 
-    if (bodyStart)
-    this.body = bodyStart.seqThrowawayAllButLast(this.env);
+    if (bodyStart) {
+        this.body = bodyStart.seqThrowawayAllButLast(this.env);
+        /* todo bl make a Continuable class so we can say
+         continuable.getLastContinuable() and not have to put the logic here */
+        this.lastContinuable = this.body.continuation.nextContinuable
+            ? this.body.continuation.getLastContinuable()
+            : this.body;
+        this.savedContinuation = this.lastContinuable.continuation;
+    }
 
     /* This is a convenience parameter for dealing with recursion in
-        named procedures. If we are here, we are in the midst of defining
-        a procedure, which means that the env parameter does not yet
-        have a binding for it. So we set it up manually.
+     named procedures. If we are here, we are in the midst of defining
+     a procedure, which means that the env parameter does not yet
+     have a binding for it. So we set it up manually.
 
-        todo bl: this design may be changed when I implement tail recursion.
+     todo bl: this design may be changed when I implement tail recursion.
      */
     this.name = name;
     this.env[name] = newProcedureDatum(this);
 }
 
+SchemeProcedure.prototype.setContinuation = function(c) {
+    this.lastContinuable.continuation = c;
+};
+
+SchemeProcedure.prototype.resetContinuation = function() {
+    this.lastContinuable.continuation = this.savedContinuation;
+};
+
 SchemeProcedure.prototype.clone = function() {
-  var ans = new SchemeProcedure();
+    var ans = new SchemeProcedure();
     ans.formalsArray = shallowArrayCopy(this.formalsArray);
     ans.isDotted = this.isDotted;
     ans.body = this.body.clone();
@@ -47,8 +62,7 @@ SchemeProcedure.prototype.eval = function(args) {
 };
 
 SchemeProcedure.prototype.toString = function() {
-    return '[' + this.name + ']';
-    //return '(lambda (' + this.formalsArray.join(' ') + ') ' + this.body + ')'; // todo bl dot!
+    return 'proc:' + this.name;
 };
 
 SchemeProcedure.prototype.checkNumArgs = function(numActuals) {

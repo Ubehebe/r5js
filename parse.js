@@ -426,7 +426,7 @@ Parser.prototype['procedure-call'] = function() {
 
                 // todo bl should node.at fail instead of returning an error-prone datum?
                 if (operands.type) {
-                    var tmp = operands.seqThrowawayAllButLast(env);
+                    var tmp = operands.seqThrowawayAllButLast(env, true);
                     node.at('operator').nextSibling = tmp;
                 }
 
@@ -441,7 +441,7 @@ Parser.prototype['procedure-call'] = function() {
 
                 var ans = new Continuation('?');
                 toCpsify.cpsify(newCpsName(), ans);
-                return ans.nextProc;
+                return ans.nextContinuable;
             }
 
             /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
@@ -537,7 +537,6 @@ Parser.prototype['lambda-expression'] = function() {
             })
                 : [formalRoot.payload];
             var name = newAnonymousLambdaName();
-            console.log('returning lambda');
             return newProcedureDatum(
                 new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name));
         }
@@ -692,9 +691,9 @@ Parser.prototype['conditional'] = function() {
             {type: 'alternate'},
             {type: ')'},
             {desugar: function(node, env) {
-                var ans = new Continuation('?');
+                var ans = new Continuation();
                 node.cpsify(newCpsName(), ans);
-                return ans.nextProc;
+                return ans.nextContinuable;
             }
             }
         ],
@@ -705,9 +704,9 @@ Parser.prototype['conditional'] = function() {
             {type: 'consequent'},
             {type: ')'},
              {desugar: function(node, env) {
-                var ans = new Continuation('?');
+                var ans = new Continuation();
                 node.cpsify(newCpsName(), ans);
-                return ans.nextProc;
+                return ans.nextContinuable;
             }
             }
         ]

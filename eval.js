@@ -19,20 +19,28 @@ Datum.prototype.evalSiblingsReturnAll = function(env) {
     return ans;
 };
 
-Datum.prototype.seqThrowawayAllButLast = function (env) {
+Datum.prototype.seqThrowawayAllButLast = function (env, disableContinuationWrappers) {
     var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
         /* This check is necessary because node.desugar can return null for some
          nodes (when it makes sense for the node to drop off the tree before
          evaluation, e.g. for definitions). */
-        if (tmp = cur.desugar(env)) { // should return ProcCall or Branch
+        if (tmp = cur.desugar(env)) {
+            /* Node that have no desugar functions (for example, variables
+             and literals) desugar as themselves. Usually this is OK,
+             but when we need to sequence them (for example, the program
+             "1 2 3"), we have to wrap them in an object in order to set the
+             continuations properly. */
+            if (!tmp.continuation && !disableContinuationWrappers)
+                tmp = new ContinuationWrapper(tmp);
+
             if (!first)
                 first = tmp;
             else if (curEnd)
-                curEnd.nextProc = tmp;
+                curEnd.nextContinuable = tmp;
 
             if (tmp.continuation)
-                curEnd = tmp.continuation.nextProc;
+                curEnd = tmp.continuation;
         }
     }
     return first;
