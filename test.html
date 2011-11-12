@@ -93,37 +93,17 @@
             document.getElementById('result').value = desugared;
         }
 
-        function doCPS() {
-            var datum = new Reader(new Scanner(document.getElementById('toEval').value)).read();
-            var ans = new Continuation('?');
-            datum.cpsify('root', ans);
-            console.log(ans.nextContinuable);
-            document.getElementById('result').value = ans.nextContinuable;
-        }
-
         function doCPSEval() {
             var desugared =
                     new Parser(
-                    new Reader(
-                            new Scanner(
-                                    document.getElementById('toEval').value)).read()
-                            ).parse(document.getElementById('lhs').value)
-            .desugar(builtins);
-            var ans = trampolineNew(desugared, builtins);
+                            new Reader(
+                                    new Scanner(
+                                            document.getElementById('toEval').value)).read()
+                    ).parse(document.getElementById('lhs').value)
+                            .desugar(builtins);
+            var ans = trampoline(desugared, builtins);
             console.log(ans);
-            document.getElementById('result').value = ans;
-        }
-
-        function isCPS() {
-            var datum = new Reader(new Scanner(document.getElementById('toEval').value)).read();
-            var ans = true;
-            for (var cur = datum; cur; cur = cur.nextSibling) {
-                if (!cur.cpsSanityCheck()) {
-                    ans = false;
-                    break;
-                }
-            }
-            console.log(ans);
+            document.getElementById('result').value = ans.toString();
         }
     </script>
 
@@ -133,8 +113,6 @@
 <textarea id='toEval' rows="15" cols="80"></textarea>
 <textarea id='result' rows="1" cols="80"></textarea>
 <p>
-        <button onclick='isCPS()'>CPS?</button>
-    <button onclick='doCPS()'>convert to CPS</button>
     <button onclick='doCPSEval()'>CPS eval</button>
 </p>
 <p>

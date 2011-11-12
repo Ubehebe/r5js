@@ -19,13 +19,16 @@ Datum.prototype.evalSiblingsReturnAll = function(env) {
     return ans;
 };
 
-Datum.prototype.seqThrowawayAllButLast = function (env, disableContinuationWrappers) {
+Datum.prototype.sequence = function (env, disableContinuationWrappers, cpsNames) {
     var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
         /* This check is necessary because node.desugar can return null for some
          nodes (when it makes sense for the node to drop off the tree before
          evaluation, e.g. for definitions). */
         if (tmp = cur.desugar(env)) {
+            if (cpsNames && tmp.continuation)
+                cpsNames.push(tmp.continuation.lastResultName);
+
             /* Node that have no desugar functions (for example, variables
              and literals) desugar as themselves. Usually this is OK,
              but when we need to sequence them (for example, the program
@@ -34,16 +37,17 @@ Datum.prototype.seqThrowawayAllButLast = function (env, disableContinuationWrapp
             if (!tmp.continuation && !disableContinuationWrappers)
                 tmp = new ContinuationWrapper(tmp);
 
-            if (!first)
-                first = tmp;
-            else if (curEnd)
-                curEnd.nextContinuable = tmp;
+            if (tmp.continuation) {
+                if (!first)
+                    first = tmp;
+                else if (curEnd)
+                    curEnd.nextContinuable = tmp;
 
-            if (tmp.continuation)
                 curEnd = tmp.continuation;
+            }
         }
     }
-    return first;
+    return first; // can be undefined
 };
 
 /* For when we want to evaluate a list of things for their side effects, except that

@@ -489,6 +489,50 @@ function newAnonymousLambdaName() {
 var uniqueNodeCounter = 0; // todo bl any good way to encapsulate this?
 var anonymousLambdaCounter = 0;
 
+function LocalStructure(operatorNode, firstOperand) {
+    if (!operatorNode.isIdentifier())
+        throw new InternalInterpreterError('expected identifier, got ' + operatorNode);
+
+    this.bindings = [];
+    this.operatorName = operatorNode.payload;
+
+    for (var cur = firstOperand; cur; cur = cur.nextSibling) {
+        if (cur.isQuote()) {
+            this.bindings.push(cur.clone());
+        } else if (cur.isList()) {
+            this.bindings.push(null); // a placeholder until we know the name
+        } else {
+            this.bindings.push(newIdOrLiteral(cur.payload, cur.type));
+        }
+    }
+}
+
+LocalStructure.prototype.toProcCall = function(cpsNames) {
+
+    var idOrLiteralNode;
+    var firstArg, lastArg;
+
+    for (var i=0; i<this.bindings.length; ++i) {
+        idOrLiteralNode = this.bindings[i] || newIdOrLiteral(cpsNames.shift());
+        if (!firstArg)
+            firstArg = idOrLiteralNode;
+        if (lastArg)
+            lastArg.appendSibling(idOrLiteralNode);
+        lastArg = idOrLiteralNode;
+    }
+
+    return new ProcCall(this.operatorName, firstArg, new Continuation(newCpsName()));
+
+};
+
+LocalStructure.prototype.toString = function() {
+    var ans = '{' + this.operatorName + ' ';
+    for (var i=0; i<this.bindings.length; ++i)
+        ans += (this.bindings[i] || '_') + ' ';
+    return ans + '}';
+};
+
+/*
 Datum.prototype.cpsifyLocal = function (rootName, cpsNames) {
 
     if (this.isList() && this.firstChild) {
@@ -530,7 +574,7 @@ Datum.prototype.cpsifyLocal = function (rootName, cpsNames) {
  evaluation of f so we can return there to complete the top-level evaluation.
  By contrast, in continuation-passing style, the call is
 
- (g x (lambda (_0) (h y z (lambda (_1) (f _0 _1 (lambda (...)))))))
+ (g x (lambda (g') (h y z (lambda (h') (f g' h' (lambda (f') ...))))))
 
  (See the trampoline function for how this is actually evaluated.)
 
@@ -549,7 +593,6 @@ Datum.prototype.cpsifyLocal = function (rootName, cpsNames) {
  3. The local transformation of f is (f g' h' (lambda (f') <endpoint 3>))
  We attach #2 to <endpoint 1>, #3 to <endpoint 2>, and return <endpoint 3>
  as the new destination for appends in the tree.
- */
 Datum.prototype.cpsify = function (rootName, endContinuation) {
 
     var end = endContinuation;

@@ -20,7 +20,7 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.env = shallowHashCopy(env);
 
     if (bodyStart) {
-        this.body = bodyStart.seqThrowawayAllButLast(this.env);
+        this.body = bodyStart.sequence(this.env);
         /* todo bl make a Continuable class so we can say
          continuable.getLastContinuable() and not have to put the logic here */
         this.lastContinuable = this.body.continuation.nextContinuable

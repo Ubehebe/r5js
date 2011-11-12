@@ -412,49 +412,58 @@ Parser.prototype['procedure-call'] = function() {
         {type: ')'},
         {desugar: function(node, env) {
 
-            console.log('about to eval ' + node.at('operator'));
-            var operator = node.at('operator');
-            var proc = operator.isIdentifier() ? operator : trampolineNew(operator.desugar(env), env);
-            console.log('got');
-            console.log(proc);
+            // todo bl once desugaring is working we need to implement macro lookups:
+            /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
+             evaluate. This may be the coolest line in this implementation.
+             else {
+             console.log(node.toString());
+             // todo bl shouldn't have to go back to text
+             return new Parser(
+             new Reader(
+             new Scanner(node.toString())
+             ).read()
+             ).parse('macro-use')
+             .desugar(env);
+             }*/
 
-            // Primitive and nonprimitive procedures are treated the same during desugaring
-            if (proc.isIdentifier() || proc.isProcedure()) {
+            var operatorNode = node.at('operator');
 
-                var maybeName = proc.isIdentifier() ? proc.payload : proc.payload.name;
-                var operands = node.at('operand');
+            /* Example: ((lambda (x) ...) y z). The lambda-expression will
+                desugar to an identifier. */
+            if (!operatorNode.isIdentifier())
+                operatorNode = operatorNode.desugar(env);
 
-                // todo bl should node.at fail instead of returning an error-prone datum?
-                if (operands.type) {
-                    var tmp = operands.seqThrowawayAllButLast(env, true);
-                    node.at('operator').nextSibling = tmp;
-                }
-
-                var toCpsify = node;
-                if (maybeName) {
-                    toCpsify = newEmptyList();
-                    var opName = newIdOrLiteral(maybeName);
-                    if (operands.type)
-                        opName.nextSibling = tmp; // lol scope
-                    toCpsify.appendChild(opName);
-                }
-
-                var ans = new Continuation('?');
-                toCpsify.cpsify(newCpsName(), ans);
-                return ans.nextContinuable;
+            /* Example: (define (foo) +), ((foo) x y). In this case the
+                procedure call, already desugared, must be evaluated. */
+            if (operatorNode.continuation) {
+                console.log('aha');
+                operatorNode = trampoline(operatorNode, env);
             }
 
-            /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
-             evaluate. This may be the coolest line in this implementation. */
-            else {
-                console.log(node.toString());
-                // todo bl shouldn't have to go back to text
-                return new Parser(
-                    new Reader(
-                        new Scanner(node.toString())
-                    ).read()
-                ).parse('macro-use')
-                    .desugar(env);
+            console.log('operator is ' + operatorNode);
+
+            var operands = node.at('operand');
+            if (!operands.type)
+                operands = null; // workaround for 0 operands
+            var cpsNames = [];
+
+            /* Take a snapshot of the local (nonrecursive) procedure call structure,
+             since operands.sequence might destroy that structure. */
+            var localStructure = new LocalStructure(operatorNode, operands);
+            var maybeSequenced = operands && operands.sequence(env, true, cpsNames);
+            console.log('sequenced ' + localStructure + ' as ' + maybeSequenced);
+            console.log('cpsNames ' + cpsNames);
+            var localProcCall = localStructure.toProcCall(cpsNames);
+
+            // Add the local procedure call to the tip of the sequence
+            if (maybeSequenced) {
+                if (maybeSequenced.continuation.nextContinuable)
+                    maybeSequenced.continuation.getLastContinuable().continuation.nextContinuable = localProcCall; // todo bl inefficient
+                else
+                    maybeSequenced.continuation.nextContinuable = localProcCall;
+                return maybeSequenced;
+            } else {
+                return localProcCall;
             }
         }
         },
@@ -521,11 +530,10 @@ Parser.prototype['lambda-expression'] = function() {
             })
                 : [formalRoot.payload];
             var name = newAnonymousLambdaName();
-            env[name] = newProcedureDatum(
-                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name));
-            var ans = newIdOrLiteral(name);
-            ans.values = [Parser.prototype.semanticActionForVar];
-            return ans;
+            env[name] = new ContinuationWrapper(newProcedureDatum(
+                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name)));
+            console.log('defined ' + name + ' as ' + env[name].toString());
+            return newIdOrLiteral(name);
         }
         },
         {value: function(node, env) {
@@ -671,7 +679,7 @@ Parser.prototype['definition'] = function() {
             {type: 'definition', atLeast: 0},
             {type: ')'},
             {desugar: function(node, env) {
-                node.at('definition').seqThrowawayAllButLast(env);
+                node.at('definition').sequence(env);
                 return undefined;
             }
             }
@@ -1123,7 +1131,7 @@ Parser.prototype['program'] = function() {
     return this.rhs(
         {type: 'command-or-definition', atLeast: 0},
         {desugar: function(node, env) {
-            return node.seqThrowawayAllButLast(env);
+            return node.sequence(env);
         }
         },
         {value: function(node, env) {

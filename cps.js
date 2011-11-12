@@ -93,17 +93,10 @@ Branch.prototype.cloneAndResolveOperands = function(env) {
 };
 
 Branch.prototype.setContinuation = function(testDatum, c) {
-
-    if (testDatum.payload === false) {
-        if (this.alternateLastContinuable === c.nextContinuable)
-            throw new InternalInterpreterError('cycle in alternate');
+    if (testDatum.payload === false)
         this.alternateLastContinuable.continuation = c;
-    }
-    else {
-        if (this.consequentLastContinuable === c.nextContinuable)
-            throw new InternalInterpreterError('cycle in consequent');
+    else
         this.consequentLastContinuable.continuation = c;
-    }
 };
 
 Branch.prototype.resetContinuation = function() {
@@ -120,16 +113,18 @@ Branch.prototype.toString = function() {
 };
 
 
-function ProcCall(operatorName, firstOperand, continuation) {
+function ProcCall(operatorName, firstOperand, continuation, isTailContext) {
     this.operatorName = operatorName; // an identifier
     this.firstOperand = firstOperand; // identifiers or self-evaluating forms
     this.continuation = continuation;
+    if (isTailContext)
+        this.isTailContext = isTailContext;
 }
 
 ProcCall.prototype.cloneAndResolveOperands = function(env) {
     console.log('resolving operands for ' + this + '\n');
 
-    var clonedFirstOperand = this.firstOperand.clone(); // will clone all the siblings too
+    var clonedFirstOperand = this.firstOperand && this.firstOperand.clone(); // will clone all the siblings too
 
     for (var cur = clonedFirstOperand; cur; cur = cur.nextSibling) {
         if (cur.isIdentifier()) {
@@ -149,15 +144,18 @@ ProcCall.prototype.cloneAndResolveOperands = function(env) {
 
 ProcCall.prototype.toString = function() {
     var ans = '(' + this.operatorName + ' ';
+    if (this.isTailContext)
+        ans += 'TAIL ';
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
         ans += cur.toString() + ' ';
     return ans + this.continuation + ')';
 };
 
-function trampolineNew(procOrBranch, env) {
+function trampoline(continuable, env) {
 
-    var cur = procOrBranch;
+    var cur = continuable;
     var args, ans;
+    var lastProc;
 
     while (cur) {
 
@@ -170,28 +168,41 @@ function trampolineNew(procOrBranch, env) {
             if (proc === undefined)
                 throw new UnboundVariable(cur.operatorName);
 
-            // Scheme procedure
+            // Scheme procedure: (foo 32)
             else if (proc instanceof Datum && proc.isProcedure()) {
                 // todo bl do we need to wrap these in datums anymore?
                 var unwrappedProc = proc.payload; // bl must avoid cloning here
                 unwrappedProc.resetContinuation();
-                args = gatherArgsNew(cur.firstOperand, env, true);
+                args = gatherArgs(cur.firstOperand, env);
                 console.log('continuation needs fixing: ' + cur.continuation);
                 unwrappedProc.setContinuation(cur.continuation.cloneAndResolveOperands(env));
                 unwrappedProc.checkNumArgs(args.length);
                 unwrappedProc.bindArgs(args, env);
                 cur = unwrappedProc.body;
+                lastProc = unwrappedProc;
             }
 
-            // JavaScript procedure
+            // JavaScript procedure: (+ 32)
             else if (typeof proc === 'function') {
-                args = gatherArgsNew(cur.firstOperand, env);
+                args = gatherArgs(cur.firstOperand, env);
                 ans = proc.apply(null, args);
                 if (cur.continuation.lastResultName) {
                     env[cur.continuation.lastResultName] = ans;
                 }
                 console.log('bound ' + ans + ' to ' + cur.continuation.lastResultName);
                 cur = cur.continuation.nextContinuable;
+            }
+
+            // Lambda literal: ((lambda (x) x) 32)
+            else if (proc instanceof ContinuationWrapper) {
+                console.log('continuationWrapper');
+                var unwrappedProc = proc.payload.payload; // todo bl too much wrapping
+                unwrappedProc.resetContinuation();
+                args = gatherArgs(cur.firstOperand, env);
+                unwrappedProc.setContinuation(cur.continuation.cloneAndResolveOperands(env));
+                unwrappedProc.checkNumArgs(args.length);
+                unwrappedProc.bindArgs(args, env);
+                cur = unwrappedProc.body;
             }
 
             else throw new InternalInterpreterError(
@@ -226,13 +237,13 @@ function trampolineNew(procOrBranch, env) {
             cur = cur.continuation.nextContinuable;
         }
 
-        else throw new InternalInterpreterError('neither branch nor proc: ' + cur);
+        else throw new InternalInterpreterError('unknown continuable: ' + cur.toString());
     }
 
     return ans;
 }
 
-function gatherArgsNew(firstOperand, env) {
+function gatherArgs(firstOperand, env) {
     var args = [];
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
         if (cur.isIdentifier())
