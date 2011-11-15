@@ -435,12 +435,8 @@ Parser.prototype['procedure-call'] = function() {
 
             /* Example: (define (foo) +), ((foo) x y). In this case the
                 procedure call, already desugared, must be evaluated. */
-            if (operatorNode.continuation) {
-                console.log('aha');
+            if (operatorNode.continuation)
                 operatorNode = trampoline(operatorNode, env);
-            }
-
-            console.log('operator is ' + operatorNode);
 
             var operands = node.at('operand');
             if (!operands.type)
@@ -532,7 +528,6 @@ Parser.prototype['lambda-expression'] = function() {
             var name = newAnonymousLambdaName();
             env[name] = new ContinuationWrapper(newProcedureDatum(
                 new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name)));
-            console.log('defined ' + name + ' as ' + env[name].toString());
             return newIdOrLiteral(name);
         }
         },

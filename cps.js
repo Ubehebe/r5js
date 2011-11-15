@@ -155,7 +155,7 @@ function trampoline(continuable, env) {
 
     var cur = continuable;
     var args, ans;
-    var lastProc;
+    var prevBuiltinName;
 
     while (cur) {
 
@@ -174,28 +174,25 @@ function trampoline(continuable, env) {
                 var unwrappedProc = proc.payload; // bl must avoid cloning here
                 unwrappedProc.resetContinuation();
                 args = gatherArgs(cur.firstOperand, env);
-                console.log('continuation needs fixing: ' + cur.continuation);
                 unwrappedProc.setContinuation(cur.continuation.cloneAndResolveOperands(env));
                 unwrappedProc.checkNumArgs(args.length);
                 unwrappedProc.bindArgs(args, env);
                 cur = unwrappedProc.body;
-                lastProc = unwrappedProc;
             }
 
             // JavaScript procedure: (+ 32)
             else if (typeof proc === 'function') {
+                prevBuiltinName = cur.operatorName;
                 args = gatherArgs(cur.firstOperand, env);
                 ans = proc.apply(null, args);
                 if (cur.continuation.lastResultName) {
                     env[cur.continuation.lastResultName] = ans;
                 }
-                console.log('bound ' + ans + ' to ' + cur.continuation.lastResultName);
                 cur = cur.continuation.nextContinuable;
             }
 
             // Lambda literal: ((lambda (x) x) 32)
             else if (proc instanceof ContinuationWrapper) {
-                console.log('continuationWrapper');
                 var unwrappedProc = proc.payload.payload; // todo bl too much wrapping
                 unwrappedProc.resetContinuation();
                 args = gatherArgs(cur.firstOperand, env);
@@ -234,13 +231,27 @@ function trampoline(continuable, env) {
 
             env[cur.continuation.lastResultName] = ans;
 
+            if (typeof ans === 'function')
+                prevBuiltinName = cur.payload.payload;
+
             cur = cur.continuation.nextContinuable;
         }
 
         else throw new InternalInterpreterError('unknown continuable: ' + cur.toString());
     }
 
-    return ans;
+    /* We use SchemeProcedure objects to represent non-primitive Scheme procedures.
+        Such objects have a toString method that returns a representation
+        suitable for returning to the REPL. On the other hand, we use JavaScript
+        functions to represent primitive Scheme procedures, the string
+        representation of which is not suitable for returning to the REPL
+        (for example, in Chrome it is the whole text of the function). So, if
+        we're at the end of the trampoline and about to return a JavaScript
+        function, return the corresponding identifier instead.
+     */
+    return typeof ans === 'function'
+        ? newIdOrLiteral(prevBuiltinName)
+        : ans;
 }
 
 function gatherArgs(firstOperand, env) {
