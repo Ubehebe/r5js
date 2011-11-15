@@ -694,9 +694,18 @@ Parser.prototype['conditional'] = function() {
             {type: 'alternate'},
             {type: ')'},
             {desugar: function(node, env) {
-                var ans = new Continuation();
-                node.cpsify(newCpsName(), ans);
-                return ans.nextContinuable;
+                var test = node.at('test').desugar(env, true);
+                var consequent = node.at('consequent').desugar(env, true);
+                var alternate = node.at('alternate').desugar(env, true);
+
+                var testEndpoint = test.continuation.nextContinuable
+                    ? test.continuation.getLastContinuable()
+                    : test;
+
+                var testName = newIdOrLiteral(testEndpoint.continuation.lastResultName);
+                var branch = new Branch(testName, consequent, alternate, new Continuation('branch_cont'));
+                testEndpoint.continuation.nextContinuable = branch;
+                return test;
             }
             }
         ],
@@ -706,10 +715,18 @@ Parser.prototype['conditional'] = function() {
             {type: 'test'},
             {type: 'consequent'},
             {type: ')'},
-             {desugar: function(node, env) {
-                var ans = new Continuation();
-                node.cpsify(newCpsName(), ans);
-                return ans.nextContinuable;
+            {desugar: function(node, env) {
+                var test = node.at('test').desugar(env, true);
+                var consequent = node.at('consequent').desugar(env, true);
+
+                var testEndpoint = test.continuation.nextContinuable
+                    ? test.continuation.getLastContinuable()
+                    : test;
+
+                var testName = newIdOrLiteral(testEndpoint.continuation.lastResultName);
+                var branch = new Branch(testName, consequent, null, new Continuation('branch_cont'));
+                testEndpoint.continuation.nextContinuable = branch;
+                return test;
             }
             }
         ]

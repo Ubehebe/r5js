@@ -64,10 +64,10 @@ function Branch(test, consequent, alternate, continuation) {
         : consequent;
     this.consequentSavedContinuation = this.consequentLastContinuable.continuation;
 
-    this.alternateLastContinuable = alternate.continuation.nextContinuable
+    this.alternateLastContinuable = alternate && alternate.continuation.nextContinuable
         ? alternate.continuation.getLastContinuable()
         : alternate;
-    this.alternateSavedContinuation = this.alternateLastContinuable.continuation;
+    this.alternateSavedContinuation = alternate && this.alternateLastContinuable.continuation;
 }
 
 Branch.prototype.cloneAndResolveOperands = function(env) {
@@ -106,8 +106,8 @@ Branch.prototype.resetContinuation = function() {
 
 Branch.prototype.toString = function() {
     return '{' + this.test
-        + ' ? ' + this.consequent.toString(true)
-        + ' : ' + this.alternate.toString(true)
+        + ' ? ' + this.consequent.toString()
+        + ' : ' + (this.alternate && this.alternate.toString())
         + ' ' + this.continuation
         + '}';
 };
@@ -185,9 +185,9 @@ function trampoline(continuable, env) {
                 prevBuiltinName = cur.operatorName;
                 args = gatherArgs(cur.firstOperand, env);
                 ans = proc.apply(null, args);
-                if (cur.continuation.lastResultName) {
+                if (cur.continuation.lastResultName)
                     env[cur.continuation.lastResultName] = ans;
-                }
+                console.log('bound ' + ans + ' to ' + cur.continuation.lastResultName);
                 cur = cur.continuation.nextContinuable;
             }
 

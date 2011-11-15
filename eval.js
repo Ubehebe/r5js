@@ -2,10 +2,12 @@ Datum.prototype.eval = function(env) {
     return this.values.pop()(this, env);
 };
 
-Datum.prototype.desugar = function(env) {
+Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     var desugarFn = this.desugars && this.desugars.pop();
 	var ans = desugarFn ? desugarFn(this, env) : this;
 	console.log('desugar ' + this + ' => ' + ans);
+    if (forceContinuationWrapper && !ans.continuation /* todo bl: use Continuable instead */)
+        ans = new ContinuationWrapper(ans, newCpsName());
 	return ans;
 };
 
@@ -26,8 +28,13 @@ Datum.prototype.sequence = function (env, disableContinuationWrappers, cpsNames)
          nodes (when it makes sense for the node to drop off the tree before
          evaluation, e.g. for definitions). */
         if (tmp = cur.desugar(env)) {
-            if (cpsNames && tmp.continuation)
-                cpsNames.push(tmp.continuation.lastResultName);
+            if (cpsNames && tmp.continuation) {
+                // todo bl hack
+                if (tmp.continuation.nextContinuable instanceof Branch)
+                    cpsNames.push(tmp.continuation.nextContinuable.continuation.lastResultName);
+                else
+                    cpsNames.push(tmp.continuation.lastResultName);
+            }
 
             /* Node that have no desugar functions (for example, variables
              and literals) desugar as themselves. Usually this is OK,
