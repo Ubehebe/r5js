@@ -435,65 +435,30 @@ Parser.prototype['procedure-call'] = function() {
 
             /* Example: (define (foo) +), ((foo) x y). In this case the
                 procedure call, already desugared, must be evaluated. */
-            if (operatorNode.continuation)
+            if (operatorNode instanceof Continuable)
                 operatorNode = trampoline(operatorNode, env);
 
             var operands = node.at('operand');
             if (!operands.type)
                 operands = null; // workaround for 0 operands
-            var cpsNames = [];
 
             /* Take a snapshot of the local (nonrecursive) procedure call structure,
              since operands.sequence might destroy that structure. */
             var localStructure = new LocalStructure(operatorNode, operands);
+            var cpsNames = [];
             var maybeSequenced = operands && operands.sequence(env, true, cpsNames);
-            console.log('sequenced ' + localStructure + ' as ' + maybeSequenced);
-            console.log('cpsNames ' + cpsNames);
             var localProcCall = localStructure.toProcCall(cpsNames);
 
             // Add the local procedure call to the tip of the sequence
             if (maybeSequenced) {
-                if (maybeSequenced.continuation.nextContinuable)
-                    maybeSequenced.continuation.getLastContinuable().continuation.nextContinuable = localProcCall; // todo bl inefficient
-                else
-                    maybeSequenced.continuation.nextContinuable = localProcCall;
+                maybeSequenced.getLastContinuable().continuation.nextContinuable = localProcCall;
                 return maybeSequenced;
             } else {
                 return localProcCall;
             }
         }
-        },
-        {value: function(node, env) {
-
-            var proc = node.at('operator').eval(env);
-            var args; //  We don't evaluate the operands unless we're sure it's a procedure
-
-            // A builtin procedure: (+ 1 100)
-            if (typeof proc === 'function') {
-                args = node.at('operand').evalSiblingsReturnAll(env);
-                return proc.apply(null, args);
-            }
-
-            /* A defined procedure: (let ((foo (lambda (x) x))) (foo 1)), or simply
-             ((lambda (x) x) 1). Note that to get lambdas to work in other syntactic
-             contexts (example: (cons (lambda () 1) (lambda () 2))), we have to wrap
-             them in datum objects. For consistency, we store them in the environment
-             wrapped as well. */
-            else if (proc instanceof Datum && proc.isProcedure()) {
-                /* We have to clone the procedure object every time we evaluate
-                 because evaluation mutates it (specifically, it
-                 pops semantic actions off the parse tree). */
-                var unwrappedProc = proc.payload.clone();
-                args = node.at('operand').evalSiblingsReturnAll(env);
-                unwrappedProc.checkNumArgs(args.length);
-                return unwrappedProc.eval(args);
-            }
-
-            // macro calls should already have been desugared
-            console.log(proc);
-            throw new InternalInterpreterError('unrecognized type ' + proc);
         }
-        });
+        );
 };
 
 Parser.prototype['operator'] = function() {
@@ -526,22 +491,9 @@ Parser.prototype['lambda-expression'] = function() {
             })
                 : [formalRoot.payload];
             var name = newAnonymousLambdaName();
-            env[name] = new ContinuationWrapper(newProcedureDatum(
-                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name)));
-            return newIdOrLiteral(name);
-        }
-        },
-        {value: function(node, env) {
-            var formalRoot = node.at('formals');
-            var dotted = formalRoot.isImproperList();
-            var formals = dotted || formalRoot.isList()
-                ? formalRoot.mapChildren(function(child) {
-                return child.payload;
-            })
-                : [formalRoot.payload];
-            var name = newAnonymousLambdaName();
-            return newProcedureDatum(
+            env[name] = newProcedureDatum(
                 new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name));
+            return newIdOrLiteral(name);
         }
         }
     );
@@ -609,8 +561,8 @@ Parser.prototype['definition'] = function() {
             {type: 'expression'},
             {type: ')'},
             {desugar: function(node, env) {
-                env[node.at('variable').payload] = node.at('expression').eval(env);
-                return undefined;
+                env[node.at('variable').payload] = trampoline(node.at('expression').desugar(env, true), env);
+                return null; //definition falls off the tree
             }
             }
         ],
@@ -698,12 +650,10 @@ Parser.prototype['conditional'] = function() {
                 var consequent = node.at('consequent').desugar(env, true);
                 var alternate = node.at('alternate').desugar(env, true);
 
-                var testEndpoint = test.continuation.nextContinuable
-                    ? test.continuation.getLastContinuable()
-                    : test;
+                var testEndpoint = test.getLastContinuable();
 
                 var testName = newIdOrLiteral(testEndpoint.continuation.lastResultName);
-                var branch = new Branch(testName, consequent, alternate, new Continuation('branch_cont'));
+                var branch = newBranch(testName, consequent, alternate, new Continuation(newCpsName()));
                 testEndpoint.continuation.nextContinuable = branch;
                 return test;
             }
@@ -719,12 +669,10 @@ Parser.prototype['conditional'] = function() {
                 var test = node.at('test').desugar(env, true);
                 var consequent = node.at('consequent').desugar(env, true);
 
-                var testEndpoint = test.continuation.nextContinuable
-                    ? test.continuation.getLastContinuable()
-                    : test;
+                var testEndpoint = test.getLastContinuable();
 
                 var testName = newIdOrLiteral(testEndpoint.continuation.lastResultName);
-                var branch = new Branch(testName, consequent, null, new Continuation('branch_cont'));
+                var branch = newBranch(testName, consequent, null, new Continuation(newCpsName()));
                 testEndpoint.continuation.nextContinuable = branch;
                 return test;
             }

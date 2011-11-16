@@ -1,258 +1,267 @@
-function Continuation(name) {
+function Continuation(lastResultName) {
 
-    this.lastResultName = name;
+    this.lastResultName = lastResultName;
 
-    /* (f x y (lambda (f_ans) (g f_ans z (lambda (g_ans) ...))))
-     this.lastProcResultName; // f_ans (an identifier)
-     this.nextContinuable; // (g f_ans z ...) (a continuable)
+    /* Example: (g (f x y) z) desugared is
+     (f x y (lambda (f') (g f' z (lambda (g') ...)))).
+     The continuation c is (lambda (f') (g f' z ...))
+     c.lastResultName is f'
+     c.nextContinuable is (g f' z ...)
      */
 }
-
-// inefficient, should not be used during "run" time
-Continuation.prototype.getLastContinuable = function() {
-    if (!this.nextContinuable)
-        throw new InternalInterpreterError('unexpected ' + this);
-    if (!this.nextContinuable.continuation.nextContinuable)
-        return this.nextContinuable;
-    else return this.nextContinuable.continuation.getLastContinuable();
-};
 
 Continuation.prototype.toString = function() {
     return '[' + this.lastResultName + ' ' + this.nextContinuable + ']';
 };
 
-Continuation.prototype.cloneAndResolveOperands = function(env) {
-    var ans = new Continuation(this.lastResultName);
-    if (this.nextContinuable)
-        ans.nextContinuable = this.nextContinuable.cloneAndResolveOperands(env);
-    return ans;
+/* I decided to do composition instead of inheritance because it is more
+ straightforward in JavaScript. */
+function Continuable(subtype, continuation) {
+    if (!subtype || !continuation) // todo bl take out after testing
+        throw new InternalInterpreterError('invariant incorrect');
+    this.subtype = subtype;
+    this.continuation = continuation;
+    this.lastContinuable = this.getLastContinuable(); // todo bl caching problems
+}
+
+/* The last continuable of a continuable-continuation chain is the first
+ continuable c such that c.continuation.nextContinuable is null. */
+Continuable.prototype.getLastContinuable = function() {
+    if (!this.continuation)
+        throw new InternalInterpreterError('invariant incorrect');
+    return this.continuation.nextContinuable
+        ? this.continuation.nextContinuable.getLastContinuable()
+        : this;
 };
 
-function ContinuationWrapper(payload, continuationName) {
+Continuable.prototype.renameIds = function(replacementDict) {
+    this.subtype.renameIds(replacementDict);
+    var replacement = replacementDict[this.continuation.lastResultName];
+    if (replacement)
+        this.continuation.lastResultName = replacement;
+    if (this.continuation.nextContinuable)
+        this.continuation.nextContinuable.renameIds(replacementDict);
+};
+
+// delegate to subtype, passing in the continuation
+Continuable.prototype.toString = function() {
+    return this.subtype.toString(this.continuation);
+};
+
+// For composition; should only be called from newIdShim
+function IdShim(payload) {
     this.payload = payload;
-    this.continuation = new Continuation(continuationName);
-    this.savedContinuation = this.continuation;
 }
 
-ContinuationWrapper.prototype.setContinuation = function(c) {
-    this.continuation = c;
+/* Just for clarity in debugging, the string representation
+ of IdShims looks like a procedure call of an "id" procedure. */
+IdShim.prototype.toString = function(continuation) {
+    return '(id ' + this.payload + ' ' + continuation + ')';
 };
 
-ContinuationWrapper.prototype.resetContinuation = function() {
-    this.continuation = this.savedContinuation;
+IdShim.prototype.renameIds = function(replacementDict) {
+
+    if (this.payload.isIdentifier()) {
+        var replacement = replacementDict[this.payload.payload];
+        if (replacement)
+            this.payload.payload = replacement;
+    }
 };
 
-ContinuationWrapper.prototype.toString = function() {
-    return '|' + this.payload + ' ' + this.continuation + '|';
-};
+IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
-ContinuationWrapper.prototype.cloneAndResolveOperands = function(env) {
-    var ans = new ContinuationWrapper(this.payload.clone());
-    ans.continuation = this.continuation.cloneAndResolveOperands(env);
-    ans.savedContinuation = ans.continuation;
-    return ans;
-};
+    var ans;
 
-function Branch(test, consequent, alternate, continuation) {
-    this.test = test; // an identifier or literal
-    this.consequent = consequent; // a continuable
-    this.alternate = alternate; // a continuable
-    this.continuation = continuation; // a continuation
-
-    this.consequentLastContinuable = consequent.continuation.nextContinuable
-        ? consequent.continuation.getLastContinuable()
-        : consequent;
-    this.consequentSavedContinuation = this.consequentLastContinuable.continuation;
-
-    this.alternateLastContinuable = alternate && alternate.continuation.nextContinuable
-        ? alternate.continuation.getLastContinuable()
-        : alternate;
-    this.alternateSavedContinuation = alternate && this.alternateLastContinuable.continuation;
-}
-
-Branch.prototype.cloneAndResolveOperands = function(env) {
-
-    var ans = new Branch(
-        this.test.clone(),
-        this.consequent.cloneAndResolveOperands(env),
-        this.alternate.cloneAndResolveOperands(env),
-        this.continuation.cloneAndResolveOperands(env));
-
-    ans.consequentLastContinuable = ans.consequent.continuation.nextContinuable
-        ? ans.consequent.continuation.getLastContinuable()
-        : ans.consequent;
-    ans.consequentSavedContinuation = ans.consequentLastContinuable.continuation;
-
-    ans.alternateLastContinuable = ans.alternate.continuation.nextContinuable
-        ? ans.alternate.continuation.getLastContinuable()
-        : ans.alternate;
-    ans.alternateSavedContinuation = ans.alternateLastContinuable.continuation;
-
-    return ans;
-
-};
-
-Branch.prototype.setContinuation = function(testDatum, c) {
-    if (testDatum.payload === false)
-        this.alternateLastContinuable.continuation = c;
+    if (this.payload.isIdentifier())
+        ans = env[this.payload.payload];
+    else if (this.payload.isQuote())
+        ans = this.payload.firstChild;
     else
-        this.consequentLastContinuable.continuation = c;
+        ans = maybeWrapResult(this.payload.payload, this.payload.type);
+
+    env[continuation.lastResultName] = ans;
+    console.log('bound ' + ans + ' to ' + continuation.lastResultName);
+    resultStruct.ans = ans;
+    resultStruct.nextContinuable = continuation.nextContinuable;
+    if (typeof ans === 'function')
+        resultStruct.primitiveName = this.payload.payload;
+
 };
 
-Branch.prototype.resetContinuation = function() {
-    this.consequentLastContinuable.continuation = this.consequentSavedContinuation;
-    this.alternateLastContinuable.continuation = this.alternateSavedContinuation;
-};
+/* If a nonterminal in the grammar has no associated desugar function,
+ desugaring it will be a no-op. That is often the right behavior,
+ but sometimes we would like to wrap the datum in a Continuable
+ object for convenience on the trampoline. For example, the program
+ "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]). */
+function newIdShim(payload, continuationName) {
+    return new Continuable(new IdShim(payload), new Continuation(continuationName));
+}
 
-Branch.prototype.toString = function() {
+function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
+    return new Continuable(
+        new Branch(testIdOrLiteral, consequentContinuable, alternateContinuable),
+        continuation);
+}
+
+// For composition; should only be called from newBranch
+function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
+    this.test = testIdOrLiteral;
+    this.consequent = consequentContinuable;
+    this.alternate = alternateContinuable;
+    this.consequentLastContinuable = consequentContinuable.getLastContinuable();
+    this.alternateLastContinuable = alternateContinuable && alternateContinuable.getLastContinuable();
+}
+
+Branch.prototype.toString = function(continuation) {
     return '{' + this.test
         + ' ? ' + this.consequent.toString()
         + ' : ' + (this.alternate && this.alternate.toString())
-        + ' ' + this.continuation
+        + ' ' + continuation
         + '}';
 };
 
-
-function ProcCall(operatorName, firstOperand, continuation, isTailContext) {
+// For composition; should only be called from newProcCall
+function ProcCall(operatorName, firstOperand) {
     this.operatorName = operatorName; // an identifier
     this.firstOperand = firstOperand; // identifiers or self-evaluating forms
-    this.continuation = continuation;
-    if (isTailContext)
-        this.isTailContext = isTailContext;
 }
 
-ProcCall.prototype.cloneAndResolveOperands = function(env) {
-    console.log('resolving operands for ' + this + '\n');
+function newProcCall(operatorName, firstOperand, continuation) {
+    return new Continuable(new ProcCall(operatorName, firstOperand), continuation);
+}
 
-    var clonedFirstOperand = this.firstOperand && this.firstOperand.clone(); // will clone all the siblings too
-
-    for (var cur = clonedFirstOperand; cur; cur = cur.nextSibling) {
-        if (cur.isIdentifier()) {
-            var maybeFound = env[cur.payload];
-            if (maybeFound) {
-                cur.type = maybeFound.type;
-                if (cur.isQuote())
-                    cur.firstChild = maybeFound.firstChild;
-                else
-                    cur.payload = maybeFound.payload;
-            }
-        }
-    }
-
-    return new ProcCall(this.operatorName, clonedFirstOperand, this.continuation.cloneAndResolveOperands(env));
+ProcCall.prototype.renameIds = function(replacementDict) {
+    var replacement = replacementDict[this.operatorName];
+    if (replacement)
+        this.operatorName = replacement;
+    for (var op = this.firstOperand; op; op = op.nextSibling)
+        if (op.isIdentifier() && (replacement = replacementDict[op.payload]))
+            op.payload = replacement;
 };
 
-ProcCall.prototype.toString = function() {
-    var ans = '(' + this.operatorName + ' ';
+ProcCall.prototype.toString = function(continuation) {
+    var ans = '(' + this.operatorName;
     if (this.isTailContext)
-        ans += 'TAIL ';
+        ans += '-TAIL!';
+    ans += ' ';
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
         ans += cur.toString() + ' ';
-    return ans + this.continuation + ')';
+    return ans + continuation + ')';
 };
 
+function TrampolineResultStruct() {
+    /*
+     this.ans;
+     this.nextContinuable;
+     this.primitiveName;
+     */
+}
+
+// This is the main evaluation function.
 function trampoline(continuable, env) {
+    var curContinuable = continuable;
+    var ans;
+    var tmp = new TrampolineResultStruct();
 
-    var cur = continuable;
-    var args, ans;
-    var prevBuiltinName;
+    while (curContinuable) {
 
-    while (cur) {
+        console.log('boing: ' + curContinuable);
 
-        console.log('boing: ' + cur);
+        curContinuable.subtype.evalAndAdvance(env, curContinuable.continuation, tmp);
+        ans = tmp.ans;
+        curContinuable = tmp.nextContinuable;
 
-        if (cur instanceof ProcCall) {
-            var proc = env[cur.operatorName];
-
-            // todo bl shouldn't make it to evaluation?
-            if (proc === undefined)
-                throw new UnboundVariable(cur.operatorName);
-
-            // Scheme procedure: (foo 32)
-            else if (proc instanceof Datum && proc.isProcedure()) {
-                // todo bl do we need to wrap these in datums anymore?
-                var unwrappedProc = proc.payload; // bl must avoid cloning here
-                unwrappedProc.resetContinuation();
-                args = gatherArgs(cur.firstOperand, env);
-                unwrappedProc.setContinuation(cur.continuation.cloneAndResolveOperands(env));
-                unwrappedProc.checkNumArgs(args.length);
-                unwrappedProc.bindArgs(args, env);
-                cur = unwrappedProc.body;
-            }
-
-            // JavaScript procedure: (+ 32)
-            else if (typeof proc === 'function') {
-                prevBuiltinName = cur.operatorName;
-                args = gatherArgs(cur.firstOperand, env);
-                ans = proc.apply(null, args);
-                if (cur.continuation.lastResultName)
-                    env[cur.continuation.lastResultName] = ans;
-                console.log('bound ' + ans + ' to ' + cur.continuation.lastResultName);
-                cur = cur.continuation.nextContinuable;
-            }
-
-            // Lambda literal: ((lambda (x) x) 32)
-            else if (proc instanceof ContinuationWrapper) {
-                var unwrappedProc = proc.payload.payload; // todo bl too much wrapping
-                unwrappedProc.resetContinuation();
-                args = gatherArgs(cur.firstOperand, env);
-                unwrappedProc.setContinuation(cur.continuation.cloneAndResolveOperands(env));
-                unwrappedProc.checkNumArgs(args.length);
-                unwrappedProc.bindArgs(args, env);
-                cur = unwrappedProc.body;
-            }
-
-            else throw new InternalInterpreterError(
-                    'unexpected value for operator name '
-                        + cur.operatorName
-                        + ': '
-                        + proc);
-
-        }
-
-        else if (cur instanceof Branch) {
-
-            var testResult = cur.test.isIdentifier()
-                ? env[cur.test.payload]
-                : maybeWrapResult(cur.test, cur.test.type);
-            cur.setContinuation(testResult, cur.continuation.cloneAndResolveOperands(env));
-            cur = (testResult.payload === false)
-                ? cur.alternate
-                : cur.consequent;
-        }
-
-        else if (cur instanceof ContinuationWrapper) {
-            if (cur.payload.isIdentifier())
-                ans = env[cur.payload.payload];
-            else if (cur.payload.isQuote())
-                ans = cur.payload.firstChild;
-            else
-                ans = maybeWrapResult(cur.payload.payload, cur.payload.type);
-
-            env[cur.continuation.lastResultName] = ans;
-
-            if (typeof ans === 'function')
-                prevBuiltinName = cur.payload.payload;
-
-            cur = cur.continuation.nextContinuable;
-        }
-
-        else throw new InternalInterpreterError('unknown continuable: ' + cur.toString());
     }
 
-    /* We use SchemeProcedure objects to represent non-primitive Scheme procedures.
-        Such objects have a toString method that returns a representation
-        suitable for returning to the REPL. On the other hand, we use JavaScript
-        functions to represent primitive Scheme procedures, the string
-        representation of which is not suitable for returning to the REPL
-        (for example, in Chrome it is the whole text of the function). So, if
-        we're at the end of the trampoline and about to return a JavaScript
-        function, return the corresponding identifier instead.
-     */
     return typeof ans === 'function'
-        ? newIdOrLiteral(prevBuiltinName)
+        ? newIdOrLiteral(tmp.primitiveName)
         : ans;
 }
+
+Branch.prototype.resetContinuation = function() {
+    this.consequentLastContinuable.continuation.nextContinuable = null;
+    if (this.alternateLastContinuable)
+        this.alternateLastContinuable.continuation.nextContinuable = null;
+};
+
+Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
+
+    this.resetContinuation();
+
+    var testResult = this.test.isIdentifier()
+        ? env[this.test.payload]
+        : maybeWrapResult(this.test, this.test.type);
+    if (testResult.payload === false) {
+        this.alternateLastContinuable.continuation = continuation;
+        resultStruct.nextContinuable = this.alternate;
+    } else {
+        this.consequentLastContinuable.continuation = continuation;
+        resultStruct.nextContinuable = this.consequent;
+    }
+};
+
+ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
+
+    var proc = env[this.operatorName];
+    var unwrappedProc;
+    var args;
+    var ans;
+
+    /* Primitive procedure, represented by JavaScript function:
+     (+ x y [ans ...]). We perform the action ("+"), bind the
+     result to the continuation's result name ("ans"), and advance
+     to the next continuable ("..."). */
+    if (typeof proc === 'function') {
+        args = gatherArgs(this.firstOperand, env);
+        ans = proc.apply(null, args);
+        env[continuation.lastResultName] = ans;
+        console.log('bound ' + ans + ' to ' + continuation.lastResultName);
+        resultStruct.ans = ans;
+        resultStruct.nextContinuable = continuation.nextContinuable;
+        resultStruct.primitiveName = this.operatorName;
+    }
+
+    /* Non-primitive procedure, represented by SchemeProcedure object.
+     Example: suppose we have
+
+     (define (foo x y) (+ x (* 2 y)))
+
+     The body of this procedure is desugared as
+
+     (* 2 y [_0 (+ x _0 [_1 ...])])
+
+     Then we have the (nested) procedure call
+
+     (+ 1 (foo 3 4))
+
+     which is desugared as
+
+     (foo 3 4 [foo' (+ 1 foo' [_2 ...])])
+
+     We bind the arguments ("1" and "2") to the formal parameters
+     ("x" and "y"), append the ProcCall's continuation to the end of the
+     SchemeProcedure's continuation, and advance to the beginning of the
+     SchemeProcedure's body. Thus, on the next iteration of the trampoline
+     loop, we will have the following:
+
+     (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
+     */
+    else if (proc instanceof Datum && proc.isProcedure()) {
+        // todo bl do we need to wrap these in datums anymore?
+        unwrappedProc = proc.payload;
+        unwrappedProc.resetContinuation();
+        args = gatherArgs(this.firstOperand, env);
+        unwrappedProc.setContinuation(continuation);
+        unwrappedProc.checkNumArgs(args.length);
+        unwrappedProc.bindArgs(args, env);
+        resultStruct.nextContinuable = unwrappedProc.body;
+    }
+
+    else throw new InternalInterpreterError('unrecognized proc '
+            + proc
+            + ' for name '
+            + this.operatorName);
+};
 
 function gatherArgs(firstOperand, env) {
     var args = [];

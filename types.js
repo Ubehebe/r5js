@@ -15,19 +15,16 @@ SchemeString.prototype.toString = function() {
 };
 
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
-    this.formalsArray = formalsArray;
     this.isDotted = isDotted;
     this.env = shallowHashCopy(env);
 
     if (bodyStart) {
         this.body = bodyStart.sequence(this.env);
-        /* todo bl make a Continuable class so we can say
-         continuable.getLastContinuable() and not have to put the logic here */
-        this.lastContinuable = this.body.continuation.nextContinuable
-            ? this.body.continuation.getLastContinuable()
-            : this.body;
+        this.lastContinuable = this.body.getLastContinuable();
         this.savedContinuation = this.lastContinuable.continuation;
     }
+
+    this.renameFormals(formalsArray);
 
     /* This is a convenience parameter for dealing with recursion in
      named procedures. If we are here, we are in the midst of defining
@@ -39,6 +36,70 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.name = name;
     this.env[name] = newProcedureDatum(this);
 }
+
+/* When defining a SchemeProcedure, we rename its formal parameters
+    to be globally unique. This saves us having to manage multiple bindings
+    at trampoline time, at the cost of an extra pass over the (desugared) body
+    at definition time.
+
+    Example:
+
+    (define (foo x) (* x 100))
+
+    The procedure body desugars as
+
+    (* x 100 [_0 ...])
+
+    Now consider the sequence
+
+    (define x 1)
+    (+ x (foo 3))
+
+    The last expression desugars as
+
+    (foo 3 [foo' (+ x foo' [_1 ...])])
+
+    Without parameter renaming, at evaluation time, the trampoline will
+    bind 3 to x and append the procedure call's continuation to the end
+    of the SchemeProcedure's desugared body:
+
+    (* x 100 [foo' (+ x foo' [_1 ...])])
+
+    This is incorrect because both x's will resolve to 3. But with parameter
+    renaming, the formal parameter x is renamed to something like _2,
+    so we get
+
+    (* _2 100 [foo' (+ x foo' [_1 ...])])
+
+    which is correct.
+
+    An alternative to parameter renaming is to resolve identifiers in the
+    procedure call's continuation before appending to the SchemeProcedure's
+    body. So in the above example
+
+    [foo' (+ x foo' [_1 ...])]
+
+    would resolve to
+
+    [foo' (+ 1 foo' [_1 ...])]
+
+    which we could safely append to the SchemeProcedure's body. But this
+    approach requires a linear walk of the continuation chain every time it
+    shows up on the trampoline, which seems vastly inferior to walking the
+    SchemeProcedure's body once, at definition time. */
+SchemeProcedure.prototype.renameFormals = function(formalsArray) {
+
+    this.formalsArray = [];
+    var replacementDict = {};
+    var name;
+    for (var i=0; i<formalsArray.length; ++i) {
+        name = newCpsName();
+        this.formalsArray.push(name);
+        replacementDict[formalsArray[i]] = name;
+    }
+    this.body.renameIds(replacementDict);
+
+};
 
 SchemeProcedure.prototype.setContinuation = function(c) {
     this.lastContinuable.continuation = c;

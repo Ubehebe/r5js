@@ -1,3 +1,5 @@
+
+// todo bl deprecated: remove
 Datum.prototype.eval = function(env) {
     return this.values.pop()(this, env);
 };
@@ -6,8 +8,8 @@ Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     var desugarFn = this.desugars && this.desugars.pop();
 	var ans = desugarFn ? desugarFn(this, env) : this;
 	console.log('desugar ' + this + ' => ' + ans);
-    if (forceContinuationWrapper && !ans.continuation /* todo bl: use Continuable instead */)
-        ans = new ContinuationWrapper(ans, newCpsName());
+    if (forceContinuationWrapper && !(ans instanceof Continuable))
+        ans = newIdShim(ans, newCpsName());
 	return ans;
 };
 
@@ -21,39 +23,36 @@ Datum.prototype.evalSiblingsReturnAll = function(env) {
     return ans;
 };
 
-Datum.prototype.sequence = function (env, disableContinuationWrappers, cpsNames) {
-    var first, tmp, curEnd;
+Datum.prototype.sequence = function(env, disableContinuationWrappers, cpsNames) {
+    var first, tmp, curEnd, isTailContext;
     for (var cur = this; cur; cur = cur.nextSibling) {
+        isTailContext = !cur.nextSibling;
         /* This check is necessary because node.desugar can return null for some
          nodes (when it makes sense for the node to drop off the tree before
          evaluation, e.g. for definitions). */
         if (tmp = cur.desugar(env)) {
-            if (cpsNames && tmp.continuation) {
-                // todo bl hack
-                if (tmp.continuation.nextContinuable instanceof Branch)
-                    cpsNames.push(tmp.continuation.nextContinuable.continuation.lastResultName);
-                else
-                    cpsNames.push(tmp.continuation.lastResultName);
-            }
+            if (cpsNames && tmp instanceof Continuable)
+                cpsNames.push(tmp.getLastContinuable().continuation.lastResultName);
 
-            /* Node that have no desugar functions (for example, variables
+            /* Nodes that have no desugar functions (for example, variables
              and literals) desugar as themselves. Usually this is OK,
              but when we need to sequence them (for example, the program
              "1 2 3"), we have to wrap them in an object in order to set the
              continuations properly. */
             if (!tmp.continuation && !disableContinuationWrappers)
-                tmp = new ContinuationWrapper(tmp);
+                tmp = newIdShim(tmp);
 
-            if (tmp.continuation) {
+            if (tmp instanceof Continuable) {
                 if (!first)
                     first = tmp;
                 else if (curEnd)
                     curEnd.nextContinuable = tmp;
 
-                curEnd = tmp.continuation;
+                curEnd = tmp.getLastContinuable().continuation;
             }
         }
     }
+
     return first; // can be undefined
 };
 

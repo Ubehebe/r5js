@@ -6,9 +6,8 @@ function Datum() {
      this.type = null;
      this.payload = null;
      this.nonterminals = [];
-     this.values = [];
+     this.values = []; // bl close to deleting!
      this.desugars = null;
-
       */
 }
 
@@ -22,38 +21,6 @@ Datum.prototype.forEach = function(f) {
             if (!cur.isQuote())
                 f(cur);
     }
-};
-
-// 3.5
-Datum.prototype.isTailContext = function() {
-    var headOfList = this.parent
-        && this.parent.firstChild
-        && this.parent.firstChild.payload;
-
-    /* Base case: the last expression within the body of a lambda expression
-     occurs in a tail context. */
-    if (headOfList === 'lambda')
-        return true;
-
-    /* Inductive cases: if (if test consequent alternate) or (if test consequent)
-     are in tail context, then consequent and alternate are in tail context. */
-    else if ((headOfList === 'if'
-        || headOfList === 'let-syntax'
-        || headOfList === 'letrec-syntax') && this.parent.isTailContext())
-        return true;
-
-    // Ugh, special check for consequent
-    else if (
-        (headOfList = this.nextSibling
-            && this.nextSibling.parent
-            && this.nextSibling.parent.firstChild
-            && this.nextSibling.parent.firstChild.payload
-            )
-            && headOfList === 'if'
-            && this.nextSibling.parent.isTailContext())
-        return true;
-
-    else return false;
 };
 
 function newEmptyList() {
@@ -521,7 +488,7 @@ LocalStructure.prototype.toProcCall = function(cpsNames) {
         lastArg = idOrLiteralNode;
     }
 
-    return new ProcCall(this.operatorName, firstArg, new Continuation(newCpsName()));
+    return newProcCall(this.operatorName, firstArg, new Continuation(newCpsName()));
 
 };
 
@@ -531,149 +498,6 @@ LocalStructure.prototype.toString = function() {
         ans += (this.bindings[i] || '_') + ' ';
     return ans + '}';
 };
-
-/*
-Datum.prototype.cpsifyLocal = function (rootName, cpsNames) {
-
-    if (this.isList() && this.firstChild) {
-        if (this.firstChild.isList())
-            throw new InternalInterpreterError('todo bl: unimplemented! ' + this);
-        var firstArg, lastArg;
-
-        var idOrLiteralNode;
-
-        for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
-            if (cur.isQuote()) {
-                idOrLiteralNode = cur.clone();
-            } else if (cur.isList()) {
-                idOrLiteralNode = newIdOrLiteral(cpsNames.shift());
-            } else {
-                idOrLiteralNode = newIdOrLiteral(cur.payload, cur.type);
-            }
-
-            if (!firstArg)
-                   firstArg = idOrLiteralNode;
-
-            if (lastArg)
-                lastArg.appendSibling(idOrLiteralNode);
-
-            lastArg = idOrLiteralNode;
-        }
-
-        return new ProcCall(this.firstChild.payload, firstArg, new Continuation(rootName));
-    }
-    else throw new InternalInterpreterError('unsupported type ' + this.type);
-};
-
-/* Continuation-passing style is a transformation of the tree structure of a
- procedure call to make the flow of control explicit, ideally making a call
- stack unnecessary.
-
- For example, in order to evaluate (f (g x) (h y z)), we have to first evaluate
- (g x) and (h y z), but we also have to remember where we were in the
- evaluation of f so we can return there to complete the top-level evaluation.
- By contrast, in continuation-passing style, the call is
-
- (g x (lambda (g') (h y z (lambda (h') (f g' h' (lambda (f') ...))))))
-
- (See the trampoline function for how this is actually evaluated.)
-
- Initially, my Scheme evaluator used the JavaScript call stack to handle
- evaluation. But Scheme requires an unlimited number of active tail calls.
- It's possible to support this with a call stack (by discarding stack
- frames), and it may even be possible to harness existing features
- of JavaScript to do so (exception handling, for example).
- But Scheme also requires a function call-with-current-continuation
- that exposes continuations to the programmer to some extent,
- so I decided to reify continuations. */
-
-/* Example on (f (g x) (h y z)):
- 1. The local transformation of (g x) is (g x (lambda (g') <endpoint 1>))
- 2. The local transformation of (h y z) is (h y z (lambda (h') <endpoint 2>))
- 3. The local transformation of f is (f g' h' (lambda (f') <endpoint 3>))
- We attach #2 to <endpoint 1>, #3 to <endpoint 2>, and return <endpoint 3>
- as the new destination for appends in the tree.
-Datum.prototype.cpsify = function (rootName, endContinuation) {
-
-    var end = endContinuation;
-    var cpsNames = [];
-
-    // todo bl: reify CPSable datums so we don't have to do this check explicitly
-    if (this.isList() && this.firstChild) {
-
-        // Special logic for a branch
-        if (this.firstChild.payload === 'if')
-            return cpsifyBranch(this, rootName, end);
-
-        for (var cur = this.firstChild.nextSibling; cur; cur = cur.nextSibling) {
-            if (cur.isList()) {
-                var name = newCpsName();
-                end = cur.cpsify(name, end);
-                cpsNames.push(name);
-            }
-        }
-        var localProcCall = this.cpsifyLocal(rootName, cpsNames);
-        end.nextContinuable = localProcCall;
-        return localProcCall.continuation;
-    } else throw new InternalInterpreterError('not a list: ' + this);
-};
-
-// (if (f x) (g y) (h z)) => (f x (lambda (f') (if f' (g y (lambda (g') ...)) (h z (lambda (h') ...)))))
-function cpsifyBranch(node, rootName, endContinuation) {
-
-    var test = node.firstChild.nextSibling; // must exist
-    var consequent = test.nextSibling; // must exist
-    var maybeAlternate = consequent.nextSibling; // optional
-
-    var testName;
-
-    // This is the (f x (lambda (f') ...) part
-    if (test.isList()) {
-        testName = newCpsName();
-        endContinuation = test.cpsify(testName, endContinuation);
-    }
-
-    // This is the (if f' (g y (lambda (g') ...)) (h z (lambda (h') ...))) part
-    var testCPS = testName
-            ? newIdOrLiteral(testName)
-            : (test.isQuote() ? test.clone().severSibling() : newIdOrLiteral(test.payload, test.type));
-
-
-    // This is the (g y (lambda (g') ...)) part
-    var fakeConsequentEndpoint = new Continuation('FAKE CONSEQUENT');
-    var consequentCPS;
-    if (consequent.isList()) {
-        consequent.cpsify(rootName, fakeConsequentEndpoint);
-        consequentCPS = fakeConsequentEndpoint.nextContinuable;
-    } else {
-        consequentCPS = new ContinuationWrapper(consequent.isQuote()
-            ? consequent.clone().severSibling()
-            : newIdOrLiteral(consequent.payload, consequent.type),
-            rootName);
-    }
-
-    var alternateCPS;
-
-    // This is the (h z (lambda (h') ...)) part
-    if (maybeAlternate) {
-        var fakeAlternateEndpoint = new Continuation('FAKE ALTERNATE');
-        if (maybeAlternate.isList()) {
-            maybeAlternate.cpsify(rootName, fakeAlternateEndpoint);
-            alternateCPS = fakeAlternateEndpoint.nextContinuable;
-        } else {
-            alternateCPS = new ContinuationWrapper(maybeAlternate.isQuote()
-                ? maybeAlternate.clone().severSibling()
-                : newIdOrLiteral(maybeAlternate.payload, maybeAlternate.type),
-                rootName);
-        }
-    }
-
-    var branch = new Branch(testCPS, consequentCPS, alternateCPS, new Continuation('branch_cont'));
-
-    endContinuation.nextContinuable = branch;
-
-    return branch.continuation;
-}
 
 /*
  Continuation-passing style is
