@@ -318,15 +318,7 @@ Parser.prototype['variable'] = function() {
     return this.rhs(
         {type: function(datum) {
             return datum.isIdentifier() && !isSyntacticKeyword(datum.payload);
-        }},
-        {value: this.semanticActionForVar});
-};
-
-Parser.prototype.semanticActionForVar = function(node, env) {
-    var val = env[node.payload];
-    if (val !== undefined)
-        return val;
-    else throw new UnboundVariable(node.payload);
+        }});
 };
 
 // <literal> -> <quotation> | <self-evaluating>
@@ -346,11 +338,7 @@ Parser.prototype['quotation'] = function() {
     return this.alternation(
         [
             {type: "'"},
-            {type: 'datum'},
-            {value: function(node, env) {
-                return node.at('datum').eval(env);
-            }
-            }
+            {type: 'datum'}
         ],
         [
             {type: '('},
@@ -371,11 +359,7 @@ Parser.prototype['quotation'] = function() {
 Parser.prototype['datum'] = function() {
     return this.rhs({type: function(datum) {
             return true;
-        } },
-        {value: function(node, env) {
-            return node.sanitize();
-        }
-        });
+        }});
 };
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
@@ -392,9 +376,6 @@ Parser.prototype['self-evaluating'] = function() {
                 default:
                     return false;
             }
-        }},
-        {value: function(node, env) {
-            return maybeWrapResult(node.payload, node.type);
         }
         }
     );
@@ -589,7 +570,7 @@ Parser.prototype['definition'] = function() {
                     newProcedureDatum(
                         new SchemeProcedure(
                             formals, false, formalsList.nextSibling, env, name));
-                return undefined;
+                return null;
             }}
         ],
         [
@@ -617,7 +598,7 @@ Parser.prototype['definition'] = function() {
                     newProcedureDatum(
                         new SchemeProcedure(
                             formals, true, formalsList.nextSibling, env));
-                return undefined;
+                return null;
             }}
         ],
         [
@@ -627,7 +608,7 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
             {desugar: function(node, env) {
                 node.at('definition').sequence(env);
-                return undefined;
+                return null;
             }
             }
         ]);
@@ -705,11 +686,12 @@ Parser.prototype['assignment'] = function() {
         {type: 'variable'},
         {type: 'expression'},
         {type: ')'},
-        {value: function(node, env) {
-            env[node.at('variable').payload] = node.at('expression').eval(env);
-            return undefined;
-        }
-        });
+        {desugar: function(node, env) {
+                env[node.at('variable').payload] = trampoline(node.at('expression').desugar(env, true), env);
+                return null;
+            }
+            }
+        );
 };
 
 // todo bl quasiquotation?
@@ -1093,10 +1075,6 @@ Parser.prototype['program'] = function() {
         {desugar: function(node, env) {
             return node.sequence(env);
         }
-        },
-        {value: function(node, env) {
-            return node.evalSiblingsReturnLast(env);
-        }
         });
 };
 
@@ -1118,8 +1096,8 @@ Parser.prototype['command-or-definition'] = function() {
             {type: 'begin'},
             {type: 'command-or-definition', atLeast: 0},
             {type: ')'},
-            {value: function(node, env) {
-                return node.at('command-or-definition').evalSiblingsReturnLast(env);
+            {desugar: function(node, env) {
+                return node.at('command-or-definition').sequence(env);
             }
             }
         ],
