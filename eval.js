@@ -24,7 +24,8 @@ Datum.prototype.evalSiblingsReturnAll = function(env) {
 };
 
 Datum.prototype.sequence = function(env, disableContinuationWrappers, cpsNames) {
-    var first, tmp, curEnd, isTailContext;
+    var first = null;
+    var tmp, curEnd, isTailContext;
     for (var cur = this; cur; cur = cur.nextSibling) {
         isTailContext = !cur.nextSibling;
         /* This check is necessary because node.desugar can return null for some
@@ -39,21 +40,23 @@ Datum.prototype.sequence = function(env, disableContinuationWrappers, cpsNames) 
              but when we need to sequence them (for example, the program
              "1 2 3"), we have to wrap them in an object in order to set the
              continuations properly. */
-            if (!tmp.continuation && !disableContinuationWrappers)
+            if (!(tmp instanceof Continuable) && !disableContinuationWrappers)
                 tmp = newIdShim(tmp);
 
             if (tmp instanceof Continuable) {
                 if (!first)
                     first = tmp;
-                else if (curEnd)
+                else if (curEnd) {
+                    console.log('appending ' + tmp + ' to ' + curEnd);
                     curEnd.nextContinuable = tmp;
+                }
 
                 curEnd = tmp.getLastContinuable().continuation;
             }
         }
     }
 
-    return first; // can be undefined
+    return first; // can be null
 };
 
 /* For when we want to evaluate a list of things for their side effects, except that

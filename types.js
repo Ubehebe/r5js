@@ -19,100 +19,80 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.env = env.clone();
     this.formalsArray = formalsArray;
 
-    this.formalsHistogram = {};
+    /* The name is just used for pretty-printing,
+    not for resolving stuff in the environment. */
+    this.name = name;
+
+    /* Prime the parameter histogram.
+        See Continuable.parameterHistogram for more information. */
+    this.parameterHistogram = {};
     for (var i=0; i<formalsArray.length; ++i)
-        this.formalsHistogram[formalsArray[i]] = 0;
+        this.parameterHistogram[formalsArray[i]] = 0;
 
 
     if (bodyStart) {
         this.body = bodyStart.sequence(this.env);
-        this.body.collectIdHistogram(this.formalsHistogram);
-
+        this.body.parameterHistogram(this.parameterHistogram);
         this.lastContinuable = this.body.getLastContinuable();
         this.savedContinuation = this.lastContinuable.continuation;
     }
 
-    /* This is a convenience parameter for dealing with recursion in
-     named procedures. If we are here, we are in the midst of defining
-     a procedure, which means that the env parameter does not yet
-     have a binding for it. So we set it up manually.
-
-     todo bl: this design may be changed when I implement tail recursion.
-     */
-    this.name = name;
-    this.env[name] = newProcedureDatum(this);
 }
 
-/* When defining a SchemeProcedure, we rename its formal parameters
-    to be globally unique. This saves us having to manage multiple bindings
-    at trampoline time, at the cost of an extra pass over the (desugared) body
-    at definition time.
+/* This function is a no-op for tail calls, thus should support an unlimited
+    number of active tail calls. Example:
 
-    Example:
+    (define (len xs buf) (if (null? xs) buf (len (cdr xs) (+ 1 buf))))
 
-    (define (foo x) (* x 100))
+    The body is desugared as
 
-    The procedure body desugars as
+    (null? xs [_0 {_0
+        ? (id buf [_1 ...])
+        : (cdr xs [_2 (+ 1 buf [_3 (len _2 _3 [_4 ...])])])
+        }])
 
-    (* x 100 [_0 ...])
+    and the SchemeProcedure's last continuation is some fake value
+    representing the branch.
 
-    Now consider the sequence
+    Now consider the evaluation of the expression
 
-    (define x 1)
-    (+ x (foo 3))
+    (+ 1 (len '(a b c) 0))
 
-    The last expression desugars as
+    This is desugared as
 
-    (foo 3 [foo' (+ x foo' [_1 ...])])
+    (len '(a b c) 0 [_5 (+ 1 _5 [_6 ...])])
 
-    Without parameter renaming, at evaluation time, the trampoline will
-    bind 3 to x and append the procedure call's continuation to the end
-    of the SchemeProcedure's desugared body:
+    The trampoline will work as follows:
 
-    (* x 100 [foo' (+ x foo' [_1 ...])])
+    (len '(a b c) 0 [_5 (+ 1 _5 [_6 ...])])
+    1. Bind '(a b c) to xs
+    2. Bind 0 to buf
+    3. Set the SchemeProcedure's last continuation to [_5 (+ 1 _5 [_6 ...])].
+        Since this is not equal to the current value (the fake continuation
+        representing the branch), we have to clone it.
+    4. Advance to the SchemeProcedure's body
 
-    This is incorrect because both x's will resolve to 3. But with parameter
-    renaming, the formal parameter x is renamed to something like _2,
-    so we get
+    At the branch in the body, the alternate will be selected, and its last
+    continuation will be set to [_5 (+ 1 _5 [_6 ...])]:
 
-    (* _2 100 [foo' (+ x foo' [_1 ...])])
+    (cdr xs [_2 (+ 1 buf [_3 (len _2 _3 [_5 (+ 1 _5 [_6 ...])])])])
 
-    which is correct.
+    Now we do some more trampolining and arrive at the next
+    nonprimitive procedure call:
 
-    An alternative to parameter renaming is to resolve identifiers in the
-    procedure call's continuation before appending to the SchemeProcedure's
-    body. So in the above example
+    (len _2 _3 [_5 (+ 1 _5 [_6 ...])])
+    5. Bind _2 ( = '(b)) to xs
+    6. Bind _3 (= 1) to buf
+    7. Set the SchemeProcedure's last continuation to [_5 (+ 1 _5 [_6 ...])].
+        But it already has this value -- see step 3. So do nothing.
+    8. Advance to the SchemeProcedure's body.
 
-    [foo' (+ x foo' [_1 ...])]
-
-    would resolve to
-
-    [foo' (+ 1 foo' [_1 ...])]
-
-    which we could safely append to the SchemeProcedure's body. But this
-    approach requires a linear walk of the continuation chain every time it
-    shows up on the trampoline, which seems vastly inferior to walking the
-    SchemeProcedure's body once, at definition time. */
-SchemeProcedure.prototype.renameFormals = function(formalsArray) {
-
-    this.formalsArray = [];
-    var replacementDict = {};
-    var name;
-    for (var i=0; i<formalsArray.length; ++i) {
-        name = newCpsName();
-        this.formalsArray.push(name);
-        replacementDict[formalsArray[i]] = name;
-    }
-    this.body.renameIds(replacementDict);
-
-};
-
+    This should work for simple kinds of tail recursion, but I need to verify
+    it works for all the tail call sites required by the Scheme standard.
+ */
 SchemeProcedure.prototype.setContinuation = function(c) {
-    this.lastContinuable.continuation = c;
-};
-
-SchemeProcedure.prototype.resetContinuation = function() {
-    this.lastContinuable.continuation = this.savedContinuation;
+    if (this.lastContinuable.continuation !== c)
+        this.lastContinuable.continuation = c.clone();
 };
 
 SchemeProcedure.prototype.eval = function(args) {
@@ -141,21 +121,21 @@ SchemeProcedure.prototype.bindArgs = function(args, env) {
 
     for (i = 0; i < this.formalsArray.length - 1; ++i) {
         name = this.formalsArray[i];
-        env.addRepeatedBinding(name, args[i], this.formalsHistogram[name] || 0);
+        env.addRepeatedBinding(name, args[i], this.parameterHistogram[name] || 0);
     }
 
     /* Thanks to non-scoped JavaScript local variables,
      i is now this.formalsArray.length - 1. */
     name = this.formalsArray[i];
     if (!this.isDotted) {
-        env.addRepeatedBinding(name, args[i], this.formalsHistogram[name] || 0);
+        env.addRepeatedBinding(name, args[i], this.parameterHistogram[name] || 0);
     } else {
         // Roll up the remaining arguments into a list
         var list = newEmptyList();
         // Go backwards and do prepends to avoid quadratic performance
         for (var j = args.length - 1; j >= this.formalsArray.length - 1; --j)
             list.prependChild(args[j]);
-        env.addRepeatedBinding(name, list, this.formalsHistogram[name] || 0);
+        env.addRepeatedBinding(name, list, this.parameterHistogram[name] || 0);
     }
 };
 

@@ -47,17 +47,31 @@ Environment.prototype.addRepeatedBinding = function(name, val, numRepetitions) {
     else
         this.bindings[name].push(toPush);
 
-    console.log('addRepeatedBinding ' + numRepetitions + ': now\n' + this.toString());
+    console.log('pushed ' + numRepetitions + ' bindings: ' + name + ' = ' + val);
 
+};
+
+Environment.prototype.extendBindingLifetimes = function(histogram) {
+
+    var allBindingsForName, topmostBindingsForName;
+
+    for (var name in histogram) {
+        allBindingsForName = this.bindings[name];
+        topmostBindingsForName = allBindingsForName[allBindingsForName.length - 1];
+        if (!(topmostBindingsForName instanceof BindingCounter))
+            throw new InternalInterpreterError('invariant incorrect: not in pop mode for ' + name);
+        topmostBindingsForName.incBy(histogram[name]);
+        console.log(name + ' increased by ' + histogram[name]);
+    }
 };
 
 Environment.prototype.toString = function() {
     var ans = '';
     for (var name in this.bindings) {
         ans += name + ' => [';
-        for (var i=0; i < this.bindings[name].length; ++i)
+        for (var i = 0; i < this.bindings[name].length; ++i)
             ans += typeof this.bindings[name][i] === 'function'
-        ? '(...js...), '
+                ? '(...js...), '
                 : this.bindings[name][i].toString() + ', ';
         ans += ']\n';
     }
@@ -85,7 +99,11 @@ function BindingCounter(val, numRemaining) {
 BindingCounter.prototype.getAndDecrement = function() {
     --this.numRemaining;
     return this.val;
-}
+};
+
+BindingCounter.prototype.incBy = function(delta) {
+    this.numRemaining += delta;
+};
 
 BindingCounter.prototype.exhausted = function() {
     return this.numRemaining === 0;
@@ -96,7 +114,5 @@ BindingCounter.prototype.toString = function() {
 };
 
 BindingCounter.prototype.clone = function() {
-    // todo bl is this the right semantics for cloning?
-    // Or should we reset the counter?
     return new BindingCounter(this.val, this.numRemaining);
 };
