@@ -34,13 +34,13 @@ Continuable.prototype.getLastContinuable = function() {
         : this;
 };
 
-Continuable.prototype.renameIds = function(replacementDict) {
-    this.subtype.renameIds(replacementDict);
-    var replacement = replacementDict[this.continuation.lastResultName];
-    if (replacement)
-        this.continuation.lastResultName = replacement;
+Continuable.prototype.collectIdHistogram = function(histogram) {
+    this.subtype.collectIdHistogram(histogram);
+    if (histogram[this.continuation.lastResultName] !== undefined)
+        ++histogram[this.continuation.lastResultName];
+
     if (this.continuation.nextContinuable)
-        this.continuation.nextContinuable.renameIds(replacementDict);
+        this.continuation.nextContinuable.collectIdHistogram(histogram);
 };
 
 // delegate to subtype, passing in the continuation
@@ -59,13 +59,9 @@ IdShim.prototype.toString = function(continuation) {
     return '(id ' + this.payload + ' ' + continuation + ')';
 };
 
-IdShim.prototype.renameIds = function(replacementDict) {
-
-    if (this.payload.isIdentifier()) {
-        var replacement = replacementDict[this.payload.payload];
-        if (replacement)
-            this.payload.payload = replacement;
-    }
+IdShim.prototype.collectIdHistogram = function(histogram) {
+    if (this.payload.isIdentifier() && histogram[this.payload.payload] !== undefined)
+        ++histogram[this.payload.payload];
 };
 
 IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
@@ -121,6 +117,14 @@ Branch.prototype.toString = function(continuation) {
         + '}';
 };
 
+Branch.prototype.collectIdHistogram = function(histogram) {
+    if (this.test.isIdentifier() && histogram[this.test.payload] !== undefined)
+            ++histogram[this.test.payload];
+
+    this.consequent.collectIdHistogram(histogram);
+    this.alternate.collectIdHistogram(histogram);
+};
+
 // For composition; should only be called from newProcCall
 function ProcCall(operatorName, firstOperand) {
     this.operatorName = operatorName; // an identifier
@@ -131,13 +135,14 @@ function newProcCall(operatorName, firstOperand, continuation) {
     return new Continuable(new ProcCall(operatorName, firstOperand), continuation);
 }
 
-ProcCall.prototype.renameIds = function(replacementDict) {
-    var replacement = replacementDict[this.operatorName];
-    if (replacement)
-        this.operatorName = replacement;
-    for (var op = this.firstOperand; op; op = op.nextSibling)
-        if (op.isIdentifier() && (replacement = replacementDict[op.payload]))
-            op.payload = replacement;
+ProcCall.prototype.collectIdHistogram = function(histogram) {
+    if (histogram[this.operatorName] !== undefined)
+        ++histogram[this.operatorName];
+
+    for (var op = this.firstOperand; op; op = op.nextSibling) {
+        if (op.isIdentifier() && histogram[op.payload] !== undefined)
+            ++histogram[op.payload];
+    }
 };
 
 ProcCall.prototype.toString = function(continuation) {

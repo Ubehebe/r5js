@@ -16,15 +16,21 @@ SchemeString.prototype.toString = function() {
 
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.isDotted = isDotted;
-    this.env = shallowHashCopy(env);
+    this.env = env.clone();
+    this.formalsArray = formalsArray;
+
+    this.formalsHistogram = {};
+    for (var i=0; i<formalsArray.length; ++i)
+        this.formalsHistogram[formalsArray[i]] = 0;
+
 
     if (bodyStart) {
         this.body = bodyStart.sequence(this.env);
+        this.body.collectIdHistogram(this.formalsHistogram);
+
         this.lastContinuable = this.body.getLastContinuable();
         this.savedContinuation = this.lastContinuable.continuation;
     }
-
-    this.renameFormals(formalsArray);
 
     /* This is a convenience parameter for dealing with recursion in
      named procedures. If we are here, we are in the midst of defining
