@@ -11,21 +11,28 @@ Environment.prototype.hasBinding = function(name) {
 
 Environment.prototype.get = function(name) {
 
-    var allBindings = this.bindings[name];
-    if (!allBindings)
+    var allBindingsForName = this.bindings[name];
+    if (!allBindingsForName)
         throw new UnboundVariable(name);
-    var topmostBinding = allBindings[allBindings.length - 1];
-    if (topmostBinding instanceof BindingCounter) {
-        if (topmostBinding.exhausted()) {
-            console.log('exhausted binding for ' + name);
-            allBindings.pop();
+    var topmostBindingForName = allBindingsForName[allBindingsForName.length - 1];
+
+    if (topmostBindingForName instanceof BindingCounter) {
+        // If the topmost binding is exhausted, pop it and try the call again.
+        if (topmostBindingForName.exhausted()) {
+            allBindingsForName.pop();
             return this.get(name);
-        } else {
-            var ans = topmostBinding.getAndDecrement();
-            console.log('got ' + ans + ' for ' + name + ', ' + topmostBinding.numRemaining + ' uses left');
-            return ans;
         }
-    } else return topmostBinding;
+
+        // Otherwise, return and decrement that binding.
+        else {
+            return topmostBindingForName.getAndDecrement();
+        }
+    }
+
+    /* If we did not get a BindingCounter object, we must not be dealing with
+        a formal parameter, so we really don't have to worry about
+        repeated bindings. Just return the binding. */
+    else return topmostBindingForName;
 };
 
 Environment.prototype.addBinding = function(name, val) {
@@ -40,15 +47,34 @@ Environment.prototype.addBinding = function(name, val) {
 // Should only be called from within procs, where we have id frequency data
 Environment.prototype.addRepeatedBinding = function(name, val, numRepetitions) {
 
-    var toPush = new BindingCounter(val, numRepetitions);
+    var allBindingsForName = this.bindings[name];
+    var topmostBindingForName = allBindingsForName
+        && allBindingsForName[allBindingsForName.length - 1];
+    var reuseTopmostBinding = topmostBindingForName
+        && topmostBindingForName instanceof BindingCounter
+        && topmostBindingForName.exhausted();
 
-    if (!this.bindings[name])
-        this.bindings[name] = [toPush];
-    else
-        this.bindings[name].push(toPush);
+    /* If the topmost binding is exhausted, it will never be needed again,
+     so we can reuse its BindingCounter object. This is not merely an
+     optimization. If we didn't do this (or something equivalent, such as
+     popping the exhausted object), the stack of exhausted bindings
+     would accumulate during tail calls, meaning that we couldn't support
+     an unbounded number of active tail calls.
 
-    console.log('pushed ' + numRepetitions + ' bindings: ' + name + ' = ' + val);
+     todo bl: I discovered this invariant post hoc, which means I need to
+     think about it more.
+     */
+    if (reuseTopmostBinding) {
+        topmostBindingForName.val = val;
+        topmostBindingForName.numRemaining = numRepetitions;
+    } else {
 
+        var toPush = new BindingCounter(val, numRepetitions);
+        if (!allBindingsForName)
+            this.bindings[name] = [toPush];
+        else
+            allBindingsForName.push(toPush);
+    }
 };
 
 Environment.prototype.extendBindingLifetimes = function(histogram) {
@@ -61,7 +87,6 @@ Environment.prototype.extendBindingLifetimes = function(histogram) {
         if (!(topmostBindingsForName instanceof BindingCounter))
             throw new InternalInterpreterError('invariant incorrect: not in pop mode for ' + name);
         topmostBindingsForName.incBy(histogram[name]);
-        console.log(name + ' increased by ' + histogram[name]);
     }
 };
 

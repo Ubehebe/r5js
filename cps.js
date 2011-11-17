@@ -3,8 +3,8 @@ function Continuation(lastResultName) {
     this.lastResultName = lastResultName;
 
     /* Example: (g (f x y) z) desugared is
-     (f x y (lambda (f') (g f' z (lambda (g') ...)))).
-     The continuation c is (lambda (f') (g f' z ...))
+     (f x y [f' (g f' z [g' ...])])
+     The continuation c is [f' (g f' z [g' ...])]
      c.lastResultName is f'
      c.nextContinuable is (g f' z ...)
      */
@@ -267,7 +267,7 @@ function trampoline(continuable, env) {
 
     while (curContinuable) {
 
-        console.log('boing: ' + curContinuable);
+        // console.log('boing: ' + curContinuable);
 
         curContinuable.subtype.evalAndAdvance(env, curContinuable.continuation, tmp);
         ans = tmp.ans;
