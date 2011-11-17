@@ -465,7 +465,7 @@ function LocalStructure(operatorNode, firstOperand) {
 
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
         if (cur.isQuote()) {
-            this.bindings.push(cur.clone());
+            this.bindings.push(cur.clone().severSibling());
         } else if (cur.isList()) {
             this.bindings.push(null); // a placeholder until we know the name
         } else {
