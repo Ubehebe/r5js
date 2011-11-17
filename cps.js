@@ -73,13 +73,14 @@ IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     var ans;
 
     if (this.payload.isIdentifier())
-        ans = env[this.payload.payload];
+        ans = env.get(this.payload.payload);
     else if (this.payload.isQuote())
         ans = this.payload.firstChild;
     else
         ans = maybeWrapResult(this.payload.payload, this.payload.type);
 
-    env[continuation.lastResultName] = ans;
+    env.addBinding(continuation.lastResultName, ans);
+
     console.log('bound ' + ans + ' to ' + continuation.lastResultName);
     resultStruct.ans = ans;
     resultStruct.nextContinuable = continuation.nextContinuable;
@@ -189,7 +190,7 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     this.resetContinuation();
 
     var testResult = this.test.isIdentifier()
-        ? env[this.test.payload]
+        ? env.get(this.test.payload)
         : maybeWrapResult(this.test, this.test.type);
     if (testResult.payload === false) {
         this.alternateLastContinuable.continuation = continuation;
@@ -202,7 +203,7 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
 ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
-    var proc = env[this.operatorName];
+    var proc = env.get(this.operatorName);
     var unwrappedProc;
     var args;
     var ans;
@@ -214,10 +215,11 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     if (typeof proc === 'function') {
         args = gatherArgs(this.firstOperand, env);
         ans = proc.apply(null, args);
-        env[continuation.lastResultName] = ans;
+        env.addBinding(continuation.lastResultName, ans);
         console.log('bound ' + ans + ' to ' + continuation.lastResultName);
         resultStruct.ans = ans;
-        resultStruct.nextContinuable = continuation.nextContinuable;
+        // todo bl this is where tail recursion will go!
+        resultStruct.nextContinuable = continuation.nextContinuable && continuation.nextContinuable;
         resultStruct.primitiveName = this.operatorName;
     }
 
@@ -267,12 +269,12 @@ function gatherArgs(firstOperand, env) {
     var args = [];
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
         if (cur.isIdentifier())
-            args.push(env[cur.payload]);
+            args.push(env.get(cur.payload));
         else if (cur.isQuote())
             args.push(cur.firstChild);
         else if (cur.payload !== undefined)
             args.push(maybeWrapResult(cur.payload, cur.type));
-        else throw new InternalInterpreterError('unexpected datum '+ cur);
+        else throw new InternalInterpreterError('unexpected datum ' + cur);
     }
 
     return args;

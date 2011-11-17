@@ -109,15 +109,6 @@ SchemeProcedure.prototype.resetContinuation = function() {
     this.lastContinuable.continuation = this.savedContinuation;
 };
 
-SchemeProcedure.prototype.clone = function() {
-    var ans = new SchemeProcedure();
-    ans.formalsArray = shallowArrayCopy(this.formalsArray);
-    ans.isDotted = this.isDotted;
-    ans.body = this.body.clone();
-    ans.env = shallowHashCopy(this.env);
-    return ans;
-};
-
 SchemeProcedure.prototype.eval = function(args) {
     return this.body.evalSiblingsReturnLast(this.bindArgs(args));
 };
@@ -139,36 +130,33 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
 };
 
 SchemeProcedure.prototype.bindArgs = function(args, env) {
-    var envCopy = env || shallowHashCopy(this.env);
 
-    for (var i = 0; i < this.formalsArray.length - 1; ++i)
-        envCopy[this.formalsArray[i]] = args[i];
+    var name, i;
 
+    for (i = 0; i < this.formalsArray.length - 1; ++i) {
+        name = this.formalsArray[i];
+        env.addRepeatedBinding(name, args[i], this.formalsHistogram[name] || 0);
+    }
+
+    /* Thanks to non-scoped JavaScript local variables,
+     i is now this.formalsArray.length - 1. */
+    name = this.formalsArray[i];
     if (!this.isDotted) {
-        envCopy[this.formalsArray[this.formalsArray.length - 1]]
-            = args[this.formalsArray.length - 1];
+        env.addRepeatedBinding(name, args[i], this.formalsHistogram[name] || 0);
     } else {
         // Roll up the remaining arguments into a list
         var list = newEmptyList();
         // Go backwards and do prepends to avoid quadratic performance
-        for (var i = args.length - 1; i >= this.formalsArray.length - 1; --i)
-            list.prependChild(args[i]);
-        envCopy[this.formalsArray[this.formalsArray.length - 1]] = list;
+        for (var j = args.length - 1; j >= this.formalsArray.length - 1; --j)
+            list.prependChild(args[j]);
+        env.addRepeatedBinding(name, list, this.formalsHistogram[name] || 0);
     }
-    return envCopy;
 };
 
 function shallowArrayCopy(array) {
     var ans = [];
-    for (var i=0; i<array.length; ++i)
+    for (var i = 0; i < array.length; ++i)
         ans[i] = array[i];
-    return ans;
-}
-
-function shallowHashCopy(hash) {
-    var ans = {};
-    for (var i in hash)
-    ans[i] = hash[i];
     return ans;
 }
 

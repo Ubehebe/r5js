@@ -472,8 +472,8 @@ Parser.prototype['lambda-expression'] = function() {
             })
                 : [formalRoot.payload];
             var name = newAnonymousLambdaName();
-            env[name] = newProcedureDatum(
-                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name));
+            env.addBinding(name, newProcedureDatum(
+                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name)));
             return newIdOrLiteral(name);
         }
         }
@@ -542,7 +542,9 @@ Parser.prototype['definition'] = function() {
             {type: 'expression'},
             {type: ')'},
             {desugar: function(node, env) {
-                env[node.at('variable').payload] = trampoline(node.at('expression').desugar(env, true), env);
+                var name = node.at('variable').payload;
+                var evaled = trampoline(node.at('expression').desugar(env, true), env);
+                env.addBinding(name, evaled);
                 return null; //definition falls off the tree
             }
             }
@@ -566,10 +568,9 @@ Parser.prototype['definition'] = function() {
                  This is just for consistency; to use procedures generally, they have
                  to be wrapped in datums, so we can do things like
                  (cons (lambda () 0) (lambda () 1)). */
-                env[name] =
-                    newProcedureDatum(
+                env.addBinding(name, newProcedureDatum(
                         new SchemeProcedure(
-                            formals, false, formalsList.nextSibling, env, name));
+                            formals, false, formalsList.nextSibling, env, name)));
                 return null;
             }}
         ],
@@ -594,10 +595,9 @@ Parser.prototype['definition'] = function() {
                  This is just for consistency; to use procedures generally, they have
                  to be wrapped in datums, so we can do things like
                  (cons (lambda () 0) (lambda () 1)). */
-                env[name] =
-                    newProcedureDatum(
+                env.addBinding(name, newProcedureDatum(
                         new SchemeProcedure(
-                            formals, true, formalsList.nextSibling, env));
+                            formals, true, formalsList.nextSibling, env)));
                 return null;
             }}
         ],
@@ -687,7 +687,7 @@ Parser.prototype['assignment'] = function() {
         {type: 'expression'},
         {type: ')'},
         {desugar: function(node, env) {
-                env[node.at('variable').payload] = trampoline(node.at('expression').desugar(env, true), env);
+                env.addBinding(node.at('variable').payload, trampoline(node.at('expression').desugar(env, true), env));
                 return null;
             }
             }
@@ -791,7 +791,7 @@ Parser.prototype['macro-use'] = function() {
         {type: ')'},
         {desugar: function(node, env) {
             var kw = node.at('keyword').payload;
-            var macro = env[kw];
+            var macro = env.get(kw);
             if (macro instanceof SchemeMacro) {
                 var template = macro.selectTemplate(node, env);
                 if (template) {
@@ -885,8 +885,8 @@ Parser.prototype['syntax-spec'] = function() {
             else if (!macro.ellipsesMatch(kw))
                 throw new MacroError(kw, 'ellipsis mismatch');
             else {
-                env[kw] = macro;
-                return undefined;
+                env.addBinding(kw, macro);
+                return null;
             }
         }
         }
@@ -1127,8 +1127,8 @@ Parser.prototype['syntax-definition'] = function() {
             else if (!macro.ellipsesMatch(kw))
                 throw new MacroError(kw, 'ellipsis mismatch');
             else {
-                env[kw] = macro;
-                return undefined;
+                env.addBinding(kw, macro);
+                return null;
             }
         }
         }

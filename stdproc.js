@@ -542,12 +542,12 @@ var builtins = (function() {
             return targetEnv;
         }
 
-        if (targetEnv[name])
+        if (targetEnv.hasBinding(name))
             console.log('warning, redefining ' + name);
 
         requirePresenceOf(name, argtypes, targetEnv);
 
-        targetEnv[name] = function() {
+        targetEnv.addBinding(name, function() {
 
             // Check correct number of arguments
             if (argc) {
@@ -573,7 +573,7 @@ var builtins = (function() {
                 /* If argtypes is something like 'number', that means every argument
                  must be a number. */
                 if (typeof argtypes === 'string') {
-                    var classifier = targetEnv[argtypes + '?'];
+                    var classifier = targetEnv.get(argtypes + '?');
                     for (var i = 0; i < arguments.length; ++i) {
                         if (classifier(arguments[i]))
                             maybeUnwrappedArgs.push(arguments[i].unwrap());
@@ -586,7 +586,7 @@ var builtins = (function() {
                  the arguments array and ensure each argument has its expected type. */
                 else if (argtypes instanceof Array) {
                     for (var i = 0; i < arguments.length; ++i) {
-                        if (argtypes[i] && !targetEnv[argtypes[i] + '?'](arguments[i]))
+                        if (argtypes[i] && !targetEnv.get(argtypes[i] + '?')(arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
                         else
                             maybeUnwrappedArgs.push(arguments[i].unwrap());
@@ -598,12 +598,12 @@ var builtins = (function() {
             else maybeUnwrappedArgs = arguments;
 
             return maybeWrapResult(proc.apply(null, maybeUnwrappedArgs), resultType);
-        };
+        });
     }
 
     function requirePresenceOf(name, argtypes, targetEnv) {
         if (argtypes) {
-            if (typeof argtypes === 'string' && !targetEnv[argtypes + '?'])
+            if (typeof argtypes === 'string' && !targetEnv.hasBinding(argtypes + '?'))
                 throw new InternalInterpreterError('builtin procedure '
                     + name
                     + ' requires an argument to have type '
@@ -611,7 +611,7 @@ var builtins = (function() {
                     + ", but the default environment doesn't know about that type yet");
             else if (argtypes instanceof Array) {
                 for (var i = 0; i < argtypes.length; ++i)
-                    if (!targetEnv[argtypes[i] + '?'])
+                    if (!targetEnv.hasBinding(argtypes[i] + '?'))
                         throw new InternalInterpreterError('builtin procedure '
                             + name
                             + ' requires an argument to have type '
@@ -622,7 +622,7 @@ var builtins = (function() {
     }
 
 
-    var builtins = {};
+    var builtins = new Environment();
 
     [builtinTypeProcs,
         builtinCharProcs,
