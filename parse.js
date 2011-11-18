@@ -126,7 +126,6 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
     // Handle * and +
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
         var numParsed = 0;
-        var last;
         /* nextSiblingRecursive() is powerful because it advances to the "next"
          datum to parse, no matter where it may be. But when parsing
          repeated nonterminals, we have to be careful not to rise above
@@ -137,15 +136,18 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
          2 parses ok as datum -> nextSiblingRecursive is 3
          3 parses ok as datum ... but in the same list as 1 and 2!
 
-         So at the beginning of dealing with * and +, we remember
+         So at the beginning of dealing with * and +, we remember where
          we would escape to, and abort parsing if we reach there.
 
          todo: start.lastSibling() means we iterate over the siblings twice. */
+
+        /* todo bl: this incorrectly parses (define (foo) (bar)) 1, reading
+            1 as an operand of bar. */
+
         var escaped = start && start.lastSibling().nextSiblingRecursive();
 
         while (this.next !== escaped && (parsed = parseFunction.apply(this))) {
             parsed.setParse(element.type);
-            last = parsed;
             ++numParsed;
         }
 
@@ -213,7 +215,7 @@ Parser.prototype.onDatum = function(element) {
                 });
             case ')':
 	    /* This is subtlest (and thus most likely to be wrong) part of
-	       the whole interpreter. When we are at the end of a list
+	       the whole parser. When we are at the end of a list
 	       (vector, etc.), we have to update the next pointer
 	       in a way that cannot be local (the next datum to parse
 	       could be the next sibling of the great-great-...-great
@@ -386,60 +388,115 @@ Parser.prototype['self-evaluating'] = function() {
 // <operand> -> <expression>
 Parser.prototype['procedure-call'] = function() {
 
-    return this.rhs(
-        {type: '('},
-        {type: 'operator'},
-        {type: 'operand', atLeast: 0},
-        {type: ')'},
-        {desugar: function(node, env) {
+    return this.alternation(
+        [
+            {type: '('},
+            {type: 'operator'},
+            {type: ')'},
+            {desugar: function(node, env) {
 
-            // todo bl once desugaring is working we need to implement macro lookups:
-            /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
-             evaluate. This may be the coolest line in this implementation.
-             else {
-             console.log(node.toString());
-             // todo bl shouldn't have to go back to text
-             return new Parser(
-             new Reader(
-             new Scanner(node.toString())
-             ).read()
-             ).parse('macro-use')
-             .desugar(env);
-             }*/
+                // todo bl once desugaring is working we need to implement macro lookups:
+                /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
+                 evaluate. This may be the coolest line in this implementation.
+                 else {
+                 console.log(node.toString());
+                 // todo bl shouldn't have to go back to text
+                 return new Parser(
+                 new Reader(
+                 new Scanner(node.toString())
+                 ).read()
+                 ).parse('macro-use')
+                 .desugar(env);
+                 }*/
 
-            var operatorNode = node.at('operator');
+                var operatorNode = node.at('operator');
 
-            /* Example: ((lambda (x) ...) y z). The lambda-expression will
-                desugar to an identifier. */
-            if (!operatorNode.isIdentifier())
-                operatorNode = operatorNode.desugar(env);
+                /* Example: ((lambda (x) ...) y z). The lambda-expression will
+                 desugar to an identifier. */
+                if (!operatorNode.isIdentifier())
+                    operatorNode = operatorNode.desugar(env);
 
-            /* Example: (define (foo) +), ((foo) x y). In this case the
-                procedure call, already desugared, must be evaluated. */
-            if (operatorNode instanceof Continuable)
-                operatorNode = trampoline(operatorNode, env);
+                /* Example: (define (foo) +), ((foo) x y). In this case the
+                 procedure call, already desugared, must be evaluated. */
+                if (operatorNode instanceof Continuable)
+                    operatorNode = trampoline(operatorNode, env);
 
-            var operands = node.at('operand');
-            if (!operands.type)
-                operands = null; // workaround for 0 operands
+                var operands = node.at('operand');
+                if (!operands.type)
+                    operands = null; // workaround for 0 operands
 
-            /* Take a snapshot of the local (nonrecursive) procedure call structure,
-             since operands.sequence might destroy that structure. */
-            var localStructure = new LocalStructure(operatorNode, operands);
-            var cpsNames = [];
-            var maybeSequenced = operands && operands.sequence(env, true, cpsNames);
-            var localProcCall = localStructure.toProcCall(cpsNames);
+                /* Take a snapshot of the local (nonrecursive) procedure call structure,
+                 since operands.sequence might destroy that structure. */
+                var localStructure = new LocalStructure(operatorNode, operands);
+                var cpsNames = [];
+                var maybeSequenced = operands && operands.sequence(env, true, cpsNames);
+                var localProcCall = localStructure.toProcCall(cpsNames);
 
-            // Add the local procedure call to the tip of the sequence
-            if (maybeSequenced) {
-                maybeSequenced.getLastContinuable().continuation.nextContinuable = localProcCall;
-                return maybeSequenced;
-            } else {
-                return localProcCall;
+                // Add the local procedure call to the tip of the sequence
+                if (maybeSequenced) {
+                    maybeSequenced.getLastContinuable().continuation.nextContinuable = localProcCall;
+                    return maybeSequenced;
+                } else {
+                    return localProcCall;
+                }
             }
-        }
-        }
-        );
+            }
+        ],
+        [
+            {type: '('},
+            {type: 'operator'},
+            {type: 'operand', atLeast: 0},
+            {type: ')'},
+            {desugar: function(node, env) {
+
+                // todo bl once desugaring is working we need to implement macro lookups:
+                /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
+                 evaluate. This may be the coolest line in this implementation.
+                 else {
+                 console.log(node.toString());
+                 // todo bl shouldn't have to go back to text
+                 return new Parser(
+                 new Reader(
+                 new Scanner(node.toString())
+                 ).read()
+                 ).parse('macro-use')
+                 .desugar(env);
+                 }*/
+
+                var operatorNode = node.at('operator');
+
+                /* Example: ((lambda (x) ...) y z). The lambda-expression will
+                 desugar to an identifier. */
+                if (!operatorNode.isIdentifier())
+                    operatorNode = operatorNode.desugar(env);
+
+                /* Example: (define (foo) +), ((foo) x y). In this case the
+                 procedure call, already desugared, must be evaluated. */
+                if (operatorNode instanceof Continuable)
+                    operatorNode = trampoline(operatorNode, env);
+
+                var operands = node.at('operand');
+                if (!operands.type)
+                    operands = null; // workaround for 0 operands
+
+                /* Take a snapshot of the local (nonrecursive) procedure call structure,
+                 since operands.sequence might destroy that structure. */
+                var localStructure = new LocalStructure(operatorNode, operands);
+                var cpsNames = [];
+                var maybeSequenced = operands && operands.sequence(env, true, cpsNames);
+                var localProcCall = localStructure.toProcCall(cpsNames);
+
+                // Add the local procedure call to the tip of the sequence
+                if (maybeSequenced) {
+                    maybeSequenced.getLastContinuable().continuation.nextContinuable = localProcCall;
+                    return maybeSequenced;
+                } else {
+                    return localProcCall;
+                }
+            }
+            }
+        ]
+    );
 };
 
 Parser.prototype['operator'] = function() {
