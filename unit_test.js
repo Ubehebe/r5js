@@ -87,7 +87,8 @@ function testParser() {
         'x': true,
         '=>': false,
         'cond': false,
-        '(': false};
+        '(': false
+    };
 
     tests['quotation'] = {
         "'1": true,
@@ -269,12 +270,39 @@ function testParser() {
         var testsForType = tests[type];
         for (var toParse in testsForType) {
             var datumRoot = new Reader(new Scanner(toParse)).read();
-            var ans = (datumRoot instanceof Datum) && new Parser(datumRoot).parse(type);
-            // todo bl check that the type is as expected, not just that they both succeed or both fail
-            if (!!ans ^ testsForType[toParse]) {
-                ++numErrors;
-                console.log('testParser ' + type + ': ' + toParse + ': expected ' + testsForType[toParse] + ', got ');
-                console.log(ans);
+            var actualResult = (datumRoot instanceof Datum) && new Parser(datumRoot).rhs({type: type});
+            var expectedResult = testsForType[toParse];
+
+            // Expected success...
+            if (expectedResult) {
+
+                if (actualResult) { // ...got some kind of success...
+
+                    if (actualResult.peekParse() !== type) { // ...but it was an incorrect parse
+                        ++numErrors;
+                        console.log('testParser ' + type + ': ' + toParse + ': mis-parsed as');
+                        console.log(actualResult);
+                    }
+
+                    else ; // ...got the correct parse, do nothing
+                }
+
+                else { // ...but unexpectedly got failure
+                    ++numErrors;
+                    console.log('testParser ' + type + ': ' + toParse + ': expected success, got failure');
+                }
+
+            }
+
+            // Expected failure...
+            else {
+                if (!actualResult)
+                    ; // ...and got failure, according to expectation
+                else { // ...but unexpectedly got success
+                    ++numErrors;
+                    console.log('testParser ' + type + ': ' + toParse + ': expected failure, got');
+                    console.log(actualResult);
+                }
             }
             ++numTests;
         }
