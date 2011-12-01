@@ -11,7 +11,6 @@
     <script type="text/javascript" src="parse.js"></script>
     <script type="text/javascript" src="read.js"></script>
     <script type="text/javascript" src="macro.js"></script>
-    <script type="text/javascript" src="eval.js"></script>
     <script type="text/javascript" src="cps.js"></script>
     <script type="text/javascript" src="stdproc.js"></script>
     <script type="text/javascript" src="unit_test.js"></script>
@@ -62,6 +61,15 @@
             }
 
         }, false);
+
+        function desugar(text, env, lhs) {
+            return new Parser(
+                    new Reader(
+                            new Scanner(text)
+                    ).read()
+            ).parse(lhs)
+                    .desugar(env);
+        }
 
         function doScan() {
             console.log(

@@ -6,9 +6,8 @@ function Datum() {
      this.type = null;
      this.payload = null;
      this.nonterminals = [];
-     this.values = []; // bl close to deleting!
      this.desugars = null;
-      */
+     */
 }
 
 // todo bl too many utility functions; reduce to minimal set
@@ -69,8 +68,6 @@ Datum.prototype.clone = function() {
         ans.payload = this.payload;
     if (this.nonterminals)
         ans.nonterminals = shallowArrayCopy(this.nonterminals);
-    if (this.values)
-        ans.values = shallowArrayCopy(this.values);
     if (this.firstChild)
         ans.firstChild = this.firstChild.clone();
     if (this.nextSibling)
@@ -90,12 +87,6 @@ Datum.prototype.setParse = function(type) {
     this.nonterminals.push(type);
 };
 
-Datum.prototype.setValue = function(semanticAction) {
-    if (!this.values)
-        this.values = [];
-    this.values.push(semanticAction);
-};
-
 Datum.prototype.setDesugar = function(desugarFunc) {
     if (!this.desugars)
         this.desugars = [];
@@ -104,7 +95,6 @@ Datum.prototype.setDesugar = function(desugarFunc) {
 
 Datum.prototype.unsetParse = function() {
     this.nonterminals = null;
-    this.values = null;
     for (var child = this.firstChild; child; child = child.nextSibling)
         child.unsetParse();
 };
@@ -198,6 +188,48 @@ Datum.prototype.mapChildren = function(f) {
 // Convenience functions
 Datum.prototype.isImproperList = function() {
     return this.type === '.(';
+};
+
+Datum.prototype.desugar = function(env, forceContinuationWrapper) {
+    var desugarFn = this.desugars && this.desugars.pop();
+    var ans = desugarFn ? desugarFn(this, env) : this;
+    if (forceContinuationWrapper && !(ans instanceof Continuable))
+        ans = newIdShim(ans, newCpsName());
+    return ans;
+};
+
+Datum.prototype.sequence = function(env, disableContinuationWrappers, cpsNames) {
+    var first = null;
+    var tmp, curEnd;
+    for (var cur = this; cur; cur = cur.nextSibling) {
+        /* This check is necessary because node.desugar can return null for some
+         nodes (when it makes sense for the node to drop off the tree before
+         evaluation, e.g. for definitions). */
+        if (tmp = cur.desugar(env)) {
+            if (cpsNames && tmp instanceof Continuable)
+                cpsNames.push(tmp.getLastContinuable().continuation.lastResultName);
+
+            /* Nodes that have no desugar functions (for example, variables
+             and literals) desugar as themselves. Usually this is OK,
+             but when we need to sequence them (for example, the program
+             "1 2 3"), we have to wrap them in an object in order to set the
+             continuations properly. */
+            if (!(tmp instanceof Continuable) && !disableContinuationWrappers)
+                tmp = newIdShim(tmp);
+
+            if (tmp instanceof Continuable) {
+                if (!first)
+                    first = tmp;
+                else if (curEnd) {
+                    curEnd.nextContinuable = tmp;
+                }
+
+                curEnd = tmp.getLastContinuable().continuation;
+            }
+        }
+    }
+
+    return first; // can be null
 };
 
 // todo bl once we have hidden these types behind functions, we can

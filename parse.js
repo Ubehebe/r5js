@@ -75,17 +75,19 @@ Parser.prototype.rhs = function() {
             }
         }
 
-        // Store semantic actions for later evaluation
-        else if (element.value) {
-            if (i !== arguments.length - 1)
-                throw new InternalInterpreterError('unexpected semantic action '
-                    + element.value
-                    + ' at index ' + i + ', only allowed in last position');
-            if (root) root.setValue(element.value);
-        }
-
-        // todo bl
         if (element.desugar) {
+            /* todo bl this is an error in the text of the grammar, and
+                should be caught at startup time, not parsing time. It would be
+                nice to add a preprocessing step to the interpreter to verify
+                the integrity of all its data structures before it starts
+                accepting input from the user. */
+            if (i !== arguments.length - 1)
+                throw new InternalInterpreterError('desugaring actions '
+                + 'are only allowed as the last element in the right-hand '
+                + 'side of a grammar rule.');
+            /* If we are here, root must be an instance of Datum. The only
+                other possibility is the emptyListSentinel, but that always
+                causes parsing to fail, so we could not be here. */
             if (root)
                 root.setDesugar(element.desugar);
         }
@@ -828,13 +830,13 @@ Parser.prototype['macro-block'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'},
-            {value: function(node, env) {
+            {type: ')'}
+            /* todo bl {value: function(node, env) {
                 node.at('(').at('syntax-spec').evalSiblingsReturnNone(env);
                 node.at('definition').evalSiblingsReturnNone(env);
                 return node.at('expression').evalSiblingsReturnLast(env);
             }
-            }
+            }*/
         ],
         [
             {type: '('},
@@ -844,13 +846,13 @@ Parser.prototype['macro-block'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'},
-            {value: function(node, env) {
+            {type: ')'}
+            /* todo bl {value: function(node, env) {
                 node.at('(').at('syntax-spec').evalSiblingsReturnNone(env);
                 node.at('definition').evalSiblingsReturnNone(env);
                 return node.at('expression').evalSiblingsReturnLast(env);
             }
-            }
+            }*/
         ]);
 };
 
@@ -860,8 +862,8 @@ Parser.prototype['syntax-spec'] = function() {
         {type: '('},
         {type: 'keyword'},
         {type: 'transformer-spec'},
-        {type: ')'},
-        {value: function(node, env) {
+        {type: ')'}
+        /* todo bl {value: function(node, env) {
             var kw = node.at('keyword').payload;
             var macro = node.at('transformer-spec').desugar(env);
             if (!macro.allPatternsBeginWith(kw))
@@ -873,7 +875,7 @@ Parser.prototype['syntax-spec'] = function() {
                 return null;
             }
         }
-        }
+        }*/
     );
 };
 
@@ -886,18 +888,18 @@ Parser.prototype['transformer-spec'] = function() {
         {type: 'pattern-identifier', atLeast: 0},
         {type: ')'},
         {type: 'syntax-rule', atLeast: 0}, // a nonterminal
-        {type: ')'},
-        {value: function(node, env) {
-            /* 4.3.2: It is an error for ... to appear in <literals>.
+        {type: ')'}
+        /* todo bl {value: function(node, env) {
+            *//* 4.3.2: It is an error for ... to appear in <literals>.
                 So we can reuse the pattern-identifier nonterminal
-                to check this in the parser. Win! */
+                to check this in the parser. Win! *//*
             var ids = node.at('(').at('pattern-identifier');
             var rules = node.at('syntax-rule');
             // todo bl implement: It is an error for the same pattern
             // variable to appear more than once in a <pattern>.
             return new SchemeMacro(ids, rules, env);
         }
-        }
+        }*/
     );
 };
 
@@ -1102,8 +1104,8 @@ Parser.prototype['syntax-definition'] = function() {
         {type: 'define-syntax'},
         {type: 'keyword'},
         {type: 'transformer-spec'},
-        {type: ')'},
-        {desugar: function(node, env) {
+        {type: ')'}
+       /* todo bl {value: function(node, env) {
             var kw = node.at('keyword').payload;
             var macro = node.at('transformer-spec').eval(env);
             if (!macro.allPatternsBeginWith(kw))
@@ -1115,7 +1117,7 @@ Parser.prototype['syntax-definition'] = function() {
                 return null;
             }
         }
-        }
+        }*/
     );
 };
 

@@ -95,10 +95,6 @@ SchemeProcedure.prototype.setContinuation = function(c) {
         this.lastContinuable.continuation = c.clone();
 };
 
-SchemeProcedure.prototype.eval = function(args) {
-    return this.body.evalSiblingsReturnLast(this.bindArgs(args));
-};
-
 SchemeProcedure.prototype.toString = function() {
     return 'proc:' + this.name;
 };
