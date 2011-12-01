@@ -1,9 +1,3 @@
-function SemanticError(msg) {
-    this.toString = function() {
-        return msg
-    };
-}
-
 function UnboundVariable(name) {
     this.toString = function() {
         return 'unbound variable ' + name;
