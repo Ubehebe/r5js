@@ -7,7 +7,6 @@ Datum.prototype.eval = function(env) {
 Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     var desugarFn = this.desugars && this.desugars.pop();
 	var ans = desugarFn ? desugarFn(this, env) : this;
-	console.log('desugar ' + this + ' => ' + ans);
     if (forceContinuationWrapper && !(ans instanceof Continuable))
         ans = newIdShim(ans, newCpsName());
 	return ans;
@@ -25,9 +24,8 @@ Datum.prototype.evalSiblingsReturnAll = function(env) {
 
 Datum.prototype.sequence = function(env, disableContinuationWrappers, cpsNames) {
     var first = null;
-    var tmp, curEnd, isTailContext;
+    var tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
-        isTailContext = !cur.nextSibling;
         /* This check is necessary because node.desugar can return null for some
          nodes (when it makes sense for the node to drop off the tree before
          evaluation, e.g. for definitions). */
@@ -47,7 +45,6 @@ Datum.prototype.sequence = function(env, disableContinuationWrappers, cpsNames) 
                 if (!first)
                     first = tmp;
                 else if (curEnd) {
-                    console.log('appending ' + tmp + ' to ' + curEnd);
                     curEnd.nextContinuable = tmp;
                 }
 

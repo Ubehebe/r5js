@@ -1,5 +1,11 @@
-function Environment() {
+var allEnvironments = [];
+
+function Environment(name, enclosingEnv) {
+    this.name = name || 'global'; // just for use in pretty-printing
+    if (enclosingEnv)
+        this.enclosingEnv = enclosingEnv;
     this.bindings = {}; // hey, never use this; use this.get() instead
+    allEnvironments.push(this); // just for debugging
 }
 
 /* Intended just to be used as a sanity check during startup,
@@ -12,8 +18,12 @@ Environment.prototype.hasBinding = function(name) {
 Environment.prototype.get = function(name) {
 
     var allBindingsForName = this.bindings[name];
-    if (!allBindingsForName)
-        throw new UnboundVariable(name);
+    if (!allBindingsForName || allBindingsForName.length === 0) {
+        // If the current environment has no binding for the name, look one level up
+        if (this.enclosingEnv)
+            return this.enclosingEnv.get(name);
+        else throw new UnboundVariable(name + ' in env ' + this.name);
+    }
     var topmostBindingForName = allBindingsForName[allBindingsForName.length - 1];
 
     if (topmostBindingForName instanceof BindingCounter) {
@@ -30,9 +40,11 @@ Environment.prototype.get = function(name) {
     }
 
     /* If we did not get a BindingCounter object, we must not be dealing with
-        a formal parameter, so we really don't have to worry about
-        repeated bindings. Just return the binding. */
-    else return topmostBindingForName;
+     a formal parameter, so we really don't have to worry about
+     repeated bindings. Just return the binding. */
+    else {
+        return topmostBindingForName;
+    }
 };
 
 Environment.prototype.addBinding = function(name, val) {
@@ -41,7 +53,6 @@ Environment.prototype.addBinding = function(name, val) {
         this.bindings[name] = [val];
     else
         this.bindings[name].push(val);
-
 };
 
 // Should only be called from within procs, where we have id frequency data
@@ -91,7 +102,7 @@ Environment.prototype.extendBindingLifetimes = function(histogram) {
 };
 
 Environment.prototype.toString = function() {
-    var ans = '';
+    var ans = this.name + ':\n';
     for (var name in this.bindings) {
         ans += name + ' => [';
         for (var i = 0; i < this.bindings[name].length; ++i)
@@ -99,19 +110,6 @@ Environment.prototype.toString = function() {
                 ? '(...js...), '
                 : this.bindings[name][i].toString() + ', ';
         ans += ']\n';
-    }
-    return ans;
-};
-
-Environment.prototype.clone = function() {
-    var ans = new Environment();
-    var val;
-    for (var name in this.bindings) {
-        val = this.bindings[name];
-        ans.bindings[name] = val instanceof BindingCounter
-            ? val.clone()
-            : val;
-
     }
     return ans;
 };

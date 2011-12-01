@@ -16,7 +16,7 @@ SchemeString.prototype.toString = function() {
 
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.isDotted = isDotted;
-    this.env = env.clone();
+    this.env = new Environment(name, env);
     this.formalsArray = formalsArray;
 
     /* The name is just used for pretty-printing,
@@ -115,27 +115,27 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
     }
 };
 
-SchemeProcedure.prototype.bindArgs = function(args, env) {
+SchemeProcedure.prototype.bindArgs = function(args) {
 
     var name, i;
 
     for (i = 0; i < this.formalsArray.length - 1; ++i) {
         name = this.formalsArray[i];
-        env.addRepeatedBinding(name, args[i], this.parameterHistogram[name] || 0);
+        this.env.addRepeatedBinding(name, args[i], this.parameterHistogram[name] || 0);
     }
 
     /* Thanks to non-scoped JavaScript local variables,
      i is now this.formalsArray.length - 1. */
     name = this.formalsArray[i];
     if (!this.isDotted) {
-        env.addRepeatedBinding(name, args[i], this.parameterHistogram[name] || 0);
+        this.env.addRepeatedBinding(name, args[i], this.parameterHistogram[name] || 0);
     } else {
         // Roll up the remaining arguments into a list
         var list = newEmptyList();
         // Go backwards and do prepends to avoid quadratic performance
         for (var j = args.length - 1; j >= this.formalsArray.length - 1; --j)
             list.prependChild(args[j]);
-        env.addRepeatedBinding(name, list, this.parameterHistogram[name] || 0);
+        this.env.addRepeatedBinding(name, list, this.parameterHistogram[name] || 0);
     }
 };
 

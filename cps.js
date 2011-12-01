@@ -242,10 +242,7 @@ ProcCall.prototype.parameterHistogram = function(histogram) {
 };
 
 ProcCall.prototype.toString = function(continuation) {
-    var ans = '(' + this.operatorName;
-    if (this.isTailContext)
-        ans += '-TAIL!';
-    ans += ' ';
+    var ans = '(' + this.operatorName + ' ';
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
         ans += cur.toString() + ' ';
     return ans + continuation + ')';
@@ -256,22 +253,31 @@ function TrampolineResultStruct() {
      this.ans;
      this.nextContinuable;
      this.primitiveName;
+     this.currentEnv;
      */
 }
 
 // This is the main evaluation function.
 function trampoline(continuable, env) {
+
+    console.log('trampoline begins with env ' + env.name);
+
+
     var curContinuable = continuable;
     var ans;
     var tmp = new TrampolineResultStruct();
 
     while (curContinuable) {
 
-        // console.log('boing: ' + curContinuable);
+        tmp.currentEnv = null;
+
+        console.log('boing: ' + curContinuable);
 
         curContinuable.subtype.evalAndAdvance(env, curContinuable.continuation, tmp);
         ans = tmp.ans;
         curContinuable = tmp.nextContinuable;
+        if (tmp.currentEnv)
+            env = tmp.currentEnv;
 
     }
 
@@ -362,8 +368,9 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         // This will be a no-op if tail recursion is detected
         unwrappedProc.setContinuation(continuation);
         unwrappedProc.checkNumArgs(args.length);
-        unwrappedProc.bindArgs(args, env);
+        unwrappedProc.bindArgs(args);
         resultStruct.nextContinuable = unwrappedProc.body;
+        resultStruct.currentEnv = unwrappedProc.env;
     }
 
     else throw new InternalInterpreterError('unrecognized proc '
