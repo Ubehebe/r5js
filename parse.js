@@ -1,17 +1,17 @@
 function Parser(root) {
     /* The next datum to parse. When a parse of a node is successful,
-     the next pointer is advanced, principally through
-     nextSiblingRecursive(). In this way, this.next will only be null
-     or undefined in two cases:
+     the next pointer advanced to the node's next sibling. Thus, this.next
+     will only be null or undefined in two cases:
 
      1. EOF
-     2. first (nonexistent) child of an empty list.
+     2. Advancing past the end of a nonempty list. (The empty-list corner case
+     is handled by emptyListSentinel below.)
      */
     this.next = root;
 
-    /* The last datum parsed. We only need this in order to resolve
-     certain corner cases, principally involving empty lists. this.prev
-     is only updated in two cases:
+    /* The last datum parsed. We only need this in order to figure out where
+     to go next after finishing parsing a list. this.prev is only updated
+     in two cases:
 
      1. Moving from a parent (= this.prev) to its first child (= this.next)
      2. Moving from a sibling (= this.prev) to its next sibling (= this.next)
@@ -20,6 +20,25 @@ function Parser(root) {
      parent to first child or from sibling to next sibling, and is never
      thereafter null. */
     this.prev = null;
+
+    /* We use a special sentinel object to handle the corner case of an empty
+     list. According to the tree constructed by the reader (the structure of
+     which the parser does not modify), an empty list is simply a datum
+     of type '(' whose firstSibling is null or undefined. This presents a
+     problem for the parser: when this.next is null, have we advanced past
+     the end of a list, or was the list empty to begin with? We must
+     distinguish these cases, because they affect what to parse next.
+     (See comments in onDatum().)
+
+     For a long time, I tried to distinguish them via some pointer trickery,
+     but this concealed some very subtle bugs. So I decided it was clearer
+     to compare against a dedicated sentinel object.
+
+     The sentinel is an immutable object with no state; we use it only
+     for direct identity comparisons. It is used only internally by the
+     parser; it never enters the parse tree.
+     */
+    this.emptyListSentinel = new Object();
 }
 
 /* When a parse of a node n succeeds, n is returned and this.next
@@ -47,9 +66,9 @@ Parser.prototype.rhs = function() {
                 ? this.onNonterminal(element, parseFunction)
                 : this.onDatum(element);
             if (!parsed) {
-                /* This check is necessary because root may be null in the
-                 case of empty lists. */
-                if (root)
+                /* This check is necessary because root may be the special
+                 sentinel object for empty lists. */
+                if (root instanceof Datum)
                     root.unsetParse();
                 this.next = root;
                 return null;
@@ -73,9 +92,7 @@ Parser.prototype.rhs = function() {
 
     }
 
-    /* We do not need a null check here because, if root is null,
-     parsing has already failed. */
-    this.next = root.nextSiblingRecursive();
+    this.next = root /* just in case of an empty program */ && root.nextSibling;
     return root;
 };
 
@@ -120,61 +137,31 @@ Parser.prototype.rewriteImproperList = function(rhsArgs) {
 
 Parser.prototype.onNonterminal = function(element, parseFunction) {
 
-    var start = this.next;
     var parsed;
 
-    // Handle * and +
+    // Handle repeated elements
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
         var numParsed = 0;
-        /* nextSiblingRecursive() is powerful because it advances to the "next"
-         datum to parse, no matter where it may be. But when parsing
-         repeated nonterminals, we have to be careful not to rise above
-         the node we started at. For example, consider parsing ((1 2) 3)
-         according to ((datum*) datum):
 
-         1 parses ok as datum -> nextSiblingRecursive is 2
-         2 parses ok as datum -> nextSiblingRecursive is 3
-         3 parses ok as datum ... but in the same list as 1 and 2!
-
-         So at the beginning of dealing with * and +, we remember where
-         we would escape to, and abort parsing if we reach there.
-
-         todo: start.lastSibling() means we iterate over the siblings twice. */
-
-        /* todo bl: this incorrectly parses (define (foo) (bar)) 1, reading
-            1 as an operand of bar. */
-
-        var escaped = start && start.lastSibling().nextSiblingRecursive();
-
-        while (this.next !== escaped && (parsed = parseFunction.apply(this))) {
+        while (this.next // We haven't fallen off the end of the list
+            && this.next !== this.emptyListSentinel // And we're not at an empty list
+            && (parsed = parseFunction.apply(this))) { // And the parse succeeds
+            // this.next has already been advanced by the success of parseFunction
             parsed.setParse(element.type);
             ++numParsed;
         }
 
-        if (numParsed >= element.atLeast) {
-
-            /* In the case of an empty list, start will be null, and returning
-             it would incorrectly indicate parsing failure. So we return true
-             as a shim. */
-            return start || true;
-        } else {
-            // todo bl is this dead code?
-            this.errorMsg = 'expected at least '
-                + element.atLeast + ' ' + element.type + ', got ' + numParsed;
-            return null;
-        }
+        return numParsed >= element.atLeast;
     }
 
-    // The normal case is exactly one of element.
+    // No repetition: exactly one of element.
     else {
         parsed = parseFunction.apply(this);
-        if (!parsed) {
-            return null;
-        } else {
+        if (parsed) {
             parsed.setParse(element.type);
-            this.next = parsed.nextSiblingRecursive();
-            return start;
+            this.next = parsed.nextSibling;
         }
+        return parsed;
     }
 };
 
@@ -182,7 +169,9 @@ Parser.prototype.advanceToChildIf = function(predicate) {
     var ans = this.next && predicate(this.next);
     if (ans) {
         this.prev = this.next;
-        this.next = this.next.firstChild;
+        /* See comments in body of Parser() for explanation of
+            emptyListSentinel. */
+        this.next = this.next.firstChild || this.emptyListSentinel;
     }
     return ans;
 };
@@ -191,7 +180,7 @@ Parser.prototype.nextIf = function(predicate) {
     var ans = this.next && predicate(this.next);
     if (ans) {
         this.prev = this.next;
-        this.next = this.next.nextSiblingRecursive();
+        this.next = this.next.nextSibling;
     }
     return ans;
 };
@@ -214,45 +203,36 @@ Parser.prototype.onDatum = function(element) {
                     return datum.type === element.type;
                 });
             case ')':
-	    /* This is subtlest (and thus most likely to be wrong) part of
-	       the whole parser. When we are at the end of a list
-	       (vector, etc.), we have to update the next pointer
-	       in a way that cannot be local (the next datum to parse
-	       could be the next sibling of the great-great-...-great
-	       grandmother of the current node). */
+                /* We have fallen off the end of a non-empty list.
+                    For example, in
 
-	    /* this.next is null/undefined in two cases, EOF or empty list
-	       (see discussion inside the Parser class definition).
-	       This clause handles the empty list/vector/etc, when
-	       this.prev exists but has no first child. In that case, we
-	       should just move to the (recursive) next sibling of the empty
-	       list.
+                    (a b (c d) e)
 
-	       todo bl it seems like this might foul up on an empty
-	       list near the end of input, since this.next would be set to
-	       null forever. But I don't observe this in practice. Is it
-	       because my tests aren't good enough?
-	       */
-            if (!this.next && this.prev && !this.prev.firstChild) {
-                this.next = this.prev.nextSiblingRecursive();
-                return true;
-            }
-
-	    /* This clause handles the normal case of a non-empty list (etc.).
-	       In this case, this.prev points to the last element of the list,
-	       this.prev.parent points to the head of the list, and, since
-	       we have successfully parsed the last element of the list,
-	       this.next already points to the (recursive) next sibling of the
-	       head of the list. */
-            else if (this.prev
-		     && this.prev.parent 
-		     && this.prev.parent.nextSiblingRecursive() === this.next) {
+                    we have just finished parsing d. next is null, prev is d,
+                    prev.parent is (c d), and prev.parent.nextSibling is e,
+                    which is where we want to go next. */
+                if (!this.next) {
+                    this.next = this.prev.parent && this.prev.parent.nextSibling;
                     return true;
-                } else {
-                    return false;
                 }
+
+                /*
+                    We have fallen off the "end" of an empty list. For example, in
+
+                    (a b () e)
+
+                    we have just finished parsing (). next is emptyListSentinel,
+                    prev is (), and prev.nextSibling is e, which is where we
+                    want to go next. */
+                else if (this.next === this.emptyListSentinel) {
+                    this.next = this.prev.nextSibling;
+                    return true;
+                }
+
+                // If we're not at the end of a list, this parse must fail.
+                else return false;
             default:
-	    // Convenience for things like rhs({type: 'define'})
+                // Convenience for things like rhs({type: 'define'})
                 return this.nextIf(function(datum) {
                     return datum.payload === element.type;
                 });
@@ -319,7 +299,9 @@ Parser.prototype['expression'] = function() {
 Parser.prototype['variable'] = function() {
     return this.rhs(
         {type: function(datum) {
-            return datum.isIdentifier() && !isSyntacticKeyword(datum.payload);
+            return datum instanceof Datum // because it may be emptyListSentinel
+                && datum.isIdentifier()
+                && !isSyntacticKeyword(datum.payload);
         }});
 };
 
@@ -388,114 +370,59 @@ Parser.prototype['self-evaluating'] = function() {
 // <operand> -> <expression>
 Parser.prototype['procedure-call'] = function() {
 
-    return this.alternation(
-        [
-            {type: '('},
-            {type: 'operator'},
-            {type: ')'},
-            {desugar: function(node, env) {
+    return this.rhs(
+        {type: '('},
+        {type: 'operator'},
+        {type: 'operand', atLeast: 0},
+        {type: ')'},
+        {desugar: function(node, env) {
 
-                // todo bl once desugaring is working we need to implement macro lookups:
-                /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
-                 evaluate. This may be the coolest line in this implementation.
-                 else {
-                 console.log(node.toString());
-                 // todo bl shouldn't have to go back to text
-                 return new Parser(
-                 new Reader(
-                 new Scanner(node.toString())
-                 ).read()
-                 ).parse('macro-use')
-                 .desugar(env);
-                 }*/
+            // todo bl once desugaring is working we need to implement macro lookups:
+            /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
+             evaluate. This may be the coolest line in this implementation.
+             else {
+             console.log(node.toString());
+             // todo bl shouldn't have to go back to text
+             return new Parser(
+             new Reader(
+             new Scanner(node.toString())
+             ).read()
+             ).parse('macro-use')
+             .desugar(env);
+             }*/
 
-                var operatorNode = node.at('operator');
+            var operatorNode = node.at('operator');
 
-                /* Example: ((lambda (x) ...) y z). The lambda-expression will
-                 desugar to an identifier. */
-                if (!operatorNode.isIdentifier())
-                    operatorNode = operatorNode.desugar(env);
+            /* Example: ((lambda (x) ...) y z). The lambda-expression will
+             desugar to an identifier. */
+            if (!operatorNode.isIdentifier())
+                operatorNode = operatorNode.desugar(env);
 
-                /* Example: (define (foo) +), ((foo) x y). In this case the
-                 procedure call, already desugared, must be evaluated. */
-                if (operatorNode instanceof Continuable)
-                    operatorNode = trampoline(operatorNode, env);
+            /* Example: (define (foo) +), ((foo) x y). In this case the
+             procedure call, already desugared, must be evaluated. */
+            if (operatorNode instanceof Continuable)
+                operatorNode = trampoline(operatorNode, env);
 
-                var operands = node.at('operand');
-                if (!operands.type)
-                    operands = null; // workaround for 0 operands
+            var operands = node.at('operand');
+            if (!operands.type)
+                operands = null; // workaround for 0 operands
 
-                /* Take a snapshot of the local (nonrecursive) procedure call structure,
-                 since operands.sequence might destroy that structure. */
-                var localStructure = new LocalStructure(operatorNode, operands);
-                var cpsNames = [];
-                var maybeSequenced = operands && operands.sequence(env, true, cpsNames);
-                var localProcCall = localStructure.toProcCall(cpsNames);
+            /* Take a snapshot of the local (nonrecursive) procedure call structure,
+             since operands.sequence might destroy that structure. */
+            var localStructure = new LocalStructure(operatorNode, operands);
+            var cpsNames = [];
+            var maybeSequenced = operands && operands.sequence(env, true, cpsNames);
+            var localProcCall = localStructure.toProcCall(cpsNames);
 
-                // Add the local procedure call to the tip of the sequence
-                if (maybeSequenced) {
-                    maybeSequenced.getLastContinuable().continuation.nextContinuable = localProcCall;
-                    return maybeSequenced;
-                } else {
-                    return localProcCall;
-                }
+            // Add the local procedure call to the tip of the sequence
+            if (maybeSequenced) {
+                maybeSequenced.getLastContinuable().continuation.nextContinuable = localProcCall;
+                return maybeSequenced;
+            } else {
+                return localProcCall;
             }
-            }
-        ],
-        [
-            {type: '('},
-            {type: 'operator'},
-            {type: 'operand', atLeast: 0},
-            {type: ')'},
-            {desugar: function(node, env) {
-
-                // todo bl once desugaring is working we need to implement macro lookups:
-                /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
-                 evaluate. This may be the coolest line in this implementation.
-                 else {
-                 console.log(node.toString());
-                 // todo bl shouldn't have to go back to text
-                 return new Parser(
-                 new Reader(
-                 new Scanner(node.toString())
-                 ).read()
-                 ).parse('macro-use')
-                 .desugar(env);
-                 }*/
-
-                var operatorNode = node.at('operator');
-
-                /* Example: ((lambda (x) ...) y z). The lambda-expression will
-                 desugar to an identifier. */
-                if (!operatorNode.isIdentifier())
-                    operatorNode = operatorNode.desugar(env);
-
-                /* Example: (define (foo) +), ((foo) x y). In this case the
-                 procedure call, already desugared, must be evaluated. */
-                if (operatorNode instanceof Continuable)
-                    operatorNode = trampoline(operatorNode, env);
-
-                var operands = node.at('operand');
-                if (!operands.type)
-                    operands = null; // workaround for 0 operands
-
-                /* Take a snapshot of the local (nonrecursive) procedure call structure,
-                 since operands.sequence might destroy that structure. */
-                var localStructure = new LocalStructure(operatorNode, operands);
-                var cpsNames = [];
-                var maybeSequenced = operands && operands.sequence(env, true, cpsNames);
-                var localProcCall = localStructure.toProcCall(cpsNames);
-
-                // Add the local procedure call to the tip of the sequence
-                if (maybeSequenced) {
-                    maybeSequenced.getLastContinuable().continuation.nextContinuable = localProcCall;
-                    return maybeSequenced;
-                } else {
-                    return localProcCall;
-                }
-            }
-            }
-        ]
+        }
+        }
     );
 };
 

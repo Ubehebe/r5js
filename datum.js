@@ -132,10 +132,6 @@ Datum.prototype.matchChild = function(predicate) {
     return null;
 };
 
-Datum.prototype.nextSiblingRecursive = function() {
-    return this.nextSibling || (this.parent && this.parent.nextSiblingRecursive());
-};
-
 Datum.prototype.at = function(type) {
     var ans = this.matchChild(function(datum) {
 	/* The first clause is a convenience for things like node.at('(');
