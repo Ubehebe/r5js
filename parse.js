@@ -528,10 +528,37 @@ Parser.prototype['definition'] = function() {
             {type: 'expression'},
             {type: ')'},
             {desugar: function(node, env) {
-                var name = node.at('variable').payload;
-                var evaled = trampoline(node.at('expression').desugar(env, true), env);
-                env.addBinding(name, evaled);
-                return null; //definition falls off the tree
+
+                /* Example:
+
+                (define x (+ 1 2))
+                (define y (+ 3 4))
+                (+ x y)
+
+                should desugar to something like
+
+                (+ 1 2 [_0 (+ 3 4 [_1 (proc0 _0 _1 [_2 ...])])])
+
+                where proc0 is conceptually
+
+                (lambda (x y) (+ x y))
+
+                 */
+
+
+                var expr = node.at('expression').desugar(env, true);
+                var lastContinuable = expr.getLastContinuable();
+                var argToUse = lastContinuable.continuation.lastResultName;
+
+                //var formalsArray = [node.at('variable').payload];
+                var name = newAnonymousLambdaName();
+                //env.addBinding(name, newProcedureDatum(new SchemeProcedure(formalsArray, false, null, env, name)));
+                var procCall = newProcCall(name, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
+
+                lastContinuable.continuation.nextContinuable = procCall;
+                console.log('returning ' + expr);
+                expr.definitionHelper = new DefinitionHelper(procCall, lastContinuable, node.at('variable').payload);
+                return expr;
             }
             }
         ],

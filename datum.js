@@ -218,6 +218,29 @@ Datum.prototype.sequence = function(env, disableContinuationWrappers, cpsNames) 
                 tmp = newIdShim(tmp);
 
             if (tmp instanceof Continuable) {
+                if (tmp.definitionHelper) {
+                    var defn = tmp.definitionHelper;
+                    //var proc = env.get(tmp.reuseProc).payload;
+                    var rest = cur.nextSibling.sequence(env, disableContinuationWrappers, cpsNames);
+                    console.log('sequenced rest: ' + rest);
+
+                    if (rest.definitionHelper) {
+                        console.log('rest needs body: ' + rest.definitionHelper.getName());
+                        console.log('using var ' + defn.formals[0]);
+                        console.log('targeting ' + defn.precedingContinuable);
+                        rest.definitionHelper.prependBinding(defn.formals[0], defn.precedingContinuable.continuation.lastResultName);
+                        defn.precedingContinuable.continuation.nextContinuable = rest;
+                    }
+
+                    else {
+                        var proc = new SchemeProcedure(defn.formals, false, null, env, defn.getName());
+                        console.log('made a procedure with formals ' + defn.formals);
+                        proc.setBody(rest);
+                        env.addBinding(defn.getName(), newProcedureDatum(proc));
+                    }
+                    return tmp;
+                }
+
                 if (!first)
                     first = tmp;
                 else if (curEnd) {
@@ -541,3 +564,21 @@ LocalStructure.prototype.toString = function() {
  (Not in the spec anywhere, I'm just trying to reduce the grammar to simplify
  evaluation.)
  */
+
+function DefinitionHelper(continuableToTarget, precedingContinuable, firstFormal) {
+    this.procCallToTarget = continuableToTarget;
+    this.precedingContinuable = precedingContinuable;
+    this.formals = [firstFormal];
+}
+
+DefinitionHelper.prototype.getName = function() {
+    return this.procCallToTarget.subtype.operatorName;
+};
+
+DefinitionHelper.prototype.prependBinding = function(formal, actual) {
+    this.formals.unshift(formal);
+    var oldFirstOp = this.procCallToTarget.subtype.firstOperand;
+    var newFirstOp = newIdOrLiteral(actual);
+    this.procCallToTarget.subtype.firstOperand = newFirstOp;
+    newFirstOp.nextSibling = oldFirstOp;
+};

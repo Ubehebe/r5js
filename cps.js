@@ -15,13 +15,16 @@ Continuation.prototype.toString = function() {
 };
 
 /* todo bl this seems to be required for non-tail recursion, but it is slow.
-    Can we improve or eliminate it? */
+ Can we improve or eliminate it? */
 Continuation.prototype.clone = function() {
     var ans = new Continuation(this.lastResultName);
     if (this.nextContinuable) {
         ans.nextContinuable = new Continuable(
             this.nextContinuable.subtype,
             this.nextContinuable.continuation.clone());
+        // todo bl
+        if (this.nextContinuable.env)
+            ans.nextContinuable.env = this.nextContinuable.env;
     }
     return ans;
 };
@@ -40,79 +43,10 @@ function Continuable(subtype, continuation) {
  continuable c such that c.continuation.nextContinuable is null. */
 Continuable.prototype.getLastContinuable = function() {
     if (!this.continuation)
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new InternalInterpreterError('invariant violated');
     return this.continuation.nextContinuable
         ? this.continuation.nextContinuable.getLastContinuable()
         : this;
-};
-
-/* One of the drawbacks of using a trampoline for evaluation, instead
-    of a stack, is that bindings can get confusing. For example, consider
-    the program
-
-    (define (foo x) (* x x x))
-    (define x 10)
-    (+ x (foo 3))
-
-    The body of the procedure is desugared as
-
-    (* x x x [_0 ...])
-
-    The expression (+ x (foo 3)) is desugared as
-
-    (foo 3 [_1 (+ x _1 [_2 ...])])
-
-    The x should be bound to 10, according to (define x 10). If we didn't
-    make any special preparations, when that desugared procedure call
-    shows up on the trampoline, it will:
-
-    1. Bind 3 to x
-    2. Push [_1 (+ x _1 [_2 ...])] as the procedure body's last continuation
-    3. Advance to the procedure body, giving
-
-    (* x x x [_1 (+ x _1 [_2 ...])])
-
-    Using the binding x=3 for all occurrences of x clearly gives the wrong
-    answer.
-
-    One solution would be to resolve all the bindings in the continuation
-    [_1 (+ x _1 [_2 ...])] before rebinding x. This would require a walk of
-    the continuation prior to step 1. In fact, we do oftentimes walk this
-    continuation around this time in order to clone it. But there is no cloning
-    in tail recursion (the continuation is simply reused), and I did not want
-    to sacrifice performance in that important case.
-
-    Here is another solution. We know at definition time that foo uses x
-    exactly 3 times. The fourth use of x in
-
-    (* x x x [_1 (+ x _1 [_2 ...])])
-
-    should therefore refer to a different binding. So at procedure
-    definition time, we construct a histogram of the uses of the formal
-    parameters. We can use the histogram at evaluation time to figure
-    out what the correct binding of x should be. (That is what the
-    Environment class does.)
-
-    (Actually, this is a simplification. We cannot collect the histogram
-    across a branch, because we don't know at definition time which branch
-    we're going to take. So what we actually do is collect the histogram down
-    to the first branch. Each branch then collects its own histogram down to
-    its next branch, and so on. At evaluation time, when the trampoline comes
-    across a branch that has a histogram, it uses the histogram to extend the
-    "lifetimes" of the bindings accordingly. */
-Continuable.prototype.parameterHistogram = function(histogram) {
-
-    this.subtype.parameterHistogram(histogram);
-
-    /* todo bl I don't think a formal parameter can ever occur
-     as the lastResultName of a continuation, but this is not enforced
-     by the type system. We can remove this once we are sure of this
-     invariant. */
-    if (histogram[this.continuation.lastResultName] !== undefined)
-        ++histogram[this.continuation.lastResultName];
-
-    if (this.continuation.nextContinuable)
-        this.continuation.nextContinuable.parameterHistogram(histogram);
 };
 
 // delegate to subtype, passing in the continuation
@@ -129,11 +63,6 @@ function IdShim(payload) {
  of IdShims looks like a procedure call of an "id" procedure. */
 IdShim.prototype.toString = function(continuation) {
     return '(id ' + this.payload + ' ' + continuation + ')';
-};
-
-IdShim.prototype.parameterHistogram = function(histogram) {
-    if (this.payload.isIdentifier() && histogram[this.payload.payload] !== undefined)
-        ++histogram[this.payload.payload];
 };
 
 IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
@@ -178,9 +107,6 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
     this.alternate = alternateContinuable;
     this.consequentLastContinuable = consequentContinuable.getLastContinuable();
     this.alternateLastContinuable = alternateContinuable && alternateContinuable.getLastContinuable();
-    /* this.consequentFormalHistogram = {};
-     this.alternateFormalHistogram = {};
-     */
 }
 
 Branch.prototype.toString = function(continuation) {
@@ -189,36 +115,6 @@ Branch.prototype.toString = function(continuation) {
         + ' : ' + (this.alternate && this.alternate.toString())
         + ' ' + continuation
         + '}';
-};
-
-Branch.prototype.parameterHistogram = function(histogram) {
-    if (this.test.isIdentifier() && histogram[this.test.payload] !== undefined)
-        ++histogram[this.test.payload];
-
-    /* Branches act as barriers to collecting frequency information
-     on formal parameters. The consequent and alternate branches
-     might have different frequencies of formal parameters, and there
-     is no general way of knowing at definition time which branch will
-     be taken. What we can collect is the frequency information on
-     each branch up to the next branch node. We store the resulting
-     histograms in this branch node, so that at evaluation time, when
-     we know which branch is actually taken, we can adopt the correct
-     frequency information. */
-
-    var consequentHistogram = {};
-    var alternateHistogram = {};
-
-    for (var name in histogram) {
-        consequentHistogram[name] = 0;
-        alternateHistogram[name] = 0;
-    }
-
-    this.consequent.parameterHistogram(consequentHistogram);
-    this.alternate.parameterHistogram(alternateHistogram);
-
-    this.consequentFormalHistogram = consequentHistogram;
-    this.alternateFormalHistogram = alternateHistogram;
-
 };
 
 // For composition; should only be called from newProcCall
@@ -230,16 +126,6 @@ function ProcCall(operatorName, firstOperand) {
 function newProcCall(operatorName, firstOperand, continuation) {
     return new Continuable(new ProcCall(operatorName, firstOperand), continuation);
 }
-
-ProcCall.prototype.parameterHistogram = function(histogram) {
-    if (histogram[this.operatorName] !== undefined)
-        ++histogram[this.operatorName];
-
-    for (var op = this.firstOperand; op; op = op.nextSibling) {
-        if (op.isIdentifier() && histogram[op.payload] !== undefined)
-            ++histogram[op.payload];
-    }
-};
 
 ProcCall.prototype.toString = function(continuation) {
     var ans = '(' + this.operatorName + ' ';
@@ -272,13 +158,15 @@ function trampoline(continuable, env) {
         tmp.currentEnv = null;
 
         console.log('boing: ' + curContinuable);
-
-        curContinuable.subtype.evalAndAdvance(env, curContinuable.continuation, tmp);
+        if (curContinuable.env)
+            console.log('hey, this continuable has an environment attached from ' + curContinuable.env.name);
+        curContinuable.subtype.evalAndAdvance(curContinuable.env || env, curContinuable.continuation, tmp);
         ans = tmp.ans;
         curContinuable = tmp.nextContinuable;
-        if (tmp.currentEnv)
+        if (tmp.currentEnv) {
+            console.log('adopting env ' + tmp.currentEnv.name);
             env = tmp.currentEnv;
-
+        }
     }
 
     /* If we're about to return a JavaScript function, return its name instead.
@@ -304,13 +192,9 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         ? env.get(this.test.payload)
         : maybeWrapResult(this.test, this.test.type);
     if (testResult.payload === false) {
-        if (this.alternateFormalHistogram)
-            env.extendBindingLifetimes(this.alternateFormalHistogram);
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;
     } else {
-        if (this.consequentFormalHistogram)
-            env.extendBindingLifetimes(this.consequentFormalHistogram);
         this.consequentLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.consequent;
     }
@@ -330,7 +214,12 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     if (typeof proc === 'function') {
         args = gatherArgs(this.firstOperand, env);
         ans = proc.apply(null, args);
-        env.addBinding(continuation.lastResultName, ans);
+        if (continuation.nextContinuable && continuation.nextContinuable.env) {
+            console.log('hey, we should be adding to the env ' + continuation.nextContinuable.env.name);
+            continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
+        } else {
+            env.addBinding(continuation.lastResultName, ans);
+        }
         resultStruct.ans = ans;
         resultStruct.nextContinuable = continuation.nextContinuable && continuation.nextContinuable;
         resultStruct.primitiveName = this.operatorName;
@@ -365,10 +254,14 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         // todo bl do we need to wrap these in datums anymore?
         unwrappedProc = proc.payload;
         args = gatherArgs(this.firstOperand, env);
+        if (continuation.nextContinuable) {
+            console.log('attaching env ' + env.name + ' to continuable ' + continuation.nextContinuable);
+            continuation.nextContinuable.env = env;
+        }
         // This will be a no-op if tail recursion is detected
         unwrappedProc.setContinuation(continuation);
         unwrappedProc.checkNumArgs(args.length);
-        unwrappedProc.bindArgs(args);
+        unwrappedProc.bindArgs(args, unwrappedProc.env);
         resultStruct.nextContinuable = unwrappedProc.body;
         resultStruct.currentEnv = unwrappedProc.env;
     }

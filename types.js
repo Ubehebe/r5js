@@ -23,21 +23,38 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     not for resolving stuff in the environment. */
     this.name = name;
 
-    /* Prime the parameter histogram.
-        See Continuable.parameterHistogram for more information. */
-    this.parameterHistogram = {};
-    for (var i=0; i<formalsArray.length; ++i)
-        this.parameterHistogram[formalsArray[i]] = 0;
-
-
     if (bodyStart) {
         this.body = bodyStart.sequence(this.env);
-        this.body.parameterHistogram(this.parameterHistogram);
         this.lastContinuable = this.body.getLastContinuable();
         this.savedContinuation = this.lastContinuable.continuation;
     }
 
 }
+
+/* The only SchemeProcedure objects with null bodies should be
+ definitions, since we have to insert their bodies later in parsing. For
+ example:
+
+ (define x 1)
+ (+ x x)
+
+ The definition gets desugared to ((lambda (x) null) 1). The expression
+ (+ x x) later becomes the anonymous lambda's body:
+
+ ((lambda (x) (+ x x)) 1)
+ */
+SchemeProcedure.prototype.isDefinition = function() {
+    return !this.body;
+};
+
+SchemeProcedure.prototype.setBody = function(bodyContinuable) {
+    if (!this.isDefinition())
+        throw new InternalInterpreterError('not a definition: ' + this);
+    console.log('attempting to set body ' + bodyContinuable);
+    this.body = bodyContinuable;
+    this.lastContinuable = this.body.getLastContinuable();
+    this.savedContinuation = this.lastContinuable.continuation;
+};
 
 /* This function is a no-op for tail calls, thus should support an unlimited
     number of active tail calls. Example:
@@ -111,27 +128,27 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
     }
 };
 
-SchemeProcedure.prototype.bindArgs = function(args) {
+SchemeProcedure.prototype.bindArgs = function(args, env) {
 
     var name, i;
 
     for (i = 0; i < this.formalsArray.length - 1; ++i) {
         name = this.formalsArray[i];
-        this.env.addRepeatedBinding(name, args[i], this.parameterHistogram[name] || 0);
+        env.addBinding(name, args[i]);
     }
 
     /* Thanks to non-scoped JavaScript local variables,
      i is now this.formalsArray.length - 1. */
     name = this.formalsArray[i];
     if (!this.isDotted) {
-        this.env.addRepeatedBinding(name, args[i], this.parameterHistogram[name] || 0);
+        env.addBinding(name, args[i]);
     } else {
         // Roll up the remaining arguments into a list
         var list = newEmptyList();
         // Go backwards and do prepends to avoid quadratic performance
         for (var j = args.length - 1; j >= this.formalsArray.length - 1; --j)
             list.prependChild(args[j]);
-        this.env.addRepeatedBinding(name, list, this.parameterHistogram[name] || 0);
+        env.addBinding(name, list);
     }
 };
 
