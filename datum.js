@@ -198,9 +198,8 @@ Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     return ans;
 };
 
-Datum.prototype.sequence = function(env, disableContinuationWrappers, cpsNames) {
-    var first = null;
-    var tmp, curEnd;
+Datum.prototype.sequenceOperands = function(env, cpsNames) {
+    var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
         /* This check is necessary because node.desugar can return null for some
          nodes (when it makes sense for the node to drop off the tree before
@@ -209,51 +208,152 @@ Datum.prototype.sequence = function(env, disableContinuationWrappers, cpsNames) 
             if (cpsNames && tmp instanceof Continuable)
                 cpsNames.push(tmp.getLastContinuable().continuation.lastResultName);
 
-            /* Nodes that have no desugar functions (for example, variables
-             and literals) desugar as themselves. Usually this is OK,
-             but when we need to sequence them (for example, the program
-             "1 2 3"), we have to wrap them in an object in order to set the
-             continuations properly. */
-            if (!(tmp instanceof Continuable) && !disableContinuationWrappers)
-                tmp = newIdShim(tmp);
-
             if (tmp instanceof Continuable) {
-                if (tmp.definitionHelper) {
-                    var defn = tmp.definitionHelper;
-                    //var proc = env.get(tmp.reuseProc).payload;
-                    var rest = cur.nextSibling.sequence(env, disableContinuationWrappers, cpsNames);
-                    console.log('sequenced rest: ' + rest);
-
-                    if (rest.definitionHelper) {
-                        console.log('rest needs body: ' + rest.definitionHelper.getName());
-                        console.log('using var ' + defn.formals[0]);
-                        console.log('targeting ' + defn.precedingContinuable);
-                        rest.definitionHelper.prependBinding(defn.formals[0], defn.precedingContinuable.continuation.lastResultName);
-                        defn.precedingContinuable.continuation.nextContinuable = rest;
-                    }
-
-                    else {
-                        var proc = new SchemeProcedure(defn.formals, false, null, env, defn.getName());
-                        console.log('made a procedure with formals ' + defn.formals);
-                        proc.setBody(rest);
-                        env.addBinding(defn.getName(), newProcedureDatum(proc));
-                    }
-                    return tmp;
-                }
-
                 if (!first)
                     first = tmp;
-                else if (curEnd) {
+                else if (curEnd)
                     curEnd.nextContinuable = tmp;
-                }
 
                 curEnd = tmp.getLastContinuable().continuation;
             }
         }
     }
 
-    return first; // can be null
+    return first; // can be undefined
+
 };
+
+Datum.prototype.sequence = function(env, isTopLevel) {
+    var first, tmp, curEnd;
+    for (var cur = this; cur; cur = cur.nextSibling) {
+        // todo bl do we need this check anymore?
+        if (tmp = cur.desugar(env)) {
+
+            /* Nodes that have no desugar functions (for example, variables
+             and literals) desugar as themselves. Sometimes this is OK
+             (for example in Datum.sequenceOperands), but here we need to be
+             able to connect the Continuable objects correctly, so we
+             wrap them. */
+            if (!(tmp instanceof Continuable))
+                tmp = newIdShim(tmp);
+
+            /* If there was a DefinitionHelper object attached to this node,
+             we need to run some special logic to set up the bindings. */
+            if (tmp.definitionHelper) {
+                isTopLevel
+                    ? constructTopLevelDefs(env, tmp.definitionHelper, cur.nextSibling)
+                    : constructInternalDefs(env, tmp.definitionHelper, cur.nextSibling);
+                /* This is not a short circuit: the remaining siblings are
+                 sequenced recursively by the above function call. */
+                return tmp;
+            }
+
+            if (!first)
+                first = tmp;
+            else if (curEnd) {
+                curEnd.nextContinuable = tmp;
+            }
+
+            curEnd = tmp.getLastContinuable().continuation;
+        }
+    }
+
+    return first; // can be undefined
+};
+
+/* Example:
+ (define x (+ 1 2))
+ (define y (+ x 4))
+ (* x y)
+
+ Such a construction (where y depends on x) is not permitted in
+ internal definitions. */
+function constructTopLevelDefs(env, definitionHelper, next) {
+
+    var proc = new SchemeProcedure(definitionHelper.formals, false, null, env, definitionHelper.getProcName());
+    var rest = next.sequence(proc.env, true);
+
+    proc.setBody(rest);
+    env.addBinding(definitionHelper.getProcName(), newProcedureDatum(proc));
+}
+
+/* 5.2.2: "it must be possible to evaluate each <expression> of every
+ internal definition in a <body> without assigning or referring to the
+ value of any <variable> being defined."
+
+ For example, in a non-top-level context,
+
+ (define x 1)
+ (define y 2)
+ (+ x y)
+
+ could be interpreted as
+
+ ((lambda (x y) (+ x y)) 1 2)
+
+ but it could NOT be interpreted as
+
+ ((lambda (x) ((lambda (y) (+ x y)) 2)) 1)
+
+ because this would allow something like
+
+ (define x 1)
+ (define y x)
+ (+ x y)
+
+ But implementations vary. In MIT Scheme it is legal.
+ */
+function constructInternalDefs(env, definitionHelper, next) {
+    var rest = next.sequence(env, false);
+
+    /* If the rest of the sequence contained a definition, we have to aggregate
+     the definitions. Example:
+
+     (define x (+ 1 2)) => (+ 1 2 [_0 (proc0 _0 [...])])
+     (define y (+ 3 4)) => (+ 3 4 [_1 (proc1 _1 [...])])
+     (+ x y)
+
+     The base case is at (define y (+ 3 4)). This will install proc1 with
+     body (+ x y) in the environment.
+
+     The recursive case is at (define x (+ 1 2)). What we need to do here is
+     combine proc0 and proc1 so that we get
+
+     (+ 1 2 [_0 (+ 3 4 [_1 (proc0 _0 _1 [...])])])
+
+     This involves several updates:
+     (a) Prepend a formal parameter x to proc0's parameters
+     (b) Insert the argument "_0" in the actual call to proc0
+     (c) Replace the end of x's continuable chain with y's continuable chain
+     */
+    if (rest.definitionHelper) {
+        // Takes care of steps (a) and (b)
+        rest.definitionHelper.incorporateOuterDef(definitionHelper);
+        // Takes care of step (c)
+        definitionHelper.setContinuable(rest);
+    }
+
+    else {
+        var proc = new SchemeProcedure(definitionHelper.formals, false, null, env, definitionHelper.getProcName());
+        proc.setBody(rest);
+        env.addBinding(definitionHelper.getProcName(), newProcedureDatum(proc));
+    }
+}
+
+DefinitionHelper.prototype.getSoleCPSName = function() {
+    if (this.formals.length !== 1)
+        throw new InternalInterpreterError('invariant incorrect');
+    return this.precedingContinuable.continuation.lastResultName;
+};
+
+DefinitionHelper.prototype.incorporateOuterDef = function(outerDefHelper) {
+    this.prependBinding(outerDefHelper.getSoleFormal(), outerDefHelper.getSoleCPSName());
+};
+
+DefinitionHelper.prototype.setContinuable = function(continuable) {
+    this.precedingContinuable.continuation.nextContinuable = continuable;
+};
+
 
 // todo bl once we have hidden these types behind functions, we can
 // switch their representations to ints instead of strings
@@ -571,7 +671,7 @@ function DefinitionHelper(continuableToTarget, precedingContinuable, firstFormal
     this.formals = [firstFormal];
 }
 
-DefinitionHelper.prototype.getName = function() {
+DefinitionHelper.prototype.getProcName = function() {
     return this.procCallToTarget.subtype.operatorName;
 };
 
@@ -581,4 +681,10 @@ DefinitionHelper.prototype.prependBinding = function(formal, actual) {
     var newFirstOp = newIdOrLiteral(actual);
     this.procCallToTarget.subtype.firstOperand = newFirstOp;
     newFirstOp.nextSibling = oldFirstOp;
+};
+
+DefinitionHelper.prototype.getSoleFormal = function() {
+    if (this.formals.length !== 1)
+        throw new InternalInterpreterError('invariant incorrect');
+    return this.formals[0];
 };

@@ -413,7 +413,7 @@ Parser.prototype['procedure-call'] = function() {
              since operands.sequence might destroy that structure. */
             var localStructure = new LocalStructure(operatorNode, operands);
             var cpsNames = [];
-            var maybeSequenced = operands && operands.sequence(env, true, cpsNames);
+            var maybeSequenced = operands && operands.sequenceOperands(env, cpsNames);
             var localProcCall = localStructure.toProcCall(cpsNames);
 
             // Add the local procedure call to the tip of the sequence
@@ -529,36 +529,29 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
             {desugar: function(node, env) {
 
-                /* Example:
+                /*
+                    Example:
 
-                (define x (+ 1 2))
-                (define y (+ 3 4))
-                (+ x y)
+                    (define x (+ 1 2))
 
-                should desugar to something like
+                    will desugar to
 
-                (+ 1 2 [_0 (+ 3 4 [_1 (proc0 _0 _1 [_2 ...])])])
+                    (+ 1 2 [_0 (proc0 _0 [...])])
 
-                where proc0 is conceptually
+                    where proc0 is a new procedure we made up with a single
+                    formal parameter x.
+                */
 
-                (lambda (x y) (+ x y))
+                var expr = node.at('expression').desugar(env, true); // (+ 1 2 [_0 ...])
+                var lastContinuable = expr.getLastContinuable(); // (+ 1 2 [_0 ...])
+                var argToUse = lastContinuable.continuation.lastResultName; // _0
 
-                 */
-
-
-                var expr = node.at('expression').desugar(env, true);
-                var lastContinuable = expr.getLastContinuable();
-                var argToUse = lastContinuable.continuation.lastResultName;
-
-                //var formalsArray = [node.at('variable').payload];
-                var name = newAnonymousLambdaName();
-                //env.addBinding(name, newProcedureDatum(new SchemeProcedure(formalsArray, false, null, env, name)));
+                var name = newAnonymousLambdaName(); // proc0
                 var procCall = newProcCall(name, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
 
                 lastContinuable.continuation.nextContinuable = procCall;
-                console.log('returning ' + expr);
                 expr.definitionHelper = new DefinitionHelper(procCall, lastContinuable, node.at('variable').payload);
-                return expr;
+                return expr; // (+ 1 2 [_0 (proc0 _0 [...])])
             }
             }
         ],
@@ -1081,12 +1074,11 @@ Parser.prototype['pattern-identifier'] = function() {
 };
 
 // <program> -> <command or definition>*
-// todo bl: maybe wrap in a begin-block?
 Parser.prototype['program'] = function() {
     return this.rhs(
         {type: 'command-or-definition', atLeast: 0},
         {desugar: function(node, env) {
-            return node.sequence(env);
+            return node.sequence(env, true);
         }
         });
 };
