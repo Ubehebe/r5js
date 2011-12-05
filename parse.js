@@ -565,19 +565,45 @@ Parser.prototype['definition'] = function() {
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {desugar: function(node, env) {
-                var formalsList = node.at('(');
-                var formals = formalsList.mapChildren(function(child) {
+
+                /* Example:
+
+                 (define (foo x y) (+ x y)) ...
+
+                 should desugar to something like
+
+                 ((lambda (foo) ...) (lambda (x y) (+ x y)))
+
+                 todo bl: below, we set up a new subtree, then explicitly
+                 execute the desugaring steps given in the lambda-expression's
+                 desugar function. It might be more elegant if we could get the
+                 new subtree's structure exactly right, so we could just say
+                 fakeNode.desugar(env, true).
+                 */
+
+                var formalRoot = node.at('(');
+                var formals = formalRoot.mapChildren(function(child) {
                     return child.payload;
                 });
-                var name = formals.shift();
-                /* Note that we store the procedure wrapped in a datum.
-                 This is just for consistency; to use procedures generally, they have
-                 to be wrapped in datums, so we can do things like
-                 (cons (lambda () 0) (lambda () 1)). */
-                env.addBinding(name, newProcedureDatum(
-                        new SchemeProcedure(
-                            formals, false, formalsList.nextSibling, env, name)));
-                return null;
+
+                var nonAnonymousName = formals.shift();
+
+                env.addBinding(
+                    nonAnonymousName,
+                    newProcedureDatum(
+                        new SchemeProcedure(formals, false, formalRoot.nextSibling, env, nonAnonymousName)
+                    ));
+                var desugared = newIdShim(newIdOrLiteral(nonAnonymousName));
+
+                var lastContinuable = desugared.getLastContinuable();
+                var argToUse = lastContinuable.continuation.lastResultName;
+
+                var anonymousName = newAnonymousLambdaName();
+
+                var procCall = newProcCall(anonymousName, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
+                lastContinuable.continuation.nextContinuable = procCall;
+                desugared.definitionHelper = new DefinitionHelper(procCall, lastContinuable, nonAnonymousName);
+                return desugared;
             }}
         ],
         [
@@ -591,20 +617,32 @@ Parser.prototype['definition'] = function() {
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'},
-            {desugar: function(node, env) {
-                var formalsList = node.at('(').at('variable');
-                var formals = formalsList.mapChildren(function(child) {
+           {desugar: function(node, env) {
+
+                var formalRoot = node.at('.('); // haha it's been so long, I forgot about this syntax
+                var formals = formalRoot.mapChildren(function(child) {
                     return child.payload;
                 });
-                var name = formals.shift();
-                /* Note that we store the procedure wrapped in a datum.
-                 This is just for consistency; to use procedures generally, they have
-                 to be wrapped in datums, so we can do things like
-                 (cons (lambda () 0) (lambda () 1)). */
-                env.addBinding(name, newProcedureDatum(
-                        new SchemeProcedure(
-                            formals, true, formalsList.nextSibling, env)));
-                return null;
+
+                var nonAnonymousName = formals.shift();
+
+                env.addBinding(
+                    nonAnonymousName,
+                    newProcedureDatum(
+                        new SchemeProcedure(formals, true, formalRoot.nextSibling, env, nonAnonymousName)
+                    ));
+                var desugared = newIdShim(newIdOrLiteral(nonAnonymousName));
+
+
+                var lastContinuable = desugared.getLastContinuable();
+                var argToUse = lastContinuable.continuation.lastResultName;
+
+                var anonymousName = newAnonymousLambdaName();
+
+                var procCall = newProcCall(anonymousName, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
+                lastContinuable.continuation.nextContinuable = procCall;
+                desugared.definitionHelper = new DefinitionHelper(procCall, lastContinuable, nonAnonymousName);
+                return desugared;
             }}
         ],
         [
