@@ -226,6 +226,35 @@ Datum.prototype.sequenceOperands = function(env, cpsNames) {
 Datum.prototype.sequence = function(env, isTopLevel) {
     var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
+        /* 5.1: "At the top level of a program (begin <form1> ...) is
+            equivalent to the sequence of expressions, definitions, and
+            syntax definitions that form the body of the begin."
+
+            5.2.2: "Wherever an internal definition may occur
+            (begin <definition1> ...) is equivalent to the sequence of
+            definitions that form the body of the begin."
+
+            What we do on finding a begin block as a child of node N is
+            just read the children of the begin block as children of N.
+
+            Note that the standard gives a couple macro definitions of
+            begin, but this confusing sentence made me unsure of whether
+            they are adequate definitions:
+
+            7.3: "In any case, note that these rules [=macros?] apply only if
+            the body of the begin contains no definitions."
+         */
+        if (cur.isList() && cur.firstChild.payload === 'begin') {
+            var startBeginBlock = cur.firstChild.nextSibling;
+            if (startBeginBlock) {
+                var endBeginBlock = startBeginBlock.lastSibling();
+                endBeginBlock.parent = null;
+                endBeginBlock.nextSibling = cur.nextSibling;
+                cur = startBeginBlock;
+                // fallthrough to the desugar block
+            } else continue; // if it's just (begin), do nothing
+        }
+
         // todo bl do we need this check anymore?
         if (tmp = cur.desugar(env)) {
 
@@ -235,7 +264,7 @@ Datum.prototype.sequence = function(env, isTopLevel) {
              able to connect the Continuable objects correctly, so we
              wrap them. */
             if (!(tmp instanceof Continuable))
-                tmp = newIdShim(tmp);
+                tmp = newIdShim(tmp, newCpsName());
 
             /* If there was a DefinitionHelper object attached to this node,
              we need to run some special logic to set up the bindings. */

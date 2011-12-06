@@ -649,12 +649,7 @@ Parser.prototype['definition'] = function() {
             {type: '('},
             {type: 'begin'},
             {type: 'definition', atLeast: 0},
-            {type: ')'},
-            {desugar: function(node, env) {
-                node.at('definition').sequence(env);
-                return null;
-            }
-            }
+            {type: ')'}
         ]);
 
 };
@@ -1138,11 +1133,7 @@ Parser.prototype['command-or-definition'] = function() {
             {type: '('},
             {type: 'begin'},
             {type: 'command-or-definition', atLeast: 0},
-            {type: ')'},
-            {desugar: function(node, env) {
-                return node.at('command-or-definition').sequence(env);
-            }
-            }
+            {type: ')'}
         ],
         [
             {type: 'command'}
