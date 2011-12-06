@@ -1,4 +1,4 @@
-var builtins = (function() {
+var newStdEnv = (function() {
 
     var builtinTypeProcs = {
 
@@ -24,10 +24,10 @@ var builtins = (function() {
         },
 
         /* 6.3.6: "Like list constants, vector constants must be quoted."
-            (Neither lists nor vectors appear anywhere in the non-datum grammar).
-            Thus (vector? '#()) => #t, but (vector? #()) is a parse error. Nevertheless,
-            both PLT and MIT Scheme have it evaluate to #t. In those implementations,
-            it seems vectors (but not lists?) are self-evaluating. */
+         (Neither lists nor vectors appear anywhere in the non-datum grammar).
+         Thus (vector? '#()) => #t, but (vector? #()) is a parse error. Nevertheless,
+         both PLT and MIT Scheme have it evaluate to #t. In those implementations,
+         it seems vectors (but not lists?) are self-evaluating. */
         'vector?': {
             argc: 1,
             proc: function(node) {
@@ -562,11 +562,11 @@ var builtins = (function() {
             var maybeUnwrappedArgs;
 
             /* If type checking was requested, do the type checking and
-                also unwrap the arguments (so that a datum representing 1
-                gets unwrapped to a JavaScript number 1). This makes sense
-                because if you're writing a procedure that doesn't do any type
-                checking, you should be prepared to handle arbitrary objects
-                (i.e. Datum objects) in the procedure itself. */
+             also unwrap the arguments (so that a datum representing 1
+             gets unwrapped to a JavaScript number 1). This makes sense
+             because if you're writing a procedure that doesn't do any type
+             checking, you should be prepared to handle arbitrary objects
+             (i.e. Datum objects) in the procedure itself. */
             if (argtypes) {
                 maybeUnwrappedArgs = [];
 
@@ -621,24 +621,26 @@ var builtins = (function() {
         }
     }
 
+    return function() {
+        var builtins = new Environment();
 
-    var builtins = new Environment();
+        [builtinTypeProcs,
+            builtinCharProcs,
+            builtinControlProcs,
+            builtinEvalProcs,
+            builtinIOProcs,
+            builtinNumberProcs,
+            builtinPairProcs,
+            builtinStringProcs,
+            builtinSymbolProcs,
+            builtinVectorProcs].forEach(function(procs) {
+            for (var name in procs)
+                registerBuiltin(name, procs[name], builtins);
+        });
 
-    [builtinTypeProcs,
-        builtinCharProcs,
-        builtinControlProcs,
-        builtinEvalProcs,
-        builtinIOProcs,
-        builtinNumberProcs,
-        builtinPairProcs,
-        builtinStringProcs,
-        builtinSymbolProcs,
-        builtinVectorProcs].forEach(function(procs) {
-        for (var name in procs)
-            registerBuiltin(name, procs[name], builtins);
-    });
+        return builtins;
 
-    return builtins;
+    };
 })();
 
 

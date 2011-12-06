@@ -56,7 +56,7 @@
                     by "&gt;". This is a problem chiefly for the Scheme token "=>".
                     Reconstruct this here. */
                 var stdLib = iframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
-                desugar(stdLib, builtins);
+                desugar(stdLib, newStdEnv());
                 console.log('evaled std lib ok');
             }
 
@@ -97,26 +97,27 @@
         }
 
         function doDesugar() {
-            var desugared = desugar(document.getElementById('toEval').value, builtins, document.getElementById('lhs').value);
+            var desugared = desugar(document.getElementById('toEval').value, newStdEnv(), document.getElementById('lhs').value);
             console.log(desugared);
-            document.getElementById('result').value = desugared;
+            document.getElementById('result').value = desugared.toString();
         }
 
         function doEval() {
+            var env = newStdEnv();
             var desugared =
                     new Parser(
                             new Reader(
                                     new Scanner(
                                             document.getElementById('toEval').value)).read()
                     ).parse(document.getElementById('lhs').value)
-                            .desugar(builtins);
-            var ans = trampoline(desugared, builtins);
+                            .desugar(env);
+            var ans = trampoline(desugared, env);
             console.log(ans);
             document.getElementById('result').value = ans.toString();
         }
 
         function showEnvironments() {
-            desugar(document.getElementById('toEval').value, builtins, document.getElementById('lhs').value);
+            desugar(document.getElementById('toEval').value, newStdEnv(), document.getElementById('lhs').value);
             console.log(allEnvironments);
         }
     </script>
