@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>r5js</title>
+    <script type="text/javascript" src="main.js"></script>
     <script type="text/javascript" src="env.js"></script>
     <script type="text/javascript" src="datum.js"></script>
     <script type="text/javascript" src="types.js"></script>
@@ -102,16 +103,8 @@
             document.getElementById('result').value = desugared.toString();
         }
 
-        function doEval() {
-            var env = newStdEnv();
-            var desugared =
-                    new Parser(
-                            new Reader(
-                                    new Scanner(
-                                            document.getElementById('toEval').value)).read()
-                    ).parse(document.getElementById('lhs').value)
-                            .desugar(env);
-            var ans = trampoline(desugared, env);
+        function doEvalWrapper() {
+            var ans = doEval(document.getElementById('toEval').value, document.getElementById('lhs').value);
             console.log(ans);
             document.getElementById('result').value = ans ? ans : 'undefined';
         }
@@ -132,7 +125,7 @@
     <button onclick='doRead()'>read</button>
     <button onclick='doParse()'>parse</button>
     <button onclick='doDesugar()'>desugar</button>
-    <button onclick='doEval()'>eval</button>
+    <button onclick='doEvalWrapper()'>eval</button>
 </p>
 <p>
     <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
@@ -140,6 +133,7 @@
 <p>
     <button onclick="testScanner()">scanner unit tests</button>
     <button onclick="testParser()">parser unit tests</button>
+    <button onclick="testEvaluator()">evaluator unit tests</button>
     <button onclick="showEnvironments()">show environments</button>
 </p>
 </body>
