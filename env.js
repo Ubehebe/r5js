@@ -37,8 +37,11 @@ Environment.prototype.get = function(name) {
 };
 
 Environment.prototype.addBinding = function(name, val) {
-    if (!this.bindings[name])
+    if (!this.bindings[name]) {
         this.bindings[name] = val;
+        if (val instanceof Continuation)
+            console.log('awesome, bound a continuation to ' + name);
+    }
     else throw new InternalInterpreterError('warning, redefining ' + name);
 };
 

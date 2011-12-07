@@ -495,8 +495,14 @@ var newStdEnv = (function() {
              }*/
         },
 
-        // todo bl:
-        'call-with-current-continuation': {},
+        // todo bl replace call/cc by full name
+        'call/cc': {
+            argc: 2,
+            argtypes: ['procedure'],
+            proc: function(p) {
+                // todo bl logic elsewhere for now
+            }
+        },
         'values': {},
         'call-with-values': {},
         'dynamic-wind': {}
@@ -575,8 +581,10 @@ var newStdEnv = (function() {
                 if (typeof argtypes === 'string') {
                     var classifier = targetEnv.get(argtypes + '?');
                     for (var i = 0; i < arguments.length; ++i) {
-                        if (classifier(arguments[i]))
-                            maybeUnwrappedArgs.push(arguments[i].unwrap());
+                        /* todo bl this wrapping and unwrapping is getting
+                            out of hand. */
+                        if (classifier(arguments[i]).unwrap())
+                            maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
                         else
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes);
                     }
@@ -589,7 +597,7 @@ var newStdEnv = (function() {
                         if (argtypes[i] && !targetEnv.get(argtypes[i] + '?')(arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
                         else
-                            maybeUnwrappedArgs.push(arguments[i].unwrap());
+                            maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
                     }
                 }
             }
