@@ -53,7 +53,6 @@ SchemeProcedure.prototype.isDefinition = function() {
 SchemeProcedure.prototype.setBody = function(bodyContinuable) {
     if (!this.isDefinition())
         throw new InternalInterpreterError('not a definition: ' + this);
-    console.log('attempting to set body ' + bodyContinuable);
     this.body = bodyContinuable;
     this.lastContinuable = this.body.getLastContinuable();
     this.savedContinuation = this.lastContinuable.continuation;

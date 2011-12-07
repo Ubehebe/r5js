@@ -151,9 +151,6 @@ TrampolineResultStruct.prototype.clear = function() {
 // This is the main evaluation function.
 function trampoline(continuable, env) {
 
-    console.log('trampoline begins with env ' + env.name);
-
-
     var curContinuable = continuable;
     var ans;
     var tmp = new TrampolineResultStruct();
@@ -162,14 +159,12 @@ function trampoline(continuable, env) {
 
         tmp.clear();
 
-        console.log('boing: ' + curContinuable);
+        // a good first step for debugging: console.log('boing: ' + curContinuable);
         curContinuable.subtype.evalAndAdvance(curContinuable.env || env, curContinuable.continuation, tmp);
         ans = tmp.ans;
         curContinuable = tmp.nextContinuable;
-        if (tmp.currentEnv) {
-            console.log('adopting env ' + tmp.currentEnv.name);
+        if (tmp.currentEnv)
             env = tmp.currentEnv;
-        }
     }
 
     /* If we're about to return a JavaScript function, return its name instead.
