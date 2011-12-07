@@ -460,7 +460,7 @@ Parser.prototype['lambda-expression'] = function() {
             var name = newAnonymousLambdaName();
             env.addBinding(name, newProcedureDatum(
                 new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name)));
-            return newIdOrLiteral(name);
+            return newIdShim(newIdOrLiteral(name), newCpsName());
         }
         }
     );
