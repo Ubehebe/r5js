@@ -16,6 +16,13 @@ Environment.prototype.hasBinding = function(name) {
     return this.bindings[name];
 };
 
+Environment.prototype.hasBindingRecursive = function(name) {
+    /* This won't foul up because bindings can't have primitives like false
+        that could confuse the comparison (they're always wrapped in datums) */
+    return this.bindings[name]
+        || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name));
+};
+
 Environment.prototype.get = function(name) {
 
     var maybe = this.bindings[name];

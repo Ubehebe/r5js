@@ -28,8 +28,11 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
         this.lastContinuable = this.body.getLastContinuable();
         this.savedContinuation = this.lastContinuable.continuation;
     }
-
 }
+
+SchemeProcedure.prototype.setMustAlreadyBeBound = function(dict) {
+    this.mustAlreadyBeBound = dict;
+};
 
 /* The only SchemeProcedure objects with null bodies should be
  definitions, since we have to insert their bodies later in parsing. For
@@ -108,7 +111,20 @@ SchemeProcedure.prototype.setBody = function(bodyContinuable) {
     it works for all the tail call sites required by the Scheme standard.
  */
 SchemeProcedure.prototype.setContinuation = function(c) {
-    if (this.lastContinuable.continuation !== c)
+    /* The first part of this check is to avoid a null pointer dereference if
+     the procedure has no body. Such an occurrence is not allowed by the
+     Scheme grammar, but internally we rewrite definitions as dummy
+     procedures, and programs are allowed to have no expressions, as in
+
+     (define x 1)
+
+     This should translate to something like
+
+     ((lambda (x) <nothing>) 1)
+
+     See comments in constructTopLevelDefs. */
+    if (this.lastContinuable
+        && this.lastContinuable.continuation !== c)
         this.lastContinuable.continuation = c.clone();
 };
 
@@ -131,6 +147,12 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
 SchemeProcedure.prototype.bindArgs = function(args, env) {
 
     var name, i;
+
+    if (this.mustAlreadyBeBound) {
+        for (name in this.mustAlreadyBeBound)
+            if (!env.hasBindingRecursive(name))
+                throw new UnboundVariable('cannot set undefined variable: ' + name);
+    }
 
     for (i = 0; i < this.formalsArray.length - 1; ++i) {
         name = this.formalsArray[i];

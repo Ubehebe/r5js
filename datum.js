@@ -301,6 +301,8 @@ function constructTopLevelDefs(env, definitionHelper, next) {
 
     var proc = new SchemeProcedure(definitionHelper.formals, false, null, env, definitionHelper.getProcName());
     var rest = next.sequence(proc.env, true);
+    if (definitionHelper.mustAlreadyBeBound)
+        proc.setMustAlreadyBeBound(definitionHelper.mustAlreadyBeBound);
 
     proc.setBody(rest);
     env.addBinding(definitionHelper.getProcName(), newProcedureDatum(proc));
@@ -377,6 +379,12 @@ DefinitionHelper.prototype.getSoleCPSName = function() {
 
 DefinitionHelper.prototype.incorporateOuterDef = function(outerDefHelper) {
     this.prependBinding(outerDefHelper.getSoleFormal(), outerDefHelper.getSoleCPSName());
+    if (outerDefHelper.mustAlreadyBeBound) {
+        if (!this.mustAlreadyBeBound)
+            this.mustAlreadyBeBound = {};
+        for (var name in outerDefHelper.mustAlreadyBeBound)
+            this.mustAlreadyBeBound[name] = true;
+    }
 };
 
 DefinitionHelper.prototype.setContinuable = function(continuable) {
@@ -694,10 +702,14 @@ LocalStructure.prototype.toString = function() {
  evaluation.)
  */
 
-function DefinitionHelper(continuableToTarget, precedingContinuable, firstFormal) {
+function DefinitionHelper(continuableToTarget, precedingContinuable, firstFormal, isAssignment) {
     this.procCallToTarget = continuableToTarget;
     this.precedingContinuable = precedingContinuable;
     this.formals = [firstFormal];
+    if (isAssignment) {
+        this.mustAlreadyBeBound = {};
+        this.mustAlreadyBeBound[firstFormal] = true;
+    }
 }
 
 DefinitionHelper.prototype.getProcName = function() {

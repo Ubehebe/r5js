@@ -726,11 +726,18 @@ Parser.prototype['assignment'] = function() {
         {type: 'expression'},
         {type: ')'},
         {desugar: function(node, env) {
-                env.addBinding(node.at('variable').payload, trampoline(node.at('expression').desugar(env, true), env));
-                return null;
-            }
-            }
-        );
+            var expr = node.at('expression').desugar(env, true);
+            var lastContinuable = expr.getLastContinuable();
+            var argToUse = lastContinuable.continuation.lastResultName;
+
+            var name = newAnonymousLambdaName();
+            var procCall = newProcCall(name, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
+            lastContinuable.continuation.nextContinuable = procCall;
+            expr.definitionHelper = new DefinitionHelper(procCall, lastContinuable, node.at('variable').payload, true);
+            return expr;
+        }
+        }
+    );
 };
 
 // todo bl quasiquotation?
