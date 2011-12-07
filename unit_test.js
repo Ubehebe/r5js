@@ -319,6 +319,10 @@ function testEvaluator() {
         '(define (foo x y) (+ x (* 2 y))) (foo 3 4)': '11'
     };
 
+    tests['continuations'] = {
+        '(define (foo x) (x 3.14)) (call/cc foo)': '3.14'
+    };
+
     var numErrors = 0;
     var numTests = 0;
 

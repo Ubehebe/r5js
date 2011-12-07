@@ -201,7 +201,6 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
     var proc = env.get(this.operatorName);
-    var unwrappedProc;
     var args;
     var ans;
 
@@ -210,39 +209,25 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
      result to the continuation's result name ("ans"), and advance
      to the next continuable ("..."). */
     if (typeof proc === 'function') {
-        args = gatherArgs(this.firstOperand, env);
-        if (this.operatorName === 'call/cc') {// todo bl HACK!
-            /* Semantics of call/cc:
 
-                (call/cc foo)
+        // For call/cc etc.
+        if (proc.hasSpecialEvalLogic) {
+            args = [this, continuation, resultStruct];
+            proc.apply(null, args);
+        }
 
-                means create a new procedure call,
-
-                (foo cc)
-
-                where cc is the current continuation. Then inside the procedure
-                body, if we see
-
-                (cc x)
-
-                (that is, if the trampoline determines that the identifier is
-                bound to a Continuation object), this means bind x to cc's
-                lastResultName and set the next continuable to cc's
-                nextContinuable. */
-            var dummyProcCall = newProcCall(this.firstOperand, continuation, continuation);
-            resultStruct.nextContinuable = dummyProcCall;
+        else {
+            args = gatherArgs(this.firstOperand, env);
+            ans = proc.apply(null, args);
+            if (continuation.nextContinuable && continuation.nextContinuable.env) {
+                continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
+            } else {
+                env.addBinding(continuation.lastResultName, ans);
+            }
+            resultStruct.ans = ans;
+            resultStruct.nextContinuable = continuation.nextContinuable && continuation.nextContinuable;
             resultStruct.primitiveName = this.operatorName;
-            return;
         }
-        ans = proc.apply(null, args);
-        if (continuation.nextContinuable && continuation.nextContinuable.env) {
-            continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
-        } else {
-            env.addBinding(continuation.lastResultName, ans);
-        }
-        resultStruct.ans = ans;
-        resultStruct.nextContinuable = continuation.nextContinuable && continuation.nextContinuable;
-        resultStruct.primitiveName = this.operatorName;
     }
 
     /* Non-primitive procedure, represented by SchemeProcedure object.
@@ -283,7 +268,6 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     }
 
     else if (proc instanceof Continuation) {
-        console.log('we got a continuation, baby!');
         env.addBinding(proc.lastResultName, this.firstOperand);
         resultStruct.ans = this.firstOperand;
         resultStruct.nextContinuable = proc.nextContinuable;

@@ -497,10 +497,30 @@ var newStdEnv = (function() {
 
         // todo bl replace call/cc by full name
         'call/cc': {
-            argc: 2,
-            argtypes: ['procedure'],
-            proc: function(p) {
-                // todo bl logic elsewhere for now
+            argc: 3,
+            argtypes: [ProcCall, Continuation, TrampolineResultStruct],
+            hasSpecialEvalLogic: true,
+            proc: function(procCall, continuation, resultStruct) {
+                /* Semantics of call/cc:
+
+                 (call/cc foo)
+
+                 means create a new procedure call,
+
+                 (foo cc)
+
+                 where cc is the current continuation. Then inside the procedure
+                 body, if we see
+
+                 (cc x)
+
+                 (that is, if the trampoline determines that the identifier is
+                 bound to a Continuation object), this means bind x to cc's
+                 lastResultName and set the next continuable to cc's
+                 nextContinuable. */
+                var dummyProcCall = newProcCall(procCall.firstOperand, continuation, continuation);
+                resultStruct.nextContinuable = dummyProcCall;
+                resultStruct.primitiveName = this.operatorName;
             }
         },
         'values': {},
@@ -536,12 +556,12 @@ var newStdEnv = (function() {
         'write-char': {}
     };
 
-    function registerBuiltin(name, value, targetEnv) {
+    function registerBuiltin(name, definition, targetEnv) {
 
-        var argc = value.argc;
-        var argtypes = value.argtypes;
-        var resultType = value.resultType;
-        var proc = value.proc;
+        var argc = definition.argc;
+        var argtypes = definition.argtypes;
+        var resultType = definition.resultType;
+        var proc = definition.proc;
 
         if (!proc) {
             console.log('warning, builtin ' + name + ' unspecified, skipping');
@@ -551,9 +571,10 @@ var newStdEnv = (function() {
         if (targetEnv.hasBinding(name))
             console.log('warning, redefining ' + name);
 
-        requirePresenceOf(name, argtypes, targetEnv);
+        if (argtypes)
+            requirePresenceOf(name, argtypes, targetEnv);
 
-        targetEnv.addBinding(name, function() {
+        var binding = function() {
 
             // Check correct number of arguments
             if (argc) {
@@ -591,12 +612,21 @@ var newStdEnv = (function() {
                     }
                 }
 
-                /* If argtypes is something like ['number', 'string'], we should go down
-                 the arguments array and ensure each argument has its expected type. */
+                /* If argtypes is an array, we should go down the arguments
+                 array and ensure each argument has its expected type. */
                 else if (argtypes instanceof Array) {
                     for (var i = 0; i < arguments.length; ++i) {
-                        if (argtypes[i] && !targetEnv.get(argtypes[i] + '?')(arguments[i]))
+                        /* If argtypes[i] is a string, like 'number', that means
+                         the corresponding Scheme procedure (like number?)
+                         must return true on the argument. */
+                        if (typeof argtypes[i] === 'string' && !targetEnv.get(argtypes[i] + '?')(arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
+                        /* If argtypes[i] is a function F, that means the
+                         corresponding argument must be an instance of F.
+                         Only used for passing internal interpreter data
+                         structures into primitive functions, like call/cc. */
+                        else if (typeof argtypes[i] === 'function' && !(arguments[i] instanceof argtypes[i]))
+                            throw new ArgumentTypeError(arguments[i], i, name, argtypes[i].name)
                         else
                             maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
                     }
@@ -606,27 +636,35 @@ var newStdEnv = (function() {
             // If no type checking was requested, don't unwrap the args
             else maybeUnwrappedArgs = arguments;
 
-            return maybeWrapResult(proc.apply(null, maybeUnwrappedArgs), resultType);
-        });
+            var returnValue = proc.apply(null, maybeUnwrappedArgs);
+            return definition.hasSpecialEvalLogic
+                ? null /* A function with special eval logic will set the trampolineResultStruct directly. */
+                : maybeWrapResult(returnValue, resultType);
+        };
+        /* We are setting a boolean flag on a JavaScript function object.
+         Not sure this is good style, but it saves us having to wrap
+         the function in some other object to signal to the trampoline
+         that it has special evaluation logic. */
+        if (definition.hasSpecialEvalLogic)
+            binding.hasSpecialEvalLogic = true;
+        targetEnv.addBinding(name, binding);
     }
 
     function requirePresenceOf(name, argtypes, targetEnv) {
-        if (argtypes) {
-            if (typeof argtypes === 'string' && !targetEnv.hasBinding(argtypes + '?'))
-                throw new InternalInterpreterError('builtin procedure '
-                    + name
-                    + ' requires an argument to have type '
-                    + argtypes
-                    + ", but the default environment doesn't know about that type yet");
-            else if (argtypes instanceof Array) {
-                for (var i = 0; i < argtypes.length; ++i)
-                    if (!targetEnv.hasBinding(argtypes[i] + '?'))
-                        throw new InternalInterpreterError('builtin procedure '
-                            + name
-                            + ' requires an argument to have type '
-                            + argtypes[i]
-                            + ", but the default environment doesn't know about that type yet");
-            }
+        if (typeof argtypes === 'string' && !targetEnv.hasBinding(argtypes + '?'))
+            throw new InternalInterpreterError('builtin procedure '
+                + name
+                + ' requires an argument to have type '
+                + argtypes
+                + ", but the default environment doesn't know about that type yet");
+        else if (argtypes instanceof Array) {
+            for (var i = 0; i < argtypes.length; ++i)
+                if (typeof argtypes[i] === 'string' && !targetEnv.hasBinding(argtypes[i] + '?'))
+                    throw new InternalInterpreterError('builtin procedure '
+                        + name
+                        + ' requires an argument to have type '
+                        + argtypes[i]
+                        + ", but the default environment doesn't know about that type yet");
         }
     }
 
