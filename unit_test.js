@@ -309,3 +309,37 @@ function testParser() {
     }
     console.log('testParser: ' + numTests + ' tests, ' + numErrors + ' errors');
 }
+
+function testEvaluator() {
+    /* todo bl: migrate to self-hosting Scheme when the interpreter is
+     mature enough */
+    var tests = {};
+    tests['sanity-checks'] = {
+        '(+ 1 1)': '2',
+        '(define (foo x y) (+ x (* 2 y))) (foo 3 4)': '11'
+    };
+
+    var numErrors = 0;
+    var numTests = 0;
+
+    for (var type in tests) {
+        var testsOfType = tests[type];
+        for (var input in testsOfType) {
+            var expectedOutput = testsOfType[input];
+            var actualOutput = doEval(input);
+            if (expectedOutput !== actualOutput) {
+                ++numErrors;
+                console.log('testEvaluator '
+                    + type
+                    + ': '
+                    + input
+                    + ': expected '
+                    + expectedOutput
+                    + ', got '
+                    + actualOutput);
+            }
+            ++numTests;
+        }
+    }
+    console.log('testEvaluator: ' + numTests + ' tests, ' + numErrors + ' errors');
+}
