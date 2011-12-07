@@ -300,11 +300,32 @@ Datum.prototype.sequence = function(env, isTopLevel) {
 function constructTopLevelDefs(env, definitionHelper, next) {
 
     var proc = new SchemeProcedure(definitionHelper.formals, false, null, env, definitionHelper.getProcName());
-    var rest = next.sequence(proc.env, true);
     if (definitionHelper.mustAlreadyBeBound)
         proc.setMustAlreadyBeBound(definitionHelper.mustAlreadyBeBound);
+    if (next) {
+        var rest = next.sequence(proc.env, true);
+        proc.setBody(rest);
+    }
+    /* Consider what happens when we are at a top-level definition,
+        but there is nothing more to sequence, for example, the program
 
-    proc.setBody(rest);
+        (define x 1)
+
+        This sets up an empty binding, like
+
+        ((lambda (x) <nothing>) 1)
+
+        and its value is explicitly undefined by the standard. Recognizing that
+        such a definition is useless, one option would be to decline to
+        execute it. However, if we ever wanted to build in REPL functionality,
+        this would become quite useful. So we keep the dummy procedure with
+        no body.
+
+        When the trampoline encounters the dummy procedure call, it will
+        do some bookkeeping and then jump to the first continuable of the
+        procedure's body. This is null, which will halt the trampoline as
+        desired; we just need to make sure the trampoline bookkeeping
+        doesn't cause any null pointer exceptions. */
     env.addBinding(definitionHelper.getProcName(), newProcedureDatum(proc));
 }
 

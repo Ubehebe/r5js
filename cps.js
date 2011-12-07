@@ -143,6 +143,11 @@ function TrampolineResultStruct() {
      */
 }
 
+TrampolineResultStruct.prototype.clear = function() {
+    this.currentEnv = null;
+    this.ans = null;
+};
+
 // This is the main evaluation function.
 function trampoline(continuable, env) {
 
@@ -155,11 +160,9 @@ function trampoline(continuable, env) {
 
     while (curContinuable) {
 
-        tmp.currentEnv = null;
+        tmp.clear();
 
         console.log('boing: ' + curContinuable);
-        if (curContinuable.env)
-            console.log('hey, this continuable has an environment attached from ' + curContinuable.env.name);
         curContinuable.subtype.evalAndAdvance(curContinuable.env || env, curContinuable.continuation, tmp);
         ans = tmp.ans;
         curContinuable = tmp.nextContinuable;
@@ -215,7 +218,6 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         args = gatherArgs(this.firstOperand, env);
         ans = proc.apply(null, args);
         if (continuation.nextContinuable && continuation.nextContinuable.env) {
-            console.log('hey, we should be adding to the env ' + continuation.nextContinuable.env.name);
             continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
         } else {
             env.addBinding(continuation.lastResultName, ans);
@@ -254,10 +256,8 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         // todo bl do we need to wrap these in datums anymore?
         unwrappedProc = proc.payload;
         args = gatherArgs(this.firstOperand, env);
-        if (continuation.nextContinuable) {
-            console.log('attaching env ' + env.name + ' to continuable ' + continuation.nextContinuable);
+        if (continuation.nextContinuable)
             continuation.nextContinuable.env = env;
-        }
         // This will be a no-op if tail recursion is detected
         unwrappedProc.setContinuation(continuation);
         unwrappedProc.checkNumArgs(args.length);

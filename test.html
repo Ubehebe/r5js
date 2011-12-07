@@ -113,7 +113,7 @@
                             .desugar(env);
             var ans = trampoline(desugared, env);
             console.log(ans);
-            document.getElementById('result').value = ans.toString();
+            document.getElementById('result').value = ans ? ans : 'undefined';
         }
 
         function showEnvironments() {
