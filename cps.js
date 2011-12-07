@@ -270,18 +270,16 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
      (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
      */
-    else if (proc instanceof Datum && proc.isProcedure()) {
-        // todo bl do we need to wrap these in datums anymore?
-        unwrappedProc = proc.payload;
+    else if (proc instanceof SchemeProcedure) {
         args = gatherArgs(this.firstOperand, env);
         if (continuation.nextContinuable)
             continuation.nextContinuable.env = env;
         // This will be a no-op if tail recursion is detected
-        unwrappedProc.setContinuation(continuation);
-        unwrappedProc.checkNumArgs(args.length);
-        unwrappedProc.bindArgs(args, unwrappedProc.env);
-        resultStruct.nextContinuable = unwrappedProc.body;
-        resultStruct.currentEnv = unwrappedProc.env;
+        proc.setContinuation(continuation);
+        proc.checkNumArgs(args.length);
+        proc.bindArgs(args, proc.env);
+        resultStruct.nextContinuable = proc.body;
+        resultStruct.currentEnv = proc.env;
     }
 
     else if (proc instanceof Continuation) {

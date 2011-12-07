@@ -35,13 +35,6 @@ function newIdOrLiteral(payload, type) {
     return ans;
 }
 
-function newProcedureDatum(procedure) {
-    var ans = new Datum();
-    ans.type = 'lambda';
-    ans.payload = procedure;
-    return ans;
-}
-
 Datum.prototype.isEmptyList = function() {
     return this.isList() && !this.firstChild;
 };
@@ -326,7 +319,7 @@ function constructTopLevelDefs(env, definitionHelper, next) {
         procedure's body. This is null, which will halt the trampoline as
         desired; we just need to make sure the trampoline bookkeeping
         doesn't cause any null pointer exceptions. */
-    env.addBinding(definitionHelper.getProcName(), newProcedureDatum(proc));
+    env.addBinding(definitionHelper.getProcName(), proc);
 }
 
 /* 5.2.2: "it must be possible to evaluate each <expression> of every
@@ -388,7 +381,7 @@ function constructInternalDefs(env, definitionHelper, next) {
     else {
         var proc = new SchemeProcedure(definitionHelper.formals, false, null, env, definitionHelper.getProcName());
         proc.setBody(rest);
-        env.addBinding(definitionHelper.getProcName(), newProcedureDatum(proc));
+        env.addBinding(definitionHelper.getProcName(), proc);
     }
 }
 
@@ -474,10 +467,6 @@ Datum.prototype.isQuote = function() {
         || (this.isList()
         && this.firstChild
         && this.firstChild.payload === 'quote'); // todo bl should datums know about this?
-};
-
-Datum.prototype.isProcedure = function() {
-    return this.type === 'lambda';
 };
 
 /* todo bl this could be written in Scheme (as equals?). I wrote it

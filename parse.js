@@ -458,8 +458,9 @@ Parser.prototype['lambda-expression'] = function() {
             })
                 : [formalRoot.payload];
             var name = newAnonymousLambdaName();
-            env.addBinding(name, newProcedureDatum(
-                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name)));
+            env.addBinding(
+                name,
+                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name));
             return newIdShim(newIdOrLiteral(name), newCpsName());
         }
         }
@@ -590,9 +591,8 @@ Parser.prototype['definition'] = function() {
 
                 env.addBinding(
                     nonAnonymousName,
-                    newProcedureDatum(
-                        new SchemeProcedure(formals, false, formalRoot.nextSibling, env, nonAnonymousName)
-                    ));
+                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, nonAnonymousName)
+                    );
                 var desugared = newIdShim(newIdOrLiteral(nonAnonymousName));
 
                 var lastContinuable = desugared.getLastContinuable();
@@ -628,9 +628,8 @@ Parser.prototype['definition'] = function() {
 
                 env.addBinding(
                     nonAnonymousName,
-                    newProcedureDatum(
-                        new SchemeProcedure(formals, true, formalRoot.nextSibling, env, nonAnonymousName)
-                    ));
+                    new SchemeProcedure(formals, true, formalRoot.nextSibling, env, nonAnonymousName)
+                    );
                 var desugared = newIdShim(newIdOrLiteral(nonAnonymousName));
 
 

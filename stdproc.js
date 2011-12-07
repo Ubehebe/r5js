@@ -39,7 +39,7 @@ var newStdEnv = (function() {
             argc: 1,
             proc: function(p) {
                 return typeof p === 'function' // builtin
-                    || (p instanceof Datum && p.isProcedure()); // not builtin
+                    || (p instanceof SchemeProcedure); // not builtin
             }
         },
 
@@ -557,6 +557,7 @@ var newStdEnv = (function() {
 
             // Check correct number of arguments
             if (argc) {
+                // If argc is a number, it means exactly that many args are required
                 if (typeof argc === 'number' && arguments.length !== argc)
                     throw new IncorrectNumArgs(name, argc, arguments.length);
                 else if (argc.min && arguments.length < argc.min)
