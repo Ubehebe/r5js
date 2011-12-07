@@ -308,10 +308,19 @@ var newStdEnv = (function() {
             argc: 1,
             argtypes: ['pair'],
             proc: function(p) {
+                /* Conversion from the internal first-child/next-sibling
+                    representation to the internal car-cdr representation
+                    is simple but a bit subtle. If we're at the end of the
+                    siblings, we just return that last element as "cdr";
+                    otherwise, we package up the remaining elements and return
+                    that as "cdr". See also comments to
+                    Datum.prototype.siblingsToList. */
                 var startOfCdr = p.firstChild.nextSibling;
-                return startOfCdr
-                    ? startOfCdr.siblingsToList(p.isImproperList())
-                    : newEmptyList();
+                if (startOfCdr) {
+                    return startOfCdr.nextSibling
+                        ? startOfCdr.siblingsToList(p.isImproperList())
+                        : startOfCdr;
+                } else return newEmptyList();
             }
         },
 
