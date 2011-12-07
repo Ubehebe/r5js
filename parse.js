@@ -324,19 +324,19 @@ Parser.prototype['quotation'] = function() {
     return this.alternation(
         [
             {type: "'"},
-            {type: 'datum'}
+            {type: 'datum'},
+            {desugar: function(node, env) {
+                return node.normalizeInput();
+            }
+            }
         ],
         [
             {type: '('},
             {type: 'quote'},
             {type: 'datum'},
             {type: ')'},
-            // seems like a good time to get rid of confusion with procedure calls
             {desugar: function(node, env) {
-                var ans = new Datum();
-                ans.type = "'";
-                ans.firstChild = node.at('datum');
-                return ans;
+                return node.normalizeInput();
             }
             }
         ]);

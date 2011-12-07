@@ -51,6 +51,18 @@ var newStdEnv = (function() {
             }
         },
 
+        /* This is a library procedure in R5RS, which means
+            it ought to be written in Scheme. We provide it in JavaScript
+            because some of the primitive procedures take list arguments
+            (example: apply), so it's nice to define list? at the same time
+            so we can do type-checking of the arguments. */
+        'list?': {
+            argc: 1,
+            proc: function(node) {
+                return node.isList();
+            }
+        },
+
         'null?': {
             argc: 1,
             proc: function(node) {

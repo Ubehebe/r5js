@@ -619,6 +619,36 @@ Datum.prototype.lastSibling = function() {
     return this.nextSibling ? this.nextSibling.lastSibling() : this;
 };
 
+/*
+    (x . ()) is equivalent to (x). It is useful to perform this normalization
+    prior to evaluation time to simplify the Scheme procedure "list?".
+    With normalization, we can merely say, (list? x) iff x.isList().
+    Without normalization, we would also have to check if x is an
+    improper list, and if so, whether its last element was an empty list. */
+Datum.prototype.normalizeInput = function() {
+
+    if (this.firstChild && this.firstChild.payload === 'quote') {
+        this.firstChild = this.firstChild.nextSibling;
+        this.type = "'";
+    }
+
+    var isImproperList = this.isImproperList();
+
+    for (var child = this.firstChild; child; child = child.nextSibling) {
+        child.normalizeInput();
+        if (isImproperList && child.nextSibling && !child.nextSibling.nextSibling) {
+            var maybeEmptyList = child.nextSibling;
+            if (maybeEmptyList.isList() && !maybeEmptyList.firstChild) {
+                child.parent = child.nextSibling.parent;
+                child.nextSibling = null;
+                this.type = '(';
+            }
+        }
+    }
+
+    return this;
+};
+
 /* Notice that our representation of lists is not recursive: the "second element"
  of (x y z) is y, not (y z). So we provide this function as an aid whenever
  we want that recursive property (which in practice is seldom).
@@ -663,7 +693,16 @@ function LocalStructure(operatorNode, firstOperand) {
 
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
         if (cur.isQuote()) {
-            this.bindings.push(cur.clone().severSibling());
+            var tmp = cur.nextSibling;
+            cur.severSibling();
+            /* Why are we normalizing this datum again? Didn't we already do
+                that in the datum's desugar function? Unfortunately, we haven't
+                called that desugar function yet -- the reason we create a
+                LocalStructure object is to preserve local structure that might
+                be destroyed by sequencing the operands (which includes
+                desugaring them). This seems like a pretty bad design. */
+            this.bindings.push(cur.clone().normalizeInput());
+            cur.nextSibling = tmp;
         } else if (cur.isList()) {
             this.bindings.push(null); // a placeholder until we know the name
         } else {
