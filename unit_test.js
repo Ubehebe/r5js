@@ -316,7 +316,8 @@ function testEvaluator() {
     var tests = {};
     tests['sanity-checks'] = {
         '(+ 1 1)': '2',
-        '(define (foo x y) (+ x (* 2 y))) (foo 3 4)': '11'
+        '(define (foo x y) (+ x (* 2 y))) (foo 3 4)': '11',
+        "(apply + '(1 2 3))": '6'
     };
 
     tests['continuations'] = {

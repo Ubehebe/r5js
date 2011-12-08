@@ -211,7 +211,7 @@ var newStdEnv = (function() {
         },
 
         '-': {
-            argc: {min: 1}, // todo bl support this
+            argc: {min: 1},
             argtypes: 'number',
             proc: function() {
                 // unary
@@ -507,21 +507,56 @@ var newStdEnv = (function() {
     var builtinControlProcs = {
 
         'apply': {
-            argc: 2,
-            argtypes: ['procedure', 'list'] // todo bl list isn't a primitive type
-            /*proc: function(p, args) {
-             return typeof p === 'function'
-             ? p.apply(null, listToArray(args))
-             : false; // todo bl not yet implemented!
-             }*/
+            argc: {min: 2},
+            hasSpecialEvalLogic: true,
+            proc: function() {
+
+                /* R5RS 6.4: (apply proc arg1 ... args)
+                "Proc must be a procedure and args must be a list.
+                Calls proc with the elements of the list
+                (append (list arg1 ...) args) as the actual arguments.*/
+
+                var mustBeProc = arguments[0];
+                if (!(typeof mustBeProc === 'function'
+                    || mustBeProc instanceof SchemeProcedure))
+                    throw new ArgumentTypeError(mustBeProc, 0, 'apply', 'procedure');
+
+                var curProcCall = arguments[arguments.length-3];
+                var procName = curProcCall.firstOperand.payload;
+                var continuation = arguments[arguments.length-2];
+                var resultStruct = arguments[arguments.length-1];
+
+                var lastRealArgIndex = arguments.length-4;
+                var mustBeList = arguments[lastRealArgIndex];
+                if (!mustBeList.isList())
+                    throw new ArgumentTypeError(mustBeList, lastRealArgIndex, 'apply', 'list');
+
+                // (apply foo '(x y z))
+                if (lastRealArgIndex === 1) {
+                    var actualProcCall = newProcCall(procName, mustBeList.firstChild, continuation);
+                    resultStruct.nextContinuable = actualProcCall;
+                }
+
+                // (apply foo a b c '(1 2 3))
+                else {
+                    for (var i = 1; i < lastRealArgIndex - 1; ++i)
+                        arguments[i].nextSibling = arguments[i + 1];
+                    arguments[lastRealArgIndex - 1].nextSibling = mustBeList.firstChild;
+
+                    var newArgs = newEmptyList();
+                    newArgs.appendChild(arguments[1]);
+                    var actualProcCall = newProcCall(procName, newArgs.firstChild, continuation);
+                    resultStruct.nextContinuable = actualProcCall;
+                }
+            }
         },
 
         // todo bl replace call/cc by full name
         'call/cc': {
-            argc: 3,
-            argtypes: [ProcCall, Continuation, TrampolineResultStruct],
+            argc: 1,
+            argtypes: ['procedure'],
             hasSpecialEvalLogic: true,
-            proc: function(procCall, continuation, resultStruct) {
+            proc: function(procedure, procCall, continuation, resultStruct) {
                 /* Semantics of call/cc:
 
                  (call/cc foo)
@@ -599,13 +634,20 @@ var newStdEnv = (function() {
 
             // Check correct number of arguments
             if (argc) {
+                var numArgsFromUser = arguments.length;
+                /* If a builtin procedure has special evaluation logic,
+                 the trampoline will pass it three additional arguments:
+                 the ProcCall, the Continuation, and the TrampolineResultStruct. */
+                if (definition.hasSpecialEvalLogic)
+                    numArgsFromUser -= 3;
+
                 // If argc is a number, it means exactly that many args are required
-                if (typeof argc === 'number' && arguments.length !== argc)
-                    throw new IncorrectNumArgs(name, argc, arguments.length);
-                else if (argc.min && arguments.length < argc.min)
-                    throw new TooFewArgs(name, argc.min, arguments.length);
-                else if (argc.max && arguments.length > argc.max)
-                    throw new TooManyArgs(name, argc.max, arguments.length);
+                if (typeof argc === 'number' && numArgsFromUser !== argc)
+                    throw new IncorrectNumArgs(name, argc, numArgsFromUser);
+                else if (argc.min && numArgsFromUser < argc.min)
+                    throw new TooFewArgs(name, argc.min, numArgsFromUser);
+                else if (argc.max && numArgsFromUser > argc.max)
+                    throw new TooManyArgs(name, argc.max, numArgsFromUser);
             }
 
             var maybeUnwrappedArgs;
@@ -633,23 +675,18 @@ var newStdEnv = (function() {
                     }
                 }
 
-                /* If argtypes is an array, we should go down the arguments
-                 array and ensure each argument has its expected type. */
+                /* If argtypes is an array like ['string', 'number'], we should
+                 go down the arguments array and ensure each argument
+                 has its expected type. */
                 else if (argtypes instanceof Array) {
                     for (var i = 0; i < arguments.length; ++i) {
-                        /* If argtypes[i] is a string, like 'number', that means
-                         the corresponding Scheme procedure (like number?)
-                         must return true on the argument. */
-                        if (typeof argtypes[i] === 'string' && !targetEnv.get(argtypes[i] + '?')(arguments[i]))
+                        /* argtypes might be shorter than arguments. In that
+                            case we can't typecheck the extra arguments, but
+                            we still need to collect them. */
+                        if (i < argtypes.length
+                            && !targetEnv.get(argtypes[i] + '?')(arguments[i]).unwrap())
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
-                        /* If argtypes[i] is a function F, that means the
-                         corresponding argument must be an instance of F.
-                         Only used for passing internal interpreter data
-                         structures into primitive functions, like call/cc. */
-                        else if (typeof argtypes[i] === 'function' && !(arguments[i] instanceof argtypes[i]))
-                            throw new ArgumentTypeError(arguments[i], i, name, argtypes[i].name)
-                        else
-                            maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
+                        maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
                     }
                 }
             }

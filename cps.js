@@ -210,14 +210,21 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
      to the next continuable ("..."). */
     if (typeof proc === 'function') {
 
-        // For call/cc etc.
+        args = evalArgs(this.firstOperand, env);
+
+        /* For call/cc etc: push the current ProcCall, the continuation,
+            and the result struct. todo bl: pushing the ProcCall invites trouble
+            because it contains the _unevaluated_ arguments. When I'm done
+            implementing all the 'magical' functions like apply and call/cc,
+            review what support they really need. */
         if (proc.hasSpecialEvalLogic) {
-            args = [this, continuation, resultStruct];
+            args.push(this);
+            args.push(continuation);
+            args.push(resultStruct);
             proc.apply(null, args);
         }
 
         else {
-            args = gatherArgs(this.firstOperand, env);
             ans = proc.apply(null, args);
             if (continuation.nextContinuable && continuation.nextContinuable.env) {
                 continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
@@ -256,7 +263,7 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
      (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
      */
     else if (proc instanceof SchemeProcedure) {
-        args = gatherArgs(this.firstOperand, env);
+        args = evalArgs(this.firstOperand, env);
         if (continuation.nextContinuable)
             continuation.nextContinuable.env = env;
         // This will be a no-op if tail recursion is detected
@@ -279,7 +286,7 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
             + this.operatorName);
 };
 
-function gatherArgs(firstOperand, env) {
+function evalArgs(firstOperand, env) {
     var args = [];
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
         if (cur instanceof Continuation) // todo bl too much special logic for call/cc
