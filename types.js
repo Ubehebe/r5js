@@ -158,18 +158,21 @@ SchemeProcedure.prototype.bindArgs = function(args, env) {
         env.addBinding(name, args[i]);
     }
 
-    /* Thanks to non-scoped JavaScript local variables,
-     i is now this.formalsArray.length - 1. */
-    name = this.formalsArray[i];
-    if (!this.isDotted) {
-        env.addBinding(name, args[i]);
-    } else {
-        // Roll up the remaining arguments into a list
-        var list = newEmptyList();
-        // Go backwards and do prepends to avoid quadratic performance
-        for (var j = args.length - 1; j >= this.formalsArray.length - 1; --j)
-            list.prependChild(args[j]);
-        env.addBinding(name, list);
+    if (this.formalsArray.length > 0) {
+
+        /* Thanks to non-scoped JavaScript local variables,
+         i is now this.formalsArray.length - 1. */
+        name = this.formalsArray[i];
+        if (!this.isDotted) {
+            env.addBinding(name, args[i]);
+        } else {
+            // Roll up the remaining arguments into a list
+            var list = newEmptyList();
+            // Go backwards and do prepends to avoid quadratic performance
+            for (var j = args.length - 1; j >= this.formalsArray.length - 1; --j)
+                list.prependChild(args[j]);
+            env.addBinding(name, list);
+        }
     }
 };
 
