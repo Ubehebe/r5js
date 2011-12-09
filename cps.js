@@ -80,8 +80,6 @@ IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
     resultStruct.ans = ans;
     resultStruct.nextContinuable = continuation.nextContinuable;
-    if (typeof ans === 'function')
-        resultStruct.primitiveName = this.payload.payload;
 
 };
 
@@ -138,7 +136,6 @@ function TrampolineResultStruct() {
     /*
      this.ans;
      this.nextContinuable;
-     this.primitiveName;
      this.currentEnv;
      */
 }
@@ -166,14 +163,7 @@ function trampoline(continuable, env) {
         if (tmp.currentEnv)
             env = tmp.currentEnv;
     }
-
-    /* If we're about to return a JavaScript function, return its name instead.
-     (The value of the expression "+" is the primitive function for addition,
-     which I wrote in JavaScript, but we should display this value textually
-     as "+", not as the text of the function.) */
-    return typeof ans === 'function'
-        ? newIdOrLiteral(tmp.primitiveName)
-        : ans;
+    return ans;
 }
 
 Branch.prototype.resetContinuation = function() {
@@ -200,7 +190,7 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
 ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
-    var proc = env.get(this.operatorName);
+    var proc = env.getProcedure(this.operatorName);
     var args;
     var ans;
 
@@ -233,7 +223,6 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
             }
             resultStruct.ans = ans;
             resultStruct.nextContinuable = continuation.nextContinuable && continuation.nextContinuable;
-            resultStruct.primitiveName = this.operatorName;
         }
     }
 

@@ -7,6 +7,7 @@ function Datum() {
      this.payload = null;
      this.nonterminals = [];
      this.desugars = null;
+     this.name = null; // only for procedures
      */
 }
 
@@ -65,6 +66,8 @@ Datum.prototype.clone = function() {
         ans.firstChild = this.firstChild.clone();
     if (this.nextSibling)
         ans.nextSibling = this.nextSibling.clone();
+    if (this.name)
+        ans.name = this.name;
 
     return ans;
 };
@@ -189,6 +192,18 @@ Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     if (forceContinuationWrapper && !(ans instanceof Continuable))
         ans = newIdShim(ans, newCpsName());
     return ans;
+};
+
+function newProcedureDatum(name, procedure) {
+    var ans = new Datum();
+    ans.type = 'lambda';
+    ans.payload = procedure;
+    ans.name = name;
+    return ans;
+}
+
+Datum.prototype.isProcedure = function() {
+  return this.type === 'lambda';
 };
 
 Datum.prototype.sequenceOperands = function(env, cpsNames) {
@@ -488,9 +503,11 @@ Datum.prototype.isEqual = function(other) {
     } else return false;
 };
 
-// Convenience function for builtin evaluation: unwrap the argument if it's "primitive"
+/* Convenience function for builtin evaluation: unwrap the argument if
+    it's "primitive". We never unwrap SchemeProcedures or JavaScript functions
+    (though not completely sure why not). */
 Datum.prototype.unwrap = function() {
-    return this.payload !== undefined // watch out for 0's and falses
+    return this.payload !== undefined && !this.isProcedure() // watch out for 0's and falses
         ? this.payload
         : this;
 };

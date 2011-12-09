@@ -593,7 +593,7 @@ Parser.prototype['definition'] = function() {
                     nonAnonymousName,
                     new SchemeProcedure(formals, false, formalRoot.nextSibling, env, nonAnonymousName)
                     );
-                var desugared = newIdShim(newIdOrLiteral(nonAnonymousName));
+                var desugared = newIdShim(newIdOrLiteral(nonAnonymousName), newCpsName());
 
                 var lastContinuable = desugared.getLastContinuable();
                 var argToUse = lastContinuable.continuation.lastResultName;

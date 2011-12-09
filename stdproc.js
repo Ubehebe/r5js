@@ -38,8 +38,7 @@ var newStdEnv = (function() {
         'procedure?': {
             argc: 1,
             proc: function(p) {
-                return typeof p === 'function' // builtin
-                    || (p instanceof SchemeProcedure); // not builtin
+                return p.isProcedure();
             }
         },
 
@@ -517,8 +516,7 @@ var newStdEnv = (function() {
                 (append (list arg1 ...) args) as the actual arguments.*/
 
                 var mustBeProc = arguments[0];
-                if (!(typeof mustBeProc === 'function'
-                    || mustBeProc instanceof SchemeProcedure))
+                if (!mustBeProc.isProcedure())
                     throw new ArgumentTypeError(mustBeProc, 0, 'apply', 'procedure');
 
                 var curProcCall = arguments[arguments.length-3];
@@ -576,7 +574,6 @@ var newStdEnv = (function() {
                  nextContinuable. */
                 var dummyProcCall = newProcCall(procCall.firstOperand, continuation, continuation);
                 resultStruct.nextContinuable = dummyProcCall;
-                resultStruct.primitiveName = this.operatorName;
             }
         },
         'values': {},
@@ -664,7 +661,7 @@ var newStdEnv = (function() {
                 /* If argtypes is something like 'number', that means every argument
                  must be a number. */
                 if (typeof argtypes === 'string') {
-                    var classifier = targetEnv.get(argtypes + '?');
+                    var classifier = targetEnv.getProcedure(argtypes + '?');
                     for (var i = 0; i < arguments.length; ++i) {
                         /* todo bl this wrapping and unwrapping is getting
                             out of hand. */
@@ -684,7 +681,7 @@ var newStdEnv = (function() {
                             case we can't typecheck the extra arguments, but
                             we still need to collect them. */
                         if (i < argtypes.length
-                            && !targetEnv.get(argtypes[i] + '?')(arguments[i]).unwrap())
+                            && !targetEnv.getProcedure(argtypes[i] + '?')(arguments[i]))
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
                         maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
                     }

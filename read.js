@@ -205,7 +205,9 @@ Datum.prototype.toString = function() {
 
     switch (this.type) {
         case 'lambda':
-            return this.payload;
+            return typeof this.payload === 'function'
+                ? this.name
+                : 'proc:' + this.name;
         case 'identifier':
             return this.payload;
         case 'boolean':
