@@ -513,6 +513,18 @@ Parser.prototype['formals'] = function() {
         ]);
 };
 
+function desugarDefinition(name, desugaredExpr) {
+    var lastContinuable = desugaredExpr.getLastContinuable(); // (+ 1 2 [_0 ...])
+    var argToUse = lastContinuable.continuation.lastResultName; // _0
+
+    var anonymousName= newAnonymousLambdaName(); // proc0
+    var procCall = newProcCall(anonymousName, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
+
+    lastContinuable.continuation.nextContinuable = procCall;
+    desugaredExpr.definitionHelper = new DefinitionHelper(procCall, lastContinuable, name);
+    return desugaredExpr; // (+ 1 2 [_0 (proc0 _0 [...])])
+}
+
 /*
 <definition> -> (define <variable> <expression>)
 | (define (<variable> <def formals>) <body>)
@@ -543,16 +555,9 @@ Parser.prototype['definition'] = function() {
                     formal parameter x.
                 */
 
-                var expr = node.at('expression').desugar(env, true); // (+ 1 2 [_0 ...])
-                var lastContinuable = expr.getLastContinuable(); // (+ 1 2 [_0 ...])
-                var argToUse = lastContinuable.continuation.lastResultName; // _0
-
-                var name = newAnonymousLambdaName(); // proc0
-                var procCall = newProcCall(name, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
-
-                lastContinuable.continuation.nextContinuable = procCall;
-                expr.definitionHelper = new DefinitionHelper(procCall, lastContinuable, node.at('variable').payload);
-                return expr; // (+ 1 2 [_0 (proc0 _0 [...])])
+                return desugarDefinition(
+                    node.at('variable').payload,
+                    node.at('expression').desugar(env, true));
             }
             }
         ],
@@ -575,11 +580,6 @@ Parser.prototype['definition'] = function() {
 
                  ((lambda (foo) ...) (lambda (x y) (+ x y)))
 
-                 todo bl: below, we set up a new subtree, then explicitly
-                 execute the desugaring steps given in the lambda-expression's
-                 desugar function. It might be more elegant if we could get the
-                 new subtree's structure exactly right, so we could just say
-                 fakeNode.desugar(env, true).
                  */
 
                 var formalRoot = node.at('(');
@@ -587,23 +587,16 @@ Parser.prototype['definition'] = function() {
                     return child.payload;
                 });
 
-                var nonAnonymousName = formals.shift();
+                var name = formals.shift();
+
 
                 env.addBinding(
-                    nonAnonymousName,
-                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, nonAnonymousName)
+                    name,
+                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, name)
                     );
-                var desugared = newIdShim(newIdOrLiteral(nonAnonymousName), newCpsName());
-
-                var lastContinuable = desugared.getLastContinuable();
-                var argToUse = lastContinuable.continuation.lastResultName;
-
-                var anonymousName = newAnonymousLambdaName();
-
-                var procCall = newProcCall(anonymousName, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
-                lastContinuable.continuation.nextContinuable = procCall;
-                desugared.definitionHelper = new DefinitionHelper(procCall, lastContinuable, nonAnonymousName);
-                return desugared;
+                var desugared = newIdShim(newIdOrLiteral(name), newCpsName());
+                
+                return desugarDefinition(name, desugared);
             }}
         ],
         [
@@ -619,29 +612,20 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
            {desugar: function(node, env) {
 
-                var formalRoot = node.at('.('); // haha it's been so long, I forgot about this syntax
+                var formalRoot = node.at('.(');
                 var formals = formalRoot.mapChildren(function(child) {
                     return child.payload;
                 });
 
-                var nonAnonymousName = formals.shift();
+                var name = formals.shift();
 
                 env.addBinding(
-                    nonAnonymousName,
-                    new SchemeProcedure(formals, true, formalRoot.nextSibling, env, nonAnonymousName)
+                    name,
+                    new SchemeProcedure(formals, true, formalRoot.nextSibling, env, name)
                     );
-                var desugared = newIdShim(newIdOrLiteral(nonAnonymousName));
+                var desugared = newIdShim(newIdOrLiteral(name), newCpsName());
 
-
-                var lastContinuable = desugared.getLastContinuable();
-                var argToUse = lastContinuable.continuation.lastResultName;
-
-                var anonymousName = newAnonymousLambdaName();
-
-                var procCall = newProcCall(anonymousName, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
-                lastContinuable.continuation.nextContinuable = procCall;
-                desugared.definitionHelper = new DefinitionHelper(procCall, lastContinuable, nonAnonymousName);
-                return desugared;
+               return desugarDefinition(name, desugared);
             }}
         ],
         [

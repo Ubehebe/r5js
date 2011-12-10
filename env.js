@@ -55,7 +55,7 @@ Environment.prototype.get = function(name) {
 
     if (maybe) {
         return (typeof maybe === 'function' || maybe instanceof SchemeProcedure)
-            ? newProcedureDatum(name, maybe)
+            ? newProcedureDatum(maybe.name, maybe)
             : maybe;
     }
     // If the current environment has no binding for the name, look one level up
@@ -94,6 +94,8 @@ Environment.prototype.addBinding = function(name, val) {
             this.bindings[name] = val;
         } else {
             throw new InternalInterpreterError('tried to store '
+                + name
+                + ' = '
                 + val
                 + ', which is not a Datum, Continuation, SchemeProcedure, or JavaScript function');
         }

@@ -10,6 +10,10 @@ function Continuation(lastResultName) {
      */
 }
 
+Continuation.prototype.setEnv = function(env) {
+    this.env = env;
+};
+
 Continuation.prototype.toString = function() {
     return '[' + this.lastResultName + ' ' + this.nextContinuable + ']';
 };
@@ -18,13 +22,15 @@ Continuation.prototype.toString = function() {
  Can we improve or eliminate it? */
 Continuation.prototype.clone = function() {
     var ans = new Continuation(this.lastResultName);
+    if (this.env)
+        ans.setEnv(this.env);
     if (this.nextContinuable) {
         ans.nextContinuable = new Continuable(
             this.nextContinuable.subtype,
             this.nextContinuable.continuation.clone());
         // todo bl
         if (this.nextContinuable.env)
-            ans.nextContinuable.env = this.nextContinuable.env;
+            ans.nextContinuable.setEnv(this.nextContinuable.env);
     }
     return ans;
 };
@@ -47,6 +53,10 @@ Continuable.prototype.getLastContinuable = function() {
     return this.continuation.nextContinuable
         ? this.continuation.nextContinuable.getLastContinuable()
         : this;
+};
+
+Continuable.prototype.setEnv = function(env) {
+    this.env = env;
 };
 
 // delegate to subtype, passing in the continuation
@@ -76,7 +86,10 @@ IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     else
         ans = maybeWrapResult(this.payload.payload, this.payload.type);
 
-    env.addBinding(continuation.lastResultName, ans);
+    if (continuation.env)
+        continuation.env.addBinding(continuation.lastResultName, ans);
+    else
+        env.addBinding(continuation.lastResultName, ans);
 
     resultStruct.ans = ans;
     resultStruct.nextContinuable = continuation.nextContinuable;
@@ -253,8 +266,9 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
      */
     else if (proc instanceof SchemeProcedure) {
         args = evalArgs(this.firstOperand, env);
+        continuation.setEnv(env);
         if (continuation.nextContinuable)
-            continuation.nextContinuable.env = env;
+            continuation.nextContinuable.setEnv(env);
         // This will be a no-op if tail recursion is detected
         proc.setContinuation(continuation);
         proc.checkNumArgs(args.length);
