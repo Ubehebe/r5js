@@ -325,6 +325,7 @@ function testEvaluator() {
         '(((lambda (x) x) (lambda (y) y)) "hello!")': '"hello!"',
         "(define x 1) (define y 2) (+ x y)": '3',
         "(define x 1) (define y 1) (set! x (+ x 100)) (set! y (+ x 100)) (+ x y)": '302'
+        "((lambda x x) 32)": '(32)'
     };
 
     tests['continuations'] = {

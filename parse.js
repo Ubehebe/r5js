@@ -454,16 +454,38 @@ Parser.prototype['lambda-expression'] = function() {
         {type: ')'},
         {desugar: function(node, env) {
             var formalRoot = node.at('formals');
-            var dotted = formalRoot.isImproperList();
-            var formals = dotted || formalRoot.isList()
-                ? formalRoot.mapChildren(function(child) {
+            var formals, treatAsDotted;
+
+            // (lambda (x y) ...)
+            if (formalRoot.isList()) {
+                formals = formalRoot.mapChildren(function(child) {
                 return child.payload;
-            })
-                : [formalRoot.payload];
+            });
+            }
+
+            // (lambda (x y z . w) ...)
+            else if (formalRoot.isImproperList()) {
+                 formals = formalRoot.mapChildren(function(child) {
+                return child.payload;
+            });
+                treatAsDotted = true;
+            }
+
+            /* (lambda <variable> <body>)
+             R5RS 4.1.4:
+             "The procedure takes any number of arguments; when the procedure
+             is called, the sequence of actual arguments is converted into a
+             newly allocated list, and the list is stored in the binding of the
+             <variable>." */
+            else {
+                formals = [formalRoot.payload];
+                treatAsDotted = true;
+            }
+
             var name = newAnonymousLambdaName();
             env.addBinding(
                 name,
-                new SchemeProcedure(formals, dotted, formalRoot.nextSibling, env, name));
+                new SchemeProcedure(formals, treatAsDotted, formalRoot.nextSibling, env, name));
             return newIdShim(newIdOrLiteral(name), newCpsName());
         }
         }
