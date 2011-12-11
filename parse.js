@@ -516,7 +516,7 @@ Parser.prototype['formals'] = function() {
         ]);
 };
 
-function desugarDefinition(name, desugaredExpr) {
+function desugarDefinition(name, desugaredExpr, isAssignment) {
     var lastContinuable = desugaredExpr.getLastContinuable(); // (+ 1 2 [_0 ...])
     var argToUse = lastContinuable.continuation.lastResultName; // _0
 
@@ -524,7 +524,7 @@ function desugarDefinition(name, desugaredExpr) {
     var procCall = newProcCall(anonymousName, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
 
     lastContinuable.continuation.nextContinuable = procCall;
-    desugaredExpr.definitionHelper = new DefinitionHelper(procCall, lastContinuable, name);
+    desugaredExpr.definitionHelper = new DefinitionHelper(procCall, lastContinuable, name, isAssignment);
     return desugaredExpr; // (+ 1 2 [_0 (proc0 _0 [...])])
 }
 
@@ -712,15 +712,11 @@ Parser.prototype['assignment'] = function() {
         {type: 'expression'},
         {type: ')'},
         {desugar: function(node, env) {
-            var expr = node.at('expression').desugar(env, true);
-            var lastContinuable = expr.getLastContinuable();
-            var argToUse = lastContinuable.continuation.lastResultName;
 
-            var name = newAnonymousLambdaName();
-            var procCall = newProcCall(name, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
-            lastContinuable.continuation.nextContinuable = procCall;
-            expr.definitionHelper = new DefinitionHelper(procCall, lastContinuable, node.at('variable').payload, true);
-            return expr;
+            return desugarDefinition(
+                node.at('variable').payload,
+                node.at('expression').desugar(env, true),
+                true);
         }
         }
     );

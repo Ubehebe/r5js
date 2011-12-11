@@ -311,7 +311,8 @@ function constructTopLevelDefs(env, definitionHelper, next) {
     if (definitionHelper.mustAlreadyBeBound)
         proc.setMustAlreadyBeBound(definitionHelper.mustAlreadyBeBound);
     if (next) {
-        var rest = next.sequence(proc.env, true);
+        // todo bl must document why we are sequencing using the outer env
+        var rest = next.sequence(env, true);
         proc.setBody(rest);
     }
     /* Consider what happens when we are at a top-level definition,

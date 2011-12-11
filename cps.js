@@ -266,6 +266,8 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
      */
     else if (proc instanceof SchemeProcedure) {
         args = evalArgs(this.firstOperand, env);
+        /* todo bl: much confusion here. No reason to set environments
+            on both the Continuation and its following Continuable. */
         continuation.setEnv(env);
         if (continuation.nextContinuable)
             continuation.nextContinuable.setEnv(env);
@@ -280,7 +282,7 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
             this shouldn't prevent an unlimited number of active tail calls
             (because the old Environment objects will get garbage collected),
             but I would imagine it would make tail recursion impracticable. */
-        var newEnv = new Environment(null, proc.env);
+        var newEnv = new Environment('tmp-' + proc.name, env);
         // This will be a no-op if tail recursion is detected
         proc.setContinuation(continuation);
         proc.checkNumArgs(args.length);
