@@ -320,7 +320,8 @@ function testEvaluator() {
         '(define (foo) "hi") (define bar (foo)) bar': '"hi"',
         '(define (foo x . y) y) (foo 3 4 5)': "(4 5)",
         "(apply + '(1 2 3))": '6',
-        "(define (foo x) (* x x)) (+ (foo 3) (foo 4))": '25'
+        "(define (foo x) (* x x)) (+ (foo 3) (foo 4))": '25',
+        "(define (fac n) (if (= n 0) 1 (* n (fac (- n 1))))) (fac 10)": '3628800'
     };
 
     tests['continuations'] = {

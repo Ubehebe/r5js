@@ -269,12 +269,24 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         continuation.setEnv(env);
         if (continuation.nextContinuable)
             continuation.nextContinuable.setEnv(env);
+
+        /* We have to allocate a new Environment object for each procedure
+            call, since we have to support a since SchemeProcedure having
+            more than one active ProcCall at a time. We point it back to the
+            procedure's own environment so it can look up procedure-internal
+            definitions.
+
+            todo bl: don't allocate Environments in tail contexts. In theory
+            this shouldn't prevent an unlimited number of active tail calls
+            (because the old Environment objects will get garbage collected),
+            but I would imagine it would make tail recursion impracticable. */
+        var newEnv = new Environment(null, proc.env);
         // This will be a no-op if tail recursion is detected
         proc.setContinuation(continuation);
         proc.checkNumArgs(args.length);
-        proc.bindArgs(args, proc.env);
+        proc.bindArgs(args, newEnv);
         resultStruct.nextContinuable = proc.body;
-        resultStruct.currentEnv = proc.env;
+        resultStruct.currentEnv = newEnv;
     }
 
     else if (proc instanceof Continuation) {
