@@ -405,6 +405,9 @@ Parser.prototype['procedure-call'] = function() {
             if (operatorNode instanceof Continuable)
                 operatorNode = trampoline(operatorNode, env);
 
+            if (operatorNode.isProcedure())
+                operatorNode.changeProcToName();
+
             var operands = node.at('operand');
             if (!operands.type)
                 operands = null; // workaround for 0 operands

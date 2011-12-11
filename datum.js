@@ -690,6 +690,13 @@ Datum.prototype.siblingsToList = function(dotted) {
     return ans;
 };
 
+Datum.prototype.changeProcToName = function() {
+  if (!this.isProcedure())
+      throw new InternalInterpreterError('not a procedure: ' + this);
+    this.type = 'identifier';
+    this.payload = this.name;
+};
+
 function newCpsName() {
     return '_' + (uniqueNodeCounter++);
 }
@@ -701,12 +708,9 @@ function newAnonymousLambdaName() {
 var uniqueNodeCounter = 0; // todo bl any good way to encapsulate this?
 var anonymousLambdaCounter = 0;
 
-function LocalStructure(operatorNode, firstOperand) {
-    if (!operatorNode.isIdentifier())
-        throw new InternalInterpreterError('expected identifier, got ' + operatorNode);
-
+function LocalStructure(operatorName, firstOperand) {
     this.bindings = [];
-    this.operatorName = operatorNode.payload;
+    this.operatorName = operatorName;
 
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
         if (cur.isQuote()) {
