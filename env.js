@@ -54,9 +54,12 @@ Environment.prototype.get = function(name) {
     var maybe = this.bindings[name];
 
     if (maybe) {
-        return (typeof maybe === 'function' || maybe instanceof SchemeProcedure)
-            ? newProcedureDatum(maybe.name, maybe)
-            : maybe;
+        if (typeof maybe === 'function')
+            return newProcedureDatum(name, maybe);
+        else if (maybe instanceof SchemeProcedure)
+            return newProcedureDatum(maybe.name, maybe);
+        else
+            return maybe;
     }
     // If the current environment has no binding for the name, look one level up
     else if (this.enclosingEnv)
