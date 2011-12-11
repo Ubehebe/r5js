@@ -319,7 +319,8 @@ function testEvaluator() {
         '(define (foo x y) (+ x (* 2 y))) (foo 3 4)': '11',
         '(define (foo) "hi") (define bar (foo)) bar': '"hi"',
         '(define (foo x . y) y) (foo 3 4 5)': "(4 5)",
-        "(apply + '(1 2 3))": '6'
+        "(apply + '(1 2 3))": '6',
+        "(define (foo x) (* x x)) (+ (foo 3) (foo 4))": '25'
     };
 
     tests['continuations'] = {
@@ -333,17 +334,22 @@ function testEvaluator() {
         var testsOfType = tests[type];
         for (var input in testsOfType) {
             var expectedOutput = testsOfType[input];
-            var actualOutput = doEval(input);
-            if (expectedOutput !== actualOutput) {
+            try {
+                var actualOutput = doEval(input);
+                if (expectedOutput !== actualOutput) {
+                    ++numErrors;
+                    console.log('testEvaluator '
+                        + type
+                        + ': '
+                        + input
+                        + ': expected '
+                        + expectedOutput
+                        + ', got '
+                        + actualOutput);
+                }
+            } catch (x) {
+                console.log('testEvaluator: exception evaluating ' + input + ': ' + x);
                 ++numErrors;
-                console.log('testEvaluator '
-                    + type
-                    + ': '
-                    + input
-                    + ': expected '
-                    + expectedOutput
-                    + ', got '
-                    + actualOutput);
             }
             ++numTests;
         }

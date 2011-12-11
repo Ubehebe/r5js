@@ -617,7 +617,7 @@ var newStdEnv = (function() {
         var proc = definition.proc;
 
         if (!proc) {
-            console.log('warning, builtin ' + name + ' unspecified, skipping');
+            //console.log('warning, builtin ' + name + ' unspecified, skipping');
             return targetEnv;
         }
 
