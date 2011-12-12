@@ -270,7 +270,13 @@ var newStdEnv = (function() {
         'asin': {},
         'acos': {},
         'atan': {},
-        'sqrt': {},
+        'sqrt': {
+            argc: 1,
+            argtypes: 'number',
+            proc: function(x) {
+                return Math.sqrt(x);
+            }
+        },
         'expt': {},
         'make-rectangular': {},
         'make-polar': {},

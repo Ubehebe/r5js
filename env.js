@@ -49,6 +49,18 @@ Environment.prototype.hasBindingRecursive = function(name) {
         || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name));
 };
 
+Environment.prototype.addAll = function(otherEnv) {
+    var name;
+    for (name in this.bindings)
+        throw new InternalInterpreterError(this.name + ' is not empty');
+
+    var otherBindings = otherEnv.bindings;
+    for (var name in otherBindings)
+        this.bindings[name] = otherBindings[name];
+
+    return this;
+};
+
 Environment.prototype.get = function(name) {
 
     var maybe = this.bindings[name];

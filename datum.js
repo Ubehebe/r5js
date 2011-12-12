@@ -30,6 +30,7 @@ function newEmptyList() {
 }
 
 function newIdOrLiteral(payload, type) {
+    // todo bl: we're sometimes creating these with undefined payloads! Investigate.
     var ans = new Datum();
     ans.type = type || 'identifier'; // convenience
     ans.payload = payload;
@@ -709,9 +710,12 @@ function newAnonymousLambdaName() {
 var uniqueNodeCounter = 0; // todo bl any good way to encapsulate this?
 var anonymousLambdaCounter = 0;
 
-function LocalStructure(operatorName, firstOperand) {
+function LocalStructure(operator, firstOperand) {
     this.bindings = [];
-    this.operatorName = operatorName;
+
+    /* This should either be an identifier (example: (f (g y) (h z))) or a
+    Continuable object (example: ((f x) (g y) (h z))) */
+    this.operator = operator;
 
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
         if (cur.isQuote()) {
@@ -747,7 +751,47 @@ LocalStructure.prototype.toProcCall = function(cpsNames) {
         lastArg = idOrLiteralNode;
     }
 
-    return newProcCall(this.operatorName, firstArg, new Continuation(newCpsName()));
+    /* Example: the procedure call
+
+        ((f x) (g y) (h z))
+
+        should be desugared as
+
+        (g y [_1 (h z [_2 (f x [_0 (_0 _1 _2 [_3 ...])])])])
+
+        If we're here, we already have the operator desugared as
+
+        (f x [_0 ...])
+
+        and the operands desugared as
+
+        (g y [_1 (h z [_2 ...])])
+
+        so all we really need to do is manufacture the novel ProcCall,
+
+        (_0 _1 _2 [_3 ...])
+
+        and stick it on the end of the operator sequence:
+
+        (f x [_0 (_0 _1 _2 [_3 ...])])
+     */
+    if (this.operator instanceof Continuable) {
+        var operatorEnd = this.operator.getLastContinuable();
+        var operatorCpsName = newIdOrLiteral(operatorEnd.continuation.lastResultName); // _0
+        var procCall = newProcCall(operatorCpsName, firstArg, new Continuation(newCpsName()));
+        var ans = this.operator.appendContinuable(procCall);
+        if (ans.subtype instanceof ProcCall)
+            ans.subtype.useDynamicEnv = true;
+        /* Unfortunately, lambda-expressions currently desugar to identifiers
+            wrapped in IdShims instead of bare identifiers. If we detect that,
+            just set the useDynamicEnv flag on the next thing in the chain. */
+        else if (ans.subtype instanceof IdShim && ans.continuation.nextContinuable.subtype instanceof ProcCall)
+            ans.continuation.nextContinuable.subtype.useDynamicEnv = true;
+        return ans;
+    } else {
+        return newProcCall(this.operator, firstArg, new Continuation(newCpsName()));
+    }
+
 
 };
 

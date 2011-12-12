@@ -55,6 +55,11 @@ Continuable.prototype.getLastContinuable = function() {
         : this;
 };
 
+Continuable.prototype.appendContinuable = function(next) {
+    this.getLastContinuable().continuation.nextContinuable = next;
+    return this;
+};
+
 Continuable.prototype.setEnv = function(env) {
     this.env = env;
 };
@@ -283,6 +288,36 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
             (because the old Environment objects will get garbage collected),
             but I would imagine it would make tail recursion impracticable. */
         var newEnv = new Environment('tmp-' + proc.name, env);
+        newEnv.addAll(proc.env);
+
+        /* This is a blatant kludge to set the order of environment lookups
+            correctly. It is currently only used in situations like this:
+
+            (define (foo x) (lambda (y) (+ x y)))
+            ((foo 1) 2)
+
+            The expression will desugar to something like
+
+            (foo 1 [_0 (_0 2 [_1 ...])])
+
+            At this point, we allocate a new Environment foo' for the execution of
+            foo, and bind x := 1 in this Environment. Later, at
+
+            (_0 2 [_1 ...])
+
+            we create a new Environment for the execution of the anonymous
+            lambda. But to resolve x correctly, its enclosingEnv must be foo'.
+            We accomplish this in a massive kludge. See
+            LocalStructure.prototype.toProcCall for more information.
+
+            todo bl: declare the Environment and desugar/trampoline
+            interface a disaster zone and try again.
+         */
+        if (this.useDynamicEnv) {
+            continuation.setEnv(newEnv);
+            if (continuation.nextContinuable)
+                continuation.nextContinuable.setEnv(newEnv);
+        }
         // This will be a no-op if tail recursion is detected
         proc.setContinuation(continuation);
         proc.checkNumArgs(args.length);

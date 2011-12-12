@@ -395,18 +395,10 @@ Parser.prototype['procedure-call'] = function() {
 
             var operatorNode = node.at('operator');
 
-            /* Example: ((lambda (x) ...) y z). The lambda-expression will
-             desugar to an identifier. */
+            /* Example: ((f x) y). (f x) will desugar to a Continuable
+                object which is then handled appropriately by LocalStructure.*/
             if (!operatorNode.isIdentifier())
                 operatorNode = operatorNode.desugar(env);
-
-            /* Example: (define (foo) +), ((foo) x y). In this case the
-             procedure call, already desugared, must be evaluated. */
-            if (operatorNode instanceof Continuable)
-                operatorNode = trampoline(operatorNode, env);
-
-            if (operatorNode.isProcedure())
-                operatorNode.changeProcToName();
 
             var operands = node.at('operand');
             if (!operands.type)
@@ -420,12 +412,9 @@ Parser.prototype['procedure-call'] = function() {
             var localProcCall = localStructure.toProcCall(cpsNames);
 
             // Add the local procedure call to the tip of the sequence
-            if (maybeSequenced) {
-                maybeSequenced.getLastContinuable().continuation.nextContinuable = localProcCall;
-                return maybeSequenced;
-            } else {
-                return localProcCall;
-            }
+            return maybeSequenced
+                ? maybeSequenced.appendContinuable(localProcCall)
+                : localProcCall;
         }
         }
     );

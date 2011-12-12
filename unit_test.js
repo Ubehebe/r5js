@@ -319,17 +319,31 @@ function testEvaluator() {
         '(define (foo x y) (+ x (* 2 y))) (foo 3 4)': '11',
         '(define (foo) "hi") (define bar (foo)) bar': '"hi"',
         '(define (foo x . y) y) (foo 3 4 5)': "(4 5)",
-        "(apply + '(1 2 3))": '6',
         "(define (foo x) (* x x)) (+ (foo 3) (foo 4))": '25',
         "(define (fac n) (if (= n 0) 1 (* n (fac (- n 1))))) (fac 10)": '3628800',
         '(((lambda (x) x) (lambda (y) y)) "hello!")': '"hello!"',
         "(define x 1) (define y 2) (+ x y)": '3',
-        "(define x 1) (define y 1) (set! x (+ x 100)) (set! y (+ x 100)) (+ x y)": '302'
-        "((lambda x x) 32)": '(32)'
+        "(define x 1) (define y 1) (set! x (+ x 100)) (set! y (+ x 100)) (+ x y)": '302',
+        "((lambda x x) 32)": '(32)',
+        "(((lambda (x) +) 3) 100 1)": '101',
+        "(((lambda (x) (lambda (y) (/ x y))) 10) 4)": '2.5',
+        "(define (div-me x) (lambda (y) (/ x y))) ((div-me 10) 4)": '2.5',
+        "((lambda (x) ((lambda (y) ((lambda (z) (+ x y z z z)) 3)) 2)) 1)": '12'
     };
 
-    tests['continuations'] = {
+    // R5RS 6.4
+    tests['control-features'] = {
+        "(apply + '(1 2 3))": '6',
+        "(procedure? procedure?)": "#t",
+        "(procedure? +)": "#t",
+        "(procedure? (lambda () 1))": "#t",
+        "(procedure? 2)": "#f",
+        "(define (list . xs) xs) (apply apply (list + (list 3 4 5)))": "12", // todo bl: hard!
         '(define (foo x) (x 3.14)) (call/cc foo)': '3.14'
+    };
+
+    tests['r5rs-examples'] = {
+        "(define compose (lambda (f g) (lambda args (f (apply g args))))) ((compose sqrt *) 12 75)": '30' // 6.4
     };
 
     var numErrors = 0;
@@ -353,7 +367,12 @@ function testEvaluator() {
                         + actualOutput);
                 }
             } catch (x) {
-                console.log('testEvaluator: exception evaluating ' + input + ': ' + x);
+                console.log('testEvaluator '
+                    + type
+                    + ': exception evaluating '
+                    + input
+                    + ': '
+                    + x);
                 ++numErrors;
             }
             ++numTests;
