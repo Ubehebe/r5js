@@ -38,7 +38,12 @@ var newStdEnv = (function() {
         'procedure?': {
             argc: 1,
             proc: function(p) {
-                return p.isProcedure();
+                /* R5RS 6.4: "The procedure call-with-current-continuation
+                packages up the current continuation as an "escape procedure"
+                and passes it as an argument to proc." Thus a Continuation
+                must count as a procedure. */
+                return (p instanceof Datum && p.isProcedure())
+                    || p instanceof Continuation;
             }
         },
 
@@ -555,15 +560,14 @@ var newStdEnv = (function() {
             }
         },
 
-        // todo bl replace call/cc by full name
-        'call/cc': {
+        'call-with-current-continuation': {
             argc: 1,
             argtypes: ['procedure'],
             hasSpecialEvalLogic: true,
             proc: function(procedure, procCall, continuation, resultStruct) {
                 /* Semantics of call/cc:
 
-                 (call/cc foo)
+                 (call-with-current-continuation foo)
 
                  means create a new procedure call,
 
