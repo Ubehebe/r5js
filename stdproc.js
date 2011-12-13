@@ -691,7 +691,7 @@ var newStdEnv = (function() {
                             case we can't typecheck the extra arguments, but
                             we still need to collect them. */
                         if (i < argtypes.length
-                            && !targetEnv.getProcedure(argtypes[i] + '?')(arguments[i]))
+                            && !targetEnv.getProcedure(argtypes[i] + '?')(arguments[i]).unwrap())
                             throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
                         maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
                     }
