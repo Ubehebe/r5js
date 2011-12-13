@@ -207,6 +207,10 @@ Datum.prototype.isProcedure = function() {
   return this.type === 'lambda';
 };
 
+Datum.prototype.isEnvironmentSpecifier = function() {
+    return this.type === 'environment-specifier';
+};
+
 Datum.prototype.sequenceOperands = function(env, cpsNames) {
     var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {

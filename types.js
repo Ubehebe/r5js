@@ -6,6 +6,10 @@ SchemeChar.prototype.toString = function() {
     return this.c;
 };
 
+function newEnvironmentSpecifier(version) {
+    return newIdOrLiteral(version, 'environment-specifier');
+}
+
 function SchemeString(s) {
     this.s = s;
 }

@@ -651,11 +651,41 @@ var newStdEnv = (function() {
         'dynamic-wind': {}
     };
 
-// todo bl
     var builtinEvalProcs = {
-        'eval': {},
-        'scheme-report-environment': {},
-        'null-environment': {}
+        'eval': {
+            argc: 2,
+            proc: function(expr, envSpec) {
+                if (!(expr instanceof Datum))
+                    throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
+                else if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
+                    throw new ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
+                else {
+                    /* todo bl: actually do something different depending on
+                        the environment specifier :) */
+                    return newIdOrLiteral(parseAndEval(expr, newStdEnv()));
+                }
+            }
+        },
+        'scheme-report-environment': {
+            argc: 1,
+            argtypes: ['number'],
+            proc: function(num) {
+                if (num === 5)
+                    return newEnvironmentSpecifier(num);
+                else throw new InternalInterpreterError(
+                    'unsupported scheme report environment ' + num);
+            }
+        },
+        'null-environment': {
+            argc: 1,
+            argtypes: ['number'],
+            proc: function(num) {
+                if (num === 5)
+                    return newEnvironmentSpecifier(0);
+                else throw new InternalInterpreterError(
+                    'unsupported null environment ' + num);
+            }
+        }
     };
 
 // todo bl

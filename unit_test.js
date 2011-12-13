@@ -352,7 +352,8 @@ function testEvaluator() {
         "(apply + (list 3 4))": '7', // p. 32
         "(define compose (lambda (f g) (lambda args (f (apply g args))))) ((compose sqrt *) 12 75)": '30', // p. 32
         "(call-with-values (lambda () (values 4 5)) (lambda (a b) b))": '5', // p. 34
-        "(call-with-values * -)": '-1' // p. 34
+        "(call-with-values * -)": '-1', // p. 34
+        "(eval '(* 7 3) (scheme-report-environment 5))": '21' // p. 35
     };
 
     var numErrors = 0;

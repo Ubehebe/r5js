@@ -204,6 +204,10 @@ Datum.prototype.toString = function() {
     var endDelimiter = "";
 
     switch (this.type) {
+        case 'environment-specifier': // R5RS 6.5
+            return this.payload === 5
+                ? 'scheme-report-environment-5'
+                : 'null-environment-5';
         case 'lambda':
             return typeof this.payload === 'function'
                 ? this.name
