@@ -586,8 +586,68 @@ var newStdEnv = (function() {
                 resultStruct.nextContinuable = dummyProcCall;
             }
         },
-        'values': {},
-        'call-with-values': {},
+        'values': {
+            argc: {min: 1},
+            hasSpecialEvalLogic: true,
+            proc: function() {
+                // Varargs procedures that also have special eval logic are a pain.
+                var resultStruct = arguments[arguments.length - 1];
+                var continuation = arguments[arguments.length - 2];
+                // not needed var procCall = arguments[arguments.length - 3];
+                var numUserArgs = arguments.length - 3;
+
+                /* If there's just one user-supplied argument, that works fine
+                    with the existing machinery. Example:
+
+                    (values 1 [_0 ...])
+
+                    should just bind 1 to _0 and continue. */
+                if (numUserArgs === 1)
+                    continuation.env.addBinding(continuation.lastResultName, arguments[0]);
+
+                /* If there's more than one argument, we bind the whole array
+                    to the continuation's lastResultName. This means later, when
+                    we're evaluating the arguments to a procedure call, we have
+                    to remember that a single name like _0 could specify a whole
+                    list of arguments. */
+                else {
+
+                    var userArgs = [];
+
+                    for (var i = 0; i < numUserArgs; ++i)
+                        userArgs.push(arguments[i]);
+
+                    continuation.env.addBinding(continuation.lastResultName, userArgs);
+                }
+                resultStruct.nextContinuable = continuation.nextContinuable;
+            }
+        }   ,
+        'call-with-values': {
+            argc: 2,
+            argtypes: ['procedure', 'procedure'],
+            hasSpecialEvalLogic: true,
+            proc: function(producer, consumer, procCall, continuation, resultStruct) {
+            /* R5RS 6.4: (call-with-values producer consumer)
+                "Calls its producer argument with no values and a continuation
+                 that, when passed some values, calls the consumer procedure
+                 with those values as arguments. The continuation for the call
+                 to consumer is the continuation of the call to
+                 call-with-values." */
+
+                var valuesName = newCpsName();
+                var producerContinuation = new Continuation(valuesName);
+                var producerCall = newProcCall(
+                    procCall.firstOperand,
+                    null, // no arguments
+                    producerContinuation);
+                var consumerCall = newProcCall(
+                    procCall.firstOperand.nextSibling,
+                    newIdOrLiteral(valuesName),
+                    continuation);
+                producerContinuation.nextContinuable = consumerCall;
+                resultStruct.nextContinuable = producerCall;
+            }
+        },
         'dynamic-wind': {}
     };
 

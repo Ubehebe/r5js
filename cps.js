@@ -340,8 +340,30 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
 function evalArgs(firstOperand, env) {
     var args = [];
+
+    /* Special logic for values and call-with-values. Example:
+
+        (call-with-values (lambda () (values 1 2 3)) +)
+
+        The "producer" procedure, (lambda () (values 1 2 3)), will desugar to
+        something like
+
+        (values 1 2 3 [_0 ...])
+
+        In this implementation, this will bind the JavaScript array [1, 2, 3]
+        to _0. Later on the trampoline, we reach (+ _0). We have to know that
+        _0 refers to an array of values, not a single value. */
+    if (firstOperand instanceof Datum
+        && !firstOperand.nextSibling
+        && firstOperand.isIdentifier()) {
+        var maybeArray = env.get(firstOperand.payload);
+        if (maybeArray instanceof Array)
+            return maybeArray;
+        // Otherwise, fall through to normal logic.
+    }
+
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
-        if (cur instanceof Continuation) // todo bl too much special logic for call/cc
+        if (cur instanceof Continuation)
             args.push(cur);
         else if (cur.isIdentifier())
             args.push(env.get(cur.payload));

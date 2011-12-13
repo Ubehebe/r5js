@@ -55,7 +55,7 @@ Environment.prototype.addAll = function(otherEnv) {
         throw new InternalInterpreterError(this.name + ' is not empty');
 
     var otherBindings = otherEnv.bindings;
-    for (var name in otherBindings)
+    for (name in otherBindings)
         this.bindings[name] = otherBindings[name];
 
     return this;
@@ -103,9 +103,10 @@ Environment.prototype.addBinding = function(name, val) {
                 this.bindings[name] = val.payload;
             else
                 this.bindings[name] = val;
-        } else if (typeof val === 'function'
-            || val instanceof SchemeProcedure
-            || val instanceof Continuation) {
+        } else if (typeof val === 'function' /* primitive procedure */
+            || val instanceof SchemeProcedure /* library/user procedure */
+            || val instanceof Continuation /* call-with-current-continuation etc. */
+            || val instanceof Array /* values and call-with-values */) {
             this.bindings[name] = val;
         } else {
             throw new InternalInterpreterError('tried to store '

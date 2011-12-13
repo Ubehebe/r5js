@@ -339,11 +339,20 @@ function testEvaluator() {
         "(procedure? (lambda () 1))": "#t",
         "(procedure? 2)": "#f",
         "(define (list . xs) xs) (apply apply (list + (list 3 4 5)))": "12", // todo bl: hard!
-        '(define (foo x) (x 3.14)) (call/cc foo)': '3.14'
+        '(define (foo x) (x 3.14)) (call-with-current-continuation foo)': '3.14',
+        "(call-with-values (lambda () (values '(1 2 3))) cdr)": '(2 3)'
     };
 
     tests['r5rs-examples'] = {
-        "(define compose (lambda (f g) (lambda args (f (apply g args))))) ((compose sqrt *) 12 75)": '30' // 6.4
+        "(procedure? car)": '#t', // p. 31
+        "(procedure? 'car)": '#f', // p. 31
+        "(procedure? (lambda (x) (* x x)))": '#t', // p. 31
+        "(procedure? '(lambda (x) (* x x)))": '#f', // p. 31
+        "(call-with-current-continuation procedure?)": '#t', // p. 31
+        "(apply + (list 3 4))": '7', // p. 32
+        "(define compose (lambda (f g) (lambda args (f (apply g args))))) ((compose sqrt *) 12 75)": '30', // p. 32
+        "(call-with-values (lambda () (values 4 5)) (lambda (a b) b))": '5', // p. 34
+        "(call-with-values * -)": '-1' // p. 34
     };
 
     var numErrors = 0;
