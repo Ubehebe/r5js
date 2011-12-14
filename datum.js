@@ -469,6 +469,21 @@ function maybeWrapResult(result, type) {
     return ans;
 }
 
+/* todo bl: numChildren and childAt are for manipulating vectors...
+    which are currently represented by linked lists!!! Haha. Let's implement
+    vectors by something that actually gives random access. */
+Datum.prototype.numChildren = function() {
+    for (var cur = this.firstChild, ans = 0; cur; cur = cur.nextSibling,++ans)
+        ;
+    return ans;
+};
+
+Datum.prototype.childAt = function(k) {
+    for (var cur = this.firstChild; cur && k; cur = cur.nextSibling, --k)
+        ;
+    return cur;
+};
+
 Datum.prototype.isList = function() {
     return this.type === '(';
 };
@@ -527,7 +542,9 @@ Datum.prototype.isEqual = function(other) {
     it's "primitive". We never unwrap SchemeProcedures or JavaScript functions
     (though not completely sure why not). */
 Datum.prototype.unwrap = function() {
-    return this.payload !== undefined && !this.isProcedure() // watch out for 0's and falses
+    return (this.payload !== undefined
+        && !this.isProcedure()
+        && !this.isVector()) // watch out for 0's and falses
         ? this.payload
         : this;
 };

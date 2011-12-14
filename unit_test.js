@@ -362,7 +362,6 @@ function testEvaluator() {
         "(symbol? 'nil)": '#t', // p. 28
         "(symbol? '())": '#f', // p. 28
         "(symbol? #f)": '#f', // p. 28
-
         /* R5RS 6.3.3: "The following examples assume that the implementation's
             standard case is lower case." */
         "(symbol->string 'flying-fish)": '"flying-fish"', // p. 28
@@ -372,11 +371,13 @@ function testEvaluator() {
         "(eq? 'bitBlt (string->symbol \"bitBlt\"))": '#f',
         "(eq? 'JollyWog (string->symbol (symbol->string 'JollyWog)))": '#t',
         // todo bl '(string=? "K. Harper, M.D." (symbol->string (string->symbol "K. Harper, M.D.")))': '#t',
-
         "(char<? #\\A #\\B)": '#t', // p. 29 todo bl ugh backslash escaping
         "(char<? #\\a #\\b)": '#t', // p. 29
         "(char<? #\\0 #\\9)": '#t', // p. 29
-
+        "'#(0 (2 2 2 2) \"Anna\")": '#(0 (2 2 2 2) "Anna")', // p. 31
+        "(vector-ref '#(1 1 2 3 5 8 13 21) 5)": '8', // p. 31
+        // todo bl "(vector-ref '#(1 1 2 3 5 8 13 21) (let ((i (round (* 2 (acos -1))))) (if (inexact? i) (inexact->exact i) i)))": "13", // p. 31
+        // todo bl "let ((vec (vector 0 '(2 2 2 2) \"Anna\"))) (vector-set! vec 1 '(\"Sue\" \"Sue\")) vec)": '#(0 (\"Sue" "Sue") "Anna")', // p. 31
         "(procedure? car)": '#t', // p. 31
         "(procedure? 'car)": '#f', // p. 31
         "(procedure? (lambda (x) (* x x)))": '#t', // p. 31

@@ -529,15 +529,34 @@ var newStdEnv = (function() {
 
     builtins['vector'] = {
 
+        /* todo bl: the current vector implementation uses Datums, in other
+            words, linked lists! Replace this by something that's actually
+            random access. */
+
         'make-vector': {
             argc: {min: 1, max: 2},
-            argtypes: ['number'],
             proc: function(n, fill) {
-                var ans = new Array(n);
-                if (arguments.length === 2) {
+                /* We want n to be a number (= unwrapped) and fill to be a
+                    Datum (= wrapped). Unfortunately, if we specify
+                    argtypes: ['number'] in order to get automatic type checking
+                    on the first argument, then all the arguments will be
+                    unwrapped; and if we omit argtypes, then none of the
+                    arguments will be unwrapped. So we manually unwrap the
+                    first argument and do the type checking ourselves.
+                    C'est la vie. */
+                n = n.unwrap();
+                if (typeof n !== 'number')
+                    throw new ArgumentTypeError(n, 0, 'make-vector', 'number');
+                /* R5RS 6.3.6: "If a second argument is given, then each
+                    element is initialized to fill. Otherwise the initial
+                    contents of each element is unspecified."
+
+                    Zero seems like a good default. */
+                fill = fill || newIdOrLiteral(0, 'number');
+                var ans = new Datum();
+                ans.type = '#(';
                     for (var i = 0; i < n; ++i)
-                        ans[i] = fill;
-                }
+                        ans.prependChild(fill.clone());
                 return ans;
             }
         },
@@ -545,21 +564,38 @@ var newStdEnv = (function() {
             argc: 1,
             argtypes: ['vector'],
             proc: function(v) {
-                return v.length;
+                return v.numChildren();
             }
         },
         'vector-ref': {
             argc: 2,
             argtypes: ['vector', 'number'],
             proc: function(v, k) {
-                return v[k];
+                return v.childAt(k);
             }
         },
         'vector-set!': {
             argc: 3,
-            argtypes: ['vector', 'number'],
             proc: function(v, k, fill) {
-                v[k] = fill;
+                v = v.unwrap();
+                k = k.unwrap();
+
+                if (!v.isVector())
+                    throw new ArgumentTypeError(v, 0, 'vector-set!', 'vector');
+                else if (typeof k !== 'number')
+                    throw new ArgumentTypeError(k, 1, 'vector-set!', 'number');
+
+                if (k === 0) {
+                    fill.nextSibling = v.firstChild.nextSibling;
+                    fill.parent = v.firstChild.parent;
+                    v.firstChild = fill;
+                } else {
+                    var pred = v.childAt(k - 1);
+                    fill.parent = pred.nextSibling.parent;
+                    fill.nextSibling = pred.nextSibling.nextSibling;
+                    pred.nextSibling = fill;
+                }
+                return true;
             }
         }
     };
