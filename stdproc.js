@@ -28,7 +28,12 @@ var newStdEnv = (function() {
         } else return false;
     };
 
-    var builtinEquivProcs = {
+    var builtins = {};
+
+    /* The names of the different categories of builtins are just for
+        readability; they all get loaded into the same namespace. */
+
+    builtins['equiv'] = {
 
         'eqv?': {
             argc: 2,
@@ -42,7 +47,7 @@ var newStdEnv = (function() {
         }
     };
 
-    var builtinTypeProcs = {
+    builtins['type'] = {
 
         'boolean?': {
             argc: 1,
@@ -139,7 +144,7 @@ var newStdEnv = (function() {
         }
     };
 
-    var builtinNumberProcs = {
+    builtins['number'] = {
 
         'complex?': {
             argc: 1,
@@ -186,7 +191,7 @@ var newStdEnv = (function() {
         },
 
         '=': {
-            argtypes: 'number', // todo bl support type checking for varargs
+            argtypes: 'number',
             proc: function() {
                 for (var i = 0; i < arguments.length - 1; ++i)
                     if (arguments[i] !== arguments[i + 1])
@@ -337,7 +342,7 @@ var newStdEnv = (function() {
         'string->number': {}
     };
 
-    var builtinPairProcs = {
+    builtins['pair'] = {
 
         'cons': {
             argc: 2,
@@ -405,7 +410,7 @@ var newStdEnv = (function() {
         }
     };
 
-    var builtinSymbolProcs = {
+    builtins['symbol'] = {
 
         'symbol->string': {
             argc: 1,
@@ -426,7 +431,7 @@ var newStdEnv = (function() {
         }
     };
 
-    var builtinCharProcs = {
+    builtins['char'] = {
 
         'char=?': {
             argc: 2,
@@ -480,8 +485,7 @@ var newStdEnv = (function() {
         }
     };
 
-    var builtinStringProcs = {
-
+    builtins['string'] = {
 
         'make-string': {
             argc: {min: 1, max: 2},
@@ -523,8 +527,7 @@ var newStdEnv = (function() {
         }
     };
 
-    var builtinVectorProcs = {
-
+    builtins['vector'] = {
 
         'make-vector': {
             argc: {min: 1, max: 2},
@@ -561,7 +564,7 @@ var newStdEnv = (function() {
         }
     };
 
-    var builtinControlProcs = {
+    builtins['control'] = {
 
         'apply': {
             argc: {min: 2},
@@ -698,7 +701,7 @@ var newStdEnv = (function() {
         'dynamic-wind': {}
     };
 
-    var builtinEvalProcs = {
+    builtins['eval'] = {
         'eval': {
             argc: 2,
             proc: function(expr, envSpec) {
@@ -736,7 +739,7 @@ var newStdEnv = (function() {
     };
 
 // todo bl
-    var builtinIOProcs = {
+    builtins['io'] = {
         'call-with-input-file': {},
         'call-with-output-file': {},
         'input-port?': {},
@@ -871,38 +874,16 @@ var newStdEnv = (function() {
     }
 
     return function() {
-        var builtins = new Environment();
+        var env = new Environment();
 
-        [builtinEquivProcs,
-            builtinTypeProcs,
-            builtinCharProcs,
-            builtinControlProcs,
-            builtinEvalProcs,
-            builtinIOProcs,
-            builtinNumberProcs,
-            builtinPairProcs,
-            builtinStringProcs,
-            builtinSymbolProcs,
-            builtinVectorProcs].forEach(function(procs) {
-            for (var name in procs)
-                registerBuiltin(name, procs[name], builtins);
-        });
+        for (var category in builtins) {
+            var procs = builtins[category];
 
-        return builtins;
+            for (var name in procs) {
+                registerBuiltin(name, procs[name], env);
+            }
+        }
 
+        return env;
     };
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
