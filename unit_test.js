@@ -328,7 +328,10 @@ function testEvaluator() {
         "(((lambda (x) +) 3) 100 1)": '101',
         "(((lambda (x) (lambda (y) (/ x y))) 10) 4)": '2.5',
         "(define (div-me x) (lambda (y) (/ x y))) ((div-me 10) 4)": '2.5',
-        "((lambda (x) ((lambda (y) ((lambda (z) (+ x y z z z)) 3)) 2)) 1)": '12'
+        "((lambda (x) ((lambda (y) ((lambda (z) (+ x y z z z)) 3)) 2)) 1)": '12',
+        "(string? (make-string 0))": '#t',
+        "(= 4 (string-length (make-string 4)))": '#t',
+        '(string-ref "hello!" 4)': '#\\o'
     };
 
     // R5RS 6.4
@@ -344,6 +347,36 @@ function testEvaluator() {
     };
 
     tests['r5rs-examples'] = {
+        "(eqv? 'a 'a)": '#t', // p. 18
+        "(eqv? 'a 'b)": '#f', // p. 18
+        "(eqv? 2 2)": '#t', // p. 18
+        "(eqv? '() '())": '#t', // p. 18
+        "(eqv? 100000000 100000000)": '#t', // p. 18
+        "(eqv? (cons 1 2) (cons 1 2))": '#f', // p. 18
+        "(eqv? (lambda () 1) (lambda () 2))": '#f', // p. 18
+        "(eqv? #f 'nil)": '#f', // p. 18
+        // todo bl "(let ((p (lambda (x) x))) (eqv? p p))": '#t', // p. 18
+         "(symbol? 'foo)": '#t', // p. 28
+        "(symbol? (car '(a b)))": '#t', // p. 28
+        '(symbol? "bar")': '#f', // p. 28
+        "(symbol? 'nil)": '#t', // p. 28
+        "(symbol? '())": '#f', // p. 28
+        "(symbol? #f)": '#f', // p. 28
+
+        /* R5RS 6.3.3: "The following examples assume that the implementation's
+            standard case is lower case." */
+        "(symbol->string 'flying-fish)": '"flying-fish"', // p. 28
+        "(symbol->string 'Martin)": '"martin"', // p. 28
+        '(symbol->string (string->symbol "Malvina"))': '"Malvina"', // p. 28
+        "(eq? 'mISSISSIppi 'mississippi)": '#t',
+        "(eq? 'bitBlt (string->symbol \"bitBlt\"))": '#f',
+        "(eq? 'JollyWog (string->symbol (symbol->string 'JollyWog)))": '#t',
+        // todo bl '(string=? "K. Harper, M.D." (symbol->string (string->symbol "K. Harper, M.D.")))': '#t',
+
+        "(char<? #\\A #\\B)": '#t', // p. 29 todo bl ugh backslash escaping
+        "(char<? #\\a #\\b)": '#t', // p. 29
+        "(char<? #\\0 #\\9)": '#t', // p. 29
+
         "(procedure? car)": '#t', // p. 31
         "(procedure? 'car)": '#f', // p. 31
         "(procedure? (lambda (x) (* x x)))": '#t', // p. 31

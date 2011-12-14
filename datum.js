@@ -41,6 +41,10 @@ Datum.prototype.isEmptyList = function() {
     return this.isList() && !this.firstChild;
 };
 
+Datum.prototype.sameTypeAs = function(other) {
+    return this.type === other.type;
+};
+
 Datum.prototype.stripParent = function() {
     this.parent = null;
     return this;
@@ -447,6 +451,16 @@ function maybeWrapResult(result, type) {
             case 'number':
                 ans.type = inferredType;
                 break;
+            case 'string':
+                ans.type = 'identifier';
+                break;
+            case 'object':
+                if (result instanceof SchemeString) {
+                    ans.type = 'string';
+                    ans.payload = result.s;
+                    break;
+                }
+
             default:
                 throw new InternalInterpreterError('cannot deduce type from value '
                     + result + ': noninjective mapping from values to types');

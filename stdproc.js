@@ -1,5 +1,47 @@
 var newStdEnv = (function() {
 
+    var eqv = function(p,q) {
+        /* This implementation closely follows the description of eqv?
+         in R5RS 6.1, which explicitly leaves some comparisons undefined. */
+
+        if (p.sameTypeAs(q)) {
+
+            if (p.isBoolean())
+                return p.payload === q.payload;
+            else if (p.isIdentifier())
+                return p.payload === q.payload;
+            else if (p.isNumber())
+                return p.payload === q.payload; // todo bl numerical precision...
+            else if (p.isCharacter())
+                return p.payload === q.payload; // todo char impl is busted
+            else if (p.isList())
+                return p === q || p.isEmptyList() && q.isEmptyList();
+            else if (p.isImproperList())
+                return p === q;
+            else if (p.isVector())
+                return p === q; // todo bl vector impl is busted
+            else if (p.isString())
+                return p === q; // todo string impl is busted
+            else if (p.isProcedure() && q.isProcedure())
+                return p.payload === q.payload;
+
+        } else return false;
+    };
+
+    var builtinEquivProcs = {
+
+        'eqv?': {
+            argc: 2,
+            proc: eqv
+        },
+        'eq?': {
+            argc: 2,
+            /* From the description of eq? at R5RS 6.1, it looks like it is
+                permissible for it to have exactly the same semantics as eqv?. */
+            proc: eqv
+        }
+    };
+
     var builtinTypeProcs = {
 
         'boolean?': {
@@ -376,8 +418,10 @@ var newStdEnv = (function() {
         'string->symbol': {
             argc: 1,
             argtypes: ['string'],
-            proc: function(ss) {
-                return ss.s;
+            proc: function(str) {
+                /* This will automatically get wrapped as a identifier.
+                 See maybeWrapResult(). */
+                return str;
             }
         }
     };
@@ -388,35 +432,36 @@ var newStdEnv = (function() {
             argc: 2,
             argtypes: ['char', 'char'],
             proc: function(c1, c2) {
-                return c1.c === c2.c;
+                console.log(c1);
+                return c1 === c2;
             }
         },
         'char<?': {
             argc: 2,
             argtypes: ['char', 'char'],
             proc: function(c1, c2) {
-                return c1.c < c2.c;
+                return c1 < c2;
             }
         },
         'char>?': {
             argc: 2,
             argtypes: ['char', 'char'],
             proc: function(c1, c2) {
-                return c1.c > c2.c;
+                return c1 > c2;
             }
         },
         'char<=?': {
             argc: 2,
             argtypes: ['char', 'char'],
             proc: function(c1, c2) {
-                return c1.c <= c2.c;
+                return c1 <= c2;
             }
         },
         'char>=?': {
             argc: 2,
             argtypes: ['char', 'char'],
             proc: function(c1, c2) {
-                return c1.c >= c2.c;
+                return c1 >= c2;
             }
         },
         'char->integer': {
@@ -430,7 +475,7 @@ var newStdEnv = (function() {
             argc: 1,
             argtypes: ['number'],
             proc: function(i) {
-                return String.fromCharCode(i);
+                return newIdOrLiteral(String.fromCharCode(i), 'character');
             }
         }
     };
@@ -442,35 +487,37 @@ var newStdEnv = (function() {
             argc: {min: 1, max: 2},
             argtypes: ['number', 'char'],
             proc: function(n, c) {
+                /* R5RS 6.3.5: "If char is given, then all elements of the
+                    string are initialized to char, otherwise the contents
+                    of the string are unspecified." */
+                c = c || ' ';
                 var s = '';
-                if (c) {
                     for (var i = 0; i < n; ++i)
                         s += c;
-                }
                 return new SchemeString(s);
             }
         },
         'string-length': {
             argc: 1,
             argtypes: ['string'],
-            proc: function(ss) {
-                return ss.s.length;
+            proc: function(str) {
+                return str.length;
             }
         },
         'string-ref': {
             argc: 2,
             argtypes: ['string', 'number'],
-            proc: function(ss, i) {
-                return ss.s.charAt(i);
+            proc: function(str, i) {
+                return newIdOrLiteral(str.charAt(i), 'character');
             }
         },
         'string-set!': {
             argc: 3,
             argtypes: ['string', 'number', 'char'],
-            proc: function(ss, k, c) {
+            proc: function(str, k, c) {
                 var ans = '';
-                for (var i = 0; i < ss.s.length; ++i)
-                    ans += i === k ? c.c : ss.s.charAt(i);
+                for (var i = 0; i < str.length; ++i)
+                    ans += i === k ? c : str.charAt(i);
                 return new SchemeString(ans);
             }
         }
@@ -826,7 +873,8 @@ var newStdEnv = (function() {
     return function() {
         var builtins = new Environment();
 
-        [builtinTypeProcs,
+        [builtinEquivProcs,
+            builtinTypeProcs,
             builtinCharProcs,
             builtinControlProcs,
             builtinEvalProcs,
