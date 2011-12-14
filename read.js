@@ -219,6 +219,12 @@ Datum.prototype.toString = function() {
         case 'number':
             return this.payload + '';
         case 'character':
+            if (this.payload === ' ')
+                return '#\\space';
+            else if (this.payload === '\n')
+                return '#\\newline';
+            else
+                return '#\\' + this.payload;
         case 'string':
             return '"' + this.payload + '"';
         case '(':
