@@ -29,9 +29,11 @@ Token.prototype.setPayload = function(payload) {
             var afterSlash = payload.substr(2);
             if (afterSlash.length === 1)
                 this.payload = afterSlash;
-            else if (afterSlash === 'space')
+            /* R5RS 6.3.4: "Case is significant in #\<character>, but not in
+                #\<character name>.*/
+            else if (afterSlash.toLowerCase() === 'space')
                 this.payload = ' ';
-            else if (afterSlash === 'newline')
+            else if (afterSlash.toLowerCase() === 'newline')
                 this.payload = '\n';
             else throw new InternalInterpreterError('invalid character payload ' + payload);
             break;
