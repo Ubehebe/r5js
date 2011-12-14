@@ -407,7 +407,7 @@ Parser.prototype['procedure-call'] = function() {
             var localStructure = new LocalStructure(operatorNode, operands);
             var cpsNames = [];
             var maybeSequenced = operands && operands.sequenceOperands(env, cpsNames);
-            var localProcCall = localStructure.toProcCall(cpsNames);
+            return localStructure.toProcCall(maybeSequenced, cpsNames);
 
             // Add the local procedure call to the tip of the sequence
             return maybeSequenced

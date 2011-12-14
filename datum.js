@@ -763,12 +763,12 @@ function LocalStructure(operator, firstOperand) {
     }
 }
 
-LocalStructure.prototype.toProcCall = function(cpsNames) {
+LocalStructure.prototype.toProcCall = function(operandSequence, cpsNames) {
 
     var idOrLiteralNode;
     var firstArg, lastArg;
 
-    for (var i=0; i<this.bindings.length; ++i) {
+    for (var i = 0; i < this.bindings.length; ++i) {
         idOrLiteralNode = this.bindings[i] || newIdOrLiteral(cpsNames.shift());
         if (!firstArg)
             firstArg = idOrLiteralNode;
@@ -777,48 +777,99 @@ LocalStructure.prototype.toProcCall = function(cpsNames) {
         lastArg = idOrLiteralNode;
     }
 
-    /* Example: the procedure call
-
-        ((f x) (g y) (h z))
-
-        should be desugared as
-
-        (g y [_1 (h z [_2 (f x [_0 (_0 _1 _2 [_3 ...])])])])
-
-        If we're here, we already have the operator desugared as
-
-        (f x [_0 ...])
-
-        and the operands desugared as
-
-        (g y [_1 (h z [_2 ...])])
-
-        so all we really need to do is manufacture the novel ProcCall,
-
-        (_0 _1 _2 [_3 ...])
-
-        and stick it on the end of the operator sequence:
-
-        (f x [_0 (_0 _1 _2 [_3 ...])])
-     */
     if (this.operator instanceof Continuable) {
-        var operatorEnd = this.operator.getLastContinuable();
-        var operatorCpsName = newIdOrLiteral(operatorEnd.continuation.lastResultName); // _0
-        var procCall = newProcCall(operatorCpsName, firstArg, new Continuation(newCpsName()));
-        var ans = this.operator.appendContinuable(procCall);
-        if (ans.subtype instanceof ProcCall)
-            ans.subtype.useDynamicEnv = true;
-        /* Unfortunately, lambda-expressions currently desugar to identifiers
-            wrapped in IdShims instead of bare identifiers. If we detect that,
-            just set the useDynamicEnv flag on the next thing in the chain. */
-        else if (ans.subtype instanceof IdShim && ans.continuation.nextContinuable.subtype instanceof ProcCall)
-            ans.continuation.nextContinuable.subtype.useDynamicEnv = true;
-        return ans;
+        return this.handleLeftRecursiveProcCall(operandSequence, firstArg);
     } else {
-        return newProcCall(this.operator, firstArg, new Continuation(newCpsName()));
+        var newCall = newProcCall(this.operator, firstArg, new Continuation(newCpsName()));
+        return operandSequence
+            ? operandSequence.appendContinuable(newCall)
+            : newCall;
     }
+};
 
+/* Example: the procedure call
 
+ ((f x) (g y) (h z))
+
+ should be desugared as
+
+ (f x [_0 (g y [_1 (h z [_2 (_0 _1 _2 [_3 ...])])])])
+
+ If we're here, we already have the operator desugared as
+
+ (f x [_0 ...])
+
+ and the operands desugared as
+
+ (g y [_1 (h z [_2 ...])])
+
+ so all we really need to do is manufacture the novel ProcCall,
+
+ (_0 _1 _2 [_3 ...])
+
+ stick it on the end of the operand sequence,
+
+ (g y [_1 (h z [_2 (_0 _1 _2 [_3 ...])])])
+
+ and stick that on the end of the operator sequence:
+
+ (f x [_0 (g y [_1 (h z [_2 (_0 _1 _2 [_3 ...])])])])
+
+ By the way, R5RS 4.1.3 says that "The operator and operand expressions are
+ evaluated (in an unspecified order)". Why do we set up the operator to be
+ evaluated first? Because of procedure call/macro use ambiguities on the
+ trampoline. Consider the expression
+
+ ((f x) (g y))
+
+ Setting up the operands to be evaluated before the operator gives something like
+
+ (A) (g y [_1 (f x [_0 (_0 _1 [_2 ...])])])
+
+ Setting up the operator to be evaluated before the operands gives something like
+
+ (B) (f x [_0 (g y [_1 (_0 _1 [_2 ...])])])
+
+ Which is preferable? On the trampoline, whenever we get to a procedure call,
+ we have to decide if it is a real procedure call, thus should be executed, or
+ if it is an operand in a later macro use, thus should be kept around as a datum.
+ Suppose we are at the point on the trampoline where we have to decide this for
+
+ (g y [_1 ...])
+
+ We skip ahead in the continuable-continuation chain, looking for the procedure
+ call where _1 is used as an operand. If we're using structure (B), we find
+
+ (_0 _1 [_2 ...])
+
+ where _0 is bound to a procedure, so we decide to execute (g y [_1 ...]).
+ Things are trickier for structure (A); we find the same procedure call
+
+ (_0 _1 [_2 ...])
+
+ but _0 isn't bound to anything yet. That is why I prefer structure (B). */
+LocalStructure.prototype.handleLeftRecursiveProcCall = function(operandSequence, firstArg) {
+    var opSeq = this.operator;
+    var operatorEnd = opSeq.getLastContinuable();
+    var operatorCpsName = newIdOrLiteral(operatorEnd.continuation.lastResultName); // _0
+    var procCall = newProcCall(operatorCpsName, firstArg, new Continuation(newCpsName())); // (_0 _1 _2 [_3 ...])
+    if (opSeq.subtype instanceof ProcCall)
+        opSeq.subtype.useDynamicEnv = true;
+    /* Unfortunately, lambda-expressions currently desugar to identifiers
+     wrapped in IdShims instead of bare identifiers. If we detect that,
+     just set the useDynamicEnv flag on the next thing in the chain. */
+    else if (opSeq.subtype instanceof IdShim
+        && opSeq.continuation.nextContinuable
+        && opSeq.continuation.nextContinuable.subtype instanceof ProcCall)
+        opSeq.continuation.nextContinuable.subtype.useDynamicEnv = true;
+
+    if (operandSequence) {
+        operandSequence.appendContinuable(procCall);
+        operatorEnd.appendContinuable(operandSequence);
+    } else {
+        operatorEnd.appendContinuable(procCall);
+    }
+    return opSeq;
 };
 
 LocalStructure.prototype.toString = function() {
