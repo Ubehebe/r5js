@@ -400,9 +400,7 @@ Parser.prototype['procedure-call'] = function() {
             if (!operatorNode.isIdentifier())
                 operatorNode = operatorNode.desugar(env);
 
-            var operands = node.at('operand');
-            if (!operands.type)
-                operands = null; // workaround for 0 operands
+            var operands = node.at('operand'); // will be null if 0 operands
 
             /* Take a snapshot of the local (nonrecursive) procedure call structure,
              since operands.sequence might destroy that structure. */

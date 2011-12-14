@@ -116,23 +116,14 @@ Datum.prototype.peekParse = function() {
     return null;
 };
 
-Datum.prototype.matchChild = function(predicate) {
-    for (var child = this.firstChild; child; child = child.nextSibling)
-        if (predicate(child))
-            return child;
-    return null;
-};
-
 Datum.prototype.at = function(type) {
-    var ans = this.matchChild(function(datum) {
-	/* The first clause is a convenience for things like node.at('(');
-	   the second is a convenience for things like node.at('expression') */
-        return datum.type === type || datum.peekParse() === type;
-    });
-    /* If there is no match, we return a fake Datum for convenience. This function
-     is often followed by evalSiblings, and calling new Datum().evalSiblings() gives
-     []. This is just what we want in the case of an empty list. */
-    return ans ? ans : new Datum();
+    for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
+        /* The first clause is a convenience for things like node.at('(');
+         the second is a convenience for things like node.at('expression') */
+        if (cur.type === type || cur.peekParse() === type)
+            return cur;
+    }
+    return null;
 };
 
 Datum.prototype.appendSibling = function(sibling) {
