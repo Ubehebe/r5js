@@ -91,7 +91,7 @@ Environment.prototype.getProcedure = function(name) {
     else if (this.enclosingEnv)
         return this.enclosingEnv.getProcedure(name);
     else
-    throw new UnboundVariable(name + ' in env ' + this.name);
+        return null;
 };
 
 Environment.prototype.addBinding = function(name, val) {
@@ -106,14 +106,15 @@ Environment.prototype.addBinding = function(name, val) {
         } else if (typeof val === 'function' /* primitive procedure */
             || val instanceof SchemeProcedure /* library/user procedure */
             || val instanceof Continuation /* call-with-current-continuation etc. */
-            || val instanceof Array /* values and call-with-values */) {
+            || val instanceof Array /* values and call-with-values */
+            || val instanceof SchemeMacro /* macros */) {
             this.bindings[name] = val;
         } else {
             throw new InternalInterpreterError('tried to store '
                 + name
                 + ' = '
                 + val
-                + ', which is not a Datum, Continuation, SchemeProcedure, or JavaScript function');
+                + ', which is not an acceptable value');
         }
     } else {
         throw new InternalInterpreterError('redefining '

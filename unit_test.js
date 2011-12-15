@@ -331,7 +331,8 @@ function testEvaluator() {
         "((lambda (x) ((lambda (y) ((lambda (z) (+ x y z z z)) 3)) 2)) 1)": '12',
         "(string? (make-string 0))": '#t',
         "(= 4 (string-length (make-string 4)))": '#t',
-        '(string-ref "hello!" 4)': '#\\o'
+        '(string-ref "hello!" 4)': '#\\o',
+        '(define-syntax foo (syntax-rules () ((foo x) "hi"))) (foo (1 2))': '"hi"'
     };
 
     // R5RS 6.4

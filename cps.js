@@ -150,6 +150,25 @@ ProcCall.prototype.toString = function(continuation) {
     return ans + continuation + ')';
 };
 
+/* Find the ProcCall continuable in the continuable-continuation chain where
+    this continuation's result is used. */
+Continuation.prototype.findResultUseSite = function() {
+
+    for (var cur = this.nextContinuable; cur; cur = cur.continuation.nextContinuable) {
+        if (cur.subtype instanceof ProcCall) {
+            var procCall = cur.subtype;
+            // This ProcCall either uses the continuation's name as its operator...
+            if (procCall.operatorName === this.lastResultName)
+                return cur;
+            // ... or as an operand.
+            for (var op = procCall.firstOperand; op; op = op.nextSibling)
+                if (op.payload === this.lastResultName)
+                    return cur;
+        }
+    }
+    return null;
+};
+
 function TrampolineResultStruct() {
     /*
      this.ans;
@@ -206,137 +225,219 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     }
 };
 
+/* Example: if the trampoline is at (1 2 [_0 ...]) and looks ahead to see
+    where _0 is used, it should see that it's part of a macro use. Thus instead
+    of "executing" the procedure call (1 2), we just need to bind the datum
+    (1 2) to _0. */
+ProcCall.prototype.reconstructDatum = function() {
+    // todo bl may have to clone these guys?
+    var ans = newReconstructedDatum();
+    ans.firstChild = this.operatorName;
+    this.operatorName.nextSibling = this.firstOperand;
+    return ans;
+};
+
+ProcCall.prototype.reconstructMacroUse = function(env) {
+    var ans = newEmptyList();
+    ans.appendChild(env.get(this.firstOperand));
+    ans.prependChild(newIdOrLiteral(this.operatorName));
+    console.log('reconstructed: ' + ans);
+    return ans;
+};
+
 ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
-
     var proc = env.getProcedure(this.operatorName);
-    var args;
-    var ans;
 
-    /* Primitive procedure, represented by JavaScript function:
+    this.tryMacroArg(proc, env, continuation, resultStruct)
+        || (typeof proc === 'function' && this.tryPrimitiveProcedure(proc, env, continuation, resultStruct))
+        || (proc instanceof SchemeProcedure && this.tryNonPrimitiveProcedure(proc, env, continuation, resultStruct))
+        || (proc instanceof SchemeMacro && this.tryMacroUse(proc, env, continuation, resultStruct))
+        || (proc instanceof Continuation && this.tryContinuation(proc, env, continuation, resultStruct))
+    || this.unrecognizedProc(proc, env, continuation, resultStruct);
+};
+
+ProcCall.prototype.unrecognizedProc = function(proc, env, continuation, resultStruct) {
+    throw new InternalInterpreterError(
+        'procedure application: expected procedure, given '
+        + this.operatorName);
+};
+
+/* Before evaluating the operator or the operands, we must check that this
+ apparent procedure call is not actually a datum that is an argument
+ to a macro. Example:
+
+ (define-syntax foo (syntax-rules () ((foo x) x)))
+ (foo (2 3))
+
+ The second line will desugar to something like
+
+ (2 3 [_0 (foo _0 [_1 ...])])
+
+ When we're at the ProcCall whose "operator" is 2, we skip ahead to
+ where the result _0 is used and evaluate that operator, foo. It is a
+ macro, which means we should bind the datum (2 3) to _0 and continue. */
+ProcCall.prototype.tryMacroArg = function(proc, env, continuation, resultStruct) {
+
+    var useSite = continuation.findResultUseSite();
+    if (useSite) {
+        var operatorWhereUsed = env.getProcedure(useSite.subtype.operatorName);
+        if (operatorWhereUsed instanceof SchemeMacro) {
+            var reconstructed = this.reconstructDatum();
+            env.addBinding(continuation.lastResultName, reconstructed);
+            resultStruct.nextContinuable = continuation.nextContinuable;
+            return true;
+        }
+    }
+
+    return false;
+};
+
+/* Primitive procedure, represented by JavaScript function:
      (+ x y [ans ...]). We perform the action ("+"), bind the
      result to the continuation's result name ("ans"), and advance
      to the next continuable ("..."). */
-    if (typeof proc === 'function') {
+ProcCall.prototype.tryPrimitiveProcedure = function(proc, env, continuation, resultStruct) {
 
-        args = evalArgs(this.firstOperand, env);
+    var args = evalArgs(this.firstOperand, env);
 
-        /* For call/cc etc: push the current ProcCall, the continuation,
-            and the result struct. todo bl: pushing the ProcCall invites trouble
-            because it contains the _unevaluated_ arguments. When I'm done
-            implementing all the 'magical' functions like apply and call/cc,
-            review what support they really need. */
-        if (proc.hasSpecialEvalLogic) {
-            args.push(this);
-            args.push(continuation);
-            args.push(resultStruct);
-            proc.apply(null, args);
-        }
-
-        else {
-            ans = proc.apply(null, args);
-            if (continuation.nextContinuable && continuation.nextContinuable.env) {
-                continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
-            } else {
-                env.addBinding(continuation.lastResultName, ans);
-            }
-            resultStruct.ans = ans;
-            resultStruct.nextContinuable = continuation.nextContinuable && continuation.nextContinuable;
-        }
+    /* For call/cc etc: push the current ProcCall, the continuation,
+     and the result struct. todo bl: pushing the ProcCall invites trouble
+     because it contains the _unevaluated_ arguments. When I'm done
+     implementing all the 'magical' functions like apply and call/cc,
+     review what support they really need. */
+    if (proc.hasSpecialEvalLogic) {
+        args.push(this);
+        args.push(continuation);
+        args.push(resultStruct);
+        proc.apply(null, args);
     }
 
-    /* Non-primitive procedure, represented by SchemeProcedure object.
-     Example: suppose we have
+    else {
+        var ans = proc.apply(null, args);
+        if (continuation.nextContinuable && continuation.nextContinuable.env) {
+            continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
+        } else {
+            env.addBinding(continuation.lastResultName, ans);
+        }
+        resultStruct.ans = ans;
+        resultStruct.nextContinuable = continuation.nextContinuable && continuation.nextContinuable;
+    }
 
-     (define (foo x y) (+ x (* 2 y)))
+    return true;
+};
 
-     The body of this procedure is desugared as
+/* Non-primitive procedure, represented by SchemeProcedure object.
+ Example: suppose we have
 
-     (* 2 y [_0 (+ x _0 [_1 ...])])
+ (define (foo x y) (+ x (* 2 y)))
 
-     Then we have the (nested) procedure call
+ The body of this procedure is desugared as
 
-     (+ 1 (foo 3 4))
+ (* 2 y [_0 (+ x _0 [_1 ...])])
 
-     which is desugared as
+ Then we have the (nested) procedure call
 
-     (foo 3 4 [foo' (+ 1 foo' [_2 ...])])
+ (+ 1 (foo 3 4))
 
-     We bind the arguments ("1" and "2") to the formal parameters
-     ("x" and "y"), append the ProcCall's continuation to the end of the
-     SchemeProcedure's continuation, and advance to the beginning of the
-     SchemeProcedure's body. Thus, on the next iteration of the trampoline
-     loop, we will have the following:
+ which is desugared as
 
-     (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
+ (foo 3 4 [foo' (+ 1 foo' [_2 ...])])
+
+ We bind the arguments ("1" and "2") to the formal parameters
+ ("x" and "y"), append the ProcCall's continuation to the end of the
+ SchemeProcedure's continuation, and advance to the beginning of the
+ SchemeProcedure's body. Thus, on the next iteration of the trampoline
+ loop, we will have the following:
+
+ (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
+ */
+ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, resultStruct) {
+
+    var args = evalArgs(this.firstOperand, env);
+    /* todo bl: much confusion here. No reason to set environments
+     on both the Continuation and its following Continuable. */
+    continuation.setEnv(env);
+    if (continuation.nextContinuable)
+        continuation.nextContinuable.setEnv(env);
+
+    /* We have to allocate a new Environment object for each procedure
+     call, since we have to support a since SchemeProcedure having
+     more than one active ProcCall at a time. We point it back to the
+     procedure's own environment so it can look up procedure-internal
+     definitions.
+
+     todo bl: don't allocate Environments in tail contexts. In theory
+     this shouldn't prevent an unlimited number of active tail calls
+     (because the old Environment objects will get garbage collected),
+     but I would imagine it would make tail recursion impracticable. */
+    var newEnv = new Environment('tmp-' + proc.name, env);
+    newEnv.addAll(proc.env);
+
+    /* This is a blatant kludge to set the order of environment lookups
+     correctly. It is currently only used in situations like this:
+
+     (define (foo x) (lambda (y) (+ x y)))
+     ((foo 1) 2)
+
+     The expression will desugar to something like
+
+     (foo 1 [_0 (_0 2 [_1 ...])])
+
+     At this point, we allocate a new Environment foo' for the execution of
+     foo, and bind x := 1 in this Environment. Later, at
+
+     (_0 2 [_1 ...])
+
+     we create a new Environment for the execution of the anonymous
+     lambda. But to resolve x correctly, its enclosingEnv must be foo'.
+     We accomplish this in a massive kludge. See
+     LocalStructure.prototype.toProcCall for more information.
+
+     todo bl: declare the Environment and desugar/trampoline
+     interface a disaster zone and try again.
      */
-    else if (proc instanceof SchemeProcedure) {
-        args = evalArgs(this.firstOperand, env);
-        /* todo bl: much confusion here. No reason to set environments
-            on both the Continuation and its following Continuable. */
-        continuation.setEnv(env);
+    if (this.useDynamicEnv) {
+        continuation.setEnv(newEnv);
         if (continuation.nextContinuable)
-            continuation.nextContinuable.setEnv(env);
-
-        /* We have to allocate a new Environment object for each procedure
-            call, since we have to support a since SchemeProcedure having
-            more than one active ProcCall at a time. We point it back to the
-            procedure's own environment so it can look up procedure-internal
-            definitions.
-
-            todo bl: don't allocate Environments in tail contexts. In theory
-            this shouldn't prevent an unlimited number of active tail calls
-            (because the old Environment objects will get garbage collected),
-            but I would imagine it would make tail recursion impracticable. */
-        var newEnv = new Environment('tmp-' + proc.name, env);
-        newEnv.addAll(proc.env);
-
-        /* This is a blatant kludge to set the order of environment lookups
-            correctly. It is currently only used in situations like this:
-
-            (define (foo x) (lambda (y) (+ x y)))
-            ((foo 1) 2)
-
-            The expression will desugar to something like
-
-            (foo 1 [_0 (_0 2 [_1 ...])])
-
-            At this point, we allocate a new Environment foo' for the execution of
-            foo, and bind x := 1 in this Environment. Later, at
-
-            (_0 2 [_1 ...])
-
-            we create a new Environment for the execution of the anonymous
-            lambda. But to resolve x correctly, its enclosingEnv must be foo'.
-            We accomplish this in a massive kludge. See
-            LocalStructure.prototype.toProcCall for more information.
-
-            todo bl: declare the Environment and desugar/trampoline
-            interface a disaster zone and try again.
-         */
-        if (this.useDynamicEnv) {
-            continuation.setEnv(newEnv);
-            if (continuation.nextContinuable)
-                continuation.nextContinuable.setEnv(newEnv);
-        }
-        // This will be a no-op if tail recursion is detected
-        proc.setContinuation(continuation);
-        proc.checkNumArgs(args.length);
-        proc.bindArgs(args, newEnv);
-        resultStruct.nextContinuable = proc.body;
-        resultStruct.currentEnv = newEnv;
+            continuation.nextContinuable.setEnv(newEnv);
     }
+    // This will be a no-op if tail recursion is detected
+    proc.setContinuation(continuation);
+    proc.checkNumArgs(args.length);
+    proc.bindArgs(args, newEnv);
+    resultStruct.nextContinuable = proc.body;
+    resultStruct.currentEnv = newEnv;
+    return true;
+};
 
-    else if (proc instanceof Continuation) {
+ProcCall.prototype.tryMacroUse = function(proc, env, continuation, resultStruct) {
+
+    var template = proc.selectTemplate(this.reconstructMacroUse(env), env);
+    var newText = template.hygienicTranscription().toString();
+    // todo bl shouldn't have to go all the way back to the text
+    var newContinuable =
+        new Parser(
+            new Reader(
+                new Scanner(newText)
+            ).read()
+        ).parse('expression')
+    .desugar(env, true);
+
+    newContinuable.getLastContinuable().continuation = continuation;
+    console.log('new continuable ' + newContinuable);
+    resultStruct.nextContinuable = newContinuable;
+    return true;
+};
+
+ProcCall.prototype.tryContinuation = function(proc, env, continuation, resultStruct) {
+
         env.addBinding(proc.lastResultName, this.firstOperand);
         resultStruct.ans = this.firstOperand;
         resultStruct.nextContinuable = proc.nextContinuable;
-    }
+    return true;
+    };
 
-    else throw new InternalInterpreterError('unrecognized proc '
-            + proc
-            + ' for name '
-            + this.operatorName);
-};
+
 
 function evalArgs(firstOperand, env) {
     var args = [];
@@ -369,8 +470,11 @@ function evalArgs(firstOperand, env) {
             args.push(env.get(cur.payload));
         else if (cur.isQuote())
             args.push(cur.firstChild);
-        else if (cur.payload !== undefined)
+        else if (cur.isReconstructedDatum())
+            throw new InternalInterpreterError('unexpected datum ' + cur);
+        else if (cur.payload !== undefined) {
             args.push(maybeWrapResult(cur.payload, cur.type));
+        }
         else throw new InternalInterpreterError('unexpected datum ' + cur);
     }
 

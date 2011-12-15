@@ -29,6 +29,12 @@ function newEmptyList() {
     return ans;
 }
 
+function newReconstructedDatum() {
+    var ans = new Datum();
+    ans.type = 'reconstructed';
+    return ans;
+}
+
 function newIdOrLiteral(payload, type) {
     // todo bl: we're sometimes creating these with undefined payloads! Investigate.
     var ans = new Datum();
@@ -501,6 +507,11 @@ Datum.prototype.isNumber = function() {
 
 Datum.prototype.isString = function() {
     return this.type === 'string';
+};
+
+// Just for reconstructing datums as arguments to macro uses on the trampoline.
+Datum.prototype.isReconstructedDatum = function() {
+    return this.type === 'reconstructed';
 };
 
 Datum.prototype.isQuote = function() {

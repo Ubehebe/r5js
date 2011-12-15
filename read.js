@@ -227,6 +227,8 @@ Datum.prototype.toString = function() {
                 return '#\\' + this.payload;
         case 'string':
             return '"' + this.payload + '"';
+        case 'reconstructed':
+            ans = '('; // fallthrough
         case '(':
         case '#(':
             endDelimiter = ')';
@@ -235,7 +237,7 @@ Datum.prototype.toString = function() {
         case '`':
         case ',':
         case ',@':
-            ans = this.type;
+            ans = ans || this.type;
             for (child = this.firstChild; child && child.nextSibling; child = child.nextSibling)
                 ans += child.toString() + ' ';
             var lastChildString = child ? child.toString() : '';
