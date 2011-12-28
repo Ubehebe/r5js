@@ -239,9 +239,13 @@ ProcCall.prototype.reconstructDatum = function() {
 
 ProcCall.prototype.reconstructMacroUse = function(env) {
     var ans = newEmptyList();
-    ans.appendChild(env.get(this.firstOperand));
-    ans.prependChild(newIdOrLiteral(this.operatorName));
-    console.log('reconstructed: ' + ans);
+    ans.appendChild(newIdOrLiteral(this.operatorName));
+    var tail = ans.firstChild;
+    for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
+        tail.appendSibling(cur.isImmediate() ? cur.clone().severSibling() : env.get(cur));
+        tail = tail.nextSibling;
+    }
+//    console.log('reconstructed: ' + ans);
     return ans;
 };
 
@@ -424,7 +428,7 @@ ProcCall.prototype.tryMacroUse = function(proc, env, continuation, resultStruct)
     .desugar(env, true);
 
     newContinuable.getLastContinuable().continuation = continuation;
-    console.log('new continuable ' + newContinuable);
+//    console.log('new continuable ' + newContinuable);
     resultStruct.nextContinuable = newContinuable;
     return true;
 };

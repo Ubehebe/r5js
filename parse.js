@@ -939,18 +939,18 @@ Parser.prototype['transformer-spec'] = function() {
         {type: 'pattern-identifier', atLeast: 0},
         {type: ')'},
         {type: 'syntax-rule', atLeast: 0}, // a nonterminal
-        {type: ')'}
-        /* todo bl {value: function(node, env) {
-            *//* 4.3.2: It is an error for ... to appear in <literals>.
+        {type: ')'},
+        {desugar: function(node, env) {
+            /*4.3.2: It is an error for ... to appear in <literals>.
                 So we can reuse the pattern-identifier nonterminal
-                to check this in the parser. Win! *//*
+                to check this in the parser. Win! */
             var ids = node.at('(').at('pattern-identifier');
             var rules = node.at('syntax-rule');
             // todo bl implement: It is an error for the same pattern
             // variable to appear more than once in a <pattern>.
             return new SchemeMacro(ids, rules, env);
         }
-        }*/
+        }
     );
 };
 
@@ -1150,10 +1150,10 @@ Parser.prototype['syntax-definition'] = function() {
         {type: 'define-syntax'},
         {type: 'keyword'},
         {type: 'transformer-spec'},
-        {type: ')'}
-       /* todo bl {value: function(node, env) {
+        {type: ')'},
+        {desugar: function(node, env) {
             var kw = node.at('keyword').payload;
-            var macro = node.at('transformer-spec').eval(env);
+            var macro = node.at('transformer-spec').desugar(env);
             if (!macro.allPatternsBeginWith(kw))
                 throw new MacroError(kw, 'all patterns must begin with ' + kw);
             else if (!macro.ellipsesMatch(kw))
@@ -1163,7 +1163,7 @@ Parser.prototype['syntax-definition'] = function() {
                 return null;
             }
         }
-        }*/
+        }
     );
 };
 

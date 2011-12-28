@@ -84,8 +84,8 @@ SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, 
     return this.matchLiteralId.apply(this, args) // case 2
         || this.matchNonLiteralId.apply(this, args) // case 1
         || this.matchListOrVector.apply(this, args) // cases 3, 5, 6, 7
-        || this.matchImproperList.apply(this, args); // case 4
-        //|| this.matchDatum.apply(this, args); // case 8
+        || this.matchImproperList.apply(this, args) // case 4
+        || this.matchDatum.apply(this, args); // case 8
 };
 
 

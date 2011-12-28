@@ -332,7 +332,11 @@ function testEvaluator() {
         "(string? (make-string 0))": '#t',
         "(= 4 (string-length (make-string 4)))": '#t',
         '(string-ref "hello!" 4)': '#\\o',
-        '(define-syntax foo (syntax-rules () ((foo x) "hi"))) (foo (1 2))': '"hi"'
+        '(define-syntax foo (syntax-rules () ((foo x) "hi"))) (foo (1 2))': '"hi"',
+        '(define-syntax foo (syntax-rules () ((foo x) x))) (foo "hi")': '"hi"',
+        '(define-syntax foo (syntax-rules () ((foo x) x))) (foo (1 2))': false,
+        "(define-syntax foo (syntax-rules () ((foo x) x))) (foo '(1 2))": "(1 2)",
+        "(define-syntax foo (syntax-rules () ((foo x y) (+ x y)))) (foo 3 4)": '7'
     };
 
     // R5RS 6.4
