@@ -70,6 +70,8 @@ Environment.prototype.get = function(name) {
             return newProcedureDatum(name, maybe);
         else if (maybe instanceof SchemeProcedure)
             return newProcedureDatum(maybe.name, maybe);
+        else if (maybe instanceof SchemeMacro)
+            return newIdOrLiteral(name);
         else
             return maybe;
     }
