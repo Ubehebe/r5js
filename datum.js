@@ -654,31 +654,6 @@ Datum.prototype.transcribe = function(bindings) {
     return first;
 };
 
-Datum.prototype.filterChildren = function(predicate) {
-    var prev;
-    for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
-        if (predicate(cur)) {
-            var newCur = cur.filterChildren(predicate);
-            if (prev)
-                prev.nextSibling = newCur;
-            else
-                this.firstChild = newCur;
-            prev = newCur;
-        } else if (prev) {
-            prev.nextSibling = null;
-        }
-    }
-
-    if (prev)
-        prev.parent = this;
-
-    // singleton
-    else if (this.firstChild && !predicate(this.firstChild))
-        this.firstChild = null;
-
-    return this;
-};
-
 Datum.prototype.lastSibling = function() {
     return this.nextSibling ? this.nextSibling.lastSibling() : this;
 };
