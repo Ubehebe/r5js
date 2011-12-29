@@ -335,7 +335,8 @@ function testEvaluator() {
     };
 
     tests['macros'] = {
-        "(define-syntax foo (syntax-rules () ((foo x) 'literal-identifier))) (foo foo)": 'literal-identifier',
+        "(define-syntax foo (syntax-rules () ((foo y) (+ y y)))) (foo 100)": '200',
+        "(define-syntax foo (syntax-rules () ((foo x) 'nonliteral-identifier))) (foo foo)": 'nonliteral-identifier',
         '(define-syntax foo (syntax-rules () ((foo x) "hi"))) (foo (1 2))': '"hi"',
         '(define-syntax foo (syntax-rules () ((foo x) x))) (foo "hi")': '"hi"',
         '(define-syntax foo (syntax-rules () ((foo x) x))) (foo (1 2))': false,
