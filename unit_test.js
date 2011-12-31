@@ -446,7 +446,7 @@ function testEvaluator() {
             } catch (x) {
                 // Got an evaluation error, but that's ok because we expected an error.
                 if (expectedOutput === false)
-                    continue;
+                    ;
                 else {
                     console.log('testEvaluator '
                         + type
