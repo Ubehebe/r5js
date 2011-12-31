@@ -177,10 +177,16 @@ SchemeMacro.prototype.matchLiteralId
     var inputIsId = inputDatum.isIdentifier();
 
     if (patternIsLiteralId && inputIsId) {
-        if ((inputDatum.payload === patternId
-            && !this.definitionEnv.hasBinding(patternId)
-            && !useEnv.hasBinding(patternId)) // both have no lexical binding
-            || (this.definitionEnv.get(patternId) === useEnv.get(patternId))) { // both have same lexical binding
+
+        if (inputDatum.payload === patternId
+            && (!this.definitionEnv.hasBindingRecursive(patternId)
+            && !useEnv.hasBindingRecursive(patternId))) { // both have no lexical binding
+            bindings[patternId] = [inputDatum];
+            return true;
+
+        }
+
+        else if (this.definitionEnv.get(patternId) === useEnv.get(patternId)) { // both have same lexical binding
             /* If we are here, bindings[patternId] will most likely be undefined.
                 The spec does not forbid repeated literals as in
                 (define-syntax foo (syntax-rules (x x) ((foo x) "hi!")))

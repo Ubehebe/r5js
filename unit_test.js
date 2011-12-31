@@ -336,7 +336,12 @@ function testEvaluator() {
 
     tests['macros'] = {
         "(define-syntax foo (syntax-rules () ((foo y) (+ y y)))) (foo 100)": '200',
-        "(define-syntax foo (syntax-rules () ((foo x) 'nonliteral-identifier))) (foo foo)": 'nonliteral-identifier',
+        "(define-syntax foo (syntax-rules () ((foo x) 'nonliteral-id))) (foo foo)": 'nonliteral-id',
+        "(define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (foo x)": 'literal-id',
+        "(define x 1) (define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (foo x)": 'literal-id',
+        /* todo bl: i'm not sure why this one isn't supposed to work,
+            but it doesn't in PLT Scheme and it doesn't in my implementation. */
+        "(define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (define (bar x) (foo x)) (bar 32)": false,
         '(define-syntax foo (syntax-rules () ((foo x) "hi"))) (foo (1 2))': '"hi"',
         '(define-syntax foo (syntax-rules () ((foo x) x))) (foo "hi")': '"hi"',
         '(define-syntax foo (syntax-rules () ((foo x) x))) (foo (1 2))': false,

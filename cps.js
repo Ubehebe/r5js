@@ -84,7 +84,11 @@ IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
     var ans;
 
-    if (this.payload.isIdentifier())
+    /* This is only setup by desugarDefinition() called with a macro.
+        todo bl: document! */
+    if (this.payload instanceof SchemeMacro)
+        ans = this.payload;
+    else if (this.payload.isIdentifier())
         ans = env.get(this.payload.payload);
     else if (this.payload.isQuote())
         ans = this.payload.firstChild;

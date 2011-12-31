@@ -1159,8 +1159,8 @@ Parser.prototype['syntax-definition'] = function() {
             else if (!macro.ellipsesMatch(kw))
                 throw new MacroError(kw, 'ellipsis mismatch');
             else {
-                env.addBinding(kw, macro);
-                return null;
+                var desugaredExpr = newIdShim(macro, newCpsName());
+                return desugarDefinition(kw, desugaredExpr);
             }
         }
         }

@@ -70,8 +70,6 @@ Environment.prototype.get = function(name) {
             return newProcedureDatum(name, maybe);
         else if (maybe instanceof SchemeProcedure)
             return newProcedureDatum(maybe.name, maybe);
-        else if (maybe instanceof SchemeMacro)
-            return newIdOrLiteral(name);
         else
             return maybe;
     }
@@ -97,6 +95,12 @@ Environment.prototype.getProcedure = function(name) {
 };
 
 Environment.prototype.addBinding = function(name, val) {
+
+    /* Macros require a backlink to the environment they were defined in to resolve
+        literal identifiers. todo bl: is there a better place to put this? */
+    if (val instanceof SchemeMacro)
+        val.definitionEnv = this;
+
     if (!this.bindings[name]) {
         if (val instanceof Datum) {
             /* If we're about to store a wrapped SchemeProcedure
