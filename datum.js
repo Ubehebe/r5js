@@ -282,7 +282,7 @@ Datum.prototype.sequence = function(env, isTopLevel) {
 
             /* If there was a DefinitionHelper object attached to this node,
              we need to run some special logic to set up the bindings. */
-            if (tmp.definitionHelper) {
+            else if (tmp.definitionHelper) {
                 isTopLevel
                     ? constructTopLevelDefs(env, tmp.definitionHelper, cur.nextSibling)
                     : constructInternalDefs(env, tmp.definitionHelper, cur.nextSibling);
