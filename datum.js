@@ -509,19 +509,6 @@ Datum.prototype.isString = function() {
     return this.type === 'string';
 };
 
-Datum.prototype.isImmediate = function() {
-    return this.isBoolean()
-        || this.isCharacter()
-        || this.isNumber()
-        || this.isString()
-        || this.isQuote();
-};
-
-// Just for reconstructing datums as arguments to macro uses on the trampoline.
-Datum.prototype.isReconstructedDatum = function() {
-    return this.type === 'reconstructed';
-};
-
 Datum.prototype.isQuote = function() {
     return this.type === "'"
         || (this.isList()

@@ -242,7 +242,7 @@ ProcCall.prototype.reconstructMacroUse = function(env) {
     ans.appendChild(newIdOrLiteral(this.operatorName));
     var tail = ans.firstChild;
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
-        tail.appendSibling(cur.isImmediate() ? cur.clone().severSibling() : env.get(cur));
+        tail.appendSibling(cur.clone().severSibling());
         tail = tail.nextSibling;
     }
 //    console.log('reconstructed: ' + ans);
@@ -474,8 +474,6 @@ function evalArgs(firstOperand, env) {
             args.push(env.get(cur.payload));
         else if (cur.isQuote())
             args.push(cur.firstChild);
-        else if (cur.isReconstructedDatum())
-            throw new InternalInterpreterError('unexpected datum ' + cur);
         else if (cur.payload !== undefined) {
             args.push(maybeWrapResult(cur.payload, cur.type));
         }
