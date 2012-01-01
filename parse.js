@@ -586,12 +586,24 @@ Parser.prototype['definition'] = function() {
 
                 /* Example:
 
-                 (define (foo x y) (+ x y)) ...
+                 (define (foo x y) (+ x y))
+                 (foo 3 4)
 
-                 should desugar to something like
+                 should desugar conceptually to something like
 
-                 ((lambda (foo) ...) (lambda (x y) (+ x y)))
+                 ((lambda (foo) (foo 3 4)) (lambda (x y) (+ x y)))
 
+                 In this implementation, this ends up looking like
+
+                 (proc0 proc1)
+
+                 where proc0 is
+
+                 (lambda (foo) (foo 3 4))
+
+                 and proc1 is
+
+                 (lambda (x y) (+ x y))
                  */
 
                 var formalRoot = node.at('(');
@@ -599,16 +611,22 @@ Parser.prototype['definition'] = function() {
                     return child.payload;
                 });
 
-                var name = formals.shift();
-
+                /* The SchemeProcedure is bound in the defining environment to a
+                 newly created name like proc0. The name given in the definition
+                 becomes the formal parameter of the fake procedure created
+                 to install the definition. When the trampoline reaches that
+                 fake procedure, it will bind the SchemeProcedure to the
+                 formal parameter name as expected. */
+                var lambdaName = newAnonymousLambdaName();
+                var definitionName = formals.shift();
 
                 env.addBinding(
-                    name,
-                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, name)
+                    lambdaName,
+                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, lambdaName)
                     );
-                var desugared = newIdShim(newIdOrLiteral(name), newCpsName());
+                var desugared = newIdShim(newIdOrLiteral(lambdaName), newCpsName());
                 
-                return desugarDefinition(name, desugared);
+                return desugarDefinition(definitionName, desugared);
             }}
         ],
         [
