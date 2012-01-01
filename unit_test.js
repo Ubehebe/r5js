@@ -335,6 +335,11 @@ function testEvaluator() {
     };
 
     tests['macros'] = {
+        "(define foo (lambda () 'procedure)) (define-syntax foo (syntax-rules () ((foo) 'macro))) (foo)": 'macro',
+        "(define-syntax foo (syntax-rules () ((foo) 'macro))) (define foo (lambda () 'procedure)) (foo)": 'procedure',
+        "(define (foo) 'procedure) (define-syntax foo (syntax-rules () ((foo) 'macro))) (foo)": 'macro',
+        "(define-syntax foo (syntax-rules () ((foo) 'macro))) (define (foo) 'procedure) (foo)": 'procedure',
+        "(define-syntax x (syntax-rules () ((x) 'macro))) (define x 'procedure-call) (x)": false,
         "(define-syntax foo (syntax-rules () ((foo y) (+ y y)))) (foo 100)": '200',
         "(define-syntax foo (syntax-rules () ((foo x) 'nonliteral-id))) (foo foo)": 'nonliteral-id',
         "(define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (foo x)": 'literal-id',
