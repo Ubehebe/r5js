@@ -255,13 +255,14 @@ ProcCall.prototype.reconstructMacroUse = function(env) {
 
 ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     var proc = env.getProcedure(this.operatorName);
+    var args = [proc, env, continuation, resultStruct];
 
-    this.tryMacroArg(proc, env, continuation, resultStruct)
-        || (typeof proc === 'function' && this.tryPrimitiveProcedure(proc, env, continuation, resultStruct))
-        || (proc instanceof SchemeProcedure && this.tryNonPrimitiveProcedure(proc, env, continuation, resultStruct))
-        || (proc instanceof SchemeMacro && this.tryMacroUse(proc, env, continuation, resultStruct))
-        || (proc instanceof Continuation && this.tryContinuation(proc, env, continuation, resultStruct))
-    || this.unrecognizedProc(proc, env, continuation, resultStruct);
+    this.tryMacroArg.apply(this, args)
+        || (typeof proc === 'function' && this.tryPrimitiveProcedure.apply(this, args))
+        || (proc instanceof SchemeProcedure && this.tryNonPrimitiveProcedure.apply(this, args))
+        || (proc instanceof SchemeMacro && this.tryMacroUse.apply(this, args))
+        || (proc instanceof Continuation && this.tryContinuation.apply(this, args))
+    || this.unrecognizedProc.apply(this, args);
 };
 
 ProcCall.prototype.unrecognizedProc = function(proc, env, continuation, resultStruct) {
