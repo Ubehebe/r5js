@@ -419,9 +419,10 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
     return true;
 };
 
-ProcCall.prototype.tryMacroUse = function(proc, env, continuation, resultStruct) {
+ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct) {
 
-    var template = proc.selectTemplate(this.reconstructMacroUse(env), env);
+
+    var template = macro.selectTemplate(this.reconstructMacroUse(env), env);
     var newText = template.hygienicTranscription().toString();
     // todo bl shouldn't have to go all the way back to the text
     var newContinuable =
@@ -433,8 +434,29 @@ ProcCall.prototype.tryMacroUse = function(proc, env, continuation, resultStruct)
     .desugar(env, true);
 
     newContinuable.getLastContinuable().continuation = continuation;
-//    console.log('new continuable ' + newContinuable);
     resultStruct.nextContinuable = newContinuable;
+    /* R5RS 4.3: "If a macro transformer inserts a free reference to an
+     identifier, the reference refers to the binding that was visible
+     where the transformer was specified, regardless of any local bindings
+     that may surround the use of the macro." */
+    resultStruct.currentEnv = macro.definitionEnv;
+
+    /* We have to remember when to jump back out of the macro's definition
+     environment. Example:
+
+     (define x 1)
+     (define-syntax foo (syntax-rules () ((foo) x)))
+     (define (bar x) (+ (foo) x))
+
+     We have to remember that the x in the procedure body of bar refers to
+     the formal parameter, not what the x in foo's definition environment.
+
+     How do we know this is the right Continuation or Continuable to place
+     the Environment on? I don't, it was just via debugging and inspection.
+     In general, there are far too many ways to set and change environments. */
+    if (continuation.nextContinuable)
+        continuation.nextContinuable.setEnv(env);
+
     return true;
 };
 

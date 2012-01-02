@@ -351,7 +351,13 @@ function testEvaluator() {
         '(define-syntax foo (syntax-rules () ((foo x) x))) (foo "hi")': '"hi"',
         '(define-syntax foo (syntax-rules () ((foo x) x))) (foo (1 2))': false,
         "(define-syntax foo (syntax-rules () ((foo x) x))) (foo '(1 2))": "(1 2)",
-        "(define-syntax foo (syntax-rules () ((foo x y) (+ x y)))) (foo 3 4)": '7'
+        "(define-syntax foo (syntax-rules () ((foo x y) (+ x y)))) (foo 3 4)": '7',
+        "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) ((lambda (x) (foo)) 2)": '1',
+        "(define-syntax foo (syntax-rules () ((foo) x))) ((lambda (x) (foo)) 2)": false,
+        "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ x (foo))) (bar 2)": '3',
+        "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ (foo) x)) (bar 2)": '3',
+        "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ x (foo) x)) (bar 2)": '5',
+        "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ (foo) x (foo))) (bar 2)": '4'
     };
 
     // R5RS 6.4
