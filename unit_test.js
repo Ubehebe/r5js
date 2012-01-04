@@ -397,6 +397,12 @@ function testEvaluator() {
         "(define-syntax foo (syntax-rules () ((foo (a . b) (c . d)) (/ a b c d)))) (foo (1024 . 2) (4 . 8))": '16',
         "(define-syntax foo (syntax-rules () ((foo (a . (b . (c . d)))) (/ a b c d)))) (+ (foo (100 . (2 . (5 . 2)))) 100)": '105',
         "(define-syntax foo (syntax-rules () ((foo (((a . b) . c) . d)) (/ d c b a)))) (foo (((2 . 3) . 5) . 60))": '2',
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) 'ok))) (foo (1 2))": 'ok',
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) 'ok))) (foo (1 . 2))": 'ok',
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) y))) (foo (1 . 2))": '2',
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) y))) (foo (1 2))": false, // tricky!
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) (quote y)))) (foo (1 2))": '(2)',
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) (quote y)))) (foo (1 2 3 (4 5)))": '(2 3 (4 5))',
 
         "(define-syntax foo (syntax-rules () ((foo (x)) x))) (foo 2)": false,
 
