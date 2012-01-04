@@ -380,13 +380,15 @@ var newStdEnv = (function() {
                 /* Conversion from the internal first-child/next-sibling
                     representation to the internal car-cdr representation
                     is simple but a bit subtle. If we're at the end of the
-                    siblings, we just return that last element as "cdr";
-                    otherwise, we package up the remaining elements and return
-                    that as "cdr". See also comments to
-                    Datum.prototype.siblingsToList. */
+                    siblings, we either return that last element as "cdr"
+                    (if we're in at the end of an improper list) or wrap it
+                    in a list (if we're at the end of a proper list).
+                    If we're not at the end of the siblings, we package up the
+                    remaining elements and return that as "cdr". See also
+                    comments to Datum.prototype.siblingsToList. */
                 var startOfCdr = p.firstChild.nextSibling;
                 if (startOfCdr) {
-                    return startOfCdr.nextSibling
+                    return (startOfCdr.nextSibling || p.isList())
                         ? startOfCdr.siblingsToList(p.isImproperList())
                         : startOfCdr;
                 } else return newEmptyList();

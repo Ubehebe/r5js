@@ -331,7 +331,15 @@ function testEvaluator() {
         "((lambda (x) ((lambda (y) ((lambda (z) (+ x y z z z)) 3)) 2)) 1)": '12',
         "(string? (make-string 0))": '#t',
         "(= 4 (string-length (make-string 4)))": '#t',
-        '(string-ref "hello!" 4)': '#\\o'
+        '(string-ref "hello!" 4)': '#\\o',
+        "(car '(x y))": 'x',
+        "(car '(x . y))": 'x',
+        "(cdr '(x y))": '(y)',
+        "(cdr '(x . y))": 'y',
+        "(car '(x))": 'x',
+        "(cdr '(x))": '()',
+        "(car '())": false,
+        "(cdr '())": false
     };
 
     /* These tests exercise various macro features that the standard talks about
