@@ -150,10 +150,10 @@ function newProcCall(operatorName, firstOperand, continuation) {
 }
 
 ProcCall.prototype.toString = function(continuation) {
-    var ans = '(' + this.operatorName + ' ';
+    var ans = '(' + this.operatorName;
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
-        ans += cur.toString() + ' ';
-    return ans + continuation + ')';
+        ans += ' ' + cur.toString();
+    return ans + (continuation ? ' ' + continuation : '') + ')';
 };
 
 ProcCall.prototype.injectDatum = function(cpsName, datum) {
@@ -519,6 +519,8 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
 ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct) {
 
     var template = macro.selectTemplate(this.reconstructMacroUse(), env);
+    if (!template)
+        throw new MacroError(this.operatorName.payload, 'no pattern match for input ' + this);
     var newText = template.hygienicTranscription().toString();
     // todo bl shouldn't have to go all the way back to the text
     var newContinuable =
