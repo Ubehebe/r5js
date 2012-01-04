@@ -366,8 +366,7 @@ function testEvaluator() {
         "(define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (define (bar x) (foo x)) (bar 32)": false,
 
         /* P is a list (P1 ... Pn) and F is alist of n forms that match P1
-            through Pn, respectively.
-         */
+            through Pn, respectively. */
         "(define-syntax foo (syntax-rules () ((foo (a b c)) c))) (foo (1 2 3))": '3',
 
         "(define-syntax foo (syntax-rules () ((foo (((((x)))))) x))) (foo ((((('five))))))": 'five',
@@ -381,6 +380,17 @@ function testEvaluator() {
         "(define-syntax foo (syntax-rules () ((foo x y) (+ x (* 2 y))))) (foo 3 4)": '11',
         "(define-syntax foo (syntax-rules () ((foo (x) (y)) (+ x (* 2 y))))) (foo (3) (4))": '11',
         "(define-syntax foo (syntax-rules () ((foo (a b) (c d)) (+ a c)))) (foo (1 2) (3 4))": '4',
+
+        /* P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list
+            or improper list of n or more forms that match P1 through Pn,
+            respectively, and whose nth "cdr" matches Pn+1. */
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) (/ y x)))) (foo (2 . 1024))": '512',
+        "(define-syntax foo (syntax-rules () ((foo (x y . z)) (+ x y z)))) (foo (10 11 . 12))": '33',
+        "(define-syntax foo (syntax-rules () ((foo (a . b) (c . d)) (/ a b c d)))) (foo (1024 . 2) (4 . 8))": '16',
+        "(define-syntax foo (syntax-rules () ((foo (a . (b . (c . d)))) (/ a b c d)))) (+ (foo (100 . (2 . (5 . 2)))) 100)": '105',
+        "(define-syntax foo (syntax-rules () ((foo (((a . b) . c) . d)) (/ d c b a)))) (foo (((2 . 3) . 5) . 60))": '2',
+
+        "(define-syntax foo (syntax-rules () ((foo (x)) x))) (foo 2)": false,
 
         /* R5Rs 4.3: "If a macro transformer inserts a free reference to an
          identifier, the reference refers to the binding that was visible

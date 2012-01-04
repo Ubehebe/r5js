@@ -845,36 +845,14 @@ Parser.prototype['macro-use'] = function() {
         {type: 'datum', atLeast: 0},
         {type: ')'},
         {desugar: function(node, env) {
-            var kw = node.at('keyword').payload;
-            var macro = env.get(kw);
-            if (macro instanceof SchemeMacro) {
-                var template = macro.selectTemplate(node, env);
-                if (template) {
-                    /* todo bl shouldn't have to go all the way back to the scanner;
-                     should be able to say
-                     template.hygienicTranscription().parse('expression').eval(env).
-                     I suspect I'm not properly sanitizing the hygienic transcription...
-                     */
-                    var newText = template.hygienicTranscription().toString();
-                    var newNode =
-                        new Parser(
-                            new Reader(
-                                new Scanner(newText)
-                            ).read()
-                        ).parse('expression');
-
-                    /* todo bl: right now, we have to hook up these pointers
-                     to communicate tail context info to the macro. Perhaps
-                     a cleaner way would be explicitly telling the macro it's
-                     in tail position?
-                     if (node.parent)
-                     newNode.parent = node.parent;
-                     else if (node.nextSibling)
-                     newNode.nextSibling = node.nextSibling;*/
-                    return newNode.desugar(env);
-                }
-                else throw new MacroError(kw, 'no template matching ' + node.toString());
-            } else throw new UnboundVariable(kw);
+            /* Desugaring of a macro use is trivial. We must leave the "argument"
+                datums as-is for the macro pattern matching facility to use.
+                The trampoline knows what to do with raw datums in such a
+                context. */
+            return newProcCall(
+                node.at('keyword'),
+                node.at('datum'),
+                new Continuation(newCpsName()));
         }
         });
 };
@@ -900,12 +878,6 @@ Parser.prototype['macro-block'] = function() {
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'}
-            /* todo bl {value: function(node, env) {
-                node.at('(').at('syntax-spec').evalSiblingsReturnNone(env);
-                node.at('definition').evalSiblingsReturnNone(env);
-                return node.at('expression').evalSiblingsReturnLast(env);
-            }
-            }*/
         ],
         [
             {type: '('},
@@ -916,12 +888,6 @@ Parser.prototype['macro-block'] = function() {
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
             {type: ')'}
-            /* todo bl {value: function(node, env) {
-                node.at('(').at('syntax-spec').evalSiblingsReturnNone(env);
-                node.at('definition').evalSiblingsReturnNone(env);
-                return node.at('expression').evalSiblingsReturnLast(env);
-            }
-            }*/
         ]);
 };
 
@@ -932,19 +898,6 @@ Parser.prototype['syntax-spec'] = function() {
         {type: 'keyword'},
         {type: 'transformer-spec'},
         {type: ')'}
-        /* todo bl {value: function(node, env) {
-            var kw = node.at('keyword').payload;
-            var macro = node.at('transformer-spec').desugar(env);
-            if (!macro.allPatternsBeginWith(kw))
-                throw new MacroError(kw, 'all patterns must begin with keyword');
-            else if (!macro.ellipsesMatch(kw))
-                throw new MacroError(kw, 'ellipsis mismatch');
-            else {
-                env.addBinding(kw, macro);
-                return null;
-            }
-        }
-        }*/
     );
 };
 

@@ -334,7 +334,9 @@ SchemeMacro.prototype.matchImproperList
         /* Now we have to compare the part of the pattern after the dot with
          the remainder of the input. Note that since our lists aren't recursive,
          we have to explicitly manufacture a list from the pointer. */
-        var manufacturedList = inputElement.siblingsToList(inputDatum.isImproperList());
+        var manufacturedList = inputElement
+            .siblingsToList(inputDatum.isImproperList())
+            .firstChild; // todo bl document why we are taking firstChild
         return inputElement
             && this.patternMatch(
             patternElement,
