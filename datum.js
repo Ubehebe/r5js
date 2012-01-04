@@ -29,12 +29,6 @@ function newEmptyList() {
     return ans;
 }
 
-function newReconstructedDatum() {
-    var ans = new Datum();
-    ans.type = 'reconstructed';
-    return ans;
-}
-
 function newIdOrLiteral(payload, type) {
     // todo bl: we're sometimes creating these with undefined payloads! Investigate.
     var ans = new Datum();

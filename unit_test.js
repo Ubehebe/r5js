@@ -334,24 +334,58 @@ function testEvaluator() {
         '(string-ref "hello!" 4)': '#\\o'
     };
 
+    /* These tests exercise various macro features that the standard talks about
+     but doesn't give actual examples of. */
     tests['macros'] = {
+        /* R5RS 4.3: "The syntactic keyword of a macro may shadow variable
+         bindings, and local variable bindings may shadow keyword bindings." */
         "(define foo (lambda () 'procedure)) (define-syntax foo (syntax-rules () ((foo) 'macro))) (foo)": 'macro',
         "(define-syntax foo (syntax-rules () ((foo) 'macro))) (define foo (lambda () 'procedure)) (foo)": 'procedure',
         "(define (foo) 'procedure) (define-syntax foo (syntax-rules () ((foo) 'macro))) (foo)": 'macro',
         "(define-syntax foo (syntax-rules () ((foo) 'macro))) (define (foo) 'procedure) (foo)": 'procedure',
         "(define-syntax x (syntax-rules () ((x) 'macro))) (define x 'procedure-call) (x)": false,
-        "(define-syntax foo (syntax-rules () ((foo y) (+ y y)))) (foo 100)": '200',
+
+        // R5RS 4.3.2: an input form F matches a pattern P if and only if:
+
+        // P is a non-literal identifier
         "(define-syntax foo (syntax-rules () ((foo x) 'nonliteral-id))) (foo foo)": 'nonliteral-id',
-        "(define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (foo x)": 'literal-id',
-        "(define x 1) (define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (foo x)": 'literal-id',
-        /* todo bl: i'm not sure why this one isn't supposed to work,
-            but it doesn't in PLT Scheme and it doesn't in my implementation. */
-        "(define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (define (bar x) (foo x)) (bar 32)": false,
+        // (exercising various things that can be captured by a non-literal id)
+        "(define-syntax foo (syntax-rules () ((foo y) (+ y y)))) (foo 100)": '200',
         '(define-syntax foo (syntax-rules () ((foo x) "hi"))) (foo (1 2))': '"hi"',
         '(define-syntax foo (syntax-rules () ((foo x) x))) (foo "hi")': '"hi"',
         '(define-syntax foo (syntax-rules () ((foo x) x))) (foo (1 2))': false,
         "(define-syntax foo (syntax-rules () ((foo x) x))) (foo '(1 2))": "(1 2)",
         "(define-syntax foo (syntax-rules () ((foo x y) (+ x y)))) (foo 3 4)": '7',
+
+        // P is a literal identifier and F is an identifier with the same binding.
+        // [bl: this includes no binding]
+        "(define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (foo x)": 'literal-id',
+        "(define x 1) (define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (foo x)": 'literal-id',
+        /* todo bl: i'm not sure why this one isn't supposed to work,
+         but it doesn't in PLT Scheme and it doesn't in my implementation. */
+        "(define-syntax foo (syntax-rules (x) ((foo x) 'literal-id))) (define (bar x) (foo x)) (bar 32)": false,
+
+        /* P is a list (P1 ... Pn) and F is alist of n forms that match P1
+            through Pn, respectively.
+         */
+        "(define-syntax foo (syntax-rules () ((foo (a b c)) c))) (foo (1 2 3))": '3',
+
+        "(define-syntax foo (syntax-rules () ((foo (((((x)))))) x))) (foo ((((('five))))))": 'five',
+        "(define-syntax foo (syntax-rules () ((foo ((((x))))) x))) (foo (((('four)))))": 'four',
+        "(define-syntax foo (syntax-rules () ((foo (((x)))) x))) (foo ((('three))))": 'three',
+        "(define-syntax foo (syntax-rules () ((foo ((x))) x))) (foo (('two)))": 'two',
+        "(define-syntax foo (syntax-rules () ((foo (x)) x))) (foo ('one))": 'one',
+
+        "(define-syntax foo (syntax-rules () ((foo (a (b (c (d))))) (+ a b c d)))) (foo (1 (2 (3 (4)))))": '10',
+        "(define-syntax foo (syntax-rules () ((foo ((((a) b) c))) (/ a b c)))) (foo ((((12) 2) 3)))": '2',
+        "(define-syntax foo (syntax-rules () ((foo x y) (+ x (* 2 y))))) (foo 3 4)": '11',
+        "(define-syntax foo (syntax-rules () ((foo (x) (y)) (+ x (* 2 y))))) (foo (3) (4))": '11',
+        "(define-syntax foo (syntax-rules () ((foo (a b) (c d)) (+ a c)))) (foo (1 2) (3 4))": '4',
+
+        /* R5Rs 4.3: "If a macro transformer inserts a free reference to an
+         identifier, the reference refers to the binding that was visible
+         where the transformer was specified, regardless of any local
+         bindings that may surround the use of the macro." */
         "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) ((lambda (x) (foo)) 2)": '1',
         "(define-syntax foo (syntax-rules () ((foo) x))) ((lambda (x) (foo)) 2)": false,
         "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ x (foo))) (bar 2)": '3',

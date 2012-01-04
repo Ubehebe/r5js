@@ -139,6 +139,8 @@ Branch.prototype.toString = function(continuation) {
 
 // For composition; should only be called from newProcCall
 function ProcCall(operatorName, firstOperand) {
+    /* todo bl operatorName is an identifier _datum_...I think
+        some call sites might be passing in strings... */
     this.operatorName = operatorName; // an identifier
     this.firstOperand = firstOperand; // identifiers or self-evaluating forms
 }
@@ -154,15 +156,42 @@ ProcCall.prototype.toString = function(continuation) {
     return ans + continuation + ')';
 };
 
+ProcCall.prototype.injectDatum = function(cpsName, datum) {
+
+    // Operator
+    if (this.operatorName.payload === cpsName) {
+        this.operatorName = datum.clone();
+        this.macroUnderConstruction = true;
+    }
+
+    else {
+        for (var cur = this.firstOperand, prev; cur; prev = cur,cur = cur.nextSibling) {
+            if (cur.payload === cpsName) {
+                var tmp = cur.nextSibling;
+                var cloned = datum.clone();
+                cloned.nextSibling = tmp;
+                if (prev)
+                    prev.nextSibling = cloned;
+                else
+                    this.firstOperand = cloned.
+                        cur = cloned;
+                this.macroUnderConstruction = true;
+            }
+        }
+    }
+};
+
 /* Find the ProcCall continuable in the continuable-continuation chain where
-    this continuation's result is used. */
+    this continuation's result is used. We return a Continuable whose subtype
+    is ProcCall, rather than the ProcCall itself, because we may need the
+    Continuable's Continuation for further processing. */
 Continuation.prototype.findResultUseSite = function() {
 
     for (var cur = this.nextContinuable; cur; cur = cur.continuation.nextContinuable) {
         if (cur.subtype instanceof ProcCall) {
             var procCall = cur.subtype;
             // This ProcCall either uses the continuation's name as its operator...
-            if (procCall.operatorName === this.lastResultName)
+            if (procCall.operatorName.payload === this.lastResultName)
                 return cur;
             // ... or as an operand.
             for (var op = procCall.firstOperand; op; op = op.nextSibling)
@@ -235,13 +264,13 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     (1 2) to _0. */
 ProcCall.prototype.reconstructDatum = function() {
     // todo bl may have to clone these guys?
-    var ans = newReconstructedDatum();
+    var ans = newEmptyList();
     ans.firstChild = this.operatorName;
     this.operatorName.nextSibling = this.firstOperand;
     return ans;
 };
 
-ProcCall.prototype.reconstructMacroUse = function(env) {
+ProcCall.prototype.reconstructMacroUse = function() {
     var ans = newEmptyList();
     ans.appendChild(newIdOrLiteral(this.operatorName));
     var tail = ans.firstChild;
@@ -271,34 +300,102 @@ ProcCall.prototype.unrecognizedProc = function(proc, env, continuation, resultSt
         + this.operatorName);
 };
 
-/* Before evaluating the operator or the operands, we must check that this
- apparent procedure call is not actually a datum that is an argument
- to a macro. Example:
+/* Is this continuation's result eventually used by some macro?
+    This is useful for deciding whether to evaluate an argument to a procedure
+    or reconstruct it as an unevaluated datum "argument" to a macro. Example:
 
- (define-syntax foo (syntax-rules () ((foo x) x)))
- (foo (2 3))
+    (foo (x (y (z))))
 
- The second line will desugar to something like
+    If foo is a procedure, we need to evaluate (x (y (z))) and bind that value
+    to foo's formal parameter. But if foo is a macro, we need to pass in the datum
+    (x (y (z))). The whole expression desugars to something like
 
- (2 3 [_0 (foo _0 [_1 ...])])
+    (z [_0 (y _0 [_1 (x _1 [_2 (foo _2 ...)])])])
 
- When we're at the ProcCall whose "operator" is 2, we skip ahead to
- where the result _0 is used and evaluate that operator, foo. It is a
- macro, which means we should bind the datum (2 3) to _0 and continue. */
-ProcCall.prototype.tryMacroArg = function(proc, env, continuation, resultStruct) {
+    When the trampoline is at z, it needs to know whether to set up a procedure
+    call or try to reconstruct the datum of which z is a part:
 
-    var useSite = continuation.findResultUseSite();
+    _0 is used as an "argument" to y, which doesn't resolve, so recurse
+    _1 is used as an "argument" to x, which doesn't resolve, so recurse
+    _2 is used as an "argument" to foo, which resolves as a macro, so we
+    should attempt to reconstruct the datum of which z is a part.
+
+    todo bl: currently this lookup chain is constructed twice in the case of
+    an actual macro, once to see if the chain indeed terminates in a macro,
+    and if it does, we construct it again in order to actually reconstruct the
+    datum. The problem with folding these into one operation is that we should
+    not do any mutation if there's not actually a macro at the end of the chain.
+    Alternatively, resultUsedBySomeMacro() could return the chain itself upon
+    success, so that we would still traverse it twice but only construct it once. */
+Continuation.prototype.resultUsedBySomeMacro = function(env) {
+    var useSite = this.findResultUseSite();
     if (useSite) {
-        var operatorWhereUsed = env.getProcedure(useSite.subtype.operatorName);
-        if (operatorWhereUsed instanceof SchemeMacro) {
-            var reconstructed = this.reconstructDatum();
-            env.addBinding(continuation.lastResultName, reconstructed);
-            resultStruct.nextContinuable = continuation.nextContinuable;
+        var useProcCall = useSite.subtype; // guaranteed to be a ProcCall
+        var maybeOperator = env.getProcedure(useProcCall.operatorName);
+        if (!maybeOperator)
+            return useSite.continuation.resultUsedBySomeMacro(env);
+        else if (maybeOperator instanceof SchemeMacro)
             return true;
-        }
-    }
+        else return false;
+    } else return false;
+};
 
-    return false;
+/* Before evaluating the operator or the operands of an apparent procedure call,
+    we must check that the apparent procedure call is not actually a datum
+    that is an argument to a macro. Example:
+
+    (foo (x (y (z))))
+
+    will desugar to something like
+
+    (z [_0 (y _0 [_1 (x _1 [_2 (foo _2 ...)])])])
+
+    If foo is really a macro, when the trampoline is at z,
+    Continuation.prototype.resultUsedBySomeMacro() will return true,
+    telling us that we need to reconstruct the datum of which z is a part.
+    Here's how that happens:
+
+    At z: _0 is used at y, so replace (y _0 ...) by (y (z) ...) and jump to y
+    At y: _1 is used at x, so replace (x _1 ...) by (x (y (z)) ...) and jump to x
+    At x: _2 is used at foo, so replace (foo _2 ...) by (foo (x (y (z))) ...) and jump to foo
+     */
+
+ProcCall.prototype.rollupMacroArg = function(proc, env, continuation, resultStruct) {
+  var useSite = continuation.findResultUseSite();
+    if (useSite) {
+        var useProcCall = useSite.subtype; // guaranteed to be a ProcCall
+        var maybeOperator = env.getProcedure(useProcCall.operatorName);
+        useProcCall.injectDatum(continuation.lastResultName, this.reconstructDatum());
+        if (!maybeOperator) {
+            return useProcCall.rollupMacroArg(proc, env, useSite.continuation, resultStruct);
+        }
+        else if (maybeOperator instanceof SchemeMacro) {
+            useProcCall.macroUnderConstruction = false; // construction is complete
+            return true;
+        } else {
+            throw new InternalInterpreterError('unexpected operator '
+                + maybeOperator
+                + ': this code should not be running because resultUsedBySomeMacro() '
+                + 'should have returned false');
+        }
+    } else {
+        throw new InternalInterpreterError('unexpected operator '
+            + maybeOperator
+            + ': this code should not be running because resultUsedBySomeMacro() '
+            + 'should have returned false');
+    }
+};
+
+ProcCall.prototype.tryMacroArg = function(proc, env, continuation, resultStruct) {
+    if (this.macroUnderConstruction) {
+        resultStruct.nextContinuable = continuation.nextContinuable;
+        return true;
+    }
+    else if (continuation.resultUsedBySomeMacro(env)
+        && this.rollupMacroArg(proc, env, continuation, resultStruct)) {
+        resultStruct.nextContinuable = continuation.nextContinuable;
+        return true;
+    } else return false;
 };
 
 /* Primitive procedure, represented by JavaScript function:
@@ -421,8 +518,7 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
 
 ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct) {
 
-
-    var template = macro.selectTemplate(this.reconstructMacroUse(env), env);
+    var template = macro.selectTemplate(this.reconstructMacroUse(), env);
     var newText = template.hygienicTranscription().toString();
     // todo bl shouldn't have to go all the way back to the text
     var newContinuable =
