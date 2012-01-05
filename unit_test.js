@@ -404,7 +404,17 @@ function testEvaluator() {
         "(define-syntax foo (syntax-rules () ((foo (x . y)) (quote y)))) (foo (1 2))": '(2)',
         "(define-syntax foo (syntax-rules () ((foo (x . y)) (quote y)))) (foo (1 2 3 (4 5)))": '(2 3 (4 5))',
 
+        // todo bl make a section just for pattern-match failure tests
         "(define-syntax foo (syntax-rules () ((foo (x)) x))) (foo 2)": false,
+
+        /* P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis>
+        is the identifier ... and F is a proper list of at least n forms,
+        the first n of which match P1 through Pn, respectively, and each
+        remaining element of F matches Pn+1. */
+        "(define-syntax foo (syntax-rules () ((foo x ...) (quote (x ...))))) (foo 1 2)": '(1 2)',
+        "(define-syntax foo (syntax-rules () ((foo x ...) (x ...)))) (foo + 1 2 3)": '6',
+        "(define-syntax foo (syntax-rules () ((foo x ...) (+ x ...)))) (foo)": '0',
+        "(define-syntax foo (syntax-rules () ((foo x ...) (x ...)))) (foo +)": '0',
 
         /* R5Rs 4.3: "If a macro transformer inserts a free reference to an
          identifier, the reference refers to the binding that was visible

@@ -43,23 +43,64 @@ function ellipsesMatch(patternDatum, templateDatum) {
 }
 
 function TemplateBindings() {
-    this.bindings = {}; // hey, don't use this directly; use this.get() instead
+    this.regularBindings = {}; // strings to objects
+    this.ellipsisBindings = {}; // strings to arrays of objects
+    this.awaitingFixing = [];
 }
 
 TemplateBindings.prototype.addBinding = function(name, val) {
-    var alreadyBound = this.bindings[name];
-    if (alreadyBound)
-        alreadyBound.push(val);
-    else
-        this.bindings[name] = [val];
+    var regularBinding = this.regularBindings[name];
+    var ellipsisBinding;
+
+    /* If this name already has a regular binding and we're requesting another
+        binding, we must be in an ellipsis pattern, so move the binding from
+        the regularBindings to the ellipsisBindings. */
+    if (regularBinding) {
+        this.regularBindings[name] = null;
+        this.ellipsisBindings[name] = [regularBinding, val];
+    }
+
+    // If this name already has an ellipsis binding, just add the new value to it
+    else if (ellipsisBinding = this.ellipsisBindings[name]) {
+        ellipsisBinding.push(val);
+    }
+
+    // If this name has neither type of binding, add a regular binding.
+    /* todo bl add this.regularBindings[name] = false to denote moves
+        to ellipsisBindings so we don't have to do two lookups in the common case */
+    else {
+        this.regularBindings[name] = val;
+        this.awaitingFixing.push(name);
+    }
+};
+
+TemplateBindings.prototype.fixNewBindings = function() {
+    var len = this.awaitingFixing.length;
+    for (var i=0; i<len; ++i) {
+        var name = this.awaitingFixing[i];
+        var soleVal = this.regularBindings[name];
+        if (soleVal) {
+            this.regularBindings[name] = null;
+            this.ellipsisBindings[name] = [soleVal];
+        }
+    }
+    this.awaitingFixing = [];
 };
 
 TemplateBindings.prototype.get = function(name) {
-    return this.bindings[name];
+    var maybeRegularBinding = this.regularBindings[name];
+    if (maybeRegularBinding)
+        return maybeRegularBinding.clone();
+    var maybeEllipsisBindings = this.ellipsisBindings[name];
+    if (maybeEllipsisBindings)
+        return maybeEllipsisBindings.length
+            ? maybeEllipsisBindings.shift()
+            : maybeEllipsisBindings;
+    else return null;
 };
 
-TemplateBindings.prototype.clear = function(name) {
-  this.bindings[name] = [];
+TemplateBindings.prototype.setEmptyEllipsisMatch = function(name) {
+  this.ellipsisBindings[name] = [];
 };
 
 SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
@@ -78,15 +119,15 @@ SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
     return null;
 };
 
-function Template(datum, bindings) {
+function Template(datum, templateBindings) {
     /* We must clone the template datum because every macro use will
      deform the template through the hygienic transcription. */
     this.datum = datum.clone().sanitize();
-    this.bindings = bindings; // should be a TemplateBindings object
+    this.templateBindings = templateBindings;
 }
 
 Template.prototype.hygienicTranscription = function() {
-    return this.datum.transcribe(this.bindings);
+    return this.datum.transcribe(this.templateBindings);
 };
 
 /* 4.3.2: An input form F matches a pattern P if and only if:
@@ -128,8 +169,7 @@ SchemeMacro.prototype.matchNonLiteralId
         /* Temporarily slice off the input's siblings
          to save time during cloning. */
         var savedNextSibling = inputDatum.nextSibling;
-        inputDatum.nextSibling = null;
-        var toInsert = inputDatum.clone().sanitize();
+        var toInsert = inputDatum.severSibling().clone().sanitize();
         inputDatum.nextSibling = savedNextSibling;
 
         // Push the new datum onto the list of bindings
@@ -293,6 +333,10 @@ SchemeMacro.prototype.matchListOrVector
 
             if (!this.patternMatch(patternElement, inputElement, useEnv, bindings))
                 return false;
+
+            // todo bl: kludgey and i'm not convinced it works recursively! start here
+            if (stickyEllipsisPattern)
+                bindings.fixNewBindings();
         }
 
         /* In cases like matching input (foo) against pattern (foo x ...),
@@ -309,7 +353,7 @@ SchemeMacro.prototype.matchListOrVector
         if (ellipsisMatchedNothing) {
             patternElement.forEach(function(node) {
                 if (node.isIdentifier())
-                    bindings.clear(node.payload);
+                    bindings.setEmptyEllipsisMatch(node.payload);
             });
         }
 

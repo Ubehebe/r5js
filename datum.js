@@ -544,7 +544,7 @@ Datum.prototype.startsWith = function(payload) {
     return this.firstChild && this.firstChild.payload === payload;
 };
 
-Datum.prototype.transcribe = function(bindings) {
+Datum.prototype.transcribe = function(templateBindings) {
     var prev;
     var first;
     var ellipsisMode = false;
@@ -555,24 +555,44 @@ Datum.prototype.transcribe = function(bindings) {
 
         /* If we're in ellipsis mode, we'll need to clone the current datum
          before trying to transcribe it, so we can re-transcribe it later. */
-        if (ellipsisMode = ellipsisMode
-            || (cur.nextSibling && cur.nextSibling.payload === '...')) {
+        if (ellipsisMode
+            || (ellipsisMode = (cur.nextSibling && cur.nextSibling.payload === '...'))) {
             var savedNextSibling = cur.nextSibling;
-            cur.nextSibling = null;
-            curClone = cur.clone();
+            curClone = cur.severSibling().clone();
             cur.nextSibling = savedNextSibling;
         }
 
-
         // Identifiers: nonrecursive case
         if (cur.payload !== undefined) { // watch out for 0's and falses
-            var matches = bindings.get(cur.payload);
-            success = matches ? matches[0].clone().severSibling() : cur;
+            var match = templateBindings.get(cur.payload);
+
+            /* If we found some kind of binding for the name, insert it in
+                the transcription. There is a corner case, though: in ellipsis
+                mode, the TemplateBindings object has to have some way
+                of telling us that there are no remaining bindings for the
+                name. When this happens, we just need to move on in the
+                transcription process. The current way I do this is by
+                returning an empty array. This is not necessarily great style,
+                I may change it (return false? but that clashes with null for
+                no match; return a special sentinel object? but that requires
+                more logic...) */
+            if (match)
+                success = (match.length === 0) ? false : match;
+
+            /* If there were no bindings for the name, this is not an error,
+                it just means insert the datum into the transcription
+                unaltered. This is actually the common case: for example,
+
+                (define-syntax foo (syntax-rules () ((foo x) (* x x))))
+
+                we want the * to transcribe as itself. */
+            else
+                success = cur;
         }
 
         // Lists etc.: recursive case
         else if (cur.firstChild) {
-            success = cur.firstChild.transcribe(bindings);
+            success = cur.firstChild.transcribe(templateBindings);
             if (success !== false) { // watch out: null is an empty list
                 cur.firstChild = success;
                 success = cur;
