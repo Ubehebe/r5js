@@ -566,7 +566,7 @@ Datum.prototype.transcribe = function(bindings) {
 
         // Identifiers: nonrecursive case
         if (cur.payload !== undefined) { // watch out for 0's and falses
-            var matches = bindings[cur.payload];
+            var matches = bindings.get(cur.payload);
             success = matches ? matches[0].clone().severSibling() : cur;
         }
 

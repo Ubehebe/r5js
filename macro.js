@@ -42,9 +42,35 @@ function ellipsesMatch(patternDatum, templateDatum) {
     return true;
 }
 
+function TemplateBindings() {
+    this.bindings = {}; // hey, don't use this directly; use this.get() instead
+}
+
+TemplateBindings.prototype.addBinding = function(name, val) {
+    var alreadyBound = this.bindings[name];
+    if (alreadyBound)
+        alreadyBound.push(val);
+    else
+        this.bindings[name] = [val];
+};
+
+TemplateBindings.prototype.get = function(name) {
+    return this.bindings[name];
+};
+
+TemplateBindings.prototype.clear = function(name) {
+  this.bindings[name] = [];
+};
+
 SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
     for (var rule = this.rules; rule; rule = rule.nextSibling) {
-        var bindings = {};
+        /* During pattern matching, input datums are bound to pattern datums.
+            If pattern matching is successful, then during transcription we need
+            to remember those bindings. All we need is an object to store the
+            bindings between pattern matching and transcription. A JavaScript
+            dictionary is perhaps sufficient, but I'm going to use a purpose-built
+            object in case we need richer semantics (e.g. for ellipses). */
+        var bindings = new TemplateBindings();
         var pattern = rule.at('pattern');
         if (this.patternMatch(pattern, datum, useEnv, bindings, true))
             return new Template(rule.at('template'), bindings);
@@ -56,12 +82,11 @@ function Template(datum, bindings) {
     /* We must clone the template datum because every macro use will
      deform the template through the hygienic transcription. */
     this.datum = datum.clone().sanitize();
-    this.bindings = bindings;
+    this.bindings = bindings; // should be a TemplateBindings object
 }
 
 Template.prototype.hygienicTranscription = function() {
     return this.datum.transcribe(this.bindings);
-    // a good debugging line console.log('hygienicTranscription: ' + before + ' => ' + ans);
 };
 
 /* 4.3.2: An input form F matches a pattern P if and only if:
@@ -107,14 +132,8 @@ SchemeMacro.prototype.matchNonLiteralId
         var toInsert = inputDatum.clone().sanitize();
         inputDatum.nextSibling = savedNextSibling;
 
-        var alreadyBound = bindings[patternId];
-
         // Push the new datum onto the list of bindings
-        if (!alreadyBound)
-            bindings[patternId] = [toInsert];
-        else
-            alreadyBound.push(toInsert);
-
+        bindings.addBinding(patternId, toInsert);
         return true;
     } else return false;
 };
@@ -181,7 +200,7 @@ SchemeMacro.prototype.matchLiteralId
         if (inputDatum.payload === patternId
             && (!this.definitionEnv.hasBindingRecursive(patternId)
             && !useEnv.hasBindingRecursive(patternId))) { // both have no lexical binding
-            bindings[patternId] = [inputDatum];
+            bindings.addBinding(patternId, inputDatum);
             return true;
 
         }
@@ -191,7 +210,9 @@ SchemeMacro.prototype.matchLiteralId
                 The spec does not forbid repeated literals as in
                 (define-syntax foo (syntax-rules (x x) ((foo x) "hi!")))
                 but such repetition is useless and it is fine to overwrite them. */
-            bindings[patternId] = [inputDatum];
+
+            // todo bl: likely bugs with literal ids in ellipsis patterns! because i see no pushes
+            bindings.addBinding(patternId, inputDatum);
             return true;
         }
     }
@@ -288,7 +309,7 @@ SchemeMacro.prototype.matchListOrVector
         if (ellipsisMatchedNothing) {
             patternElement.forEach(function(node) {
                 if (node.isIdentifier())
-                    bindings[node.payload] = [];
+                    bindings.clear(node.payload);
             });
         }
 
