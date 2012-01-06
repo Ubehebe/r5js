@@ -379,40 +379,26 @@ Parser.prototype['procedure-call'] = function() {
         {type: ')'},
         {desugar: function(node, env) {
 
-            // todo bl once desugaring is working we need to implement macro lookups:
-            /* No luck? Maybe it's a macro use. Reparse the datum tree on the fly and
-             evaluate. This may be the coolest line in this implementation.
-             else {
-             console.log(node.toString());
-             // todo bl shouldn't have to go back to text
-             return new Parser(
-             new Reader(
-             new Scanner(node.toString())
-             ).read()
-             ).parse('macro-use')
-             .desugar(env);
-             }*/
-
             var operatorNode = node.at('operator');
-
-            /* Example: ((f x) y). (f x) will desugar to a Continuable
-                object which is then handled appropriately by LocalStructure.*/
-            if (!operatorNode.isIdentifier())
-                operatorNode = operatorNode.desugar(env);
-
             var operands = node.at('operand'); // will be null if 0 operands
 
-            /* Take a snapshot of the local (nonrecursive) procedure call structure,
-             since operands.sequence might destroy that structure. */
-            var localStructure = new LocalStructure(operatorNode, operands);
-            var cpsNames = [];
-            var maybeSequenced = operands && operands.sequenceOperands(env, cpsNames);
-            return localStructure.toProcCall(maybeSequenced, cpsNames);
+            if (operatorNode.isIdentifier()) {
+                return newProcCall(operatorNode, operands, new Continuation(newCpsName()));
+            }
 
-            // Add the local procedure call to the tip of the sequence
-            return maybeSequenced
-                ? maybeSequenced.appendContinuable(localProcCall)
-                : localProcCall;
+
+            /* Example: ((f x) y). (f x) will desugar to a Continuable
+             object which is then handled appropriately by LocalStructure.*/
+            else {
+                var desugaredOp = operatorNode.desugar(env);
+                var lastContinuation = desugaredOp.getLastContinuable().continuation;
+                var opName = lastContinuation.lastResultName;
+                lastContinuation.nextContinuable = newProcCall(
+                    newIdOrLiteral(opName),
+                    operands,
+                    new Continuation(newCpsName()));
+                return desugaredOp;
+            }
         }
         }
     );

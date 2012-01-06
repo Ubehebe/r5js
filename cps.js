@@ -181,27 +181,6 @@ ProcCall.prototype.injectDatum = function(cpsName, datum) {
     }
 };
 
-/* Find the ProcCall continuable in the continuable-continuation chain where
-    this continuation's result is used. We return a Continuable whose subtype
-    is ProcCall, rather than the ProcCall itself, because we may need the
-    Continuable's Continuation for further processing. */
-Continuation.prototype.findResultUseSite = function() {
-
-    for (var cur = this.nextContinuable; cur; cur = cur.continuation.nextContinuable) {
-        if (cur.subtype instanceof ProcCall) {
-            var procCall = cur.subtype;
-            // This ProcCall either uses the continuation's name as its operator...
-            if (procCall.operatorName.payload === this.lastResultName)
-                return cur;
-            // ... or as an operand.
-            for (var op = procCall.firstOperand; op; op = op.nextSibling)
-                if (op.payload === this.lastResultName)
-                    return cur;
-        }
-    }
-    return null;
-};
-
 function TrampolineResultStruct() {
     /*
      this.ans;
@@ -282,120 +261,46 @@ ProcCall.prototype.reconstructMacroUse = function() {
     return ans;
 };
 
+ProcCall.prototype.operandsInCpsStyle = function() {
+
+    for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
+        if (cur instanceof Datum && !cur.isLiteral())
+            return false;
+    return true;
+
+};
+
 ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     var proc = env.getProcedure(this.operatorName);
-    var args = [proc, env, continuation, resultStruct];
 
-    this.tryMacroArg.apply(this, args)
-        || (typeof proc === 'function' && this.tryPrimitiveProcedure.apply(this, args))
-        || (proc instanceof SchemeProcedure && this.tryNonPrimitiveProcedure.apply(this, args))
-        || (proc instanceof SchemeMacro && this.tryMacroUse.apply(this, args))
-        || (proc instanceof Continuation && this.tryContinuation.apply(this, args))
-    || this.unrecognizedProc.apply(this, args);
+    if ((typeof proc === 'function' || proc instanceof SchemeProcedure)
+        && !this.operandsInCpsStyle()) {
+//        console.log('proc ' + this.operatorName + ' detected, will need to cpsify');
+        var localStructure = new LocalStructure(this.operatorName, this.firstOperand);
+        var cpsNames = [];
+        var maybeSequenced = this.firstOperand
+            && this.firstOperand.sequenceOperands(env, cpsNames);
+        var ans = localStructure.toProcCall(maybeSequenced, cpsNames);
+        ans.getLastContinuable().continuation = continuation;
+//        console.log('voila: ' + ans);
+        resultStruct.nextContinuable = ans;
+    }
+
+    else {
+        var args = [proc, env, continuation, resultStruct];
+
+        (typeof proc === 'function' && this.tryPrimitiveProcedure.apply(this, args))
+            || (proc instanceof SchemeProcedure && this.tryNonPrimitiveProcedure.apply(this, args))
+            || (proc instanceof SchemeMacro && this.tryMacroUse.apply(this, args))
+            || (proc instanceof Continuation && this.tryContinuation.apply(this, args))
+        || this.unrecognizedProc.apply(this, args);
+    }
 };
 
 ProcCall.prototype.unrecognizedProc = function(proc, env, continuation, resultStruct) {
     throw new InternalInterpreterError(
         'procedure application: expected procedure, given '
         + this.operatorName);
-};
-
-/* Is this continuation's result eventually used by some macro?
-    This is useful for deciding whether to evaluate an argument to a procedure
-    or reconstruct it as an unevaluated datum "argument" to a macro. Example:
-
-    (foo (x (y (z))))
-
-    If foo is a procedure, we need to evaluate (x (y (z))) and bind that value
-    to foo's formal parameter. But if foo is a macro, we need to pass in the datum
-    (x (y (z))). The whole expression desugars to something like
-
-    (z [_0 (y _0 [_1 (x _1 [_2 (foo _2 ...)])])])
-
-    When the trampoline is at z, it needs to know whether to set up a procedure
-    call or try to reconstruct the datum of which z is a part:
-
-    _0 is used as an "argument" to y, which doesn't resolve, so recurse
-    _1 is used as an "argument" to x, which doesn't resolve, so recurse
-    _2 is used as an "argument" to foo, which resolves as a macro, so we
-    should attempt to reconstruct the datum of which z is a part.
-
-    todo bl: currently this lookup chain is constructed twice in the case of
-    an actual macro, once to see if the chain indeed terminates in a macro,
-    and if it does, we construct it again in order to actually reconstruct the
-    datum. The problem with folding these into one operation is that we should
-    not do any mutation if there's not actually a macro at the end of the chain.
-    Alternatively, resultUsedBySomeMacro() could return the chain itself upon
-    success, so that we would still traverse it twice but only construct it once. */
-Continuation.prototype.resultUsedBySomeMacro = function(env) {
-    var useSite = this.findResultUseSite();
-    if (useSite) {
-        var useProcCall = useSite.subtype; // guaranteed to be a ProcCall
-        var maybeOperator = env.getProcedure(useProcCall.operatorName);
-        if (!maybeOperator)
-            return useSite.continuation.resultUsedBySomeMacro(env);
-        else if (maybeOperator instanceof SchemeMacro)
-            return true;
-        else return false;
-    } else return false;
-};
-
-/* Before evaluating the operator or the operands of an apparent procedure call,
-    we must check that the apparent procedure call is not actually a datum
-    that is an argument to a macro. Example:
-
-    (foo (x (y (z))))
-
-    will desugar to something like
-
-    (z [_0 (y _0 [_1 (x _1 [_2 (foo _2 ...)])])])
-
-    If foo is really a macro, when the trampoline is at z,
-    Continuation.prototype.resultUsedBySomeMacro() will return true,
-    telling us that we need to reconstruct the datum of which z is a part.
-    Here's how that happens:
-
-    At z: _0 is used at y, so replace (y _0 ...) by (y (z) ...) and jump to y
-    At y: _1 is used at x, so replace (x _1 ...) by (x (y (z)) ...) and jump to x
-    At x: _2 is used at foo, so replace (foo _2 ...) by (foo (x (y (z))) ...) and jump to foo
-     */
-
-ProcCall.prototype.rollupMacroArg = function(proc, env, continuation, resultStruct) {
-  var useSite = continuation.findResultUseSite();
-    if (useSite) {
-        var useProcCall = useSite.subtype; // guaranteed to be a ProcCall
-        var maybeOperator = env.getProcedure(useProcCall.operatorName);
-        useProcCall.injectDatum(continuation.lastResultName, this.reconstructDatum());
-        if (!maybeOperator) {
-            return useProcCall.rollupMacroArg(proc, env, useSite.continuation, resultStruct);
-        }
-        else if (maybeOperator instanceof SchemeMacro) {
-            useProcCall.macroUnderConstruction = false; // construction is complete
-            return true;
-        } else {
-            throw new InternalInterpreterError('unexpected operator '
-                + maybeOperator
-                + ': this code should not be running because resultUsedBySomeMacro() '
-                + 'should have returned false');
-        }
-    } else {
-        throw new InternalInterpreterError('unexpected operator '
-            + maybeOperator
-            + ': this code should not be running because resultUsedBySomeMacro() '
-            + 'should have returned false');
-    }
-};
-
-ProcCall.prototype.tryMacroArg = function(proc, env, continuation, resultStruct) {
-    if (this.macroUnderConstruction) {
-        resultStruct.nextContinuable = continuation.nextContinuable;
-        return true;
-    }
-    else if (continuation.resultUsedBySomeMacro(env)
-        && this.rollupMacroArg(proc, env, continuation, resultStruct)) {
-        resultStruct.nextContinuable = continuation.nextContinuable;
-        return true;
-    } else return false;
 };
 
 /* Primitive procedure, represented by JavaScript function:
@@ -479,34 +384,10 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
     var newEnv = new Environment('tmp-' + proc.name, env);
     newEnv.addAll(proc.env);
 
-    /* This is a blatant kludge to set the order of environment lookups
-     correctly. It is currently only used in situations like this:
-
-     (define (foo x) (lambda (y) (+ x y)))
-     ((foo 1) 2)
-
-     The expression will desugar to something like
-
-     (foo 1 [_0 (_0 2 [_1 ...])])
-
-     At this point, we allocate a new Environment foo' for the execution of
-     foo, and bind x := 1 in this Environment. Later, at
-
-     (_0 2 [_1 ...])
-
-     we create a new Environment for the execution of the anonymous
-     lambda. But to resolve x correctly, its enclosingEnv must be foo'.
-     We accomplish this in a massive kludge. See
-     LocalStructure.prototype.toProcCall for more information.
-
-     todo bl: declare the Environment and desugar/trampoline
-     interface a disaster zone and try again.
-     */
-    if (this.useDynamicEnv) {
         continuation.setEnv(newEnv);
-        if (continuation.nextContinuable)
-            continuation.nextContinuable.setEnv(newEnv);
-    }
+    if (continuation.nextContinuable)
+        continuation.nextContinuable.setEnv(newEnv);
+
     // This will be a no-op if tail recursion is detected
     proc.setContinuation(continuation);
     proc.checkNumArgs(args.length);
