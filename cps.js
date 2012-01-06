@@ -365,11 +365,6 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, env, continuation, res
 ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, resultStruct) {
 
     var args = evalArgs(this.firstOperand, env);
-    /* todo bl: much confusion here. No reason to set environments
-     on both the Continuation and its following Continuable. */
-    continuation.setEnv(env);
-    if (continuation.nextContinuable)
-        continuation.nextContinuable.setEnv(env);
 
     /* We have to allocate a new Environment object for each procedure
      call, since we have to support a since SchemeProcedure having
@@ -384,7 +379,9 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
     var newEnv = new Environment('tmp-' + proc.name, env);
     newEnv.addAll(proc.env);
 
-        continuation.setEnv(newEnv);
+    /* todo bl: much confusion here. No reason to set environments
+     on both the Continuation and its following Continuable. */
+    continuation.setEnv(newEnv);
     if (continuation.nextContinuable)
         continuation.nextContinuable.setEnv(newEnv);
 
