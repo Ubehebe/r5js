@@ -618,12 +618,13 @@ var newStdEnv = (function() {
                 if (!mustBeProc.isProcedure())
                     throw new ArgumentTypeError(mustBeProc, 0, 'apply', 'procedure');
 
-                var curProcCall = arguments[arguments.length-3];
+                var curProcCall = arguments[arguments.length-4];
                 var procName = curProcCall.firstOperand.payload;
+                var curEnv = arguments[arguments.length-3];
                 var continuation = arguments[arguments.length-2];
                 var resultStruct = arguments[arguments.length-1];
 
-                var lastRealArgIndex = arguments.length-4;
+                var lastRealArgIndex = arguments.length-5;
                 var mustBeList = arguments[lastRealArgIndex];
                 if (!mustBeList.isList())
                     throw new ArgumentTypeError(mustBeList, lastRealArgIndex, 'apply', 'list');
@@ -631,6 +632,7 @@ var newStdEnv = (function() {
                 // (apply foo '(x y z))
                 if (lastRealArgIndex === 1) {
                     var actualProcCall = newProcCall(procName, mustBeList.firstChild, continuation);
+                    actualProcCall.setEnv(curEnv);
                     resultStruct.nextContinuable = actualProcCall;
                 }
 
@@ -652,7 +654,7 @@ var newStdEnv = (function() {
             argc: 1,
             argtypes: ['procedure'],
             hasSpecialEvalLogic: true,
-            proc: function(procedure, procCall, continuation, resultStruct) {
+            proc: function(procedure, procCall, env, continuation, resultStruct) {
                 /* Semantics of call/cc:
 
                  (call-with-current-continuation foo)
@@ -671,6 +673,7 @@ var newStdEnv = (function() {
                  lastResultName and set the next continuable to cc's
                  nextContinuable. */
                 var dummyProcCall = newProcCall(procCall.firstOperand, continuation, continuation);
+                dummyProcCall.setEnv(env);
                 resultStruct.nextContinuable = dummyProcCall;
             }
         },
@@ -681,8 +684,9 @@ var newStdEnv = (function() {
                 // Varargs procedures that also have special eval logic are a pain.
                 var resultStruct = arguments[arguments.length - 1];
                 var continuation = arguments[arguments.length - 2];
+                var env = arguments[arguments.length - 3];
                 // not needed var procCall = arguments[arguments.length - 3];
-                var numUserArgs = arguments.length - 3;
+                var numUserArgs = arguments.length - 4;
 
                 /* If there's just one user-supplied argument, that works fine
                     with the existing machinery. Example:
@@ -691,7 +695,7 @@ var newStdEnv = (function() {
 
                     should just bind 1 to _0 and continue. */
                 if (numUserArgs === 1)
-                    continuation.env.addBinding(continuation.lastResultName, arguments[0]);
+                    env.addBinding(continuation.lastResultName, arguments[0]);
 
                 /* If there's more than one argument, we bind the whole array
                     to the continuation's lastResultName. This means later, when
@@ -705,8 +709,10 @@ var newStdEnv = (function() {
                     for (var i = 0; i < numUserArgs; ++i)
                         userArgs.push(arguments[i]);
 
-                    continuation.env.addBinding(continuation.lastResultName, userArgs);
+                    env.addBinding(continuation.lastResultName, userArgs);
                 }
+                if (continuation.nextContinuable)
+                    continuation.nextContinuable.setEnv(env);
                 resultStruct.nextContinuable = continuation.nextContinuable;
             }
         }   ,
@@ -714,7 +720,7 @@ var newStdEnv = (function() {
             argc: 2,
             argtypes: ['procedure', 'procedure'],
             hasSpecialEvalLogic: true,
-            proc: function(producer, consumer, procCall, continuation, resultStruct) {
+            proc: function(producer, consumer, procCall, env, continuation, resultStruct) {
             /* R5RS 6.4: (call-with-values producer consumer)
                 "Calls its producer argument with no values and a continuation
                  that, when passed some values, calls the consumer procedure
@@ -728,10 +734,12 @@ var newStdEnv = (function() {
                     procCall.firstOperand,
                     null, // no arguments
                     producerContinuation);
+                producerCall.setEnv(env);
                 var consumerCall = newProcCall(
                     procCall.firstOperand.nextSibling,
                     newIdOrLiteral(valuesName),
                     continuation);
+                consumerCall.setEnv(env);
                 producerContinuation.nextContinuable = consumerCall;
                 resultStruct.nextContinuable = producerCall;
             }
@@ -824,7 +832,7 @@ var newStdEnv = (function() {
                  the trampoline will pass it three additional arguments:
                  the ProcCall, the Continuation, and the TrampolineResultStruct. */
                 if (definition.hasSpecialEvalLogic)
-                    numArgsFromUser -= 3;
+                    numArgsFromUser -= 4;
 
                 // If argc is a number, it means exactly that many args are required
                 if (typeof argc === 'number' && numArgsFromUser !== argc)
