@@ -321,6 +321,7 @@ function testEvaluator() {
         '(define (foo x . y) y) (foo 3 4 5)': "(4 5)",
         "(define (foo x) (* x x)) (+ (foo 3) (foo 4))": '25',
         "(define (fac n) (if (= n 0) 1 (* n (fac (- n 1))))) (fac 10)": '3628800',
+        "(define (tail-fac n buf) (if (= n 0) buf (tail-fac (- n 1) (* buf n)))) (define (fac n) (tail-fac n 1)) (fac 10)": '3628800',
         '(((lambda (x) x) (lambda (y) y)) "hello!")': '"hello!"',
         "(define x 1) (define y 2) (+ x y)": '3',
         "(define x 1) (define y 1) (set! x (+ x 100)) (set! y (+ x 100)) (+ x y)": '302',
