@@ -10,7 +10,7 @@ function parseAndEval(datum, env, lhs) {
     var parsed = new Parser(datum).parse(lhs);
     var ans;
     if (parsed)
-        ans = trampoline(parsed.desugar(env), env);
+        ans = trampoline(parsed.desugar(env).setEnv(env));
     return ans
         ? ans.toString() // no internal data structures should escape the evaluator
         : 'undefined';

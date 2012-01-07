@@ -10,10 +10,6 @@ function Continuation(lastResultName) {
      */
 }
 
-Continuation.prototype.setEnv = function(env) {
-    this.env = env;
-};
-
 Continuation.prototype.toString = function() {
     return '[' + this.lastResultName + ' ' + this.nextContinuable + ']';
 };
@@ -22,13 +18,10 @@ Continuation.prototype.toString = function() {
  Can we improve or eliminate it? */
 Continuation.prototype.clone = function() {
     var ans = new Continuation(this.lastResultName);
-    if (this.env)
-        ans.setEnv(this.env);
     if (this.nextContinuable) {
         ans.nextContinuable = new Continuable(
             this.nextContinuable.subtype,
             this.nextContinuable.continuation.clone());
-        // todo bl
         if (this.nextContinuable.env)
             ans.nextContinuable.setEnv(this.nextContinuable.env);
     }
@@ -60,13 +53,16 @@ Continuable.prototype.appendContinuable = function(next) {
     return this;
 };
 
-Continuable.prototype.setEnv = function(env) {
+Continuable.prototype.setEnv = function(env, recursive) {
     this.env = env;
+    return recursive && this.continuation.nextContinuable
+        ? this.continuation.nextContinuable.setEnv(env, true)
+        : this;
 };
 
-// delegate to subtype, passing in the continuation
+// delegate to subtype, passing in the continuation and environment name for debugging
 Continuable.prototype.toString = function() {
-    return this.subtype.toString(this.continuation);
+    return this.subtype.toString(this.continuation, this.env && this.env.name);
 };
 
 // For composition; should only be called from newIdShim
@@ -76,8 +72,8 @@ function IdShim(payload) {
 
 /* Just for clarity in debugging, the string representation
  of IdShims looks like a procedure call of an "id" procedure. */
-IdShim.prototype.toString = function(continuation) {
-    return '(id ' + this.payload + ' ' + continuation + ')';
+IdShim.prototype.toString = function(continuation, envName) {
+    return '(id|' + envName + ' ' + this.payload + ' ' + continuation + ')';
 };
 
 IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
@@ -95,14 +91,40 @@ IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     else
         ans = maybeWrapResult(this.payload.payload, this.payload.type);
 
-    if (continuation.env)
-        continuation.env.addBinding(continuation.lastResultName, ans);
-    else
-        env.addBinding(continuation.lastResultName, ans);
+    if (continuation.nextContinuable) {
+
+        /* If the next Continuable already has an attached environment,
+            bind the result in that.
+
+            Example:
+
+            (define (fac n) (if (= n 0) 1 (* n (fac (- n 1)))))
+            (fac 3)
+
+            When the recursion terminates, the object on the trampoline will
+            look something like
+
+            (id 1 [_0 ; env D: n = 0
+                (* n _0 [_1 ; env C: n = 1
+                    (* n _1 [_2 ; env B: n = 2
+                        (* n _2 ...)])])]) ; env A: n = 3
+
+            We must bind, for example, _1 in environment B, not environment C,
+            for the lookup to succeed. */
+        if (continuation.nextContinuable.env) {
+            continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
+        }
+
+        /* If the next Continuable does not have an attached environment,
+            bind the result in the current environment and attach it. */
+        else {
+            env.addBinding(continuation.lastResultName, ans);
+            continuation.nextContinuable.setEnv(env);
+        }
+    }
 
     resultStruct.ans = ans;
     resultStruct.nextContinuable = continuation.nextContinuable;
-
 };
 
 /* If a nonterminal in the grammar has no associated desugar function,
@@ -129,8 +151,10 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
     this.alternateLastContinuable = alternateContinuable && alternateContinuable.getLastContinuable();
 }
 
-Branch.prototype.toString = function(continuation) {
-    return '{' + this.test
+Branch.prototype.toString = function(continuation, envName) {
+    return '{|'
+        + envName
+        + this.test
         + ' ? ' + this.consequent.toString()
         + ' : ' + (this.alternate && this.alternate.toString())
         + ' ' + continuation
@@ -149,8 +173,8 @@ function newProcCall(operatorName, firstOperand, continuation) {
     return new Continuable(new ProcCall(operatorName, firstOperand), continuation);
 }
 
-ProcCall.prototype.toString = function(continuation) {
-    var ans = '(' + this.operatorName;
+ProcCall.prototype.toString = function(continuation, envName) {
+    var ans = '(' + this.operatorName + '|' + envName;
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
         ans += ' ' + cur.toString();
     return ans + (continuation ? ' ' + continuation : '') + ')';
@@ -185,32 +209,97 @@ function TrampolineResultStruct() {
     /*
      this.ans;
      this.nextContinuable;
-     this.currentEnv;
      */
 }
 
-TrampolineResultStruct.prototype.clear = function() {
-    this.currentEnv = null;
-    this.ans = null;
-};
+/* This is the main evaluation function.
 
-// This is the main evaluation function.
-function trampoline(continuable, env) {
+    The subtlest part is probably the question "what is the current environment?"
+    In general, a Continuable object should have an attached Environment
+    object that tells it where to look up identifiers. The code that attaches
+    Environments to Continuables is scattered about and may be buggy.
+
+ Here is a worked example. Pen and paper is recommended!
+
+ (define (fac n) (if (= n 0) 1 (* n (fac (- n 1)))))
+
+ (fac 3 [_0 ...]) ; create new env A where n = 3
+
+ [jump to procedure body, choose consequent]
+
+ (*{env A} n (fac (- n 1)) [_0 ...]) ; this needs to be CPSified
+
+ (-{env A} n 1 [_1
+    (fac{env A} _1 [_2
+        (*{env A} n _2 [_0 ...])])]) ; CPSified
+
+ [bind _1 = 2 in env A]
+
+ (fac{env A} _1 [_2
+    (*{env A} n _2 [_0 ...])]) ; create new env B where n = 2
+
+ [jump to procedure body, choose consequent]
+
+ (*{env B} n (fac (- n 1)) [_2
+    (*{env A} n _2 [_0 ...])]) ; this needs to be CPSified
+
+ (-{env B} n 1 [_3
+    (fac{env B} _3 [_4
+        (*{env B} n _4 [_2
+            (*{env A} n _2 [_0 ...])])]) ; CPSified
+
+ [bind _3 = 1 in env B]
+
+ (fac{env B} _3 [_4
+    (*{env B} n _4 [_2
+        (*{env A} n _2 [_0 ...])])]) ; create new env C where n = 1
+
+ [jump to procedure body, choose consequent]
+
+ (*{env C} n (fac (- n 1)) [_4
+    (*{env B} n _4 [_2
+        (*{env A} n _2 [_0 ...])])]) ; this needs to be CPSified
+
+ (-{env C} n 1 [_5
+    (fac{env C} _5 [_6
+        (*{env C} n _6 [_4
+            (*{env B} n _4 [_2
+                (*{env A} n _2 [_0 ...])])])])]) ; CPSified
+
+ [bind _5 = 0 in env C]
+
+ (fac{env C} _5 [_6
+    (*{env C} n _6 [_4
+        (*{env B} n _4 [_2
+            (*{env A} n _2 [_0 ...])])])]) ; create new env D where n = 0
+
+ [jump to procedure body, choose alternate]
+
+ (id{env D} 1 [_6
+    (*{env C} n _6 [_4
+        (*{env B} n _4 [_2
+            (*{env A} n _2 [_0 ...])])])]) ; bind _6 = 1 in env C
+
+ (*{env C} n _6 [_4
+    (*{env B} n _4 [_2
+        (*{env A} n _2 [_0 ...])])]) ; bind _4 = 1 in env B
+
+ (*{env B} n _4 [_2
+    (*{env A} n _2 [_0 ...])]) ; bind _2 = 2 in env A
+
+ (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
+ */
+function trampoline(continuable) {
 
     var curContinuable = continuable;
     var ans;
     var tmp = new TrampolineResultStruct();
 
     while (curContinuable) {
-
-        tmp.clear();
-
         // a good first step for debugging: console.log('boing: ' + curContinuable);
-        curContinuable.subtype.evalAndAdvance(curContinuable.env || env, curContinuable.continuation, tmp);
+        curContinuable.subtype.evalAndAdvance(curContinuable.env, curContinuable.continuation, tmp);
         ans = tmp.ans;
         curContinuable = tmp.nextContinuable;
-        if (tmp.currentEnv)
-            env = tmp.currentEnv;
     }
     return ans;
 }
@@ -235,6 +324,10 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         this.consequentLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.consequent;
     }
+    /* Branches simply forward the current environment to the Continuable
+     that is chosen for evaluation. The logic is simpler than for ProcCalls
+     or IdShims, so we may be able to eliminate it. */
+    resultStruct.nextContinuable.setEnv(env);
 };
 
 /* Example: if the trampoline is at (1 2 [_0 ...]) and looks ahead to see
@@ -275,14 +368,15 @@ ProcCall.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
     if ((typeof proc === 'function' || proc instanceof SchemeProcedure)
         && !this.operandsInCpsStyle()) {
-//        console.log('proc ' + this.operatorName + ' detected, will need to cpsify');
         var localStructure = new LocalStructure(this.operatorName, this.firstOperand);
         var cpsNames = [];
         var maybeSequenced = this.firstOperand
             && this.firstOperand.sequenceOperands(env, cpsNames);
         var ans = localStructure.toProcCall(maybeSequenced, cpsNames);
-        ans.getLastContinuable().continuation = continuation;
-//        console.log('voila: ' + ans);
+        /* Add the continuation to the end of the procedure call.
+         This works because the recursive call to setEnv() returns the last
+         Continuable in the chain. */
+        ans.setEnv(env, true).continuation = continuation;
         resultStruct.nextContinuable = ans;
     }
 
@@ -325,13 +419,30 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, env, continuation, res
 
     else {
         var ans = proc.apply(null, args);
-        if (continuation.nextContinuable && continuation.nextContinuable.env) {
-            continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
-        } else {
-            env.addBinding(continuation.lastResultName, ans);
+        if (continuation.nextContinuable) {
+
+            /* If the next Continuable already has an attached environment,
+                bind the result in that.
+
+                (See logic in IdShim.prototype.evalAndAdvance().)
+
+                We filter out Branches because they always occur in the current
+                environment, although their environments are sometimes
+                set differently. (todo bl: investigate) */
+            if (continuation.nextContinuable.env
+                && !(continuation.nextContinuable.subtype instanceof Branch)) {
+                continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
+            }
+
+            /* Otherwise, use the current environment and forward it to the next
+             Continuable. */
+            else {
+                env.addBinding(continuation.lastResultName, ans);
+                continuation.nextContinuable.setEnv(env);
+            }
         }
         resultStruct.ans = ans;
-        resultStruct.nextContinuable = continuation.nextContinuable && continuation.nextContinuable;
+        resultStruct.nextContinuable = continuation.nextContinuable;
     }
 
     return true;
@@ -376,21 +487,15 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
      this shouldn't prevent an unlimited number of active tail calls
      (because the old Environment objects will get garbage collected),
      but I would imagine it would make tail recursion impracticable. */
-    var newEnv = new Environment('tmp-' + proc.name, env);
+    var newEnv = new Environment('tmp-' + proc.name + '-' + newCpsName(), env);
     newEnv.addAll(proc.env);
-
-    /* todo bl: much confusion here. No reason to set environments
-     on both the Continuation and its following Continuable. */
-    continuation.setEnv(newEnv);
-    if (continuation.nextContinuable)
-        continuation.nextContinuable.setEnv(newEnv);
 
     // This will be a no-op if tail recursion is detected
     proc.setContinuation(continuation);
     proc.checkNumArgs(args.length);
     proc.bindArgs(args, newEnv);
+    proc.body.setEnv(newEnv);
     resultStruct.nextContinuable = proc.body;
-    resultStruct.currentEnv = newEnv;
     return true;
 };
 
@@ -411,40 +516,23 @@ ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct
 
     newContinuable.getLastContinuable().continuation = continuation;
     resultStruct.nextContinuable = newContinuable;
+
     /* R5RS 4.3: "If a macro transformer inserts a free reference to an
      identifier, the reference refers to the binding that was visible
      where the transformer was specified, regardless of any local bindings
      that may surround the use of the macro." */
-    resultStruct.currentEnv = macro.definitionEnv;
-
-    /* We have to remember when to jump back out of the macro's definition
-     environment. Example:
-
-     (define x 1)
-     (define-syntax foo (syntax-rules () ((foo) x)))
-     (define (bar x) (+ (foo) x))
-
-     We have to remember that the x in the procedure body of bar refers to
-     the formal parameter, not what the x in foo's definition environment.
-
-     How do we know this is the right Continuation or Continuable to place
-     the Environment on? I don't, it was just via debugging and inspection.
-     In general, there are far too many ways to set and change environments. */
-    if (continuation.nextContinuable)
-        continuation.nextContinuable.setEnv(env);
+    newContinuable.setEnv(macro.definitionEnv);
 
     return true;
 };
 
 ProcCall.prototype.tryContinuation = function(proc, env, continuation, resultStruct) {
 
-        env.addBinding(proc.lastResultName, this.firstOperand);
-        resultStruct.ans = this.firstOperand;
-        resultStruct.nextContinuable = proc.nextContinuable;
+    env.addBinding(proc.lastResultName, this.firstOperand);
+    resultStruct.ans = this.firstOperand;
+    resultStruct.nextContinuable = proc.nextContinuable;
     return true;
-    };
-
-
+};
 
 function evalArgs(firstOperand, env) {
     var args = [];
