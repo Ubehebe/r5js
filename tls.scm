@@ -87,3 +87,133 @@
     ((let ((l '(beans beans we need jelly beans)))
        (eq? (car l) (car (cdr l)))) . #t)
     ))
+
+
+					; todo bl -- integrate within tests
+(define (all? pred? xs)
+  (cond
+   ((null? xs) #t)
+   ((pred? (car xs)) (all? pred? (cdr xs)))
+   (else #f)))
+(define (lat? l)
+  (all? atom? l))
+(define (member? x ys)
+  (cond
+   ((null? ys) #f)
+   ((eq? x (car ys)) #t)
+   (else (member? x (cdr ys)))))
+
+(define ch2-tests
+  '(
+    ((lat? '(Jack Sprat could eat no chicken fat)) . #t)
+    ((lat? '((Jack) Sprat could eat no chicken fat)) . #f)
+    ((lat? '(Jack (Sprat could) eat no chicken fat)) . #f)
+    ((lat? '()) . #t)
+    ((lat? '(bacon and eggs)) . #t)
+    ((lat? '(bacon (and eggs))) . #f)
+    ((or (null? '()) (atom? '(d e f g))) . #t)
+    ((or (null? '(a b c)) (null? '())) . #t)
+    ((or (null? '(a b c)) (null? '(atom))) . #f)
+    ((member? 'tea '(coffee tea or milk)) . #t)
+    ((member? 'poached '(fried eggs and scrambled eggs)) . #f)
+    ((member? 'meat '(mashed potatoes and meat gravy)) . #t)
+    ((member? 'liver '(bagels and lox)) . #f)
+    ))
+
+(define (rember x ys)
+  (cond
+   ((null? ys) ys)
+   ((eq? x (car ys)) (cdr ys))
+   (else (cons
+	  (car ys)
+	  (rember x (cdr ys))))))
+
+(define (filter pred? xs)
+  (if (null? xs)
+      '()
+      (let ((cur (car xs))
+	    (rest (cdr xs)))
+	(if (pred? cur)
+	    (cons cur (filter pred? rest))
+	    (filter pred? rest)))))
+
+(define (multirember x ys)
+  (filter (lambda (y) (not (eq? x y))) ys))
+
+(define (firsts lists)
+  (map car lists))
+
+(define (insertR new old list)
+  (if (null? list)
+      '()
+      (let ((cur (car list)))
+	(if (eq? old cur)
+	    (cons (car list)
+		  (cons new
+			(cdr list)))
+	    (cons (car list)
+		  (insertR new old (cdr list)))))))
+
+(define (subst new old list)
+  (if (null? list)
+      '()
+      (let ((cur (car list)))
+	(if (eq? cur old)
+	    (cons new (cdr list))
+	    (cons cur (subst new old (cdr list)))))))
+
+(define (subst2 new old1 old2 list)
+  (if (null? list)
+      '()
+      (let ((cur (car list)))
+	(if (or (eq? cur old1)
+		(eq? cur old2))
+	    (cons new (cdr list))
+	    (cons cur (subst2 old1 old2 (cdr list)))))))
+
+;; (define (multiinsertR new old list)
+;;   (if (null? list)
+;;       '()
+;;       (let ((cur (car list))
+;; 	    (rest (cdr list)))
+;; 	(if (eq? cur old)
+;; 	    (cons old
+;; 		  (cons new
+;; 			(multiinsertR new old rest)))
+;; 	    (multiinsertR new old rest)))))
+
+(define ch3-tests
+  '(
+    ((rember 'mint '(lamb chops and mint jelly)) . (lamb chops and jelly))
+    ((rember 'mint '(lamb chops and mint flavored jelly)) . (lamb chops and flavored jelly))
+    ((rember 'toast '(bacon lettuce and tomato)) . (bacon lettuce and tomato))
+    ((rember 'cup '(coffee cup tea cup and hick cup)) . (coffee tea cup and hick cup))
+    ((firsts '((apple peach pumpkin)
+	       (plum pear cherry)
+	       (grape raisin pea)
+	       (bean carrot eggplant))) . (apple plum grape bean))
+    ((firsts '((a b) (c d) (e f))) . (a c e))
+    ((firsts '()) . ())
+    ((firsts '((five plums)
+	       (four)
+	       (eleven green oranges))) . (five four eleven))
+    ((firsts '(((five plums) four)
+	       (eleven green oranges)
+	       ((no) more))) . ((five plums) eleven (no)))
+    ((insertR 'topping 'fudge '(ice cream with fudge for dessert))
+     . (ice cream with fudge topping for dessert))
+    ((insertR 'jalapeno 'and '(tacos tamales and salsa))
+     . (tacos tamales and jalapeno salsa))
+    ((insertR 'e 'd '(a b c d f g d h))
+     . (a b c d e f g d h))
+    ((subst 'topping 'fudge '(ice cream with fudge for dessert))
+     . (ice cream with topping for dessert))
+    ((subst2
+      'vanilla
+      'chocolate
+      'banana
+      '(banana ice cream with chocolate topping))
+     . (vanilla ice cream with chocolate topping))
+    ((multirember 'cup '(coffee cup tea cup and hick cup))
+     . (coffee tea and hick))
+    ))
