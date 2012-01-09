@@ -195,8 +195,6 @@ Datum.prototype.resetDesugars = function() {
 };
 
 Datum.prototype.desugar = function(env, forceContinuationWrapper) {
-    if (this.nextDesugar === -1)
-        throw new InternalInterpreterError('desugar already completed?');
     var desugarFn = this.desugars && this.nextDesugar >= 0 && this.desugars[this.nextDesugar--];
     var ans = desugarFn ? desugarFn(this, env) : this;
     if (forceContinuationWrapper && !(ans instanceof Continuable))

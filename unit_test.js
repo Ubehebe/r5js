@@ -315,6 +315,7 @@ function testEvaluator() {
      mature enough */
     var tests = {};
     tests['sanity-checks'] = {
+        '1': '1',
         '(+ 1 1)': '2',
         '(define (foo x y) (+ x (* 2 y))) (foo 3 4)': '11',
         '(define (foo) "hi") (define bar (foo)) bar': '"hi"',

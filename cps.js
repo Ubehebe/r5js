@@ -495,7 +495,8 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
     proc.setContinuation(continuation);
     proc.checkNumArgs(args.length);
     proc.bindArgs(args, newEnv);
-    proc.body.setEnv(newEnv);
+    if (proc.body)
+        proc.body.setEnv(newEnv);
     resultStruct.nextContinuable = proc.body;
     return true;
 };
