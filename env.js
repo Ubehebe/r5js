@@ -172,4 +172,36 @@ Environment.prototype.toString = function() {
         ans += '\n';
     }
     return ans;
+
+function MacroUseEnvironment(curEnv, definitionEnv, template) {
+    this.curEnv = curEnv;
+    this.definitionEnv = new Environment('yikes', definitionEnv);
+
+    // todo bl document. is this fully general?
+    this.boundIds = (curEnv.enclosingEnv
+        && curEnv.enclosingEnv instanceof MacroUseEnvironment)
+        ? curEnv.enclosingEnv.boundIds
+        : template.templateBindings.boundIds; // don't think we need to clone
+}
+
+MacroUseEnvironment.prototype.get = function(name) {
+    return this.boundIds[name]
+        ? this.curEnv.get(name)
+        : this.definitionEnv.get(name);
+};
+
+MacroUseEnvironment.prototype.getProcedure = function(name) {
+    return this.boundIds[name]
+        ? this.curEnv.getProcedure(name)
+        : this.definitionEnv.getProcedure(name);
+};
+
+MacroUseEnvironment.prototype.addBinding = function(name, val) {
+    return this.boundIds[name]
+        ? this.curEnv.addBinding(name, val)
+        : this.definitionEnv.addBinding(name, val);
+};
+
+MacroUseEnvironment.prototype.toString = function() {
+    return 'cur ' + this.curEnv + '/def ' + this.definitionEnv;
 };

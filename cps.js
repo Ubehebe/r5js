@@ -502,7 +502,7 @@ ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct
         throw new MacroError(this.operatorName.payload, 'no pattern match for input ' + this);
     var newText = template.hygienicTranscription().toString();
 
-    var newEnv = new Environment('yikes', macro.definitionEnv);
+    var newEnv = new MacroUseEnvironment(env, macro.definitionEnv, template);
 
     // todo bl shouldn't have to go all the way back to the text
     var newContinuable =

@@ -50,9 +50,21 @@ function TemplateBindings() {
     this.regularBindings = {}; // strings to objects
     this.ellipsisBindings = {}; // strings to arrays of objects
     this.awaitingFixing = [];
+    this.boundIds = {};
 }
 
+TemplateBindings.prototype.toString = function() {
+  var ans = '[';
+    for (var name in this.regularBindings)
+        ans += this.regularBindings[name] + ' ';
+    return ans + ']';
+};
+
 TemplateBindings.prototype.addBinding = function(name, val) {
+
+    if (val instanceof Datum && val.isIdentifier())
+        this.boundIds[val.payload] = true;
+
     var regularBinding = this.regularBindings[name];
     var ellipsisBinding;
 

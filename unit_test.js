@@ -318,6 +318,7 @@ function testEvaluator() {
         '1': '1',
         '(+ 1 1)': '2',
         '(let ((x 1)) (+ x x))': '2',
+        "(let ((x 1) (y 2)) (+ y x))": '3',
         '(define (foo x y) (+ x (* 2 y))) (foo 3 4)': '11',
         '(define (foo) "hi") (define bar (foo)) bar': '"hi"',
         '(define (foo x . y) y) (foo 3 4 5)': "(4 5)",
