@@ -182,31 +182,6 @@ ProcCall.prototype.toString = function(continuation, envName) {
     return ans + (continuation ? ' ' + continuation : '') + ')';
 };
 
-ProcCall.prototype.injectDatum = function(cpsName, datum) {
-
-    // Operator
-    if (this.operatorName.payload === cpsName) {
-        this.operatorName = datum.clone();
-        this.macroUnderConstruction = true;
-    }
-
-    else {
-        for (var cur = this.firstOperand, prev; cur; prev = cur,cur = cur.nextSibling) {
-            if (cur.payload === cpsName) {
-                var tmp = cur.nextSibling;
-                var cloned = datum.clone();
-                cloned.nextSibling = tmp;
-                if (prev)
-                    prev.nextSibling = cloned;
-                else
-                    this.firstOperand = cloned.
-                        cur = cloned;
-                this.macroUnderConstruction = true;
-            }
-        }
-    }
-};
-
 function TrampolineResultStruct() {
     /*
      this.ans;
