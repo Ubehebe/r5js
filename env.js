@@ -1,5 +1,3 @@
-var allEnvironments = [];
-
 /* An Environment stores three common kinds of objects:
     - Datums (most Scheme values: numbers, identifiers, etc.)
     - SchemeProcedures (native Scheme procedures)
@@ -27,12 +25,17 @@ var allEnvironments = [];
     wrapping and unwrapping.
  */
 function Environment(name, enclosingEnv) {
-    this.name = name || 'global'; // just for use in pretty-printing
+    this.name = name; // just for use in pretty-printing
     if (enclosingEnv)
         this.enclosingEnv = enclosingEnv;
     this.bindings = {}; // hey, never use this; use this.get() instead
-    allEnvironments.push(this); // just for debugging
 }
+
+/* Just for environments defined in the standard; users shouldn't be able to
+    add to them. */
+Environment.prototype.seal = function() {
+    this.sealed = true;
+};
 
 /* Intended just to be used as a sanity check during startup,
  to make sure we don't multiply define builtin procedures. */
@@ -95,6 +98,9 @@ Environment.prototype.getProcedure = function(name) {
 };
 
 Environment.prototype.addBinding = function(name, val) {
+
+    if (this.sealed)
+        throw new InternalInterpreterError('tried to bind ' + name + ' in sealed environment ' + this);
 
     /* Macros require a backlink to the environment they were defined in to resolve
         literal identifiers. todo bl: is there a better place to put this? */

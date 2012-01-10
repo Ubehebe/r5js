@@ -48,7 +48,7 @@
 
         window.addEventListener('load', function() {
             var iframe = document
-                    .getElementById('lib')
+                    .getElementById('null-env')
                     .contentDocument;
             if (iframe) {
                 /* todo bl possibly browser-dependent hack: when reaching
@@ -56,11 +56,12 @@
                     like the pseudo-DOM has replaced occurrences of ">"
                     by "&gt;". This is a problem chiefly for the Scheme token "=>".
                     Reconstruct this here. */
-                var stdLib = iframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
-                desugar(stdLib, newStdEnv());
-                console.log('evaled std lib ok');
+                var syntaxLib = iframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
+                installSyntax(syntaxLib);
+                console.log('installed syntax lib ok');
+                installBuiltins();
+                console.log('installed primitive procedures ok');
             }
-
         }, false);
 
         function desugar(text, env, lhs) {
@@ -104,20 +105,15 @@
         }
 
         function doEvalWrapper() {
-            var ans = doEval(document.getElementById('toEval').value, document.getElementById('lhs').value);
+            var ans = doEval(document.getElementById('toEval').value);
             console.log(ans);
             document.getElementById('result').value = ans ? ans : 'undefined';
-        }
-
-        function showEnvironments() {
-            desugar(document.getElementById('toEval').value, newStdEnv(), document.getElementById('lhs').value);
-            console.log(allEnvironments);
         }
     </script>
 
 </head>
 <body>
-<iframe src='lib.scm' id='lib' style='display: none'></iframe>
+<iframe src='null-env.scm' id='null-env' style='display: none'></iframe>
 <textarea id='toEval' rows="15" cols="80"></textarea>
 <textarea id='result' rows="1" cols="80"></textarea>
 <p>
@@ -134,7 +130,6 @@
     <button onclick="testScanner()">scanner unit tests</button>
     <button onclick="testParser()">parser unit tests</button>
     <button onclick="testEvaluator()">evaluator unit tests</button>
-    <button onclick="showEnvironments()">show environments</button>
 </p>
 </body>
 

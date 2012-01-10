@@ -497,6 +497,24 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
     proc.bindArgs(args, newEnv);
     if (proc.body)
         proc.body.setEnv(newEnv);
+
+    /* Procedures with no bodies are ungrammatical in Scheme, but they
+     come in handy for implementing definitions. For example,
+
+     (define x 1) ...
+
+     is implemented as
+
+     ((lambda (x) ...) 1)
+
+     Since programs are allowed to end in a definition, the ... in the
+     preceding examples may be null. This is useful for REPL-like contexts,
+     where the user types in a definition, hits enter, then types in an
+     expression that ought to see the previous definition. We allow this by
+     passing the environment back through the trampoline as "the answer".
+     A top-level driver function can display the appropriate text. */
+    else
+        resultStruct.ans = newEnv;
     resultStruct.nextContinuable = proc.body;
     return true;
 };
@@ -507,6 +525,9 @@ ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct
     if (!template)
         throw new MacroError(this.operatorName.payload, 'no pattern match for input ' + this);
     var newText = template.hygienicTranscription().toString();
+
+    var newEnv = new Environment('yikes', macro.definitionEnv);
+
     // todo bl shouldn't have to go all the way back to the text
     var newContinuable =
         new Parser(
@@ -514,7 +535,9 @@ ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct
                 new Scanner(newText)
             ).read()
         ).parse('expression')
-    .desugar(env, true);
+    .desugar(newEnv, true)
+        .setEnv(newEnv);
+
 
     newContinuable.getLastContinuable().continuation = continuation;
     resultStruct.nextContinuable = newContinuable;
@@ -523,7 +546,6 @@ ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct
      identifier, the reference refers to the binding that was visible
      where the transformer was specified, regardless of any local bindings
      that may surround the use of the macro." */
-    newContinuable.setEnv(macro.definitionEnv);
 
     return true;
 };

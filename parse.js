@@ -382,10 +382,9 @@ Parser.prototype['procedure-call'] = function() {
             var operatorNode = node.at('operator');
             var operands = node.at('operand'); // will be null if 0 operands
 
-            if (operatorNode.isIdentifier()) {
+            if (operatorNode.isLiteral()) {
                 return newProcCall(operatorNode, operands, new Continuation(newCpsName()));
             }
-
 
             /* Example: ((f x) y). (f x) will desugar to a Continuable
              object which is then handled appropriately by LocalStructure.*/
