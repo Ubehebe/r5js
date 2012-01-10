@@ -428,7 +428,8 @@ function testEvaluator() {
         "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ x (foo))) (bar 2)": '3',
         "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ (foo) x)) (bar 2)": '3',
         "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ x (foo) x)) (bar 2)": '5',
-        "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ (foo) x (foo))) (bar 2)": '4'
+        "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ (foo) x (foo))) (bar 2)": '4',
+        "(define-syntax foo (syntax-rules () ((foo) x))) (define x 'whew) (foo)": 'whew'
     };
 
     // R5RS 6.4
@@ -526,7 +527,7 @@ function testEvaluator() {
                         + ': '
                         + input
                         + ': expected '
-                        + expectedOutput
+                        + (expectedOutput === false ? 'error' : expectedOutput)
                         + ', got '
                         + actualOutput);
                 }
