@@ -330,18 +330,10 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
     resultStruct.nextContinuable.setEnv(env);
 };
 
-/* Example: if the trampoline is at (1 2 [_0 ...]) and looks ahead to see
-    where _0 is used, it should see that it's part of a macro use. Thus instead
-    of "executing" the procedure call (1 2), we just need to bind the datum
-    (1 2) to _0. */
-ProcCall.prototype.reconstructDatum = function() {
-    // todo bl may have to clone these guys?
-    var ans = newEmptyList();
-    ans.firstChild = this.operatorName;
-    this.operatorName.nextSibling = this.firstOperand;
-    return ans;
-};
-
+/* todo bl: this may be a leftover from commit 4762893. Prior to that
+ commit we optimistically CPSified apparent procedure calls, so if we
+ discovered something was actually a macro use we had to do some
+ lifting to reconstruct the datums. */
 ProcCall.prototype.reconstructMacroUse = function() {
     var ans = newEmptyList();
     ans.appendChild(newIdOrLiteral(this.operatorName));
