@@ -84,6 +84,8 @@ IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         todo bl: document! */
     if (this.payload instanceof SchemeMacro)
         ans = this.payload;
+    else if (typeof this.payload === 'function' || this.payload.isProcedure())
+        ans = this.payload;
     else if (this.payload.isIdentifier())
         ans = env.get(this.payload.payload);
     else if (this.payload.isQuote())

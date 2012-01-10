@@ -441,7 +441,9 @@ function testEvaluator() {
         "(procedure? 2)": "#f",
         "(define (list . xs) xs) (apply apply (list + (list 3 4 5)))": "12", // todo bl: hard!
         '(define (foo x) (x 3.14)) (call-with-current-continuation foo)': '3.14',
-        "(call-with-values (lambda () (values '(1 2 3))) cdr)": '(2 3)'
+        "(call-with-values (lambda () (values '(1 2 3))) cdr)": '(2 3)',
+        "(eval + (null-environment 5))": '+',
+        "(eval '+ (null-environment 5))": false // tricky!
     };
 
     tests['r5rs-examples'] = {
