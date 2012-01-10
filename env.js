@@ -162,16 +162,8 @@ Environment.prototype.rootEnv = function() {
 };
 
 Environment.prototype.toString = function() {
-    var ans = this.name + ':\n';
-    for (var name in this.bindings) {
-        ans += name + ' => ';
-        if (typeof this.bindings[name] === 'function')
-            ans += '(...js...), ';
-        else
-            ans += this.bindings[name].toString() + ', ';
-        ans += '\n';
-    }
-    return ans;
+    return this.name;
+};
 
 function MacroUseEnvironment(curEnv, definitionEnv, template) {
     this.curEnv = curEnv;
