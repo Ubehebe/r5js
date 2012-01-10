@@ -34,6 +34,10 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     }
 }
 
+SchemeProcedure.prototype.doBindArgsAtRootEnv = function() {
+    this.bindArgsAtRootEnv = true;
+};
+
 SchemeProcedure.prototype.setMustAlreadyBeBound = function(dict) {
     this.mustAlreadyBeBound = dict;
 };
@@ -148,6 +152,28 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
 };
 
 SchemeProcedure.prototype.bindArgs = function(args, env) {
+
+    if (this.bindArgsAtRootEnv) {
+        /* This is just a shim used by top-level definitions. We implement
+         definitions as procedures: for example,
+
+         (define x 1)
+         (define y 2)
+         ...
+
+         is like
+
+         ((lambda (x) ((lambda (y) ...) 2) 1)
+
+         This is fine when we're reading whole programs at a go. But for REPL-
+         like functionality, we would have to make sure subsequent expressions
+         targeted the original endpoint ..., which means the trampoline might
+         have to return it.
+
+         Instead of worrying about that, if we know this is a top-level
+         definition, just send the binding all the way up the chain. Ha! */
+        env = env.rootEnv();
+    }
 
     var name, i;
 

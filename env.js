@@ -37,6 +37,24 @@ Environment.prototype.seal = function() {
     this.sealed = true;
 };
 
+Environment.prototype.clone = function(name) {
+
+      if (this.enclosingEnv)
+        throw new InternalInterpreterError('clone should only be used during '
+        + 'interpreter bootstrapping');
+
+    var cloned = new Environment(name);
+
+    for (var name in this.bindings) {
+        var val = this.bindings[name];
+        cloned.bindings[name] = val instanceof SchemeMacro
+            ? val.clone(cloned)
+            : val;
+    }
+
+    return cloned;
+};
+
 /* Intended just to be used as a sanity check during startup,
  to make sure we don't multiply define builtin procedures. */
 Environment.prototype.hasBinding = function(name) {
@@ -99,15 +117,17 @@ Environment.prototype.getProcedure = function(name) {
 
 Environment.prototype.addBinding = function(name, val) {
 
-    if (this.sealed)
+    if (this.sealed) {
         throw new InternalInterpreterError('tried to bind ' + name + ' in sealed environment ' + this);
+    }
 
-    /* Macros require a backlink to the environment they were defined in to resolve
-        literal identifiers. todo bl: is there a better place to put this? */
-    if (val instanceof SchemeMacro)
-        val.definitionEnv = this;
+    else if (!this.bindings[name] || this.redefsOk) {
 
-    if (!this.bindings[name]) {
+        /* Macros require a backlink to the environment they were defined in to resolve
+         literal identifiers. todo bl: is there a better place to put this? */
+        if (val instanceof SchemeMacro)
+            val.definitionEnv = this;
+
         if (val instanceof Datum) {
             /* If we're about to store a wrapped SchemeProcedure
              or JavaScript function, unwrap it first. */
@@ -133,6 +153,12 @@ Environment.prototype.addBinding = function(name, val) {
             + name
             + ' in same env, not allowed');
     }
+};
+
+Environment.prototype.rootEnv = function() {
+    return this.enclosingEnv && !this.enclosingEnv.sealed
+        ? this.enclosingEnv.rootEnv()
+        : this;
 };
 
 Environment.prototype.toString = function() {

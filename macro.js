@@ -6,6 +6,10 @@ function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
     this.definitionEnv = definitionEnv;
 }
 
+/* Should only be used during interpreter bootstrapping. */
+SchemeMacro.prototype.clone = function(newDefinitionEnv) {
+    return new SchemeMacro(this.literalIdentifiers, this.rules, newDefinitionEnv);
+};
 SchemeMacro.prototype.allPatternsBeginWith = function(keyword) {
 
     /* todo bl incorrect -- needs to be recursive

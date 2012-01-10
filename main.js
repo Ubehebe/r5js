@@ -20,12 +20,17 @@ function parseAndEval(datum, env) {
      installBuiltins().
 
      todo bl: make clearer for the common case. */
-    if (!env)
+    if (!env) {
+        /* todo bl: creating a new "global" environment for every
+         start of the trampoline inhibits REPL-like incremental program
+         construction. Shouldn't be too hard to reuse the global, though. */
         env = new Environment('global', R5JS_R5RSEnv);
+        env.redefsOk = true;
+    }
 
     if (parsed)
         ans = trampoline(parsed.desugar(env).setEnv(env));
-    return ans && (!(ans instanceof Environment))
+    return ans
         ? ans.toString() // no internal data structures should escape the evaluator
         : 'undefined';
 }

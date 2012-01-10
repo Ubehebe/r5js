@@ -777,11 +777,7 @@ R5JS_builtins['eval'] = {
                 throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
             else if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
                 throw new ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
-            else {
-                /* todo bl: actually do something different depending on
-                 the environment specifier :) */
-                return newIdOrLiteral(parseAndEval(expr));
-            }
+            else return newIdOrLiteral(parseAndEval(expr, envSpec.payload));
         }
     },
     /* This is not part of any Scheme standard, but it should be useful to
@@ -794,11 +790,7 @@ R5JS_builtins['eval'] = {
                     throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
                 else if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
                     throw new ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
-                else {
-                    /* todo bl: actually do something different depending on
-                     the environment specifier :) */
-                    return newIdOrLiteral(parseAndEval(expr));
-                }
+                else return newIdOrLiteral(parseAndEval(expr, envSpec.payload));
             } catch (e) {
                 return orElse;
             }
@@ -809,7 +801,7 @@ R5JS_builtins['eval'] = {
         argtypes: ['number'],
         proc: function(num) {
             if (num === 5)
-                return newEnvironmentSpecifier(num);
+                return newEnvironmentSpecifier(R5JS_R5RSEnv);
             else throw new InternalInterpreterError(
                 'unsupported scheme report environment ' + num);
         }
@@ -819,7 +811,7 @@ R5JS_builtins['eval'] = {
         argtypes: ['number'],
         proc: function(num) {
             if (num === 5)
-                return newEnvironmentSpecifier(0);
+                return newEnvironmentSpecifier(R5JS_nullEnv);
             else throw new InternalInterpreterError(
                 'unsupported null environment ' + num);
         }

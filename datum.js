@@ -325,6 +325,7 @@ Datum.prototype.sequence = function(env, isTopLevel) {
 function constructTopLevelDefs(env, definitionHelper, next) {
 
     var proc = new SchemeProcedure(definitionHelper.formals, false, null, env, definitionHelper.getProcName());
+    proc.doBindArgsAtRootEnv();
     if (definitionHelper.mustAlreadyBeBound)
         proc.setMustAlreadyBeBound(definitionHelper.mustAlreadyBeBound);
     if (next) {
