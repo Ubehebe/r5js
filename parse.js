@@ -627,20 +627,27 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
            {desugar: function(node, env) {
 
-                var formalRoot = node.at('.(');
-                var formals = formalRoot.mapChildren(function(child) {
-                    return child.payload;
-                });
+               var formalRoot = node.at('.(');
+               var formals = formalRoot.mapChildren(function(child) {
+                   return child.payload;
+               });
 
-                var name = formals.shift();
+               /* The SchemeProcedure is bound in the defining environment to a
+                newly created name like proc0. The name given in the definition
+                becomes the formal parameter of the fake procedure created
+                to install the definition. When the trampoline reaches that
+                fake procedure, it will bind the SchemeProcedure to the
+                formal parameter name as expected. */
+               var lambdaName = newAnonymousLambdaName();
+               var definitionName = formals.shift();
 
-                env.addBinding(
-                    name,
-                    new SchemeProcedure(formals, true, formalRoot.nextSibling, env, name)
-                    );
-                var desugared = newIdShim(newIdOrLiteral(name), newCpsName());
+               env.addBinding(
+                   lambdaName,
+                   new SchemeProcedure(formals, true, formalRoot.nextSibling, env, lambdaName)
+               );
+               var desugared = newIdShim(newIdOrLiteral(lambdaName), newCpsName());
 
-               return desugarDefinition(name, desugared);
+               return desugarDefinition(definitionName, desugared);
             }}
         ],
         [
