@@ -502,10 +502,9 @@ ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct
             new Reader(
                 new Scanner(newText)
             ).read()
-        ).parse('expression')
+        ).parse()
     .desugar(newEnv, true)
         .setEnv(newEnv);
-
 
     newContinuable.getLastContinuable().continuation = continuation;
     resultStruct.nextContinuable = newContinuable;
