@@ -26,8 +26,10 @@
  */
 function Environment(name, enclosingEnv) {
     this.name = name; // just for use in pretty-printing
-    if (enclosingEnv)
+    if (enclosingEnv) {
         this.enclosingEnv = enclosingEnv;
+        // useful for debugging console.log('created env ' + this + ' referencing ' + enclosingEnv);
+    }
     this.bindings = {}; // hey, never use this; use this.get() instead
 }
 
@@ -122,6 +124,9 @@ Environment.prototype.addBinding = function(name, val) {
     }
 
     else if (!this.bindings[name] || this.redefsOk) {
+
+        // useful for debugging if (val instanceof Datum)
+        //    console.log(this + ' addBinding ' + name + ' = ' + val);
 
         /* Macros require a backlink to the environment they were defined in to resolve
          literal identifiers. todo bl: is there a better place to put this? */
