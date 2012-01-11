@@ -90,6 +90,10 @@ TemplateBindings.prototype.addBinding = function(name, val) {
     }
 };
 
+TemplateBindings.prototype.resetAwaitingFixing = function() {
+  this.awaitingFixing = [];
+};
+
 TemplateBindings.prototype.fixNewBindings = function() {
     var len = this.awaitingFixing.length;
     for (var i=0; i<len; ++i) {
@@ -344,8 +348,10 @@ SchemeMacro.prototype.matchListOrVector
              and the next pattern element is an ellipsis. */
             if (!stickyEllipsisPattern
                 && patternElement.nextSibling
-                && patternElement.nextSibling.payload === '...')
+                && patternElement.nextSibling.payload === '...') {
                 stickyEllipsisPattern = patternElement;
+                bindings.resetAwaitingFixing();
+            }
 
             if (!this.patternMatch(patternElement, inputElement, useEnv, bindings))
                 return false;
