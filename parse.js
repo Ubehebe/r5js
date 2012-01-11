@@ -386,8 +386,7 @@ Parser.prototype['procedure-call'] = function() {
                 return newProcCall(operatorNode, operands, new Continuation(newCpsName()));
             }
 
-            /* Example: ((f x) y). (f x) will desugar to a Continuable
-             object which is then handled appropriately by LocalStructure.*/
+            // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
             else {
                 var desugaredOp = operatorNode.desugar(env);
                 var lastContinuation = desugaredOp.getLastContinuable().continuation;

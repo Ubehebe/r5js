@@ -344,7 +344,8 @@ function testEvaluator() {
         "(cdr '(x))": '()',
         "(car '())": false,
         "(cdr '())": false,
-        "(define (foo) (define x 'dynamic-scoping) x) (define x 'lexical-scoping) (foo) x": 'lexical-scoping'
+        "(define (foo) (define x 'dynamic-scoping) x) (define x 'lexical-scoping) (foo) x": 'lexical-scoping',
+        "((lambda (x) ((lambda (y) (+ x (* 2 y))) 100)) 2)": '202'
     };
 
     /* These tests exercise various macro features that the standard talks about

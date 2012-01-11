@@ -113,7 +113,13 @@ IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
 
             We must bind, for example, _1 in environment B, not environment C,
             for the lookup to succeed. */
-        if (continuation.nextContinuable.env) {
+
+        // TODO BL INTENSE HACK
+        if (continuation.nextContinuable.env
+            && !(continuation.nextContinuable.subtype instanceof ProcCall
+            && continuation.nextContinuable.subtype.operatorName.payload
+            && continuation.nextContinuable.subtype.operatorName.payload[0] === '@')
+            ) {
             continuation.nextContinuable.env.addBinding(continuation.lastResultName, ans);
         }
 
@@ -459,6 +465,11 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
      but I would imagine it would make tail recursion impracticable. */
     var newEnv = new Environment('tmp-' + proc.name + '-' + (uniqueNodeCounter++), env);
     newEnv.addAll(proc.env);
+
+    if (continuation.nextContinuable
+        && !continuation.nextContinuable.env) {
+        continuation.nextContinuable.setEnv(env);
+    }
 
     // This will be a no-op if tail recursion is detected
     proc.setContinuation(continuation);
