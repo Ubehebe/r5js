@@ -174,11 +174,20 @@ function MacroUseEnvironment(curEnv, definitionEnv, template) {
     this.curEnv = curEnv;
     this.definitionEnv = new Environment('yikes', definitionEnv);
 
-    // todo bl document. is this fully general?
-    this.boundIds = (curEnv.enclosingEnv
-        && curEnv.enclosingEnv instanceof MacroUseEnvironment)
-        ? curEnv.enclosingEnv.boundIds
-        : template.templateBindings.boundIds; // don't think we need to clone
+    this.boundIds = {};
+
+    for (var name in template.templateBindings.boundIds)
+        this.boundIds[name] = true;
+
+    // todo bl bug city. The obvious concern is that this isn't recursive.
+
+    if (curEnv instanceof MacroUseEnvironment)
+        for (var name in curEnv.boundIds)
+            this.boundIds[name] = true;
+
+    else if (curEnv.enclosingEnv instanceof MacroUseEnvironment)
+        for (var name in curEnv.enclosingEnv.boundIds)
+            this.boundIds[name] = true;
 }
 
 MacroUseEnvironment.prototype.get = function(name) {
