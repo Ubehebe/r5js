@@ -475,9 +475,8 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
     newEnv.addAll(proc.env);
 
     if (continuation.nextContinuable
-        && !continuation.nextContinuable.env) {
-        continuation.nextContinuable.setEnv(env);
-    }
+        && !continuation.nextContinuable.env)
+        continuation.nextContinuable.setEnv(newEnv);
 
     // This will be a no-op if tail recursion is detected
     proc.setContinuation(continuation);
