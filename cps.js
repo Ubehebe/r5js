@@ -188,7 +188,9 @@ function newProcCall(operatorName, firstOperand, continuation) {
 }
 
 ProcCall.prototype.toString = function(continuation, envName) {
-    var ans = '(' + this.operatorName + '|' + envName;
+    var ans = '(' + this.operatorName;
+    if (envName)
+        ans += '|' + envName;
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
         ans += ' ' + cur.toString();
     return ans + (continuation ? ' ' + continuation : '') + ')';
