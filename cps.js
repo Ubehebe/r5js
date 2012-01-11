@@ -457,7 +457,7 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, env, continuation, 
      this shouldn't prevent an unlimited number of active tail calls
      (because the old Environment objects will get garbage collected),
      but I would imagine it would make tail recursion impracticable. */
-    var newEnv = new Environment('tmp-' + proc.name + '-' + newCpsName(), env);
+    var newEnv = new Environment('tmp-' + proc.name + '-' + (uniqueNodeCounter++), env);
     newEnv.addAll(proc.env);
 
     // This will be a no-op if tail recursion is detected

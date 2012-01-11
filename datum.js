@@ -753,7 +753,8 @@ Datum.prototype.changeProcToName = function() {
 };
 
 function newCpsName() {
-    return '_' + (uniqueNodeCounter++);
+    // Not a valid identifier name so we can easily tell these apart
+    return '@' + (uniqueNodeCounter++);
 }
 
 function newAnonymousLambdaName() {
