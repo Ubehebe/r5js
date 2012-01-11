@@ -131,6 +131,12 @@ IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         }
     }
 
+    /* If we're at the end of the continuable-continuation chain and we're
+     trying to return a macro object off the trampoline, that's an error.
+     The input was a bare macro name. */
+    else if (ans instanceof SchemeMacro)
+        throw new MacroError(this.payload.payload, 'bad macro syntax');
+
     resultStruct.ans = ans;
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
