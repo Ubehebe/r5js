@@ -1,39 +1,59 @@
-var R5JS_nullEnv;
-var R5JS_R5RSEnv;
+var R5JS_nullEnv; // this is (null-environment 5)
+var R5JS_R5RSEnv; // this is (scheme-report-environment 5)
 
-function doEval(input, env) {
-    return parseAndEval(
-        new Reader(
-            new Scanner(input)
-        ).read()
-        , env);
-}
+var R5JS = {
+    _scan: function(text) {
+        return new Scanner(text);
+    },
 
-function parseAndEval(datum, env) {
-    var parsed = new Parser(datum).parse();
-    var ans;
+    /* This is just for debugging; the real pipeline requests the tokens
+        one at a time. */
+    _tokenize: function(text) {
+        return R5JS._scan(text).tokenize();
+    },
 
-    /* In the common case, we pass in no environment, which means
-     we should make a new environment in front of the standard environment
-     and evaluate the input in that context. Passing in an environment is
-     only for the bootstrapping procedures like installSyntax() and
-     installBuiltins().
+    _read: function(scanner) {
+        return new Reader(scanner).read();
+    },
 
-     todo bl: make clearer for the common case. */
-    if (!env) {
-        /* todo bl: creating a new "global" environment for every
-         start of the trampoline inhibits REPL-like incremental program
-         construction. Shouldn't be too hard to reuse the global, though. */
-        env = new Environment('global', R5JS_R5RSEnv);
-        env.redefsOk = true;
+    _parse: function(root, lhs) {
+    return new Parser(root).parse(lhs);
+    },
+
+    _desugar: function(root, env) {
+        if (!env) {
+            /* todo bl: creating a new "global" environment for every
+             start of the trampoline inhibits REPL-like incremental program
+             construction. Shouldn't be too hard to reuse the global, though. */
+            env = new Environment('global', R5JS_R5RSEnv);
+            env.redefsOk = true;
+        }
+        return root.desugar(env).setEnv(env);
+    },
+
+    _eval: function(continuable) {
+        return trampoline(continuable);
+    },
+
+    eval: function(text) {
+        var ans =
+            R5JS._eval(
+                R5JS._desugar(
+                    R5JS._parse(
+                        R5JS._read(
+                            R5JS._scan(text)))));
+        return ans ? ans.toString() : 'undefined';
+    },
+
+    // Just for convenience of evaling datums within the interpreter.
+    evalDatum: function(datum, env) {
+        var ans =
+            R5JS._eval(
+            R5JS._desugar(
+                R5JS._parse(datum), env));
+        return ans ? ans.toString() : 'undefined';
     }
-
-    if (parsed)
-        ans = trampoline(parsed.desugar(env).setEnv(env));
-    return ans
-        ? ans.toString() // no internal data structures should escape the evaluator
-        : 'undefined';
-}
+};
 
 function installSyntax(syntaxLib) {
     R5JS_nullEnv = new Environment('null-environment-5');

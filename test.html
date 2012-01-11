@@ -61,53 +61,51 @@
                 console.log('installed syntax lib ok');
                 installBuiltins();
                 console.log('installed primitive procedures ok');
+                console.log('interpreter is ready');
+                console.log('----------------------------------------------------------------------');
             }
         }, false);
 
-        function desugar(text, env, lhs) {
-            return new Parser(
-                    new Reader(
-                            new Scanner(text)
-                    ).read()
-            ).parse(lhs)
-                    .desugar(env);
-        }
-
         function doScan() {
             console.log(
-                    new Scanner(
-                            document.getElementById('toEval').value).tokenize());
+                    R5JS._tokenize(
+                            document.getElementById('toEval').value));
         }
 
         function doRead() {
             var ans =
-                    new Reader(
-                            new Scanner(
-                                    document.getElementById('toEval').value)
-                    ).read();
+                    R5JS._read(
+                            R5JS._scan(
+                                    document.getElementById('toEval').value));
             console.log(ans);
             document.getElementById('result').value = ans;
         }
 
         function doParse() {
             console.log(
-                    new Parser(
-                            new Reader(
-                                    new Scanner(document.getElementById('toEval').value)
-                            ).read()
-                    ).parse(document.getElementById('lhs').value));
+                    R5JS._parse(
+                            R5JS._read(
+                                    R5JS._scan(
+                                            document.getElementById('toEval').value)
+                            ), document.getElementById('lhs').value));
         }
 
         function doDesugar() {
-            var desugared = desugar(document.getElementById('toEval').value, newStdEnv(), document.getElementById('lhs').value);
+            var desugared =
+                    R5JS._desugar(
+                            R5JS._parse(
+                                    R5JS._read(
+                                            R5JS._scan(
+                                                    document.getElementById('toEval').value)
+                                    ), document.getElementById('lhs').value));
             console.log(desugared);
             document.getElementById('result').value = desugared.toString();
         }
 
-        function doEvalWrapper() {
-            var ans = doEval(document.getElementById('toEval').value);
+        function doEval() {
+            var ans = R5JS.eval(document.getElementById('toEval').value);
             console.log(ans);
-            document.getElementById('result').value = ans ? ans : 'undefined';
+            document.getElementById('result').value = ans;
         }
     </script>
 
@@ -121,7 +119,7 @@
     <button onclick='doRead()'>read</button>
     <button onclick='doParse()'>parse</button>
     <button onclick='doDesugar()'>desugar</button>
-    <button onclick='doEvalWrapper()'>eval</button>
+    <button onclick='doEval()'>eval</button>
 </p>
 <p>
     <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>

@@ -523,7 +523,7 @@ function testEvaluator() {
         for (var input in testsOfType) {
             var expectedOutput = testsOfType[input];
             try {
-                var actualOutput = doEval(input);
+                var actualOutput = R5JS.eval(input);
                 if (expectedOutput !== actualOutput) {
                     ++numErrors;
                     console.log('testEvaluator '
