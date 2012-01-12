@@ -55,21 +55,12 @@ var R5JS = {
     }
 };
 
-function installSyntax(syntaxLib) {
+function bootstrap(syntaxLib, procLib) {
     R5JS_nullEnv = new Environment('null-environment-5');
-    trampoline(
-        new Parser(
-            new Reader(
-                new Scanner(syntaxLib)
-            ).read()
-        ).parse()
-            .desugar(R5JS_nullEnv)
-            .setEnv(R5JS_nullEnv)
-    );
+    install(syntaxLib, R5JS_nullEnv);
     R5JS_nullEnv.seal();
-}
+    console.log('installed syntax lib ok');
 
-function installBuiltins() {
     /* R5JS_R5RSEnv is the normal "root" environment. But we also have to
      support the "null environment", which is just the R5RS required syntax
      (no procedures). Example:
@@ -91,16 +82,33 @@ function installBuiltins() {
      separate, and manually copy the bindings into R5JS_R5RSEnv
      (remembering to clone the macros and set their backlinks correctly).
      Ugh. */
-    R5JS_R5RSEnv = R5JS_nullEnv.clone('scheme-report-environment-5');
 
+    R5JS_R5RSEnv = R5JS_nullEnv.clone('scheme-report-environment-5');
+    installBuiltins(R5JS_R5RSEnv);
+    console.log('installed primitive procedures ok');
+    install(procLib, R5JS_R5RSEnv);
+    console.log('installed library procedures ok');
+    R5JS_R5RSEnv.seal();
+    console.log('interpreter is ready');
+    console.log('----------------------------------------------------------------------');
+}
+
+function install(lib, env) {
+    trampoline(
+        new Parser(
+            new Reader(
+                new Scanner(lib)
+            ).read()
+        ).parse()
+            .desugar(env)
+            .setEnv(env)
+    );
+}
+
+function installBuiltins(env) {
     for (var category in R5JS_builtins) {
         var procs = R5JS_builtins[category];
         for (var name in procs)
-            registerBuiltin(name, procs[name], R5JS_R5RSEnv);
+            registerBuiltin(name, procs[name], env);
     }
-    R5JS_R5RSEnv.seal();
-}
-
-function installLibrary(lib) {
-    // todo bl
 }

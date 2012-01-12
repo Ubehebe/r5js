@@ -47,22 +47,19 @@
          a <pre> wrapper, but most browsers seem to do it. */
 
         window.addEventListener('load', function() {
-            var iframe = document
-                    .getElementById('null-env')
-                    .contentDocument;
-            if (iframe) {
+            var nullEnvIframe = document.getElementById('null-env').contentDocument;
+            var r5rsEnvIframe = document.getElementById('r5rs-env').contentDocument;
+            if (nullEnvIframe && r5rsEnvIframe) {
                 /* todo bl possibly browser-dependent hack: when reaching
                     into the pseudo-iframe defined by the text file, it looks
                     like the pseudo-DOM has replaced occurrences of ">"
                     by "&gt;". This is a problem chiefly for the Scheme token "=>".
                     Reconstruct this here. */
-                var syntaxLib = iframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
-                installSyntax(syntaxLib);
-                console.log('installed syntax lib ok');
-                installBuiltins();
-                console.log('installed primitive procedures ok');
-                console.log('interpreter is ready');
-                console.log('----------------------------------------------------------------------');
+                var syntaxLib = nullEnvIframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
+                var procLib = r5rsEnvIframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
+                bootstrap(syntaxLib, procLib);
+            } else {
+                // todo display a prominent error; interpreter is unusable
             }
         }, false);
 
@@ -112,6 +109,7 @@
 </head>
 <body>
 <iframe src='null-env.scm' id='null-env' style='display: none'></iframe>
+<iframe src='r5rs-env.scm' id='r5rs-env' style='display: none'></iframe>
 <textarea id='toEval' rows="15" cols="80"></textarea>
 <textarea id='result' rows="1" cols="80"></textarea>
 <p>
