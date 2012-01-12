@@ -4,6 +4,11 @@ function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
         this.literalIdentifiers[curId.payload] = true;
     this.rules = rules;
     this.definitionEnv = definitionEnv;
+
+    // Cache the set of free identifiers per pattern/template pair
+    this.freeIds = [];
+    for (var cur = rules; cur; cur = cur.nextSibling)
+        this.freeIds.push(null);
 }
 
 /* Should only be used during interpreter bootstrapping. */
@@ -124,7 +129,7 @@ TemplateBindings.prototype.setEmptyEllipsisMatch = function(name) {
 };
 
 SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
-    for (var rule = this.rules; rule; rule = rule.nextSibling) {
+    for (var rule = this.rules, i = 0; rule; rule = rule.nextSibling, ++i) {
         /* During pattern matching, input datums are bound to pattern datums.
             If pattern matching is successful, then during transcription we need
             to remember those bindings. All we need is an object to store the
@@ -133,17 +138,57 @@ SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
             object in case we need richer semantics (e.g. for ellipses). */
         var bindings = new TemplateBindings();
         var pattern = rule.at('pattern');
-        if (this.patternMatch(pattern, datum, useEnv, bindings, true))
-            return new Template(rule.at('template'), bindings);
+        if (this.patternMatch(pattern, datum, useEnv, bindings, true)) {
+
+            var template = rule.at('template');
+
+            if (!this.freeIds[i])
+                this.freeIds[i] = constructFreeIds(pattern, template);
+
+            return new Template(template, bindings, this.freeIds[i]);
+        }
     }
     return null;
 };
 
-function Template(datum, templateBindings) {
+/* R5RS 4.3.2: "Identifiers that appear in the template but are not
+ pattern variables or the identifier ... are inserted into the output
+ as literal identifiers. If a literal identifier is inserted as a free
+ identifier then it refers to the binding of that identifier within whose
+ scope the instance of syntax-rules appears. If a literal identifier
+ is inserted as a bound identifier then it is in effect renamed to prevent
+ inadvertent captures of free identifiers."
+
+ This function implements the free identifier stuff, but I don't understand
+ the bound identifier stuff. todo!
+ */
+function constructFreeIds(patternDatum, templateDatum) {
+    var patternIds = {};
+    var templateIds = {};
+    patternDatum.forEach(function(node) {
+        if (node.isIdentifier())
+            patternIds[node.payload] = true;
+    });
+    templateDatum.forEach(function(node) {
+        if (node.isIdentifier() && node.payload !== '...')
+            templateIds[node.payload] = true;
+    });
+
+    var freeInTemplate = {};
+
+    for (var name in templateIds)
+        if (!patternIds[name])
+            freeInTemplate[name] = true;
+
+    return freeInTemplate;
+}
+
+function Template(datum, templateBindings, freeIdsInTemplate) {
     /* We must clone the template datum because every macro use will
      deform the template through the hygienic transcription. */
     this.datum = datum.clone().sanitize();
     this.templateBindings = templateBindings;
+    this.freeIdsInTemplate = freeIdsInTemplate;
 }
 
 Template.prototype.hygienicTranscription = function() {

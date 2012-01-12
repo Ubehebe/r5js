@@ -93,6 +93,8 @@ Environment.prototype.get = function(name) {
             return newProcedureDatum(name, maybe);
         else if (maybe instanceof SchemeProcedure)
             return newProcedureDatum(maybe.name, maybe);
+        else if (maybe instanceof Environment)
+            return maybe.get(name);
         else
             return maybe;
     }
@@ -107,9 +109,11 @@ Environment.prototype.getProcedure = function(name) {
     var maybe = this.bindings[name];
 
     if (maybe) {
-        if (maybe instanceof Datum)
+        if (maybe instanceof Environment)
+            return maybe.getProcedure(name);
+        else if (maybe instanceof Datum)
             throw new InternalInterpreterError(name + ' is not a procedure!');
-        return maybe;
+        else return maybe;
     }
     else if (this.enclosingEnv)
         return this.enclosingEnv.getProcedure(name);
@@ -123,7 +127,7 @@ Environment.prototype.addBinding = function(name, val) {
         throw new InternalInterpreterError('tried to bind ' + name + ' in sealed environment ' + this);
     }
 
-    else if (!this.bindings[name] || this.redefsOk) {
+    else if (!this.bindings[name] || this.redefsOk || name.charAt(0) === '@') {
 
         // useful for debugging if (val instanceof Datum)
         //    console.log(this + ' addBinding ' + name + ' = ' + val);
@@ -144,7 +148,8 @@ Environment.prototype.addBinding = function(name, val) {
             || val instanceof SchemeProcedure /* library/user procedure */
             || val instanceof Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
-            || val instanceof SchemeMacro /* macros */) {
+            || val instanceof SchemeMacro /* macros */
+            || val instanceof Environment /* Redirects for free ids in macro transcriptions */) {
             this.bindings[name] = val;
         } else {
             throw new InternalInterpreterError('tried to store '
@@ -168,46 +173,4 @@ Environment.prototype.rootEnv = function() {
 
 Environment.prototype.toString = function() {
     return this.name;
-};
-
-function MacroUseEnvironment(curEnv, definitionEnv, template) {
-    this.curEnv = curEnv;
-    this.definitionEnv = new Environment('yikes', definitionEnv);
-
-    this.boundIds = {};
-
-    for (var name in template.templateBindings.boundIds)
-        this.boundIds[name] = true;
-
-    // todo bl bug city. The obvious concern is that this isn't recursive.
-
-    if (curEnv instanceof MacroUseEnvironment)
-        for (var name in curEnv.boundIds)
-            this.boundIds[name] = true;
-
-    else if (curEnv.enclosingEnv instanceof MacroUseEnvironment)
-        for (var name in curEnv.enclosingEnv.boundIds)
-            this.boundIds[name] = true;
-}
-
-MacroUseEnvironment.prototype.get = function(name) {
-    return this.boundIds[name]
-        ? this.curEnv.get(name)
-        : this.definitionEnv.get(name);
-};
-
-MacroUseEnvironment.prototype.getProcedure = function(name) {
-    return this.boundIds[name]
-        ? this.curEnv.getProcedure(name)
-        : this.definitionEnv.getProcedure(name);
-};
-
-MacroUseEnvironment.prototype.addBinding = function(name, val) {
-    return this.boundIds[name]
-        ? this.curEnv.addBinding(name, val)
-        : this.definitionEnv.addBinding(name, val);
-};
-
-MacroUseEnvironment.prototype.toString = function() {
-    return 'cur ' + this.curEnv + '/def ' + this.definitionEnv;
 };

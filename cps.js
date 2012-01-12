@@ -528,17 +528,16 @@ ProcCall.prototype.tryMacroUse = function(macro, env, continuation, resultStruct
         throw new MacroError(this.operatorName.payload, 'no pattern match for input ' + this);
     var newText = template.hygienicTranscription().toString();
 
-    var newEnv = new MacroUseEnvironment(env, macro.definitionEnv, template);
+    var newEnv = new Environment('macro-' + (uniqueNodeCounter++), env);
+    for (var free in template.freeIdsInTemplate)
+        newEnv.addBinding(free, macro.definitionEnv);
 
     // todo bl shouldn't have to go all the way back to the text
-    var newContinuable =
-        new Parser(
-            new Reader(
-                new Scanner(newText)
-            ).read()
-        ).parse()
-    .desugar(newEnv, true)
-        .setEnv(newEnv);
+    var newContinuable = new Parser(
+        new Reader(
+            new Scanner(newText)
+        ).read()
+    ).parse().desugar(newEnv, true).setEnv(newEnv);
 
     newContinuable.getLastContinuable().continuation = continuation;
     resultStruct.nextContinuable = newContinuable;

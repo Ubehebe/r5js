@@ -13,14 +13,13 @@ function Datum() {
 }
 
 // todo bl too many utility functions; reduce to minimal set
-Datum.prototype.forEach = function(f) {
+Datum.prototype.forEach = function(callback) {
     /* Quotations are like pseudo-leaves in the datum tree, so they should
      be opaque to this function. */
     if (!this.isQuote()) {
-        f(this);
+        callback(this);
         for (var cur = this.firstChild; cur; cur = cur.nextSibling)
-            if (!cur.isQuote())
-                f(cur);
+                cur.forEach(callback);
     }
 };
 
