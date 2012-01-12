@@ -203,6 +203,11 @@ function TrampolineResultStruct() {
      */
 }
 
+TrampolineResultStruct.prototype.clear = function() {
+    this.ans = null;
+    this.nextContinuable = null;
+};
+
 /* This is the main evaluation function.
 
     The subtlest part is probably the question "what is the current environment?"
@@ -291,6 +296,7 @@ function trampoline(continuable) {
         curContinuable.subtype.evalAndAdvance(curContinuable.env, curContinuable.continuation, tmp);
         ans = tmp.ans;
         curContinuable = tmp.nextContinuable;
+        tmp.clear();
     }
     return ans;
 }
