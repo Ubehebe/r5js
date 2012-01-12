@@ -10,8 +10,15 @@ function Continuation(lastResultName) {
      */
 }
 
-Continuation.prototype.toString = function() {
-    return '[' + this.lastResultName + ' ' + this.nextContinuable + ']';
+Continuation.prototype.toString = function(indentLevel) {
+    var ans = '[' + this.lastResultName;
+
+    if (this.nextContinuable) {
+        for (var i = 0; i < indentLevel; ++i)
+            ans += '\t';
+        ans += ' ' + this.nextContinuable.toString(indentLevel + 1);
+    }
+    return ans + ']';
 };
 
 /* todo bl this seems to be required for non-tail recursion, but it is slow.
@@ -61,8 +68,8 @@ Continuable.prototype.setEnv = function(env, recursive) {
 };
 
 // delegate to subtype, passing in the continuation and environment name for debugging
-Continuable.prototype.toString = function() {
-    return this.subtype.toString(this.continuation, this.env && this.env.name);
+Continuable.prototype.toString = function(indentLevel) {
+    return this.subtype.toString(this.continuation, this.env && this.env.toString(), indentLevel || 0);
 };
 
 // For composition; should only be called from newIdShim
@@ -72,8 +79,17 @@ function IdShim(payload) {
 
 /* Just for clarity in debugging, the string representation
  of IdShims looks like a procedure call of an "id" procedure. */
-IdShim.prototype.toString = function(continuation, envName) {
-    return '(id|' + envName + ' ' + this.payload + ' ' + continuation + ')';
+IdShim.prototype.toString = function(continuation, envName, indentLevel) {
+    var ans = '\n';
+    for (var i = 0; i < indentLevel; ++i)
+        ans += '\t';
+    ans += '(id';
+    if (envName)
+        ans += '|' + envName;
+    ans += ' ' + this.payload;
+    if (continuation)
+        ans += ' ' + continuation.toString(indentLevel + 1);
+    return ans + ')';
 };
 
 IdShim.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
@@ -165,14 +181,20 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
     this.alternateLastContinuable = alternateContinuable && alternateContinuable.getLastContinuable();
 }
 
-Branch.prototype.toString = function(continuation, envName) {
-    return '{|'
-        + envName
-        + this.test
-        + ' ? ' + this.consequent.toString()
-        + ' : ' + (this.alternate && this.alternate.toString())
-        + ' ' + continuation
-        + '}';
+Branch.prototype.toString = function(continuation, envName, indentLevel) {
+    var ans = '\n';
+    for (var i = 0; i < indentLevel; ++i)
+        ans += '\t';
+    ans += '{';
+    if (envName)
+        ans += '|' + envName + ' ';
+    ans += this.test
+        + ' ? '
+        + this.consequent.toString(indentLevel + 1)
+        + (this.alternate && this.alternate.toString(indentLevel + 1));
+    if (continuation)
+        ans += ' ' + continuation.toString(indentLevel + 1);
+    return ans + '}';
 };
 
 // For composition; should only be called from newProcCall
@@ -187,13 +209,18 @@ function newProcCall(operatorName, firstOperand, continuation) {
     return new Continuable(new ProcCall(operatorName, firstOperand), continuation);
 }
 
-ProcCall.prototype.toString = function(continuation, envName) {
-    var ans = '(' + this.operatorName;
+ProcCall.prototype.toString = function(continuation, envName, indentLevel) {
+    var ans = '\n';
+    for (var i = 0; i < indentLevel; ++i)
+        ans += '\t';
+    ans += '(' + this.operatorName;
     if (envName)
         ans += '|' + envName;
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
         ans += ' ' + cur.toString();
-    return ans + (continuation ? ' ' + continuation : '') + ')';
+    if (continuation)
+        ans += ' ' + continuation.toString(indentLevel+1);
+    return ans + ')';
 };
 
 function TrampolineResultStruct() {
