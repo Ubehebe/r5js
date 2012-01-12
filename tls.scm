@@ -261,9 +261,9 @@
 (define (geq? x y)
   (leq? y x))
 
-;(define (eq? x y)
- ; (and (geq? x y)
-  ;     (not (gt? x y))))
+					;(define (eq? x y)
+					; (and (geq? x y)
+					;     (not (gt? x y))))
 
 (define (pow x y)
   (if (zero? y)
@@ -347,3 +347,109 @@
     ((rempick 2 '(lemon meringue salty pie))
      . (lemon meringue pie))
     ))
+
+(define (rember* x ys)
+  (filter* (lambda (y) (not (eq? x y))) ys))
+
+(define (insertR* new old xs)
+  (if (null? xs)
+      '()
+      (let ((cur (car xs))
+	    (rest (insertR* new old (cdr xs))))
+	(cond ((list? cur)
+	       (cons (insertR* new old cur)
+		     rest))
+	      ((eq? cur old)
+	       (cons cur
+		     (cons new rest)))
+	      (else  (cons cur rest))))))
+
+					; tedious
+(define (insertL* new old xs)
+  (if (null? xs)
+      '()
+      (let ((cur (car xs))
+	    (rest (insertL* new old (cdr xs))))
+	(cond ((list? cur)
+	       (cons (insertL* new old cur)
+		     rest))
+	      ((eq? cur old)
+	       (cons new
+		     (cons cur rest)))
+	      (else  (cons cur rest))))))
+
+(define (filter* pred? xs)
+  (if (null? xs)
+      '()
+      (let ((cur (car xs))
+	    (rest (filter* pred? (cdr xs))))
+	(cond ((list? cur)
+	       (cons (filter* pred? cur) rest))
+	      ((pred? cur)
+	       (cons cur rest))
+	      (else
+	       rest)))))
+
+(define (map* f xs)
+  (if (null? xs)
+      '()
+      (let ((cur (car xs))
+	    (rest (map* f (cdr xs))))
+	(if (list? cur)
+	    (cons (map* f cur) rest)
+	    (cons (f cur) rest)))))
+
+(define (reduce* op start xs)
+  (if (null? xs)
+      start
+      (let ((cur  (car xs))
+	    (rest (reduce* op start (cdr xs))))
+	(if (list? cur)
+	    (op (reduce* op start cur) rest)
+	    (op cur rest)))))
+
+(define (occurs* x ys)
+  (map* (lambda (y) (if (eq? x y) 1 0)) ys))
+
+(define (subst* new old xs)
+  (map* (lambda (x) (if (eq? old x) new x)) xs))
+
+(define (ch5-tests)
+  '(
+    ((rember*
+      'cup
+      '((coffee) cup ((tea) cup)
+	(and (hick)) cup))
+     . ((coffee) ((tea)) (and (hick))))
+    ((rember*
+      'sauce
+      '(((tomato sauce))
+	((bean sauce))
+	(and ((flying)) sauce)))
+     . (((tomato)) ((bean)) (and ((flying)))))
+    ))
+
+(define (numbered? expr)
+  (cond
+   ((number? expr) #t)
+   ((or
+     (eq? expr +)
+     (eq? expr -)
+     (eq? expr *)
+     (eq? expr /)
+     (eq? expr ^) #t))
+   (else (and (list? expr) (all numbered? expr)))))
+
+
+(define ch6-tests
+  '(
+    ((quote a) . a)
+    ((quote +) . +)
+    ((quote *) . *)
+    ((eq? (quote a) 'a) . #t)
+    ((eq? 'a 'a) . #t)
+    ((numbered? 1) . #t)
+    ((numbered? '(3 + (4 ^ 5))) . #t)
+    ((numbered? '(2 * sausage)) . #f)
+    ))
+
