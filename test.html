@@ -55,13 +55,17 @@
                     like the pseudo-DOM has replaced occurrences of ">"
                     by "&gt;". This is a problem chiefly for the Scheme token "=>".
                     Reconstruct this here. */
-                var syntaxLib = nullEnvIframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
-                var procLib = r5rsEnvIframe.getElementsByTagName('pre')[0].innerHTML.replace(/&gt;/g, ">");
+                var syntaxLib = unescape(nullEnvIframe.getElementsByTagName('pre')[0].innerHTML);
+                var procLib = unescape(r5rsEnvIframe.getElementsByTagName('pre')[0].innerHTML);
                 bootstrap(syntaxLib, procLib);
             } else {
                 // todo display a prominent error; interpreter is unusable
             }
         }, false);
+
+        function unescape(text) {
+            return text.replace(/&gt;/g, ">").replace(/&lt;/g, "<");
+        }
 
         function doScan() {
             console.log(
