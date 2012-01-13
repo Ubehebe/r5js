@@ -523,7 +523,6 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultSt
          review what support they really need. */
         if (proc.hasSpecialEvalLogic) {
             args.push(this);
-            args.push(this.env);
             args.push(continuation);
             args.push(resultStruct);
             proc.apply(null, args);

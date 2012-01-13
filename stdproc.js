@@ -640,13 +640,12 @@ R5JS_builtins['control'] = {
             if (!mustBeProc.isProcedure())
                 throw new ArgumentTypeError(mustBeProc, 0, 'apply', 'procedure');
 
-            var curProcCall = arguments[arguments.length - 4];
+            var curProcCall = arguments[arguments.length - 3];
             var procName = curProcCall.firstOperand.payload;
-            var curEnv = arguments[arguments.length - 3];
             var continuation = arguments[arguments.length - 2];
             var resultStruct = arguments[arguments.length - 1];
 
-            var lastRealArgIndex = arguments.length - 5;
+            var lastRealArgIndex = arguments.length - 4;
             var mustBeList = arguments[lastRealArgIndex];
             if (!mustBeList.isList())
                 throw new ArgumentTypeError(mustBeList, lastRealArgIndex, 'apply', 'list');
@@ -654,7 +653,7 @@ R5JS_builtins['control'] = {
             // (apply foo '(x y z))
             if (lastRealArgIndex === 1) {
                 var actualProcCall = newProcCall(procName, mustBeList.firstChild, continuation);
-                actualProcCall.setStartingEnv(curEnv);
+                actualProcCall.setStartingEnv(curProcCall.env);
                 resultStruct.nextContinuable = actualProcCall;
             }
 
@@ -676,7 +675,7 @@ R5JS_builtins['control'] = {
         argc: 1,
         argtypes: ['procedure'],
         hasSpecialEvalLogic: true,
-        proc: function(procedure, procCall, env, continuation, resultStruct) {
+        proc: function(procedure, procCall, continuation, resultStruct) {
             /* Semantics of call/cc:
 
              (call-with-current-continuation foo)
@@ -695,7 +694,7 @@ R5JS_builtins['control'] = {
              lastResultName and set the next continuable to cc's
              nextContinuable. */
             var dummyProcCall = newProcCall(procCall.firstOperand, continuation, continuation);
-            dummyProcCall.setStartingEnv(env);
+            dummyProcCall.setStartingEnv(procCall.env);
             resultStruct.nextContinuable = dummyProcCall;
         }
     },
@@ -706,9 +705,8 @@ R5JS_builtins['control'] = {
             // Varargs procedures that also have special eval logic are a pain.
             var resultStruct = arguments[arguments.length - 1];
             var continuation = arguments[arguments.length - 2];
-            var env = arguments[arguments.length - 3];
-            // not needed var procCall = arguments[arguments.length - 3];
-            var numUserArgs = arguments.length - 4;
+            var procCall = arguments[arguments.length - 3];
+            var numUserArgs = arguments.length - 3;
 
             /* If there's just one user-supplied argument, that works fine
              with the existing machinery. Example:
@@ -717,7 +715,7 @@ R5JS_builtins['control'] = {
 
              should just bind 1 to _0 and continue. */
             if (numUserArgs === 1)
-                env.addBinding(continuation.lastResultName, arguments[0]);
+                procCall.env.addBinding(continuation.lastResultName, arguments[0]);
 
             /* If there's more than one argument, we bind the whole array
              to the continuation's lastResultName. This means later, when
@@ -731,10 +729,10 @@ R5JS_builtins['control'] = {
                 for (var i = 0; i < numUserArgs; ++i)
                     userArgs.push(arguments[i]);
 
-                env.addBinding(continuation.lastResultName, userArgs);
+                procCall.env.addBinding(continuation.lastResultName, userArgs);
             }
             if (continuation.nextContinuable)
-                continuation.nextContinuable.setStartingEnv(env);
+                continuation.nextContinuable.setStartingEnv(procCall.env);
             resultStruct.nextContinuable = continuation.nextContinuable;
         }
     }   ,
@@ -742,7 +740,7 @@ R5JS_builtins['control'] = {
         argc: 2,
         argtypes: ['procedure', 'procedure'],
         hasSpecialEvalLogic: true,
-        proc: function(producer, consumer, procCall, env, continuation, resultStruct) {
+        proc: function(producer, consumer, procCall, continuation, resultStruct) {
             /* R5RS 6.4: (call-with-values producer consumer)
              "Calls its producer argument with no values and a continuation
              that, when passed some values, calls the consumer procedure
@@ -756,12 +754,12 @@ R5JS_builtins['control'] = {
                 procCall.firstOperand,
                 null, // no arguments
                 producerContinuation);
-            producerCall.setStartingEnv(env);
+            producerCall.setStartingEnv(procCall.env);
             var consumerCall = newProcCall(
                 procCall.firstOperand.nextSibling,
                 newIdOrLiteral(valuesName),
                 continuation);
-            consumerCall.setStartingEnv(env);
+            consumerCall.setStartingEnv(procCall.env);
             producerContinuation.nextContinuable = consumerCall;
             resultStruct.nextContinuable = producerCall;
         }
@@ -866,7 +864,7 @@ function registerBuiltin(name, definition, targetEnv) {
              the trampoline will pass it three additional arguments:
              the ProcCall, the Continuation, and the TrampolineResultStruct. */
             if (definition.hasSpecialEvalLogic)
-                numArgsFromUser -= 4;
+                numArgsFromUser -= 3;
 
             // If argc is a number, it means exactly that many args are required
             if (typeof argc === 'number' && numArgsFromUser !== argc)
