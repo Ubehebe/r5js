@@ -323,27 +323,159 @@ R5JS_builtins['number'] = {
         argc: 2,
         argtypes: 'number',
         proc: function(p, q) {
-            return p % q;
+            if (q === 0)
+                throw new PrimitiveProcedureError('remainder: undefined for 0');
+            // The JavaScript % semantics are precisely the Scheme remainder semantics.
+            else return p % q;
         }
     },
 
-    // todo bl finish number builtins:
-    'quotient': {},
-    'modulo': {},
-    'numerator': {},
-    'denominator': {},
-    'floor': {},
-    'ceiling': {},
-    'truncate': {},
-    'round': {},
-    'exp': {},
-    'log': {},
-    'sin': {},
-    'cos': {},
-    'tan': {},
-    'asin': {},
-    'acos': {},
-    'atan': {},
+    'quotient': {
+        argc: 2,
+        argtypes: 'number',
+        proc: function(p, q) {
+            if (q === 0)
+                throw new PrimitiveProcedureError('quotient: undefined for 0');
+            else {
+                /* In Scheme, quotient rounds towards zero, which is unfortunately
+                not what JavaScript's Math.round() does. */
+                var unrounded = p / q;
+                return unrounded > 0
+                    ? Math.floor(unrounded)
+                    : Math.ceil(unrounded);
+            }
+        }
+    },
+    'modulo': {
+        argc: 2,
+        argtypes: 'number',
+        proc: function(p, q) {
+            if (q === 0)
+                throw new PrimitiveProcedureError('modulo: undefined for 0');
+            else {
+                var remainder = p % q;
+                var sign = p*q;
+                var ans = remainder;
+                // Both positive or both negative: remainder and modulo are the same
+                if (sign > 0)
+                    return remainder;
+
+                /* If p is positive and q is negative,
+                remainder will be positive and modulo will be negative */
+                else if (p > 0) {
+                    while (ans > 0)
+                        ans += q;
+                    return ans;
+                }
+
+                /* If p is negative and q is positive,
+                remainder will be negative and modulo will be positive */
+                else {
+                    while (ans < 0) {
+                        ans += q;
+                    }
+                    return ans;
+                }
+            }
+        }
+    },
+    'numerator': {
+        // todo bl
+    },
+    'denominator': {
+        // todo bl
+    },
+    'floor': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(x) {
+            return Math.floor(x);
+        }
+    },
+    'ceiling': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(x) {
+            return Math.ceil(x);
+        }
+    },
+    'truncate': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(x) {
+            /* R5RS 6.2.5: "Truncate returns the integer closest to x
+            whose absolute value is not larger than the absolute value of x." */
+            return x > 0 ? Math.floor(x) : Math.ceil(x);
+        }
+    },
+    'round': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(x) {
+            /* R5RS 6.2.5: "Round returns the closest integer to x,
+             rounding to even when x is halfway between two integers." */
+            var down = Math.floor(x);
+            var downDiff = Math.abs(x - down);
+            var up = Math.ceil(x);
+            var upDiff = Math.abs(up - x);
+
+            if (upDiff < downDiff)
+                return up;
+            else if (downDiff < upDiff)
+                return down;
+            else return up % 2 ? down : up;
+        }
+    },
+    'exp': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) { return Math.exp(z); }
+    },
+    'log': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) { return Math.log(z); }
+    },
+    'sin': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) { return Math.sin(z); }
+    },
+    'cos': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) { return Math.cos(z); }
+    },
+    'tan': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) { return Math.tan(z); }
+    },
+    'asin': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) { return Math.asin(z); }
+    },
+    'acos': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) { return Math.acos(z); }
+    },
+    'atan': {
+        argtypes: 'number',
+        proc: function() {
+            /* Oddly, R5RS overloads atan for both one and two arguments,
+             rather than having a separate atan2. */
+            switch (arguments.length) {
+                case 1:
+                    return Math.atan(arguments[0]);
+                case 2:
+                    return Math.atan2(arguments[0], arguments[1]);
+                default:
+                    throw new TooManyArgs('atan', 2, arguments.length);
+            }
+        }
+    },
     'sqrt': {
         argc: 1,
         argtypes: 'number',
@@ -351,13 +483,55 @@ R5JS_builtins['number'] = {
             return Math.sqrt(x);
         }
     },
-    'expt': {},
-    'make-rectangular': {},
-    'make-polar': {},
-    'real-part': {},
-    'imag-part': {},
-    'magnitude': {},
-    'angle': {},
+    'expt': {
+        argc: 2,
+        argtypes: 'number',
+        proc: function(z1, z2) {
+            return Math.pow(z1, z2);
+        }
+    },
+    'make-rectangular': {
+        argc: 2,
+        argtypes: 'number',
+        proc: function(r, theta) {
+            throw new UnimplementedOptionError('make-rectangular');
+        }
+    },
+    'make-polar': {
+        argc: 2,
+        argtypes: 'number',
+        proc: function(x, y) {
+            throw new UnimplementedOptionError('make-polar');
+        }
+    },
+    'real-part': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) {
+            throw new UnimplementedOptionError('real-part');
+        }
+    },
+    'imag-part': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) {
+            throw new UnimplementedOptionError('imag-part');
+        }
+    },
+    'magnitude': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) {
+            throw new UnimplementedOptionError('magnitude');
+        }
+    },
+    'angle': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(z) {
+            throw new UnimplementedOptionError('angle');
+        }
+    },
     'exact->inexact': {},
     'inexact->exact': {},
     'number->string': {},

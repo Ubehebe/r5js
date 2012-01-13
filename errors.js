@@ -55,6 +55,10 @@ function InternalInterpreterError(msg) {
     };
 }
 
+function PrimitiveProcedureError(message) {
+    this.toString = function() { return message; };
+}
+
 function ArgumentTypeError(argument, which, procName, expectedType) {
     this.toString = function() {
         return 'The object '
@@ -73,4 +77,12 @@ function MacroError(keyword, msg) {
         return 'Error in macro '
         + keyword + ': ' + msg;
     };
+}
+
+function UnimplementedOptionError(what) {
+    this.toString = function() {
+        return 'Sorry, '
+            + what
+            + ' is optional according to R5RS and unimplemented';
+    }
 }
