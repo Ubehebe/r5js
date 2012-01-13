@@ -251,7 +251,6 @@ function trampoline(continuable) {
 
     while (curContinuable) {
         // a good first step for debugging: console.log('boing: ' + curContinuable);
-        curContinuable.subtype.evalAndAdvance(curContinuable.env, curContinuable.continuation, tmp);
 
         if (curContinuable.subtype instanceof ProcCall) {
             var restoreEmptyEnv;
