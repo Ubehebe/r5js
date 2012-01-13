@@ -39,6 +39,11 @@ Environment.prototype.seal = function() {
     this.sealed = true;
 };
 
+Environment.prototype.allowRedefs = function() {
+    this.redefsOk = true;
+    return this;
+};
+
 Environment.prototype.clone = function(name) {
 
       if (this.enclosingEnv)

@@ -752,16 +752,19 @@ Datum.prototype.changeProcToName = function() {
 };
 
 function newCpsName() {
-    // Not a valid identifier name so we can easily tell these apart
-    return '@' + (uniqueNodeCounter++);
+    return cpsPrefix + (uniqueNodeCounter++);
 }
 
 function newAnonymousLambdaName() {
     return 'proc' + (anonymousLambdaCounter++);
 }
 
-var uniqueNodeCounter = 0; // todo bl any good way to encapsulate this?
+// todo bl encapsulate these in a global object
+var uniqueNodeCounter = 0;
 var anonymousLambdaCounter = 0;
+// Not a valid identifier prefix so we can easily tell these apart
+var cpsPrefix = '@';
+
 
 function LocalStructure(operator, firstOperand) {
 

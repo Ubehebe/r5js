@@ -325,6 +325,7 @@ function testEvaluator() {
         "(define (foo x) (* x x)) (+ (foo 3) (foo 4))": '25',
         "(define (fac n) (if (= n 0) 1 (* n (fac (- n 1))))) (fac 10)": '3628800',
         "(define (tail-fac n buf) (if (= n 0) buf (tail-fac (- n 1) (* buf n)))) (define (fac n) (tail-fac n 1)) (fac 10)": '3628800',
+        "(define (tail xs) (if (null? (cdr xs)) (car xs) (tail (cdr xs)))) (tail '(1 2 (3 4 5)))": '(3 4 5)',
         '(((lambda (x) x) (lambda (y) y)) "hello!")': '"hello!"',
         "(define x 1) (define y 2) (+ x y)": '3',
         "(define x 1) (define y 1) (set! x (+ x 100)) (set! y (+ x 100)) (+ x y)": '302',
@@ -348,7 +349,8 @@ function testEvaluator() {
         "((lambda (x) ((lambda (y) (+ x (* 2 y))) 100)) 2)": '202',
         "let": false,
         "(equal? '(1 2) '(1 . 2))": '#f',
-        "(equal? '(1 2) '(1 2))": '#t'
+        "(equal? '(1 2) '(1 2))": '#t',
+        "(define (even? n) (= 0 (remainder n 2))) (if (even? 4201) 'even 'odd)": 'odd'
     };
 
     /* These tests exercise various macro features that the standard talks about

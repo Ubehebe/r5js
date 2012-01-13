@@ -10,6 +10,7 @@ function Continuation(lastResultName) {
      */
 }
 
+// Just for debugging
 Continuation.prototype.toString = function(indentLevel) {
     var ans = '[' + this.lastResultName;
 
@@ -21,20 +22,6 @@ Continuation.prototype.toString = function(indentLevel) {
     return ans + ']';
 };
 
-/* todo bl this seems to be required for non-tail recursion, but it is slow.
- Can we improve or eliminate it? */
-Continuation.prototype.clone = function() {
-    var ans = new Continuation(this.lastResultName);
-    if (this.nextContinuable) {
-        ans.nextContinuable = new Continuable(
-            this.nextContinuable.subtype,
-            this.nextContinuable.continuation.clone());
-    }
-    return ans;
-};
-
-/* I decided to do composition instead of inheritance because it is more
- straightforward in JavaScript. */
 function Continuable(subtype, continuation) {
     if (!subtype || !continuation) // todo bl take out after testing
         throw new InternalInterpreterError('invariant incorrect');
@@ -42,6 +29,70 @@ function Continuable(subtype, continuation) {
     this.continuation = continuation;
     //this.lastContinuable = this.getLastContinuable(); // todo bl caching problems
 }
+
+/* This returns null if the very next Continuable isn't a ProcCall
+(in particular, if it is a Branch). */
+Continuation.prototype.getAdjacentProcCall = function() {
+    return this.nextContinuable
+        && this.nextContinuable.subtype instanceof ProcCall
+        && this.nextContinuable.subtype;
+};
+
+Continuation.prototype.rememberEnv = function(env) {
+   /* In general, we need to remember to jump out of the newEnv at
+    the end of the procedure body, and this means setting the env on the
+    continuable following the current continuation (if if is a procedure call).
+
+    There are two important exceptions. First, if that procedure call already
+    has an attached environment, it's already keeping track of a prior
+    context, so we should not disturb it. Second, if that procedure call is
+    left-recursive, that means the procedure body we're about to jump into
+    is going to return something that is going to be used as an operator.
+    We must stay in that procedure's environment to use its bindings.
+    Example:
+
+    ((foo x) (bar y))
+
+    desugars incrementally as
+
+    (foo x [_0 (_0 (bar y) [_1 ...])])
+
+    When the trampoline is at (foo x ...), it sees the result is
+    going to be called as a procedure. Thus we shouldn't set the env
+    of (_0 ...) to be the old env; instead, leave it blank, and it will
+    eventually be filled in as newEnv (the env that is set up for foo's
+    procedure body).
+
+    todo bl: I discovered this logic after the fact, so it is unlikely
+    to be watertight. If either of the following two things start going
+    wrong, here would be a good place to investigate:
+
+    (1) Site of left recursion is not immediately next to this continuation.
+    I think the incremental nature of CPSification makes this impossible,
+    but I am not 100% sure. If it were possible to produce
+
+    (foo x [_0 ... (_0 ...)])
+
+    for example, we would probably be in trouble.
+
+    (2) If continuation.nextContinuable is not a ProcCall
+    (if it is a Branch), the environment will not be set. I don't observe
+    this problem in practice, but perhaps I haven't thought of a good
+    example, or perhaps the environment is getting set correctly in a way
+    I don't understand. */
+
+    if (this.nextContinuable) {
+        var next = this.nextContinuable.subtype;
+        if (next instanceof ProcCall) {
+            if (!next.isLeftRecursion() && !next.env)
+                next.setEnv(env);
+        } else if (next instanceof Branch) {
+            next.consequent.setStartingEnv(env);
+            if (next.alternate)
+                next.alternate.setStartingEnv(env);
+        } else throw new InternalInterpreterError('invariant incorrect');
+    }
+};
 
 Continuable.prototype.setStartingEnv = function(env, recursive) {
     if (this.subtype instanceof ProcCall)
@@ -79,7 +130,7 @@ Continuable.prototype.toString = function(indentLevel) {
  "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]).
 
  We represent these id shims as ProcCalls whose operatorNames are null
- and whose firstOperand is the payload text (not enclosed in a datum). */
+ and whose firstOperand is the payload. */
 function newIdShim(payload, continuationName) {
     return newProcCall(null, payload, new Continuation(continuationName));
 }
@@ -99,6 +150,7 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
     this.alternateLastContinuable = alternateContinuable && alternateContinuable.getLastContinuable();
 }
 
+// Just for debugging
 Branch.prototype.toString = function(continuation, indentLevel) {
     var ans = '\n';
     for (var i = 0; i < indentLevel; ++i)
@@ -131,10 +183,25 @@ ProcCall.prototype.clearEnv = function() {
     this.env = null;
 };
 
+ProcCall.prototype.isIdShim = function() {
+    return !this.operatorName;
+};
+
+/* If a procedure call is explicitly left-recursive, a CPS-style identifier,
+illegal as an identifier in Scheme, will make an appearance as an operator.
+
+Example: ((foo x) (bar y)) => (foo x [_0 (bar y [_1 (_0 _1 [_2 ...])])]) */
+ProcCall.prototype.isLeftRecursion = function() {
+    return this.operatorName
+        && this.operatorName.payload
+        && this.operatorName.payload.charAt(0) === cpsPrefix;
+};
+
 function newProcCall(operatorName, firstOperand, continuation) {
     return new Continuable(new ProcCall(operatorName, firstOperand), continuation);
 }
 
+// Just for debugging
 ProcCall.prototype.toString = function(continuation, indentLevel) {
     var ans = '\n';
     for (var i = 0; i < indentLevel; ++i)
@@ -163,6 +230,21 @@ function TrampolineResultStruct() {
 TrampolineResultStruct.prototype.clear = function() {
     this.ans = null;
     this.nextContinuable = null;
+};
+
+/* Just a pointer to an environment. It's separate from the
+ TrampolineResultStruct to make it clear that old environments are only
+ reused in a few situations. */
+function EnvBuffer() {
+    this.env = null;
+}
+
+EnvBuffer.prototype.setEnv = function(env) {
+    this.env = env;
+};
+
+EnvBuffer.prototype.get = function(name) {
+    return this.env.get(name);
 };
 
 /* This is the main evaluation function.
@@ -244,47 +326,28 @@ TrampolineResultStruct.prototype.clear = function() {
  */
 function trampoline(continuable) {
 
-    var curContinuable = continuable;
+    var cur = continuable;
+    var resultStruct = new TrampolineResultStruct();
+    var savedEnv = new EnvBuffer();
     var ans;
-    var tmp = new TrampolineResultStruct();
-    var oldEnv;
 
-    while (curContinuable) {
-        // a good first step for debugging: console.log('boing: ' + curContinuable);
-
-        if (curContinuable.subtype instanceof ProcCall) {
-            var restoreEmptyEnv;
-            if (!curContinuable.subtype.env) {
-                restoreEmptyEnv = true;
-                curContinuable.subtype.setEnv(oldEnv);
-            }
-            curContinuable.subtype.evalAndAdvance(curContinuable.continuation, tmp);
-            oldEnv = curContinuable.subtype.env;
-            if (restoreEmptyEnv)
-                curContinuable.subtype.clearEnv();
-        } else if (curContinuable.subtype instanceof Branch) {
-            curContinuable.subtype.evalAndAdvance(oldEnv, curContinuable.continuation, tmp);
-        } else throw new InternalInterpreterError('invariant incorrect');
-
-        ans = tmp.ans;
-        curContinuable = tmp.nextContinuable;
-        tmp.clear();
+    while (cur) {
+        // a good first step for debugging: console.log('boing: ' + cur);
+        resultStruct = cur.subtype.evalAndAdvance(cur.continuation, resultStruct, savedEnv);
+        ans = resultStruct.ans;
+        cur = resultStruct.nextContinuable;
+        resultStruct.clear();
     }
+
     return ans;
 }
 
-Branch.prototype.resetContinuation = function() {
-    this.consequentLastContinuable.continuation.nextContinuable = null;
-    if (this.alternateLastContinuable)
-        this.alternateLastContinuable.continuation.nextContinuable = null;
-};
+Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
 
-Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
-
-    this.resetContinuation();
-
+    /* Branches always use the old environment left by the previous action
+    on the trampoline. */
     var testResult = this.test.isIdentifier()
-        ? env.get(this.test.payload)
+        ? envBuffer.get(this.test.payload)
         : maybeWrapResult(this.test, this.test.type);
     if (testResult.payload === false) {
         this.alternateLastContinuable.continuation = continuation;
@@ -293,39 +356,34 @@ Branch.prototype.evalAndAdvance = function(env, continuation, resultStruct) {
         this.consequentLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.consequent;
     }
+
+    return resultStruct;
 };
 
-/* todo bl: this may be a leftover from commit 4762893. Prior to that
- commit we optimistically CPSified apparent procedure calls, so if we
- discovered something was actually a macro use we had to do some
- lifting to reconstruct the datums. */
-ProcCall.prototype.reconstructMacroUse = function() {
+ProcCall.prototype.reconstructDatum = function() {
+    var op = newIdOrLiteral(this.operatorName);
+    op.nextSibling = this.firstOperand;
     var ans = newEmptyList();
-    ans.appendChild(newIdOrLiteral(this.operatorName));
-    var tail = ans.firstChild;
-    for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
-        tail.appendSibling(cur.clone().severSibling());
-        tail = tail.nextSibling;
-    }
+    ans.appendChild(op);
     return ans;
 };
 
 ProcCall.prototype.operandsInCpsStyle = function() {
-
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
         if (cur instanceof Datum && !cur.isLiteral())
             return false;
     return true;
-
 };
 
+/* See newIdShim() for an explanation of the conventions here, particularly
+    why the first argument is always null. */
 ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultStruct) {
     var ans;
 
     var arg = this.firstOperand;
 
-    /* This is only setup by desugarDefinition() called with a macro.
-     todo bl: document! */
+    /* todo bl: id shims have become quite popular for passing through
+        disparate objects on the trampoline. The logic could be made clearer. */
     if (arg instanceof SchemeMacro)
         ans = arg;
     else if (typeof arg === 'function' || arg.isProcedure())
@@ -337,8 +395,7 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
     else
         ans = maybeWrapResult(arg.payload, arg.type);
 
-    bindCorrectly(continuation.lastResultName, ans, this.env, continuation.nextContinuable);
-
+    this.bindResult(continuation, ans);
 
     /* If we're at the end of the continuable-continuation chain and we're
      trying to return a macro object off the trampoline, that's an error.
@@ -375,8 +432,16 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
     resultStruct.nextContinuable = ans;
 };
 
-// todo bl it would be nice to actually return the result struct
-ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct) {
+ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
+
+    /* If the procedure call has no attached environment, we use
+     the environment left over from the previous action on the trampoline,
+     but remember to restore the state of the procedure call when we're done. */
+    var restoreEmptyEnv;
+    if (!this.env) {
+        restoreEmptyEnv = true;
+        this.setEnv(envBuffer.env);
+    }
 
     var proc = this.operatorName && this.env.getProcedure(this.operatorName);
     var args = [proc, continuation, resultStruct];
@@ -396,21 +461,42 @@ ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct) {
             'procedure application: expected procedure, given '
                 + this.operatorName);
     }
+
+    /* Save the environment we used in case the next action on the trampoline
+     needs it (for example branches, which have no environment of their own). */
+    envBuffer.setEnv(this.env);
+
+    if (restoreEmptyEnv)
+        this.clearEnv();
+
+    return resultStruct;
 };
 
-function bindCorrectly(name, val, curEnv, nextContinuable) {
-    if (nextContinuable && nextContinuable.subtype instanceof ProcCall) {
-        var maybeEnv = nextContinuable.subtype.env;
+ProcCall.prototype.bindResult = function(continuation, val) {
+
+    var name = continuation.lastResultName;
+    var nextProcCall = continuation.getAdjacentProcCall();
+
+    if (nextProcCall) {
+        var maybeEnv = nextProcCall.env;
+        /* If the next procedure call already has an environment,
+         bind the result there. Otherwise, bind it in the current
+         environment and forward that environment to the
+         next procedure call. */
         if (maybeEnv) {
             maybeEnv.addBinding(name, val);
         } else {
-            curEnv.addBinding(name, val);
-            nextContinuable.subtype.setEnv(curEnv);
+            this.env.addBinding(name, val);
+            nextProcCall.setEnv(this.env);
         }
-    } else {
-        curEnv.addBinding(name, val);
     }
-}
+
+    /* If the next thing is not a procedure call, it will reuse this procedure
+     call's environment, so just bind the result here. */
+    else {
+        this.env.addBinding(name, val);
+    }
+};
 
 /* Primitive procedure, represented by JavaScript function:
      (+ x y [ans ...]). We perform the action ("+"), bind the
@@ -418,6 +504,10 @@ function bindCorrectly(name, val, curEnv, nextContinuable) {
      to the next continuable ("..."). */
 ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultStruct) {
 
+    /* If the operands aren't simple, we'll have to take a detour to
+    restructure them. Example:
+
+    (+ (* 1 2) (/ 3 4)) => (* 1 2 [_0 (/ 3 4 [_1 (+ _0 _1 ...)])]) */
     if (!this.operandsInCpsStyle()) {
         this.cpsify(proc, continuation, resultStruct);
     }
@@ -441,7 +531,7 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultSt
 
         else {
             var ans = proc.apply(null, args);
-            bindCorrectly(continuation.lastResultName, ans, this.env, continuation.nextContinuable);
+            this.bindResult(continuation, ans);
             resultStruct.ans = ans;
             resultStruct.nextContinuable = continuation.nextContinuable;
         }
@@ -475,6 +565,8 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultSt
  */
 ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resultStruct) {
 
+    /* If the operands aren't simple, we'll have to take a detour to
+    restructure them. */
     if (!this.operandsInCpsStyle()) {
         this.cpsify(proc, continuation, resultStruct);
     }
@@ -483,51 +575,33 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resul
 
         var args = evalArgs(this.firstOperand, this.env);
 
-        /* We have to allocate a new Environment object for each procedure
-         call, since we have to support a since SchemeProcedure having
-         more than one active ProcCall at a time. We point it back to the
-         procedure's own environment so it can look up procedure-internal
-         definitions.
+        /* If we're at a tail call we can reuse the existing environment.
+            Otherwise create a new environment pointing back to the current one. */
+        var newEnv = proc.isTailCall(continuation)
+            ? this.env.allowRedefs()
+            : new Environment('tmp-'
+            + proc.name
+            + '-'
+            + (uniqueNodeCounter++), this.env).addAll(proc.env);
 
-         todo bl: don't allocate Environments in tail contexts. In theory
-         this shouldn't prevent an unlimited number of active tail calls
-         (because the old Environment objects will get garbage collected),
-         but I would imagine it would make tail recursion impracticable. */
-        var newEnv = new Environment('tmp-' + proc.name + '-' + (uniqueNodeCounter++), this.env);
-        newEnv.addAll(proc.env);
+        /* Remember to discard the new environment
+        at the end of the procedure call. */
+        continuation.rememberEnv(this.env);
 
-
-        // todo bl mega hack for left-recursive calls
-        if (continuation.nextContinuable
-            && continuation.nextContinuable.subtype instanceof ProcCall) {
-            var procCall = continuation.nextContinuable.subtype;
-            if (procCall.operatorName) {
-                // a non-left-recursive proc call
-                if (procCall.operatorName.payload
-                    && procCall.operatorName.payload.charAt(0) !== '@')
-                    procCall.setEnv(this.env, true);
-            } else {
-                // an id shim!
-                procCall.setEnv(this.env, true);
-            }
-        }
-
-        // This will be a no-op if tail recursion is detected
-        proc.setContinuation(continuation, this.env);
+        // Do some bookkeepping to prepare for jumping into the procedure
+        proc.setContinuation(continuation);
         proc.checkNumArgs(args.length);
         proc.bindArgs(args, newEnv);
-        /* todo bl is it possible to have a procedure body whose first
-         continuable is a branch? hopefully not, and I can remove
-         the second check. */
-        if (proc.body && proc.body.subtype instanceof ProcCall)
-            proc.body.subtype.setEnv(newEnv, true);
+        proc.setEnv(newEnv);
+
+        // And away we go
         resultStruct.nextContinuable = proc.body;
     }
 };
 
 ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
 
-    var template = macro.selectTemplate(this.reconstructMacroUse(), this.env);
+    var template = macro.selectTemplate(this.reconstructDatum(), this.env);
     if (!template)
         throw new MacroError(this.operatorName.payload, 'no pattern match for input ' + this);
     var newText = template.hygienicTranscription().toString();

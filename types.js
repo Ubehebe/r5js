@@ -66,82 +66,34 @@ SchemeProcedure.prototype.setBody = function(bodyContinuable) {
     this.savedContinuation = this.lastContinuable.continuation;
 };
 
-/* This function is a no-op for tail calls, thus should support an unlimited
-    number of active tail calls. Example:
+SchemeProcedure.prototype.setContinuation = function(c) {
+    /* This will be a vacuous write for a tail call. But that is
+    probably still faster than checking if we are in tail position and,
+    if so, explicitly doing nothing. */
+    if (this.lastContinuable)
+        this.lastContinuable.continuation = c;
+};
 
-    (define (len xs buf) (if (null? xs) buf (len (cdr xs) (+ 1 buf))))
-
-    The body is desugared as
-
-    (null? xs [_0 {_0
-        ? (id buf [_1 ...])
-        : (cdr xs [_2 (+ 1 buf [_3 (len _2 _3 [_4 ...])])])
-        }])
-
-    and the SchemeProcedure's last continuation is some fake value
-    representing the branch.
-
-    Now consider the evaluation of the expression
-
-    (+ 1 (len '(a b c) 0))
-
-    This is desugared as
-
-    (len '(a b c) 0 [_5 (+ 1 _5 [_6 ...])])
-
-    The trampoline will work as follows:
-
-    (len '(a b c) 0 [_5 (+ 1 _5 [_6 ...])])
-    1. Bind '(a b c) to xs
-    2. Bind 0 to buf
-    3. Set the SchemeProcedure's last continuation to [_5 (+ 1 _5 [_6 ...])].
-        Since this is not equal to the current value (the fake continuation
-        representing the branch), we have to clone it.
-    4. Advance to the SchemeProcedure's body
-
-    At the branch in the body, the alternate will be selected, and its last
-    continuation will be set to [_5 (+ 1 _5 [_6 ...])]:
-
-    (cdr xs [_2 (+ 1 buf [_3 (len _2 _3 [_5 (+ 1 _5 [_6 ...])])])])
-
-    Now we do some more trampolining and arrive at the next
-    nonprimitive procedure call:
-
-    (len _2 _3 [_5 (+ 1 _5 [_6 ...])])
-    5. Bind _2 ( = '(b)) to xs
-    6. Bind _3 (= 1) to buf
-    7. Set the SchemeProcedure's last continuation to [_5 (+ 1 _5 [_6 ...])].
-        But it already has this value -- see step 3. So do nothing.
-    8. Advance to the SchemeProcedure's body.
-
-    This should work for simple kinds of tail recursion, but I need to verify
-    it works for all the tail call sites required by the Scheme standard.
- */
-SchemeProcedure.prototype.setContinuation = function(c, env) {
-    /* The first part of this check is to avoid a null pointer dereference if
-     the procedure has no body. Such an occurrence is not allowed by the
-     Scheme grammar, but internally we rewrite definitions as dummy
-     procedures, and programs are allowed to have no expressions, as in
-
-     (define x 1)
-
-     This should translate to something like
-
-     ((lambda (x) <nothing>) 1)
-
-     See comments in constructTopLevelDefs. */
-
-    if (this.lastContinuable
-        && this.lastContinuable.continuation !== c) {
-        this.lastContinuable.continuation = c.clone();
-        var nextContinuable = this.lastContinuable.continuation.nextContinuable;
-        // todo bl hack!
-        if (nextContinuable && nextContinuable.subtype instanceof Branch) {
-            nextContinuable.subtype.consequent.setStartingEnv(env);
-            if (nextContinuable.subtype.alternate)
-                nextContinuable.subtype.alternate.setStartingEnv(env);
-        }
+SchemeProcedure.prototype.setEnv = function(env) {
+    /* todo bl is it possible to have a procedure body whose first
+     continuable is a branch? hopefully not, and I can remove
+     the second check. */
+    if (this.body) {
+        if (this.body.subtype instanceof ProcCall)
+            this.body.subtype.setEnv(env, true);
+        else
+            throw new InternalInterpreterError(
+                'invariant incorrect -- procedure does not begin with proc call');
     }
+};
+
+// todo bl are we sure this covers all forms of tail recursion in R5RS?
+SchemeProcedure.prototype.isTailCall = function(c) {
+  if (this.lastContinuable && this.lastContinuable.continuation === c) {
+               // a good place to see if tail recursion is actually working :)
+            // console.log('TAIL RECURSION!!!');
+      return true;
+  } else return false;
 };
 
 SchemeProcedure.prototype.toString = function() {

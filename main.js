@@ -25,8 +25,7 @@ var R5JS = {
             /* todo bl: creating a new "global" environment for every
              start of the trampoline inhibits REPL-like incremental program
              construction. Shouldn't be too hard to reuse the global, though. */
-            env = new Environment('global', R5JS_R5RSEnv);
-            env.redefsOk = true;
+            env = new Environment('global', R5JS_R5RSEnv).allowRedefs();
         }
         return root.desugar(env).setStartingEnv(env);
     },
