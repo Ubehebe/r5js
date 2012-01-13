@@ -654,7 +654,7 @@ R5JS_builtins['control'] = {
             // (apply foo '(x y z))
             if (lastRealArgIndex === 1) {
                 var actualProcCall = newProcCall(procName, mustBeList.firstChild, continuation);
-                actualProcCall.setEnv(curEnv);
+                actualProcCall.setStartingEnv(curEnv);
                 resultStruct.nextContinuable = actualProcCall;
             }
 
@@ -695,7 +695,7 @@ R5JS_builtins['control'] = {
              lastResultName and set the next continuable to cc's
              nextContinuable. */
             var dummyProcCall = newProcCall(procCall.firstOperand, continuation, continuation);
-            dummyProcCall.setEnv(env);
+            dummyProcCall.setStartingEnv(env);
             resultStruct.nextContinuable = dummyProcCall;
         }
     },
@@ -734,7 +734,7 @@ R5JS_builtins['control'] = {
                 env.addBinding(continuation.lastResultName, userArgs);
             }
             if (continuation.nextContinuable)
-                continuation.nextContinuable.setEnv(env);
+                continuation.nextContinuable.setStartingEnv(env);
             resultStruct.nextContinuable = continuation.nextContinuable;
         }
     }   ,
@@ -756,12 +756,12 @@ R5JS_builtins['control'] = {
                 procCall.firstOperand,
                 null, // no arguments
                 producerContinuation);
-            producerCall.setEnv(env);
+            producerCall.setStartingEnv(env);
             var consumerCall = newProcCall(
                 procCall.firstOperand.nextSibling,
                 newIdOrLiteral(valuesName),
                 continuation);
-            consumerCall.setEnv(env);
+            consumerCall.setStartingEnv(env);
             producerContinuation.nextContinuable = consumerCall;
             resultStruct.nextContinuable = producerCall;
         }

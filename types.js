@@ -7,7 +7,7 @@ SchemeChar.prototype.toString = function() {
 };
 
 function newEnvironmentSpecifier(version) {
-    return newIdOrLiteral(version, 'environment-specifier');
+    return newIdOrLiteral(new Environment(null, version), 'environment-specifier');
 }
 
 function SchemeString(s) {
@@ -117,7 +117,7 @@ SchemeProcedure.prototype.setBody = function(bodyContinuable) {
     This should work for simple kinds of tail recursion, but I need to verify
     it works for all the tail call sites required by the Scheme standard.
  */
-SchemeProcedure.prototype.setContinuation = function(c) {
+SchemeProcedure.prototype.setContinuation = function(c, env) {
     /* The first part of this check is to avoid a null pointer dereference if
      the procedure has no body. Such an occurrence is not allowed by the
      Scheme grammar, but internally we rewrite definitions as dummy
@@ -130,9 +130,18 @@ SchemeProcedure.prototype.setContinuation = function(c) {
      ((lambda (x) <nothing>) 1)
 
      See comments in constructTopLevelDefs. */
+
     if (this.lastContinuable
-        && this.lastContinuable.continuation !== c)
+        && this.lastContinuable.continuation !== c) {
         this.lastContinuable.continuation = c.clone();
+        var nextContinuable = this.lastContinuable.continuation.nextContinuable;
+        // todo bl hack!
+        if (nextContinuable && nextContinuable.subtype instanceof Branch) {
+            nextContinuable.subtype.consequent.setStartingEnv(env);
+            if (nextContinuable.subtype.alternate)
+                nextContinuable.subtype.alternate.setStartingEnv(env);
+        }
+    }
 };
 
 SchemeProcedure.prototype.toString = function() {

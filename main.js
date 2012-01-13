@@ -28,7 +28,7 @@ var R5JS = {
             env = new Environment('global', R5JS_R5RSEnv);
             env.redefsOk = true;
         }
-        return root.desugar(env).setEnv(env);
+        return root.desugar(env).setStartingEnv(env);
     },
 
     _eval: function(continuable) {
@@ -101,7 +101,7 @@ function install(lib, env) {
             ).read()
         ).parse()
             .desugar(env)
-            .setEnv(env)
+            .setStartingEnv(env)
     );
 }
 
