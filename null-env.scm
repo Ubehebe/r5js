@@ -82,3 +82,15 @@
      (let ((name1 val1))
        (let* ((name2 val2) ...)
 	 body1 body2 ...)))))
+
+
+; This definition only covers the following rule in the Scheme grammar:
+; <derived expression> -> (begin <sequence>)
+; There are two other rules in the grammar that have begin-blocks on their
+; right-hand sides. Those are handled by builtin parser logic because they
+; may contain definitions.
+(define-syntax begin
+  (syntax-rules ()
+    ((begin exp ...)
+     ((lambda () exp ...)))))
+

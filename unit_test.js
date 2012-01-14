@@ -350,7 +350,14 @@ function testEvaluator() {
         "let": false,
         "(equal? '(1 2) '(1 . 2))": '#f',
         "(equal? '(1 2) '(1 2))": '#t',
-        "(define (even? n) (= 0 (remainder n 2))) (if (even? 4201) 'even 'odd)": 'odd'
+        "(define (even? n) (= 0 (remainder n 2))) (if (even? 4201) 'even 'odd)": 'odd',
+        "(define (even? n) (= 0 (remainder n 2))) (if (even? 4200) 'even 'odd)": 'even',
+        "(define (foo x) (begin (define x 1) (define y 2) (+ x y))) (foo 32)": '3',
+        "(define (foo x) (begin (define x 1) (define y 2)) (+ x y)) (foo 32)": '3',
+        "(begin (define x 1) x)": '1',
+        "(begin (define x 1)) x": '1',
+        "(begin (begin (define x 1)) x)": '1'
+
     };
 
     /* These tests exercise various macro features that the standard talks about

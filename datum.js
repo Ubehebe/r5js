@@ -247,28 +247,34 @@ Datum.prototype.sequenceOperands = function(env, cpsNames) {
 
 };
 
+/* todo bl: we must pass isTopLevel down in order to deal with things like
+ (begin (begin (define x 1)) x), where the second begin should be interpreted
+ as top-level. */
 Datum.prototype.sequence = function(env, isTopLevel) {
     var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
-        /* 5.1: "At the top level of a program (begin <form1> ...) is
-            equivalent to the sequence of expressions, definitions, and
-            syntax definitions that form the body of the begin."
+        /* Special code for dealing with begin blocks
+         Here are all the RHSes in which begin appears:
 
-            5.2.2: "Wherever an internal definition may occur
-            (begin <definition1> ...) is equivalent to the sequence of
-            definitions that form the body of the begin."
+         (1) <derived expression> -> (begin <sequence>)
+         (2) <command or definition> -> (begin <command or definition>+)
+         (3) <definition> -> (begin <definition>*)
 
-            What we do on finding a begin block as a child of node N is
-            just read the children of the begin block as children of N.
+         R5RS 7.3 gives a couple of macro definitions for begin that
+         "apply only if the body of the begin contains no definitions", i.e.
+         case 1 but not 2 or 3. I understand this as a suggestion that
+         case 1 should be handled by a macro, while cases 2 and 3 require
+         built-in support in the parser.
 
-            Note that the standard gives a couple macro definitions of
-            begin, but this confusing sentence made me unsure of whether
-            they are adequate definitions:
+         The following conditional is support for cases 2 and 3. If the
+         begin identifier has already been successfully parsed as a keyword,
+         that means we're in case 1 and should do nothing.
 
-            7.3: "In any case, note that these rules [=macros?] apply only if
-            the body of the begin contains no definitions."
-         */
-        if (cur.isList() && cur.firstChild.payload === 'begin') {
+         todo bl: it would be great if I could use one macro definition
+         for all three cases. */
+        if (cur.isList()
+            && cur.firstChild.payload === 'begin'
+            && cur.firstChild.peekParse() !== 'keyword') {
             var startBeginBlock = cur.firstChild.nextSibling;
             if (startBeginBlock) {
                 var endBeginBlock = startBeginBlock.lastSibling();
