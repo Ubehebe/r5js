@@ -290,6 +290,9 @@ Parser.prototype['expression'] = function() {
             {type: 'assignment'}
         ],
         [
+            {type: 'quasiquotation', qqLevel: 1}
+        ],
+        [
             {type: 'macro-block'}
         ],
         [
@@ -740,7 +743,145 @@ Parser.prototype['assignment'] = function() {
     );
 };
 
-// todo bl quasiquotation?
+// <quasiquotation> -> <quasiquotation 1>
+// <quasiquotation D> -> `<qq template D> | (quasiquote <qq template D>)
+Parser.prototype['quasiquotation'] = function() {
+    return this.alternation(
+        [
+            {type: '`'},
+            {type: 'qq-template', qqLevel: this.qqLevel+1}
+        ],
+        [
+            {type: '('},
+            {type: 'quasiquote'},
+            {type: 'qq-template', qqLevel: this.qqLevel+1},
+            {type: ')'}
+        ]
+    );
+};
+
+/* <qq template 0> -> <expression>
+ <qq template D> -> <simple datum>
+ | <list qq template D>
+ | <vector qq template D>
+ | <unquotation D>
+ */
+Parser.prototype['qq-template'] = function() {
+    return this.alternation(
+       /* [
+            {type: 'expression', ifQqLevel: 0}
+        ],*/
+        [
+            {type: function(datum) {
+                switch (datum.type) {
+                    case 'boolean':
+                    case 'number':
+                    case 'character':
+                    case 'string':
+                    case 'identifier':
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            }
+        ],
+        [
+            {type: 'list-qq-template', qqLevel: this.qqLevel}
+        ],
+        [
+            {type: 'vector-qq-template', qqLevel: this.qqLevel}
+        ],
+        [
+            {type: 'unquotation', qqLevel: this.qqLevel}
+        ]
+    );
+};
+
+/*<list qq template D> -> (<qq template or splice D>*)
+ | (<qq template or splice D>+ . <qq template D>)
+ | '<qq template D>
+ | <quasiquotation D+1>
+ */
+Parser.prototype['list-qq-template'] = function() {
+  return this.alternation(
+    [
+        {type: '('},
+        {type: 'qq-template-or-splice', qqLevel: this.qqLevel, atLeast: 0},
+        {type: ')'}
+    ],
+      [
+          {type: '('},
+          {type: 'qq-template-or-splice', qqLevel: this.qqLevel, atLeast: 1},
+          {type: '.'},
+          {type: 'qq-template-or-splice'},
+          {type: ')'}
+      ],
+      [
+          {type: "'"},
+          {type: 'qq-template', qqLevel: this.qqLevel}
+      ],
+      [
+          {type: 'quasiquotation', qqLevel: this.qqLevel+1}
+      ]
+  );
+};
+
+// <vector qq template D> -> #(<qq template or splice D>*)
+Parser.prototype['vector-qq-template'] = function() {
+    return this.rhs(
+        {type: '#('},
+        {type: 'qq-template-or-splice', qqLevel: this.qqLevel + 1, atLeast: 0},
+        {type: ')'}
+    );
+};
+
+// <unquotation D> -> ,<qq template D-1> | (unquote <qq template D-1>)
+Parser.prototype['unquotation'] = function() {
+    return this.alternation(
+        [
+            {type: ','},
+            {type: 'qq-template', qqLevel: this.qqLevel - 1}
+        ],
+        [
+            {type: '('},
+            {type: 'unquote'},
+            {type: 'qq-template', qqLevel: this.qqLevel - 1},
+            {type: ')'}
+        ]
+    );
+};
+
+// <qq template or splice D> -> <qq template D> | <splicing unquotation D>
+Parser.prototype['qq-template-or-splice'] = function() {
+    return this.alternation(
+        [
+            {type: 'qq-template', qqLevel: this.qqLevel}
+        ],
+        [
+            {type: 'splicing-unquotation', qqLevel: this.qqLevel}
+        ]
+    );
+};
+
+/* <splicing unquotation D> -> ,@<qq template D-1>
+ | (unquote-splicing <qq template D-1>)
+ */
+Parser.prototype['splicing-unquotation'] = function() {
+    return this.alternation(
+        [
+            {type: ',@'},
+            {type: 'qq-template', qqLevel: this.qqLevel - 1}
+        ],
+        [
+            {type: '('},
+            {type: 'unquote-splicing'},
+            {type: 'qq-template', qqLevel: this.qqLevel - 1},
+            {type: ')'}
+        ]
+    );
+};
+
 
 // <macro use> -> (<keyword> <datum>*)
 Parser.prototype['macro-use'] = function() {

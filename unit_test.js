@@ -218,6 +218,22 @@ function testParser() {
         '(x... y...)': true
     };
 
+    tests['quasiquotation'] = {
+      "`(list ,(+ 1 2) 4)": true,
+        "`(a ,(+ 1 2) ,@(map abs '(4 -5 6)) b)": true,
+        "(a ,(+ 1 2) ,@(map abs '(4 -5 6)) b)": false,
+        "`((foo ,(- 10 3)) ,@(cdr '(c)) . ,(car '(cons)))": true,
+        "`#(10 5 ,(sqrt 4) ,@(map sqrt '(16 9)) 8)": true,
+        "`(a `(b ,(+ 1 2) ,(foo ,(+ 1 3) d) e) f)": true
+    };
+
+    tests['splicing-unquotation'] = {
+        ",@(cdr '(c))": true,
+        "(unquote-splicing (cdr '(c)))": true,
+        ",@": false,
+        "unquote-splicing": false
+    };
+
     var numErrors = 0;
     var numTests = 0;
 
