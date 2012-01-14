@@ -949,7 +949,7 @@ R5JS_builtins['eval'] = {
                 throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
             else if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
                 throw new ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
-            else return newIdOrLiteral(R5JS.evalDatum(expr, envSpec.payload));
+            else return R5JS.evalDatum(expr, envSpec.payload);
         }
     },
     /* This is not part of any Scheme standard, but it should be useful to
@@ -962,7 +962,7 @@ R5JS_builtins['eval'] = {
                     throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
                 else if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
                     throw new ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
-                else return newIdOrLiteral(R5JS.evalDatum(expr, envSpec.payload));
+                else return R5JS.evalDatum(expr, envSpec.payload);
             } catch (e) {
                 return orElse;
             }
@@ -1008,7 +1008,24 @@ R5JS_builtins['io'] = {
     'peek-char': {},
     'eof-object?': {},
     'char-ready?': {},
-    'write-char': {}
+    'write-char': {
+    },
+    'display': {
+        /* According to R5RS 6.6.3, display is supposed to be a library
+            procedure. Since the only non-library output routine is write-char,
+            display would presumably have to be written in terms of write-char.
+            That's not too efficient, so decided to write it in JavaScript.
+
+            todo bl: all the I/O routines in Scheme take an optional second
+            parameter to specify the port, but this doesn't make a lot of sense
+            on a web page. Make a decision about whether to support these. */
+        argc: 1,
+        proc: function(x) {
+            console.log(x.toString ? x.toString() : x);
+            // The return value is unspecified.
+            return null;
+        }
+    }
 };
 
 function registerBuiltin(name, definition, targetEnv) {

@@ -46,11 +46,9 @@ var R5JS = {
 
     // Just for convenience of evaling datums within the interpreter.
     evalDatum: function(datum, env) {
-        var ans =
-            R5JS._eval(
+        return R5JS._eval(
             R5JS._desugar(
                 R5JS._parse(datum), env));
-        return ans ? ans.toString() : 'undefined';
     }
 };
 

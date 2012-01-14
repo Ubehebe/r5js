@@ -142,7 +142,10 @@ Environment.prototype.addBinding = function(name, val) {
         if (val instanceof SchemeMacro)
             val.definitionEnv = this;
 
-        if (val instanceof Datum) {
+        if (val === null) {
+            /* This is a no-op, for procedures that don't explicitly
+            return a value, like display. */
+        } else if (val instanceof Datum) {
             /* If we're about to store a wrapped SchemeProcedure
              or JavaScript function, unwrap it first. */
             if (val.isProcedure())

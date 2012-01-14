@@ -108,12 +108,21 @@
             console.log(ans);
             document.getElementById('result').value = ans;
         }
+
+        function doUnitTests() {
+            var iframe = document.getElementById('unit-test').contentDocument;
+            var testHarness = unescape(iframe.getElementsByTagName('pre')[0].innerHTML);
+            var ans = R5JS.eval(testHarness);
+            console.log(ans);
+            document.getElementById('result').value = ans;
+        }
     </script>
 
 </head>
 <body>
 <iframe src='null-env.scm' id='null-env' style='display: none'></iframe>
 <iframe src='r5rs-env.scm' id='r5rs-env' style='display: none'></iframe>
+<iframe src='unit_test.scm' id='unit-test' style='display: none'></iframe>
 <textarea id='toEval' rows="15" cols="80"></textarea>
 <textarea id='result' rows="1" cols="80"></textarea>
 <p>

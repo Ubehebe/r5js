@@ -450,7 +450,7 @@ DefinitionHelper.prototype.setContinuable = function(continuable) {
 
 function maybeWrapResult(result, type) {
 
-    if (result instanceof Datum)
+    if (result === null || result instanceof Datum)
         return result; // no-op, strictly for convenience
 
     var ans = new Datum();
