@@ -182,51 +182,6 @@ function testParser() {
         '(set! x)': false
     };
 
-    /*tests['derived-expression'] = {
-     '(cond (else #t))': true,
-     '(cond (else (define x 1))': false,
-     '(cond (else 1 2 3))': true,
-     '(case)': false,
-     '(case x (else 1 2 3))': true,
-     '(and)': true,
-     '(or)': true,
-     '(let () x)': true,
-     '(let () (define x 1))': false,
-     '(let x () 1 2 3))': true,
-     '(let x () (define x 1))': false,
-     '(begin)': false,
-     '(do () (#t))': true
-     };*/
-
-    tests['cond-clause'] = {
-        '(1 2 3)': true,
-        '(1)': true,
-        '(x => (x x x))': true,
-        '1': false,
-        '(x => =>)': false
-    };
-
-    tests['case-clause'] = {
-        "(('1 '1 '()) 1)": true,
-        '(() 1)': true,
-        '((x y))': false
-    };
-
-    tests['binding-spec'] = {
-        '(x 1)': true,
-        '(1 x)': false,
-        '(define x)': false,
-        '(x define)': false,
-        '(x (define))': true
-    };
-
-    tests['iteration-spec'] = {
-        '(x 1 1)': true,
-        '(1 x 1)': false,
-        '(x 1)': true,
-        '(1 x)': false
-    };
-
     tests['transformer-spec'] = {
         '(syntax-rules ())': true,
         '(syntax-rules)': false
