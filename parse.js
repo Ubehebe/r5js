@@ -290,7 +290,7 @@ Parser.prototype['expression'] = function() {
             {type: 'assignment'}
         ],
         [
-            {type: 'quasiquotation', qqLevel: 1}
+            {type: 'quasiquotation'}
         ],
         [
             {type: 'macro-block'}
@@ -749,12 +749,12 @@ Parser.prototype['quasiquotation'] = function() {
     return this.alternation(
         [
             {type: '`'},
-            {type: 'qq-template', qqLevel: this.qqLevel+1}
+            {type: 'qq-template'}
         ],
         [
             {type: '('},
             {type: 'quasiquote'},
-            {type: 'qq-template', qqLevel: this.qqLevel+1},
+            {type: 'qq-template'},
             {type: ')'}
         ]
     );
@@ -768,7 +768,7 @@ Parser.prototype['quasiquotation'] = function() {
  */
 Parser.prototype['qq-template'] = function() {
     return this.alternation(
-       /* [
+       /* [ todo bl do we need this?
             {type: 'expression', ifQqLevel: 0}
         ],*/
         [
@@ -787,13 +787,13 @@ Parser.prototype['qq-template'] = function() {
             }
         ],
         [
-            {type: 'list-qq-template', qqLevel: this.qqLevel}
+            {type: 'list-qq-template'}
         ],
         [
-            {type: 'vector-qq-template', qqLevel: this.qqLevel}
+            {type: 'vector-qq-template'}
         ],
         [
-            {type: 'unquotation', qqLevel: this.qqLevel}
+            {type: 'unquotation'}
         ]
     );
 };
@@ -807,22 +807,22 @@ Parser.prototype['list-qq-template'] = function() {
   return this.alternation(
     [
         {type: '('},
-        {type: 'qq-template-or-splice', qqLevel: this.qqLevel, atLeast: 0},
+        {type: 'qq-template-or-splice', atLeast: 0},
         {type: ')'}
     ],
       [
           {type: '('},
-          {type: 'qq-template-or-splice', qqLevel: this.qqLevel, atLeast: 1},
+          {type: 'qq-template-or-splice', atLeast: 1},
           {type: '.'},
           {type: 'qq-template-or-splice'},
           {type: ')'}
       ],
       [
           {type: "'"},
-          {type: 'qq-template', qqLevel: this.qqLevel}
+          {type: 'qq-template'}
       ],
       [
-          {type: 'quasiquotation', qqLevel: this.qqLevel+1}
+          {type: 'quasiquotation'}
       ]
   );
 };
@@ -831,7 +831,7 @@ Parser.prototype['list-qq-template'] = function() {
 Parser.prototype['vector-qq-template'] = function() {
     return this.rhs(
         {type: '#('},
-        {type: 'qq-template-or-splice', qqLevel: this.qqLevel + 1, atLeast: 0},
+        {type: 'qq-template-or-splice', atLeast: 0},
         {type: ')'}
     );
 };
@@ -841,12 +841,12 @@ Parser.prototype['unquotation'] = function() {
     return this.alternation(
         [
             {type: ','},
-            {type: 'qq-template', qqLevel: this.qqLevel - 1}
+            {type: 'qq-template'}
         ],
         [
             {type: '('},
             {type: 'unquote'},
-            {type: 'qq-template', qqLevel: this.qqLevel - 1},
+            {type: 'qq-template'},
             {type: ')'}
         ]
     );
@@ -856,10 +856,10 @@ Parser.prototype['unquotation'] = function() {
 Parser.prototype['qq-template-or-splice'] = function() {
     return this.alternation(
         [
-            {type: 'qq-template', qqLevel: this.qqLevel}
+            {type: 'qq-template'}
         ],
         [
-            {type: 'splicing-unquotation', qqLevel: this.qqLevel}
+            {type: 'splicing-unquotation'}
         ]
     );
 };
@@ -871,12 +871,12 @@ Parser.prototype['splicing-unquotation'] = function() {
     return this.alternation(
         [
             {type: ',@'},
-            {type: 'qq-template', qqLevel: this.qqLevel - 1}
+            {type: 'qq-template'}
         ],
         [
             {type: '('},
             {type: 'unquote-splicing'},
-            {type: 'qq-template', qqLevel: this.qqLevel - 1},
+            {type: 'qq-template'},
             {type: ')'}
         ]
     );

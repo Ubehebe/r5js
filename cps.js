@@ -392,6 +392,8 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
         ans = this.env.get(arg.payload);
     else if (arg.isQuote())
         ans = arg.firstChild;
+    else if (arg.isQuasiquote())
+        ans = arg.firstChild;
     else
         ans = maybeWrapResult(arg.payload, arg.type);
 

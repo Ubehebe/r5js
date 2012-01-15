@@ -547,6 +547,18 @@ Datum.prototype.isQuote = function() {
         && this.firstChild.payload === 'quote'); // todo bl should datums know about this?
 };
 
+Datum.prototype.isQuasiquote = function() {
+    return this.type === '`';
+};
+
+Datum.prototype.isUnquote = function() {
+    return this.type === ',';
+};
+
+Datum.prototype.isUnquoteSplicing = function() {
+    return this.type === ',@';
+};
+
 /* todo bl this could be written in Scheme (as equals?). I wrote it
  in JavaScript because we have to call it when doing macro processing.
  */
@@ -709,6 +721,11 @@ Datum.prototype.normalizeInput = function() {
         this.type = "'";
     }
 
+    if (this.firstChild && this.firstChild.payload === 'quasiquote') {
+        this.firstChild = this.firstChild.nextSibling;
+        this.type = '`';
+    }
+
     var isImproperList = this.isImproperList();
 
     for (var child = this.firstChild; child; child = child.nextSibling) {
@@ -720,6 +737,27 @@ Datum.prototype.normalizeInput = function() {
                 child.nextSibling = null;
                 this.type = '(';
             }
+        }
+    }
+
+    return this;
+};
+
+Datum.prototype.decorateQuasiquote = function(quoteLevel, unquoteLevel) {
+
+    if (this.isQuasiquote()) {
+        this.qqLevel = quoteLevel;
+    } else if (this.isUnquote() || this.isUnquoteSplicing()) {
+        this.qqLevel = unquoteLevel;
+    }
+
+    for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
+        if (cur.isQuasiquote()) {
+            cur.decorateQuasiquote(quoteLevel+1, unquoteLevel);
+        } else if (cur.isUnquote() || cur.isUnquoteSplicing()) {
+            cur.decorateQuasiquote(quoteLevel, unquoteLevel+1);
+        } else {
+            cur.decorateQuasiquote(quoteLevel, unquoteLevel);
         }
     }
 
