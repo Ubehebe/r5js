@@ -491,12 +491,21 @@ function testEvaluator() {
         "(procedure? (lambda (x) (* x x)))": '#t', // p. 31
         "(procedure? '(lambda (x) (* x x)))": '#f', // p. 31
         "(call-with-current-continuation procedure?)": '#t', // p. 31
-        // todo bl "(apply + (list 3 4))": '7', // p. 32
+        "(apply + (list 3 4))": '7', // p. 32
         "(define compose (lambda (f g) (lambda args (f (apply g args))))) ((compose sqrt *) 12 75)": '30', // p. 32
         "(call-with-values (lambda () (values 4 5)) (lambda (a b) b))": '5', // p. 34
         "(call-with-values * -)": '-1', // p. 34
-        "(eval '(* 7 3) (scheme-report-environment 5))": '21' // p. 35
-        // todo bl "(let ((f (eval '(lambda (f x) (f x x)) (null-environment 5)))) (f + 10))": '20' // p. 35
+        "(eval '(* 7 3) (scheme-report-environment 5))": '21', // p. 35
+        "(let ((f (eval '(lambda (f x) (f x x)) (null-environment 5)))) (f + 10))": '20', // p. 35
+
+        /* todo bl: especially for quasiquotation, it's important not to test
+        against the external representations, because those are allowed to vary. */
+        "`(list ,(+ 1 2) 4)": "(list 3 4)", // p. 13
+        "`(a `(b ,(+ 1 2) ,(foo ,(+ 1 3) d) e) f)": "(a `(b ,(+ 1 2) ,(foo 4 d) e) f)", // p. 13
+        "(let ((name 'a)) `(list ,name ',name))": "(list a 'a)", // p. 13
+        "(let ((name1 'x) (name2 'y)) `(a `(b ,,name1 ,',name2 d) e))": "(a `(b ,x ,'y d) e)", // p. 13
+        "(quasiquote (list (unquote (+ 1 2)) 4))": '(list 3 4)', // p. 13
+        "'(quasiquote (list (unquote (+ 1 2)) 4))": "`(list ,(+ 1 2) 4)" // p. 13
     };
 
     var numErrors = 0;

@@ -290,7 +290,11 @@ Parser.prototype['expression'] = function() {
             {type: 'assignment'}
         ],
         [
-            {type: 'quasiquotation'}
+            {type: 'quasiquotation'},
+            {desugar: function(node, env) {
+                return node.decorateQuasiquote(1);
+            }
+            }
         ],
         [
             {type: 'macro-block'}

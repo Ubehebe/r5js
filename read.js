@@ -236,11 +236,10 @@ Datum.prototype.toString = function() {
         case ',':
         case ',@':
             ans = this.type;
-            /* qqLevel is only set on quasiquote (`), unquote (,), and
-             unquote-splicing (,@), not quote ('), but the fallthrough
-             from quote is harmless. */
-            if (this.qqLevel !== undefined)
-                ans += 'qq' + this.qqLevel;
+            /* Uncomment to show quasiquotation levels.
+             (These should not make it into any external representation.)
+             if (this.qqLevel !== undefined && ans !== "'")
+             ans += 'qq' + this.qqLevel; */
             for (child = this.firstChild; child && child.nextSibling; child = child.nextSibling)
                 ans += child.toString() + ' ';
             var lastChildString = child ? child.toString() : '';

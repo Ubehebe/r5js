@@ -23,6 +23,24 @@ Datum.prototype.forEach = function(callback) {
     }
 };
 
+// This penetrates quotations because it's used in quasiquote evaluation.
+Datum.prototype.replace = function(predicate, transform) {
+    for (var cur = this.firstChild, prev; cur; prev = cur,cur = cur.nextSibling) {
+        if (predicate(cur)) {
+            var transformed = transform(cur);
+            transformed.nextSibling = cur.nextSibling;
+            if (prev) {
+                prev.nextSibling = transformed;
+            } else {
+                this.firstChild = transformed;
+            }
+        } else {
+            cur.replace(predicate, transform);
+        }
+    }
+    return this;
+};
+
 function newEmptyList() {
     var ans = new Datum();
     ans.type = '(';
@@ -551,12 +569,10 @@ Datum.prototype.isQuasiquote = function() {
     return this.type === '`';
 };
 
+/* In most situations, we want to detect both unquote (,) and
+unquote-splicing (,@) */
 Datum.prototype.isUnquote = function() {
-    return this.type === ',';
-};
-
-Datum.prototype.isUnquoteSplicing = function() {
-    return this.type === ',@';
+    return this.type === ',' || this.type === ',@';
 };
 
 /* todo bl this could be written in Scheme (as equals?). I wrote it
@@ -743,21 +759,27 @@ Datum.prototype.normalizeInput = function() {
     return this;
 };
 
-Datum.prototype.decorateQuasiquote = function(quoteLevel, unquoteLevel) {
+/* Example:
+    `(a `(b ,(+ x y) ,(foo ,(+ z w) d) e) f)
+
+    should be decorated as
+
+    `1(a `2(b ,2(+ x y) ,2(foo ,1(+ z w) d) e) f) */
+Datum.prototype.decorateQuasiquote = function(qqLevel) {
 
     if (this.isQuasiquote()) {
-        this.qqLevel = quoteLevel;
-    } else if (this.isUnquote() || this.isUnquoteSplicing()) {
-        this.qqLevel = unquoteLevel;
+        this.qqLevel = qqLevel;
+    } else if (this.isUnquote()) {
+        this.qqLevel = qqLevel+1;
     }
 
     for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
         if (cur.isQuasiquote()) {
-            cur.decorateQuasiquote(quoteLevel+1, unquoteLevel);
-        } else if (cur.isUnquote() || cur.isUnquoteSplicing()) {
-            cur.decorateQuasiquote(quoteLevel, unquoteLevel+1);
+            cur.decorateQuasiquote(qqLevel+1);
+        } else if (cur.isUnquote()) {
+            cur.decorateQuasiquote(qqLevel-1);
         } else {
-            cur.decorateQuasiquote(quoteLevel, unquoteLevel);
+            cur.decorateQuasiquote(qqLevel);
         }
     }
 

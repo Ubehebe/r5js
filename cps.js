@@ -383,17 +383,26 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
     var arg = this.firstOperand;
 
     /* todo bl: id shims have become quite popular for passing through
-        disparate objects on the trampoline. The logic could be made clearer. */
+     disparate objects on the trampoline. The logic could be made clearer. */
     if (arg instanceof SchemeMacro)
         ans = arg;
     else if (typeof arg === 'function' || arg.isProcedure())
         ans = arg;
     else if (arg.isIdentifier())
         ans = this.env.get(arg.payload);
-    else if (arg.isQuote())
-        ans = arg.firstChild;
+    else if (arg.isQuote()) {
+        // Can't reference "this" properly in the closure below. Thanks, JavaScript.
+        var env = this.env;
+        ans = arg.firstChild.replace(
+            function(node) {
+                return node.isIdentifier() && node.payload.charAt(0) === cpsPrefix;
+            },
+            function(node) {
+                return env.get(node.payload).clone();
+            });
+    }
     else if (arg.isQuasiquote())
-        ans = arg.firstChild;
+        return processQuasiquote(this.env, arg, continuation, resultStruct);
     else
         ans = maybeWrapResult(arg.payload, arg.type);
 
@@ -408,6 +417,32 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
     resultStruct.ans = ans;
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
+
+function processQuasiquote(env, datum, continuation, resultStruct) {
+
+    var ans;
+    var lastContinuable;
+
+    datum.firstChild.replace(
+        function(node) {
+            return node.isUnquote() && (node.qqLevel === datum.qqLevel);
+        },
+        function(node) {
+            var asContinuable = new Parser(node.firstChild).parse('expression').desugar(env, true);
+            if (lastContinuable)
+                lastContinuable.continuation.nextContinuable = asContinuable;
+            else
+                ans = asContinuable;
+            lastContinuable = asContinuable.getLastContinuable();
+            return newIdOrLiteral(lastContinuable.continuation.lastResultName);
+        });
+
+    datum.type = "'";
+    lastContinuable.continuation.nextContinuable = newIdShim(datum, newCpsName());
+    ans.setStartingEnv(env);
+
+    resultStruct.nextContinuable = ans;
+}
 
 /* If the operator resolves as a primitive or non-primitive procedure,
  check that the operands are simple. If they're not, rearrange the flow
