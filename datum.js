@@ -246,18 +246,15 @@ Datum.prototype.sequenceOperands = function(env, cpsNames) {
         /* This check is necessary because node.desugar can return null for some
          nodes (when it makes sense for the node to drop off the tree before
          evaluation, e.g. for definitions). */
-        if (tmp = cur.desugar(env)) {
-            if (cpsNames && tmp instanceof Continuable)
-                cpsNames.push(tmp.getLastContinuable().continuation.lastResultName);
+        else if ((tmp = cur.desugar(env)) instanceof Continuable) {
+            cpsNames.push(tmp.getLastContinuable().continuation.lastResultName);
 
-            if (tmp instanceof Continuable) {
-                if (!first)
-                    first = tmp;
-                else if (curEnd)
-                    curEnd.nextContinuable = tmp;
+            if (!first)
+                first = tmp;
+            else if (curEnd)
+                curEnd.nextContinuable = tmp;
 
-                curEnd = tmp.getLastContinuable().continuation;
-            }
+            curEnd = tmp.getLastContinuable().continuation;
         }
     }
 
