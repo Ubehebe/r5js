@@ -401,8 +401,12 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
                 return env.get(node.payload).clone();
             });
     }
-    else if (arg.isQuasiquote())
-        return processQuasiquote(this.env, arg, continuation, resultStruct);
+    else if (arg.isQuasiquote()) {
+        /* todo bl do I understand how the continuation is being preserved
+         properly? We're not passing it in here at all... */
+        resultStruct.nextContinuable = arg.processQuasiquote(this.env, true);
+        return;
+    }
     else
         ans = maybeWrapResult(arg.payload, arg.type);
 
@@ -417,32 +421,6 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
     resultStruct.ans = ans;
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
-
-function processQuasiquote(env, datum, continuation, resultStruct) {
-
-    var ans;
-    var lastContinuable;
-
-    datum.firstChild.replace(
-        function(node) {
-            return node.isUnquote() && (node.qqLevel === datum.qqLevel);
-        },
-        function(node) {
-            var asContinuable = new Parser(node.firstChild).parse('expression').desugar(env, true);
-            if (lastContinuable)
-                lastContinuable.continuation.nextContinuable = asContinuable;
-            else
-                ans = asContinuable;
-            lastContinuable = asContinuable.getLastContinuable();
-            return newIdOrLiteral(lastContinuable.continuation.lastResultName);
-        });
-
-    datum.type = "'";
-    lastContinuable.continuation.nextContinuable = newIdShim(datum, newCpsName());
-    ans.setStartingEnv(env);
-
-    resultStruct.nextContinuable = ans;
-}
 
 /* If the operator resolves as a primitive or non-primitive procedure,
  check that the operands are simple. If they're not, rearrange the flow

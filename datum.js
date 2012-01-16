@@ -204,16 +204,29 @@ Datum.prototype.isImproperList = function() {
 };
 
 Datum.prototype.resetDesugars = function() {
-    if (this.nextDesugar === -1)
-        this.nextDesugar += this.desugars.length;
+    /* The first time we "desugar" a quasiquotation, we want to annotate it
+     with nesting levels and normalize input:
 
-    for (var cur = this.firstChild; cur; cur = cur.nextSibling)
-        cur.resetDesugars();
+     (quasiquote (list (unquote (+ x y)) z)) => `1(list ,1(+ x y) z)
+
+     The next time we "desugar" it, we want to actually CPSify it:
+
+     `1(list ,1(+ x y) z) => (+ x y [_0 (list _0 z [_1 ...])])
+
+     This overloading of desugar should probably be avoided... */
+    if (this.nextDesugar === -1 && !this.isQuasiquote())
+        this.nextDesugar += this.desugars.length;
 };
 
 Datum.prototype.desugar = function(env, forceContinuationWrapper) {
-    var desugarFn = this.desugars && this.nextDesugar >= 0 && this.desugars[this.nextDesugar--];
-    var ans = desugarFn ? desugarFn(this, env) : this;
+    /* See comment about repeated desugaring of quasiquotations in
+    Datum.prototype.resetDesugars. */
+    var desugarFn = this.desugars
+        && this.nextDesugar >= 0
+        && this.desugars[this.nextDesugar--];
+    var ans = desugarFn
+        ? desugarFn(this, env)
+        : (this.isQuasiquote() ? this.processQuasiquote(env, forceContinuationWrapper) : this);
     if (forceContinuationWrapper && !(ans instanceof Continuable))
         ans = newIdShim(ans, newCpsName());
     return ans;
@@ -236,30 +249,27 @@ Datum.prototype.isEnvironmentSpecifier = function() {
 };
 
 Datum.prototype.sequenceOperands = function(env, cpsNames) {
-    var first, tmp, curEnd;
+    var first, tmp, curEnd, tmpEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
-        /* todo bl: resetDesugars() and desugar() both do a complete tree walk.
-            there is an easy 2x performance improvement by folding that into a
-            single call. Beyond that, we may want to look into caching the results
-            of a desugar. */
         cur.resetDesugars();
         /* This check is necessary because node.desugar can return null for some
          nodes (when it makes sense for the node to drop off the tree before
          evaluation, e.g. for definitions). */
-        else if ((tmp = cur.desugar(env)) instanceof Continuable) {
-            cpsNames.push(tmp.getLastContinuable().continuation.lastResultName);
+        if ((tmp = cur.desugar(env)) instanceof Continuable) {
+            tmpEnd = tmp.getLastContinuable();
+            cpsNames.push(tmpEnd.continuation.lastResultName);
 
             if (!first)
                 first = tmp;
-            else if (curEnd)
+            else if (curEnd) {
                 curEnd.nextContinuable = tmp;
+            }
 
-            curEnd = tmp.getLastContinuable().continuation;
+            curEnd = tmpEnd.continuation;
         }
     }
 
     return first; // can be undefined
-
 };
 
 /* todo bl: we must pass isTopLevel down in order to deal with things like
@@ -726,17 +736,37 @@ Datum.prototype.lastSibling = function() {
     prior to evaluation time to simplify the Scheme procedure "list?".
     With normalization, we can merely say, (list? x) iff x.isList().
     Without normalization, we would also have to check if x is an
-    improper list, and if so, whether its last element was an empty list. */
+    improper list, and if so, whether its last element was an empty list.
+
+    This is also an opportune time to do these:
+
+    (quote x) -> 'x
+    (quasiquote x) -> `x
+    (unquote x) -> ,x
+    (unquote-splicing x) -> ,@x
+
+    so we don't have to worry about these synonyms during evaluation proper. */
 Datum.prototype.normalizeInput = function() {
 
-    if (this.firstChild && this.firstChild.payload === 'quote') {
-        this.firstChild = this.firstChild.nextSibling;
-        this.type = "'";
-    }
-
-    if (this.firstChild && this.firstChild.payload === 'quasiquote') {
-        this.firstChild = this.firstChild.nextSibling;
-        this.type = '`';
+    if (this.firstChild) {
+        switch (this.firstChild.payload) {
+            case 'quote':
+                this.type = "'";
+                this.firstChild = this.firstChild.nextSibling;
+                break;
+            case 'quasiquote':
+                this.type = "`";
+                this.firstChild = this.firstChild.nextSibling;
+                break;
+            case 'unquote':
+                this.type = ',';
+                this.firstChild = this.firstChild.nextSibling;
+                break;
+            case 'unquote-splicing':
+                this.type = ',@';
+                this.firstChild = this.firstChild.nextSibling;
+                break;
+        }
     }
 
     var isImproperList = this.isImproperList();
@@ -849,7 +879,8 @@ function LocalStructure(operator, firstOperand) {
                 desugaring them). This seems like a pretty bad design. */
             this.bindings.push(cur.clone().normalizeInput());
             cur.nextSibling = tmp;
-        } else if (cur.isList()) {
+        } else if (cur.isList() || cur.isQuasiquote()) {
+            // hmm bl this design could be made clearer
             this.bindings.push(null); // a placeholder until we know the name
         } else {
             this.bindings.push(newIdOrLiteral(cur.payload, cur.type));
@@ -882,6 +913,38 @@ LocalStructure.prototype.toString = function() {
     for (var i=0; i<this.bindings.length; ++i)
         ans += (this.bindings[i] || '_') + ' ';
     return ans + '}';
+};
+
+// Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
+Datum.prototype.processQuasiquote = function(env, forceContinuationWrapper) {
+
+    var nextContinuable;
+    var lastContinuable;
+    var qqLevel = this.qqLevel;
+
+    this.firstChild.replace(
+        function(node) {
+            return node.isUnquote() && (node.qqLevel === qqLevel);
+        },
+        function(node) {
+            var asContinuable = new Parser(node.firstChild).parse('expression').desugar(env, true);
+            if (lastContinuable)
+                lastContinuable.continuation.nextContinuable = asContinuable;
+            else
+                nextContinuable = asContinuable;
+            lastContinuable = asContinuable.getLastContinuable();
+            return newIdOrLiteral(lastContinuable.continuation.lastResultName);
+        });
+
+    this.type = "'";
+
+    if (nextContinuable) {
+        lastContinuable.continuation.nextContinuable = newIdShim(this, newCpsName());
+    } else if (forceContinuationWrapper) {
+        nextContinuable = newIdShim(this, newCpsName());
+    }
+
+    return nextContinuable && nextContinuable.setStartingEnv(env);
 };
 
 /*

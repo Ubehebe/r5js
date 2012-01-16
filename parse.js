@@ -292,7 +292,7 @@ Parser.prototype['expression'] = function() {
         [
             {type: 'quasiquotation'},
             {desugar: function(node, env) {
-                return node.decorateQuasiquote(1);
+                return node.normalizeInput().decorateQuasiquote(1);
             }
             }
         ],

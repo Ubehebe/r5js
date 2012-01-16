@@ -327,8 +327,9 @@ function testEvaluator() {
         "(define (foo x) (begin (define x 1) (define y 2)) (+ x y)) (foo 32)": '3',
         "(begin (define x 1) x)": '1',
         "(begin (define x 1)) x": '1',
-        "(begin (begin (define x 1)) x)": '1'
-
+        "(begin (begin (define x 1)) x)": '1',
+        "(+ '1 2)": '3',
+        "(+ `1 2)" : '3'
     };
 
     /* These tests exercise various macro features that the standard talks about
