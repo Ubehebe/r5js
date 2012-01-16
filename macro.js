@@ -186,7 +186,7 @@ function constructFreeIds(patternDatum, templateDatum) {
 function Template(datum, templateBindings, freeIdsInTemplate) {
     /* We must clone the template datum because every macro use will
      deform the template through the hygienic transcription. */
-    this.datum = datum.clone().sanitize();
+    this.datum = datum.clone();
     this.templateBindings = templateBindings;
     this.freeIdsInTemplate = freeIdsInTemplate;
 }

@@ -116,12 +116,6 @@ Datum.prototype.unsetParse = function() {
         child.unsetParse();
 };
 
-Datum.prototype.sanitize = function() {
-    this.parent = null;
-    this.unsetParse();
-    return this;
-};
-
 Datum.prototype.peekParse = function() {
     if (this.nonterminals) {
         var len = this.nonterminals.length;
