@@ -230,15 +230,8 @@ SchemeMacro.prototype.matchNonLiteralId
     var patternIsLiteralId = patternId && this.literalIdentifiers[patternId];
 
     if (patternId && !patternIsLiteralId) {
-
-        /* Temporarily slice off the input's siblings
-         to save time during cloning. */
-        var savedNextSibling = inputDatum.nextSibling;
-        var toInsert = inputDatum.severSibling().clone().sanitize();
-        inputDatum.nextSibling = savedNextSibling;
-
         // Push the new datum onto the list of bindings
-        bindings.addBinding(patternId, toInsert);
+        bindings.addBinding(patternId, inputDatum.clone(true));
         return true;
     } else return false;
 };

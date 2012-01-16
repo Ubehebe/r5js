@@ -73,7 +73,7 @@ Datum.prototype.stripSiblings = function() {
     return this;
 };
 
-Datum.prototype.clone = function() {
+Datum.prototype.clone = function(ignoreSiblings) {
 
     var ans = new Datum();
 
@@ -87,17 +87,12 @@ Datum.prototype.clone = function() {
         ans.nonterminals = shallowArrayCopy(this.nonterminals);
     if (this.firstChild)
         ans.firstChild = this.firstChild.clone();
-    if (this.nextSibling)
+    if (this.nextSibling && !ignoreSiblings)
         ans.nextSibling = this.nextSibling.clone();
     if (this.name)
         ans.name = this.name;
 
     return ans;
-};
-
-Datum.prototype.severSibling = function() {
-    this.nextSibling = null;
-    return this;
 };
 
 Datum.prototype.setParse = function(type) {
@@ -629,9 +624,7 @@ Datum.prototype.transcribe = function(templateBindings) {
          before trying to transcribe it, so we can re-transcribe it later. */
         if (ellipsisMode
             || (ellipsisMode = (cur.nextSibling && cur.nextSibling.payload === '...'))) {
-            var savedNextSibling = cur.nextSibling;
-            curClone = cur.severSibling().clone();
-            cur.nextSibling = savedNextSibling;
+            curClone = cur.clone(true);
         }
 
         // Identifiers: nonrecursive case
