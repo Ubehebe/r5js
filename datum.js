@@ -237,30 +237,6 @@ Datum.prototype.isEnvironmentSpecifier = function() {
     return this.type === 'environment-specifier';
 };
 
-Datum.prototype.sequenceOperands = function(env, cpsNames) {
-    var first, tmp, curEnd, tmpEnd;
-    for (var cur = this; cur; cur = cur.nextSibling) {
-        cur.resetDesugars();
-        /* This check is necessary because node.desugar can return null for some
-         nodes (when it makes sense for the node to drop off the tree before
-         evaluation, e.g. for definitions). */
-        if ((tmp = cur.desugar(env)) instanceof Continuable) {
-            tmpEnd = tmp.getLastContinuable();
-            cpsNames.push(tmpEnd.continuation.lastResultName);
-
-            if (!first)
-                first = tmp;
-            else if (curEnd) {
-                curEnd.nextContinuable = tmp;
-            }
-
-            curEnd = tmpEnd.continuation;
-        }
-    }
-
-    return first; // can be undefined
-};
-
 /* todo bl: we must pass isTopLevel down in order to deal with things like
  (begin (begin (define x 1)) x), where the second begin should be interpreted
  as top-level. */
@@ -844,63 +820,6 @@ var uniqueNodeCounter = 0;
 var anonymousLambdaCounter = 0;
 // Not a valid identifier prefix so we can easily tell these apart
 var cpsPrefix = '@';
-
-
-function LocalStructure(operator, firstOperand) {
-
-    if (!(operator instanceof Datum && operator.isLiteral()))
-        throw new InternalInterpreterError('invariant incorrect');
-
-    this.bindings = [];
-    this.operator = operator;
-
-    for (var cur = firstOperand; cur; cur = cur.nextSibling) {
-        if (cur.isQuote()) {
-            var tmp = cur.nextSibling;
-            cur.severSibling();
-            /* Why are we normalizing this datum again? Didn't we already do
-                that in the datum's desugar function? Unfortunately, we haven't
-                called that desugar function yet -- the reason we create a
-                LocalStructure object is to preserve local structure that might
-                be destroyed by sequencing the operands (which includes
-                desugaring them). This seems like a pretty bad design. */
-            this.bindings.push(cur.clone().normalizeInput());
-            cur.nextSibling = tmp;
-        } else if (cur.isList() || cur.isQuasiquote()) {
-            // hmm bl this design could be made clearer
-            this.bindings.push(null); // a placeholder until we know the name
-        } else {
-            this.bindings.push(newIdOrLiteral(cur.payload, cur.type));
-        }
-    }
-}
-
-LocalStructure.prototype.toProcCall = function(operandSequence, cpsNames) {
-
-    var idOrLiteralNode;
-    var firstArg, lastArg;
-
-    for (var i = 0; i < this.bindings.length; ++i) {
-        idOrLiteralNode = this.bindings[i] || newIdOrLiteral(cpsNames.shift());
-        if (!firstArg)
-            firstArg = idOrLiteralNode;
-        if (lastArg)
-            lastArg.appendSibling(idOrLiteralNode);
-        lastArg = idOrLiteralNode;
-    }
-
-    var newCall = newProcCall(this.operator, firstArg, new Continuation(newCpsName()));
-    return operandSequence
-        ? operandSequence.appendContinuable(newCall)
-        : newCall;
-};
-
-LocalStructure.prototype.toString = function() {
-    var ans = '{' + this.operatorName + ' ';
-    for (var i=0; i<this.bindings.length; ++i)
-        ans += (this.bindings[i] || '_') + ' ';
-    return ans + '}';
-};
 
 // Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
 Datum.prototype.processQuasiquote = function(env, forceContinuationWrapper) {

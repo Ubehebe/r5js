@@ -422,6 +422,49 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
 
+/* Just a buffer to accumulate siblings without the client having to do
+ the pointer arithmetic. */
+function SiblingHelper() {
+    //this.first;
+    // this.last;
+}
+
+SiblingHelper.prototype.appendSibling = function(node) {
+  if (!this.first) {
+    this.first = node;
+      this.last = node;
+  } else {
+      this.last.nextSibling = node;
+      this.last = node;
+  }
+};
+
+SiblingHelper.prototype.toSiblings = function() {
+    return this.first;
+};
+
+/* Just a buffer to accumulate a Continuable-Continuation chain
+ without the client having to do the pointer arithmetic. */
+function ContinuableHelper() {
+    // this.firstContinuable;
+    // this.lastContinuable;
+}
+
+ContinuableHelper.prototype.appendContinuable = function(continuable) {
+
+    if (!this.firstContinuable) {
+        this.firstContinuable = continuable;
+        this.lastContinuable = continuable
+    } else {
+        this.lastContinuable.continuation.nextContinuable = continuable;
+        this.lastContinuable = continuable;
+    }
+};
+
+ContinuableHelper.prototype.toContinuable = function() {
+    return this.firstContinuable;
+};
+
 /* If the operator resolves as a primitive or non-primitive procedure,
  check that the operands are simple. If they're not, rearrange the flow
  of control to compute them first.
@@ -434,13 +477,29 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
  get their arguments as unevaluated datums.)
  */
 ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
-    var localStructure = new LocalStructure(this.operatorName, this.firstOperand);
-    var cpsNames = [];
-    var maybeSequenced = this.firstOperand
-        && this.firstOperand.sequenceOperands(this.env, cpsNames);
-    var ans = localStructure.toProcCall(maybeSequenced, cpsNames);
-    /* The CPSified procedure call will have the same environment as its
-     non-CPSified version. */
+
+    var newCallChain = new ContinuableHelper();
+    var finalArgs = new SiblingHelper();
+
+    for (var arg = this.firstOperand; arg; arg = arg.nextSibling) {
+        if (arg.isQuote())
+            finalArgs.appendSibling(arg.clone(true).normalizeInput());
+        else if (arg.isList() || arg.isQuasiquote()) {
+            // must be desugared as Continuable
+            arg.resetDesugars();
+            var tmp = arg.desugar(this.env);
+            finalArgs.appendSibling(newIdOrLiteral(tmp.getLastContinuable().continuation.lastResultName));
+            newCallChain.appendContinuable(tmp);
+        } else {
+            finalArgs.appendSibling(newIdOrLiteral(arg.payload, arg.type));
+        }
+    }
+
+    newCallChain.appendContinuable(
+        newProcCall(this.operatorName, finalArgs.toSiblings(), new Continuation(newCpsName()))
+    );
+
+    var ans = newCallChain.toContinuable();
     ans.setStartingEnv(this.env, true);
     var lastContinuable = ans.getLastContinuable();
     lastContinuable.continuation = continuation;
