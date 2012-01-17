@@ -480,16 +480,21 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
 
     var newCallChain = new ContinuableHelper();
     var finalArgs = new SiblingHelper();
+    var maybeContinuable;
 
     for (var arg = this.firstOperand; arg; arg = arg.nextSibling) {
+        arg.resetDesugars();
         if (arg.isQuote())
             finalArgs.appendSibling(arg.clone(true).normalizeInput());
-        else if (arg.isList() || arg.isQuasiquote()) {
-            // must be desugared as Continuable
-            arg.resetDesugars();
-            var tmp = arg.desugar(this.env);
-            finalArgs.appendSibling(newIdOrLiteral(tmp.getLastContinuable().continuation.lastResultName));
-            newCallChain.appendContinuable(tmp);
+        else if (arg.isQuasiquote()) {
+            throw new InternalInterpreterError('todo bl');
+        } else if (arg.isProcedure()) {
+            finalArgs.appendSibling(newIdOrLiteral(arg.name));
+        } else if ((maybeContinuable = arg.desugar(this.env)) instanceof Continuable) {
+            /* todo bl is it an invariant violation to be a list
+             and not to desugar to a Continuable? */
+            finalArgs.appendSibling(newIdOrLiteral(maybeContinuable.getLastContinuable().continuation.lastResultName));
+            newCallChain.appendContinuable(maybeContinuable);
         } else {
             finalArgs.appendSibling(newIdOrLiteral(arg.payload, arg.type));
         }
@@ -730,6 +735,7 @@ function evalArgs(firstOperand, env) {
         // Otherwise, fall through to normal logic.
     }
 
+    // todo bl too much logic
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
         if (cur instanceof Continuation)
             args.push(cur);
@@ -737,7 +743,9 @@ function evalArgs(firstOperand, env) {
             args.push(env.get(cur.payload));
         else if (cur.isQuote())
             args.push(cur.firstChild);
-        else if (cur.payload !== undefined) {
+        else if (cur.isProcedure()) {
+            args.push(cur);
+        } else if (cur.payload !== undefined) {
             args.push(maybeWrapResult(cur.payload, cur.type));
         }
         else throw new InternalInterpreterError('unexpected datum ' + cur);

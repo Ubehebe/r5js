@@ -523,6 +523,7 @@ Datum.prototype.isLiteral = function() {
         case 'character':
         case 'number':
         case 'string':
+        case 'lambda':
         case "'":
             return true;
         default:
@@ -564,6 +565,13 @@ Datum.prototype.isEqual = function(other) {
         return !(thisChild || otherChild);
 
     } else return false;
+};
+
+Datum.prototype.quote = function() {
+    var ans = new Datum();
+    ans.type = "'";
+    ans.firstChild = this;
+    return ans;
 };
 
 /* Convenience function for builtin evaluation: unwrap the argument if

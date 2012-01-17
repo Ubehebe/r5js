@@ -813,9 +813,9 @@ R5JS_builtins['control'] = {
             var mustBeProc = arguments[0];
             if (!mustBeProc.isProcedure())
                 throw new ArgumentTypeError(mustBeProc, 0, 'apply', 'procedure');
+            var procName = mustBeProc.name;
 
             var curProcCall = arguments[arguments.length - 3];
-            var procName = curProcCall.firstOperand.payload;
             var continuation = arguments[arguments.length - 2];
             var resultStruct = arguments[arguments.length - 1];
 
@@ -826,7 +826,11 @@ R5JS_builtins['control'] = {
 
             // (apply foo '(x y z))
             if (lastRealArgIndex === 1) {
-                var actualProcCall = newProcCall(procName, mustBeList.firstChild, continuation);
+                var newArgs = new SiblingHelper();
+                // todo bl document why we are quoting the arguments
+                for (var arg = mustBeList.firstChild; arg; arg = arg.nextSibling)
+                    newArgs.appendSibling(arg.quote());
+                var actualProcCall = newProcCall(procName, newArgs.toSiblings(), continuation);
                 actualProcCall.setStartingEnv(curProcCall.env);
                 resultStruct.nextContinuable = actualProcCall;
             }

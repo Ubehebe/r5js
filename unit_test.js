@@ -426,7 +426,8 @@ function testEvaluator() {
         "(procedure? +)": "#t",
         "(procedure? (lambda () 1))": "#t",
         "(procedure? 2)": "#f",
-        "(define (list . xs) xs) (apply apply (list + (list 3 4 5)))": "12", // todo bl: hard!
+        "(apply apply (list + (list 3 4 5)))": "12",
+        "(apply apply '(+ (3 4 5)))": false, // tricky!
         '(define (foo x) (x 3.14)) (call-with-current-continuation foo)': '3.14',
         "(call-with-values (lambda () (values '(1 2 3))) cdr)": '(2 3)',
         "(eval + (null-environment 5))": '+',
