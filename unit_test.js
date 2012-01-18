@@ -329,7 +329,18 @@ function testEvaluator() {
         "(begin (define x 1)) x": '1',
         "(begin (begin (define x 1)) x)": '1',
         "(+ '1 2)": '3',
-        "(+ `1 2)" : '3'
+        "(+ `1 2)" : '3',
+        "(number? 10)": '#t',
+        "(number? '10)": '#t',
+        "(number? `10)": '#t',
+        "(number? ''10)": '#f',
+        "(number? ``10)": '#f',
+        "(number? `'10)": '#f',
+        "(number? '`10)": '#f',
+        "(car `(,(+ 1 2) ,(+ 3 4)))": '3',
+        "(cdr `(,(+ 1 2) ,(+ 3 4)))": '(7)',
+        "`,(+ 1 100)": '101',
+        "(+ `,(+ 1 100) 10)": '111'
     };
 
     /* These tests exercise various macro features that the standard talks about

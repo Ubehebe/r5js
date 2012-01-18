@@ -391,20 +391,22 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
     else if (arg.isIdentifier())
         ans = this.env.get(arg.payload);
     else if (arg.isQuote()) {
-        // Can't reference "this" properly in the closure below. Thanks, JavaScript.
         var env = this.env;
-        ans = arg.firstChild.replace(
+        // Do the appropriate substitutions.
+        ans = arg.replaceChildren(
             function(node) {
                 return node.isIdentifier() && node.payload.charAt(0) === cpsPrefix;
             },
             function(node) {
                 return env.get(node.payload).clone();
             });
+        // Now strip away the quote mark.
+        ans = ans.firstChild;
     }
     else if (arg.isQuasiquote()) {
         /* todo bl do I understand how the continuation is being preserved
          properly? We're not passing it in here at all... */
-        resultStruct.nextContinuable = arg.processQuasiquote(this.env, true);
+        resultStruct.nextContinuable = arg.processQuasiquote(this.env);
         return;
     }
     else
@@ -454,10 +456,10 @@ ContinuableHelper.prototype.appendContinuable = function(continuable) {
 
     if (!this.firstContinuable) {
         this.firstContinuable = continuable;
-        this.lastContinuable = continuable
+        this.lastContinuable = continuable.getLastContinuable();
     } else {
         this.lastContinuable.continuation.nextContinuable = continuable;
-        this.lastContinuable = continuable;
+        this.lastContinuable = continuable.getLastContinuable();
     }
 };
 
@@ -487,7 +489,23 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
         if (arg.isQuote())
             finalArgs.appendSibling(arg.clone(true).normalizeInput());
         else if (arg.isQuasiquote()) {
-            throw new InternalInterpreterError('todo bl');
+            if ((maybeContinuable = arg.processQuasiquote(this.env)) instanceof Continuable) {
+                finalArgs.appendSibling(
+                    newIdOrLiteral(maybeContinuable
+                        .getLastContinuable()
+                        .continuation
+                        .lastResultName));
+                newCallChain.appendContinuable(maybeContinuable);
+            } else {
+                /* R5RS 4.2.6: "If no commas appear within the <qq template>,
+                 the result of evaluating `<qq template> is equivalent to
+                 the result of evaluating '<qq template>." We implement this
+                 merely by switching the type of the datum from quasiquote (`)
+                 to quote ('). evalArgs will see the quote and evaluate it
+                 accordingly. */
+                arg.type = "'";
+                finalArgs.appendSibling(arg);
+            }
         } else if (arg.isProcedure()) {
             finalArgs.appendSibling(newIdOrLiteral(arg.name));
         } else if ((maybeContinuable = arg.desugar(this.env)) instanceof Continuable) {

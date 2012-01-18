@@ -24,18 +24,22 @@ Datum.prototype.forEach = function(callback) {
 };
 
 // This penetrates quotations because it's used in quasiquote evaluation.
-Datum.prototype.replace = function(predicate, transform) {
+Datum.prototype.replaceChildren = function(predicate, transform) {
+
     for (var cur = this.firstChild, prev; cur; prev = cur,cur = cur.nextSibling) {
         if (predicate(cur)) {
-            var transformed = transform(cur);
-            transformed.nextSibling = cur.nextSibling;
+            var tmp = cur.nextSibling;
+            /* We have to assign to cur so prev will be set correctly
+             in the next iteration. */
+            cur = transform(cur);
+            cur.nextSibling = tmp;
             if (prev) {
-                prev.nextSibling = transformed;
+                prev.nextSibling = cur;
             } else {
-                this.firstChild = transformed;
+                this.firstChild = cur;
             }
         } else {
-            cur.replace(predicate, transform);
+            cur.replaceChildren(predicate, transform);
         }
     }
     return this;
@@ -816,35 +820,27 @@ var anonymousLambdaCounter = 0;
 var cpsPrefix = '@';
 
 // Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
-Datum.prototype.processQuasiquote = function(env, forceContinuationWrapper) {
+Datum.prototype.processQuasiquote = function(env) {
 
-    var nextContinuable;
-    var lastContinuable;
+    var newCalls = new ContinuableHelper();
+
     var qqLevel = this.qqLevel;
 
-    this.firstChild.replace(
+    this.replaceChildren(
         function(node) {
             return node.isUnquote() && (node.qqLevel === qqLevel);
         },
         function(node) {
             var asContinuable = new Parser(node.firstChild).parse('expression').desugar(env, true);
-            if (lastContinuable)
-                lastContinuable.continuation.nextContinuable = asContinuable;
-            else
-                nextContinuable = asContinuable;
-            lastContinuable = asContinuable.getLastContinuable();
-            return newIdOrLiteral(lastContinuable.continuation.lastResultName);
+            newCalls.appendContinuable(asContinuable);
+            return newIdOrLiteral(asContinuable.getLastContinuable().continuation.lastResultName);
         });
 
-    this.type = "'";
+        this.type = "'";
 
-    if (nextContinuable) {
-        lastContinuable.continuation.nextContinuable = newIdShim(this, newCpsName());
-    } else if (forceContinuationWrapper) {
-        nextContinuable = newIdShim(this, newCpsName());
-    }
-
-    return nextContinuable && nextContinuable.setStartingEnv(env);
+    newCalls.appendContinuable(newIdShim(this, newCpsName()));
+    var ans = newCalls.toContinuable();
+    return ans && ans.setStartingEnv(env);
 };
 
 /*
