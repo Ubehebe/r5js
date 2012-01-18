@@ -89,13 +89,16 @@
             document.getElementById('result').value = ans;
         }
 
+        /* bl: the difference in speed between this function (Scheme-based
+         unit testing) and testEvaluator() (JavaScript-based unit testing)
+         is remarkable and should serve as a point of departure for
+         performance investigations. */
         function doUnitTests() {
-            throw new InternalInterpreterError('unimplemented bl');
-            var iframe = document.getElementById('unit-test').contentDocument;
-            var testHarness = unescape(iframe.getElementsByTagName('pre')[0].innerHTML);
-            var ans = R5JS.eval(testHarness);
-            console.log(ans);
-            document.getElementById('result').value = ans;
+            ajax('unit-test.scm', function(testFramework) {
+                ajax('stdproc-tests.scm', function(tests) {
+                    R5JS.eval(testFramework + tests);
+                })
+            });
         }
     </script>
 
@@ -116,7 +119,8 @@
 <p>
     <button onclick="testScanner()">scanner unit tests</button>
     <button onclick="testParser()">parser unit tests</button>
-    <button onclick="testEvaluator()">evaluator unit tests</button>
+    <button onclick="testEvaluator()">evaluator unit tests (JavaScript)</button>
+    <button onclick="doUnitTests()">evaluator unit tests (Scheme)</button>
 </p>
 </body>
 
