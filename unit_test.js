@@ -345,7 +345,9 @@ function testEvaluator() {
         "(car `(,(+ 1 2) ,(+ 3 4)))": '3',
         "(cdr `(,(+ 1 2) ,(+ 3 4)))": '(7)',
         "`,(+ 1 100)": '101',
-        "(+ `,(+ 1 100) 10)": '111'
+        "(+ `,(+ 1 100) 10)": '111',
+        "(define (foo x) (define (bar) x) (bar)) (foo 'x) (foo 'y)": 'y',
+        "(define (foo x) (let ((bar (lambda () x))) (bar))) (foo 'x) (foo 'y)": 'y'
     };
 
     /* These tests exercise various macro features that the standard talks about
