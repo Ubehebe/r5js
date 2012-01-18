@@ -408,8 +408,9 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
          properly? We're not passing it in here at all... */
         resultStruct.nextContinuable = arg.processQuasiquote(this.env);
         return;
-    }
-    else
+    } else if (arg.isImproperList()) {
+        throw new GeneralSyntaxError(arg);
+    } else
         ans = maybeWrapResult(arg.payload, arg.type);
 
     this.bindResult(continuation, ans);
@@ -508,6 +509,8 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
             }
         } else if (arg.isProcedure()) {
             finalArgs.appendSibling(newIdOrLiteral(arg.name));
+        } else if (arg.isImproperList()) {
+            throw new GeneralSyntaxError(arg);
         } else if ((maybeContinuable = arg.desugar(this.env)) instanceof Continuable) {
             /* todo bl is it an invariant violation to be a list
              and not to desugar to a Continuable? */

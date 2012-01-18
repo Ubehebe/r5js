@@ -288,6 +288,10 @@ function testEvaluator() {
     tests['sanity-checks'] = {
         '1': '1',
         '(+ 1 1)': '2',
+        "'(1 1)": '(1 1)',
+        "(1 1)": false,
+        "'(1 . 1)": '(1 . 1)',
+        "(1 . 1)": false,
         '(let ((x 1)) (+ x x))': '2',
         "(let ((x 1) (y 2)) (+ y x))": '3',
         '(define (foo x y) (+ x (* 2 y))) (foo 3 4)': '11',
@@ -312,6 +316,7 @@ function testEvaluator() {
         "(car '(x . y))": 'x',
         "(cdr '(x y))": '(y)',
         "(cdr '(x . y))": 'y',
+        "(cdr (x . y))": false,
         "(car '(x))": 'x',
         "(cdr '(x))": '()',
         "(car '())": false,

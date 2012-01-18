@@ -86,3 +86,9 @@ function UnimplementedOptionError(what) {
             + ' is optional according to R5RS and unimplemented';
     }
 }
+
+function GeneralSyntaxError(what) {
+    this.toString = function() {
+        return 'bad syntax in ' + what;
+    };
+}
