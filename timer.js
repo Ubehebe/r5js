@@ -57,3 +57,12 @@ Timer.prototype.report = function() {
     return ans;
 };
 
+function FakeTimer() {}
+
+FakeTimer.prototype.start
+    = FakeTimer.prototype.stop
+    = FakeTimer.prototype.reset
+    = FakeTimer.prototype.suspend
+    = FakeTimer.prototype.unsuspend
+    = FakeTimer.prototype.report
+    = function() {};

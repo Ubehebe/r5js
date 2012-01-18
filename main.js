@@ -2,7 +2,7 @@ var R5JS_nullEnv; // this is (null-environment 5)
 var R5JS_R5RSEnv; // this is (scheme-report-environment 5)
 
 function _R5JS() {
-    this.timer = new Timer();
+    this.timer = new FakeTimer(); // replace with Timer() for actual timing
 }
 
 var R5JS = new _R5JS();
@@ -51,7 +51,9 @@ _R5JS.prototype.eval = function(text) {
                         this._scan(text)))));
 
     this.timer.stop();
-    console.log(this.timer.report());
+    var report = this.timer.report();
+    if (report)
+        console.log(report);
     return ans ? ans.toString() : 'undefined';
 };
 
