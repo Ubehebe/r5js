@@ -193,29 +193,15 @@ Datum.prototype.isImproperList = function() {
 };
 
 Datum.prototype.resetDesugars = function() {
-    /* The first time we "desugar" a quasiquotation, we want to annotate it
-     with nesting levels and normalize input:
-
-     (quasiquote (list (unquote (+ x y)) z)) => `1(list ,1(+ x y) z)
-
-     The next time we "desugar" it, we want to actually CPSify it:
-
-     `1(list ,1(+ x y) z) => (+ x y [_0 (list _0 z [_1 ...])])
-
-     This overloading of desugar should probably be avoided... */
-    if (this.nextDesugar === -1 && !this.isQuasiquote())
+    if (this.nextDesugar === -1)
         this.nextDesugar += this.desugars.length;
 };
 
 Datum.prototype.desugar = function(env, forceContinuationWrapper) {
-    /* See comment about repeated desugaring of quasiquotations in
-    Datum.prototype.resetDesugars. */
     var desugarFn = this.desugars
         && this.nextDesugar >= 0
         && this.desugars[this.nextDesugar--];
-    var ans = desugarFn
-        ? desugarFn(this, env)
-        : (this.isQuasiquote() ? this.processQuasiquote(env, forceContinuationWrapper) : this);
+    var ans = desugarFn ? desugarFn(this, env) : this;
     if (forceContinuationWrapper && !(ans instanceof Continuable))
         ans = newIdShim(ans, newCpsName());
     return ans;
