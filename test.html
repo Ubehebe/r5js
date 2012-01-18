@@ -17,54 +17,33 @@
     <script type="text/javascript" src="unit_test.js"></script>
     <script type="text/javascript">
 
-        /* We want to load and evaluate the standard library (written in Scheme)
-         when the page loads. This is unfortunately trickier than it ought to be.
-         It would be nice to be able to say something like
-         <script type="text/plain" src="lib.scm"> and have the contents available
-         in the DOM, so we can direct the interpreter to read them. But you can't do
-         that.
+        /* Get the syntax library, then get the procedure library, then
+         turn on the interpreter.
 
-         Some other approaches I decided against:
+         This ajax stuff is just for development and so probably not
+         portable. In production, it makes sense to ship the interpreter as one
+         JavaScript file into which the Scheme libraries have been embedded
+         as string literals. This is because the interpreter is fairly useless without
+         things like "let" and "not".
 
-         - Writing the standard library as a JavaScript file that exported one huge
-         string literal: var stdLib = "<lots of Scheme code>". Yuck.
-
-         - Ajax to do a GET request on lib.scm and parse it. It would be nice not to
-         have to run an actual web server for an application that should be 100%
-         client-side. Ajax is also not a good logical fit since there's not much you can
-         do in the interpreter if the standard library didn't load.
-
-         So I decided to stick the standard library in an iframe and reach into it at
-         document load time. Unfortunately, this has some cross-origin issues on
-         some browsers. My understanding is that browsers implement the same
-         origin policy reasonably uniformly in the http:// scheme, but differently in
-         the file:// scheme. In particular, Chrome puts each file:// resource in its own
-         origin! This means that the standard library will not load in Chrome when
-         developing on a local machine, unless we run a server. Firefox and Opera
-         appear to use directory-based file:// origins, so it works in them.
-
-         I'm also not sure why the plain text of the Scheme library gets stuck in
-         a <pre> wrapper, but most browsers seem to do it. */
-
+         If we add non-core libraries (for example, if we start targeting R6RS),
+         it would make sense to have them fetched via ajax even in production.*/
         window.addEventListener('load', function() {
-            var nullEnvIframe = document.getElementById('null-env').contentDocument;
-            var r5rsEnvIframe = document.getElementById('r5rs-env').contentDocument;
-            if (nullEnvIframe && r5rsEnvIframe) {
-                /* todo bl possibly browser-dependent hack: when reaching
-                    into the pseudo-iframe defined by the text file, it looks
-                    like the pseudo-DOM has replaced occurrences of ">"
-                    by "&gt;". This is a problem chiefly for the Scheme token "=>".
-                    Reconstruct this here. */
-                var syntaxLib = unescape(nullEnvIframe.getElementsByTagName('pre')[0].innerHTML);
-                var procLib = unescape(r5rsEnvIframe.getElementsByTagName('pre')[0].innerHTML);
-                bootstrap(syntaxLib, procLib);
-            } else {
-                // todo display a prominent error; interpreter is unusable
-            }
-        }, false);
+            ajax('null-env.scm', function(syntaxLib) {
+                ajax('r5rs-env.scm', function(procLib) {
+                    bootstrap(syntaxLib, procLib);
+                })
+            });
+        });
 
-        function unescape(text) {
-            return text.replace(/&gt;/g, ">").replace(/&lt;/g, "<");
+        function ajax(url, callback) {
+            var req = new XMLHttpRequest();
+            req.open('GET', url);
+            req.onreadystatechange = function() {
+                if (req.readyState === 4 && req.status === 200)
+                    callback(req.responseText);
+            };
+            req.send();
         }
 
         function doScan() {
@@ -110,6 +89,7 @@
         }
 
         function doUnitTests() {
+            throw new InternalInterpreterError('unimplemented bl');
             var iframe = document.getElementById('unit-test').contentDocument;
             var testHarness = unescape(iframe.getElementsByTagName('pre')[0].innerHTML);
             var ans = R5JS.eval(testHarness);
@@ -120,9 +100,6 @@
 
 </head>
 <body>
-<iframe src='null-env.scm' id='null-env' style='display: none'></iframe>
-<iframe src='r5rs-env.scm' id='r5rs-env' style='display: none'></iframe>
-<iframe src='unit_test.scm' id='unit-test' style='display: none'></iframe>
 <textarea id='toEval' rows="15" cols="80"></textarea>
 <textarea id='result' rows="1" cols="80"></textarea>
 <p>
