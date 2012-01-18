@@ -953,7 +953,11 @@ R5JS_builtins['eval'] = {
                 throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
             else if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
                 throw new ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
-            else return R5JS.evalDatum(expr, envSpec.payload);
+            else {
+                // don't accidentally evaluate the next expr!
+                expr.nextSibling = null;
+                return R5JS.evalDatum(expr, envSpec.payload);
+            }
         }
     },
     /* This is not part of any Scheme standard, but it should be useful to
