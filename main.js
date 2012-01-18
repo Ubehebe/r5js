@@ -1,55 +1,68 @@
 var R5JS_nullEnv; // this is (null-environment 5)
 var R5JS_R5RSEnv; // this is (scheme-report-environment 5)
 
-var R5JS = {
-    _scan: function(text) {
-        return new Scanner(text);
-    },
+function _R5JS() {
+    this.timer = new Timer();
+}
 
-    /* This is just for debugging; the real pipeline requests the tokens
-        one at a time. */
-    _tokenize: function(text) {
-        return R5JS._scan(text).tokenize();
-    },
+var R5JS = new _R5JS();
 
-    _read: function(scanner) {
-        return new Reader(scanner).read();
-    },
+_R5JS.prototype._scan = function(text) {
+    return new Scanner(text);
+};
 
-    _parse: function(root, lhs) {
+/* This is just for debugging; the real pipeline requests the tokens
+ one at a time. */
+_R5JS.prototype._tokenize = function(text) {
+    return this._scan(text).tokenize();
+};
+
+_R5JS.prototype._read = function(scanner) {
+    this.timer.start('_read');
+    return new Reader(scanner).read();
+};
+
+_R5JS.prototype._parse = function(root, lhs) {
+    this.timer.start('_parse');
     return new Parser(root).parse(lhs);
-    },
+};
 
-    _desugar: function(root, env) {
-        if (!env) {
-            /* todo bl: creating a new "global" environment for every
-             start of the trampoline inhibits REPL-like incremental program
-             construction. Shouldn't be too hard to reuse the global, though. */
-            env = new Environment('global', R5JS_R5RSEnv).allowRedefs();
-        }
-        return root.desugar(env).setStartingEnv(env);
-    },
+_R5JS.prototype._desugar = function(root, env) {
+    // todo bl reuse for repl
+    if (!env)
+        env = new Environment('global', R5JS_R5RSEnv).allowRedefs();
+    this.timer.start('_desug');
+    return root.desugar(env).setStartingEnv(env);
+};
 
-    _eval: function(continuable) {
-        return trampoline(continuable);
-    },
+_R5JS.prototype._eval = function(continuable) {
+    this.timer.start('_eval');
+    return trampoline(continuable);
+};
 
-    eval: function(text) {
-        var ans =
-            R5JS._eval(
-                R5JS._desugar(
-                    R5JS._parse(
-                        R5JS._read(
-                            R5JS._scan(text)))));
-        return ans ? ans.toString() : 'undefined';
-    },
+_R5JS.prototype.eval = function(text) {
+    this.timer.reset();
 
-    // Just for convenience of evaling datums within the interpreter.
-    evalDatum: function(datum, env) {
-        return R5JS._eval(
-            R5JS._desugar(
-                R5JS._parse(datum), env));
-    }
+    var ans =
+        this._eval(
+            this._desugar(
+                this._parse(
+                    this._read(
+                        this._scan(text)))));
+
+    this.timer.stop();
+    console.log(this.timer.report());
+    return ans ? ans.toString() : 'undefined';
+};
+
+// Just for convenience of evaling datums within the interpreter.
+_R5JS.prototype.evalDatum = function(datum, env) {
+    this.timer.suspend();
+    var ans = this._eval(
+        this._desugar(
+            this._parse(datum), env));
+    this.timer.unsuspend();
+    return ans;
 };
 
 function bootstrap(syntaxLib, procLib) {
