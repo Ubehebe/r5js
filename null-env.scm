@@ -84,6 +84,36 @@
        (let* ((name2 val2) ...)
 	 body1 body2 ...)))))
 
+; todo bl this official version seems too pedantic, with
+; the renaming of variables. Is it OK to simplify?
+(define-syntax letrec
+  (syntax-rules ()
+    ((letrec ((var1 init1) ...) body ...)
+     (letrec "generate_temp_names"
+       (var1 ...)
+       ()
+       ((var1 init1) ...)
+       body ...))
+    ((letrec "generate_temp_names"
+       ()
+       (temp1 ...)
+       ((var1 init1) ...)
+       body ...)
+     (let ((var1 'fuck) ...) ; todo bl
+       (let ((temp1 init1) ...)
+	 (set! var1 temp1)
+	 ...
+	 body ...)))
+    ((letrec "generate_temp_names"
+       (x y ...)
+       (temp ...)
+       ((var1 init1) ...)
+       body ...)
+     (letrec "generate_temp_names"
+       (y ...)
+       (newtemp temp ...)
+       ((var1 init1) ...)
+       body ...))))
 
 ; This definition only covers the following rule in the Scheme grammar:
 ; <derived expression> -> (begin <sequence>)

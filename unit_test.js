@@ -349,7 +349,9 @@ function testEvaluator() {
         "(define (foo x) (define (bar) x) (bar)) (foo 'x) (foo 'y)": 'y',
         "(define (foo x) (let ((bar (lambda () x))) (bar))) (foo 'x) (foo 'y)": 'y',
         '(let () 1 2 3)': '3',
-        '(let ())': false
+        '(let () (define x 2) (+ x x))': '4',
+        '(let ())': false,
+        "(letrec ((my-even? (lambda (n) (if (= n 0) #t (my-odd? (- n 1))))) (my-odd? (lambda (n) (if (= n 0) #f (my-even? (- n 1)))))) (my-even? 15))": '#f',
         "(define-syntax foo (syntax-rules () ((foo x ...) (cons (list x ...) (list x ...))))) (foo 1 2 3)": '((1 2 3) 1 2 3)'
     };
 
