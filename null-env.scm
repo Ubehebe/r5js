@@ -59,12 +59,13 @@
 
 (define-syntax let
   (syntax-rules ()
-    ((let () body) 
-     ((lambda () body)))
-    ((let ((var expr)) body) 
-     ((lambda (var) body) expr))
-    ((let ((var1 expr1) (var2 expr2) ...) body)
-     ((lambda (var1) (let ((var2 expr2) ...) body)) expr1))))
+    ((let ((name val) ...) body1 body2 ...)
+     ((lambda (name ...) body1 body2 ...)
+      val ...))
+    ((let tag ((name val) ...) body1 body2 ...)
+     ((letrec ((tag (lambda (name ...)
+                      body1 body2 ...)))
+	tag) val ...))))
 
 (define-syntax and
   (syntax-rules ()

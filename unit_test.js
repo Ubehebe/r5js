@@ -347,7 +347,9 @@ function testEvaluator() {
         "`,(+ 1 100)": '101',
         "(+ `,(+ 1 100) 10)": '111',
         "(define (foo x) (define (bar) x) (bar)) (foo 'x) (foo 'y)": 'y',
-        "(define (foo x) (let ((bar (lambda () x))) (bar))) (foo 'x) (foo 'y)": 'y'
+        "(define (foo x) (let ((bar (lambda () x))) (bar))) (foo 'x) (foo 'y)": 'y',
+        '(let () 1 2 3)': '3',
+        '(let ())': false
     };
 
     /* These tests exercise various macro features that the standard talks about
