@@ -586,6 +586,9 @@ Datum.prototype.transcribe = function(templateBindings) {
     var curClone;
     var success = false;
 
+    /* todo bl: this loop is a hornet's nest (though thankfully well-contained).
+        It needs some serious simplification, perhaps achievable with the new
+        SiblingHelper class. */
     for (var cur = this; cur; prev = cur,cur = cur && cur.nextSibling) {
 
         /* If we're in ellipsis mode, we'll need to clone the current datum
@@ -637,7 +640,7 @@ Datum.prototype.transcribe = function(templateBindings) {
             success = cur;
         }
 
-        if (success) {
+        if (success !== false) {
 
             if (success !== cur) {
                 if (cur.parent)
@@ -675,12 +678,20 @@ Datum.prototype.transcribe = function(templateBindings) {
                 first = null;
             }
 
-            cur.nextSibling = cur.nextSibling && cur.nextSibling.nextSibling;
+
+            // Holy smokes
+            var tmp = cur.nextSibling && cur.nextSibling.nextSibling;
+            cur = prev;
+            if (cur)
+                cur.nextSibling = tmp;
+
         }
 
         /* If transcription failed and we weren't in ellipsis mode,
          that's just plain failure. Report it. */
-        else return false; // todo bl better error message
+        else {
+            return false;
+        } // todo bl better error message
 
         if (first === undefined)
             first = cur;
