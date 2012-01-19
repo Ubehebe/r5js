@@ -184,11 +184,11 @@ function constructFreeIds(patternDatum, templateDatum) {
     var patternIds = {};
     var templateIds = {};
     patternDatum.forEach(function(node) {
-        if (node.isIdentifier())
+        if (node.isIdentifier() && !isSyntacticKeyword(node.payload))
             patternIds[node.payload] = true;
     });
     templateDatum.forEach(function(node) {
-        if (node.isIdentifier() && node.payload !== '...')
+        if (node.isIdentifier() && !isSyntacticKeyword(node.payload) && node.payload !== '...')
             templateIds[node.payload] = true;
     });
 

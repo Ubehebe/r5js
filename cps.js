@@ -707,20 +707,79 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
 
     var newEnv = new Environment('macro-' + (uniqueNodeCounter++), this.env);
 
-    /* Set up forwarding addresses for free identifiers inserted by the macro.
-     R5RS 4.3: "If a macro transformer inserts a free reference to an
+    var toRename = {};
+
+    /* R5RS 4.3: "If a macro transformer inserts a binding for an identifier
+     (variable or keyword), the identifier will in effect be renamed
+     throughout its scope to avoid conflicts with other identifiers.
+
+     "If a macro transformer inserts a free reference to an
      identifier, the reference refers to the binding that was visible
      where the transformer was specified, regardless of any local bindings
-     that may surround the use of the macro." */
-    for (var free in template.freeIdsInTemplate)
-        newEnv.addBinding(free, macro.definitionEnv);
+     that may surround the use of the macro."
+
+     It's easy to collect the set of identifiers inserted by a macro transformer:
+     it's the set of identifiers in the template minus the set of identifiers
+     in the pattern. But how do we determine which of these are supposed
+     to be "free" and which are bindings and thus should be renamed?
+
+     My current heuristic is to do a lookup in the macro's definition
+     environment. If we find something, the identifier is probably
+     supposed to refer to that. For example, the "+" in the pattern of
+
+     (define-syntax foo (syntax-rules () ((foo x) (+ x x))))
+
+     If we don't find a binding in the macro's definition environment, we
+     suppose this is a new binding inserted by the transformer and
+     defensively rename it.
+
+     I don't think this is correct, but it works for the letrec macro definition,
+     which is the most complex case I've tried so far. */
+    for (var free in template.freeIdsInTemplate) {
+        if (macro.definitionEnv.hasBindingRecursive(free)) {
+            newEnv.addBinding(free, macro.definitionEnv);
+        } else {
+            /* todo bl: we have to rename it to a legal identifier;
+             we can't use the illegal CPS prefix because reparsing would
+            then fail. We need to check that the new name is not already
+            in use! */
+            toRename[free] = free + (uniqueNodeCounter++);
+        }
+    }
 
     // todo bl shouldn't have to go all the way back to the text
-    var newContinuable = new Parser(
+    var newParseTree = new Parser(
         new Reader(
             new Scanner(newText)
         ).read()
-    ).parse().desugar(newEnv, true).setStartingEnv(newEnv);
+    ).parse();
+
+    if (newParseTree) {
+        /* We have to embed the new parse tree in a fake shell to do the
+         replacement in case the entire newParseTree is an identifier that
+         needs to be replaced (Datum.prototype.replaceChildren() only
+         looks at a node's children).
+
+         This is a problem that has surfaced more than once, so perhaps
+         there is a better way to write replaceChildren.
+
+         todo bl: we should be able to determine the id's in the template
+         that will have to be renamed prior to transcription. That would
+         save the following tree walk replacing all the identifiers. */
+        var fake = newEmptyList();
+        fake.appendChild(newParseTree);
+        fake.replaceChildren(
+            function(node) {
+                return node.isIdentifier() && toRename[node.payload];
+            },
+            function(node) {
+                node.payload = toRename[node.payload];
+                return node;
+            }
+        );
+    }
+
+    var newContinuable = newParseTree.desugar(newEnv, true).setStartingEnv(newEnv);
 
     newContinuable.getLastContinuable().continuation = continuation;
     resultStruct.nextContinuable = newContinuable;
