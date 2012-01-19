@@ -350,6 +350,7 @@ function testEvaluator() {
         "(define (foo x) (let ((bar (lambda () x))) (bar))) (foo 'x) (foo 'y)": 'y',
         '(let () 1 2 3)': '3',
         '(let ())': false
+        "(define-syntax foo (syntax-rules () ((foo x ...) (cons (list x ...) (list x ...))))) (foo 1 2 3)": '((1 2 3) 1 2 3)'
     };
 
     /* These tests exercise various macro features that the standard talks about

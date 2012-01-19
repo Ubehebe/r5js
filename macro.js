@@ -54,6 +54,7 @@ function ellipsesMatch(patternDatum, templateDatum) {
 function TemplateBindings() {
     this.regularBindings = {}; // strings to objects
     this.ellipsisBindings = {}; // strings to arrays of objects
+    this.ellipsisIndices = {}; // strings to indices into ellipsisBindings
     this.awaitingFixing = [];
     this.boundIds = {};
 }
@@ -79,6 +80,7 @@ TemplateBindings.prototype.addBinding = function(name, val) {
     if (regularBinding) {
         this.regularBindings[name] = null;
         this.ellipsisBindings[name] = [regularBinding, val];
+        this.ellipsisIndices[name] = 0;
     }
 
     // If this name already has an ellipsis binding, just add the new value to it
@@ -107,21 +109,37 @@ TemplateBindings.prototype.fixNewBindings = function() {
         if (soleVal) {
             this.regularBindings[name] = null;
             this.ellipsisBindings[name] = [soleVal];
+            this.ellipsisIndices[name] = 0;
         }
     }
     this.awaitingFixing = [];
 };
 
 TemplateBindings.prototype.get = function(name) {
+    var ans;
     var maybeRegularBinding = this.regularBindings[name];
-    if (maybeRegularBinding)
-        return maybeRegularBinding.clone();
-    var maybeEllipsisBindings = this.ellipsisBindings[name];
-    if (maybeEllipsisBindings)
-        return maybeEllipsisBindings.length
-            ? maybeEllipsisBindings.shift()
-            : maybeEllipsisBindings;
-    else return null;
+    if (maybeRegularBinding) {
+        ans = maybeRegularBinding.clone();
+    } else {
+        var maybeEllipsisBindings = this.ellipsisBindings[name];
+        if (maybeEllipsisBindings) {
+            /* If we're in ellipsis mode and have no more bindings, return
+             an empty array. We have to reset the index into the array
+             because a later part of the template could ask for it again.
+             For example:
+
+             (define-syntax foo (syntax-rules () ((foo x ...) (cons (list x ...) (list x ...)))))
+
+             (foo 1 2 3) => ((1 2 3) 1 2 3) */
+            if (!maybeEllipsisBindings.length || this.ellipsisIndices[name] === maybeEllipsisBindings.length) {
+                this.ellipsisIndices[name] = 0;
+                ans = [];
+            } else {
+                ans = maybeEllipsisBindings[this.ellipsisIndices[name]++].clone();
+            }
+        }
+    }
+    return ans;
 };
 
 TemplateBindings.prototype.setEmptyEllipsisMatch = function(name) {
