@@ -202,12 +202,12 @@ function newProcCall(operatorName, firstOperand, continuation) {
 }
 
 // Just for debugging
-ProcCall.prototype.toString = function(continuation, indentLevel) {
+ProcCall.prototype.toString = function(continuation, indentLevel, suppressEnv) {
     var ans = '\n';
     for (var i = 0; i < indentLevel; ++i)
         ans += '\t';
     ans += '(' + (this.operatorName || 'id');
-    if (this.env)
+    if (this.env && !suppressEnv)
         ans += '|' + this.env;
     if (this.operatorName) {
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
@@ -702,7 +702,7 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
 
     var template = macro.selectTemplate(this.reconstructDatum(), this.env);
     if (!template)
-        throw new MacroError(this.operatorName.payload, 'no pattern match for input ' + this);
+        throw new MacroError(this.operatorName.payload, 'no pattern match for input ' + this.toString(null, 0, true));
     var newText = template.hygienicTranscription().toString();
 
     var newEnv = new Environment('macro-' + (uniqueNodeCounter++), this.env);
