@@ -458,6 +458,8 @@ function testEvaluator() {
     };
 
     tests['r5rs-examples'] = {
+        "(let ((x 5)) (letrec ((foo (lambda (y) (bar x y))) (bar (lambda (a b) (+ (* a b) a)))) (foo (+ x 3))))": '45', // p. 16
+        "(let ((x 5)) (define foo (lambda (y) (bar x y))) (define bar (lambda (a b) (+ (* a b) a))) (foo (+ x 3)))": '45', // p. 16
         "(eqv? 'a 'a)": '#t', // p. 18
         "(eqv? 'a 'b)": '#f', // p. 18
         "(eqv? 2 2)": '#t', // p. 18
