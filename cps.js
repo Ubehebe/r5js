@@ -713,9 +713,12 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
     var template = macro.selectTemplate(this.reconstructDatum(), this.env);
     if (!template)
         throw new MacroError(this.operatorName.payload, 'no pattern match for input ' + this.toString(null, 0, true));
-    var newText = template.hygienicTranscription().toString();
+    var newDatumTree = template.hygienicTranscription();
 
     var newEnv = new Environment('macro-' + (uniqueNodeCounter++), this.env);
+
+// useful for debugging
+// console.log('transcribed ' + this.reconstructDatum() + ' => ' + newDatumTree);
 
     var toRename = {};
 
@@ -757,12 +760,7 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
         }
     }
 
-    // todo bl shouldn't have to go all the way back to the text
-    var newParseTree = new Parser(
-        new Reader(
-            new Scanner(newText)
-        ).read()
-    ).parse();
+    var newParseTree = new Parser(newDatumTree).parse();
 
     if (newParseTree) {
         /* We have to embed the new parse tree in a fake shell to do the
