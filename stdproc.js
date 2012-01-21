@@ -826,7 +826,7 @@ R5JS_builtins['control'] = {
 
             // (apply foo '(x y z))
             if (lastRealArgIndex === 1) {
-                var newArgs = new SiblingHelper();
+                var newArgs = new SiblingBuffer();
                 // todo bl document why we are quoting the arguments
                 for (var arg = mustBeList.firstChild; arg; arg = arg.nextSibling)
                     newArgs.appendSibling(arg.quote());

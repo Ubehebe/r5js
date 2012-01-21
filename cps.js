@@ -427,23 +427,33 @@ ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultSt
 
 /* Just a buffer to accumulate siblings without the client having to do
  the pointer arithmetic. */
-function SiblingHelper() {
+function SiblingBuffer() {
     //this.first;
     // this.last;
 }
 
-SiblingHelper.prototype.appendSibling = function(node) {
+SiblingBuffer.prototype.isEmpty = function() {
+    return !this.first;
+};
+
+SiblingBuffer.prototype.appendSibling = function(node) {
   if (!this.first) {
     this.first = node;
-      this.last = node;
+      this.last = node.lastSibling();
   } else {
       this.last.nextSibling = node;
-      this.last = node;
+      this.last = node.lastSibling();
   }
 };
 
-SiblingHelper.prototype.toSiblings = function() {
+SiblingBuffer.prototype.toSiblings = function() {
     return this.first;
+};
+
+SiblingBuffer.prototype.toString = function() {
+    var tmp = newEmptyList();
+    tmp.appendChild(this.first);
+    return tmp.toString();
 };
 
 /* Just a buffer to accumulate a Continuable-Continuation chain
@@ -482,7 +492,7 @@ ContinuableHelper.prototype.toContinuable = function() {
 ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
 
     var newCallChain = new ContinuableHelper();
-    var finalArgs = new SiblingHelper();
+    var finalArgs = new SiblingBuffer();
     var maybeContinuable;
 
     for (var arg = this.firstOperand; arg; arg = arg.nextSibling) {
