@@ -227,44 +227,9 @@ Datum.prototype.isEnvironmentSpecifier = function() {
     return this.type === 'environment-specifier';
 };
 
-/* todo bl: we must pass isTopLevel down in order to deal with things like
- (begin (begin (define x 1)) x), where the second begin should be interpreted
- as top-level. */
-Datum.prototype.sequence = function(env, isTopLevel) {
+Datum.prototype.sequence = function(env) {
     var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
-        /* Special code for dealing with begin blocks
-         Here are all the RHSes in which begin appears:
-
-         (1) <derived expression> -> (begin <sequence>)
-         (2) <command or definition> -> (begin <command or definition>+)
-         (3) <definition> -> (begin <definition>*)
-
-         R5RS 7.3 gives a couple of macro definitions for begin that
-         "apply only if the body of the begin contains no definitions", i.e.
-         case 1 but not 2 or 3. I understand this as a suggestion that
-         case 1 should be handled by a macro, while cases 2 and 3 require
-         built-in support in the parser.
-
-         The following conditional is support for cases 2 and 3. If the
-         begin identifier has already been successfully parsed as a keyword,
-         that means we're in case 1 and should do nothing.
-
-         todo bl: it would be great if I could use one macro definition
-         for all three cases. */
-        if (cur.isList()
-            && cur.firstChild.payload === 'begin'
-            && cur.firstChild.peekParse() !== 'keyword') {
-            var startBeginBlock = cur.firstChild.nextSibling;
-            if (startBeginBlock) {
-                var endBeginBlock = startBeginBlock.lastSibling();
-                endBeginBlock.parent = null;
-                endBeginBlock.nextSibling = cur.nextSibling;
-                cur = startBeginBlock;
-                // fallthrough to the desugar block
-            } else continue; // if it's just (begin), do nothing
-        }
-
         // todo bl do we need this check anymore?
         if (tmp = cur.desugar(env)) {
 
@@ -275,17 +240,6 @@ Datum.prototype.sequence = function(env, isTopLevel) {
              wrap them. */
             if (!(tmp instanceof Continuable))
                 tmp = newIdShim(tmp, newCpsName());
-
-            /* If there was a DefinitionHelper object attached to this node,
-             we need to run some special logic to set up the bindings. */
-            else if (tmp.definitionHelper) {
-                isTopLevel
-                    ? constructTopLevelDefs(env, tmp.definitionHelper, cur.nextSibling)
-                    : constructInternalDefs(env, tmp.definitionHelper, cur.nextSibling);
-                /* This is not a short circuit: the remaining siblings are
-                 sequenced recursively by the above function call. */
-                return tmp;
-            }
 
             if (!first)
                 first = tmp;
@@ -299,69 +253,6 @@ Datum.prototype.sequence = function(env, isTopLevel) {
 
     return first; // can be undefined
 };
-
-/* Example:
- (define x (+ 1 2))
- (define y (+ x 4))
- (* x y)
-
- Such a construction (where y depends on x) is not permitted in
- internal definitions. */
-function constructTopLevelDefs(env, definitionHelper, next) {
-
-    var proc = new SchemeProcedure(definitionHelper.formals, false, null, env, definitionHelper.getProcName());
-    proc.doBindArgsAtRootEnv();
-    if (definitionHelper.mustAlreadyBeBound)
-        proc.setMustAlreadyBeBound(definitionHelper.mustAlreadyBeBound);
-    if (next) {
-        // todo bl must document why we are sequencing using the outer env
-        var rest = next.sequence(env, true);
-        proc.setBody(rest);
-    }
-    /* Consider what happens when we are at a top-level definition,
-        but there is nothing more to sequence, for example, the program
-
-        (define x 1)
-
-        This sets up an empty binding, like
-
-        ((lambda (x) <nothing>) 1)
-
-        and its value is explicitly undefined by the standard. Recognizing that
-        such a definition is useless, one option would be to decline to
-        execute it. However, if we ever wanted to build in REPL functionality,
-        this would become quite useful. So we keep the dummy procedure with
-        no body.
-
-        When the trampoline encounters the dummy procedure call, it will
-        do some bookkeeping and then jump to the first continuable of the
-        procedure's body. This is null, which will halt the trampoline as
-        desired; we just need to make sure the trampoline bookkeeping
-        doesn't cause any null pointer exceptions. */
-    env.addBinding(definitionHelper.getProcName(), proc);
-}
-
-
-DefinitionHelper.prototype.getSoleCPSName = function() {
-    if (this.formals.length !== 1)
-        throw new InternalInterpreterError('invariant incorrect');
-    return this.precedingContinuable.continuation.lastResultName;
-};
-
-DefinitionHelper.prototype.incorporateOuterDef = function(outerDefHelper) {
-    this.prependBinding(outerDefHelper.getSoleFormal(), outerDefHelper.getSoleCPSName());
-    if (outerDefHelper.mustAlreadyBeBound) {
-        if (!this.mustAlreadyBeBound)
-            this.mustAlreadyBeBound = {};
-        for (var name in outerDefHelper.mustAlreadyBeBound)
-            this.mustAlreadyBeBound[name] = true;
-    }
-};
-
-DefinitionHelper.prototype.setContinuable = function(continuable) {
-    this.precedingContinuable.continuation.nextContinuable = continuable;
-};
-
 
 // todo bl once we have hidden these types behind functions, we can
 // switch their representations to ints instead of strings
@@ -824,6 +715,33 @@ Datum.prototype.extractDefinition = function() {
     list.prependChild(variable.clone(true));
     return list;
 };
+
+Datum.prototype.partitionProgram = function(defBuffer, exprBuffer, env) {
+    for (var cur = this.firstChild, next = cur.nextSibling; cur; cur = next, next = next && next.nextSibling) {
+        if (cur.firstChild) {
+            switch (cur.firstChild.payload) {
+                case 'define':
+                    defBuffer.appendSibling(cur.extractDefinition());
+                break;
+                case 'define-syntax':
+                    var kw = cur.at('keyword').payload;
+                    var macro = cur.at('transformer-spec').desugar(env);
+                    env.addBinding(kw, macro);
+                break;
+                case 'begin':
+                    cur.partitionProgram(defBuffer, exprBuffer, env);
+                break;
+                default:
+                    cur.nextSibling = null;
+                    exprBuffer.appendSibling(cur);
+            }
+        } else if (cur.payload !== 'begin') {
+            cur.nextSibling = null;
+            exprBuffer.appendSibling(cur);
+        }
+    }
+};
+
 /*
  Continuation-passing style is
  <cps-expr> -> <cps-procedure-call> | <cps-branch>
@@ -839,30 +757,3 @@ Datum.prototype.extractDefinition = function() {
  evaluation.)
  */
 
-function DefinitionHelper(continuableToTarget, precedingContinuable, firstFormal, isAssignment) {
-    this.procCallToTarget = continuableToTarget;
-    this.precedingContinuable = precedingContinuable;
-    this.formals = [firstFormal];
-    if (isAssignment) {
-        this.mustAlreadyBeBound = {};
-        this.mustAlreadyBeBound[firstFormal] = true;
-    }
-}
-
-DefinitionHelper.prototype.getProcName = function() {
-    return this.procCallToTarget.subtype.operatorName;
-};
-
-DefinitionHelper.prototype.prependBinding = function(formal, actual) {
-    this.formals.unshift(formal);
-    var oldFirstOp = this.procCallToTarget.subtype.firstOperand;
-    var newFirstOp = newIdOrLiteral(actual);
-    this.procCallToTarget.subtype.firstOperand = newFirstOp;
-    newFirstOp.nextSibling = oldFirstOp;
-};
-
-DefinitionHelper.prototype.getSoleFormal = function() {
-    if (this.formals.length !== 1)
-        throw new InternalInterpreterError('invariant incorrect');
-    return this.formals[0];
-};

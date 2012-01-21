@@ -182,3 +182,63 @@ Environment.prototype.rootEnv = function() {
 Environment.prototype.toString = function() {
     return this.name;
 };
+
+// todo bl bug with macro definition envs not being set right
+Environment.prototype.compact = function() {
+    var root = this.rootEnv();
+    if (root === this)
+        return this;
+    else {
+        for (var name in this.bindings) {
+            if (root.hasBinding(name))
+                throw new InternalInterpreterError('invariant incorrect ' + name);
+            root.addBinding(name, this.bindings[name]);
+        }
+        return this.enclosingEnv.compact();
+    }
+};
+
+/* Currently, syntax definitions are always installed at top level,
+ while top-level non-syntax definitions are transformed into let*
+ bindings and handled by the macro facility, which usually means they
+ end up in some descendant of the global environment.
+
+ This causes problems with free identifiers in macro transcriptions, which
+ are supposed to be resolved in the macro's definition environment. Example:
+
+ (define y 1)
+ (define x 2)
+ (define-syntax foo (syntax-rules () ((foo) x)))
+
+ x will be resolved in the global environment, but (define x 2) probably
+ happened in a descendant, incorrectly causing an unbound variable error.
+ So after having installed all the top-level syntax definitions, we doctor
+ their definitionEnv pointers to point to the most deeply nested "top-level"
+ environment.
+
+ This is probably not a good solution, as it causes other legitimate lookups
+ to go haywire. Fix asap. */
+Environment.prototype.doctorMacroEnvs = function(envToUse) {
+    if (!envToUse) {
+        if (this.enclosingEnv)
+            return this.enclosingEnv.doctorMacroEnvs(this);
+    } else {
+        for (var name in this.bindings) {
+            var maybeMacro = this.bindings[name];
+            if (maybeMacro instanceof SchemeMacro)
+                maybeMacro.definitionEnv = envToUse;
+        }
+        if (this.enclosingEnv)
+            return this.enclosingEnv.doctorMacroEnvs(envToUse)
+        else return envToUse;
+    }
+};
+
+Environment.prototype.mutate = function(name, newVal) {
+    if (this.bindings[name]) {
+        this.bindings[name] = null;
+        this.addBinding(name, newVal);
+    } else if (this.enclosingEnv) {
+        this.enclosingEnv.mutate(name, newVal);
+    } else throw new UnboundVariable(name);
+};

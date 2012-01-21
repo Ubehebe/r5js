@@ -516,18 +516,6 @@ Parser.prototype['formals'] = function() {
         ]);
 };
 
-function desugarDefinition(name, desugaredExpr, isAssignment) {
-    var lastContinuable = desugaredExpr.getLastContinuable(); // (+ 1 2 [_0 ...])
-    var argToUse = lastContinuable.continuation.lastResultName; // _0
-
-    var anonymousName= newAnonymousLambdaName(); // proc0
-    var procCall = newProcCall(anonymousName, newIdOrLiteral(argToUse), new Continuation(newCpsName()));
-
-    lastContinuable.continuation.nextContinuable = procCall;
-    desugaredExpr.definitionHelper = new DefinitionHelper(procCall, lastContinuable, name, isAssignment);
-    return desugaredExpr; // (+ 1 2 [_0 (proc0 _0 [...])])
-}
-
 /*
 <definition> -> (define <variable> <expression>)
 | (define (<variable> <def formals>) <body>)
@@ -542,27 +530,7 @@ Parser.prototype['definition'] = function() {
             {type: 'define'},
             {type: 'variable'},
             {type: 'expression'},
-            {type: ')'},
-            {desugar: function(node, env) {
-
-                /*
-                    Example:
-
-                    (define x (+ 1 2))
-
-                    will desugar to
-
-                    (+ 1 2 [_0 (proc0 _0 [...])])
-
-                    where proc0 is a new procedure we made up with a single
-                    formal parameter x.
-                */
-
-                return desugarDefinition(
-                    node.at('variable').payload,
-                    node.at('expression').desugar(env, true));
-            }
-            }
+            {type: ')'}
         ],
         [
             {type: '('},
@@ -572,53 +540,7 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'},
-            {desugar: function(node, env) {
-
-                /* Example:
-
-                 (define (foo x y) (+ x y))
-                 (foo 3 4)
-
-                 should desugar conceptually to something like
-
-                 ((lambda (foo) (foo 3 4)) (lambda (x y) (+ x y)))
-
-                 In this implementation, this ends up looking like
-
-                 (proc0 proc1)
-
-                 where proc0 is
-
-                 (lambda (foo) (foo 3 4))
-
-                 and proc1 is
-
-                 (lambda (x y) (+ x y))
-                 */
-
-                var formalRoot = node.at('(');
-                var formals = formalRoot.mapChildren(function(child) {
-                    return child.payload;
-                });
-
-                /* The SchemeProcedure is bound in the defining environment to a
-                 newly created name like proc0. The name given in the definition
-                 becomes the formal parameter of the fake procedure created
-                 to install the definition. When the trampoline reaches that
-                 fake procedure, it will bind the SchemeProcedure to the
-                 formal parameter name as expected. */
-                var lambdaName = newAnonymousLambdaName();
-                var definitionName = formals.shift();
-
-                env.addBinding(
-                    lambdaName,
-                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, lambdaName)
-                    );
-                var desugared = newIdShim(newIdOrLiteral(lambdaName), newCpsName());
-                
-                return desugarDefinition(definitionName, desugared);
-            }}
+            {type: ')'}
         ],
         [
             {type: '('},
@@ -630,31 +552,7 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'},
-           {desugar: function(node, env) {
-
-               var formalRoot = node.at('.(');
-               var formals = formalRoot.mapChildren(function(child) {
-                   return child.payload;
-               });
-
-               /* The SchemeProcedure is bound in the defining environment to a
-                newly created name like proc0. The name given in the definition
-                becomes the formal parameter of the fake procedure created
-                to install the definition. When the trampoline reaches that
-                fake procedure, it will bind the SchemeProcedure to the
-                formal parameter name as expected. */
-               var lambdaName = newAnonymousLambdaName();
-               var definitionName = formals.shift();
-
-               env.addBinding(
-                   lambdaName,
-                   new SchemeProcedure(formals, true, formalRoot.nextSibling, env, lambdaName)
-               );
-               var desugared = newIdShim(newIdOrLiteral(lambdaName), newCpsName());
-
-               return desugarDefinition(definitionName, desugared);
-            }}
+            {type: ')'}
         ],
         [
             {type: '('},
@@ -1134,9 +1032,41 @@ Parser.prototype['program'] = function() {
     return this.rhs(
         {type: 'command-or-definition', atLeast: 0},
         {desugar: function(node, env) {
-            return node.sequence(env, true);
+            var dummy = newEmptyList();
+            dummy.firstChild = node;
+
+            var defs = new SiblingBuffer();
+            var exprs = new SiblingBuffer();
+
+            dummy.partitionProgram(defs, exprs, env);
+
+            if (!defs.isEmpty()) {
+                /* If we got some top-level definitions, set them up in a big
+                let* with a throwaway body ("#t"). Evaluate that, telling the
+                trampoline that what we want is the most deeply nested
+                environment, not the actual answer. Use that environment (which
+                has all the bindings we want) to evaluate the expressions that
+                make up the program.
+
+                todo bl: this two-evals-in-one trick is scary. Much more
+                promising is to convert all top-level definitions into set!'s
+                (which R5RS 5.2.1 says we can do) and execute them in order. */
+                var letstarBindings = newEmptyList();
+                letstarBindings.firstChild = defs.toSiblings();
+                var letstar = newEmptyList();
+                letstar.firstChild = newIdOrLiteral('#t', 'boolean');
+                letstar.prependChild(letstarBindings);
+                var defContinuable = newProcCall(newIdOrLiteral('let*'), letstar.firstChild, new Continuation(newCpsName()));
+                defContinuable.setStartingEnv(env);
+                env = trampoline(defContinuable, true).doctorMacroEnvs(); // sneaky
+            }
+            return (exprs.toSiblings() || newIdOrLiteral('#t', 'boolean'))
+                .sequence(env)
+                .setStartingEnv(env);
         }
-        });
+        }
+
+        );
 };
 
 /* <command or definition> -> <command>
@@ -1175,20 +1105,7 @@ Parser.prototype['syntax-definition'] = function() {
         {type: 'define-syntax'},
         {type: 'keyword'},
         {type: 'transformer-spec'},
-        {type: ')'},
-        {desugar: function(node, env) {
-            var kw = node.at('keyword').payload;
-            var macro = node.at('transformer-spec').desugar(env);
-            if (!macro.allPatternsBeginWith(kw))
-                throw new MacroError(kw, 'all patterns must begin with ' + kw);
-            else if (!macro.ellipsesMatch(kw))
-                throw new MacroError(kw, 'ellipsis mismatch');
-            else {
-                var desugaredExpr = newIdShim(macro, newCpsName());
-                return desugarDefinition(kw, desugaredExpr);
-            }
-        }
-        }
+        {type: ')'}
     );
 };
 

@@ -32,7 +32,7 @@ _R5JS.prototype._desugar = function(root, env) {
     if (!env)
         env = new Environment('global', R5JS_R5RSEnv).allowRedefs();
     this.timer.start('_desug');
-    return root.desugar(env).setStartingEnv(env);
+    return root.desugar(env);
 };
 
 _R5JS.prototype._eval = function(continuable) {
@@ -98,7 +98,7 @@ function bootstrap(syntaxLib, procLib) {
     R5JS_R5RSEnv = R5JS_nullEnv.clone('scheme-report-environment-5');
     installBuiltins(R5JS_R5RSEnv);
     console.log('installed primitive procedures ok');
-    install(procLib, R5JS_R5RSEnv);
+    R5JS_R5RSEnv = install(procLib, R5JS_R5RSEnv);
     console.log('installed library procedures ok');
     R5JS_R5RSEnv.seal();
     console.log('interpreter is ready');
@@ -106,15 +106,13 @@ function bootstrap(syntaxLib, procLib) {
 }
 
 function install(lib, env) {
-    trampoline(
+    return trampoline(
         new Parser(
             new Reader(
                 new Scanner(lib)
             ).read()
         ).parse()
-            .desugar(env)
-            .setStartingEnv(env)
-    );
+            .desugar(env), true).compact();
 }
 
 function installBuiltins(env) {

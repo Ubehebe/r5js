@@ -324,7 +324,7 @@ EnvBuffer.prototype.get = function(name) {
 
  (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  */
-function trampoline(continuable) {
+function trampoline(continuable, returnEnvironment) {
 
     var cur = continuable;
     var resultStruct = new TrampolineResultStruct();
@@ -339,7 +339,7 @@ function trampoline(continuable) {
         resultStruct.clear();
     }
 
-    return ans;
+    return returnEnvironment ? savedEnv.env : ans;
 }
 
 Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
