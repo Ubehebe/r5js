@@ -530,7 +530,24 @@ Parser.prototype['definition'] = function() {
             {type: 'define'},
             {type: 'variable'},
             {type: 'expression'},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node, env) {
+                /* If we're here, this must be a top-level definition, so we
+                should rewrite it as an assignment. Definitions internal
+                to a procedure are intercepted in the SchemeProcedure
+                constructor and rewritten as letrec bindings, so they never
+                get here.
+
+                todo bl: make this flow of control explicit. */
+                var variable = node.at('variable');
+                var desugaredExpr = variable.nextSibling.desugar(env, true);
+                var lastContinuable = desugaredExpr.getLastContinuable();
+                var cpsName = lastContinuable.continuation.lastResultName;
+                lastContinuable.continuation.nextContinuable =
+                    newTopLevelAssignment(variable.payload, cpsName, new Continuation(newCpsName()));
+                return desugaredExpr;
+            }
+            }
         ],
         [
             {type: '('},
@@ -540,7 +557,29 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node, env) {
+                /* If we're here, this must be a top-level definition, so we
+                should rewrite it as an assignment. Definitions internal
+                to a procedure are intercepted in the SchemeProcedure
+                constructor and rewritten as letrec bindings, so they never
+                get here.
+
+                todo bl: make this flow of control explicit. */
+                var def = node.extractDefinition();
+                var name = def.firstChild;
+                var lambda = name.nextSibling;
+                var formalRoot = lambda.firstChild.nextSibling;
+                var formals = formalRoot.mapChildren(function(child) {
+                    return child.payload;
+                });
+                var anonymousName = newAnonymousLambdaName();
+                env.addBinding(
+                    anonymousName,
+                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, anonymousName));
+                return newTopLevelAssignment(name.payload, anonymousName, new Continuation(newCpsName()));
+            }
+            }
         ],
         [
             {type: '('},
@@ -552,13 +591,37 @@ Parser.prototype['definition'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node, env) {
+                /* If we're here, this must be a top-level definition, so we
+                should rewrite it as an assignment. Definitions internal
+                to a procedure are intercepted in the SchemeProcedure
+                constructor and rewritten as letrec bindings, so they never
+                get here.
+
+                todo bl: make this flow of control explicit. */
+                var def = node.extractDefinition();
+                var name = def.firstChild;
+                var lambda = name.nextSibling;
+                var formalRoot = lambda.firstChild.nextSibling;
+                var formals = formalRoot.firstChild
+                    ? formalRoot.mapChildren(function(child) {
+                    return child.payload;
+                }) : [formalRoot.payload];
+                var anonymousName = newAnonymousLambdaName();
+                env.addBinding(
+                    anonymousName,
+                    new SchemeProcedure(formals, true, formalRoot.nextSibling, env, anonymousName));
+                return newTopLevelAssignment(name.payload, anonymousName, new Continuation(newCpsName()));
+            }
+            }
         ],
         [
             {type: '('},
             {type: 'begin'},
             {type: 'definition', atLeast: 0},
             {type: ')'}
+            // will be recursively desugared automatically by sequence()
         ]);
 
 };
@@ -640,8 +703,8 @@ Parser.prototype['assignment'] = function() {
             var desugaredExpr = variable.nextSibling.desugar(env, true);
             var lastContinuable = desugaredExpr.getLastContinuable();
             var cpsName = lastContinuable.continuation.lastResultName;
-            variable.nextSibling = newIdOrLiteral(cpsName);
-            lastContinuable.continuation.nextContinuable = newProcCall(newIdOrLiteral('set!'), variable, new Continuation(newCpsName()));
+            lastContinuable.continuation.nextContinuable =
+                newAssignment(variable.payload, cpsName, new Continuation(newCpsName()));
             return desugaredExpr;
         }
         }
@@ -1032,41 +1095,10 @@ Parser.prototype['program'] = function() {
     return this.rhs(
         {type: 'command-or-definition', atLeast: 0},
         {desugar: function(node, env) {
-            var dummy = newEmptyList();
-            dummy.firstChild = node;
-
-            var defs = new SiblingBuffer();
-            var exprs = new SiblingBuffer();
-
-            dummy.partitionProgram(defs, exprs, env);
-
-            if (!defs.isEmpty()) {
-                /* If we got some top-level definitions, set them up in a big
-                let* with a throwaway body ("#t"). Evaluate that, telling the
-                trampoline that what we want is the most deeply nested
-                environment, not the actual answer. Use that environment (which
-                has all the bindings we want) to evaluate the expressions that
-                make up the program.
-
-                todo bl: this two-evals-in-one trick is scary. Much more
-                promising is to convert all top-level definitions into set!'s
-                (which R5RS 5.2.1 says we can do) and execute them in order. */
-                var letstarBindings = newEmptyList();
-                letstarBindings.firstChild = defs.toSiblings();
-                var letstar = newEmptyList();
-                letstar.firstChild = newIdOrLiteral('#t', 'boolean');
-                letstar.prependChild(letstarBindings);
-                var defContinuable = newProcCall(newIdOrLiteral('let*'), letstar.firstChild, new Continuation(newCpsName()));
-                defContinuable.setStartingEnv(env);
-                env = trampoline(defContinuable, true).doctorMacroEnvs(); // sneaky
-            }
-            return (exprs.toSiblings() || newIdOrLiteral('#t', 'boolean'))
-                .sequence(env)
-                .setStartingEnv(env);
+            return node.sequence(env);
         }
         }
-
-        );
+    );
 };
 
 /* <command or definition> -> <command>
@@ -1105,7 +1137,20 @@ Parser.prototype['syntax-definition'] = function() {
         {type: 'define-syntax'},
         {type: 'keyword'},
         {type: 'transformer-spec'},
-        {type: ')'}
+        {type: ')'},
+        {desugar: function(node, env) {
+            /* todo bl this is incorrect. Installing syntax definitions
+            at desugar time, rather than at eval time, means variable foo
+            will shadow macro foo even if (define-syntax foo ...) follows
+            (define foo ...) in the program text. The right thing to do is to
+            create an anonymous binding at desugar time, then set the
+            real binding on the trampoline. */
+            var kw = node.at('keyword').payload;
+            var macro = node.at('transformer-spec').desugar(env);
+            env.addBinding(kw, macro);
+            return node;
+        }
+        }
     );
 };
 

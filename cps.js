@@ -201,6 +201,23 @@ function newProcCall(operatorName, firstOperand, continuation) {
     return new Continuable(new ProcCall(operatorName, firstOperand), continuation);
 }
 
+function newAssignment(dstName, srcName, continuation) {
+    var operands = new SiblingBuffer()
+        .appendSibling(newIdOrLiteral(dstName))
+        .appendSibling(newIdOrLiteral(srcName))
+        .toSiblings();
+    return newProcCall(newIdOrLiteral('set!'), operands, continuation);
+
+}
+
+function newTopLevelAssignment(dstName, srcName, continuation) {
+      var operands = new SiblingBuffer()
+        .appendSibling(newIdOrLiteral(dstName))
+        .appendSibling(newIdOrLiteral(srcName))
+        .toSiblings();
+    return newProcCall(newIdOrLiteral('set!-toplevel'), operands, continuation);
+}
+
 // Just for debugging
 ProcCall.prototype.toString = function(continuation, indentLevel, suppressEnv) {
     var ans = '\n';
@@ -324,7 +341,7 @@ EnvBuffer.prototype.get = function(name) {
 
  (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  */
-function trampoline(continuable, returnEnvironment) {
+function trampoline(continuable) {
 
     var cur = continuable;
     var resultStruct = new TrampolineResultStruct();
@@ -339,7 +356,7 @@ function trampoline(continuable, returnEnvironment) {
         resultStruct.clear();
     }
 
-    return returnEnvironment ? savedEnv.env : ans;
+    return ans;
 }
 
 Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
@@ -444,6 +461,7 @@ SiblingBuffer.prototype.appendSibling = function(node) {
       this.last.nextSibling = node;
       this.last = node.lastSibling();
   }
+    return this;
 };
 
 SiblingBuffer.prototype.toSiblings = function() {
@@ -562,6 +580,8 @@ ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuff
     // todo bl is this the best place for assignments?
     else if (this.operatorName.payload === 'set!') {
         this.tryAssignment.apply(this, args);
+    } else if (this.operatorName.payload === 'set!-toplevel') {
+        this.tryTopLevelAssignment.apply(this, args);
     } else if (typeof proc === 'function') {
         this.tryPrimitiveProcedure.apply(this, args);
     } else if (proc instanceof SchemeProcedure) {
@@ -614,6 +634,11 @@ ProcCall.prototype.bindResult = function(continuation, val) {
 
 ProcCall.prototype.tryAssignment = function(proc, continuation, resultStruct) {
     this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload));
+    resultStruct.nextContinuable = continuation.nextContinuable;
+};
+
+ProcCall.prototype.tryTopLevelAssignment = function(proc, continuation, resultStruct) {
+    this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload), true);
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
 

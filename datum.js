@@ -205,7 +205,15 @@ Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     var desugarFn = this.desugars
         && this.nextDesugar >= 0
         && this.desugars[this.nextDesugar--];
-    var ans = desugarFn ? desugarFn(this, env) : this;
+    var ans;
+    if (desugarFn)
+        ans = desugarFn(this, env);
+    else if (this.firstChild && this.firstChild.payload === 'begin') {
+        ans = this.firstChild.nextSibling ? this.firstChild.nextSibling.sequence(env) : null;
+    }
+    else
+        ans = this;
+
     if (forceContinuationWrapper && !(ans instanceof Continuable))
         ans = newIdShim(ans, newCpsName());
     return ans;
@@ -708,38 +716,15 @@ Datum.prototype.extractDefinition = function() {
         lambda.firstChild = bodyStart;
         var newFormalsList = formalsList.clone(true);
         newFormalsList.firstChild = newFormalsList.firstChild.nextSibling;
-        lambda.prependChild(newFormalsList);
+        if (newFormalsList.isImproperList() && !newFormalsList.firstChild.nextSibling)
+            lambda.prependChild(newIdOrLiteral(newFormalsList.firstChild.payload));
+        else
+            lambda.prependChild(newFormalsList);
         lambda.prependChild(newIdOrLiteral('lambda'));
         list.prependChild(lambda);
     }
     list.prependChild(variable.clone(true));
     return list;
-};
-
-Datum.prototype.partitionProgram = function(defBuffer, exprBuffer, env) {
-    for (var cur = this.firstChild, next = cur.nextSibling; cur; cur = next, next = next && next.nextSibling) {
-        if (cur.firstChild) {
-            switch (cur.firstChild.payload) {
-                case 'define':
-                    defBuffer.appendSibling(cur.extractDefinition());
-                break;
-                case 'define-syntax':
-                    var kw = cur.at('keyword').payload;
-                    var macro = cur.at('transformer-spec').desugar(env);
-                    env.addBinding(kw, macro);
-                break;
-                case 'begin':
-                    cur.partitionProgram(defBuffer, exprBuffer, env);
-                break;
-                default:
-                    cur.nextSibling = null;
-                    exprBuffer.appendSibling(cur);
-            }
-        } else if (cur.payload !== 'begin') {
-            cur.nextSibling = null;
-            exprBuffer.appendSibling(cur);
-        }
-    }
 };
 
 /*
