@@ -28,7 +28,28 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.name = name;
 
     if (bodyStart) {
-        this.body = bodyStart.sequence(this.env);
+
+        /* R5RS 5.2.2: "A <body> containing internal definitions can always
+        be converted into a completely equivalent letrec expression." */
+        var letrecBindings = new SiblingBuffer();
+        for (var cur = bodyStart; cur && cur.peekParse() === 'definition'; cur = cur.nextSibling) {
+                cur.forEach(function(node) {
+                    if (node.firstChild && node.firstChild.payload === 'define')
+                        letrecBindings.appendSibling(node.extractDefinition());
+                });
+        }
+
+        if (letrecBindings.isEmpty()) {
+            /* todo bl do we have to call sequence here? It doesn't look
+            like we're doing it in the else clause. */
+            this.body = cur.sequence(env);
+        } else {
+            var letrec = newEmptyList();
+            letrec.firstChild = letrecBindings.toSiblings();
+            letrec.nextSibling = cur;
+            this.body = newProcCall(newIdOrLiteral('letrec'), letrec, new Continuation(newCpsName()));
+        }
+
         this.lastContinuable = this.body.getLastContinuable();
         this.savedContinuation = this.lastContinuable.continuation;
     }

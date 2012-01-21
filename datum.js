@@ -341,68 +341,6 @@ function constructTopLevelDefs(env, definitionHelper, next) {
     env.addBinding(definitionHelper.getProcName(), proc);
 }
 
-/* 5.2.2: "it must be possible to evaluate each <expression> of every
- internal definition in a <body> without assigning or referring to the
- value of any <variable> being defined."
-
- For example, in a non-top-level context,
-
- (define x 1)
- (define y 2)
- (+ x y)
-
- could be interpreted as
-
- ((lambda (x y) (+ x y)) 1 2)
-
- but it could NOT be interpreted as
-
- ((lambda (x) ((lambda (y) (+ x y)) 2)) 1)
-
- because this would allow something like
-
- (define x 1)
- (define y x)
- (+ x y)
-
- But implementations vary. In MIT Scheme it is legal.
- */
-function constructInternalDefs(env, definitionHelper, next) {
-    var rest = next.sequence(env, false);
-
-    /* If the rest of the sequence contained a definition, we have to aggregate
-     the definitions. Example:
-
-     (define x (+ 1 2)) => (+ 1 2 [_0 (proc0 _0 [...])])
-     (define y (+ 3 4)) => (+ 3 4 [_1 (proc1 _1 [...])])
-     (+ x y)
-
-     The base case is at (define y (+ 3 4)). This will install proc1 with
-     body (+ x y) in the environment.
-
-     The recursive case is at (define x (+ 1 2)). What we need to do here is
-     combine proc0 and proc1 so that we get
-
-     (+ 1 2 [_0 (+ 3 4 [_1 (proc0 _0 _1 [...])])])
-
-     This involves several updates:
-     (a) Prepend a formal parameter x to proc0's parameters
-     (b) Insert the argument "_0" in the actual call to proc0
-     (c) Replace the end of x's continuable chain with y's continuable chain
-     */
-    if (rest.definitionHelper) {
-        // Takes care of steps (a) and (b)
-        rest.definitionHelper.incorporateOuterDef(definitionHelper);
-        // Takes care of step (c)
-        definitionHelper.setContinuable(rest);
-    }
-
-    else {
-        var proc = new SchemeProcedure(definitionHelper.formals, false, null, env, definitionHelper.getProcName());
-        proc.setBody(rest);
-        env.addBinding(definitionHelper.getProcName(), proc);
-    }
-}
 
 DefinitionHelper.prototype.getSoleCPSName = function() {
     if (this.formals.length !== 1)
@@ -854,6 +792,38 @@ Datum.prototype.processQuasiquote = function(env) {
     return ans && ans.setStartingEnv(env);
 };
 
+/* Munges definitions to get them in a form suitable for let-type
+bindings. Example:
+
+(define (foo x y z) ...) => (foo (lambda (x y z) ...))
+
+todo bl: I think there are some bugs with improper lists. Something
+I didn't notice until recently is that
+
+(define (foo . xs) ...)
+
+has no legal lambda-form. I'm not quite sure why this isn't causing
+my dotted-list tests to fail. */
+Datum.prototype.extractDefinition = function() {
+    var variable = this.at('variable');
+    var list = newEmptyList();
+    if (variable) {
+        list.prependChild(this.at('expression').clone(true));
+    } else {
+        var formalsList = this.firstChild.nextSibling;
+        variable = formalsList.firstChild;
+        var bodyStart = formalsList.nextSibling;
+        var lambda = newEmptyList();
+        lambda.firstChild = bodyStart;
+        var newFormalsList = formalsList.clone(true);
+        newFormalsList.firstChild = newFormalsList.firstChild.nextSibling;
+        lambda.prependChild(newFormalsList);
+        lambda.prependChild(newIdOrLiteral('lambda'));
+        list.prependChild(lambda);
+    }
+    list.prependChild(variable.clone(true));
+    return list;
+};
 /*
  Continuation-passing style is
  <cps-expr> -> <cps-procedure-call> | <cps-branch>
