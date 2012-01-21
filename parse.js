@@ -737,11 +737,14 @@ Parser.prototype['assignment'] = function() {
         {type: 'expression'},
         {type: ')'},
         {desugar: function(node, env) {
-
-            return desugarDefinition(
-                node.at('variable').payload,
-                node.at('expression').desugar(env, true),
-                true);
+            // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
+            var variable = node.at('variable');
+            var desugaredExpr = variable.nextSibling.desugar(env, true);
+            var lastContinuable = desugaredExpr.getLastContinuable();
+            var cpsName = lastContinuable.continuation.lastResultName;
+            variable.nextSibling = newIdOrLiteral(cpsName);
+            lastContinuable.continuation.nextContinuable = newProcCall(newIdOrLiteral('set!'), variable, new Continuation(newCpsName()));
+            return desugaredExpr;
         }
         }
     );

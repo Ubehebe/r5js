@@ -558,6 +558,10 @@ ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuff
 
     if (!this.operatorName) {
         this.tryIdShim.apply(this, args);
+    }
+    // todo bl is this the best place for assignments?
+    else if (this.operatorName.payload === 'set!') {
+        this.tryAssignment.apply(this, args);
     } else if (typeof proc === 'function') {
         this.tryPrimitiveProcedure.apply(this, args);
     } else if (proc instanceof SchemeProcedure) {
@@ -606,6 +610,11 @@ ProcCall.prototype.bindResult = function(continuation, val) {
     else {
         this.env.addBinding(name, val);
     }
+};
+
+ProcCall.prototype.tryAssignment = function(proc, continuation, resultStruct) {
+    this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload));
+    resultStruct.nextContinuable = continuation.nextContinuable;
 };
 
 /* Primitive procedure, represented by JavaScript function:
