@@ -233,8 +233,7 @@ ProcCall.prototype.toString = function(continuation, indentLevel, suppressEnv) {
         ans += '\t';
     ans += '(' + (this.operatorName instanceof Datum
         ? this.operatorName
-        : this.specialOps.names[this.operatorName])
-        + ')';
+        : this.specialOps.names[this.operatorName]);
     if (this.env && !suppressEnv)
         ans += '|' + this.env;
     if (this.operatorName) {
