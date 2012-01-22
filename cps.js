@@ -22,6 +22,14 @@ Continuation.prototype.toString = function(indentLevel) {
     return ans + ']';
 };
 
+/* todo bl: Continuable was originally envisioned as the parent
+ type of objects on the trampoline. Originally we had three subtypes:
+ ProcCall, Branch, and IdShim. But IdShim was turned into a subtype of
+ ProcCall in order to take advantage of ProcCall's environment-handling
+ logic. Subsequently other "procedure-call-like" entities (assignments,
+ for example) have been written as ProcCalls. So it may no longer make
+ sense to create both a Continuable and a ProcCall object for most
+ things on the trampoline. */
 function Continuable(subtype, continuation) {
     if (!subtype || !continuation) // todo bl take out after testing
         throw new InternalInterpreterError('invariant incorrect');
@@ -132,7 +140,7 @@ Continuable.prototype.toString = function(indentLevel) {
  We represent these id shims as ProcCalls whose operatorNames are null
  and whose firstOperand is the payload. */
 function newIdShim(payload, continuationName) {
-    return newProcCall(null, payload, new Continuation(continuationName));
+    return newProcCall(ProcCall.prototype.specialOps._id, payload, new Continuation(continuationName));
 }
 
 function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
@@ -206,7 +214,7 @@ function newAssignment(dstName, srcName, continuation) {
         .appendSibling(newIdOrLiteral(dstName))
         .appendSibling(newIdOrLiteral(srcName))
         .toSiblings();
-    return newProcCall(newIdOrLiteral('set!'), operands, continuation);
+    return newProcCall(ProcCall.prototype.specialOps._set, operands, continuation);
 
 }
 
@@ -215,7 +223,7 @@ function newTopLevelAssignment(dstName, srcName, continuation) {
         .appendSibling(newIdOrLiteral(dstName))
         .appendSibling(newIdOrLiteral(srcName))
         .toSiblings();
-    return newProcCall(newIdOrLiteral('set!-toplevel'), operands, continuation);
+    return newProcCall(ProcCall.prototype.specialOps._setTopLevel, operands, continuation);
 }
 
 // Just for debugging
@@ -223,7 +231,10 @@ ProcCall.prototype.toString = function(continuation, indentLevel, suppressEnv) {
     var ans = '\n';
     for (var i = 0; i < indentLevel; ++i)
         ans += '\t';
-    ans += '(' + (this.operatorName || 'id');
+    ans += '(' + (this.operatorName instanceof Datum
+        ? this.operatorName
+        : this.specialOps.names[this.operatorName])
+        + ')';
     if (this.env && !suppressEnv)
         ans += '|' + this.env;
     if (this.operatorName) {
@@ -392,9 +403,7 @@ ProcCall.prototype.operandsInCpsStyle = function() {
     return true;
 };
 
-/* See newIdShim() for an explanation of the conventions here, particularly
-    why the first argument is always null. */
-ProcCall.prototype.tryIdShim = function(willAlwaysBeNull, continuation, resultStruct) {
+ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
     var ans;
 
     var arg = this.firstOperand;
@@ -560,6 +569,13 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
     resultStruct.nextContinuable = ans;
 };
 
+/* Things like set! are represented as ProcCalls whose
+operators are the small integers in ProcCall.prototype.specialOps
+rather than Datum objects. */
+ProcCall.prototype.isSpecialOperator = function() {
+    return !(this.operatorName instanceof Datum);
+};
+
 ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
 
     /* If the procedure call has no attached environment, we use
@@ -571,17 +587,12 @@ ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuff
         this.setEnv(envBuffer.env);
     }
 
-    var proc = this.operatorName && this.env.getProcedure(this.operatorName);
+    var specialOp = this.isSpecialOperator();
+    var proc = specialOp ? this.operatorName : this.env.getProcedure(this.operatorName);
     var args = [proc, continuation, resultStruct];
 
-    if (!this.operatorName) {
-        this.tryIdShim.apply(this, args);
-    }
-    // todo bl is this the best place for assignments?
-    else if (this.operatorName.payload === 'set!') {
-        this.tryAssignment.apply(this, args);
-    } else if (this.operatorName.payload === 'set!-toplevel') {
-        this.tryTopLevelAssignment.apply(this, args);
+    if (specialOp) {
+        this.specialOps.logic[args.shift()].apply(this, args);
     } else if (typeof proc === 'function') {
         this.tryPrimitiveProcedure.apply(this, args);
     } else if (proc instanceof SchemeProcedure) {
@@ -632,12 +643,12 @@ ProcCall.prototype.bindResult = function(continuation, val) {
     }
 };
 
-ProcCall.prototype.tryAssignment = function(proc, continuation, resultStruct) {
+ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
     this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload));
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
 
-ProcCall.prototype.tryTopLevelAssignment = function(proc, continuation, resultStruct) {
+ProcCall.prototype.tryTopLevelAssignment = function(continuation, resultStruct) {
     this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload), true);
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
@@ -875,4 +886,20 @@ function evalArgs(firstOperand, env) {
 
     return args;
 }
+
+/* This is my attempt at a JavaScript enum idiom. Is there a better way to
+ get guaranteed constant-time lookup given an ordinal? */
+ProcCall.prototype.specialOps = {
+
+    _id: 0,
+    _set: 1,
+    _setTopLevel: 2,
+
+    names: ['id', 'set!', 'set!'],
+    logic: [
+        ProcCall.prototype.tryIdShim,
+        ProcCall.prototype.tryAssignment,
+        ProcCall.prototype.tryTopLevelAssignment
+    ]
+};
 
