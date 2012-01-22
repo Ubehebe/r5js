@@ -55,38 +55,6 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     }
 }
 
-SchemeProcedure.prototype.doBindArgsAtRootEnv = function() {
-    this.bindArgsAtRootEnv = true;
-};
-
-SchemeProcedure.prototype.setMustAlreadyBeBound = function(dict) {
-    this.mustAlreadyBeBound = dict;
-};
-
-/* The only SchemeProcedure objects with null bodies should be
- definitions, since we have to insert their bodies later in parsing. For
- example:
-
- (define x 1)
- (+ x x)
-
- The definition gets desugared to ((lambda (x) null) 1). The expression
- (+ x x) later becomes the anonymous lambda's body:
-
- ((lambda (x) (+ x x)) 1)
- */
-SchemeProcedure.prototype.isDefinition = function() {
-    return !this.body;
-};
-
-SchemeProcedure.prototype.setBody = function(bodyContinuable) {
-    if (!this.isDefinition())
-        throw new InternalInterpreterError('not a definition: ' + this);
-    this.body = bodyContinuable;
-    this.lastContinuable = this.body.getLastContinuable();
-    this.savedContinuation = this.lastContinuable.continuation;
-};
-
 SchemeProcedure.prototype.setContinuation = function(c) {
     /* This will be a vacuous write for a tail call. But that is
     probably still faster than checking if we are in tail position and,
@@ -135,35 +103,7 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
 
 SchemeProcedure.prototype.bindArgs = function(args, env) {
 
-    if (this.bindArgsAtRootEnv) {
-        /* This is just a shim used by top-level definitions. We implement
-         definitions as procedures: for example,
-
-         (define x 1)
-         (define y 2)
-         ...
-
-         is like
-
-         ((lambda (x) ((lambda (y) ...) 2) 1)
-
-         This is fine when we're reading whole programs at a go. But for REPL-
-         like functionality, we would have to make sure subsequent expressions
-         targeted the original endpoint ..., which means the trampoline might
-         have to return it.
-
-         Instead of worrying about that, if we know this is a top-level
-         definition, just send the binding all the way up the chain. Ha! */
-        env = env.rootEnv();
-    }
-
     var name, i;
-
-    if (this.mustAlreadyBeBound) {
-        for (name in this.mustAlreadyBeBound)
-            if (!env.hasBindingRecursive(name))
-                throw new UnboundVariable('cannot set undefined variable: ' + name);
-    }
 
     for (i = 0; i < this.formalsArray.length - 1; ++i) {
         name = this.formalsArray[i];
