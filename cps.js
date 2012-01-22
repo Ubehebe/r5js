@@ -420,10 +420,19 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
         // Do the appropriate substitutions.
         ans = arg.replaceChildren(
             function(node) {
-                return node.isIdentifier() && node.payload.charAt(0) === cpsPrefix;
+                return node.shouldUnquote();
             },
             function(node) {
-                return env.get(node.payload).clone();
+                var ans = env.get(node.payload).clone();
+                if (node.shouldUnquoteSplice()) {
+                    if (ans.isList()) {
+                        if (ans.firstChild) // `(1 ,@(list 2 3) 4) => (1 2 3 4)
+                            ans = ans.firstChild;
+                        else // `(1 ,@(list) 2) => (1 2)
+                            ans = null;
+                    } else throw new QuasiquoteError(ans + ' is not a list');
+                }
+                return ans;
             });
         // Now strip away the quote mark.
         ans = ans.firstChild;

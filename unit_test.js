@@ -346,13 +346,17 @@ function testEvaluator() {
         "(cdr `(,(+ 1 2) ,(+ 3 4)))": '(7)',
         "`,(+ 1 100)": '101',
         "(+ `,(+ 1 100) 10)": '111',
+        "`(1 2 ,@(list 3 4))": '(1 2 3 4)',
+        "`(1 2 ,@(list))": '(1 2)',
+        "`(1 2 ,@(+ 3 4))": false,
         "(define (foo x) (define (bar) x) (bar)) (foo 'x) (foo 'y)": 'y',
         "(define (foo x) (let ((bar (lambda () x))) (bar))) (foo 'x) (foo 'y)": 'y',
         '(let () 1 2 3)': '3',
         '(let () (define x 2) (+ x x))': '4',
         '(let ())': false,
         "(letrec ((my-even? (lambda (n) (if (= n 0) #t (my-odd? (- n 1))))) (my-odd? (lambda (n) (if (= n 0) #f (my-even? (- n 1)))))) (my-even? 15))": '#f',
-        "(define-syntax foo (syntax-rules () ((foo x ...) (cons (list x ...) (list x ...))))) (foo 1 2 3)": '((1 2 3) 1 2 3)'
+        "(define-syntax foo (syntax-rules () ((foo x ...) (cons (list x ...) (list x ...))))) (foo 1 2 3)": '((1 2 3) 1 2 3)',
+        "(define x 'wrong) ((lambda () (define x 'right) x))" : 'right'
     };
 
     /* These tests exercise various macro features that the standard talks about

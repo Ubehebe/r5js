@@ -29,14 +29,40 @@ Datum.prototype.replaceChildren = function(predicate, transform) {
     for (var cur = this.firstChild, prev; cur; prev = cur,cur = cur.nextSibling) {
         if (predicate(cur)) {
             var tmp = cur.nextSibling;
+            cur.nextSibling = null;
             /* We have to assign to cur so prev will be set correctly
              in the next iteration. */
-            cur = transform(cur);
-            cur.nextSibling = tmp;
-            if (prev) {
-                prev.nextSibling = cur;
-            } else {
-                this.firstChild = cur;
+            if (cur = transform(cur)) {
+
+                if (prev)
+                    prev.nextSibling = cur;
+                else
+                    this.firstChild = cur;
+
+                /* If cur suddenly has a sibling, it must have been inserted
+                by the transform. That is, the transform wants to insert
+                multiple siblings in place of the single node. (Use case: in
+
+                `(1 ,@(list 2 3) 4)
+
+                the members of the sublist (2 3), not the sublist itself,
+                should be inserted into the main list.)
+
+                In this case we should skip ahead to the last sibling inserted
+                by the transform in order to avoid accidentally running the
+                transform on those newly-inserted siblings, which would
+                presumably not be wanted. */
+                if (cur.nextSibling)
+                    cur = cur.lastSibling();
+
+                cur.nextSibling = tmp;
+            }
+
+            /* If transform returned null, that means the current node
+            should be spliced out of the list. */
+            else {
+                prev.nextSibling = tmp;
+                cur = prev;
             }
         } else {
             cur.replaceChildren(predicate, transform);
@@ -375,6 +401,10 @@ Datum.prototype.isUnquote = function() {
     return this.type === ',' || this.type === ',@';
 };
 
+Datum.prototype.isUnquoteSplicing = function() {
+    return this.type === ',@';
+};
+
 /* todo bl this could be written in Scheme (as equals?). I wrote it
  in JavaScript because we have to call it when doing macro processing.
  */
@@ -680,8 +710,13 @@ Datum.prototype.processQuasiquote = function(env) {
         },
         function(node) {
             var asContinuable = new Parser(node.firstChild).parse('expression').desugar(env, true);
+            var continuation = asContinuable.getLastContinuable().continuation;
+            /* Throw out the last result name and replace it with another
+             identifier (also illegal in Scheme) that will let us know if it's
+             unquotation or unquotation with splicing. */
+            continuation.lastResultName = node.type + (uniqueNodeCounter++);
             newCalls.appendContinuable(asContinuable);
-            return newIdOrLiteral(asContinuable.getLastContinuable().continuation.lastResultName);
+            return newIdOrLiteral(continuation.lastResultName);
         });
 
         this.type = "'";
@@ -689,6 +724,16 @@ Datum.prototype.processQuasiquote = function(env) {
     newCalls.appendContinuable(newIdShim(this, newCpsName()));
     var ans = newCalls.toContinuable();
     return ans && ans.setStartingEnv(env);
+};
+
+Datum.prototype.shouldUnquote = function() {
+    return this.isIdentifier() && this.payload.charAt(0) === ',';
+};
+
+/* This is a subcase of shouldUnquote, because unquotes
+and unquote-splicings have pretty much the same logic. */
+Datum.prototype.shouldUnquoteSplice = function() {
+    return this.isIdentifier() && this.payload.charAt(1) === '@';
 };
 
 /* Munges definitions to get them in a form suitable for let-type

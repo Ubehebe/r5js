@@ -92,3 +92,9 @@ function GeneralSyntaxError(what) {
         return 'bad syntax in ' + what;
     };
 }
+
+function QuasiquoteError(what) {
+    this.toString = function() {
+        return 'quasiquote error: ' + what;
+    };
+}
