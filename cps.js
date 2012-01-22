@@ -794,15 +794,10 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
      I don't think this is correct, but it works for the letrec macro definition,
      which is the most complex case I've tried so far. */
     for (var free in template.freeIdsInTemplate) {
-        if (macro.definitionEnv.hasBindingRecursive(free)) {
+        if (macro.definitionEnv.hasBindingRecursive(free))
             newEnv.addBinding(free, macro.definitionEnv);
-        } else {
-            /* todo bl: we have to rename it to a legal identifier;
-             we can't use the illegal CPS prefix because reparsing would
-            then fail. We need to check that the new name is not already
-            in use! */
-            toRename[free] = free + (uniqueNodeCounter++);
-        }
+         else
+            toRename[free] = newCpsName();
     }
 
     var newParseTree = new Parser(newDatumTree).parse();
