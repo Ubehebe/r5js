@@ -1139,16 +1139,11 @@ Parser.prototype['syntax-definition'] = function() {
         {type: 'transformer-spec'},
         {type: ')'},
         {desugar: function(node, env) {
-            /* todo bl this is incorrect. Installing syntax definitions
-            at desugar time, rather than at eval time, means variable foo
-            will shadow macro foo even if (define-syntax foo ...) follows
-            (define foo ...) in the program text. The right thing to do is to
-            create an anonymous binding at desugar time, then set the
-            real binding on the trampoline. */
             var kw = node.at('keyword').payload;
             var macro = node.at('transformer-spec').desugar(env);
-            env.addBinding(kw, macro);
-            return node;
+            var anonymousName = newAnonymousLambdaName();
+            env.addBinding(anonymousName, macro);
+            return newTopLevelAssignment(kw, anonymousName, new Continuation(newCpsName()));
         }
         }
     );
