@@ -44,6 +44,11 @@ Environment.prototype.allowRedefs = function() {
     return this;
 };
 
+Environment.prototype.noSyntaxShadowWarnings = function() {
+    this.noWarnOnSyntaxShadow = true;
+    return this;
+};
+
 Environment.prototype.clone = function(name) {
 
       if (this.enclosingEnv)
@@ -133,6 +138,32 @@ Environment.prototype.addBinding = function(name, val) {
     }
 
     else if (!this.bindings[name] || this.redefsOk || name.charAt(0) === '@') {
+
+        /* R5RS 5.3: "It is an error for a definition or syntax definition
+         to shadow a syntactic keyword whose meaning is needed to determine
+         whether some form in the group of forms that contains the shadowing
+         definition is in fact a definition, or, for internal definitions,
+         is needed to determine the boundary between the group and
+         the expressions that follow the group."
+
+         Although R5RS goes on to list a few such erroneous definitions,
+         it's not clear to me what the general algorithm is. It would seem to
+         require major changes in the stages of evaluation. For example,
+
+         (begin (define begin list))
+
+         is supposed to be an error, but by the time we are on the trampoline,
+         ready to install the binding begin = list, the first begin has already
+         been stripped away during desugaring.
+
+         So I decided to allow all redefinitions of syntactic keywords,
+         emitting a warning just in case. Other implementations, for example
+         PLT Scheme, allow things like (define define 1) that are supposed
+         to be errors. One could also argue that redefining syntactic
+         keywords makes programs less readable. */
+        if (isSyntacticKeyword(name) && !this.noWarnOnSyntaxShadow)
+            console.log('warning, redefining syntactic keyword '
+                + name + ', unexpected behavior may result');
 
         // useful for debugging if (val instanceof Datum)
         //    console.log(this + ' addBinding ' + name + ' = ' + val);

@@ -85,8 +85,6 @@ function testParser() {
         '+': true,
         '-': true,
         'x': true,
-        '=>': false,
-        'cond': false,
         '(': false
     };
 
@@ -119,7 +117,7 @@ function testParser() {
         '(foo x': false,
         'foo x)': false,
         '()': false,
-        '(define x)': false,
+        '(define x)': true,
         '(foo x y . z)': false,
         '((foo) (foo))': true,
         '((define) foo)': true,
@@ -151,7 +149,6 @@ function testParser() {
 
     tests['definition'] = {
         '(define x x)': true,
-        '(define define 1)': false,
         '(define (foo x y) (foo x y))': true,
         '(begin (define x x) (define y y))': true,
         '(define (x . y) 1)': true,
@@ -277,7 +274,7 @@ function testParser() {
 
             // Expected failure...
             else {
-                if (!actualResult)
+                if (!actualResult || actualResult.peekParse() !== type)
                     ; // ...and got failure, according to expectation
                 else { // ...but unexpectedly got success
                     ++numErrors;
@@ -546,7 +543,8 @@ function testEvaluator() {
         "(let ((name 'a)) `(list ,name ',name))": "(list a 'a)", // p. 13
         "(let ((name1 'x) (name2 'y)) `(a `(b ,,name1 ,',name2 d) e))": "(a `(b ,x ,'y d) e)", // p. 13
         "(quasiquote (list (unquote (+ 1 2)) 4))": '(list 3 4)', // p. 13
-        "'(quasiquote (list (unquote (+ 1 2)) 4))": "`(list ,(+ 1 2) 4)" // p. 13
+        "'(quasiquote (list (unquote (+ 1 2)) 4))": "`(list ,(+ 1 2) 4)", // p. 13
+        "(let ((=> #f)) (cond (#t => 'ok)))": 'ok' // p. 15
     };
 
     var numErrors = 0;

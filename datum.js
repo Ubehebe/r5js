@@ -781,6 +781,39 @@ Datum.prototype.closestAncestorSibling = function() {
         return this.parent.closestAncestorSibling();
 };
 
+function isSyntacticKeyword(name) {
+    /* todo bl: why are define-syntax, let-syntax, letrec-syntax not listed
+     in 7.1.1 as syntactic keywords? */
+    switch (name) {
+        case 'else':
+        case '=>':
+        case 'define':
+        case 'define-syntax':
+        case 'unquote':
+        case 'unquote-splicing':
+        case 'quote':
+        case 'lambda':
+        case 'if':
+        case 'set!':
+        case 'begin':
+        case 'cond':
+        case 'and':
+        case 'or':
+        case 'case': // :)
+        case 'let':
+        case 'let*':
+        case 'letrec':
+        case 'let-syntax':
+        case 'letrec-syntax':
+        case 'do':
+        case 'delay':
+        case 'quasiquote':
+            return true;
+        default:
+            return false;
+    }
+}
+
 /*
  Continuation-passing style is
  <cps-expr> -> <cps-procedure-call> | <cps-branch>

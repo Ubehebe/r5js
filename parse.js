@@ -262,19 +262,7 @@ Parser.prototype.onDatum = function(element) {
     }
 };
 
-function isSyntacticKeyword(str) {
-    /* todo bl: why are define-syntax, let-syntax, letrec-syntax not listed
-     in 7.1.1 as syntactic keywords? */
-    var kws = ['else', '=>', 'define', 'define-syntax', 'unquote', 'unquote-splicing', 'quote', 'lambda',
-        'if', 'set!', 'begin', 'cond', 'and', 'or', 'case', 'let', 'let*', 'letrec', 'let-syntax', 'letrec-syntax', 'do',
-        'delay', 'quasiquote'];
 
-    for (var i = 0; i < kws.length; ++i)
-        if (str === kws[i])
-            return true;
-
-    return false;
-}
 
 /* <expression> -> <variable>
  | <literal>
@@ -287,15 +275,37 @@ function isSyntacticKeyword(str) {
  | <macro block>
  */
 Parser.prototype['expression'] = function() {
+    /* In order to support shadowing of syntactic keywords,
+    the order of the following rules is important. Consider:
+
+    (define if 3)
+    (+ 1 if) => 4
+
+    For (+ 1 if) to parse as a procedure call, if must parse as a variable.
+    This somewhat contradicts the rule at 7.1.1:
+
+    <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
+
+    But if we can't ensure that variables aren't syntactic keywords, we
+    must ensure that "built-in" syntax isn't accidentally captured
+    as variables. If the procedure call RHS was listed before the lambda
+    expression RHS, then for example
+
+     (lambda () 1)
+
+     would parse as a procedure call.
+
+     todo bl: the real solution is to simplify the grammar even more
+     so that (lambda () 1) parses as something like a macro use, then
+     install a "super-macro" for lambda that contains custom logic in
+     JavaScript. That way, the syntactic keyword could be shadowed
+     appropriately. */
     return this.alternation(
         [
             {type: 'variable'}
         ],
         [
             {type: 'literal'}
-        ],
-        [
-            {type: 'procedure-call'}
         ],
         [
             {type: 'lambda-expression'}
@@ -317,6 +327,9 @@ Parser.prototype['expression'] = function() {
             {type: 'macro-block'}
         ],
         [
+            {type: 'procedure-call'}
+        ],
+        [
             {type: 'macro-use'}
         ]);
 };
@@ -326,8 +339,7 @@ Parser.prototype['variable'] = function() {
     return this.rhs(
         {type: function(datum) {
             return datum instanceof Datum // because it may be emptyListSentinel
-                && datum.isIdentifier()
-                && !isSyntacticKeyword(datum.payload);
+                && datum.isIdentifier();
         }});
 };
 
