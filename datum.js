@@ -772,6 +772,15 @@ Datum.prototype.extractDefinition = function() {
     return list;
 };
 
+Datum.prototype.closestAncestorSibling = function() {
+    if (this.nextSibling)
+        return this.nextSibling;
+    else if (!this.parent)
+        return null;
+    else
+        return this.parent.closestAncestorSibling();
+};
+
 /*
  Continuation-passing style is
  <cps-expr> -> <cps-procedure-call> | <cps-branch>

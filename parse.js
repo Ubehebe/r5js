@@ -145,6 +145,23 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
         var numParsed = 0;
 
+        /* todo bl too hard to understand. Has to do with recovering the
+         next pointer after falling off the end of a deeply-nested list. However,
+         it only seems to be needed for the let-syntax and letrec-syntax
+         nonterminals. This is an indication that I don't understand how the
+         parser really works.
+
+         The parser would be much simpler if each parsing action returned
+         the datum it parsed on success and null on failure, rather than
+         tinkering with the state pointers prev and next. I haven't done this
+         so far because it would seem to require passing an additional
+         node parameter around. Currently, all the parameters in the parsing
+         functions are descriptions of the grammar. I probably need to
+         factor the parser into parser logic and a grammar that the parser
+         reads. */
+        if (!this.next)
+            this.next = this.prev.closestAncestorSibling();
+
         while (this.next // We haven't fallen off the end of the list
             && this.next !== this.emptyListSentinel // And we're not at an empty list
             && (parsed = parseFunction.apply(this))) { // And the parse succeeds

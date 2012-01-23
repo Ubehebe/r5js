@@ -234,6 +234,16 @@ function testParser() {
         "unquote-splicing": false
     };
 
+    tests['macro-block'] = {
+        "(let-syntax () 1)": true,
+        "(let-syntax ())": false,
+        "(letrec-syntax () 1)": true,
+        "(letrec-syntax ())": false,
+        "(let-syntax ((foo (syntax-rules () ((foo x) 'x)))) 1)": true,
+        "(letrec-syntax ((foo (syntax-rules (x) ((foo x) 'x)))) (foo))": true,
+        "(let-syntax ((foo (syntax-rules () ((foo) (+ 1 2 3))))) (define x 12) x)": true
+    };
+
     var numErrors = 0;
     var numTests = 0;
 
