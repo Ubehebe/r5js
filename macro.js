@@ -2,7 +2,7 @@ function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
     this.literalIdentifiers = {};
     for (var curId = literalIdentifiers; curId; curId = curId.nextSibling)
         this.literalIdentifiers[curId.payload] = true;
-    this.rules = rules;
+    this.rules = rules.clone();
     this.definitionEnv = definitionEnv;
 
     // Cache the set of free identifiers per pattern/template pair
