@@ -115,7 +115,7 @@ TemplateBindings.prototype.fixNewBindings = function() {
     this.awaitingFixing = [];
 };
 
-TemplateBindings.prototype.get = function(name) {
+TemplateBindings.prototype.getTemplateBinding = function(name, backdoorEnv) {
     var ans;
     var maybeRegularBinding = this.regularBindings[name];
     if (maybeRegularBinding) {
@@ -138,6 +138,33 @@ TemplateBindings.prototype.get = function(name) {
                 ans = maybeEllipsisBindings[this.ellipsisIndices[name]++].clone();
             }
         }
+    }
+
+    /* Workaround for let-syntax and letrec-syntax.
+     This implementation rewrites let-syntax and letrec-syntax
+     as let and letrec respectively. For example,
+
+     (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
+
+     desugars as
+
+     (let ((foo [SchemeMacro object wrapped in a Datum])) ...)
+
+     When this macro use is matched against the definition of let,
+     the wrapped SchemeMacro object will be added to the TemplateBindings
+     correctly. The problem arises during transcription: we cannot insert
+     the wrapped SchemeMacro object directly into the new parse tree,
+     because that parse tree will be handed to the parser, which won't know
+     what to do with SchemeMacros.
+
+     Indirection comes to the rescue. We insert a new identifier node and
+     bind it in the current environment to the SchemeMacro. Later, on
+     the trampoline, we will look up the value of that identifier and
+     find the SchemeMacro as desired. */
+    if (ans instanceof Datum && ans.isMacro()) {
+        var fakeName = newCpsName();
+        backdoorEnv.addBinding(fakeName, ans.payload);
+        ans = newIdOrLiteral(fakeName);
     }
     return ans;
 };
@@ -209,8 +236,8 @@ function Template(datum, templateBindings, freeIdsInTemplate) {
     this.freeIdsInTemplate = freeIdsInTemplate;
 }
 
-Template.prototype.hygienicTranscription = function() {
-    return this.datum.transcribe(this.templateBindings);
+Template.prototype.hygienicTranscription = function(env) {
+    return this.datum.transcribe(this.templateBindings, env);
 };
 
 /* 4.3.2: An input form F matches a pattern P if and only if:

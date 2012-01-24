@@ -212,6 +212,8 @@ Datum.prototype.toString = function() {
             return typeof this.payload === 'function'
                 ? this.name
                 : 'proc:' + this.name;
+        case 'macro':
+            return '[macro]';
         case 'identifier':
             return this.payload;
         case 'boolean':

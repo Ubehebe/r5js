@@ -471,18 +471,26 @@ SiblingBuffer.prototype.isEmpty = function() {
 };
 
 SiblingBuffer.prototype.appendSibling = function(node) {
-  if (!this.first) {
-    this.first = node;
-      this.last = node.lastSibling();
-  } else {
-      this.last.nextSibling = node;
-      this.last = node.lastSibling();
-  }
+    if (node) {
+        if (!this.first) {
+            this.first = node;
+            this.last = node.lastSibling();
+        } else {
+            this.last.nextSibling = node;
+            this.last = node.lastSibling();
+        }
+    }
     return this;
 };
 
 SiblingBuffer.prototype.toSiblings = function() {
     return this.first;
+};
+
+SiblingBuffer.prototype.toList = function() {
+  var ans = newEmptyList();
+    ans.firstChild = this.first;
+    return ans;
 };
 
 SiblingBuffer.prototype.toString = function() {
@@ -766,7 +774,7 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
     var template = macro.selectTemplate(this.reconstructDatum(), this.env);
     if (!template)
         throw new MacroError(this.operatorName.payload, 'no pattern match for input ' + this.toString(null, 0, true));
-    var newDatumTree = template.hygienicTranscription();
+    var newDatumTree = template.hygienicTranscription(this.env);
 
     var newEnv = new Environment('macro-' + (uniqueNodeCounter++), this.env);
 

@@ -253,8 +253,19 @@ function newProcedureDatum(name, procedure) {
     return ans;
 }
 
+function newMacroDatum(macro) {
+    var ans = new Datum();
+    ans.type = 'macro';
+    ans.payload = macro;
+    return ans;
+}
+
 Datum.prototype.isProcedure = function() {
   return this.type === 'lambda';
+};
+
+Datum.prototype.isMacro = function() {
+    return this.type === 'macro';
 };
 
 Datum.prototype.isEnvironmentSpecifier = function() {
@@ -446,7 +457,7 @@ Datum.prototype.startsWith = function(payload) {
     return this.firstChild && this.firstChild.payload === payload;
 };
 
-Datum.prototype.transcribe = function(templateBindings) {
+Datum.prototype.transcribe = function(templateBindings, env) {
     var prev;
     var first;
     var ellipsisMode = false;
@@ -467,7 +478,7 @@ Datum.prototype.transcribe = function(templateBindings) {
 
         // Identifiers: nonrecursive case
         if (cur.payload !== undefined) { // watch out for 0's and falses
-            var match = templateBindings.get(cur.payload);
+            var match = templateBindings.getTemplateBinding(cur.payload, env);
 
             /* If we found some kind of binding for the name, insert it in
                 the transcription. There is a corner case, though: in ellipsis
@@ -495,7 +506,7 @@ Datum.prototype.transcribe = function(templateBindings) {
 
         // Lists etc.: recursive case
         else if (cur.firstChild) {
-            success = cur.firstChild.transcribe(templateBindings);
+            success = cur.firstChild.transcribe(templateBindings, env);
             if (success !== false) { // watch out: null is an empty list
                 cur.firstChild = success;
                 success = cur;
@@ -779,6 +790,46 @@ Datum.prototype.closestAncestorSibling = function() {
         return null;
     else
         return this.parent.closestAncestorSibling();
+};
+
+/* R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
+ but they bind syntactic keywords to macro transformers instead of binding
+ variables to locations that contain values."
+
+ In this implementation, a macro is just another kind of object that can
+ be stored in an environment, so we reuse the existing let machinery.
+ For example:
+
+ (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
+
+ desugars as
+
+ (let ((foo [SchemeMacro object])) ...)
+
+ We just need to be sure that the SchemeMacro object inserted directly
+ into the parse tree plays well when the tree is transcribed and reparsed.
+ See comments in TemplateBindings.prototype.getTemplateBinding(). */
+Datum.prototype.desugarMacroBlock = function(env, operatorName) {
+
+    var letBindings = new SiblingBuffer();
+
+    for (var spec = this.at('(').firstChild; spec; spec = spec.nextSibling) {
+        var kw = spec.at('keyword');
+        var macro = spec.at('transformer-spec').desugar(env);
+        kw.nextSibling = macro;
+        var list = newEmptyList();
+        /* We have to wrap the SchemeMacro object in a Datum to get it into
+            the parse tree. */
+        list.prependChild(newMacroDatum(macro));
+        list.prependChild(kw);
+        letBindings.appendSibling(list);
+    }
+
+    var _let = new SiblingBuffer();
+    _let.appendSibling(letBindings.toList());
+    _let.appendSibling(this.at('(').nextSibling);
+
+    return newProcCall(newIdOrLiteral(operatorName), _let.toSiblings(), new Continuation(newCpsName()));
 };
 
 function isSyntacticKeyword(name) {

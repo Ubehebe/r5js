@@ -921,7 +921,11 @@ Parser.prototype['macro-block'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node, env) {
+                return node.desugarMacroBlock(env, 'let');
+            }
+            }
         ],
         [
             {type: '('},
@@ -931,7 +935,11 @@ Parser.prototype['macro-block'] = function() {
             {type: ')'},
             {type: 'definition', atLeast: 0},
             {type: 'expression', atLeast: 1},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node, env) {
+                return node.desugarMacroBlock(env, 'letrec');
+            }
+            }
         ]);
 };
 
