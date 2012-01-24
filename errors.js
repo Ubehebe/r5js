@@ -98,3 +98,15 @@ function QuasiquoteError(what) {
         return 'quasiquote error: ' + what;
     };
 }
+
+function IllegalEmptyApplication(where) {
+    this.toString = function() {
+        return 'illegal empty application in ' + where;
+    };
+}
+
+function ParseError(what) {
+    this.toString = function() {
+        return 'parse error on ' + what;
+    };
+}

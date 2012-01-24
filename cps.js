@@ -396,9 +396,14 @@ ProcCall.prototype.reconstructDatum = function() {
 };
 
 ProcCall.prototype.operandsInCpsStyle = function() {
-    for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
-        if (cur instanceof Datum && !cur.isLiteral())
-            return false;
+    for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
+        if (cur instanceof Datum) {
+            if (cur.isEmptyList())
+                throw new IllegalEmptyApplication(this.operatorName.payload);
+            else if (!cur.isLiteral())
+                return false;
+        }
+    }
     return true;
 };
 

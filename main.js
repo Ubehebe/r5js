@@ -24,7 +24,10 @@ _R5JS.prototype._read = function(scanner) {
 
 _R5JS.prototype._parse = function(root, lhs) {
     this.timer.start('_parse');
-    return new Parser(root).parse(lhs);
+    var ans = new Parser(root).parse(lhs);
+    if (ans)
+        return ans;
+    else throw new ParseError(root);
 };
 
 _R5JS.prototype._desugar = function(root, env) {
@@ -60,7 +63,24 @@ _R5JS.prototype.eval = function(text) {
 // Just for convenience of evaling datums within the interpreter.
 _R5JS.prototype.evalDatum = function(datum, env) {
     this.timer.suspend();
-    var ans = this._eval(
+    /* An interesting special case. If we're about to evaluate a wrapped
+     procedure (primitive JavaScript or SchemeProcedure), return its name
+     (= external representation) instead. Example:
+
+     (eval + (null-environment 5))
+
+     The answer is (the external representation) +, even though the identifier
+     + is not bound in the null environment. Why? eval, like every procedure,
+     receives its arguments already evaluated, and the value of the identifier
+     + in the regular environment is the primitive procedure for addition.
+     But if we were to pass this Datum-wrapped procedure into the parser,
+     it would not know what to do with it and parsing would fail.
+
+     todo bl: are there any other cases where a procedure can
+     escape into the parser? */
+    var ans = (datum && datum.isProcedure())
+        ? newIdOrLiteral(datum.name)
+        : this._eval(
         this._desugar(
             this._parse(datum), env));
     this.timer.unsuspend();

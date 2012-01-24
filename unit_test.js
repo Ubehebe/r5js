@@ -296,6 +296,7 @@ function testEvaluator() {
         '1': '1',
         '(+ 1 1)': '2',
         "'(1 1)": '(1 1)',
+        "()": false,
         "(1 1)": false,
         "'(1 . 1)": '(1 . 1)',
         "(1 . 1)": false,
@@ -368,7 +369,8 @@ function testEvaluator() {
         "(let-syntax () 1)": '1',
         "(letrec-syntax () 1)": '1',
         "(let-syntax ((foo (syntax-rules () ((foo x) 'hi)))) (foo ()))": 'hi',
-        "(letrec-syntax ((foo (syntax-rules () ((foo x) 'hi)))) (foo ()))": 'hi'
+        "(letrec-syntax ((foo (syntax-rules () ((foo x) 'hi)))) (foo ()))": 'hi',
+        "(let (x ()) 1)": false
     };
 
     /* These tests exercise various macro features that the standard talks about
@@ -470,7 +472,13 @@ function testEvaluator() {
         '(define (foo x) (x 3.14)) (call-with-current-continuation foo)': '3.14',
         "(call-with-values (lambda () (values '(1 2 3))) cdr)": '(2 3)',
         "(eval + (null-environment 5))": '+',
-        "(eval '+ (null-environment 5))": false // tricky!
+        "(eval '+ (null-environment 5))": false, // tricky!
+        "(eval () (null-environment 5)": false,
+        "(eval '() (null-environment 5))": false,
+        "(eval ''() (null-environment 5))": '()',
+        "(eval '(()) (null-environment 5))": false,
+        "(eval (()) (null-environment 5))": false,
+        "(eval ''(()) (null-environment 5))": '(())'
     };
 
     tests['r5rs-examples'] = {

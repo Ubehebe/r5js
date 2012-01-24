@@ -1188,8 +1188,12 @@ Parser.prototype['syntax-definition'] = function() {
 
 Parser.prototype.parse = function(lhs) {
     var fun = this[lhs || 'program'];
-    if (fun)
-        return fun.apply(this);
+    if (fun) {
+        var ans = fun.apply(this);
+        /* Do not return a node if its nonterminals haven't been set;
+         this means parsing failed. */
+        return ans && ans.nonterminals && ans;
+    }
     else
         throw new InternalInterpreterError('unknown lhs: ' + lhs);
 };
