@@ -66,7 +66,7 @@ TemplateBindings.prototype.toString = function() {
     return ans + ']';
 };
 
-TemplateBindings.prototype.addBinding = function(name, val) {
+TemplateBindings.prototype.addTemplateBinding = function(name, val) {
 
     if (val instanceof Datum && val.isIdentifier())
         this.boundIds[val.payload] = true;
@@ -276,7 +276,7 @@ SchemeMacro.prototype.matchNonLiteralId
 
     if (patternId && !patternIsLiteralId) {
         // Push the new datum onto the list of bindings
-        bindings.addBinding(patternId, inputDatum.clone(true));
+        bindings.addTemplateBinding(patternId, inputDatum.clone(true));
         return true;
     } else return false;
 };
@@ -343,7 +343,7 @@ SchemeMacro.prototype.matchLiteralId
         if (inputDatum.payload === patternId
             && (!this.definitionEnv.hasBindingRecursive(patternId)
             && !useEnv.hasBindingRecursive(patternId))) { // both have no lexical binding
-            bindings.addBinding(patternId, inputDatum);
+            bindings.addTemplateBinding(patternId, inputDatum);
             return true;
 
         }
@@ -355,7 +355,7 @@ SchemeMacro.prototype.matchLiteralId
                 but such repetition is useless and it is fine to overwrite them. */
 
             // todo bl: likely bugs with literal ids in ellipsis patterns! because i see no pushes
-            bindings.addBinding(patternId, inputDatum);
+            bindings.addTemplateBinding(patternId, inputDatum);
             return true;
         }
     }
