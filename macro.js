@@ -11,6 +11,11 @@ function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
         this.freeIds.push(null);
 }
 
+SchemeMacro.prototype.setIsLetOrLetrecSyntax = function() {
+    this.isLetOrLetrecSyntax = true;
+    return this;
+};
+
 /* Should only be used during interpreter bootstrapping. */
 SchemeMacro.prototype.clone = function(newDefinitionEnv) {
     return new SchemeMacro(this.literalIdentifiers, this.rules, newDefinitionEnv);
@@ -160,10 +165,15 @@ TemplateBindings.prototype.getTemplateBinding = function(name, backdoorEnv) {
      Indirection comes to the rescue. We insert a new identifier node and
      bind it in the current environment to the SchemeMacro. Later, on
      the trampoline, we will look up the value of that identifier and
-     find the SchemeMacro as desired. */
+     find the SchemeMacro as desired.
+
+     We have to set the isLetOrLetrecSyntax flag on the macro to disallow
+     this behavior from the programmer. We cannot allow her to write
+
+     (let ((x let*)) x) */
     if (ans instanceof Datum && ans.isMacro()) {
         var fakeName = newCpsName();
-        backdoorEnv.addBinding(fakeName, ans.payload);
+        backdoorEnv.addBinding(fakeName, ans.payload.setIsLetOrLetrecSyntax());
         ans = newIdOrLiteral(fakeName);
     }
     return ans;

@@ -560,6 +560,15 @@ function testEvaluator() {
         "(let ((=> #f)) (cond (#t => 'ok)))": 'ok' // p. 15
     };
 
+    tests['syntax-rebinding'] = {
+        "(define x let)": false,
+        "(define x define)": false,
+        "(define let 3) let": '3',
+        "(let ((x let*)) 1)": false,
+        "(let ((x let)) 1)": false,
+        "(define let* 3) (let ((x let*)) let*)": '3'
+    };
+
     var numErrors = 0;
     var numTests = 0;
 

@@ -573,7 +573,8 @@ Parser.prototype['definition'] = function() {
                 var lastContinuable = desugaredExpr.getLastContinuable();
                 var cpsName = lastContinuable.continuation.lastResultName;
                 lastContinuable.continuation.nextContinuable =
-                    newTopLevelAssignment(variable.payload, cpsName, new Continuation(newCpsName()));
+                    newAssignment(variable.payload, cpsName, new Continuation(newCpsName()))
+                        .setTopLevelAssignment();
                 return desugaredExpr;
             }
             }
@@ -606,7 +607,8 @@ Parser.prototype['definition'] = function() {
                 env.addBinding(
                     anonymousName,
                     new SchemeProcedure(formals, false, formalRoot.nextSibling, env, anonymousName));
-                return newTopLevelAssignment(name.payload, anonymousName, new Continuation(newCpsName()));
+                return newAssignment(name.payload, anonymousName, new Continuation(newCpsName()))
+                    .setTopLevelAssignment();
             }
             }
         ],
@@ -641,7 +643,8 @@ Parser.prototype['definition'] = function() {
                 env.addBinding(
                     anonymousName,
                     new SchemeProcedure(formals, true, formalRoot.nextSibling, env, anonymousName));
-                return newTopLevelAssignment(name.payload, anonymousName, new Continuation(newCpsName()));
+                return newAssignment(name.payload, anonymousName, new Continuation(newCpsName()))
+                    .setTopLevelAssignment();
             }
             }
         ],
@@ -1180,7 +1183,9 @@ Parser.prototype['syntax-definition'] = function() {
             var macro = node.at('transformer-spec').desugar(env);
             var anonymousName = newAnonymousLambdaName();
             env.addBinding(anonymousName, macro);
-            return newTopLevelAssignment(kw, anonymousName, new Continuation(newCpsName()));
+            return newAssignment(kw, anonymousName, new Continuation(newCpsName()))
+                .setTopLevelAssignment()
+                .setSyntaxAssignment();
         }
         }
     );

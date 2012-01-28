@@ -111,6 +111,22 @@ Continuable.prototype.setStartingEnv = function(env, recursive) {
         : this;
 };
 
+Continuable.prototype.setTopLevelAssignment = function() {
+    if (!(this.subtype instanceof ProcCall
+        && this.subtype.operatorName === ProcCall.prototype.specialOps._set))
+        throw new InternalInterpreterError('invariant incorrect');
+    this.subtype.isTopLevelAssignment = true;
+    return this;
+};
+
+Continuable.prototype.setSyntaxAssignment = function() {
+    if (!(this.subtype instanceof ProcCall
+        && this.subtype.operatorName === ProcCall.prototype.specialOps._set))
+        throw new InternalInterpreterError('invariant incorrect');
+    this.subtype.isSyntaxAssignment = true;
+    return this;
+};
+
 /* The last continuable of a continuable-continuation chain is the first
  continuable c such that c.continuation.nextContinuable is null. */
 Continuable.prototype.getLastContinuable = function() {
@@ -214,16 +230,8 @@ function newAssignment(dstName, srcName, continuation) {
         .appendSibling(newIdOrLiteral(dstName))
         .appendSibling(newIdOrLiteral(srcName))
         .toSiblings();
+
     return newProcCall(ProcCall.prototype.specialOps._set, operands, continuation);
-
-}
-
-function newTopLevelAssignment(dstName, srcName, continuation) {
-      var operands = new SiblingBuffer()
-        .appendSibling(newIdOrLiteral(dstName))
-        .appendSibling(newIdOrLiteral(srcName))
-        .toSiblings();
-    return newProcCall(ProcCall.prototype.specialOps._setTopLevel, operands, continuation);
 }
 
 // Just for debugging
@@ -665,12 +673,33 @@ ProcCall.prototype.bindResult = function(continuation, val) {
 };
 
 ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
-    this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload));
-    resultStruct.nextContinuable = continuation.nextContinuable;
-};
+    var src = this.env.get(this.firstOperand.nextSibling.payload);
+    /* In Scheme, macros can be bound to identifiers but they are not really
+     first-class citizens; you cannot say
 
-ProcCall.prototype.tryTopLevelAssignment = function(continuation, resultStruct) {
-    this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload), true);
+     (define x let)
+
+     because the text "let" does not parse as an expression
+     (at least if it has its normal binding). In this implementation, however,
+     SchemeMacros are objects that go into and come out of Environments
+     like any other kind of objects. All kinds of assignments -- top-level,
+     internal, syntax, non-syntax -- go through this function, so we
+     have to make sure we don't accidentally permit some illegal behavior.
+
+     If we're trying to assign a SchemeMacro object but the isSyntaxAssignment
+     flag on the ProcCall object hasn't been set, then the programmer is
+     requesting this assignment and we ought to signal an error.
+
+     The situation is complicated a bit because internally, we use let and
+     letrec to implement let-syntax and letrec-syntax. In other words,
+     we as the implementer do exactly what we forbid the programmer to do.
+     We tell the difference between the two parties via the isLetOrLetrecSyntax
+     flag on the SchemeMacro object, which only the implementation can set. */
+    if (src instanceof SchemeMacro
+        && !src.isLetOrLetrecSyntax
+        && !this.isSyntaxAssignment)
+        throw new GeneralSyntaxError(this);
+    this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload), this.isTopLevelAssignment);
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
 
@@ -888,8 +917,17 @@ function evalArgs(firstOperand, env) {
     for (var cur = firstOperand; cur; cur = cur.nextSibling) {
         if (cur instanceof Continuation)
             args.push(cur);
-        else if (cur.isIdentifier())
-            args.push(env.get(cur.payload));
+        else if (cur.isIdentifier()) {
+            var toPush = env.get(cur.payload);
+            /* Macros are not first-class citizens in Scheme; they cannot
+             be passed as arguments. Internally, however, we do just that
+             for convenience. The isLetOrLetrecSyntax flag discriminates
+             between the programmer and the implementation. */
+            if (toPush instanceof SchemeMacro
+                && !toPush.isLetOrLetrecSyntax)
+                throw new MacroError(cur.payload, 'bad syntax');
+            args.push(toPush);
+        }
         else if (cur.isQuote())
             args.push(cur.firstChild);
         else if (cur.isProcedure()) {
@@ -909,13 +947,11 @@ ProcCall.prototype.specialOps = {
 
     _id: 0,
     _set: 1,
-    _setTopLevel: 2,
 
-    names: ['id', 'set!', 'set!'],
+    names: ['id', 'set!'],
     logic: [
         ProcCall.prototype.tryIdShim,
-        ProcCall.prototype.tryAssignment,
-        ProcCall.prototype.tryTopLevelAssignment
+        ProcCall.prototype.tryAssignment
     ]
 };
 
