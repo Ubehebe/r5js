@@ -152,8 +152,17 @@ Datum.prototype.peekParse = function() {
         if (len > 0)
             return this.nonterminals[len - 1];
     }
-
     return null;
+};
+
+Datum.prototype.hasParse = function(nonterminal) {
+    if (this.nonterminals) {
+        var len = this.nonterminals.length;
+        for (var i = 0; i < len; ++i)
+            if (this.nonterminals[i] === nonterminal)
+                return true;
+    }
+    return false;
 };
 
 Datum.prototype.at = function(type) {
@@ -751,14 +760,7 @@ Datum.prototype.shouldUnquoteSplice = function() {
 bindings. Example:
 
 (define (foo x y z) ...) => (foo (lambda (x y z) ...))
-
-todo bl: I think there are some bugs with improper lists. Something
-I didn't notice until recently is that
-
-(define (foo . xs) ...)
-
-has no legal lambda-form. I'm not quite sure why this isn't causing
-my dotted-list tests to fail. */
+*/
 Datum.prototype.extractDefinition = function() {
     var variable = this.at('variable');
     var list = newEmptyList();
@@ -832,51 +834,81 @@ Datum.prototype.desugarMacroBlock = function(env, operatorName) {
     return newProcCall(newIdOrLiteral(operatorName), _let.toSiblings(), new Continuation(newCpsName()));
 };
 
-function isSyntacticKeyword(name) {
-    /* todo bl: why are define-syntax, let-syntax, letrec-syntax not listed
-     in 7.1.1 as syntactic keywords? */
+// See comments at the top of Parser.
+function isParserSensitiveId(name) {
     switch (name) {
-        case 'else':
-        case '=>':
+        case 'begin':
         case 'define':
         case 'define-syntax':
-        case 'unquote':
-        case 'unquote-splicing':
-        case 'quote':
-        case 'lambda':
         case 'if':
-        case 'set!':
-        case 'begin':
-        case 'cond':
-        case 'and':
-        case 'or':
-        case 'case': // :)
-        case 'let':
-        case 'let*':
-        case 'letrec':
+        case 'lambda':
         case 'let-syntax':
         case 'letrec-syntax':
-        case 'do':
-        case 'delay':
         case 'quasiquote':
+        case 'quote':
+        case 'set!':
+        case 'unquote':
+        case 'unquote-splicing':
             return true;
         default:
             return false;
     }
 }
 
-/*
- Continuation-passing style is
- <cps-expr> -> <cps-procedure-call> | <cps-branch>
- <cps-procedure-call> -> (<operator> <operand>* <continuation>)
- <operator> -> <identifier>
- <operand> -> <identifier> | <self evaluating>
- <continuation> -> (lambda (<identifier>) <cps-expr>?)
- <cps-branch> -> (if <cps-test> <cps-consequent> <cps-alternate>?)
- <cps-test> -> <cps-expr>
- <cps-consequent> -> <cps-expr>
- <cps-alternate> -> <cps-expr>
- (Not in the spec anywhere, I'm just trying to reduce the grammar to simplify
- evaluation.)
- */
+Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
+    var formalRoot = this.at('formals');
+
+    var newHelper = new RenameHelper(helper);
+
+    // (lambda (x y) ...) or (lambda (x . y) ...)
+    if (formalRoot.firstChild) {
+        for (var cur = formalRoot.firstChild; cur; cur = cur.nextSibling)
+            if (isParserSensitiveId(cur.payload))
+                cur.payload = newHelper.addRenameBinding(cur.payload);
+    }
+
+    // (lambda x ...)
+    else if (isParserSensitiveId(formalRoot.payload))
+        cur.payload = newHelper.addRenameBinding(formalRoot.payload);
+
+    formalRoot.nextSibling.fixParserSensitiveIds(newHelper);
+};
+
+Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
+    var maybeVar = this.at('variable');
+
+    if (maybeVar && isParserSensitiveId(maybeVar.payload))
+        maybeVar.payload = helper.addRenameBinding(maybeVar.payload);
+
+    else {
+        var vars = this.at('(');
+        var name = vars.firstChild;
+        var newHelper = new RenameHelper(helper);
+        for (var cur = name.nextSibling; cur; cur = cur.nextSibling)
+            if (isParserSensitiveId(cur.payload))
+                cur.payload = newHelper.addRenameBinding(cur.payload);
+        vars.nextSibling.fixParserSensitiveIds(newHelper);
+        if (isParserSensitiveId(name.payload))
+            name.payload = helper.addRenameBinding(name.payload);
+    }
+};
+
+Datum.prototype.fixParserSensitiveIds = function(helper) {
+
+    if (this.hasParse('lambda-expression')) {
+        this.fixParserSensitiveIdsLambda(helper);
+    } else if (this.hasParse('definition')) {
+        this.fixParserSensitiveIdsDef(helper);
+    } else if (isParserSensitiveId(this.payload)) {
+        this.payload = helper.getRenameBinding(this.payload) || this.payload;
+    } else if (this.isQuote()) {
+        ; // no-op
+    } else {
+        for (var cur = this.firstChild; cur; cur = cur.nextSibling)
+            cur.fixParserSensitiveIds(helper);
+    }
+
+    if (this.nextSibling)
+        this.nextSibling.fixParserSensitiveIds(helper);
+};
 

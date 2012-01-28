@@ -1,3 +1,75 @@
+/* todo bl: this file should not exist.
+
+ Short explanation: (define if +) (if 1 2 3) => 6 ; legal
+
+ Longer explanation: having read the standard closely, I believe
+ that Scheme allows every identifier to be rebound in principle*.
+ This includes identifiers that are unbound in the default environment,
+ like "foo"; identifiers that are bound to values in the default environment,
+ like "+"; and identifiers that are bound to syntax in the default
+ environment. This last group includes identifiers that are bound
+ to macros, like "let", but also identifiers that are "bound to" builtin
+ syntax, like "define".
+
+ It is this last subgroup that makes having a "parser" a bad idea.
+ In the example above, (define if +) must parse as a definition, which
+ means if must parse as a variable. (if 1 2 3) must parse as a procedure
+ call, not as a conditional.
+
+ It might be possible to make the parser aware of the fundamental
+ syntax identifiers that are currently rebound, but it seems like a lot
+ of work. The real solution is to delete the parser, putting the datum
+ tree straight on the trampoline. The fundamental syntax identifiers
+ would merely point to "BuiltinSyntax" objects in the default environment.
+
+ The drawback of this approach would be that all the "well-formedness"
+ code currently in the parser, and expressed declaratively as grammar
+ rules, would have to migrate somehow to the trampoline. For many
+ cases, it would be okay for the trampoline to try its best and raise
+ an error if it really couldn't evaluate something. For example,
+
+ (if 1 2 3 4)
+
+ would be an easy error to detect if if has its default "BuiltinSyntax"
+ binding. However, there would be some tricky cases. How would
+ we assure that all the definitions in a procedure body come before
+ all the expressions, and conversely, how would we allow intermixing
+ of definitions and expressions at the top level? How would we detect
+ that the following is in fact ungrammatical:
+
+ (define (foo) (begin (define x 1) (+ x x)))
+
+ So there are many questions to think about before excising the parser.
+
+ In the meantime, I've written a hack that is appropriate as long as
+ rebinding of fundamental syntax identifiers is rare (which, arguably,
+ it should be, since it decreases program readability). If the parser
+ parses a fundamental syntax identifier as a variable, after parsing is
+ complete, it renames the variable to something safe and does a complete
+ re-parse.
+
+ *footnote: the standard is somewhat contradictory on whether all
+ identifiers can be variables. The rule in the lexical grammar (7.1.1) is
+
+ <variable> -> <any <identifier> that isn’t also a <syntactic keyword>>
+
+ Against this is the discussion in section 4.3 which states:
+
+ "The syntactic keyword of a macro may shadow variable bindings,
+ and local variable bindings may shadow keyword bindings."
+
+ Additionally, the last example in section 4.3.1 appears to show
+ if being rebound to #f. Finally, as circumstantial evidence both
+ MIT Scheme and PLT Scheme support things like the example at the top of
+ this comment.
+
+ Note that rebinding an identifier is disallowed in certain cases that
+ might lead to circularity (see section 5.3); this explicitly disallows
+ (define define ...), though both MIT Scheme and PLT Scheme allow that.
+
+ todo bl: implement the circularity-checking algorithm described
+ in R6RS. */
+
 function Parser(root) {
     /* The next datum to parse. When a parse of a node is successful,
      the next pointer advanced to the node's next sibling. Thus, this.next
@@ -39,6 +111,8 @@ function Parser(root) {
      parser; it never enters the parse tree.
      */
     this.emptyListSentinel = new Object();
+
+//    this.fixParserSensitiveIds = false;
 }
 
 /* When a parse of a node n succeeds, n is returned and this.next
@@ -324,6 +398,12 @@ Parser.prototype['expression'] = function() {
             }
         ],
         [
+            {type: '('},
+            {type: 'begin'},
+            {type: 'expression', atLeast: 1},
+            {type: ')'}
+        ],
+        [
             {type: 'macro-block'}
         ],
         [
@@ -336,10 +416,14 @@ Parser.prototype['expression'] = function() {
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 Parser.prototype['variable'] = function() {
+    var self = this;
     return this.rhs(
         {type: function(datum) {
-            return datum instanceof Datum // because it may be emptyListSentinel
+            var ans = datum instanceof Datum // because it may be emptyListSentinel
                 && datum.isIdentifier();
+            if (ans && isParserSensitiveId(datum.payload))
+                self.fixParserSensitiveIds = true;
+            return ans;
         }});
 };
 
@@ -1195,9 +1279,25 @@ Parser.prototype.parse = function(lhs) {
     var fun = this[lhs || 'program'];
     if (fun) {
         var ans = fun.apply(this);
-        /* Do not return a node if its nonterminals haven't been set;
-         this means parsing failed. */
-        return ans && ans.nonterminals && ans;
+
+        if (ans && ans.nonterminals) {
+            // See comments at top of Parser.
+            if (this.fixParserSensitiveIds) {
+                var helper = new RenameHelper();
+                ans.fixParserSensitiveIds(helper);
+                if (helper.wasUsed()) {
+                    /* todo bl inefficient, but i've had errors fusing this
+                     into fixParserSensitiveIds() */
+                    for (var cur = ans; cur; cur = cur.nextSibling)
+                        cur.unsetParse();
+                    return new Parser(ans).parse(lhs);
+                } else return ans;
+            } else return ans;
+        } else {
+            /* Do not return a node if its nonterminals haven't been set;
+             this means parsing failed. */
+            return null;
+        }
     }
     else
         throw new InternalInterpreterError('unknown lhs: ' + lhs);

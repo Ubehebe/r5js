@@ -88,8 +88,7 @@ _R5JS.prototype.evalDatum = function(datum, env) {
 };
 
 function bootstrap(syntaxLib, procLib) {
-    R5JS_nullEnv = new Environment('null-environment-5')
-        .noSyntaxShadowWarnings();
+    R5JS_nullEnv = new Environment('null-environment-5');
     install(syntaxLib, R5JS_nullEnv);
     R5JS_nullEnv.seal();
     console.log('installed syntax lib ok');

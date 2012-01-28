@@ -221,11 +221,11 @@ function constructFreeIds(patternDatum, templateDatum) {
     var patternIds = {};
     var templateIds = {};
     patternDatum.forEach(function(node) {
-        if (node.isIdentifier() && !isSyntacticKeyword(node.payload))
+        if (node.isIdentifier() && !isParserSensitiveId(node.payload))
             patternIds[node.payload] = true;
     });
     templateDatum.forEach(function(node) {
-        if (node.isIdentifier() && !isSyntacticKeyword(node.payload) && node.payload !== '...')
+        if (node.isIdentifier() && !isParserSensitiveId(node.payload) && node.payload !== '...')
             templateIds[node.payload] = true;
     });
 
