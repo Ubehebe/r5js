@@ -12,14 +12,31 @@ function Continuation(lastResultName) {
 
 // Just for debugging
 Continuation.prototype.toString = function(indentLevel) {
-    var ans = '[' + this.lastResultName;
 
-    if (this.nextContinuable) {
-        for (var i = 0; i < indentLevel; ++i)
-            ans += '\t';
-        ans += ' ' + this.nextContinuable.toString(indentLevel + 1);
+    if (indentLevel == null) {
+        /* If no indent level is given, this function is being used to
+         construct an external representation, so we should hide all the
+         implementation details. It's legal to return continuations directly,
+         as in
+
+         (define x 3)
+         (call-with-current-continuation (lambda (c) (set! x c)))
+         x
+         */
+        return '[continuation]';
+    } else {
+
+        // Otherwise this is being used for debugging, show all the things.
+
+        var ans = '[' + this.lastResultName;
+
+        if (this.nextContinuable) {
+            for (var i = 0; i < indentLevel; ++i)
+                ans += '\t';
+            ans += ' ' + this.nextContinuable.toString(indentLevel + 1);
+        }
+        return ans + ']';
     }
-    return ans + ']';
 };
 
 /* todo bl: Continuable was originally envisioned as the parent
