@@ -889,10 +889,10 @@ Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
 Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
     var maybeVar = this.at('variable');
 
-    if (maybeVar && isParserSensitiveId(maybeVar.payload))
-        maybeVar.payload = helper.addRenameBinding(maybeVar.payload);
-
-    else {
+    if (maybeVar) {
+        if (isParserSensitiveId(maybeVar.payload))
+            maybeVar.payload = helper.addRenameBinding(maybeVar.payload);
+    } else {
         var vars = this.at('(');
         var name = vars.firstChild;
         var newHelper = new RenameHelper(helper);

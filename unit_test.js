@@ -583,7 +583,7 @@ function testEvaluator() {
                 /* Running each test twice is a good sanity check for certain
                  kinds of bugs, for example clone failures.
                  var actualOutput = R5JS.eval(input + ' ' + input); */
-                var actualOutput = R5JS.eval(input);
+                var actualOutput = R5JS.eval(input + ' ' + input);
                 if (expectedOutput !== actualOutput) {
                     ++numErrors;
                     console.log('testEvaluator '
