@@ -96,7 +96,7 @@
          performance investigations. */
         function doUnitTests() {
             ajax('unit-test.scm', function(testFramework) {
-                ajax('stdproc-tests.scm', function(tests) {
+                ajax('r5rs-tests.scm', function(tests) {
                     R5JS.eval(testFramework + tests);
                 })
             });
