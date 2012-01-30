@@ -675,6 +675,23 @@ ProcCall.prototype.bindResult = function(continuation, val) {
          environment and forward that environment to the
          next procedure call. */
         if (maybeEnv) {
+
+            /* If we're about to return a procedure into another environment,
+             we have to remember the current environment. Example:
+
+             (define (compose f g) (lambda (x) (f (g x))))
+             (define caar (compose car car))
+
+             caar will return (lambda (x) (f (g x))), but it has to
+             remember f and g are both bound to car.
+
+             todo bl: prove that this is sufficient. What if maybeEnv
+             isn't set by now? Could this happen? */
+            if (val instanceof Datum
+                && val.isProcedure()
+                && maybeEnv !== this.env)
+                val.setClosure(this.env);
+
             maybeEnv.addBinding(name, val);
         } else {
             this.env.addBinding(name, val);

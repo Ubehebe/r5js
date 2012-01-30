@@ -89,19 +89,24 @@ Environment.prototype.addAll = function(otherEnv) {
     return this;
 };
 
+/* todo bl do I understand why almost nothing is cloned going into or
+ out of Environments? */
 Environment.prototype.get = function(name) {
 
     var maybe = this.bindings[name];
 
     if (maybe) {
-        if (typeof maybe === 'function')
-            return newProcedureDatum(name, maybe);
-        else if (maybe instanceof SchemeProcedure)
-            return newProcedureDatum(maybe.name, maybe);
-        else if (maybe instanceof Environment)
+        // Redirects for free ids in macro transcriptions
+        if (maybe instanceof Environment)
             return maybe.get(name);
-        else
-            return maybe;
+        /* Wrap primitive procedures in a Datum. We could store primitive
+         procedures already wrapped. But if getProcedure() is expected
+         to be more common for primitive procedures than get(), I think it
+         is better to only wrap them for get(). Only profiling can say. */
+        else if (typeof maybe === 'function')
+            return newProcedureDatum(name, maybe);
+        // Everything else
+        else return maybe;
     }
     // If the current environment has no binding for the name, look one level up
     else if (this.enclosingEnv)
@@ -116,11 +121,16 @@ Environment.prototype.getProcedure = function(name) {
     if (maybe) {
         if (maybe instanceof Environment)
             return maybe.getProcedure(name);
-        else if (maybe instanceof Datum)
-            throw new InternalInterpreterError(name + ' is not a procedure!');
-        else return maybe;
-    }
-    else if (this.enclosingEnv)
+        else if (maybe instanceof Datum && maybe.isProcedure()) {
+            if (maybe.hasClosure())
+                maybe.payload.env = maybe.closure;
+            return maybe.payload;
+        } else if (typeof maybe === 'function'
+            || maybe instanceof SchemeMacro
+            || maybe instanceof Continuation) {
+            return maybe;
+        } else throw new InternalInterpreterError(name + ' is not a proc!');
+    } else if (this.enclosingEnv)
         return this.enclosingEnv.getProcedure(name);
     else
         return null;
@@ -143,17 +153,15 @@ Environment.prototype.addBinding = function(name, val) {
             val.definitionEnv = this;
 
         if (val === null) {
-            /* This is a no-op, for procedures that don't explicitly
-            return a value, like display. */
-        } else if (val instanceof Datum) {
-            /* If we're about to store a wrapped SchemeProcedure
-             or JavaScript function, unwrap it first. */
-            if (val.isProcedure())
-                this.bindings[name] = val.payload;
-            else
-                this.bindings[name] = val;
+            /* This is a no-op, for procedures that have an unspecified
+             return value, like display. */
+        } else if (val instanceof SchemeProcedure) { /* non-primitive procedure */
+            this.bindings[name] = newProcedureDatum(name, val);
         } else if (typeof val === 'function' /* primitive procedure */
-            || val instanceof SchemeProcedure /* library/user procedure */
+            || val instanceof Datum /* lots of stuff, including wrapped procedures
+         (We need wrapped procedures to support returning
+         SchemeProcedure objects into different environments. The Datum
+         wrapper has a backlink to the closure in which it was created.) */
             || val instanceof Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
             || val instanceof SchemeMacro /* macros */

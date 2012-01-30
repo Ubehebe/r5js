@@ -121,6 +121,8 @@ Datum.prototype.clone = function(ignoreSiblings) {
         ans.nextSibling = this.nextSibling.clone();
     if (this.name)
         ans.name = this.name;
+    if (this.closure)
+        ans.closure = this.closure;
 
     return ans;
 };
@@ -710,6 +712,16 @@ function newCpsName() {
 function newAnonymousLambdaName() {
     return 'proc' + (anonymousLambdaCounter++);
 }
+
+Datum.prototype.setClosure = function(env) {
+  if (!this.isProcedure())
+    throw new InternalInterpreterError('invariant incorrect');
+    this.closure = env;
+};
+
+Datum.prototype.hasClosure = function() {
+    return !!this.closure;
+};
 
 // todo bl encapsulate these in a global object
 var uniqueNodeCounter = 0;
