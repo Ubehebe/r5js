@@ -27,26 +27,26 @@
 (define (odd? n) (= 1 (remainder n 2)))
 (define (even? n) (= 0 (remainder n 2)))
 
-(define (reduce f xs init)
+(define (foldl f start xs)
   (if (null? xs)
-      init
-      (reduce f (cdr xs) (f init (car xs)))))
+      start
+      (foldl f (f start (car xs)) (cdr xs))))
 
 (define (max x . ys)
   (if (null? ys)
       x
-      (reduce
+      (foldl
        (lambda (y z) (if (< y z) z y))
-       ys
-       x)))
+       x
+       ys)))
 
 (define (min x . ys)
   (if (null? ys)
       x
-      (reduce
+      (foldl
        (lambda (y z) (if (< y z) y z))
-       ys
-       x)))
+       x
+       ys)))
 
 (define (abs x)
   (if (> x 0)
@@ -99,3 +99,8 @@
   (if (null? (cdr xs))
       (cons (car xs) ys)
       (cons (car xs) (append (cdr xs) ys))))
+
+(define (flip f) (lambda (x y) (f y x)))
+
+(define (reverse xs) (foldl (flip cons) '() xs))
+
