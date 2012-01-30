@@ -236,6 +236,8 @@ Datum.prototype.isImproperList = function() {
 Datum.prototype.resetDesugars = function() {
     if (this.nextDesugar === -1)
         this.nextDesugar += this.desugars.length;
+    for (var cur = this.firstChild; cur; cur = cur.nextSibling)
+        cur.resetDesugars();
 };
 
 Datum.prototype.desugar = function(env, forceContinuationWrapper) {

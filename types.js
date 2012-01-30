@@ -52,17 +52,6 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
 
         this.lastContinuable = this.body.getLastContinuable();
         this.savedContinuation = this.lastContinuable.continuation;
-
-        /* Allow body to be desugared in the future. Example:
-
-         (define (run f x) (f x))
-         (define (autorun) (run (lambda (x) (even? x)) 32))
-         (autorun)
-         (autorun)
-
-         The second invocation of autorun will need to desugar the body of
-         the lambda literal again. */
-        bodyStart.resetDesugars();
     }
 }
 
