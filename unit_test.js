@@ -373,7 +373,8 @@ function testEvaluator() {
         "(letrec-syntax () 1)": '1',
         "(let-syntax ((foo (syntax-rules () ((foo x) 'hi)))) (foo ()))": 'hi',
         "(letrec-syntax ((foo (syntax-rules () ((foo x) 'hi)))) (foo ()))": 'hi',
-        "(let (x ()) 1)": false
+        "(let (x ()) 1)": false,
+        "(define (run f x) (f x)) (define (autorun) (run (lambda (x) (even? x)) 32)) (autorun) (autorun)": '#t'
     };
 
     /* These tests exercise various macro features that the standard talks about
@@ -583,7 +584,7 @@ function testEvaluator() {
                 /* Running each test twice is a good sanity check for certain
                  kinds of bugs, for example clone failures.
                  var actualOutput = R5JS.eval(input + ' ' + input); */
-                var actualOutput = R5JS.eval(input + ' ' + input);
+                var actualOutput = R5JS.eval(input);
                 if (expectedOutput !== actualOutput) {
                     ++numErrors;
                     console.log('testEvaluator '
