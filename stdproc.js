@@ -1029,7 +1029,16 @@ R5JS_builtins['io'] = {
             on a web page. Make a decision about whether to support these. */
         argc: 1,
         proc: function(x) {
-            console.log(x.toString ? x.toString() : x);
+            /* Don't show quotes when displaying strings, even though they
+             are part of the external representation. */
+            if (x instanceof Datum
+                && (x.isString() || x.isCharacter()))
+                console.log(x.payload);
+            else if (x.toString)
+                console.log(x.toString());
+            else
+                console.log(x);
+
             // The return value is unspecified.
             return null;
         }
