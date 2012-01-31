@@ -918,9 +918,45 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
 };
 
 ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) {
-    this.env.addBinding(proc.lastResultName, this.firstOperand);
+    var arg = evalArgs(this.firstOperand, this.env)[0]; // there will only be 1 arg
+    this.env.addBinding(proc.lastResultName, arg);
     resultStruct.ans = this.firstOperand;
     resultStruct.nextContinuable = proc.nextContinuable;
+
+    /* Cut out the current proc call from the continuation chain to
+    avoid an infinite loop. Example:
+
+     (define cont #f)
+     (display
+     (call-with-current-continuation
+     (lambda (c)
+     (set! cont c)
+     "inside continuation")))
+     (cont "outside continuation")
+     42
+
+     This should display "inside continuation", then "outside continuation",
+     then return 42. When the trampoline is at
+
+     (cont "outside continuation")
+
+     proc.nextContinuable will be something like
+
+     (cont "outside continuation" _0 [_0 (id 42 [_1 ...])])
+
+     We clearly have to cut out the first part of this chain to avoid an
+     infinite loop. */
+    for (var tmp = resultStruct.nextContinuable, prev;
+         tmp;
+         prev = tmp,tmp = tmp.continuation.nextContinuable) {
+        if (tmp.subtype === this) {
+            if (prev)
+                prev.continuation.nextContinuable = tmp.continuation.nextContinuable;
+            else
+                resultStruct.nextContinuable = tmp.continuation.nextContinuable;
+            break;
+        }
+    }
 };
 
 function evalArgs(firstOperand, env) {

@@ -482,7 +482,10 @@ function testEvaluator() {
         "(eval ''() (null-environment 5))": '()',
         "(eval '(()) (null-environment 5))": false,
         "(eval (()) (null-environment 5))": false,
-        "(eval ''(()) (null-environment 5))": '(())'
+        "(eval ''(()) (null-environment 5))": '(())',
+        "(define buf 0) (define cont #f) (set! buf (+ buf (call-with-current-continuation (lambda (c) (set! cont c) 100)))) (cont 200) buf": '300',
+        "(define cont #f) (+ (call-with-current-continuation (lambda (c) (set! cont c) 100)) 100) (cont 1000)": '1100',
+        "(define cont #f) (define buf '()) (set! buf (cons (call-with-current-continuation (lambda (c) (set! cont c) 'inside)) buf)) (cont 'outside) buf": '(outside inside)'
     };
 
     tests['r5rs-examples'] = {
