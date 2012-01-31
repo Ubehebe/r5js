@@ -33,6 +33,9 @@ function Environment(name, enclosingEnv) {
     this.bindings = {}; // hey, never use this; use this.get() instead
 }
 
+// See comments in Environment.prototype.addBinding.
+Environment.prototype.unspecifiedSentinel = new Object();
+
 /* Just for environments defined in the standard; users shouldn't be able to
     add to them. */
 Environment.prototype.seal = function() {
@@ -105,6 +108,8 @@ Environment.prototype.get = function(name) {
          is better to only wrap them for get(). Only profiling can say. */
         else if (typeof maybe === 'function')
             return newProcedureDatum(name, maybe);
+        else if (maybe === this.unspecifiedSentinel)
+            return null;
         // Everything else
         else return maybe;
     }
@@ -153,8 +158,14 @@ Environment.prototype.addBinding = function(name, val) {
             val.definitionEnv = this;
 
         if (val === null) {
-            /* This is a no-op, for procedures that have an unspecified
-             return value, like display. */
+            /* A value of null on the trampoline means an unspecified value.
+             For example, the JavaScript implementation of display returns null.
+             In order to distinguish between an unbound variable (error) and
+             a variable bound to an unspecified value (not an error), we use
+             Environment.prototype.unspecifiedSentinel. I suppose we could
+             bind null or undefined, but this would probably lead to bugs in
+             conditionals (if (this.bindings[env]) ...) */
+            this.bindings[name] = this.unspecifiedSentinel;
         } else if (val instanceof SchemeProcedure) { /* non-primitive procedure */
             this.bindings[name] = newProcedureDatum(name, val);
         } else if (typeof val === 'function' /* primitive procedure */

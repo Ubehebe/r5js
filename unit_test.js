@@ -374,7 +374,8 @@ function testEvaluator() {
         "(let-syntax ((foo (syntax-rules () ((foo x) 'hi)))) (foo ()))": 'hi',
         "(letrec-syntax ((foo (syntax-rules () ((foo x) 'hi)))) (foo ()))": 'hi',
         "(let (x ()) 1)": false,
-        "(define (run f x) (f x)) (define (autorun) (run (lambda (x) (even? x)) 32)) (autorun) (autorun)": '#t'
+        "(define (run f x) (f x)) (define (autorun) (run (lambda (x) (even? x)) 32)) (autorun) (autorun)": '#t',
+        "(let ((foo (display 'hello))) foo 32)": '32'
     };
 
     /* These tests exercise various macro features that the standard talks about

@@ -734,6 +734,9 @@ ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
         && !this.isSyntaxAssignment)
         throw new GeneralSyntaxError(this);
     this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload), this.isTopLevelAssignment);
+    /* The return value of an assignment is unspecified,
+     but this is not the same as no binding. */
+    this.env.addBinding(continuation.lastResultName, null);
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
 
