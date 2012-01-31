@@ -375,7 +375,8 @@ function testEvaluator() {
         "(letrec-syntax ((foo (syntax-rules () ((foo x) 'hi)))) (foo ()))": 'hi',
         "(let (x ()) 1)": false,
         "(define (run f x) (f x)) (define (autorun) (run (lambda (x) (even? x)) 32)) (autorun) (autorun)": '#t',
-        "(let ((foo (display 'hello))) foo 32)": '32'
+        "(let ((foo (display 'hello))) foo 32)": '32',
+        "(dynamic-wind (lambda () 1) (lambda () 2) (lambda () 3))": '2'
     };
 
     /* These tests exercise various macro features that the standard talks about
@@ -486,7 +487,8 @@ function testEvaluator() {
         "(eval ''(()) (null-environment 5))": '(())',
         "(define buf 0) (define cont #f) (set! buf (+ buf (call-with-current-continuation (lambda (c) (set! cont c) 100)))) (cont 200) buf": '300',
         "(define cont #f) (+ (call-with-current-continuation (lambda (c) (set! cont c) 100)) 100) (cont 1000)": '1100',
-        "(define cont #f) (define buf '()) (set! buf (cons (call-with-current-continuation (lambda (c) (set! cont c) 'inside)) buf)) (cont 'outside) buf": '(outside inside)'
+        "(define cont #f) (define buf '()) (set! buf (cons (call-with-current-continuation (lambda (c) (set! cont c) 'inside)) buf)) (cont 'outside) buf": '(outside inside)',
+        "(let ((path '()) (c #f)) (let ((add (lambda (s) (set! path (cons s path))))) (dynamic-wind (lambda () (add 'connect)) (lambda () (add (call-with-current-continuation (lambda (c0) (set! c c0) 'talk1)))) (lambda () (add 'disconnect))) (if (< (length path) 4) (c 'talk2) (reverse path))))": '(connect talk1 disconnect connect talk2 disconnect)'
     };
 
     tests['r5rs-examples'] = {

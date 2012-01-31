@@ -10,6 +10,14 @@ function Continuation(lastResultName) {
      */
 }
 
+/* Just for call/ccs inside dynamic-winds.
+ todo bl: document why we don't have to install the "after" thunk.
+ (I'm pretty sure the reason is it's already in the continuable chain
+ somewhere.) */
+Continuation.prototype.installBeforeThunk = function(before) {
+    this.beforeThunk = before;
+};
+
 // Just for debugging
 Continuation.prototype.toString = function(indentLevel) {
 
@@ -276,6 +284,7 @@ function TrampolineResultStruct() {
     /*
      this.ans;
      this.nextContinuable;
+     this.beforeThunk;
      */
 }
 
@@ -926,6 +935,14 @@ ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) 
     resultStruct.ans = this.firstOperand;
     resultStruct.nextContinuable = proc.nextContinuable;
 
+    if (proc.beforeThunk) {
+        var before = proc.beforeThunk;
+        var cur = proc.nextContinuable;
+        before.appendContinuable(cur);
+        resultStruct.nextContinuable = before;
+        // todo bl is it safe to leave proc.beforeThunk defined?
+    }
+
     /* Cut out the current proc call from the continuation chain to
     avoid an infinite loop. Example:
 
@@ -960,6 +977,11 @@ ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) 
             break;
         }
     }
+
+    /* todo bl the second parameter on setStartingEnv is scary
+    but seems to be necessary. I doubt it's right. */
+    if (proc.beforeThunk && resultStruct.nextContinuable)
+        resultStruct.nextContinuable.setStartingEnv(this.env, true);
 };
 
 function evalArgs(firstOperand, env) {

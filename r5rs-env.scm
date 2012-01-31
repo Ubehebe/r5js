@@ -32,6 +32,12 @@
       start
       (foldl f (f start (car xs)) (cdr xs))))
 
+(define (length xs)
+  (foldl
+   (lambda (x y) (+ x 1))
+   0
+   xs))
+
 (define (max x . ys)
   (if (null? ys)
       x

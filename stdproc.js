@@ -871,6 +871,13 @@ R5JS_builtins['control'] = {
              bound to a Continuation object), this means bind x to cc's
              lastResultName and set the next continuable to cc's
              nextContinuable. */
+            if (resultStruct.beforeThunk) {
+                /* If this continuation is inside a call to dynamic-wind but
+                 escapes and then is later re-called, we have to remember
+                 to execute the associated before and after thunks. */
+                continuation.installBeforeThunk(resultStruct.beforeThunk);
+                resultStruct.beforeThunk = null;
+            }
             var dummyProcCall = newProcCall(procCall.firstOperand, continuation, continuation);
             dummyProcCall.setStartingEnv(procCall.env);
             resultStruct.nextContinuable = dummyProcCall;
@@ -942,7 +949,85 @@ R5JS_builtins['control'] = {
             resultStruct.nextContinuable = producerCall;
         }
     },
-    'dynamic-wind': {}
+    'dynamic-wind': {
+        argc: 3,
+        argtypes: ['procedure', 'procedure', 'procedure'],
+        hasSpecialEvalLogic: true,
+        proc: function(before, thunk, after, procCall, continuation, resultStruct) {
+
+            /* Semantics of dynamic-wind (as I understand it):
+             (dynamic-wind foo bar baz) means execute bar with the
+             following modifications:
+
+             - Whenever I'm about to go into bar, do foo first
+             - Whenever I'm about to go out of bar, do baz first
+
+             In simple cases, this is the same as (begin foo bar baz)
+             (except that the return value is that of bar, not baz).
+             The situation is complicated by continuations captured inside
+             a call/cc and later reentered; these must trigger the before
+             and after thunks. For example:
+
+             (define cont #f)
+             (define (foo) (display 'foo))
+             (define (bar) (display 'bar))
+             (dynamic-wind
+             foo
+             (lambda ()
+             (call-with-current-continuation
+             (lambda (c)
+             (set! cont c))))
+             bar)
+             (cont 42)
+
+             This will print "foo", "bar", "foo", "bar", and return
+             an unspecified value (because there's nothing in the body
+             of the lambda after the call/cc, for the call/cc to deliver the
+             42 to). */
+
+            var before = newCpsName();
+
+            // None of the three thunks have any arguments.
+
+            // todo bl use a ContinuableBuffer for efficiency
+
+            var procCallBefore = newProcCall(
+                procCall.firstOperand,
+                null, // no arguments
+                new Continuation(before));
+
+
+            var procCallAfter = newProcCall(
+                procCall.firstOperand.nextSibling.nextSibling,
+                null, // no arguments
+                new Continuation(newCpsName())
+            );
+
+            var result = newCpsName();
+            procCallAfter.appendContinuable(newIdShim(newIdOrLiteral(result), newCpsName()));
+            procCallAfter.getLastContinuable().continuation = continuation;
+
+            var procCallThunk = newProcCall(
+                procCall.firstOperand.nextSibling,
+                null, // no arguments
+                new Continuation(result)
+            );
+
+            procCallThunk.appendContinuable(procCallAfter);
+            procCallBefore.appendContinuable(procCallThunk);
+
+            resultStruct.nextContinuable = procCallBefore;
+            /* We use the TrampolineResultStruct to store the thunk.
+             This should be okay because dynamic-wind is the only one
+             who writes to it, and call/cc is the only one who reads it.
+
+             todo bl document why we cannot reuse procCallBefore. */
+            resultStruct.beforeThunk = newProcCall(
+                procCall.firstOperand,
+                null,
+                new Continuation(before));
+        }
+    }
 };
 
 R5JS_builtins['eval'] = {
