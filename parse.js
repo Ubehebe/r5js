@@ -690,7 +690,7 @@ Parser.prototype['definition'] = function() {
                 var anonymousName = newAnonymousLambdaName();
                 env.addBinding(
                     anonymousName,
-                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, anonymousName));
+                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, name));
                 return newAssignment(name.payload, anonymousName, new Continuation(newCpsName()))
                     .setTopLevelAssignment();
             }
@@ -726,7 +726,7 @@ Parser.prototype['definition'] = function() {
                 var anonymousName = newAnonymousLambdaName();
                 env.addBinding(
                     anonymousName,
-                    new SchemeProcedure(formals, true, formalRoot.nextSibling, env, anonymousName));
+                    new SchemeProcedure(formals, true, formalRoot.nextSibling, env, name));
                 return newAssignment(name.payload, anonymousName, new Continuation(newCpsName()))
                     .setTopLevelAssignment();
             }

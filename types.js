@@ -25,8 +25,8 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.env = new Environment(name, env);
     this.formalsArray = formalsArray;
 
-    /* The name is just used for pretty-printing,
-    not for resolving stuff in the environment. */
+    /* This name has no semantic importance. It's just used for
+    pretty-printing debugs and messages to the user. */
     this.name = name;
 
     if (bodyStart) {
