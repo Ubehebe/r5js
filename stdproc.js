@@ -532,10 +532,34 @@ R5JS_builtins['number'] = {
             throw new UnimplementedOptionError('angle');
         }
     },
-    'exact->inexact': {},
-    'inexact->exact': {},
-    'number->string': {},
-    'string->number': {}
+    'exact->inexact': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(x) {
+            return x; // In JavaScript every number is inexact
+        }
+    },
+    'inexact->exact': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(x) {
+            throw new UnimplementedOptionError('inexact->exact');
+        }
+    },
+    'number->string': {
+        argc: 1,
+        argtypes: 'number',
+        proc: function(x) {
+            return newIdOrLiteral(x + '', 'string');
+        }
+    },
+    'string->number': {
+        argc: 1,
+        argtypes: 'string',
+        proc: function(s) {
+            return parseFloat(s);
+        }
+    }
 };
 
 R5JS_builtins['pair'] = {
@@ -593,17 +617,32 @@ R5JS_builtins['pair'] = {
 
     'set-car!': {
         argc: 2,
-        argtypes: ['pair'],
         proc: function(p, car) {
-            p.car = car;
+            if (p instanceof Datum
+                && (p.isList() || p.isImproperList())) {
+                car.nextSibling = p.firstChild.nextSibling;
+                p.firstChild = car;
+                return null; // unspecified return value
+            } else throw new ArgumentTypeError(p, 0, 'set-car!', 'pair');
         }
     },
 
     'set-cdr!': {
         argc: 2,
-        argtypes: ['pair'],
         proc: function(p, cdr) {
-            p.cdr = cdr;
+            if (p instanceof Datum
+                && (p.isList() || p.isImproperList())) {
+
+                if (cdr.isList()) {
+                    p.firstChild.nextSibling = cdr.firstChild;
+                    p.type = '(';
+                } else {
+                    p.firstChild.nextSibling = cdr;
+                    p.type = '.(';
+                }
+
+                return null; // unspecified return value
+            } else throw new ArgumentTypeError(p, 0, 'set-cdr!', 'pair');
         }
     }
 };
@@ -680,6 +719,20 @@ R5JS_builtins['char'] = {
         proc: function(i) {
             return newIdOrLiteral(String.fromCharCode(i), 'character');
         }
+    },
+    'char-upcase': {
+        argc: 1,
+        argtypes: ['char'],
+        proc: function(c) {
+            return newIdOrLiteral(c.toUpperCase(), 'character');
+        }
+    },
+    'char-downcase': {
+        argc: 1,
+        argtypes: ['char'],
+        proc: function(c) {
+            return newIdOrLiteral(c.toLowerCase(), 'character');
+        }
     }
 };
 
@@ -715,12 +768,19 @@ R5JS_builtins['string'] = {
     },
     'string-set!': {
         argc: 3,
-        argtypes: ['string', 'number', 'char'],
         proc: function(str, k, c) {
-            var ans = '';
-            for (var i = 0; i < str.length; ++i)
-                ans += i === k ? c : str.charAt(i);
-            return new SchemeString(ans);
+            if (!str.isString())
+                throw new ArgumentTypeError(str, 0, 'string-set!', 'string');
+            if (!k.isNumber())
+                throw new ArgumentTypeError(k, 1, 'string-set!', 'number');
+            if (!c.isCharacter())
+                throw new ArgumentTypeError(c, 2, 'stirng-set!', 'character');
+
+            str.payload = str.payload.substr(0, k.payload)
+                + c.payload
+                + str.payload.substr(k.payload + 1);
+
+            return null; // unspecified return value
         }
     }
 };
