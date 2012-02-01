@@ -385,19 +385,33 @@ EnvBuffer.prototype.get = function(name) {
 
  (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  */
-function trampoline(continuable) {
+function trampoline(continuable, debug) {
 
     var cur = continuable;
     var resultStruct = new TrampolineResultStruct();
     var savedEnv = new EnvBuffer();
     var ans;
 
-    while (cur) {
-        // a good first step for debugging: console.log('boing: ' + cur);
-        resultStruct = cur.subtype.evalAndAdvance(cur.continuation, resultStruct, savedEnv);
-        ans = resultStruct.ans;
-        cur = resultStruct.nextContinuable;
-        resultStruct.clear();
+    /* The debug check is hoisted out of the while loop because this
+     is expected to be hot code. */
+    if (debug) {
+
+        while (cur) {
+            // a good first step for debugging:
+            console.log('boing: ' + cur);
+            resultStruct = cur.subtype.evalAndAdvance(cur.continuation, resultStruct, savedEnv);
+            ans = resultStruct.ans;
+            cur = resultStruct.nextContinuable;
+            resultStruct.clear();
+        }
+
+    } else {
+        while (cur) {
+            resultStruct = cur.subtype.evalAndAdvance(cur.continuation, resultStruct, savedEnv);
+            ans = resultStruct.ans;
+            cur = resultStruct.nextContinuable;
+            resultStruct.clear();
+        }
     }
 
     return ans;

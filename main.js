@@ -1,5 +1,6 @@
 var R5JS_nullEnv; // this is (null-environment 5)
 var R5JS_R5RSEnv; // this is (scheme-report-environment 5)
+var R5JS_debug = false;
 
 function _R5JS() {
     this.timer = new FakeTimer(); // replace with Timer() for actual timing
@@ -40,7 +41,7 @@ _R5JS.prototype._desugar = function(root, env) {
 
 _R5JS.prototype._eval = function(continuable) {
     this.timer.start('_eval');
-    return trampoline(continuable);
+    return trampoline(continuable, R5JS_debug);
 };
 
 _R5JS.prototype.eval = function(text) {
