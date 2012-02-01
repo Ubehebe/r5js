@@ -376,7 +376,8 @@ function testEvaluator() {
         "(let (x ()) 1)": false,
         "(define (run f x) (f x)) (define (autorun) (run (lambda (x) (even? x)) 32)) (autorun) (autorun)": '#t',
         "(let ((foo (display 'hello))) foo 32)": '32',
-        "(dynamic-wind (lambda () 1) (lambda () 2) (lambda () 3))": '2'
+        "(dynamic-wind (lambda () 1) (lambda () 2) (lambda () 3))": '2',
+        "(define double (lambda (x) (* x 2))) ((compose double double) 3)": '12' // eh, depends on lib defn of compose
     };
 
     /* These tests exercise various macro features that the standard talks about

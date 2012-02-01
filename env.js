@@ -110,6 +110,8 @@ Environment.prototype.get = function(name) {
             return newProcedureDatum(name, maybe);
         else if (maybe === this.unspecifiedSentinel)
             return null;
+        else if (maybe instanceof Datum && maybe.isProcedure())
+            return maybe.clone(true); // todo bl clean up (is necessary)
         // Everything else
         else return maybe;
     }

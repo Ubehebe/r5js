@@ -72,21 +72,16 @@
 ; rudimentary ("primitive"?) typechecking on the arguments to
 ; primitive procedures.
 
-; todo bl writing compose in terms of foldr causes an infinite loop
-; in the implementation!
-;(define (foldr f start xs)
-;  (if (null? xs)
-;      start
-;      (f (car xs) (foldr f start (cdr xs)))))
+(define (foldr f start xs) ; helper function, not in R5RS
+  (if (null? xs)
+      start
+      (f (car xs) (foldr f start (cdr xs)))))
 
 (define (compose . fs) ; helper function, not in R5RS
-  (define (compose-list fs)
-    (if (null? fs)
-	(lambda (x) x)
-	(let ((f (car fs))
-	      (g (compose-list (cdr fs))))
-	  (lambda (x) (f (g x))))))
-  (compose-list fs))
+  (foldr
+   (lambda (l r) (lambda (x) (l (r x))))
+   (lambda (y) y)
+   fs))
 
 (define caar (compose car car)) ; p. 26
 (define cadr (compose car cdr))
