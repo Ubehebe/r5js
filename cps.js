@@ -632,7 +632,7 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
     );
 
     var ans = newCallChain.toContinuable();
-    ans.setStartingEnv(this.env, true);
+    ans.setStartingEnv(this.env);
     var lastContinuable = ans.getLastContinuable();
     lastContinuable.continuation = continuation;
     resultStruct.nextContinuable = ans;
@@ -680,8 +680,8 @@ ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuff
      needs it (for example branches, which have no environment of their own). */
     envBuffer.setEnv(this.env);
 
-    if (restoreEmptyEnv)
-        this.clearEnv();
+    // We shouldn't leave the environment pointer hanging around.
+    this.clearEnv();
 
     return resultStruct;
 };
@@ -695,8 +695,7 @@ ProcCall.prototype.bindResult = function(continuation, val) {
         var maybeEnv = nextProcCall.env;
         /* If the next procedure call already has an environment,
          bind the result there. Otherwise, bind it in the current
-         environment and forward that environment to the
-         next procedure call. */
+         environment; it will be carried forward by the EnvBuffer. */
         if (maybeEnv) {
 
             /* If we're about to return a procedure into another environment,
@@ -718,7 +717,6 @@ ProcCall.prototype.bindResult = function(continuation, val) {
             maybeEnv.addBinding(name, val);
         } else {
             this.env.addBinding(name, val);
-            nextProcCall.setEnv(this.env);
         }
     }
 
@@ -871,6 +869,10 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
     var newDatumTree = template.hygienicTranscription(this.env);
 
     var newEnv = new Environment('macro-' + (uniqueNodeCounter++), this.env);
+
+    /* Just like with tryNonPrimitiveProcedures, we have to remember when
+     to jump back to the old environment. */
+    continuation.rememberEnv(this.env);
 
 // useful for debugging
 // console.log('transcribed ' + this.reconstructDatum() + ' => ' + newDatumTree);
