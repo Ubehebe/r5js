@@ -195,7 +195,7 @@
 (define char-ci<=? (char-ci-abstract char<=?)) ; p. 29
 (define char-ci>=? (char-ci-abstract char>=?)) ; p. 29
 
-(define (string . cs)
+(define (string . cs) ; p. 30
   (let ((new-string (make-string (length cs))))
     (foldl
      (lambda (l r) (string-set! new-string l r) (+ l 1))
@@ -203,7 +203,106 @@
      cs)
     new-string))
 
+; todo bl the string comparisons are all extremely slow.
+; Consider moving them to primitives.
+(define (lexicographic compare terminate) ; helper function, not in R5RS
+  (lambda (str1 str2)
+    (let* ((len1 (string-length str1))
+	   (len2 (string-length str2))
+	   (stop (- (min len1 len2) 1)))
+      (define (lexico-tail i)
+	(let* ((c1 (string-ref str1 i))
+	       (c2 (string-ref str2 i))
+	       (c1-vs-c2 (compare c1 c2))
+	       (c2-vs-c1 (compare c2 c1)))
+	  (cond
+	   (c1-vs-c2 #t)
+	   (c2-vs-c1 #f)
+	   ((= i stop) (terminate len1 len2))
+	   (else (lexico-tail (+ i 1))))))
+      (if (< stop 0)
+	  (terminate len1 len2)
+	  (lexico-tail 0)))))
 
+(define string=? (lexicographic char=? =)) ; p. 30
 
+(define string-ci=? (lexicographic char-ci=? =)) ; p. 30
 
+(define string<? (lexicographic char<? <)) ; p. 30
 
+(define string>? (lexicographic char>? >)) ; p. 30
+
+(define string<=? (lexicographic char<=? <=)) ; p. 30
+
+(define string>=? (lexicographic char>=? >=)) ; p. 30
+
+(define string-ci<? (lexicographic char-ci<? <)) ; p. 30
+
+(define string-ci>? (lexicographic char-ci>? >)) ; p. 30
+
+(define string-ci<=? (lexicographic char-ci<=? <=)) ; p. 30
+
+(define string-ci>=? (lexicographic char-ci>=? >=)) ; p. 30
+
+(define (substring str start end) ; p. 30
+  (letrec ((new-str (make-string (- end start)))
+	 (substr-tail
+	  (lambda (i)
+	    (string-set! new-str (- i start) (string-ref str i))
+	    (if (= i start)
+		new-str
+		(substr-tail (- i 1))))))
+    (if (= start end)
+	new-str
+	(substr-tail (- end 1)))))
+
+(define (for start stop do-this) ; helper function, not in R5RS
+  (if (< start stop)
+      (begin
+	(do-this start)
+	(for (+ start 1) stop do-this))))
+
+(define (string-append . strs) ; p. 30
+  (define (string-append2 str1 str2)
+    (let* ((len1 (string-length str1))
+	   (len2 (string-length str2))
+	   (new-str (make-string (+ len1 len2))))
+      (for 0 len1
+	   (lambda (i) (string-set! new-str i (string-ref str1 i))))
+      (for 0 len2
+	   (lambda (i) (string-set! new-str (+ len1 i) (string-ref str2 i))))
+      new-str))
+  (foldl string-append2 "" strs))
+
+(define (string->list str) ; p. 30
+  (let ((new-list '())
+	(len (string-length str)))
+    (for 0 len
+	 (lambda (i)
+	   (set! new-list
+		 (cons (string-ref str (- len i 1))
+		       new-list))))
+    new-list))
+
+(define (list->string cs) ; p. 30
+  (let ((new-str
+	 (make-string (length cs))))
+  (foldl
+   (lambda (l r)
+     (string-set! new-str l r)
+     (+ l 1))
+   0
+   cs)
+  new-str))
+
+(define (string-copy str) ; p. 30
+  (let* ((len (string-length str))
+	 (new-str (make-string len)))
+    (for 0 len
+	 (lambda (i)
+	   (string-set! new-str i (string-ref str i))))
+    new-str))
+
+(define (string-fill str c) ; p. 31
+  (for 0 (string-length str)
+       (lambda (i) (string-set! str c))))
