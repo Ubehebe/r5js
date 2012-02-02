@@ -194,9 +194,18 @@ function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable,
 function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
     this.test = testIdOrLiteral;
     this.consequent = consequentContinuable;
-    this.alternate = alternateContinuable;
-    this.consequentLastContinuable = consequentContinuable.getLastContinuable();
-    this.alternateLastContinuable = alternateContinuable && alternateContinuable.getLastContinuable();
+    /* If there's no alternate given, we create a shim that will return
+     an undefined value. Example:
+
+     (display (if #f 42))
+
+     We give a type of "number" for the shim because passing in a null type
+     would activate the default type, identifier, which would change the
+     semantics. */
+    this.alternate = alternateContinuable
+        || newIdShim(newIdOrLiteral(null, 'number'), newCpsName());
+    this.consequentLastContinuable = this.consequent.getLastContinuable();
+    this.alternateLastContinuable = this.alternate.getLastContinuable();
 }
 
 // Just for debugging

@@ -378,7 +378,8 @@ function testEvaluator() {
         "(let ((foo (display 'hello))) foo 32)": '32',
         "(dynamic-wind (lambda () 1) (lambda () 2) (lambda () 3))": '2',
         "(define double (lambda (x) (* x 2))) ((compose double double) 3)": '12', // eh, depends on lib defn of compose
-        "(define counter 0) (define (foo x) (set! counter (+ counter 1)) (if (= x 0) 'done (foo (- x 1)))) (foo 3) counter (set! counter 0) (foo 3) counter": '4'
+        "(define counter 0) (define (foo x) (set! counter (+ counter 1)) (if (= x 0) 'done (foo (- x 1)))) (foo 3) counter (set! counter 0) (foo 3) counter": '4',
+        '(string-append "when " "in " "the " "course " "of " "human " "events")': '"when in the course of human events"'
     };
 
     /* These tests exercise various macro features that the standard talks about

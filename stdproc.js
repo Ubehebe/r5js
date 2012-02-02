@@ -674,7 +674,6 @@ R5JS_builtins['char'] = {
         argc: 2,
         argtypes: ['char', 'char'],
         proc: function(c1, c2) {
-            console.log(c1);
             return c1 === c2;
         }
     },
@@ -1179,7 +1178,7 @@ R5JS_builtins['io'] = {
             if (x instanceof Datum
                 && (x.isString() || x.isCharacter()))
                 console.log(x.payload);
-            else if (x.toString)
+            else if (x && x.toString)
                 console.log(x.toString());
             else
                 console.log(x);
