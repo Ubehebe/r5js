@@ -26,7 +26,7 @@ R5JS_builtins['equiv'] = {
                 else if (p.isImproperList())
                     return p === q;
                 else if (p.isVector())
-                    return p === q; // todo bl vector impl is busted
+                    return p === q;
                 else if (p.isString())
                     return p === q; // todo string impl is busted
                 else if (p.isProcedure() && q.isProcedure())
@@ -58,7 +58,7 @@ R5JS_builtins['equiv'] = {
                 else if (p.isImproperList())
                     return p === q;
                 else if (p.isVector())
-                    return p === q; // todo bl vector impl is busted
+                    return p === q;
                 else if (p.isString())
                     return p === q; // todo string impl is busted
                 else if (p.isProcedure() && q.isProcedure())
@@ -543,7 +543,7 @@ R5JS_builtins['number'] = {
         argc: 1,
         argtypes: 'number',
         proc: function(x) {
-            throw new UnimplementedOptionError('inexact->exact');
+            return x;
         }
     },
     'number->string': {
@@ -808,32 +808,36 @@ R5JS_builtins['vector'] = {
              element is initialized to fill. Otherwise the initial
              contents of each element is unspecified."
 
-             Zero seems like a good default. */
-            fill = fill || newIdOrLiteral(0, 'number');
-            var ans = new Datum();
-            ans.type = '#(';
+             False seems like a good default. */
+            fill = fill || newIdOrLiteral(false, 'boolean');
+            var buf = [];
             for (var i = 0; i < n; ++i)
-                ans.prependChild(fill.clone());
-            return ans;
+                buf.push(fill.clone());
+            return newVectorDatum(buf);
         }
     },
     'vector-length': {
         argc: 1,
         argtypes: ['vector'],
-        proc: function(v) {
-            return v.numChildren();
+        proc:function (v) {
+            return v.isArrayBacked()
+                ? v.payload.length
+                : v.convertVectorToArrayBacked().payload.length;
+
         }
     },
     'vector-ref': {
         argc: 2,
         argtypes: ['vector', 'number'],
         proc: function(v, k) {
-            return v.childAt(k);
+            return v.isArrayBacked()
+                ? v.payload[k]
+                : v.convertVectorToArrayBacked().payload[k];
         }
     },
     'vector-set!': {
-        argc: 3,
-        proc: function(v, k, fill) {
+        argc:3,
+        proc:function (v, k, fill) {
             v = v.unwrap();
             k = k.unwrap();
 
@@ -842,17 +846,12 @@ R5JS_builtins['vector'] = {
             else if (typeof k !== 'number')
                 throw new ArgumentTypeError(k, 1, 'vector-set!', 'number');
 
-            if (k === 0) {
-                fill.nextSibling = v.firstChild.nextSibling;
-                fill.parent = v.firstChild.parent;
-                v.firstChild = fill;
-            } else {
-                var pred = v.childAt(k - 1);
-                fill.parent = pred.nextSibling.parent;
-                fill.nextSibling = pred.nextSibling.nextSibling;
-                pred.nextSibling = fill;
-            }
-            return true;
+            if (v.isArrayBacked())
+                v.payload[k] = fill;
+            else
+                v.convertVectorToArrayBacked().payload[k] = fill;
+
+            return null;
         }
     }
 };

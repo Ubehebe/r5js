@@ -273,6 +273,13 @@ function newMacroDatum(macro) {
     return ans;
 }
 
+function newVectorDatum(array) {
+    var ans = new Datum();
+    ans.type = '#(';
+    ans.payload = array;
+    return ans;
+}
+
 Datum.prototype.isProcedure = function() {
   return this.type === 'lambda';
 };
@@ -350,27 +357,31 @@ function maybeWrapResult(result, type) {
     return ans;
 }
 
-/* todo bl: numChildren and childAt are for manipulating vectors...
-    which are currently represented by linked lists!!! Haha. Let's implement
-    vectors by something that actually gives random access. */
-Datum.prototype.numChildren = function() {
-    for (var cur = this.firstChild, ans = 0; cur; cur = cur.nextSibling,++ans)
-        ;
-    return ans;
-};
-
-Datum.prototype.childAt = function(k) {
-    for (var cur = this.firstChild; cur && k; cur = cur.nextSibling, --k)
-        ;
-    return cur;
-};
-
 Datum.prototype.isList = function() {
     return this.type === '(';
 };
 
 Datum.prototype.isVector = function() {
     return this.type === '#(';
+};
+
+Datum.prototype.isArrayBacked = function() {
+    return this.payload;
+};
+
+/* Vector literals are constructed by the reader as linked lists
+ with no random access, while vectors created programmatically
+ via make-vector can just use JavaScript arrays. Instead of building
+ logic into the reader to convert its inefficient vectors to array-backed
+ ones, we check in every primitive vector procedure if the vector
+ is array-backed, and mutate it in place if it isn't. There may
+ be bugs involving the lost child/sibling pointers.*/
+Datum.prototype.convertVectorToArrayBacked = function () {
+    this.payload = [];
+    for (var cur = this.firstChild; cur; cur = cur.nextSibling)
+        this.payload.push(cur);
+    this.firstChild = null;
+    return this;
 };
 
 Datum.prototype.isBoolean = function() {

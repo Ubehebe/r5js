@@ -229,8 +229,16 @@ Datum.prototype.toString = function() {
                 return '#\\' + this.payload;
         case 'string':
             return '"' + this.payload + '"';
-        case '(':
         case '#(':
+            if (this.isArrayBacked()) {
+                ans = '#(';
+                for (var i = 0; i < this.payload.length-1; ++i) {
+                    ans += this.payload[i] + ' ';
+                }
+                return ans + this.payload[i] + ')';
+            }
+        // fallthrough for non-array-backed vectors
+        case '(':
             endDelimiter = ')';
         // fallthrough
         case "'":

@@ -306,3 +306,30 @@
 (define (string-fill str c) ; p. 31
   (for 0 (string-length str)
        (lambda (i) (string-set! str c))))
+
+(define (list->vector xs) ; p. 31
+  (let ((v (make-vector (length xs))))
+    (foldl
+     (lambda (l r)
+       (vector-set! v l r)
+       (+ l 1))
+     0
+     xs)
+    v))
+
+(define (vector . xs) (list->vector xs)) ; p. 31
+
+(define (vector->list v) ; p. 31
+  (let* ((new-list '())
+	 (len (vector-length v)))
+    (for 0 len
+	 (lambda (i)
+	   (set! new-list
+		 (cons (vector-ref v (- len i 1))
+		       new-list))))
+    new-list))
+
+(define (vector-fill! v f) ; p. 31
+  (for 0 (vector-length v)
+       (lambda (i)
+	 (vector-set! v i f))))
