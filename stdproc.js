@@ -568,8 +568,8 @@ R5JS_builtins['pair'] = {
         argc: 2,
         proc: function(car, cdr) {
             // todo bl this is really expensive! can we cut down on the copying?
-            var realCar = car.stripParent().clone();
-            var realCdr = cdr.stripParent().clone();
+            var realCar = car.stripParent().clone(true);
+            var realCdr = cdr.stripParent().clone(true);
             // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
             if (realCdr.isList() || realCdr.isImproperList()) {
                 realCdr.prependChild(realCar);
