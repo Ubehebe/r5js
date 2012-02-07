@@ -505,27 +505,27 @@ Datum.prototype.transcribe = function(templateBindings, env) {
             var match = templateBindings.getTemplateBinding(cur.payload, env);
 
             /* If we found some kind of binding for the name, insert it in
-                the transcription. There is a corner case, though: in ellipsis
-                mode, the TemplateBindings object has to have some way
-                of telling us that there are no remaining bindings for the
-                name. When this happens, we just need to move on in the
-                transcription process. The current way I do this is by
-                returning an empty array. This is not necessarily great style,
-                I may change it (return false? but that clashes with null for
-                no match; return a special sentinel object? but that requires
-                more logic...) */
-            if (match)
-                success = (match.length === 0) ? false : match;
+             the transcription. There is a corner case, though: in ellipsis
+             mode, the TemplateBindings object has to have some way
+             of telling us that there are no remaining bindings for the
+             name. When this happens, we just need to move on in the
+             transcription process. */
 
-            /* If there were no bindings for the name, this is not an error,
-                it just means insert the datum into the transcription
-                unaltered. This is actually the common case: for example,
+            switch (match) {
+                case TemplateBindings.prototype.failures.noMoreEllipsisBindings:
+                    success = false;
+                    break;
+                default:
+                    /* If there were no bindings for the name, this is not an error,
+                     it just means insert the datum into the transcription
+                     unaltered. This is actually the common case: for example,
 
-                (define-syntax foo (syntax-rules () ((foo x) (* x x))))
+                     (define-syntax foo (syntax-rules () ((foo x) (* x x))))
 
-                we want the * to transcribe as itself. */
-            else
-                success = cur;
+                     we want the * to transcribe as itself. */
+                    success = match || cur;
+                    break;
+            }
         }
 
         // Lists etc.: recursive case

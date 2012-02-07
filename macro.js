@@ -120,6 +120,10 @@ TemplateBindings.prototype.fixNewBindings = function() {
     this.awaitingFixing = [];
 };
 
+TemplateBindings.prototype.failures = {
+  noMoreEllipsisBindings: 0
+};
+
 TemplateBindings.prototype.getTemplateBinding = function(name, backdoorEnv) {
     var ans;
     var maybeRegularBinding = this.regularBindings[name];
@@ -129,16 +133,16 @@ TemplateBindings.prototype.getTemplateBinding = function(name, backdoorEnv) {
         var maybeEllipsisBindings = this.ellipsisBindings[name];
         if (maybeEllipsisBindings) {
             /* If we're in ellipsis mode and have no more bindings, return
-             an empty array. We have to reset the index into the array
-             because a later part of the template could ask for it again.
-             For example:
+             the special value failures.noMoreEllipsisBindings.
+             We have to reset the index into the array because a later part
+             of the template could ask for it again. For example:
 
              (define-syntax foo (syntax-rules () ((foo x ...) (cons (list x ...) (list x ...)))))
 
              (foo 1 2 3) => ((1 2 3) 1 2 3) */
             if (!maybeEllipsisBindings.length || this.ellipsisIndices[name] === maybeEllipsisBindings.length) {
                 this.ellipsisIndices[name] = 0;
-                ans = [];
+                ans = this.failures.noMoreEllipsisBindings;
             } else {
                 ans = maybeEllipsisBindings[this.ellipsisIndices[name]++].clone();
             }
