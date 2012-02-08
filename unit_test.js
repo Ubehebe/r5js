@@ -467,7 +467,14 @@ function testEvaluator() {
         "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ (foo) x)) (bar 2)": '3',
         "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ x (foo) x)) (bar 2)": '5',
         "(define x 1) (define-syntax foo (syntax-rules () ((foo) x))) (define (bar x) (+ (foo) x (foo))) (bar 2)": '4',
-        "(define-syntax foo (syntax-rules () ((foo) x))) (define x 'whew) (foo)": 'whew'
+        "(define-syntax foo (syntax-rules () ((foo) x))) (define x 'whew) (foo)": 'whew',
+
+        /* The current macro transcription facility cannot handle
+         nested ellipses like this; the TemplateBindings object only binds to
+         identifiers, not whole datums. In the example below, x would have the
+         bindings 1 2 3 4 5, but it would have no understanding that those
+         bindings should be distributed to different datums. Time for a rewrite! */
+        "(define-syntax foo (syntax-rules () ((foo (x ...) ...) (+ (* x ...) ...)))) (foo (1 2 3) (4 5) ())": '27'
     };
 
     // R5RS 6.4
