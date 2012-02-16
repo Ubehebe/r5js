@@ -460,6 +460,27 @@ function testEvaluator() {
         "(define-syntax foo (syntax-rules () ((foo x ...) (+ x ...)))) (foo)": '0',
         "(define-syntax foo (syntax-rules () ((foo x ...) (x ...)))) (foo +)": '0',
 
+        /* P is a vector of the form #(P1 ... Pn) and F is a vector
+        of n forms that match P1 through Pn. */
+        "(define-syntax foo (syntax-rules () ((foo #(a b c)) c))) (foo #(1 2 3))": '3',
+        "(define-syntax foo (syntax-rules () ((foo #(((((x)))))) x))) (foo #((((('five))))))": 'five',
+        "(define-syntax foo (syntax-rules () ((foo #((((x))))) x))) (foo #(((('four)))))": 'four',
+        "(define-syntax foo (syntax-rules () ((foo #(((x)))) x))) (foo #((('three))))": 'three',
+        "(define-syntax foo (syntax-rules () ((foo #((x))) x))) (foo #(('two)))": 'two',
+        "(define-syntax foo (syntax-rules () ((foo #(x)) x))) (foo #('one))": 'one',
+        "(define-syntax foo (syntax-rules () ((foo #(a (b (c (d))))) (+ a b c d)))) (foo #(1 (2 (3 (4)))))": '10',
+        "(define-syntax foo (syntax-rules () ((foo #((((a) b) c))) (/ a b c)))) (foo #((((12) 2) 3)))": '2',
+        "(define-syntax foo (syntax-rules () ((foo #(x) #(y)) (+ x (* 2 y))))) (foo #(3) #(4))": '11',
+        "(define-syntax foo (syntax-rules () ((foo #(a b) #(c d)) (+ a c)))) (foo #(1 2) #(3 4))": '4',
+        "(define-syntax foo (syntax-rules () ((foo #(x y z)) (quote (x y . z))))) (foo #(a b c))": '(a b . c)',
+        "(define-syntax foo (syntax-rules () ((foo #(x y z)) (quote #(x y z))))) (foo #(a b c))": '#(a b c)',
+
+        /* P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis>
+        is the identifier ... and F is a vector of n or more forms the first
+        n of which match P1 through Pn, respectively, and each remaining
+        element of F matches Pn+1. */
+        "(define-syntax foo (syntax-rules () ((foo #(x ...) ...) (+ (* x ...) ...)))) (foo #(1 2 3) #(4 5) #())": '27',
+
         /* R5Rs 4.3: "If a macro transformer inserts a free reference to an
          identifier, the reference refers to the binding that was visible
          where the transformer was specified, regardless of any local
@@ -477,7 +498,20 @@ function testEvaluator() {
          identifiers, not whole datums. In the example below, x would have the
          bindings 1 2 3 4 5, but it would have no understanding that those
          bindings should be distributed to different datums. Time for a rewrite! */
-        "(define-syntax foo (syntax-rules () ((foo (x ...) ...) (+ (* x ...) ...)))) (foo (1 2 3) (4 5) ())": '27'
+        "(define-syntax foo (syntax-rules () ((foo (x ...) ...) (+ (* x ...) ...)))) (foo (1 2 3) (4 5) ())": '27',
+
+        /* Proper list and vector patterns can match only proper list
+        and vector inputs respectively, but dotted list patterns can match
+        proper and dotted list inputs. */
+        "(define-syntax foo (syntax-rules () ((foo (x ...)) 'ok))) (foo ())": 'ok',
+        "(define-syntax foo (syntax-rules () ((foo (x ...)) 'ok))) (foo (1 . 2))": false,
+        "(define-syntax foo (syntax-rules () ((foo (x ...)) 'ok))) (foo #())": false,
+        "(define-syntax foo (syntax-rules () ((foo #(x ...)) 'ok))) (foo #())": 'ok',
+        "(define-syntax foo (syntax-rules () ((foo #(x ...)) 'ok))) (foo ())": false,
+        "(define-syntax foo (syntax-rules () ((foo #(x ...)) 'ok))) (foo (1 . 2))": false,
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) 'ok))) (foo (a b))": 'ok',
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) 'ok))) (foo (a . b))": 'ok',
+        "(define-syntax foo (syntax-rules () ((foo (x . y)) 'ok))) (foo #())": false
     };
 
     // R5RS 6.4

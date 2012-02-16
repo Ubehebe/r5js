@@ -341,12 +341,28 @@ ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
     callback(this.subtransformers[i], args);
 };
 
+ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
+    switch (this.type) {
+        case '(':
+            // Proper list patterns can match only proper list inputs
+            return inputDatum.isList();
+        case '.(':
+            // Dotted list patterns can match proper or dotted list inputs
+            return inputDatum.isList() || inputDatum.isImproperList();
+        case '#(':
+            // Vector patterns match only vector inputs
+            return inputDatum.isVector();
+        default:
+            throw new InternalInterpreterError('enum changed');
+    }
+};
+
 ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
     var len = this.subtransformers.length;
     var maybeEllipsis = this.subtransformers[len-1] instanceof EllipsisTransformer
         && this.subtransformers[len-1];
 
-    if (!(inputDatum.isList() || inputDatum.isImproperList())) // todo bl vectors
+    if (!this.couldMatch(inputDatum))
         return false;
 
     /* R5RS 4.3.2: "an input form F matches a pattern P if and only if [...]
@@ -359,11 +375,11 @@ ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, defi
      the first n of which match P1 through Pn, respectively,
      and each remaining element of F matches Pn+1; or
      - P is a vector of the form #(P1 ...Pn) and F is a vector of n forms
-     that match P1 through Pn; or (TODO BL)
+     that match P1 through Pn; or
      - P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
      the identifier ... and F is a vector of n or more forms the first n
      of which match P1 through Pn, respectively, and each remaining element
-     of F matches Pn+1" (TODO BL) */
+     of F matches Pn+1" */
     for (var subinput = inputDatum.firstChild, i=0;
          subinput;
          subinput = subinput.nextSibling, ++i) {
