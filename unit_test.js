@@ -615,7 +615,9 @@ function testEvaluator() {
         "(let ((name1 'x) (name2 'y)) `(a `(b ,,name1 ,',name2 d) e))": "(a `(b ,x ,'y d) e)", // p. 13
         "(quasiquote (list (unquote (+ 1 2)) 4))": '(list 3 4)', // p. 13
         "'(quasiquote (list (unquote (+ 1 2)) 4))": "`(list ,(+ 1 2) 4)", // p. 13
-        "(let ((=> #f)) (cond (#t => 'ok)))": 'ok' // p. 15
+        "(let ((=> #f)) (cond (#t => 'ok)))": 'ok', // p. 15
+        "(let-syntax ((when (syntax-rules () ((when test stmt1 stmt2 ...) (if test (begin stmt1 stmt2 ...)))))) (let ((if #t)) (when if (set! if 'now)) if))": 'now', // p. 14
+        "(let ((x 'outer)) (let-syntax ((m (syntax-rules () ((m) x)))) (let ((x 'inner)) (m))))": 'outer' // p. 14
     };
 
     tests['syntax-rebinding'] = {
