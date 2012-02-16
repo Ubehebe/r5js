@@ -1,16 +1,46 @@
 function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
+
+    this.definitionEnv = definitionEnv;
     this.literalIdentifiers = {};
     for (var curId = literalIdentifiers; curId; curId = curId.nextSibling)
         this.literalIdentifiers[curId.payload] = true;
-    this.rules = rules.clone();
-    this.definitionEnv = definitionEnv;
 
-    // Cache the set of free identifiers per pattern/template pair
-    this.freeIds = [];
-    for (var cur = rules; cur; cur = cur.nextSibling)
-        this.freeIds.push(null);
+    this.transformers = [];
+
+    for (var rule = rules; rule; rule = rule.nextSibling) {
+        var pattern = rule.at('pattern').desugar(/* no env needed */);
+        var template = rule.at('template').desugar(/* no env needed */);
+        var transformer = new Transformer(pattern, template);
+        this.transformers.push(transformer);
+    }
 }
 
+/* Workaround for let-syntax and letrec-syntax.
+ This implementation rewrites let-syntax and letrec-syntax
+ as let and letrec respectively. For example,
+
+ (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
+
+ desugars as
+
+ (let ((foo [SchemeMacro object wrapped in a Datum])) ...)
+
+ When this macro use is matched against the definition of let,
+ the wrapped SchemeMacro object will be added to the TemplateBindings
+ correctly. The problem arises during transcription: we cannot insert
+ the wrapped SchemeMacro object directly into the new parse tree,
+ because that parse tree will be handed to the parser, which won't know
+ what to do with SchemeMacros.
+
+ Indirection comes to the rescue. We insert a new identifier node and
+ bind it in the current environment to the SchemeMacro. Later, on
+ the trampoline, we will look up the value of that identifier and
+ find the SchemeMacro as desired.
+
+ We have to set the isLetOrLetrecSyntax flag on the macro to disallow
+ this behavior from the programmer. We cannot allow her to write
+
+ (let ((x let*)) x) */
 SchemeMacro.prototype.setIsLetOrLetrecSyntax = function() {
     this.isLetOrLetrecSyntax = true;
     return this;
@@ -18,525 +48,600 @@ SchemeMacro.prototype.setIsLetOrLetrecSyntax = function() {
 
 /* Should only be used during interpreter bootstrapping. */
 SchemeMacro.prototype.clone = function(newDefinitionEnv) {
-    return new SchemeMacro(this.literalIdentifiers, this.rules, newDefinitionEnv);
-};
-SchemeMacro.prototype.allPatternsBeginWith = function(keyword) {
-
-    /* todo bl incorrect -- needs to be recursive
-     for (var rule = this.rules; rule; rule = rule.nextSibling) {
-     var pattern = rule.at('pattern');
-     if (!pattern.isList() || pattern.firstChild.payload !== keyword)
-     return false;
-     }*/
-    return true;
-
+    var ans = new SchemeMacro(this.literalIdentifiers, null, newDefinitionEnv);
+    ans.transformers = this.transformers;
+    return ans;
 };
 
-SchemeMacro.prototype.ellipsesMatch = function() {
+/* My approach for supporting nested ellipses in macro transcriptions
+is to take a single pass through the input and build up a TemplateBindings
+object whose tree structure mirrors the ellipsis nesting in the pattern.
+For example:
 
-    for (var rule = this.rules; rule; rule = rule.nextSibling)
-        if (!ellipsesMatch(rule.at('pattern'), rule.at('template')))
+ (define-syntax foo
+    (syntax-rules ()
+        ((foo ((x y) ...) ...)
+        (quote (((x ...) (y ...)) ...)))))
+
+ with input
+
+ (foo ((a b)) ((c d) (e f)))
+
+ produces this TemplateBindings object:
+
+ child 0:
+    child 0:
+        x = a
+        y = b
+ child 1:
+    child 0:
+        x = c
+        y = d
+    child 1:
+        x = e
+        y = f
+
+ Then transcription involves a single pass through the template with
+ this TemplateBindings object, using the ellipses in the template
+ to descend through the TemplateBindings tree. Here's the flow of control
+ during transcription:
+
+ 1. Transcribe ((x ...) (y ...)) with child0
+    2. Transcribe x with child0.child0 => a
+    3. Transcribe x with [no more children] => false. Reset cur child.
+    4. Transcribe y with child0.child0 => b
+    5. Transcribe y with [no more children] => false. Reset cur child.
+ [1 completes as ((a) (b))]
+ 6. Transcribe ((x ...) (y ...)) with child1
+    7. Transcribe x with child1.child0 => c
+    8. Transcribe x with child1.child1 => e
+    9. Transcribe x with [no more children] => false. Reset cur child.
+    10. Transcribe y with child1.child0 => d
+    11. Transcribe y with chid1.child1 => f
+    12. Transcribe y with [no more children] => false. Reset cur child.
+ [6 completes as ((c e) (d f))]
+ 13. Transcribe ((x ...) (y ...)) with [no more children] => false. Reset cur child.
+ [13 completes as (((a) (b)) ((c e) (d f)))]
+
+ TODO bl: explain -- or ideally remove -- all the crazy logic dealing
+ with "incorporation". Do we even need it?
+
+ */
+function TemplateBindings(letSyntaxEnv, patternIds) {
+    this.bindings = {};
+    this.children = [];
+    this.curChild = 0;
+    this.letSyntaxEnv = letSyntaxEnv;
+    this.patternIds = patternIds;
+}
+
+TemplateBindings.prototype.resetCurChild = function() {
+    this.curChild = 0;
+    return this;
+};
+
+TemplateBindings.prototype.addTemplateBinding = function(name, val) {
+    if (this.bindings[name])
+        throw new InternalInterpreterError('invariant incorrect');
+    else if (val.isMacro()) {
+        // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
+        var fakeName = newCpsName();
+        this.letSyntaxEnv.addBinding(fakeName, val.getMacro());
+        this.bindings[name] = newIdOrLiteral(fakeName);
+    }
+    else {
+        this.bindings[name] = val;
+    }
+};
+
+// Purely for debugging.
+TemplateBindings.prototype.toString = function(tabs) {
+    tabs = tabs || '';
+    var ans = '';
+    for (var name in this.bindings)
+        ans += tabs + name + ' = ' + this.bindings[name].toString() + '\n';
+    for (var i=0; i<this.children.length; ++i)
+        ans += tabs + 'child ' + i + ':\n' + this.children[i].toString(tabs+'\t');
+    return ans;
+};
+
+TemplateBindings.prototype.addChildBindings = function(child) {
+    this.children.push(child);
+    return this;
+};
+
+TemplateBindings.prototype.hasNoneOf = function(other) {
+    for (var name in other.bindings)
+        if (this.bindings[name])
             return false;
     return true;
 };
 
-/* 4.3.2
- A subpattern followed by ... can match zero or more elements of the input.
- It is an error for ... to appear in <literal>. Within a pattern the identifier ...
- must follow the last element of a nonempty sequence of subpatterns.
-
- Pattern variables that occur in subpatterns followed by one or more instances
- of the identifier ... are allowed only in subtemplates that are followed
- by as many instances of .... They are replaced in the output by all of the
- subforms they match in the input, distributed as indicated. It is an error
- if the output cannot be built up as specified.
- */
-function ellipsesMatch(patternDatum, templateDatum) {
-    // todo bl
-    return true;
-}
-
-function TemplateBindings() {
-    this.regularBindings = {}; // strings to objects
-    this.ellipsisBindings = {}; // strings to arrays of objects
-    this.ellipsisIndices = {}; // strings to indices into ellipsisBindings
-    this.awaitingFixing = [];
-    this.boundIds = {};
-}
-
-TemplateBindings.prototype.toString = function() {
-  var ans = '[';
-    for (var name in this.regularBindings)
-        ans += this.regularBindings[name] + ' ';
-    return ans + ']';
+/* Try to incorporate the child's bindings in an existing child if there's room,
+ otherwise just tack the child on to the parent. */
+TemplateBindings.prototype.addOrIncorporateChild = function(child) {
+    return this.incorporateChild(child) || this.addChildBindings(child);
 };
 
-TemplateBindings.prototype.addTemplateBinding = function(name, val) {
+TemplateBindings.prototype.incorporateChild = function(child) {
 
-    if (val instanceof Datum && val.isIdentifier())
-        this.boundIds[val.payload] = true;
+    // We only incorporate flat TemplateBindings objects.
+    if (child.children.length > 0)
+        return null;
 
-    var regularBinding = this.regularBindings[name];
-    var ellipsisBinding;
+    /* Dump all the child's bindings in the first child that doesn't
+     have any of the bindings.
 
-    /* If this name already has a regular binding and we're requesting another
-        binding, we must be in an ellipsis pattern, so move the binding from
-        the regularBindings to the ellipsisBindings. */
-    if (regularBinding) {
-        this.regularBindings[name] = null;
-        this.ellipsisBindings[name] = [regularBinding, val];
-        this.ellipsisIndices[name] = 0;
-    }
-
-    // If this name already has an ellipsis binding, just add the new value to it
-    else if (ellipsisBinding = this.ellipsisBindings[name]) {
-        ellipsisBinding.push(val);
-    }
-
-    // If this name has neither type of binding, add a regular binding.
-    /* todo bl add this.regularBindings[name] = false to denote moves
-        to ellipsisBindings so we don't have to do two lookups in the common case */
-    else {
-        this.regularBindings[name] = val;
-        this.awaitingFixing.push(name);
-    }
-};
-
-TemplateBindings.prototype.resetAwaitingFixing = function() {
-  this.awaitingFixing = [];
-};
-
-TemplateBindings.prototype.fixNewBindings = function() {
-    var len = this.awaitingFixing.length;
-    for (var i=0; i<len; ++i) {
-        var name = this.awaitingFixing[i];
-        var soleVal = this.regularBindings[name];
-        if (soleVal) {
-            this.regularBindings[name] = null;
-            this.ellipsisBindings[name] = [soleVal];
-            this.ellipsisIndices[name] = 0;
-        }
-    }
-    this.awaitingFixing = [];
-};
-
-TemplateBindings.prototype.failures = {
-  noMoreEllipsisBindings: 0
-};
-
-TemplateBindings.prototype.getTemplateBinding = function(name, backdoorEnv) {
-    var ans;
-    var maybeRegularBinding = this.regularBindings[name];
-    if (maybeRegularBinding) {
-        ans = maybeRegularBinding.clone();
-    } else {
-        var maybeEllipsisBindings = this.ellipsisBindings[name];
-        if (maybeEllipsisBindings) {
-            /* If we're in ellipsis mode and have no more bindings, return
-             the special value failures.noMoreEllipsisBindings.
-             We have to reset the index into the array because a later part
-             of the template could ask for it again. For example:
-
-             (define-syntax foo (syntax-rules () ((foo x ...) (cons (list x ...) (list x ...)))))
-
-             (foo 1 2 3) => ((1 2 3) 1 2 3) */
-            if (!maybeEllipsisBindings.length || this.ellipsisIndices[name] === maybeEllipsisBindings.length) {
-                this.ellipsisIndices[name] = 0;
-                ans = this.failures.noMoreEllipsisBindings;
-            } else {
-                ans = maybeEllipsisBindings[this.ellipsisIndices[name]++].clone();
-            }
+     todo bl: i have no idea why this heuristic seems to work. */
+    for (var i = 0; i < this.children.length; ++i) {
+        var candidate = this.children[i];
+        if (candidate.hasNoneOf(child)) {
+            for (var name in child.bindings)
+                candidate.addTemplateBinding(name, child.bindings[name]);
+            return this;
         }
     }
 
-    /* Workaround for let-syntax and letrec-syntax.
-     This implementation rewrites let-syntax and letrec-syntax
-     as let and letrec respectively. For example,
-
-     (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
-
-     desugars as
-
-     (let ((foo [SchemeMacro object wrapped in a Datum])) ...)
-
-     When this macro use is matched against the definition of let,
-     the wrapped SchemeMacro object will be added to the TemplateBindings
-     correctly. The problem arises during transcription: we cannot insert
-     the wrapped SchemeMacro object directly into the new parse tree,
-     because that parse tree will be handed to the parser, which won't know
-     what to do with SchemeMacros.
-
-     Indirection comes to the rescue. We insert a new identifier node and
-     bind it in the current environment to the SchemeMacro. Later, on
-     the trampoline, we will look up the value of that identifier and
-     find the SchemeMacro as desired.
-
-     We have to set the isLetOrLetrecSyntax flag on the macro to disallow
-     this behavior from the programmer. We cannot allow her to write
-
-     (let ((x let*)) x) */
-    if (ans instanceof Datum && ans.isMacro()) {
-        var fakeName = newCpsName();
-        backdoorEnv.addBinding(fakeName, ans.payload.setIsLetOrLetrecSyntax());
-        ans = newIdOrLiteral(fakeName);
-    }
-    return ans;
-};
-
-TemplateBindings.prototype.setEmptyEllipsisMatch = function(name) {
-  this.ellipsisBindings[name] = [];
-};
-
-SchemeMacro.prototype.selectTemplate = function(datum, useEnv) {
-    for (var rule = this.rules, i = 0; rule; rule = rule.nextSibling, ++i) {
-        /* During pattern matching, input datums are bound to pattern datums.
-            If pattern matching is successful, then during transcription we need
-            to remember those bindings. All we need is an object to store the
-            bindings between pattern matching and transcription. A JavaScript
-            dictionary is perhaps sufficient, but I'm going to use a purpose-built
-            object in case we need richer semantics (e.g. for ellipses). */
-        var bindings = new TemplateBindings();
-        var pattern = rule.at('pattern');
-        if (this.patternMatch(pattern, datum, useEnv, bindings, true)) {
-
-            var template = rule.at('template');
-
-            if (!this.freeIds[i])
-                this.freeIds[i] = constructFreeIds(pattern, template);
-
-            return new Template(template, bindings, this.freeIds[i]);
-        }
-    }
     return null;
 };
 
-/* R5RS 4.3.2: "Identifiers that appear in the template but are not
- pattern variables or the identifier ... are inserted into the output
- as literal identifiers. If a literal identifier is inserted as a free
- identifier then it refers to the binding of that identifier within whose
- scope the instance of syntax-rules appears. If a literal identifier
- is inserted as a bound identifier then it is in effect renamed to prevent
- inadvertent captures of free identifiers."
-
- This function implements the free identifier stuff, but I don't understand
- the bound identifier stuff. todo!
- */
-function constructFreeIds(patternDatum, templateDatum) {
-    var patternIds = {};
-    var templateIds = {};
-    patternDatum.forEach(function(node) {
-        if (node.isIdentifier() && !isParserSensitiveId(node.payload))
-            patternIds[node.payload] = true;
-    });
-    templateDatum.forEach(function(node) {
-        if (node.isIdentifier() && !isParserSensitiveId(node.payload) && node.payload !== '...')
-            templateIds[node.payload] = true;
-    });
-
-    var freeInTemplate = {};
-
-    for (var name in templateIds)
-        if (!patternIds[name])
-            freeInTemplate[name] = true;
-
-    return freeInTemplate;
-}
-
-function Template(datum, templateBindings, freeIdsInTemplate) {
-    /* We must clone the template datum because every macro use will
-     deform the template through the hygienic transcription. */
-    this.datum = datum.clone();
-    this.templateBindings = templateBindings;
-    this.freeIdsInTemplate = freeIdsInTemplate;
-}
-
-Template.prototype.hygienicTranscription = function(env) {
-    return this.datum.transcribe(this.templateBindings, env);
+TemplateBindings.prototype.getNextChild = function() {
+    if (this.curChild < this.children.length) {
+        return this.children[this.curChild++];
+    } else {
+        this.curChild = 0;   // reset for next time
+        return null;
+    }
 };
 
-/* 4.3.2: An input form F matches a pattern P if and only if:
- (1) P is a non-literal identifier; or
- (2) P is a literal identifier and F is an identifier with the same binding; or
- (3) P is a list (P1 ... Pn) and F is a list of n forms that match P1 through Pn, respectively; or
- (4) P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or improper list of n or more forms
- that match P1 through Pn, respectively, and whose nth “cdr” matches Pn+1; or
- (5) P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
- and F is a proper list of at least n forms, the first n of which match P1 through Pn,
- respectively, and each remaining element of F matches Pn+1; or
- (6) P is a vector of the form #(P1 ...Pn) and F is a vector of n forms that match P1 through Pn; or
- (7) P is of the form #(P1 . . . Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
- and F is a vector of n or more forms the first n of which match P1 through Pn,
- respectively, and each remaining element of F matches Pn+1; or
- (8) P is a datum and F is equal to P in the sense of the equal? procedure.
- */
-SchemeMacro.prototype.patternMatch = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
-    var args = [patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword];
-    return this.matchLiteralId.apply(this, args) // case 2
-        || this.matchNonLiteralId.apply(this, args) // case 1
-        || this.matchListOrVector.apply(this, args) // cases 3, 5, 6, 7
-        || this.matchImproperList.apply(this, args) // case 4
-        || this.matchDatum.apply(this, args); // case 8
-};
+TemplateBindings.prototype.resolveDatum = function(datum) {
+    if (!this.patternIds)
+        throw new InternalInterpreterError('invariant incorrect');
 
+    if (datum.isIdentifier()) {
+        var name = datum.payload;
 
-/* (1) P is a non-literal identifier
- Example: (let-syntax ((foo (syntax-rules () ((foo x) "aha!")))) (foo (1 2 3))) => "aha!"
- ((1 2 3) would be a procedure-call error if evaluated, but it is never evaluated.) */
-SchemeMacro.prototype.matchNonLiteralId
-    = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
+        var maybe = this.bindings[name];
+        if (maybe) {
+            return maybe.clone(true);
+        } else if (this.patternIds[name] !== undefined) {
+            /* It's important to return false here, instead of some other
+             "falsey" value like null. This value is immediately returned by
+             IdOrLiteralTransformer.prototype.matchInput. Meanwhile,
+             EllipsisTransformer.prototype.matchInput returns
+             new SiblingBuffer().toList() when it has successfully matched the
+             ellipsis zero times, which is not a failure. And if you look at
+             the implementation, you will see there is a good reason that
 
-    var patternId = patternDatum.isIdentifier() && patternDatum.payload;
-    var patternIsLiteralId = patternId && this.literalIdentifiers[patternId];
+             new SiblingBuffer().toList() === null.
 
-    if (patternId && !patternIsLiteralId) {
-        // Push the new datum onto the list of bindings
-        bindings.addTemplateBinding(patternId, inputDatum.clone(true));
-        return true;
-    } else return false;
-};
+             So we have to return something different.
 
-
-/* (2) P is a literal identifier and F is an identifier with the same binding
- 4.3.2: A subform in the input matches a literal identifier if and only if
- it is an identifier and either both its occurrence in the macro expression
- and its occurrence in the macro definition have the same lexical binding,
- or the two identifiers are equal and both have no lexical binding.
-
- Examples:
-
- ((lambda (x)
- (let-syntax
- ((foo (syntax-rules (x)
- ((foo x) "matched literal")
- ((foo y) "did not match literal"))))
- (foo x)))
- "hello")
-
- That should evaluate to "matched literal" because x has the same lexical
- binding in the macro expression and the macro definition.
-
- ((lambda (x)
- (let-syntax
- ((foo (syntax-rules (x)
- ((foo x) "matched literal")
- ((foo y) "did not match literal"))))
- ((lambda (x) (foo x)) "hello")))
- "world")
-
- That should evaluate to "did not match literal" because x is bound to
- "hello" in the macro expression but bound to "world" in the macro definition.
-
- (let-syntax
- ((foo (syntax-rules (x)
- ((foo x) "matched literal")
- ((foo y) "did not match literal"))))
- (foo x))
-
- That should evaluate to "matched literal" because x has no binding in
- either the macro expression or the macro definition.
-
- (let-syntax
- ((foo (syntax-rules (x)
- ((foo x) "matched literal")
- ((foo y) "did not match literal"))))
- ((lambda (x) (foo x)) "hello"))
-
- That should evaluate to "did not match literal" because x is bound in the
- macro expression but not in the macro definition.
-
- Whew! */
-SchemeMacro.prototype.matchLiteralId
-    = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
-
-    var patternId = patternDatum.isIdentifier() && patternDatum.payload;
-    var patternIsLiteralId = patternId && this.literalIdentifiers[patternId];
-    var inputIsId = inputDatum.isIdentifier();
-
-    if (patternIsLiteralId && inputIsId) {
-
-        if (inputDatum.payload === patternId
-            && (!this.definitionEnv.hasBindingRecursive(patternId)
-            && !useEnv.hasBindingRecursive(patternId))) { // both have no lexical binding
-            bindings.addTemplateBinding(patternId, inputDatum);
-            return true;
-
+             Static types would be useful here. */
+            return false;
+        } else {
+            return datum.clone(true);
         }
 
-        else if (this.definitionEnv.get(patternId) === useEnv.get(patternId)) { // both have same lexical binding
-            /* If we are here, bindings[patternId] will most likely be undefined.
-                The spec does not forbid repeated literals as in
-                (define-syntax foo (syntax-rules (x x) ((foo x) "hi!")))
-                but such repetition is useless and it is fine to overwrite them. */
+    } else {
+        return datum.clone(true);
+    }
+};
 
-            // todo bl: likely bugs with literal ids in ellipsis patterns! because i see no pushes
-            bindings.addTemplateBinding(patternId, inputDatum);
-            return true;
-        }
+TemplateBindings.prototype.getPatternIds = function() {
+    return this.patternIds;
+};
+
+function Transformer(pattern, template) {
+    /* This is an InternalInterpreterError (= sanity check) instead of a
+     MacroError because the grammar should make it impossible for
+     a programmer to get here. */
+    if (!(pattern instanceof ListLikeTransformer))
+        throw new InternalInterpreterError(
+            'transformer begins with a pattern '
+                + pattern.toString()
+                + ' that is not a ListLikeTransformer');
+    this.pattern = pattern;
+    this.template = template;
+    this.name = pattern.subtransformers[0].datum.payload;
+    this.setupIds();
+}
+
+Transformer.prototype.matchInput = function(inputDatum, literalIdentifiers, definitionEnv, useEnv, bindings) {
+    return this.pattern.matchInput(inputDatum, literalIdentifiers, definitionEnv, useEnv, bindings);
+};
+
+Transformer.prototype.getName = function() {
+    return this.name;
+};
+
+Transformer.prototype.setupIds = function() {
+    var patternIds = {}; // names to nesting levels
+    var maybeRename = {};
+    var pattern = this.pattern;
+    var template = this.template;
+    var macroName = this.name;
+
+    var patternFn = function(subtrans, ellipsisLevel) {
+        if (subtrans instanceof IdOrLiteralTransformer) {
+            if (subtrans.datum.isIdentifier() && subtrans.datum.payload !== macroName) {
+                patternIds[subtrans.datum.payload] = ellipsisLevel;
+            }
+        } else subtrans.forEachSubtransformer(
+            patternFn,
+            subtrans instanceof EllipsisTransformer ? ellipsisLevel + 1 : ellipsisLevel);
+    };
+
+    var templateFn = function(subtrans, ellipsisLevel) {
+        if (subtrans instanceof IdOrLiteralTransformer) {
+            if (subtrans.datum.isIdentifier()) {
+                var name = subtrans.datum.payload;
+                var maybeInPattern = patternIds[name];
+                if (maybeInPattern === undefined) {
+                    maybeRename[name] = true;
+                } else if (maybeInPattern !== ellipsisLevel
+                    && name !== macroName) {
+                    throw new MacroError(
+                        macroName,
+                        name
+                            + ' is at ellipsis level '
+                            + maybeInPattern
+                            + ' in pattern '
+                            + pattern.toString()
+                            + ' but at ellipsis level '
+                            + ellipsisLevel
+                            + ' in template '
+                            + template.toString());
+                }
+            }
+        } else subtrans.forEachSubtransformer(
+            templateFn,
+            subtrans instanceof EllipsisTransformer ? ellipsisLevel + 1 : ellipsisLevel);
+    };
+
+    pattern.forEachSubtransformer(patternFn, 0);
+    template.forEachSubtransformer(templateFn, 0);
+
+    this.maybeRename = maybeRename;
+    this.patternIds = patternIds;
+
+    return this;
+};
+
+Transformer.prototype.getPatternIds = function() {
+    return this.patternIds;
+};
+
+/* ListLikeTransformer, EllipsisTransformer, and IdOrLiteralTransformer
+all "implement" the following "interface":
+
+{
+    forEachSubtransformer: function(callback, args) { ... },
+    matchInput: function(inputDatum, literalIds, definitionEnv, useEnv, bindings) { ... },
+    toDatum: function(bindings) { ... }
+}
+
+In fact, they all used to have a common prototypal ancestor. But since
+they didn't share any implementations of these functions, nor any common state,
+all the ancestor did was throw "pure virtual" exceptions if a function
+hadn't been overridden. In view of this lack of usefulness, I got rid of the
+"superclass". */
+function ListLikeTransformer(type) {
+    this.type = type;
+    this.subtransformers = [];
+}
+
+ListLikeTransformer.prototype.addSubtransformer = function(subtransformer) {
+    this.subtransformers.push(subtransformer);
+    return this;
+};
+
+ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
+  for (var i=0; i<this.subtransformers.length; ++i)
+    callback(this.subtransformers[i], args);
+};
+
+ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+    var len = this.subtransformers.length;
+    var maybeEllipsis = this.subtransformers[len-1] instanceof EllipsisTransformer
+        && this.subtransformers[len-1];
+
+    if (!(inputDatum.isList() || inputDatum.isImproperList())) // todo bl vectors
+        return false;
+
+    /* R5RS 4.3.2: "an input form F matches a pattern P if and only if [...]
+     - P is a list (P1 ... Pn) and F is a list of n forms match P1 through Pn, respectively; or
+     - P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or
+     improper list of n or more forms that match P1 through Pn, respectively,
+     and whose nth "cdr" matches Pn+1; or
+     - P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
+     the identifier ... and F is a proper list of at least n forms,
+     the first n of which match P1 through Pn, respectively,
+     and each remaining element of F matches Pn+1; or
+     - P is a vector of the form #(P1 ...Pn) and F is a vector of n forms
+     that match P1 through Pn; or (TODO BL)
+     - P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
+     the identifier ... and F is a vector of n or more forms the first n
+     of which match P1 through Pn, respectively, and each remaining element
+     of F matches Pn+1" (TODO BL) */
+    for (var subinput = inputDatum.firstChild, i=0;
+         subinput;
+         subinput = subinput.nextSibling, ++i) {
+
+        // If there's an ellipsis in the pattern, break out to deal with it.
+        if (i === len - 1 && (maybeEllipsis || this.type === '.('))
+            break;
+
+        /* If there's no ellipsis in the pattern and the input is longer
+         than the pattern, this is a failure. */
+        else if (i >= len)
+            return false;
+
+        /* If pattern matching on the subinput and subpattern fails, this is
+         a failure. */
+        else if (!this.subtransformers[i].matchInput(subinput, literalIds, definitionEnv, useEnv, bindings))
+            return false;
     }
 
-    return false;
-};
+    if (maybeEllipsis) {
+        return maybeEllipsis.matchInput(subinput, literalIds, definitionEnv, useEnv, bindings);
+    }
 
-/*
- (3) P is a list (P1 ... Pn) and F is a list of n forms that match
- P1 through Pn, respectively
+    // Dotted-list patterns cannot end in ellipses.
+    else if (this.type === '.(') {
+        var toMatchAgainst;
 
- Example:
- (let-syntax
- ((foo (syntax-rules ()
- ((foo a (b c) d) (+ b d)))))
- (foo "NaN" (100 ()) -1)) => 99
-
- (5) P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the
- identifier ... and F is a proper list of at least n forms, the first n
- of which match P1 through Pn, respectively, and each remaining element
- of F matches Pn+1
-
- Example:
- (define-syntax foo
- (syntax-rules ()
- ((foo) 1)
- ((foo x) 2)
- ((foo x xs ...) (+ 1 (foo xs ...)))))
-
- (foo) => 0
- (foo foo) => 1
- (foo foo foo) => 2
- etc.
-
- (6) P is a vector of the form #(P1 ...Pn) and F is a vector of n forms that match P1 through Pn
- (7) P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ...
- and F is a vector of n or more forms the first n of which match P1 through Pn,
- respectively, and each remaining element of F matches Pn+1
- */
-SchemeMacro.prototype.matchListOrVector
-    = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
-    if ((patternDatum.isList() && inputDatum.isList())
-        || (patternDatum.isVector() && inputDatum.isVector())) {
-        var patternElement = patternDatum.firstChild;
-        var inputElement = inputDatum.firstChild;
-
-        /* 4.3.2: "The keyword at the beginning of the pattern in a
-         <syntax rule> is not involved in the matching and is not considered
-         a pattern variable or literal identifier." ignoreLeadingKeyword is a
-         convenience parameter to support this. (If we are here, the first
-         element in the pattern should already have been verified to be
-         the keyword (see allPatternsBeginWith()), and the first element in the
-         input will already have been matched to the keyword by the parser.) */
-        if (ignoreLeadingKeyword) {
-            patternElement = patternElement.nextSibling;
-            inputElement = inputElement.nextSibling;
+        if (inputDatum.isList()) {
+            toMatchAgainst = subinput.siblingsToList();
+        } else if (inputDatum.isImproperList()) {
+            if (subinput.nextSibling)
+                toMatchAgainst = subinput.siblingsToList(true);
+            else
+                toMatchAgainst = subinput;
         }
 
-        /* 4.3.2: "A subpattern followed by ... can match zero or more
-         elements of the input." Here's how we implement this: when an
-         ellipsis is detected in a pattern, the patternDatum pointer gets stuck
-         at the element before the ellipsis, while the inputDatum pointer
-         advances as normal. This will ensure successive input elements are
-         matched to the same pattern element. */
-        var stickyEllipsisPattern;
+        return this.subtransformers[i].matchInput(toMatchAgainst, literalIds, definitionEnv, useEnv, bindings);
+    }
 
-        for (/* already initialized */;
-            patternElement && inputElement;
-            patternElement = stickyEllipsisPattern || patternElement.nextSibling,
-                inputElement = inputElement.nextSibling) {
+    /* If we matched all of the input without getting through all of
+     the pattern, this is a failure. */
+    else {
+        return i === len;
+    }
+};
 
-            /* Turn on "ellipsis matching mode" if it is currently off
-             and the next pattern element is an ellipsis. */
-            if (!stickyEllipsisPattern
-                && patternElement.nextSibling
-                && patternElement.nextSibling.payload === '...') {
-                stickyEllipsisPattern = patternElement;
-                bindings.resetAwaitingFixing();
+ListLikeTransformer.prototype.toDatum = function (bindings) {
+
+    var buf = new SiblingBuffer();
+    var len = this.subtransformers.length;
+    var success;
+
+    for (var i = 0; i < len; ++i) {
+        success = this.subtransformers[i].toDatum(bindings);
+        if (success === false)
+            return false;
+        else
+            buf.appendSibling(success);
+    }
+
+    return buf.toList();
+};
+
+ListLikeTransformer.prototype.toString = function () {
+    var ans = this.type === '#(' ? this.type : '(';
+    if (this.subtransformers.length === 0) {
+        return ans + ')';
+    } else {
+        for (var i = 0; i < this.subtransformers.length - 1; ++i)
+            ans += this.subtransformers[i].toString() + ' ';
+        if (this.type === '.(')
+            ans += '. ';
+        return ans + this.subtransformers[i].toString() + ')';
+    }
+};
+
+// See comments at top of ListLikeTransformer.
+function EllipsisTransformer(subtransformer) {
+    this.subtransformer = subtransformer;
+    this.bindings = [];
+}
+
+EllipsisTransformer.prototype.toString = function() {
+    return this.subtransformer.toString() + ' ...';
+};
+
+EllipsisTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+
+    /* We have to leave some evidence in the TemplateBindings object of
+        an empty match. Example:
+
+     (define-syntax foo
+     (syntax-rules ()
+     ((foo (x ...) ...)
+     (+ (* x ...) ...))))
+
+     on input
+
+     (foo () () ())
+
+     should create a TemplateBindings object like
+
+     child 0:
+        child 0:
+     child 1:
+        child 0:
+     child 2:
+        child 0:
+
+     so that we get the correct transcription
+
+     (+ (*) (*) (*)) => 3.
+     */
+    if (!inputDatum)
+        bindings.addChildBindings(new TemplateBindings(useEnv, bindings.getPatternIds()));
+
+    for (var subinput = inputDatum; subinput; subinput = subinput.nextSibling) {
+        var childBindings = new TemplateBindings(useEnv, bindings.getPatternIds());
+        var maybeMatched = this.subtransformer.matchInput(subinput, literalIds, definitionEnv, useEnv, childBindings);
+        if (maybeMatched)
+            bindings.addOrIncorporateChild(childBindings)
+        else return false;
+    }
+    return true;
+};
+
+EllipsisTransformer.prototype.toDatum = function(bindings) {
+    var buf = new SiblingBuffer();
+    var bindingsToUse;
+    var success;
+    while ((bindingsToUse = bindings.getNextChild())
+        && (success = this.subtransformer.toDatum(bindingsToUse)))
+        buf.appendSibling(success);
+    bindings.resetCurChild();
+    return buf.toSiblings();
+};
+
+EllipsisTransformer.prototype.forEachSubtransformer = function(callback, args) {
+    callback(this.subtransformer, args);
+};
+
+// See comments at top of ListLikeTransformer.
+function IdOrLiteralTransformer(datum) {
+    this.datum = datum.clone(true);
+}
+
+IdOrLiteralTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+    if (this.datum.isIdentifier()) {
+        /* R5RS 4.3.2: "A subform in the input matches a literal identifier
+         if and only if it is an identifier and either both its occurrence
+         in the macro expression and its occurrence in the macro definition
+         have the same lexical binding, or the two identifiers are equal
+         and both have no lexical binding." */
+        if (literalIds[this.datum.payload]) {
+            if (inputDatum.isIdentifier()) {
+                var name = inputDatum.payload;
+                // Both have no lexical binding
+                if (name === this.datum.payload
+                    && (!definitionEnv.hasBindingRecursive(name)
+                    && !useEnv.hasBindingRecursive(name))) {
+                    bindings.addTemplateBinding(name, inputDatum);
+                    return true;
+                } else if (definitionEnv.get(name) === useEnv.get(name)) {
+                    bindings.addTemplateBinding(name, inputDatum);
+                    return true;
+                } else return false;
+            } else return false;
+        }
+        /* R5RS 4.3.2: "An input form F matches a pattern P if and only if
+         [...] P is a non-literal identifier [...]".
+         That is, non-literal identifiers match anything. */
+        else {
+            bindings.addTemplateBinding(this.datum.payload, inputDatum);
+            return true;
+        }
+    } else {
+        /* R5RS 4.3.2: "An input form F matches a pattern P if and only if
+         [...] P is a datum and F is equal to P in the sense of the equal?
+         procedure." */
+        return inputDatum.isEqual(this.datum);
+    }
+};
+
+IdOrLiteralTransformer.prototype.toDatum = function(bindings) {
+    return bindings.resolveDatum(this.datum);
+};
+
+IdOrLiteralTransformer.prototype.toString = function() {
+    return this.datum.toString();
+};
+
+IdOrLiteralTransformer.prototype.forEachSubtransformer = function(callback, args) {
+    callback(this, args);
+};
+
+SchemeMacro.prototype.allPatternsBeginWith = function(kw) {
+    for (var i = 0; i < this.transformers.length; ++i)
+        if (this.transformers[i].getName() !== kw)
+            return false;
+    return true;
+};
+
+SchemeMacro.prototype.transcribe = function(datum, useEnv) {
+    var transformer, bindings, newDatumTree;
+    for (var i = 0; i < this.transformers.length; ++i) {
+        transformer = this.transformers[i];
+        bindings = new TemplateBindings(useEnv, transformer.getPatternIds());
+        if (transformer.matchInput(datum, this.literalIdentifiers, this.definitionEnv, useEnv, bindings)
+            && (newDatumTree = transformer.template.toDatum(bindings))) {
+            // this is a good place to see the TemplateBindings object
+            // console.log(bindings.toString());
+
+            var newParseTree = new Parser(newDatumTree).parse();
+
+            /* R5RS 4.3: "If a macro transformer inserts a binding for an identifier
+             (variable or keyword), the identifier will in effect be renamed
+             throughout its scope to avoid conflicts with other identifiers.
+
+             "If a macro transformer inserts a free reference to an
+             identifier, the reference refers to the binding that was visible
+             where the transformer was specified, regardless of any local bindings
+             that may surround the use of the macro."
+
+             It's easy to collect the set of identifiers inserted by a macro transformer:
+             it's the set of identifiers in the template minus the set of identifiers
+             in the pattern. But how do we determine which of these are supposed
+             to be "free" and which are bindings and thus should be renamed?
+
+             My current heuristic is to do a lookup in the macro's definition
+             environment. If we find something, the identifier is probably
+             supposed to refer to that. For example, the "+" in the pattern of
+
+             (define-syntax foo (syntax-rules () ((foo x) (+ x x))))
+
+             If we don't find a binding in the macro's definition environment, we
+             suppose this is a new binding inserted by the transformer and
+             defensively rename it.
+
+             I don't think this is correct, but it works for the letrec macro definition,
+             which is the most complex case I've tried so far. */
+            var toRename = {};
+            for (var id in transformer.maybeRename) {
+                if (this.definitionEnv.hasBindingRecursive(id) || isParserSensitiveId(id))
+                    useEnv.addBinding(id, this.definitionEnv);
+                else {
+                    toRename[id] = newCpsName();
+                }
             }
 
-            if (!this.patternMatch(patternElement, inputElement, useEnv, bindings))
-                return false;
+            if (newParseTree) {
+                /* We have to embed the new parse tree in a fake shell to do the
+                 replacement in case the entire newParseTree is an identifier that
+                 needs to be replaced (Datum.prototype.replaceChildren() only
+                 looks at a node's children).
 
-            // todo bl: kludgey and i'm not convinced it works recursively! start here
-            if (stickyEllipsisPattern)
-                bindings.fixNewBindings();
+                 This is a problem that has surfaced more than once, so perhaps
+                 there is a better way to write replaceChildren.
+
+                 todo bl: we should be able to determine the id's in the template
+                 that will have to be renamed prior to transcription. That would
+                 save the following tree walk replacing all the identifiers. */
+                var fake = newEmptyList();
+                fake.appendChild(newParseTree);
+                fake.replaceChildren(
+                    function (node) {
+                        return node.isIdentifier() && toRename[node.payload];
+                    },
+                    function (node) {
+                        node.payload = toRename[node.payload];
+                        return node;
+                    }
+                );
+            } else {
+                throw new ParseError(newDatumTree);
+            }
+
+            return newParseTree;
         }
-
-        /* In cases like matching input (foo) against pattern (foo x ...),
-         the above loop will not execute and "ellipsis matching mode" will
-         incorrectly never be turned on. Check for that corner case here.
-         In such a case, we have to remember that all the identifiers
-         in the datum preceding the ellipsis should have no bindings in the
-         corresponding template during transcription. We signal this
-         by setting the bindings to empty arrays. */
-        var ellipsisMatchedNothing = !stickyEllipsisPattern
-            && patternElement
-            && patternElement.nextSibling
-            && patternElement.nextSibling.payload === '...';
-        if (ellipsisMatchedNothing) {
-            patternElement.forEach(function(node) {
-                if (node.isIdentifier())
-                    bindings.setEmptyEllipsisMatch(node.payload);
-            });
-        }
-
-        /* If there are no ellipses in the pattern, the pattern and the input
-         must both be successfully exhausted for the match to succeed.*/
-        var inputAndPatternDone = !(inputElement || patternElement);
-
-        return stickyEllipsisPattern
-            || ellipsisMatchedNothing
-            || inputAndPatternDone;
-    } else return false;
-};
-
-/* (4) P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or improper list
- of n or more forms that match P1 through Pn, respectively,
- and whose nth “cdr” matches Pn+1.
- Example: (let-syntax ((foo (syntax-rules () ((foo x . y) y)))) (foo 1 . 2) => 2
- (foo 1 + 2 3) => 5 (because y matches (+ 2 3))
- */
-
-SchemeMacro.prototype.matchImproperList
-    = function(patternDatum, inputDatum, useEnv, bindings, ignoreLeadingKeyword) {
-    if (patternDatum.isImproperList()
-        && (inputDatum.isImproperList() || inputDatum.isList())) {
-
-        var patternElement = patternDatum.firstChild;
-        var inputElement = inputDatum.firstChild;
-        if (ignoreLeadingKeyword) {
-            patternElement = patternElement.nextSibling;
-            inputElement = inputElement.nextSibling;
-        }
-
-        for (/* already initialized */;
-            patternElement && patternElement.nextSibling;
-            patternElement = patternElement.nextSibling,
-                inputElement = inputElement.nextSibling) {
-
-            if (!inputElement // The input list is shorter than the pattern list. Failure.
-                || !this.patternMatch(patternElement, inputElement, useEnv, bindings))
-                return false;
-        }
-
-        /* Now we have to compare the part of the pattern after the dot with
-         the remainder of the input. Note that since our lists aren't recursive,
-         we have to explicitly manufacture a list from the pointer.
-
-         todo bl: the construction of manufacturedList is basically a copy
-         and paste from the implementation of cdr, and is subtle. Consider
-         making cdr available here. */
-        var manufacturedList = (inputElement.nextSibling || inputDatum.isList())
-            ? inputElement.siblingsToList(inputDatum.isImproperList())
-            : inputElement;
-
-        return this.patternMatch(
-            patternElement,
-            manufacturedList,
-            useEnv,
-            bindings);
-    } else return false;
-};
-
-// (8) P is a datum and F is equal to P in the sense of the equal? procedure.
-// todo bl too permissive? disabled for now
-SchemeMacro.prototype.matchDatum
-    = function(patternDatum, inputDatum, useEnv, ansDict, ignoreLeadingKeyword) {
-    return patternDatum.isEqual(inputDatum);
+    }
+    throw new MacroError(this.transformers[0].getName(), 'no pattern match for input ' + datum);
 };

@@ -1088,36 +1088,86 @@ Parser.prototype['pattern'] = function() {
             {type: '('},
             {type: 'pattern', atLeast: 1},
             {type: '...'},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node) {
+                var ans = new ListLikeTransformer('(');
+                for (var cur = node.at('pattern'); cur; cur = cur.nextSibling) {
+                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        break;
+                    } else {
+                        ans.addSubtransformer(cur.desugar());
+                    }
+                }
+                return ans;
+            }
+            }
         ],
         [
             {type: '#('},
             {type: 'pattern', atLeast: 1},
             {type: '...'},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node) {
+                var ans = new ListLikeTransformer('#(');
+                for (var cur = node.at('pattern'); cur; cur = cur.nextSibling) {
+                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        break;
+                    } else {
+                        ans.addSubtransformer(cur.desugar());
+                    }
+                }
+                return ans;
+            }}
         ],
         [
-            {type: 'pattern-identifier'}
+            {type: 'pattern-identifier'},
+            {desugar: function(node) {
+                return new IdOrLiteralTransformer(node);
+            }
+            }
         ],
         [
             {type: '('},
             {type: 'pattern', atLeast: 0},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node) {
+                var ans = new ListLikeTransformer('(');
+                for (var cur = node.at('pattern'); cur; cur = cur.nextSibling)
+                    ans.addSubtransformer(cur.desugar());
+                return ans;
+            }}
         ],
         [
             {type: '('},
             {type: 'pattern', atLeast: 1},
             {type: '.'},
             {type: 'pattern'},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node) {
+                var ans = new ListLikeTransformer('.(');
+                for (var cur = node.at('pattern'); cur; cur = cur.nextSibling)
+                    ans.addSubtransformer(cur.desugar());
+                return ans;
+            }}
         ],
         [
             {type: '#('},
             {type: 'pattern', atLeast: 0},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node) {
+                var ans = new ListLikeTransformer('#(');
+                for (var cur = node.at('pattern'); cur; cur = cur.nextSibling)
+                    ans.addSubtransformer(cur.desugar());
+                return ans;
+            }}
         ],
         [
-            {type: 'pattern-datum'}
+            {type: 'pattern-datum'},
+            {desugar: function(node) {
+                return new IdOrLiteralTransformer(node);
+            }}
         ]
     );
 };
@@ -1165,37 +1215,86 @@ Parser.prototype['pattern-datum'] = function() {
 Parser.prototype['template'] = function() {
     return this.alternation(
         [
-            {type: 'pattern-identifier'}
+            {type: 'pattern-identifier'},
+            {desugar: function(node) {
+                return new IdOrLiteralTransformer(node);
+            }
+            }
         ],
         [
             {type: '...'}
         ],
         [
-            {type: 'template-datum'}
+            {type: 'template-datum'},
+            {desugar: function(node) {
+                return new IdOrLiteralTransformer(node);
+            }
+            }
+
         ],
         [
             {type: '('},
             {type: 'template', atLeast: 1},
             {type: '.'},
             {type: 'template'},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node) {
+                var ans = new ListLikeTransformer('.(');
+                for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
+                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        cur = cur.nextSibling;
+                    } else {
+                        ans.addSubtransformer(cur.desugar());
+                    }
+                }
+
+                return ans;
+            }
+            }
         ],
         [
             {type: '('},
             {type: 'template', atLeast: 0},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node) {
+                var ans = new ListLikeTransformer('(');
+                for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
+                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        cur = cur.nextSibling;
+                    } else {
+                        ans.addSubtransformer(cur.desugar());
+                    }
+                }
+                return ans;
+            }
+            }
         ],
         [
             {type: '#('},
             {type: 'template', atLeast: 0},
-            {type: ')'}
+            {type: ')'},
+            {desugar: function(node) {
+                var ans = new ListLikeTransformer('#(');
+                for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
+                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        cur = cur.nextSibling;
+                    } else {
+                        ans.addSubtransformer(cur.desugar());
+                    }
+                }
+                return ans;
+            }
+            }
         ],
-        /* todo bl quotations appear in templates in the spec.
-         Instead of adding ' to the RHSes here, they should already be
-         indistinguishable from (quote ...). */
         [
             {type: "'"},
-            {type: 'template'}
+            {type: 'template'},
+            {desugar: function(node) {
+                return new IdOrLiteralTransformer(node.normalizeInput());
+            }}
         ]
     );
 };
@@ -1265,6 +1364,8 @@ Parser.prototype['syntax-definition'] = function() {
         {desugar: function(node, env) {
             var kw = node.at('keyword').payload;
             var macro = node.at('transformer-spec').desugar(env);
+            if (!macro.allPatternsBeginWith(kw))
+                throw new MacroError(kw, "all patterns must begin with " + kw);
             var anonymousName = newAnonymousLambdaName();
             env.addBinding(anonymousName, macro);
             return newAssignment(kw, anonymousName, new Continuation(newCpsName()))

@@ -273,6 +273,13 @@ function newMacroDatum(macro) {
     return ans;
 }
 
+Datum.prototype.getMacro = function() {
+    if (this.payload instanceof SchemeMacro)
+        return this.payload.setIsLetOrLetrecSyntax();
+    else
+        throw new InternalInterpreterError('invariant incorrect');
+};
+
 function newVectorDatum(array) {
     var ans = new Datum();
     ans.type = '#(';
@@ -481,126 +488,6 @@ Datum.prototype.startsWith = function(payload) {
     return this.firstChild && this.firstChild.payload === payload;
 };
 
-Datum.prototype.transcribe = function(templateBindings, env) {
-    var prev;
-    var first;
-    var ellipsisMode = false;
-    var curClone;
-    var success = false;
-
-    /* todo bl: this loop is a hornet's nest (though thankfully well-contained).
-        It needs some serious simplification, perhaps achievable with the new
-        SiblingHelper class. */
-    for (var cur = this; cur; prev = cur,cur = cur && cur.nextSibling) {
-
-        /* If we're in ellipsis mode, we'll need to clone the current datum
-         before trying to transcribe it, so we can re-transcribe it later. */
-        if (ellipsisMode
-            || (ellipsisMode = (cur.nextSibling && cur.nextSibling.payload === '...'))) {
-            curClone = cur.clone(true);
-        }
-
-        // Identifiers: nonrecursive case
-        if (cur.payload !== undefined) { // watch out for 0's and falses
-            var match = templateBindings.getTemplateBinding(cur.payload, env);
-
-            /* If we found some kind of binding for the name, insert it in
-             the transcription. There is a corner case, though: in ellipsis
-             mode, the TemplateBindings object has to have some way
-             of telling us that there are no remaining bindings for the
-             name. When this happens, we just need to move on in the
-             transcription process. */
-
-            switch (match) {
-                case TemplateBindings.prototype.failures.noMoreEllipsisBindings:
-                    success = false;
-                    break;
-                default:
-                    /* If there were no bindings for the name, this is not an error,
-                     it just means insert the datum into the transcription
-                     unaltered. This is actually the common case: for example,
-
-                     (define-syntax foo (syntax-rules () ((foo x) (* x x))))
-
-                     we want the * to transcribe as itself. */
-                    success = match || cur;
-                    break;
-            }
-        }
-
-        // Lists etc.: recursive case
-        else if (cur.firstChild) {
-            success = cur.firstChild.transcribe(templateBindings, env);
-            if (success !== false) { // watch out: null is an empty list
-                cur.firstChild = success;
-                success = cur;
-            }
-        }
-
-        // Don't forget the empty list!
-        else {
-            success = cur;
-        }
-
-        if (success !== false) {
-
-            if (success !== cur) {
-                if (cur.parent)
-                    success.parent = cur.parent;
-                if (prev)
-                    prev.nextSibling = success;
-            }
-
-            /* If transcription succeeded in ellipsis mode, append the
-             datum clone and try to transcribe it again on the next loop. */
-            if (ellipsisMode) {
-                curClone.nextSibling = cur.nextSibling;
-                success.nextSibling = curClone;
-            }
-
-            // Otherwise simply proceed.
-            else {
-                success.nextSibling = cur.nextSibling;
-            }
-            cur = success;
-        }
-
-        /* If transcription failed but we are in ellipsis mode,
-         turn off ellipsis mode, get rid of the current (failed) clone
-         datum, and proceed. */
-        else if (ellipsisMode) {
-            ellipsisMode = false;
-            var ellipsis = cur.nextSibling;
-
-            if (prev) {
-                prev.nextSibling = ellipsis.nextSibling;
-                if (ellipsis.parent)
-                    prev.parent = ellipsis.parent;
-            } else {
-                first = null;
-            }
-
-
-            // Holy smokes
-            var tmp = cur.nextSibling && cur.nextSibling.nextSibling;
-            cur = prev;
-            if (cur)
-                cur.nextSibling = tmp;
-
-        }
-
-        /* If transcription failed and we weren't in ellipsis mode,
-         that's just plain failure. Report it. */
-        else {
-            return false;
-        } // todo bl better error message
-
-        if (first === undefined)
-            first = cur;
-    }
-    return first;
-};
-
 Datum.prototype.lastSibling = function() {
     return this.nextSibling ? this.nextSibling.lastSibling() : this;
 };
@@ -709,13 +596,6 @@ Datum.prototype.siblingsToList = function(dotted) {
     ans.firstChild = this;
     this.lastSibling().parent = ans;
     return ans;
-};
-
-Datum.prototype.changeProcToName = function() {
-  if (!this.isProcedure())
-      throw new InternalInterpreterError('not a procedure: ' + this);
-    this.type = 'identifier';
-    this.payload = this.name;
 };
 
 function newCpsName() {
