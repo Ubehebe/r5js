@@ -1396,8 +1396,10 @@ Parser.prototype.parse = function(lhs) {
             } else return ans;
         } else {
             /* Do not return a node if its nonterminals haven't been set;
-             this means parsing failed. */
-            return null;
+             this means parsing failed. Exception: if an lhs was passed in,
+             this was for debugging, and we want to present whatever we
+             finished with. */
+            return lhs ? ans : null;
         }
     }
     else
