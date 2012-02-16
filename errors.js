@@ -110,3 +110,9 @@ function ParseError(what) {
         return 'parse error on ' + what;
     };
 }
+
+function EvalError(what) {
+    this.toString = function() {
+        return 'evaluation error: ' + what;
+    };
+}

@@ -680,7 +680,7 @@ ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuff
     } else if (proc instanceof Continuation) {
         this.tryContinuation.apply(this, args);
     } else {
-        throw new InternalInterpreterError(
+        throw new EvalError(
             'procedure application: expected procedure, given '
                 + this.operatorName);
     }

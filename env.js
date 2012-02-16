@@ -136,7 +136,7 @@ Environment.prototype.getProcedure = function(name) {
             || maybe instanceof SchemeMacro
             || maybe instanceof Continuation) {
             return maybe;
-        } else throw new InternalInterpreterError(name + ' is not a proc!');
+        } else throw new EvalError('expected procedure, given ' + name);
     } else if (this.enclosingEnv)
         return this.enclosingEnv.getProcedure(name);
     else
