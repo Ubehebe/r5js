@@ -429,6 +429,9 @@ function testEvaluator() {
         "(define-syntax foo (syntax-rules () ((foo x y) (+ x (* 2 y))))) (foo 3 4)": '11',
         "(define-syntax foo (syntax-rules () ((foo (x) (y)) (+ x (* 2 y))))) (foo (3) (4))": '11',
         "(define-syntax foo (syntax-rules () ((foo (a b) (c d)) (+ a c)))) (foo (1 2) (3 4))": '4',
+        "(define-syntax foo (syntax-rules () ((foo (x y z)) (quote (x y . z))))) (foo (a b c))": '(a b . c)',
+        "(define-syntax foo (syntax-rules () ((foo (x y z)) (quote #(x y z))))) (foo (a b c))": '#(a b c)',
+
 
         /* P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list
             or improper list of n or more forms that match P1 through Pn,

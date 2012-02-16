@@ -424,7 +424,7 @@ ListLikeTransformer.prototype.toDatum = function (bindings) {
             buf.appendSibling(success);
     }
 
-    return buf.toList();
+    return buf.toList(this.type);
 };
 
 ListLikeTransformer.prototype.toString = function () {

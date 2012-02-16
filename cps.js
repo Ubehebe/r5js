@@ -549,9 +549,11 @@ SiblingBuffer.prototype.toSiblings = function() {
     return this.first;
 };
 
-SiblingBuffer.prototype.toList = function() {
+SiblingBuffer.prototype.toList = function(type) {
   var ans = newEmptyList();
     ans.firstChild = this.first;
+    if (type)
+        ans.type = type; // default is (
     return ans;
 };
 
