@@ -624,7 +624,8 @@ function testEvaluator() {
         "(define let 3) let": '3',
         "(let ((x let*)) 1)": false,
         "(let ((x let)) 1)": false,
-        "(define let* 3) (let ((x let*)) let*)": '3'
+        "(define let* 3) (let ((x let*)) let*)": '3',
+        "(define if +) (if 1 2 3)": '6'
     };
 
     var numErrors = 0;
