@@ -120,9 +120,12 @@ Continuation.prototype.rememberEnv = function(env) {
             if (!next.isLeftRecursion() && !next.env)
                 next.setEnv(env);
         } else if (next instanceof Branch) {
-            next.consequent.setStartingEnv(env);
-            if (next.alternate)
-                next.alternate.setStartingEnv(env);
+            if (next.consequent.subtype instanceof ProcCall
+                && !next.consequent.subtype.env)
+                next.consequent.subtype.setEnv(env);
+            if (next.alternate.subtype instanceof ProcCall
+                && !next.alternate.subtype.env)
+                next.alternate.subtype.setEnv(env);
         } else throw new InternalInterpreterError('invariant incorrect');
     }
 };
