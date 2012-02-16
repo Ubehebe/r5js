@@ -274,7 +274,7 @@ ProcCall.prototype.toString = function(continuation, indentLevel, suppressEnv) {
     for (var i = 0; i < indentLevel; ++i)
         ans += '\t';
     ans += '(' + (this.operatorName instanceof Datum
-        ? this.operatorName
+        ? this.operatorName.payload
         : this.specialOps.names[this.operatorName]);
     if (this.env && !suppressEnv)
         ans += '|' + this.env;
@@ -445,7 +445,7 @@ Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer
 };
 
 ProcCall.prototype.reconstructDatum = function() {
-    var op = newIdOrLiteral(this.operatorName);
+    var op = newIdOrLiteral(this.operatorName.payload);
     op.nextSibling = this.firstOperand;
     var ans = newEmptyList();
     ans.appendChild(op);
@@ -666,7 +666,7 @@ ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuff
     }
 
     var specialOp = this.isSpecialOperator();
-    var proc = specialOp ? this.operatorName : this.env.getProcedure(this.operatorName);
+    var proc = specialOp ? this.operatorName : this.env.getProcedure(this.operatorName.payload);
     var args = [proc, continuation, resultStruct];
 
     if (specialOp) {
