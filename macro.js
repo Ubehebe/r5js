@@ -400,7 +400,11 @@ ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, defi
     }
 
     if (maybeEllipsis) {
-        return maybeEllipsis.matchInput(subinput, literalIds, definitionEnv, useEnv, bindings);
+        /* Corner case:
+         an empty input like () cannot match a pattern like (x y ...) */
+        return (!inputDatum.firstChild && len > 1)
+            ? false
+            : maybeEllipsis.matchInput(subinput, literalIds, definitionEnv, useEnv, bindings);
     }
 
     // Dotted-list patterns cannot end in ellipses.

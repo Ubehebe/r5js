@@ -459,6 +459,10 @@ function testEvaluator() {
         "(define-syntax foo (syntax-rules () ((foo x ...) (x ...)))) (foo + 1 2 3)": '6',
         "(define-syntax foo (syntax-rules () ((foo x ...) (+ x ...)))) (foo)": '0',
         "(define-syntax foo (syntax-rules () ((foo x ...) (x ...)))) (foo +)": '0',
+        "(define-syntax foo (syntax-rules () ((foo (x ...) (y ...)) (+ x ... y ...)))) (foo (1 2 3) (4 5 6))": '21',
+        "(define-syntax foo (syntax-rules () ((foo (x ...) (y ...)) (+ x ... y ...)))) (foo () ())": '0',
+        "(define-syntax foo (syntax-rules () ((foo (x y ...) (z w ...)) (+ y ... w ...)))) (foo ('not-a-number) ('not-a-number-either))": '0',
+        "(define-syntax foo (syntax-rules () ((foo (x y ...) (z w ...)) (+ y ... w ...)))) (foo () ())": false,
 
         /* P is a vector of the form #(P1 ... Pn) and F is a vector
         of n forms that match P1 through Pn. */
