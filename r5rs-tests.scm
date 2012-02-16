@@ -317,3 +317,130 @@
 ;((round 7/2) => 4)
   ((round 7) => 7)
   )
+
+(define-tests control-features-6.4
+  ((procedure? car) => #t)
+  ((procedure? 'car) => #f)
+  ((procedure? (lambda (x) (* x x))) => #t)
+  ((procedure? '(lambda (x) (* x x))) => #f)
+  ((call-with-current-continuation procedure?) => #t)
+  ((apply + (list 3 4)) => 7)
+  ((begin
+     (define compose
+       (lambda (f g)
+	 (lambda args
+	   (f (apply g args)))))
+     ((compose sqrt *) 12 75))
+   => 30)
+  ((map cadr '((a b) (d e) (g h))) => (b e h))
+  ((map (lambda (n) (expt n n)) '(1 2 3 4 5))
+   => (1 4 27 256 3125))
+  ((map + '(1 2 3) '(4 5 6)) => (5 7 9))
+  ((let ((count 0))
+     (map (lambda (ignored)
+	    (set! count (+ count 1))
+	    count)
+	  '(a b)))
+   => (1 2) or (2 1))
+  ((let ((v (make-vector 5)))
+     (for-each (lambda (i)
+		 (vector-set! v i (* i i)))
+	       '(0 1 2 3 4)) v)
+   => #(0 1 4 9 16))
+  ((force (delay (+ 1 2))) => 3)
+  ((let ((p (delay (+ 1 2))))
+     (list (force p) (force p)))
+   => (3 3))
+  ((begin
+     (define a-stream
+       (letrec ((next
+		 (lambda (n)
+		   (cons n (delay (next (+ n 1)))))))))
+     (define head car)
+     (define tail
+       (lambda (stream) (force (cdr stream))))
+     (head (tail (tail a-stream))))
+   => 2)
+  ((begin
+     (define count 0)
+     (define p
+       (delay (begin (set! count (+ count 1))
+		     (if (> count x)
+			 count
+			 (force p)))))
+     (define x 5)
+     (force p))
+   => 6)
+  ((begin
+     (define count 0)
+     (define p
+       (delay (begin (set! count (+ count 1))
+		     (if (> count x)
+			 count
+			 (force p)))))
+     (define x 5)
+     (force p)
+     (begin (set! x 10)
+	    (force p)))
+   => 6)
+  ((call-with-current-continuation
+    (lambda (exit)
+      (for-each (lambda (x)
+		  (if (negative? x)
+		      (exit x)))
+		'(54 0 37 -3 245 19)) #t))
+   => -3)
+  ((begin
+     (define list-length
+       (lambda (obj)
+	 (call-with-current-continuation
+	  (lambda (return)
+	    (letrec ((r
+		      (lambda (obj)
+			(cond ((null? obj) 0)
+			      ((pair? obj)
+			       (+ (r (cdr obj)) 1))
+			      (else (return #f))))))
+	      (r obj))))))
+     (list-length '(1 2 3 4))) => 4)
+  ((begin
+     (define list-length
+       (lambda (obj)
+	 (call-with-current-continuation
+	  (lambda (return)
+	    (letrec ((r
+		      (lambda (obj)
+			(cond ((null? obj) 0)
+			      ((pair? obj)
+			       (+ (r (cdr obj)) 1))
+			      (else (return #f))))))
+	      (r obj))))))
+     (list-length '(a b . c))) => #f)
+  ((call-with-values (lambda () (values 4 5))
+     (lambda () (a b) b)) => 5)
+  ((call-with-values * -) => -1)
+  ((let ((path '())
+          (c #f))
+      (let ((add (lambda (s)
+                   (set! path (cons s path)))))
+        (dynamic-wind
+          (lambda () (add 'connect))
+          (lambda ()
+            (add (call-with-current-continuation
+                   (lambda (c0)
+		     (set! c c0)
+                     'talk1))))
+          (lambda () (add 'disconnect)))
+        (if (< (length path) 4)
+            (c 'talk2)
+            (reverse path))))
+   => (connect talk1 disconnect
+	       connect talk2 disconnect))
+)
+
+(define-tests eval-6.5
+  ((eval '(* 7 3) (scheme-report-environment 5)) => 21)
+  ((let ((f (eval '(lambda (f x) (f x x))
+		  (null-environment 5))))
+     (f + 10)) => 20)
+)

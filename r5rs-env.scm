@@ -338,3 +338,28 @@
   (for 0 (vector-length v)
        (lambda (i)
 	 (vector-set! v i f))))
+
+; TODO bl: big problem: if you rename the formal param g -> f,
+; the f incorrectly shadows the f in the parameter list of foldr!
+(define (mymap f l . ls) ; p. 32
+  (if (null? ls)
+      (foldr
+       (lambda (l r) (cons (f l) r))
+       '()
+       l))) ; todo handle the ls
+
+(define (force object) (object)) ; verbatim from p. 32
+
+(define make-promise ; verbatim from p. 33
+  (lambda (proc)
+    (let ((result-ready? #f)
+	  (result #f))
+      (lambda ()
+	(if result-ready?
+	    result
+	    (let ((x (proc)))
+	      (if result-ready?
+		  result
+		  (begin (set! result-ready? #t)
+			 (set! result x)
+			 result))))))))

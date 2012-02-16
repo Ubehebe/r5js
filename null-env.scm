@@ -115,16 +115,6 @@
        ((var1 init1) ...)
        body ...))))
 
-; This definition only covers the following rule in the Scheme grammar:
-; <derived expression> -> (begin <sequence>)
-; There are two other rules in the grammar that have begin-blocks on their
-; right-hand sides. Those are handled by builtin parser logic because they
-; may contain definitions.
-(define-syntax begin
-  (syntax-rules ()
-    ((begin exp ...)
-     ((lambda () exp ...)))))
-
 (define-syntax do
   (syntax-rules ()
     ((do ((var init step ...) ...)
