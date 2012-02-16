@@ -9,10 +9,15 @@
 ; implementing the library procedures.
 
 (define (equal? x y) ; p. 19
-  (if (and (pair? x) (pair? y))
-      (and (equal? (car x) (car y))
-	   (equal? (cdr x) (cdr y)))
-      (eqv? x y)))
+  (cond
+   ((and (pair? x) (pair? y))
+    (and (equal? (car x) (car y))
+	 (equal? (cdr x) (cdr y))))
+   ((and (vector? x) (vector? y))
+    (equal? (vector->list x) (vector->list y)))
+   ((and (string? x) (string? y))
+    (equal? (string->list x) (string->list y)))
+   (else (eqv? x y))))
 
 (define (zero? z) (= z 0)) ; p. 22
 

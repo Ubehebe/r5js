@@ -20,7 +20,7 @@ R5JS_builtins['equiv'] = {
                 else if (p.isNumber())
                     return p.payload === q.payload; // todo bl numerical precision...
                 else if (p.isCharacter())
-                    return p.payload === q.payload; // todo char impl is busted
+                    return p.payload === q.payload;
                 else if (p.isList())
                     return p === q || p.isEmptyList() && q.isEmptyList();
                 else if (p.isImproperList())
@@ -28,43 +28,23 @@ R5JS_builtins['equiv'] = {
                 else if (p.isVector())
                     return p === q;
                 else if (p.isString())
-                    return p === q; // todo string impl is busted
-                else if (p.isProcedure() && q.isProcedure())
+                    return p === q;
+                else if (p.isSymbol())
+                    return p.firstChild.payload === q.firstChild.payload;
+                else if (p.isProcedure())
                     return p.payload === q.payload;
+                else return false;
 
             } else return false;
         }
     },
-    'eq?': {
-        argc: 2,
-        /* From the description of eq? at R5RS 6.1, it looks like it is
-         permissible for it to have exactly the same semantics as eqv?. */
+    /* From the description of eq? at R5RS 6.1, it looks like it is
+     permissible for it to have exactly the same semantics as eqv?. */
+    'eq?':{
+        argc:2,
         proc: function(p, q) {
-            /* This implementation closely follows the description of eqv?
-             in R5RS 6.1, which explicitly leaves some comparisons undefined. */
-
-            if (p.sameTypeAs(q)) {
-
-                if (p.isBoolean())
-                    return p.payload === q.payload;
-                else if (p.isIdentifier())
-                    return p.payload === q.payload;
-                else if (p.isNumber())
-                    return p.payload === q.payload; // todo bl numerical precision...
-                else if (p.isCharacter())
-                    return p.payload === q.payload; // todo char impl is busted
-                else if (p.isList())
-                    return p === q || p.isEmptyList() && q.isEmptyList();
-                else if (p.isImproperList())
-                    return p === q;
-                else if (p.isVector())
-                    return p === q;
-                else if (p.isString())
-                    return p === q; // todo string impl is busted
-                else if (p.isProcedure() && q.isProcedure())
-                    return p.payload === q.payload;
-
-            } else return false;
+            // todo bl is there a faster and cleaner way to alias this?
+            return R5JS_builtins['equiv']['eqv?'].proc(p, q);
         }
     }
 };
