@@ -634,6 +634,43 @@ function testEvaluator() {
         "(define if +) (if 1 2 3)": '6'
     };
 
+    tests['mutations'] = {
+        '(define x "hello") (define y x) (string-set! x 0 #\\x) y': '"xello"',
+        '(define x (make-string 5 #\\A)) (define y x) (string-set! x 0 #\\x) y': '"xAAAA"',
+        "(define x '(1 2 3)) (define y x) (set-car! x 'hello) y": '(hello 2 3)',
+        "(define x (list 1 2 3)) (define y x) (set-car! x 'hello) y": '(hello 2 3)',
+        "(define x '(1 2 3)) (define y x) (set-cdr! x 'hello) (list? y)": '#f',
+        "(define x (list 1 2 3)) (define y x) (set-cdr! x 'hello) (list? y)": '#f',
+        "(define x '(x . y)) (define y (cdr x)) (set-cdr! x 'whoops) y": 'y',
+        "(define x (cons 'x 'y)) (define y (cdr x)) (set-cdr! x 'whoops) y": 'y',
+        "(define x 1) (list x x)": '(1 1)',
+        "(define x 1) (cons x (cons x '()))": '(1 1)',
+        "(define x (list 1)) (list x x)": '((1) (1))',
+        "(define x '(1)) (cons x (cons x '()))": '((1) (1))',
+        "(define x (list 1)) (cons x x)": '((1) 1)',
+        "(define x '(1)) (cons x x)": '((1) 1)',
+        "(define x '#(a b c)) (define y x) (vector-set! x 0 'hi!) (vector-ref y 0)": 'hi!',
+        "(define x (make-vector 3)) (define y x) (vector-set! x 0 'hi!) (vector-ref y 0)": 'hi!',
+
+        // Let-versions of the above
+        '(let* ((x "hello") (y x)) (string-set! x 0 #\\x) y)': '"xello"',
+        '(let* ((x (make-string 5 #\\A)) (y x)) (string-set! x 0 #\\x) y)': '"xAAAA"',
+        "(let* ((x '(1 2 3)) (y x)) (set-car! x 'hello) y)": '(hello 2 3)',
+        "(let* ((x (list 1 2 3)) (y x)) (set-car! x 'hello) y)": '(hello 2 3)',
+        "(let* ((x '(1 2 3)) (y x)) (set-cdr! x 'hello) (list? y))": '#f',
+        "(let* ((x (list 1 2 3)) (y x)) (set-cdr! x 'hello) (list? y))": '#f',
+        "(let* ((x '(x . y)) (y (cdr x))) (set-cdr! x 'whoops) y)": 'y',
+        "(let* ((x (cons 'x 'y)) (y (cdr x))) (set-cdr! x 'whoops) y)": 'y',
+        "(let ((x 1)) (list x x))": '(1 1)',
+        "(let ((x 1)) (cons x (cons x '())))": '(1 1)',
+        "(let ((x (list 1))) (list x x))": '((1) (1))',
+        "(let ((x '(1))) (cons x (cons x '())))": '((1) (1))',
+        "(let ((x (list 1))) (cons x x))": '((1) 1)',
+        "(let ((x '(1))) (cons x x))": '((1) 1)',
+        "(let* ((x '#(a b c)) (y x)) (vector-set! x 0 'hi!) (vector-ref y 0))": 'hi!',
+        "(let* ((x (make-vector 3)) (y x)) (vector-set! x 0 'hi!) (vector-ref y 0))": 'hi!'
+    };
+
     var numErrors = 0;
     var numTests = 0;
 

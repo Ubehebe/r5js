@@ -92,9 +92,7 @@ Environment.prototype.addAll = function(otherEnv) {
     return this;
 };
 
-/* todo bl do I understand why almost nothing is cloned going into or
- out of Environments? */
-Environment.prototype.get = function(name) {
+Environment.prototype.get = function(name, disableDatumClone) {
 
     var maybe = this.bindings[name];
 
@@ -110,14 +108,43 @@ Environment.prototype.get = function(name) {
             return newProcedureDatum(name, maybe);
         else if (maybe === this.unspecifiedSentinel)
             return null;
-        else if (maybe instanceof Datum && maybe.isProcedure())
-            return maybe.clone(true); // todo bl clean up (is necessary)
+        else if (maybe instanceof Datum && !disableDatumClone) {
+            /* Any Datum that is going to make it back out to the trampoline
+             must be defensively cloned to prevent Datum cycles. For example,
+             if the Environment gave back the exact same Datum object X for
+             both of the following x's:
+
+             (define x 1)
+             (list x x)
+
+             then the trampoline would set X.nextSibling = X.
+
+             However, Scheme has a handful of primitive mutation procedures:
+             set-car!, set-cdr!, string-set!, and vector-set!. For the first
+             three procedures, we remember where the defensive clone
+             came from, so if the procedures are called on a defensive clone,
+             we can also call them on the original. (For vector-set!, we don't
+             need to do anything. Datums representing vectors hold pointers
+             to JavaScript arrays, and these pointers accomplish what we're
+             doing here for the other data types.)
+
+             An alternative and attractive idea is to unwrap everything
+             before storing, and adapt the trampoline and primitive
+             procedures to operate on unwrapped values as far as possible.
+             I toyed around with this for a bit, but the wrapping/unwrapping
+             code seemed to proliferate and make APIs less uniform. It may
+             be possible to do correctly, however. */
+
+            return maybe.couldBeMutated()
+                ? maybe.clone(true).setCloneSource(maybe)
+                : maybe.clone(true);
+        }
         // Everything else
         else return maybe;
     }
     // If the current environment has no binding for the name, look one level up
     else if (this.enclosingEnv)
-        return this.enclosingEnv.get(name);
+        return this.enclosingEnv.get(name, disableDatumClone);
     else
         throw new UnboundVariable(name + ' in env ' + this.name);
 };
@@ -171,15 +198,22 @@ Environment.prototype.addBinding = function(name, val) {
         } else if (val instanceof SchemeProcedure) { /* non-primitive procedure */
             this.bindings[name] = newProcedureDatum(name, val);
         } else if (typeof val === 'function' /* primitive procedure */
-            || val instanceof Datum /* lots of stuff, including wrapped procedures
-         (We need wrapped procedures to support returning
-         SchemeProcedure objects into different environments. The Datum
-         wrapper has a backlink to the closure in which it was created.) */
             || val instanceof Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
             || val instanceof SchemeMacro /* macros */
             || val instanceof Environment /* Redirects for free ids in macro transcriptions */) {
             this.bindings[name] = val;
+        } else if (val instanceof Datum) {
+            // Make sure we are not dealing with a clone.
+            val = val.getCloneSource();
+        /* lots of stuff, including wrapped procedures
+             (We need wrapped procedures to support returning
+             SchemeProcedure objects into different environments. The Datum
+             wrapper has a backlink to the closure in which it was created.) */
+            if (val.isVector() && !val.isArrayBacked())
+                this.bindings[name] = val.convertVectorToArrayBacked();
+            else
+                this.bindings[name] = val;
         } else {
             throw new InternalInterpreterError('tried to store '
                 + name

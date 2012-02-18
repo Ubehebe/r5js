@@ -546,7 +546,7 @@ IdOrLiteralTransformer.prototype.matchInput = function(inputDatum, literalIds, d
                     && !useEnv.hasBindingRecursive(name))) {
                     bindings.addTemplateBinding(name, inputDatum);
                     return true;
-                } else if (definitionEnv.get(name) === useEnv.get(name)) {
+                } else if (definitionEnv.get(name, true) === useEnv.get(name, true)) {
                     bindings.addTemplateBinding(name, inputDatum);
                     return true;
                 } else return false;

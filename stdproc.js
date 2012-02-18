@@ -597,21 +597,25 @@ R5JS_builtins['pair'] = {
 
     'set-car!': {
         argc: 2,
-        proc: function(p, car) {
-            if (p instanceof Datum
-                && (p.isList() || p.isImproperList())) {
+        proc: function setCar(p, car) {
+            if (p.isList() || p.isImproperList()) {
                 car.nextSibling = p.firstChild.nextSibling;
                 p.firstChild = car;
-                return null; // unspecified return value
+
+                /* If this was a derivative copy, mutate the source as well.
+                 (Although this is written recursively, there should be at most one
+                 recursion. See Datum.prototype.getCloneSource.) */
+                return p.src
+                    ? setCar(p.src, car.clone(true))
+                    : null; // unspecified return value
             } else throw new ArgumentTypeError(p, 0, 'set-car!', 'pair');
         }
     },
 
     'set-cdr!': {
         argc: 2,
-        proc: function(p, cdr) {
-            if (p instanceof Datum
-                && (p.isList() || p.isImproperList())) {
+        proc: function setCdr(p, cdr) {
+            if (p.isList() || p.isImproperList()) {
 
                 if (cdr.isList()) {
                     p.firstChild.nextSibling = cdr.firstChild;
@@ -621,7 +625,12 @@ R5JS_builtins['pair'] = {
                     p.type = '.(';
                 }
 
-                return null; // unspecified return value
+                /* If this was a derivative copy, mutate the source as well.
+                 (Although this is written recursively, there should be at most one
+                 recursion. See Datum.prototype.getCloneSource.) */
+                return p.src
+                    ? setCdr(p.src, cdr)
+                    : null; // unspecified return value
             } else throw new ArgumentTypeError(p, 0, 'set-cdr!', 'pair');
         }
     }
@@ -633,17 +642,15 @@ R5JS_builtins['symbol'] = {
         argc: 1,
         argtypes: ['symbol'],
         proc: function(sym) {
-            return new SchemeString(sym);
+            return newIdOrLiteral(sym, 'string');
         }
     },
 
     'string->symbol': {
         argc: 1,
         argtypes: ['string'],
-        proc: function(str) {
-            /* This will automatically get wrapped as a identifier.
-             See maybeWrapResult(). */
-            return str;
+        proc: function(s) {
+            return newIdOrLiteral(s, 'identifier');
         }
     }
 };
@@ -728,38 +735,46 @@ R5JS_builtins['string'] = {
             var s = '';
             for (var i = 0; i < n; ++i)
                 s += c;
-            return new SchemeString(s);
+            return newIdOrLiteral(s, 'string');
         }
     },
     'string-length': {
         argc: 1,
         argtypes: ['string'],
-        proc: function(str) {
-            return str.length;
+        proc: function(s) {
+            return s.length;
         }
     },
     'string-ref': {
         argc: 2,
         argtypes: ['string', 'number'],
-        proc: function(str, i) {
-            return newIdOrLiteral(str.charAt(i), 'character');
+        proc: function(s, i) {
+            return newIdOrLiteral(s.charAt(i), 'character');
         }
     },
     'string-set!': {
         argc: 3,
-        proc: function(str, k, c) {
+        proc: function stringSet(str, k, c) {
+
             if (!str.isString())
                 throw new ArgumentTypeError(str, 0, 'string-set!', 'string');
             if (!k.isNumber())
                 throw new ArgumentTypeError(k, 1, 'string-set!', 'number');
             if (!c.isCharacter())
-                throw new ArgumentTypeError(c, 2, 'stirng-set!', 'character');
+                throw new ArgumentTypeError(c, 2, 'string-set!', 'character');
 
-            str.payload = str.payload.substr(0, k.payload)
+            var s = str.payload;
+
+            str.payload = s.substr(0, k.payload)
                 + c.payload
-                + str.payload.substr(k.payload + 1);
+                + s.substr(k.payload + 1);
 
-            return null; // unspecified return value
+            /* If this was a derivative copy, mutate the source as well.
+             (Although this is written recursively, there should be at most one
+             recursion. See Datum.prototype.getCloneSource.) */
+            return str.src
+                ? stringSet(str.src, k, c)
+                : null; // unspecified return value
         }
     }
 };

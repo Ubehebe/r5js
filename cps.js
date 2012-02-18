@@ -488,7 +488,7 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
                 return node.shouldUnquote();
             },
             function(node) {
-                var ans = env.get(node.payload).clone();
+                var ans = env.get(node.payload);
                 if (node.shouldUnquoteSplice()) {
                     if (ans.isList()) {
                         if (ans.firstChild) // `(1 ,@(list 2 3) 4) => (1 2 3 4)
@@ -742,7 +742,12 @@ ProcCall.prototype.bindResult = function(continuation, val) {
 };
 
 ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
-    var src = this.env.get(this.firstOperand.nextSibling.payload);
+    /* Calling Environment.prototype.get with disableDatumClone = true
+     retrieves the "master" Datum, not some defensive clone. This is not
+     necessary, since Environment.prototype.mutate will "fast-forward" to
+     the master Datum given a defensive clone, but it does save the time
+     of cloning and fast-forwarding. */
+    var src = this.env.get(this.firstOperand.nextSibling.payload, true);
     /* In Scheme, macros can be bound to identifiers but they are not really
      first-class citizens; you cannot say
 
@@ -768,7 +773,7 @@ ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
         && !src.isLetOrLetrecSyntax
         && !this.isSyntaxAssignment)
         throw new GeneralSyntaxError(this);
-    this.env.mutate(this.firstOperand.payload, this.env.get(this.firstOperand.nextSibling.payload), this.isTopLevelAssignment);
+    this.env.mutate(this.firstOperand.payload, src, this.isTopLevelAssignment);
     /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
     this.env.addBinding(continuation.lastResultName, null);

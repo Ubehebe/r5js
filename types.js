@@ -10,16 +10,6 @@ function newEnvironmentSpecifier(version) {
     return newIdOrLiteral(new Environment(null, version), 'environment-specifier');
 }
 
-/* todo bl I'm pretty sure we can get rid of this, just using
-Datums whose type is 'string'. */
-function SchemeString(s) {
-    this.s = s;
-}
-
-SchemeString.prototype.toString = function() {
-    return this.s;
-};
-
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.isDotted = isDotted;
     this.env = new Environment(name, env);

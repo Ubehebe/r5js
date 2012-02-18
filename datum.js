@@ -103,6 +103,25 @@ Datum.prototype.stripSiblings = function() {
     return this;
 };
 
+/* See comment at Environment.prototype.get for why vector-set!
+ is not an issue. */
+Datum.prototype.couldBeMutated = function() {
+    return this.isString() // string-set!
+        || this.isList() // set-car! and set-cdr!
+        || this.isImproperList(); // set-car! and set-cdr!
+};
+
+Datum.prototype.setCloneSource = function(src) {
+    if (this.src)
+        throw new InternalInterpreterError('invariant incorrect');
+    this.src = src;
+    return this;
+};
+
+Datum.prototype.getCloneSource = function () {
+    return this.src || this;
+};
+
 Datum.prototype.clone = function(ignoreSiblings) {
 
     var ans = new Datum();
@@ -349,13 +368,6 @@ function maybeWrapResult(result, type) {
             case 'string':
                 ans.type = 'identifier';
                 break;
-            case 'object':
-                if (result instanceof SchemeString) {
-                    ans.type = 'string';
-                    ans.payload = result.s;
-                    break;
-                }
-
             default:
                 throw new InternalInterpreterError('cannot deduce type from value '
                     + result + ': noninjective mapping from values to types');
