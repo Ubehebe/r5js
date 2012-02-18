@@ -1,11 +1,3 @@
-function SchemeChar(c) {
-    this.c = c;
-}
-
-SchemeChar.prototype.toString = function() {
-    return this.c;
-};
-
 function newEnvironmentSpecifier(version) {
     return newIdOrLiteral(new Environment(null, version), 'environment-specifier');
 }

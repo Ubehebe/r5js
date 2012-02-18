@@ -98,11 +98,6 @@ Datum.prototype.stripParent = function() {
     return this;
 };
 
-Datum.prototype.stripSiblings = function() {
-    this.nextSibling = null;
-    return this;
-};
-
 /* See comment at Environment.prototype.get for why vector-set!
  is not an issue. */
 Datum.prototype.couldBeMutated = function() {
@@ -229,13 +224,6 @@ Datum.prototype.prependChild = function(child) {
     var oldFirstChild = this.firstChild;
     this.firstChild = child;
     child.nextSibling = oldFirstChild;
-};
-
-Datum.prototype.prependSiblings = function(firstSibling) {
-    var lastSibling = firstSibling.lastSibling();
-    var oldFirstChild = this.firstChild;
-    this.firstChild = firstSibling;
-    lastSibling.nextSibling = oldFirstChild;
 };
 
 /* Map isn't the best word, since the function returns an array but the children
@@ -498,10 +486,6 @@ Datum.prototype.unwrap = function() {
         && !this.isVector()) // watch out for 0's and falses
         ? this.payload
         : this;
-};
-
-Datum.prototype.startsWith = function(payload) {
-    return this.firstChild && this.firstChild.payload === payload;
 };
 
 Datum.prototype.lastSibling = function() {
