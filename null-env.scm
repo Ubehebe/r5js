@@ -138,3 +138,7 @@
     ((do "step" x y)
      y)))
 
+(define-syntax delay
+  (syntax-rules ()
+    ((delay expression)
+     (make-promise (lambda () expression)))))

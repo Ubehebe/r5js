@@ -380,7 +380,10 @@ function testEvaluator() {
         "(define double (lambda (x) (* x 2))) ((compose double double) 3)": '12', // eh, depends on lib defn of compose
         "(define counter 0) (define (foo x) (set! counter (+ counter 1)) (if (= x 0) 'done (foo (- x 1)))) (foo 3) counter (set! counter 0) (foo 3) counter": '4',
         '(string-append "when " "in " "the " "course " "of " "human " "events")': '"when in the course of human events"',
-        "(define classify (lambda (l r) (let ((evens (car l)) (odds (cdr l))) (if (even? r) (cons (+ evens 1) odds) (cons evens (+ odds 1)))))) (foldl classify (cons 0 0) '(10 12 20 11 17 13 4))": '(4 . 3)'
+        "(define classify (lambda (l r) (let ((evens (car l)) (odds (cdr l))) (if (even? r) (cons (+ evens 1) odds) (cons evens (+ odds 1)))))) (foldl classify (cons 0 0) '(10 12 20 11 17 13 4))": '(4 . 3)',
+        "(force (delay (+ 100 100)))": '200',
+        "(define x (delay (+ 100 100))) (list (force x) (force x))": '(200 200)',
+        "(force (force (delay (delay (+ 1 2)))))": '#t'
     };
 
     /* These tests exercise various macro features that the standard talks about

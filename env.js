@@ -80,13 +80,47 @@ Environment.prototype.hasBindingRecursive = function(name) {
         || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name));
 };
 
-Environment.prototype.addAll = function(otherEnv) {
-    var name;
-    for (name in this.bindings)
-        throw new InternalInterpreterError(this.name + ' is not empty');
+Environment.prototype.ancestors = function(array) {
+    if (!array)
+        array = [];
+    array.unshift(this);
+    return this.enclosingEnv
+        ? this.enclosingEnv.ancestors(array)
+        : array;
+};
 
+Environment.prototype.leastCommonAncestor = function(other) {
+  var myAncestors = this.ancestors();
+    var otherAncestors = other.ancestors();
+    var stop = myAncestors.length < otherAncestors.length
+        ? myAncestors.length
+        : otherAncestors.length;
+
+    var ans = null;
+
+    for (var i=0; i < stop; ++i) {
+        if (myAncestors[i] !== otherAncestors[i])
+            break;
+        else
+            ans = myAncestors[i];
+    }
+
+    return ans;
+};
+
+Environment.prototype.addAllRecursive = function(other) {
+    if (other === this)
+        return;
+    var stop = this.leastCommonAncestor(other);
+    for (; other && other !== stop; other = other.enclosingEnv)
+        this.addAll(other);
+
+    return this;
+};
+
+Environment.prototype.addAll = function(otherEnv) {
     var otherBindings = otherEnv.bindings;
-    for (name in otherBindings)
+    for (var name in otherBindings)
         this.bindings[name] = otherBindings[name];
 
     return this;

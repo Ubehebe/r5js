@@ -863,7 +863,7 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resul
             : new Environment('tmp-'
             + proc.name
             + '-'
-            + (uniqueNodeCounter++), this.env).addAll(proc.env);
+            + (uniqueNodeCounter++), this.env).addAllRecursive(proc.env);
 
         /* Remember to discard the new environment
         at the end of the procedure call. */
