@@ -120,8 +120,13 @@ Environment.prototype.addAllRecursive = function(other) {
 
 Environment.prototype.addAll = function(otherEnv) {
     var otherBindings = otherEnv.bindings;
-    for (var name in otherBindings)
-        this.bindings[name] = otherBindings[name];
+    for (var name in otherBindings) {
+        /* Since addAllRecursive calls addAll from the leaves to the root,
+         we don't want to accidentally overwrite a fresher (descendant)
+         binding with an older (ancestor) binding.*/
+        if (!this.hasBinding(name))
+            this.bindings[name] = otherBindings[name];
+    }
 
     return this;
 };
