@@ -213,6 +213,17 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
 
 // Just for debugging
 Branch.prototype.toString = function(continuation, indentLevel) {
+
+    /* Don't print the continuations at the end of the branches;
+     these are probably old and will be overwritten on the next
+     this.evalAndAdvance, so they produce misleading debugging info. */
+
+    var tmpConsequent = this.consequentLastContinuable.continuation;
+    var tmpAlternate = this.alternateLastContinuable.continuation;
+
+    this.consequentLastContinuable.continuation = null;
+    this.alternateLastContinuable.continuation = null;
+
     var ans = '\n';
     for (var i = 0; i < indentLevel; ++i)
         ans += '\t';
@@ -220,8 +231,16 @@ Branch.prototype.toString = function(continuation, indentLevel) {
         + ' ? '
         + this.consequent.toString(indentLevel + 1)
         + (this.alternate && this.alternate.toString(indentLevel + 1));
-    if (continuation)
-        ans += ' ' + continuation.toString(indentLevel + 1);
+    if (continuation) {
+        ans += '\n';
+        for (i=0; i < indentLevel; ++i)
+            ans += '\t';
+        ans += continuation.toString(indentLevel + 1);
+    }
+
+    this.consequentLastContinuable.continuation = tmpConsequent;
+    this.alternateLastContinuable.continuation = tmpAlternate;
+
     return ans + '}';
 };
 
