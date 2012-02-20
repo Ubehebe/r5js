@@ -576,7 +576,9 @@ Parser.prototype['lambda-expression'] = function() {
             var name = newAnonymousLambdaName();
             env.addBinding(
                 name,
-                new SchemeProcedure(formals, treatAsDotted, formalRoot.nextSibling, env, name));
+                newProcedureDatum(name,
+                    new SchemeProcedure(formals, treatAsDotted, formalRoot.nextSibling, env, name))
+                    .setClosure(env));
             return newIdShim(newIdOrLiteral(name), newCpsName());
         }
         }

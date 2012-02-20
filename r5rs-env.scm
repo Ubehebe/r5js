@@ -339,14 +339,28 @@
        (lambda (i)
 	 (vector-set! v i f))))
 
-; TODO bl: big problem: if you rename the formal param g -> f,
-; the f incorrectly shadows the f in the parameter list of foldr!
-(define (mymap f l . ls) ; p. 32
+(define (transpose list-of-lists) ; helper proc, not in R5RS
+  (cond
+   ((null? list-of-lists) '())
+   ((null? (car list-of-lists)) '())
+   (else
+    (let* ((firsts (map car list-of-lists))
+	   (rests  (map cdr list-of-lists)))
+      (cons firsts (transpose rests))))))
+
+(define (map f l . ls) ; p. 32
+  (define (map-common f xs)
+    (foldr
+     (lambda (l r) (cons (f l) r))
+     '()
+     xs))
   (if (null? ls)
-      (foldr
-       (lambda (l r) (cons (f l) r))
-       '()
-       l))) ; todo handle the ls
+      (map-common f l)
+      (let ((list-of-lists (cons l ls))
+	    (f-apply (lambda (list) (apply f list))))
+	(map-common
+	 f-apply
+	 (transpose list-of-lists)))))
 
 (define (force object) (object)) ; verbatim from p. 32
 

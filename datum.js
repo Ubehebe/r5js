@@ -610,6 +610,7 @@ Datum.prototype.setClosure = function(env) {
   if (!this.isProcedure())
     throw new InternalInterpreterError('invariant incorrect');
     this.closure = env;
+    return this;
 };
 
 Datum.prototype.hasClosure = function() {

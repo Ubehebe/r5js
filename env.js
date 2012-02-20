@@ -109,13 +109,27 @@ Environment.prototype.leastCommonAncestor = function(other) {
 };
 
 Environment.prototype.addAllRecursive = function(other) {
-    if (other === this)
-        return;
-    var stop = this.leastCommonAncestor(other);
-    for (; other && other !== stop; other = other.enclosingEnv)
-        this.addAll(other);
+    for (var name in this.bindings)
+        throw new InternalInterpreterError('invariant incorrect');
 
-    return this;
+    /* Clearly, we should return immediately if this === other.
+     But we should also return immediately if other is the direct parent
+     of this; since addAllRecursive is only used on brand-new Environments,
+     it would be impossible for this to have any binding different from its
+     direct parent. */
+    if (other === this || other === this.enclosingEnv)
+        return this;
+    var stop = this.leastCommonAncestor(other);
+
+    do {
+        this.addAll(other);
+    } while (other !== stop
+        && (other = other.enclosingEnv));
+
+    /* We return a new Environment pointing back to this because if any of
+     the addAlls bound anything, a subsequent bind in this environment to the
+     same identifier would raise an error. */
+    return new Environment(this.name /* might be misleading... */, this);
 };
 
 Environment.prototype.addAll = function(otherEnv) {
@@ -123,9 +137,11 @@ Environment.prototype.addAll = function(otherEnv) {
     for (var name in otherBindings) {
         /* Since addAllRecursive calls addAll from the leaves to the root,
          we don't want to accidentally overwrite a fresher (descendant)
-         binding with an older (ancestor) binding.*/
+         binding with an older (ancestor) binding. Also, we add an indirection
+         to the environment, rather than copy the value itself, so that
+         mutations work properly. */
         if (!this.hasBinding(name))
-            this.bindings[name] = otherBindings[name];
+            this.bindings[name] = otherEnv;
     }
 
     return this;
@@ -292,9 +308,14 @@ Environment.prototype.toString = function() {
 
  We use the isTopLevel parameter to perform the override mentioned. */
 Environment.prototype.mutate = function(name, newVal, isTopLevel) {
-    if (this.bindings[name] || isTopLevel) {
-        this.bindings[name] = null;
-        this.addBinding(name, newVal);
+    var maybeBinding = this.bindings[name];
+    if (maybeBinding || isTopLevel) {
+        if (maybeBinding instanceof Environment) {
+            maybeBinding.mutate(name, newVal, isTopLevel);
+        } else {
+            this.bindings[name] = null;
+            this.addBinding(name, newVal);
+        }
     } else if (this.enclosingEnv) {
         this.enclosingEnv.mutate(name, newVal, isTopLevel);
     } else throw new UnboundVariable(name);
