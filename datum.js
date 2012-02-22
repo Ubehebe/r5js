@@ -614,7 +614,7 @@ var anonymousLambdaCounter = 0;
 var cpsPrefix = '@';
 
 // Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
-Datum.prototype.processQuasiquote = function(env) {
+Datum.prototype.processQuasiquote = function(env, cpsName) {
 
     var newCalls = new ContinuableHelper();
 
@@ -637,7 +637,7 @@ Datum.prototype.processQuasiquote = function(env) {
 
         this.type = "'";
 
-    newCalls.appendContinuable(newIdShim(this, newCpsName()));
+    newCalls.appendContinuable(newIdShim(this, cpsName));
     var ans = newCalls.toContinuable();
     return ans && ans.setStartingEnv(env);
 };

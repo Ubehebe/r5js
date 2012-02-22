@@ -491,9 +491,9 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
         ans = ans.firstChild;
     }
     else if (arg.isQuasiquote()) {
-        /* todo bl do I understand how the continuation is being preserved
-         properly? We're not passing it in here at all... */
-        resultStruct.nextContinuable = arg.processQuasiquote(this.env);
+        resultStruct.nextContinuable =
+            arg.processQuasiquote(this.env, continuation.lastResultName)
+                .appendContinuable(continuation.nextContinuable);
         return;
     } else if (arg.isImproperList()) {
         throw new GeneralSyntaxError(arg);
@@ -598,7 +598,9 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
         if (arg.isQuote())
             finalArgs.appendSibling(arg.clone(true).normalizeInput());
         else if (arg.isQuasiquote()) {
-            if ((maybeContinuable = arg.processQuasiquote(this.env)) instanceof Continuable) {
+            if ((maybeContinuable
+                = arg.processQuasiquote(this.env, continuation.lastResultName))
+                instanceof Continuable) {
                 finalArgs.appendSibling(
                     newIdOrLiteral(maybeContinuable
                         .getLastContinuable()
