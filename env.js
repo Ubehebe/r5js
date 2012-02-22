@@ -31,6 +31,7 @@ function Environment(name, enclosingEnv) {
         // useful for debugging console.log('created env ' + this + ' referencing ' + enclosingEnv);
     }
     this.bindings = {}; // hey, never use this; use this.get() instead
+    this.closures = {};  // See Environment.prototype.addClosure
 }
 
 // See comments in Environment.prototype.addBinding.
@@ -78,73 +79,6 @@ Environment.prototype.hasBindingRecursive = function(name) {
         that could confuse the comparison (they're always wrapped in datums) */
     return this.bindings[name]
         || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name));
-};
-
-Environment.prototype.ancestors = function(array) {
-    if (!array)
-        array = [];
-    array.unshift(this);
-    return this.enclosingEnv
-        ? this.enclosingEnv.ancestors(array)
-        : array;
-};
-
-Environment.prototype.leastCommonAncestor = function(other) {
-  var myAncestors = this.ancestors();
-    var otherAncestors = other.ancestors();
-    var stop = myAncestors.length < otherAncestors.length
-        ? myAncestors.length
-        : otherAncestors.length;
-
-    var ans = null;
-
-    for (var i=0; i < stop; ++i) {
-        if (myAncestors[i] !== otherAncestors[i])
-            break;
-        else
-            ans = myAncestors[i];
-    }
-
-    return ans;
-};
-
-Environment.prototype.addAllRecursive = function(other) {
-    for (var name in this.bindings)
-        throw new InternalInterpreterError('invariant incorrect');
-
-    /* Clearly, we should return immediately if this === other.
-     But we should also return immediately if other is the direct parent
-     of this; since addAllRecursive is only used on brand-new Environments,
-     it would be impossible for this to have any binding different from its
-     direct parent. */
-    if (other === this || other === this.enclosingEnv)
-        return this;
-    var stop = this.leastCommonAncestor(other);
-
-    do {
-        this.addAll(other);
-    } while (other !== stop
-        && (other = other.enclosingEnv));
-
-    /* We return a new Environment pointing back to this because if any of
-     the addAlls bound anything, a subsequent bind in this environment to the
-     same identifier would raise an error. */
-    return new Environment(this.name /* might be misleading... */, this);
-};
-
-Environment.prototype.addAll = function(otherEnv) {
-    var otherBindings = otherEnv.bindings;
-    for (var name in otherBindings) {
-        /* Since addAllRecursive calls addAll from the leaves to the root,
-         we don't want to accidentally overwrite a fresher (descendant)
-         binding with an older (ancestor) binding. Also, we add an indirection
-         to the environment, rather than copy the value itself, so that
-         mutations work properly. */
-        if (!this.hasBinding(name))
-            this.bindings[name] = otherEnv;
-    }
-
-    return this;
 };
 
 Environment.prototype.get = function(name, disableDatumClone) {
@@ -196,6 +130,14 @@ Environment.prototype.get = function(name, disableDatumClone) {
         }
         // Everything else
         else return maybe;
+    } else if (maybe = this.closures[name]) {
+        /* I think this is only used for ProcCall.prototype.cpsify, where
+         identifiers are used to keep track of things while the structure
+         is changed. Semantic use of procedures should be gated by
+         Environment.prototype.getProcedure, and since that doesn't check
+         the closures map, there should be no danger of accidentally
+         returning a closure. */
+        return maybe;
     }
     // If the current environment has no binding for the name, look one level up
     else if (this.enclosingEnv)
@@ -211,8 +153,6 @@ Environment.prototype.getProcedure = function(name) {
         if (maybe instanceof Environment)
             return maybe.getProcedure(name);
         else if (maybe instanceof Datum && maybe.isProcedure()) {
-            if (maybe.hasClosure())
-                maybe.payload.env = maybe.closure;
             return maybe.payload;
         } else if (typeof maybe === 'function'
             || maybe instanceof SchemeMacro
@@ -223,6 +163,70 @@ Environment.prototype.getProcedure = function(name) {
         return this.enclosingEnv.getProcedure(name);
     else
         return null;
+};
+
+// See comment at Environment.prototype.addClosure.
+Environment.prototype.addClosuresFrom = function(other) {
+    /* todo bl: we have to clone the SchemeProcedures to prevent
+     some kind of infinite loop. I'm not entirely clear about what loop, though,
+     since SchemeProcedure.prototype.cloneWithEnv itself does not do a lot
+     of copying. */
+    for (var name in other.closures)
+        this.addBinding(name, other.closures[name].cloneWithEnv(this));
+    return this;
+};
+
+/* This is used exclusively during desugaring of lambda expressions.
+
+ Lambda expressions have much in common with procedure definitions,
+ even though they don't introduce a new binding (in a programmer-visible
+ way, at least). For example:
+
+ (define (foo x) (define (bar y) (+ x y)) bar)
+
+ (define (foo x) (lambda (y) (+ x y)))
+
+ With either definition of foo, we must have
+
+ ((foo 10) 11) => 22
+
+ With internal definitions, this is easy. The grammar of Scheme says that
+ all internal definitions must precede all expressions in a procedure body,
+ so the SchemeProcedure constructor can intercept all the definitions and deal
+ with them appropriately.
+
+ Lambda expressions, however, can appear anywhere in a procedure's body,
+ so we deal with them in a generic way here. Using the second definition of
+ foo above as an example, here's what happens:
+
+ - During parsing of foo, we create a new Environment for the procedure (say,
+ fooEnv), and note all foo's lambdas in fooEnv,
+ using Environment.prototype.addClosure.
+ - Later, when we want to evaluate (foo 10), we create a new Environment
+ hanging off fooEnv (say, tmp-fooEnv). (We have to do this to support
+ multiple active calls to the same procedure.) We copy all of fooEnv's
+ closures into tmp-fooEnv as actual bound SchemeProcedures, using
+ Environment.prototype.addClosuresFrom. We also bind the arguments
+ (in this case x = 10) in tmp-fooEnv, then advance to foo's body.
+
+ In this way, when we get to the body of the lambda expression, both x and y
+ are already in scope. The key point is that the Environment
+ of (lambda (y) (+ x y)) points back to the Environment representing the
+ _execution_ of foo (tmp-fooEnv), not the Environment representing foo itself
+ (fooEnv). */
+Environment.prototype.addClosure = function(name, proc) {
+    if (this.sealed) {
+        throw new InternalInterpreterError('tried to bind '
+            + name
+            + ' in sealed environment '
+            + this.name);
+    } else if (!(proc instanceof SchemeProcedure)) {
+        throw new InternalInterpreterError('invariant incorrect');
+    } else if (this.closures[name]) {
+        throw new InternalInterpreterError('invariant incorrect');
+    } else {
+        this.closures[name] = proc;
+    }
 };
 
 Environment.prototype.addBinding = function(name, val) {

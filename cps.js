@@ -117,7 +117,7 @@ Continuation.prototype.rememberEnv = function(env) {
     if (this.nextContinuable) {
         var next = this.nextContinuable.subtype;
         if (next instanceof ProcCall) {
-            if (!next.isLeftRecursion() && !next.env)
+            if (!next.env)
                 next.setEnv(env);
         } else if (next instanceof Branch) {
             if (next.consequent.subtype instanceof ProcCall
@@ -265,16 +265,6 @@ ProcCall.prototype.clearEnv = function() {
 
 ProcCall.prototype.isIdShim = function() {
     return !this.operatorName;
-};
-
-/* If a procedure call is explicitly left-recursive, a CPS-style identifier,
-illegal as an identifier in Scheme, will make an appearance as an operator.
-
-Example: ((foo x) (bar y)) => (foo x [_0 (bar y [_1 (_0 _1 [_2 ...])])]) */
-ProcCall.prototype.isLeftRecursion = function() {
-    return this.operatorName
-        && this.operatorName.payload
-        && this.operatorName.payload.charAt(0) === cpsPrefix;
 };
 
 function newProcCall(operatorName, firstOperand, continuation) {
@@ -730,23 +720,6 @@ ProcCall.prototype.bindResult = function(continuation, val) {
          bind the result there. Otherwise, bind it in the current
          environment; it will be carried forward by the EnvBuffer. */
         if (maybeEnv) {
-
-            /* If we're about to return a procedure into another environment,
-             we have to remember the current environment. Example:
-
-             (define (compose f g) (lambda (x) (f (g x))))
-             (define caar (compose car car))
-
-             caar will return (lambda (x) (f (g x))), but it has to
-             remember f and g are both bound to car.
-
-             todo bl: prove that this is sufficient. What if maybeEnv
-             isn't set by now? Could this happen? */
-            if (val instanceof Datum
-                && val.isProcedure()
-                && maybeEnv !== this.env)
-                val.setClosure(this.env);
-
             maybeEnv.addBinding(name, val);
         } else {
             this.env.addBinding(name, val);
@@ -795,7 +768,7 @@ ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
     this.env.mutate(this.firstOperand.payload, src, this.isTopLevelAssignment);
     /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
-    this.env.addBinding(continuation.lastResultName, null);
+    this.bindResult(continuation, null);
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
 
@@ -876,13 +849,13 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resul
         var args = evalArgs(this.firstOperand, this.env);
 
         /* If we're at a tail call we can reuse the existing environment.
-            Otherwise create a new environment pointing back to the current one. */
-        var newEnv = proc.isTailCall(continuation)
-            ? this.env.allowRedefs()
-            : new Environment('tmp-'
+            Otherwise create a new environment pointing back to the current one.
+
+            todo bl: reenable tail recursion! */
+        var newEnv = new Environment('tmp-'
             + proc.name
             + '-'
-            + (uniqueNodeCounter++), this.env).addAllRecursive(proc.env);
+            + (uniqueNodeCounter++), proc.env).addClosuresFrom(proc.env);
 
         /* Remember to discard the new environment
         at the end of the procedure call. */

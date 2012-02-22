@@ -24,9 +24,7 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
         }
 
         if (letrecBindings.isEmpty()) {
-            /* todo bl do we have to call sequence here? It doesn't look
-            like we're doing it in the else clause. */
-            this.body = cur.sequence(env);
+            this.body = cur.sequence(this.env);
         } else {
             var letrec = newEmptyList();
             letrec.firstChild = letrecBindings.toSiblings();
@@ -38,6 +36,14 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
         this.savedContinuation = this.lastContinuable.continuation;
     }
 }
+
+SchemeProcedure.prototype.cloneWithEnv = function(env) {
+    var ans = new SchemeProcedure(this.formalsArray, this.isDotted, null, env, this.name + "'-" + (uniqueNodeCounter++));
+    ans.env.closures = this.env.closures; // non-cloning ok?
+    ans.body = this.body;
+    ans.lastContinuable = this.lastContinuable;
+    return ans;
+};
 
 SchemeProcedure.prototype.setContinuation = function(c) {
     /* This will be a vacuous write for a tail call. But that is

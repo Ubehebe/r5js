@@ -356,6 +356,11 @@ function maybeWrapResult(result, type) {
             case 'string':
                 ans.type = 'identifier';
                 break;
+            case 'object':
+                if (result instanceof SchemeProcedure) {
+                    ans.type = 'lambda';
+                    break;
+                }
             default:
                 throw new InternalInterpreterError('cannot deduce type from value '
                     + result + ': noninjective mapping from values to types');
@@ -605,17 +610,6 @@ function newCpsName() {
 function newAnonymousLambdaName() {
     return 'proc' + (anonymousLambdaCounter++);
 }
-
-Datum.prototype.setClosure = function(env) {
-  if (!this.isProcedure())
-    throw new InternalInterpreterError('invariant incorrect');
-    this.closure = env;
-    return this;
-};
-
-Datum.prototype.hasClosure = function() {
-    return !!this.closure;
-};
 
 // todo bl encapsulate these in a global object
 var uniqueNodeCounter = 0;

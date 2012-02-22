@@ -574,11 +574,9 @@ Parser.prototype['lambda-expression'] = function() {
             }
 
             var name = newAnonymousLambdaName();
-            env.addBinding(
+            env.addClosure(
                 name,
-                newProcedureDatum(name,
-                    new SchemeProcedure(formals, treatAsDotted, formalRoot.nextSibling, env, name))
-                    .setClosure(env));
+                new SchemeProcedure(formals, treatAsDotted, formalRoot.nextSibling, env, name));
             return newIdShim(newIdOrLiteral(name), newCpsName());
         }
         }
