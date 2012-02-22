@@ -1,7 +1,5 @@
 ; This file lists every example in the R5RS standard that should evaluate
-; successfully. For those examples that have an unspecified value, we just
-; want to check that they evaluate to *something*. Their value is listed here
-; as the symbol 'unspecified.
+; successfully to a specified value.
 
 (define-tests evaluation-examples-1.3.4
   ((* 5 8) => 40)
@@ -80,9 +78,6 @@
   ((case (* 2 3)
      ((2 3 5 7) 'prime)
      ((1 4 6 8 9) 'composite)) => composite)
-;; ;  ((case (car '(c d))
-;; ;     ((a) 'a)
-;; ;     ((b) 'b)) => unspecified)
   ((case (car '(c d))
      ((a e i o u) 'vowel)
      ((w y) 'semivowel)
@@ -127,9 +122,6 @@
      (begin
        (set! x 5)
        (+ x 1))) => 6)
-  ;; ((begin
-  ;;    (display "4 plus 1 equals ")
-  ;;    (display (+ 4 1))) => 'unspecified)
 )
 
 (define-tests iteration-4.2.4
@@ -157,64 +149,64 @@
    => ((6 1 3) (-5 -2)))
 )
 
-;; (define-tests quasiquotation-4.2.6
-;;   (`(list ,(+ 1 2) 4)
-;;    => (list 3 4))
-;;   ((let ((name 'a)) `(list ,name ',name))
-;;    => (list a (quote a)))
-;;   (`(a ,(+ 1 2) ,@(map abs '(4 -5 6)) b)
-;;    => (a 3 4 5 6 b))
-;;   (`(( foo ,(- 10 3)) ,@(cdr '(c)) . ,(car '(cons)))
-;;    => ((foo 7) . cons))
-;;   (`#(10 5 ,(sqrt 4) ,@(map sqrt '(16 9)) 8)
-;;    => #(10 5 2 4 3 8))
-;;   (`(a `(b ,(+ 1 2) ,(foo ,(+ 1 3) d) e) f)
-;;    => (a `(b ,(+ 1 2) ,(foo 4 d) e) f))
-;;   ((let ((name1 'x)
-;; 	 (name2 'y))
-;;      `(a `(b ,,name1 ,',name2 d) e))
-;;    => (a `(b ,x ,'y d) e))
-;;   ((quasiquote (list (unquote (+ 1 2)) 4))
-;;    => (list 3 4))
-;;   ('(quasiquote (list (unquote (+ 1 2)) 4))
-;;    => `(list ,(+ 1 2) 4))
-;; )
+(define-tests quasiquotation-4.2.6
+  (`(list ,(+ 1 2) 4)
+   => (list 3 4))
+  ((let ((name 'a)) `(list ,name ',name))
+   => (list a (quote a)))
+  (`(a ,(+ 1 2) ,@(map abs '(4 -5 6)) b)
+   => (a 3 4 5 6 b))
+  (`(( foo ,(- 10 3)) ,@(cdr '(c)) . ,(car '(cons)))
+   => ((foo 7) . cons))
+  (`#(10 5 ,(sqrt 4) ,@(map sqrt '(16 9)) 8)
+   => #(10 5 2 4 3 8))
+  (`(a `(b ,(+ 1 2) ,(foo ,(+ 1 3) d) e) f)
+   => (a `(b ,(+ 1 2) ,(foo 4 d) e) f))
+  ((let ((name1 'x)
+	 (name2 'y))
+     `(a `(b ,,name1 ,',name2 d) e))
+   => (a `(b ,x ,'y d) e))
+  ((quasiquote (list (unquote (+ 1 2)) 4))
+   => (list 3 4))
+  ('(quasiquote (list (unquote (+ 1 2)) 4))
+   => `(list ,(+ 1 2) 4))
+)
 
-;; (define-tests binding-constructs-for-syntactic-keywords-4.3.1
-;;   ((let-syntax
-;;        ((when (syntax-rules ()
-;; 		((when test stmt1 stmt2 ...)
-;; 		 (if test
-;; 		     (begin stmt1 stmt2 ...))))))
-;;      (let ((if #t))
-;;        (when if (set! if 'now))
-;;        if))
-;;    => now)
-;;   ((let ((x 'outer))
-;;      (let-syntax ((m (syntax-rules () ((m) x))))
-;;        (let ((x 'inner))
-;; 	 (m))))
-;;    => outer)
-;;   ((letrec-syntax
-;;        ((my-or (syntax-rules ()
-;; 		 ((my-or) #f)
-;; 		 ((my-or e) e)
-;; 		 ((my-or e1 e2 ...)
-;; 		  (let ((temp e1))
-;; 		    (if temp
-;; 			temp
-;; 			(my-or e2 ...)))))))
-;;      (let ((x #f)
-;; 	   (y 7)
-;; 	   (temp 8)
-;; 	   (let odd?)
-;; 	   (if even?))
-;;        (my-or x
-;; 	      (let temp)
-;; 	      (if y)
-;; 	      y)))
-;;    => 7)
-;; )
+(define-tests binding-constructs-for-syntactic-keywords-4.3.1
+  ((let-syntax
+       ((when (syntax-rules ()
+		((when test stmt1 stmt2 ...)
+		 (if test
+		     (begin stmt1 stmt2 ...))))))
+     (let ((if #t))
+       (when if (set! if 'now))
+       if))
+   => now)
+  ((let ((x 'outer))
+     (let-syntax ((m (syntax-rules () ((m) x))))
+       (let ((x 'inner))
+	 (m))))
+   => outer)
+  ;; ((letrec-syntax
+  ;;      ((my-or (syntax-rules ()
+  ;; 		 ((my-or) #f)
+  ;; 		 ((my-or e) e)
+  ;; 		 ((my-or e1 e2 ...)
+  ;; 		  (let ((temp e1))
+  ;; 		    (if temp
+  ;; 			temp
+  ;; 			(my-or e2 ...)))))))
+  ;;    (let ((x #f)
+  ;; 	   (y 7)
+  ;; 	   (temp 8)
+  ;; 	   (let odd?)
+  ;; 	   (if even?))
+  ;;      (my-or x
+  ;; 	      (let temp)
+  ;; 	      (if y)
+  ;; 	      y)))
+  ;;  => 7)
+)
 
 (define-tests pattern-language-4.3.2
   ((let ((=> #f))
@@ -336,12 +328,6 @@
   ((map (lambda (n) (expt n n)) '(1 2 3 4 5))
    => (1 4 27 256 3125))
   ((map + '(1 2 3) '(4 5 6)) => (5 7 9))
-  ((let ((count 0))
-     (map (lambda (ignored)
-	    (set! count (+ count 1))
-	    count)
-	  '(a b)))
-   => (1 2) or (2 1))
   ((let ((v (make-vector 5)))
      (for-each (lambda (i)
 		 (vector-set! v i (* i i)))
@@ -418,7 +404,7 @@
 	      (r obj))))))
      (list-length '(a b . c))) => #f)
   ((call-with-values (lambda () (values 4 5))
-     (lambda () (a b) b)) => 5)
+     (lambda (a b) b)) => 5)
   ((call-with-values * -) => -1)
   ((let ((path '())
           (c #f))
