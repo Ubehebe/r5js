@@ -72,60 +72,18 @@ Continuation.prototype.getAdjacentProcCall = function() {
 };
 
 Continuation.prototype.rememberEnv = function(env) {
-   /* In general, we need to remember to jump out of the newEnv at
-    the end of the procedure body, and this means setting the env on the
-    continuable following the current continuation (if if is a procedure call).
-
-    There are two important exceptions. First, if that procedure call already
-    has an attached environment, it's already keeping track of a prior
-    context, so we should not disturb it. Second, if that procedure call is
-    left-recursive, that means the procedure body we're about to jump into
-    is going to return something that is going to be used as an operator.
-    We must stay in that procedure's environment to use its bindings.
-    Example:
-
-    ((foo x) (bar y))
-
-    desugars incrementally as
-
-    (foo x [_0 (_0 (bar y) [_1 ...])])
-
-    When the trampoline is at (foo x ...), it sees the result is
-    going to be called as a procedure. Thus we shouldn't set the env
-    of (_0 ...) to be the old env; instead, leave it blank, and it will
-    eventually be filled in as newEnv (the env that is set up for foo's
-    procedure body).
-
-    todo bl: I discovered this logic after the fact, so it is unlikely
-    to be watertight. If either of the following two things start going
-    wrong, here would be a good place to investigate:
-
-    (1) Site of left recursion is not immediately next to this continuation.
-    I think the incremental nature of CPSification makes this impossible,
-    but I am not 100% sure. If it were possible to produce
-
-    (foo x [_0 ... (_0 ...)])
-
-    for example, we would probably be in trouble.
-
-    (2) If continuation.nextContinuable is not a ProcCall
-    (if it is a Branch), the environment will not be set. I don't observe
-    this problem in practice, but perhaps I haven't thought of a good
-    example, or perhaps the environment is getting set correctly in a way
-    I don't understand. */
-
+    /* In general, we need to remember to jump out of the newEnv at
+     the end of the procedure body. See ProcCall.prototype.maybeSetEnv
+     for detailed logic (and maybe bugs). */
     if (this.nextContinuable) {
         var next = this.nextContinuable.subtype;
-        if (next instanceof ProcCall) {
-            if (!next.env)
-                next.setEnv(env);
-        } else if (next instanceof Branch) {
-            if (next.consequent.subtype instanceof ProcCall
-                && !next.consequent.subtype.env)
-                next.consequent.subtype.setEnv(env);
-            if (next.alternate.subtype instanceof ProcCall
-                && !next.alternate.subtype.env)
-                next.alternate.subtype.setEnv(env);
+        if (next instanceof ProcCall)
+            next.maybeSetEnv(env);
+        else if (next instanceof Branch) {
+            if (next.consequent.subtype instanceof ProcCall)
+                next.consequent.subtype.maybeSetEnv(env);
+            if (next.alternate.subtype instanceof ProcCall)
+                next.alternate.subtype.maybeSetEnv(env);
         } else throw new InternalInterpreterError('invariant incorrect');
     }
 };
@@ -257,6 +215,29 @@ ProcCall.prototype.setEnv = function(env, override) {
     if (this.env && !override)
         throw new InternalInterpreterError('invariant incorrect');
     this.env = env;
+};
+
+ProcCall.prototype.maybeSetEnv = function(env) {
+    /* If the ProcCall already has an environment, don't overwrite it.
+    Exception: if this is a continuation "escape call", we do overwrite it.
+    This exception was prompted by things like
+
+     (call-with-current-continuation
+        (lambda (exit)
+            (for-each
+                (lambda (x)
+                    (if (negative? x) (exit x)))
+            '(54 0 37 -3 245 19)) #t))
+
+     At the end of each invocation of (lambda (x) ...), the environment on
+     (exit x) should be updated to reflect the most recent binding of x.
+     Otherwise, the trampoline would see that -3 is negative, but the x in
+     (exit x) would still be bound to 54.
+
+     This is quite ad-hoc and could contain bugs. */
+  if (!this.env
+      || this.env.getProcedure(this.operatorName.payload) instanceof Continuation)
+      this.env = env;
 };
 
 ProcCall.prototype.clearEnv = function() {
@@ -890,7 +871,7 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
 ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) {
     var arg = evalArgs(this.firstOperand, this.env)[0]; // there will only be 1 arg
     this.env.addBinding(proc.lastResultName, arg);
-    resultStruct.ans = this.firstOperand;
+    resultStruct.ans = arg;
     resultStruct.nextContinuable = proc.nextContinuable;
 
     if (proc.beforeThunk) {
@@ -935,11 +916,6 @@ ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) 
             break;
         }
     }
-
-    /* todo bl the second parameter on setStartingEnv is scary
-    but seems to be necessary. I doubt it's right. */
-    if (proc.beforeThunk && resultStruct.nextContinuable)
-        resultStruct.nextContinuable.setStartingEnv(this.env, true);
 };
 
 function evalArgs(firstOperand, env) {
