@@ -416,10 +416,6 @@ Datum.prototype.isString = function() {
     return this.type === 'string';
 };
 
-Datum.prototype.isSymbol = function() {
-    return this.type === "'" && this.firstChild.isIdentifier();
-};
-
 Datum.prototype.isLiteral = function() {
     switch (this.type) {
         case 'boolean':

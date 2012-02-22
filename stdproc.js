@@ -38,8 +38,6 @@ R5JS_builtins['equiv'] = {
                 }
                 else if (p.isString())
                     return p === q;
-                else if (p.isSymbol())
-                    return p.firstChild.payload === q.firstChild.payload;
                 else if (p.isProcedure())
                     return p.payload === q.payload;
                 else return false;
