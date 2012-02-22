@@ -261,33 +261,30 @@
 	new-str
 	(substr-tail (- end 1)))))
 
-(define (for start stop do-this) ; helper function, not in R5RS
-  (if (< start stop)
-      (begin
-	(do-this start)
-	(for (+ start 1) stop do-this))))
-
 (define (string-append . strs) ; p. 30
   (define (string-append2 str1 str2)
     (let* ((len1 (string-length str1))
 	   (len2 (string-length str2))
 	   (new-str (make-string (+ len1 len2))))
-      (for 0 len1
-	   (lambda (i) (string-set! new-str i (string-ref str1 i))))
-      (for 0 len2
-	   (lambda (i) (string-set! new-str (+ len1 i) (string-ref str2 i))))
-      new-str))
+      (do
+	  ((i 0 (+ i 1)))
+	  ((= i len1) new-str)
+	(string-set! new-str i (string-ref str1 i)))
+      (do
+	  ((i 0 (+ i 1)))
+	  ((= i len2) new-str)
+	(string-set! new-str (+ len1 i) (string-ref str2 i)))))
   (foldl string-append2 "" strs))
 
 (define (string->list str) ; p. 30
   (let ((new-list '())
 	(len (string-length str)))
-    (for 0 len
-	 (lambda (i)
-	   (set! new-list
-		 (cons (string-ref str (- len i 1))
-		       new-list))))
-    new-list))
+    (do
+	((i 0 (+ i 1)))
+	((= i len) new-list)
+      (set! new-list
+	    (cons (string-ref str (- len i 1))
+		  new-list)))))
 
 (define (list->string cs) ; p. 30
   (let ((new-str
@@ -303,14 +300,16 @@
 (define (string-copy str) ; p. 30
   (let* ((len (string-length str))
 	 (new-str (make-string len)))
-    (for 0 len
-	 (lambda (i)
-	   (string-set! new-str i (string-ref str i))))
-    new-str))
+    (do
+	((i 0 (+ i 1)))
+	((= i len) new-str)
+      (string-set! new-str i (string-ref str i)))))
 
-(define (string-fill str c) ; p. 31
-  (for 0 (string-length str)
-       (lambda (i) (string-set! str c))))
+(define (string-fill! str c) ; p. 31
+  (do
+      ((i 0 (+ i 1)))
+      ((= i (string-length str)) (if #f #f)) ; unspecified value
+    (string-set! str i c)))
 
 (define (list->vector xs) ; p. 31
   (let ((v (make-vector (length xs))))
@@ -327,17 +326,18 @@
 (define (vector->list v) ; p. 31
   (let* ((new-list '())
 	 (len (vector-length v)))
-    (for 0 len
-	 (lambda (i)
-	   (set! new-list
-		 (cons (vector-ref v (- len i 1))
-		       new-list))))
-    new-list))
+    (do
+	((i 0 (+ i 1)))
+	((= i len) new-list)
+      (set! new-list
+	    (cons (vector-ref v (- len i 1))
+		  new-list)))))
 
 (define (vector-fill! v f) ; p. 31
-  (for 0 (vector-length v)
-       (lambda (i)
-	 (vector-set! v i f))))
+  (do
+      ((i 0 (+ i 1)))
+      ((= i (vector-length v)) (if #f #f)) ; unspecified value
+    (vector-set! v i f)))
 
 (define (transpose list-of-lists) ; helper proc, not in R5RS
   (cond
