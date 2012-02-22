@@ -88,13 +88,11 @@ Continuation.prototype.rememberEnv = function(env) {
     }
 };
 
-Continuable.prototype.setStartingEnv = function(env, recursive) {
+Continuable.prototype.setStartingEnv = function(env) {
     if (this.subtype instanceof ProcCall)
         this.subtype.setEnv(env, true);
 
-    return recursive && this.continuation.nextContinuable
-        ? this.continuation.nextContinuable.setStartingEnv(env, true)
-        : this;
+    return this;
 };
 
 Continuable.prototype.setTopLevelAssignment = function() {
