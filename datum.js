@@ -452,9 +452,9 @@ Datum.prototype.isUnquoteSplicing = function() {
     return this.type === ',@';
 };
 
-/* todo bl this could be written in Scheme (as equals?). I wrote it
- in JavaScript because we have to call it when doing macro processing.
- */
+/* todo bl this is intended to have the exact semantics of the library
+ procedure equal?, but I'm not sure that it does. (I put it in JavaScript
+ for fast access from the macro subsystem, which needs it in one case.)  */
 Datum.prototype.isEqual = function(other) {
     if (other instanceof Datum
         && this.type === other.type
