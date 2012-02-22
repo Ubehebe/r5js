@@ -11,6 +11,12 @@ R5JS_builtins['equiv'] = {
             /* This implementation closely follows the description of eqv?
              in R5RS 6.1, which explicitly leaves some comparisons undefined. */
 
+            /* Since several of the below tests include pointer comparisons,
+             we need to be sure we're working with the "master" versions of the
+             datums and not defensive clones. */
+            p = p.getCloneSource();
+            q = q.getCloneSource();
+
             if (p.sameTypeAs(q)) {
 
                 if (p.isBoolean())
@@ -25,8 +31,11 @@ R5JS_builtins['equiv'] = {
                     return p === q || p.isEmptyList() && q.isEmptyList();
                 else if (p.isImproperList())
                     return p === q;
-                else if (p.isVector())
-                    return p === q;
+                else if (p.isVector()) {
+                    return (p.isArrayBacked() && q.isArrayBacked())
+                        ? p.payload === q.payload
+                        : p === q;
+                }
                 else if (p.isString())
                     return p === q;
                 else if (p.isSymbol())
