@@ -33,7 +33,6 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
         }
 
         this.lastContinuable = this.body.getLastContinuable();
-        this.savedContinuation = this.lastContinuable.continuation;
     }
 }
 

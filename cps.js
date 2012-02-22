@@ -671,11 +671,8 @@ ProcCall.prototype.isSpecialOperator = function() {
 ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
 
     /* If the procedure call has no attached environment, we use
-     the environment left over from the previous action on the trampoline,
-     but remember to restore the state of the procedure call when we're done. */
-    var restoreEmptyEnv;
+     the environment left over from the previous action on the trampoline. */
     if (!this.env) {
-        restoreEmptyEnv = true;
         this.setEnv(envBuffer.env);
     }
 
