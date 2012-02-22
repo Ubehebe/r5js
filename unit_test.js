@@ -389,7 +389,8 @@ function testEvaluator() {
         "(map + '(1 2 3) '(4 5 6) '(7 8 9) '(10 11 12))": '(22 26 30)',
         "(map + (list 1 2 3) (list 4 5 6) (list 7 8 9) '(10 11 12))": '(22 26 30)',
         "(define (foo x) (define (bar y) (+ x y)) bar) ((foo 10) 100)": '110',
-        "(define (foo x) (lambda (y) (+ x y))) ((foo 10) 100)":'110'
+        "(define (foo x) (lambda (y) (+ x y))) ((foo 10) 100)": '110',
+        "(let ((v (make-vector 5))) (for-each (lambda (i) (vector-set! v i (* i i))) '(0 1 2 3 4)) v)": '#(0 1 4 9 16)'
     };
 
     /* These tests exercise various macro features that the standard talks about

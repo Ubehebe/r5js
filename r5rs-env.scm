@@ -362,6 +362,21 @@
 	 f-apply
 	 (transpose list-of-lists)))))
 
+(define (for-each f l . ls) ; p. 32
+  (define (for-each-common f xs)
+    (foldl
+     (lambda (l r) (f r))
+     #f
+     xs)
+    (if #f #f)) ; unspecified return value
+  (if (null? ls)
+      (for-each-common f l)
+      (let ((list-of-lists (cons l ls))
+	    (f-apply (lambda (list) (apply f list))))
+	(for-each-common
+	 f-apply
+	 (transpose list-of-lists)))))
+
 (define (force object) (object)) ; verbatim from p. 32
 
 (define make-promise ; verbatim from p. 33
