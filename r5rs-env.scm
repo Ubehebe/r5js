@@ -53,18 +53,14 @@
    ((< p q) (euclid q p))
    (else (euclid q (modulo p q)))))
 
-(define (gcd n . ns) ; p. 23
-  (if (null? ns)
-      n
-      (foldl euclid n ns)))
+(define (gcd . ns) ; p. 23
+  (foldl (lambda (l r) (euclid l (abs r))) 0 ns))
 
 (define (lcm2 p q) ; helper, not in R5RS
   (/ (* p q) (euclid p q)))
 
-(define (lcm n . ns) ; p. 23
-  (if (null? ns)
-      n
-      (foldl lcm2 n ns)))
+(define (lcm . ns) ; p. 23
+  (foldl (lambda (l r) (lcm2 l (abs r))) 1 ns))
 
 (define (not p) (if p #f #t)) ; p. 25
 
