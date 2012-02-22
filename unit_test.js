@@ -552,7 +552,9 @@ function testEvaluator() {
         "(define cont #f) (define buf '()) (set! buf (cons (call-with-current-continuation (lambda (c) (set! cont c) 'inside)) buf)) (cont 'outside) buf": '(outside inside)',
         "(let ((path '()) (c #f)) (let ((add (lambda (s) (set! path (cons s path))))) (dynamic-wind (lambda () (add 'connect)) (lambda () (add (call-with-current-continuation (lambda (c0) (set! c c0) 'talk1)))) (lambda () (add 'disconnect))) (if (< (length path) 4) (c 'talk2) (reverse path))))": '(connect talk1 disconnect connect talk2 disconnect)',
         "(eqv? 'a 'a)": '#t',
-        "(eqv? ''a ''a)": '#f' // somewhat tricky
+        "(eqv? ''a ''a)": '#f', // somewhat tricky
+        "(pair? 'a)": '#f',
+        "(pair? ''a)": '#t' // somewhat tricky
     };
 
     tests['r5rs-examples'] = {

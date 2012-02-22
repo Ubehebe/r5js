@@ -106,7 +106,9 @@ R5JS_builtins['type'] = {
     'pair?': {
         argc: 1,
         proc: function(node) {
-            return (node.isList() || node.isImproperList())
+            return (node.isList()
+                || node.isImproperList()
+                || node.isQuote())
                 && !!node.firstChild; // 3.2: (pair? '()) => #f
         }
     },
