@@ -28,6 +28,8 @@ function Environment(name, enclosingEnv) {
     this.name = name; // just for use in pretty-printing
     if (enclosingEnv) {
         this.enclosingEnv = enclosingEnv;
+        if (enclosingEnv instanceof RootEnvironment)
+            enclosingEnv.setLookaside(this);
         // useful for debugging console.log('created env ' + this + ' referencing ' + enclosingEnv);
     }
     this.bindings = {}; // hey, never use this; use this.get() instead
@@ -74,11 +76,10 @@ Environment.prototype.hasBinding = function(name) {
     return this.bindings[name];
 };
 
-Environment.prototype.hasBindingRecursive = function(name) {
-    /* This won't foul up because bindings can't have primitives like false
-        that could confuse the comparison (they're always wrapped in datums) */
+Environment.prototype.hasBindingRecursive = function(name, searchClosures) {
     return this.bindings[name]
-        || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name));
+        || (searchClosures && this.closures[name])
+        || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name, searchClosures));
 };
 
 Environment.prototype.get = function(name, disableDatumClone) {
@@ -287,12 +288,6 @@ Environment.prototype.addBinding = function(name, val) {
     }
 };
 
-Environment.prototype.rootEnv = function() {
-    return this.enclosingEnv && !this.enclosingEnv.sealed
-        ? this.enclosingEnv.rootEnv()
-        : this;
-};
-
 Environment.prototype.toString = function() {
     return this.name;
 };
@@ -323,4 +318,57 @@ Environment.prototype.mutate = function(name, newVal, isTopLevel) {
     } else if (this.enclosingEnv) {
         this.enclosingEnv.mutate(name, newVal, isTopLevel);
     } else throw new UnboundVariable(name);
+};
+
+function RootEnvironment(delegate) {
+    this.delegate = delegate;
+}
+
+RootEnvironment.prototype.toString = function() {
+    return this.delegate.toString();
+};
+
+RootEnvironment.prototype.get = function(name, disableDatumClone) {
+    if (this.delegate.hasBindingRecursive(name, true))
+        return this.delegate.get(name, disableDatumClone);
+    else if (this.lookaside.hasBindingRecursive(name, true))
+        return this.lookaside.get(name, disableDatumClone);
+    else throw new UnboundVariable(name + ' in env ' + this.toString());
+};
+
+RootEnvironment.prototype.getProcedure = function(name) {
+    if (this.delegate.hasBinding(name))
+        return this.delegate.getProcedure(name);
+    else if (this.lookaside.hasBinding(name))
+        return this.lookaside.getProcedure(name);
+    else return null;
+};
+
+RootEnvironment.prototype.addClosure = function(name, proc) {
+    this.delegate.addClosure(name, proc);
+};
+
+RootEnvironment.prototype.addBinding = function(name, val) {
+    this.delegate.addBinding(name, val);
+};
+
+RootEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {
+    this.delegate.mutate(name, newVal, isTopLevel);
+};
+
+RootEnvironment.prototype.setLookaside = function(lookaside) {
+    this.lookaside = lookaside;
+    return this;
+};
+
+RootEnvironment.prototype.seal = function() {
+    this.delegate.seal();
+};
+
+RootEnvironment.prototype.hasBinding = function(name) {
+    return this.delegate.hasBinding(name);
+};
+
+RootEnvironment.prototype.hasBindingRecursive = function(name) {
+    return this.delegate.hasBindingRecursive(name);
 };

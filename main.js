@@ -116,7 +116,7 @@ function bootstrap(syntaxLib, procLib) {
      (remembering to clone the macros and set their backlinks correctly).
      Ugh. */
 
-    R5JS_R5RSEnv = R5JS_nullEnv.clone('scheme-report-environment-5');
+    R5JS_R5RSEnv = new RootEnvironment(R5JS_nullEnv.clone('scheme-report-environment-5'));
     installBuiltins(R5JS_R5RSEnv);
     console.log('installed primitive procedures ok');
     install(procLib, R5JS_R5RSEnv);
