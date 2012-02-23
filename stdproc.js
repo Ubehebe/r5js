@@ -894,9 +894,11 @@ R5JS_builtins['control'] = {
             var mustBeProc = arguments[0];
             if (!mustBeProc.isProcedure())
                 throw new ArgumentTypeError(mustBeProc, 0, 'apply', 'procedure');
-            var procName = newIdOrLiteral(mustBeProc.name);
 
             var curProcCall = arguments[arguments.length - 3];
+            /* todo bl: very little idea what's going on here, but we seem to
+             use both sources of procName. */
+            var procName = newIdOrLiteral(curProcCall.firstOperand.payload || mustBeProc.name);
             var continuation = arguments[arguments.length - 2];
             var resultStruct = arguments[arguments.length - 1];
 

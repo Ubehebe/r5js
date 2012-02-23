@@ -507,9 +507,10 @@
 	'#(1 0)
 	.01))
 
-     (display (tail the-states))
      ; todo bl: think of a better (= non-trivial) way to test this.
      ; Perhaps precompute some values and check the Scheme answer is
      ; within some tolerance?
-     (pair? the-states)) => #t))
+     (let ((x (tail the-states)))
+       (display x)
+       (vector? (head x)))) => #t))
 
