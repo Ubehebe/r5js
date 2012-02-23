@@ -229,12 +229,17 @@
      (define foo (lambda (y) (bar x y)))
      (define bar (lambda (a b) (+ (* a b) a)))
      (foo (+ x 3))) => 45)
-)
+  ((let ((x 5))
+     (letrec ((foo (lambda (y) (bar x y)))
+	      (bar (lambda (a b) (+ (* a b) a))))
+       (foo (+ x 3)))) => 45)
+  )
 
 (define-tests equivalence-predicates-6.1
   ((eqv? 'a 'a) => #t)
   ((eqv? 'a 'b) => #f)
   ((eqv? 2 2) => #t)
+  ((eqv? '() '()) => #t)
   ((eqv? 100000000 100000000) => #t)
   ((eqv? (cons 1 2) (cons 1 2)) => #f)
   ((eqv? (lambda () 1) (lambda () 2)) => #f)
@@ -309,6 +314,153 @@
 ;((round 7/2) => 4)
   ((round 7) => 7)
   )
+
+(define-tests booleans-6.3.1
+  (#t => #t)
+  (#f => #f)
+  ('#f => #f)
+  ((not #t) => #f)
+  ((not 3) => #f)
+  ((not (list 3)) => #f)
+  ((not #f) => #t)
+  ((not '()) => #f)
+  ((not (list)) => #f)
+  ((not 'nil) => #f)
+  ((boolean? #f) => #t)
+  ((boolean? 0) => #f)
+  ((boolean? '()) => #f)
+)
+
+(define-tests pairs-and-lists-6.3.2
+  ((begin
+     (define x (list 'a 'b 'c))
+     (define y x)
+     y) => (a b c))
+  ((begin
+     (define x (list 'a 'b 'c))
+     (define y x)
+     (list? y)) => #t)
+  ((begin
+     (define x (list 'a 'b 'c))
+     (set-cdr! x 4)
+     x) => (a . 4))
+  ((begin
+     (define x (list 'a 'b 'c))
+     (define y x)
+     (set-cdr! x 4)
+     (eqv? x y)) => #t)
+  ((begin
+     (define x (list 'a 'b 'c))
+     (define y x)
+     (set-cdr! x 4)
+     y) => (a . 4))
+  ((begin
+     (define x (list 'a 'b 'c))
+     (define y x)
+     (set-cdr! x 4)
+     (list? y)) => #f)
+  ((begin
+     (define x (list 'a 'b 'c))
+     (set-cdr! x 4)
+     (set-cdr! x x)
+     (list? x)) => #f)
+  ((pair? '(a . b)) => #t)
+  ((pair? '(a b c)) => #t)
+  ((pair? '()) => #f)
+  ((pair? '#(a b)) => #f)
+  ((cons 'a '()) => (a))
+  ((cons '(a) '(b c d)) => ((a) b c d))
+  ((cons "a" '(b c)) => ("a" b c))
+  ((cons 'a 3) => (a . 3))
+  ((cons '(a b) 'c) => ((a b) . c))
+  ((car '(a b c)) => a)
+  ((car '((a) b c d)) => (a))
+  ((car '(1 . 2)) => 1)
+  ((cdr '((a) b c d)) => (b c d))
+  ((cdr '(1 . 2)) => 2)
+  ((list? '(a b c)) => #t)
+  ((list? '()) => #t)
+  ((list? '(a . b)) => #f)
+  ((let ((x (list 'a)))
+     (set-cdr! x x)
+     (list? x)) => #f)
+  ((list 'a (+ 3 4) 'c) => (a 7 c))
+  ((list) => ())
+  ((length '(a b c)) => 3)
+  ((length '(a (b) (c d e))) => 3)
+  ((length '()) => 0)
+  ((append '(x) '(y)) => (x y))
+  ((append '(a) '(b c d)) => (a b c d))
+  ((append '(a (b)) '((c))) => (a (b) (c)))
+  ((append '(a b) '(c . d)) => (a b c . d))
+  ((append '() 'a) => a)
+  ((reverse '(a b c)) => (c b a))
+  ((reverse '(a (b c) d (e (f)))) => ((e (f)) d (b c) a))
+  ((list-ref '(a b c d) 2) => c)
+  ((list-ref '(a b c d) (inexact->exact (round 1.8))) => c)
+  ((memq 'a '(a b c)) => (a b c))
+  ((memq 'b '(a b c)) => (b c))
+  ((memq 'a '(b c d)) => #f)
+  ((memq (list 'a) '(b (a) c)) => #f)
+  ((member (list 'a) '(b (a) c)) => ((a) c))
+  ((memv 101 '(100 101 102)) => (101 102))
+  ((begin
+     (define e '((a 1) (b 2) (c 3)))
+     (assq 'a e)) => (a 1))
+  ((begin
+     (define e '((a 1) (b 2) (c 3)))
+     (assq 'b e)) => (b 2))
+  ((begin
+     (define e '((a 1) (b 2) (c 3)))
+     (assq 'd e)) => #f)
+  ((assq (list 'a) '(((a)) ((b)) ((c)))) => #f)
+  ((assoc (list 'a) '(((a)) ((b)) ((c)))) => ((a)))
+  ((assv 5 '((2 3) (5 7) (11 13))) => (5 7))
+)
+
+(define-tests symbols-6.3.3
+  ((symbol? 'foo) => #t)
+  ((symbol? (car '(a b))) => #t)
+  ((symbol? "bar") => #f)
+  ((symbol? 'nil) => #t)
+  ((symbol? '()) => #f)
+  ((symbol? #f) => #f)
+  ((symbol->string 'flying-fish) => "flying-fish")
+  ((symbol->string 'Martin) => "martin")
+  ((symbol->string
+    (string->symbol "Malvina")) => "Malvina")
+  ((eq? 'mISSISSIppi 'mississippi) => #t)
+  ((string->symbol "mISSISSIppi") => mISSISSIppi)
+  ((eq? 'bitBlt (string->symbol "bitBlt")) => #f)
+  ((eq? 'JollyWog
+	(string->symbol
+	 (symbol->string 'JollyWog))) => #t)
+  ((string=? "K. Harper, M.D."
+	     (symbol->string
+	      (string->symbol "K. Harper, M.D."))) => #t)
+)
+
+(define-tests characters-6.3.4
+  ((char<? #\A #\B) => #t)
+  ((char<? #\a #\b) => #t)
+  ((char<? #\0 #\9) => #t)
+  ((char-ci=? #\A #\a) => #t)
+)
+
+(define-tests vectors-6.3.6
+  ((vector 'a 'b 'c) => #(a b c))
+  ((vector-ref '#(1 1 2 3 5 8 13 21) 5) => 8)
+  ((vector-ref '#(1 1 2 3 5 8 13 21)
+	       (let ((i (round (* 2 (acos -1)))))
+		 (if (inexact? i)
+		     (inexact->exact i)
+		     i))) => 13)
+  ((let ((vec (vector 0 '(2 2 2 2) "Anna")))
+     (vector-set! vec 1 '("Sue" "Sue"))
+     vec) => #(0 ("Sue" "Sue") "Anna"))
+  ((vector->list '#(dah dah didah)) => (dah dah didah))
+  ((list->vector '(dididit dah)) => #(dididit dah))
+)
 
 (define-tests control-features-6.4
   ((procedure? car) => #t)
@@ -432,7 +584,7 @@
      (f + 10)) => 20)
 )
 
-(define-tests integration-example
+(define-tests runge-kutta-example
   ((begin
      (define integrate-system
        (lambda (system-derivative initial-state h)
