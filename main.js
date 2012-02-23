@@ -64,6 +64,11 @@ _R5JS.prototype.eval = function(text) {
 // Just for convenience of evaling datums within the interpreter.
 _R5JS.prototype.evalDatum = function(datum, env) {
     this.timer.suspend();
+    /* todo bl: temporary hack to set the parent pointers of a cloned
+     Datum tree correctly (the parser relies on these pointers to back up). We
+     can get rid of this once Datum.prototype.clone sets the parent pointers
+     correctly. */
+    datum.repairParents();
     /* An interesting special case. If we're about to evaluate a wrapped
      procedure (primitive JavaScript or SchemeProcedure), return its name
      (= external representation) instead. Example:

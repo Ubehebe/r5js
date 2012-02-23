@@ -123,8 +123,10 @@ Datum.prototype.clone = function(ignoreSiblings) {
 
     if (this.type)
         ans.type = this.type;
-    if (this.parent)
-        ans.parent = this.parent;
+    /* We can't say ans.parent = this.parent, since that would
+     point to a completely different (uncloned) tree. We ought to pass
+     the parent in as a formal param, but let's first get rid of the existing
+     formal param. */
     if (this.payload !== undefined) // watch out for 0's and falses
         ans.payload = this.payload;
     if (this.nonterminals)
@@ -139,6 +141,21 @@ Datum.prototype.clone = function(ignoreSiblings) {
         ans.closure = this.closure;
 
     return ans;
+};
+
+/* todo bl: Setting the parent pointer correctly should be done inside
+ Datum.prototype.clone. The natural way to do this is by passing the parent
+ into a recursive call as a parameter. Unfortunately, Datum.prototype.clone
+ already has a (suspicious) parameter. Once we audit the codebase and
+ hopefully get rid of that parameter, we can easily fold this into the clone. */
+Datum.prototype.repairParents = function () {
+    for (var child = this.firstChild; child && child.nextSibling; child = child.nextSibling)
+        child.repairParents();
+
+    if (child) {
+        child.repairParents();
+        child.parent = this;
+    }
 };
 
 Datum.prototype.setParse = function(type) {
