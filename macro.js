@@ -203,7 +203,7 @@ TemplateBindings.prototype.resolveDatum = function(datum) {
 
         var maybe = this.bindings[name];
         if (maybe) {
-            return maybe.clone(true);
+            return maybe.clone();
         } else if (this.patternIds[name] !== undefined) {
             /* It's important to return false here, instead of some other
              "falsey" value like null. This value is immediately returned by
@@ -220,11 +220,11 @@ TemplateBindings.prototype.resolveDatum = function(datum) {
              Static types would be useful here. */
             return false;
         } else {
-            return datum.clone(true);
+            return datum.clone();
         }
 
     } else {
-        return datum.clone(true);
+        return datum.clone();
     }
 };
 
@@ -527,7 +527,7 @@ EllipsisTransformer.prototype.forEachSubtransformer = function(callback, args) {
 
 // See comments at top of ListLikeTransformer.
 function IdOrLiteralTransformer(datum) {
-    this.datum = datum.clone(true);
+    this.datum = datum.clone();
 }
 
 IdOrLiteralTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {

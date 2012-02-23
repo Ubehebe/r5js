@@ -117,45 +117,31 @@ Datum.prototype.getCloneSource = function () {
     return this.src || this;
 };
 
-Datum.prototype.clone = function(ignoreSiblings) {
+Datum.prototype.clone = function(parent) {
 
     var ans = new Datum();
 
     if (this.type)
         ans.type = this.type;
-    /* We can't say ans.parent = this.parent, since that would
-     point to a completely different (uncloned) tree. We ought to pass
-     the parent in as a formal param, but let's first get rid of the existing
-     formal param. */
     if (this.payload !== undefined) // watch out for 0's and falses
         ans.payload = this.payload;
+    if (this.parent)
+        ans.parent = this.parent;
     if (this.nonterminals)
         ans.nonterminals = shallowArrayCopy(this.nonterminals);
-    if (this.firstChild)
-        ans.firstChild = this.firstChild.clone();
-    if (this.nextSibling && !ignoreSiblings)
-        ans.nextSibling = this.nextSibling.clone();
+    if (this.firstChild) {
+        var buf = new SiblingBuffer();
+        for (var child = this.firstChild; child; child = child.nextSibling)
+            buf.appendSibling(child.clone(ans));
+        ans.firstChild = buf.toSiblings();
+    }
+    // We only need the parent pointer on the last sibling.
+    if (!this.nextSibling)
+        ans.parent = parent;
     if (this.name)
         ans.name = this.name;
-    if (this.closure)
-        ans.closure = this.closure;
 
     return ans;
-};
-
-/* todo bl: Setting the parent pointer correctly should be done inside
- Datum.prototype.clone. The natural way to do this is by passing the parent
- into a recursive call as a parameter. Unfortunately, Datum.prototype.clone
- already has a (suspicious) parameter. Once we audit the codebase and
- hopefully get rid of that parameter, we can easily fold this into the clone. */
-Datum.prototype.repairParents = function () {
-    for (var child = this.firstChild; child && child.nextSibling; child = child.nextSibling)
-        child.repairParents();
-
-    if (child) {
-        child.repairParents();
-        child.parent = this;
-    }
 };
 
 Datum.prototype.setParse = function(type) {
@@ -678,14 +664,14 @@ Datum.prototype.extractDefinition = function() {
     var variable = this.at('variable');
     var list = newEmptyList();
     if (variable) {
-        list.prependChild(this.at('expression').clone(true));
+        list.prependChild(this.at('expression').clone());
     } else {
         var formalsList = this.firstChild.nextSibling;
         variable = formalsList.firstChild;
         var bodyStart = formalsList.nextSibling;
         var lambda = newEmptyList();
         lambda.firstChild = bodyStart;
-        var newFormalsList = formalsList.clone(true);
+        var newFormalsList = formalsList.clone();
         newFormalsList.firstChild = newFormalsList.firstChild.nextSibling;
         if (newFormalsList.isImproperList() && !newFormalsList.firstChild.nextSibling)
             lambda.prependChild(newIdOrLiteral(newFormalsList.firstChild.payload));
@@ -694,7 +680,7 @@ Datum.prototype.extractDefinition = function() {
         lambda.prependChild(newIdOrLiteral('lambda'));
         list.prependChild(lambda);
     }
-    list.prependChild(variable.clone(true));
+    list.prependChild(variable.clone());
     return list;
 };
 

@@ -576,8 +576,8 @@ R5JS_builtins['pair'] = {
         argc: 2,
         proc: function(car, cdr) {
             // todo bl this is really expensive! can we cut down on the copying?
-            var realCar = car.stripParent().clone(true);
-            var realCdr = cdr.stripParent().clone(true);
+            var realCar = car.stripParent().clone();
+            var realCdr = cdr.stripParent().clone();
             // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
             if (realCdr.isList() || realCdr.isImproperList()) {
                 realCdr.prependChild(realCar);
@@ -634,7 +634,7 @@ R5JS_builtins['pair'] = {
                  (Although this is written recursively, there should be at most one
                  recursion. See Datum.prototype.getCloneSource.) */
                 return p.src
-                    ? setCar(p.src, car.clone(true))
+                    ? setCar(p.src, car.clone())
                     : null; // unspecified return value
             } else throw new ArgumentTypeError(p, 0, 'set-car!', 'pair');
         }

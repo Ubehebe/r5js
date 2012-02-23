@@ -126,8 +126,8 @@ Environment.prototype.get = function(name, disableDatumClone) {
              be possible to do correctly, however. */
 
             return maybe.couldBeMutated()
-                ? maybe.clone(true).setCloneSource(maybe)
-                : maybe.clone(true);
+                ? maybe.clone().setCloneSource(maybe)
+                : maybe.clone();
         }
         // Everything else
         else return maybe;

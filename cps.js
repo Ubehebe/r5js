@@ -596,7 +596,7 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
     for (var arg = this.firstOperand; arg; arg = arg.nextSibling) {
         arg.resetDesugars();
         if (arg.isQuote())
-            finalArgs.appendSibling(arg.clone(true).normalizeInput());
+            finalArgs.appendSibling(arg.clone().normalizeInput());
         else if (arg.isQuasiquote()) {
             if ((maybeContinuable
                 = arg.processQuasiquote(this.env, continuation.lastResultName))
