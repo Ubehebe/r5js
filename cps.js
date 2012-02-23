@@ -79,6 +79,17 @@ Continuation.prototype.rememberEnv = function(env) {
         var next = this.nextContinuable.subtype;
         if (next instanceof ProcCall)
             next.maybeSetEnv(env);
+        /* Somewhat tricky. We can't know in advance which branch we'll take,
+         so we set the environment on both branches. Later, when we actually
+         decide which branch to take, we must clear the environment on the
+         non-taken branch to prevent old environments from hanging around.
+
+         todo bl: it would probably be better to remember the environment on
+         the Branch directly. Then Branch.prototype.evalAndAdvance can set the
+         environment on the taken branch without having to remember to clear
+         it off the non-taken branch. I'll save this for the next time I refactor
+         ProcCalls and Branches. (The explicit "subtypes" suggest my command of
+         prototypal inheritance wasn't great when I wrote this code.) */
         else if (next instanceof Branch) {
             if (next.consequent.subtype instanceof ProcCall)
                 next.consequent.subtype.maybeSetEnv(env);
@@ -427,9 +438,17 @@ Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer
     if (testResult.payload === false) {
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;
+        /* We must clear the environment off the non-taken branch.
+         See comment at Continuation.prototype.rememberEnv. */
+        if (this.consequent.subtype instanceof ProcCall)
+            this.consequent.subtype.clearEnv();
     } else {
         this.consequentLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.consequent;
+        /* We must clear the environment off the non-taken branch.
+         See comment at Continuation.prototype.rememberEnv. */
+        if (this.alternate.subtype instanceof ProcCall)
+            this.alternate.subtype.clearEnv();
     }
 
     return resultStruct;
