@@ -96,9 +96,11 @@
          performance investigations. */
         function doUnitTests() {
             ajax('unit-test.scm', function(testFramework) {
-                ajax('r5rs-tests.scm', function(tests) {
-                    R5JS.eval(testFramework + tests);
+                ajax('r5rs-tests.scm', function(r5rsTests) {
+                    ajax('other-tests.scm', function(otherTests) {
+                    R5JS.eval(testFramework + r5rsTests + otherTests);
                 })
+            })
             });
         }
     </script>
