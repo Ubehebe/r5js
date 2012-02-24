@@ -341,6 +341,19 @@ function newProcedureDatum(name, procedure) {
     return ans;
 }
 
+function newDatumRef(deref) {
+    var ans = new Datum();
+    ans.type = 'ref';
+    ans.payload = deref;
+    return ans;
+}
+
+Datum.prototype.maybeDeref = function () {
+    return this.type === 'ref'
+        ? this.payload
+        : this;
+};
+
 function newMacroDatum(macro) {
     var ans = new Datum();
     ans.type = 'macro';

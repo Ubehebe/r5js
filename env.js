@@ -68,25 +68,23 @@ Environment.prototype.clone = function(name) {
     return cloned;
 };
 
-/* Intended just to be used as a sanity check during startup,
- to make sure we don't multiply define builtin procedures. */
 Environment.prototype.hasBinding = function(name) {
-    /* This is not a bug, since we store values that could confuse JavaScript,
-        like #f and 0, inside datum objects. */
-    return this.bindings[name];
+    // We must never store null or undefined as a value.
+    return this.bindings[name] != null;
 };
 
 Environment.prototype.hasBindingRecursive = function(name, searchClosures) {
-    return this.bindings[name]
+    return this.hasBinding(name)
         || (searchClosures && this.closures[name])
         || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name, searchClosures));
 };
 
-Environment.prototype.get = function(name, disableDatumClone) {
+Environment.prototype.get = function(name) {
 
     var maybe = this.bindings[name];
 
-    if (maybe) {
+    if (maybe != null) {
+
         // Redirects for free ids in macro transcriptions
         if (maybe instanceof Environment)
             return maybe.get(name);
@@ -99,36 +97,8 @@ Environment.prototype.get = function(name, disableDatumClone) {
             return newProcedureDatum(name, maybe);
         else if (maybe === this.unspecifiedSentinel)
             return null;
-        else if (maybe instanceof Datum && !disableDatumClone) {
-            /* Any Datum that is going to make it back out to the trampoline
-             must be defensively cloned to prevent Datum cycles. For example,
-             if the Environment gave back the exact same Datum object X for
-             both of the following x's:
-
-             (define x 1)
-             (list x x)
-
-             then the trampoline would set X.nextSibling = X.
-
-             However, Scheme has a handful of primitive mutation procedures:
-             set-car!, set-cdr!, string-set!, and vector-set!. For the first
-             three procedures, we remember where the defensive clone
-             came from, so if the procedures are called on a defensive clone,
-             we can also call them on the original. (For vector-set!, we don't
-             need to do anything. Datums representing vectors hold pointers
-             to JavaScript arrays, and these pointers accomplish what we're
-             doing here for the other data types.)
-
-             An alternative and attractive idea is to unwrap everything
-             before storing, and adapt the trampoline and primitive
-             procedures to operate on unwrapped values as far as possible.
-             I toyed around with this for a bit, but the wrapping/unwrapping
-             code seemed to proliferate and make APIs less uniform. It may
-             be possible to do correctly, however. */
-
-            return maybe.couldBeMutated()
-                ? maybe.clone().setCloneSource(maybe)
-                : maybe.clone();
+        else if (maybe instanceof Datum) {
+            return newDatumRef(maybe);
         }
         // Everything else
         else return maybe;
@@ -143,7 +113,7 @@ Environment.prototype.get = function(name, disableDatumClone) {
     }
     // If the current environment has no binding for the name, look one level up
     else if (this.enclosingEnv)
-        return this.enclosingEnv.get(name, disableDatumClone);
+        return this.enclosingEnv.get(name);
     else
         throw new UnboundVariable(name + ' in env ' + this.name);
 };
@@ -151,7 +121,7 @@ Environment.prototype.get = function(name, disableDatumClone) {
 Environment.prototype.getProcedure = function(name) {
     var maybe = this.bindings[name];
 
-    if (maybe) {
+    if (maybe != null) {
         if (maybe instanceof Environment) {
             return maybe.getProcedure(name);
         } else if (typeof maybe === 'function'
@@ -236,7 +206,7 @@ Environment.prototype.addBinding = function(name, val) {
         throw new InternalInterpreterError('tried to bind ' + name + ' in sealed environment ' + this);
     }
 
-    else if (!this.bindings[name] || this.redefsOk || name.charAt(0) === '@') {
+    else if (this.bindings[name] == null || this.redefsOk || name.charAt(0) === '@') {
 
         // useful for debugging if (val instanceof Datum)
         //    console.log(this + ' addBinding ' + name + ' = ' + val);
@@ -246,14 +216,18 @@ Environment.prototype.addBinding = function(name, val) {
         if (val instanceof SchemeMacro)
             val.definitionEnv = this;
 
-        if (val === null) {
+        // Store primitive values directly.
+        if (typeof val === 'number'
+             || typeof val === 'string'
+             || val === true
+             || val === false) {
+             this.bindings[name] = val;
+         } else if (val === null) {
             /* A value of null on the trampoline means an unspecified value.
              For example, the JavaScript implementation of display returns null.
              In order to distinguish between an unbound variable (error) and
              a variable bound to an unspecified value (not an error), we use
-             Environment.prototype.unspecifiedSentinel. I suppose we could
-             bind null or undefined, but this would probably lead to bugs in
-             conditionals (if (this.bindings[env]) ...) */
+             Environment.prototype.unspecifiedSentinel. */
             this.bindings[name] = this.unspecifiedSentinel;
         } else if (typeof val === 'function' /* primitive procedure */
             || val instanceof SchemeProcedure /* non-primitive procedure */
@@ -263,12 +237,7 @@ Environment.prototype.addBinding = function(name, val) {
             || val instanceof Environment /* Redirects for free ids in macro transcriptions */) {
             this.bindings[name] = val;
         } else if (val instanceof Datum) {
-            // Make sure we are not dealing with a clone.
-            val = val.getCloneSource();
-        /* lots of stuff, including wrapped procedures
-             (We need wrapped procedures to support returning
-             SchemeProcedure objects into different environments. The Datum
-             wrapper has a backlink to the closure in which it was created.) */
+        // lots of stuff, including wrapped procedures
             if (val.isVector() && !val.isArrayBacked())
                 this.bindings[name] = val.convertVectorToArrayBacked();
             /* Environment.prototype.get should honor requests to store both
@@ -286,10 +255,8 @@ Environment.prototype.addBinding = function(name, val) {
              Environment.protoype.get will return + wrapped in a Datum,
              then the trampoline will call Environment.prototype.addBinding with
              this wrapped procedure as the second argument. */
-            else if (val.isProcedure())
-                this.bindings[name] = val.unwrap();
             else
-                this.bindings[name] = val;
+                this.bindings[name] = val.unwrap();
         } else {
             throw new InternalInterpreterError('tried to store '
                 + name
@@ -324,7 +291,7 @@ Environment.prototype.toString = function() {
  We use the isTopLevel parameter to perform the override mentioned. */
 Environment.prototype.mutate = function(name, newVal, isTopLevel) {
     var maybeBinding = this.bindings[name];
-    if (maybeBinding || isTopLevel) {
+    if (maybeBinding != null || isTopLevel) {
         if (maybeBinding instanceof Environment) {
             maybeBinding.mutate(name, newVal, isTopLevel);
         } else {
@@ -344,11 +311,11 @@ RootEnvironment.prototype.toString = function() {
     return this.delegate.toString();
 };
 
-RootEnvironment.prototype.get = function(name, disableDatumClone) {
+RootEnvironment.prototype.get = function(name) {
     if (this.delegate.hasBindingRecursive(name, true))
-        return this.delegate.get(name, disableDatumClone);
+        return this.delegate.get(name);
     else if (this.lookaside.hasBindingRecursive(name, true))
-        return this.lookaside.get(name, disableDatumClone);
+        return this.lookaside.get(name);
     else throw new UnboundVariable(name + ' in env ' + this.toString());
 };
 
