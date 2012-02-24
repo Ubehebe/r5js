@@ -659,7 +659,6 @@ Datum.prototype.siblingsToList = function(dotted) {
     var ans = new Datum();
     ans.type = dotted ? '.(' : '(';
     ans.firstChild = this;
-    this.lastSibling().parent = ans;
     return ans;
 };
 
