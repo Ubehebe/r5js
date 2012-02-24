@@ -156,11 +156,6 @@ Datum.prototype.sameTypeAs = function(other) {
     return this.type === other.type;
 };
 
-Datum.prototype.stripParent = function() {
-    this.parent = null;
-    return this;
-};
-
 /* See comment at Environment.prototype.get for why vector-set!
  is not an issue. */
 Datum.prototype.couldBeMutated = function() {
@@ -734,14 +729,14 @@ Datum.prototype.extractDefinition = function() {
     var variable = this.at('variable');
     var list = newEmptyList();
     if (variable) {
-        list.prependChild(this.at('expression').clone());
+        list.prependChild(this.at('expression'));
     } else {
         var formalsList = this.firstChild.nextSibling;
         variable = formalsList.firstChild;
         var bodyStart = formalsList.nextSibling;
         var lambda = newEmptyList();
         lambda.firstChild = bodyStart;
-        var newFormalsList = formalsList.clone();
+        var newFormalsList = formalsList;
         newFormalsList.firstChild = newFormalsList.firstChild.nextSibling;
         if (newFormalsList.isImproperList() && !newFormalsList.firstChild.nextSibling)
             lambda.prependChild(newIdOrLiteral(newFormalsList.firstChild.payload));
@@ -750,7 +745,7 @@ Datum.prototype.extractDefinition = function() {
         lambda.prependChild(newIdOrLiteral('lambda'));
         list.prependChild(lambda);
     }
-    list.prependChild(variable.clone());
+    list.prependChild(variable);
     return list;
 };
 

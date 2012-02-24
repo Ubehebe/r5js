@@ -527,7 +527,7 @@ EllipsisTransformer.prototype.forEachSubtransformer = function(callback, args) {
 
 // See comments at top of ListLikeTransformer.
 function IdOrLiteralTransformer(datum) {
-    this.datum = datum.clone();
+    this.datum = datum;
 }
 
 IdOrLiteralTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
