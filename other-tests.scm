@@ -268,6 +268,10 @@
 	(vector-set! v i (* i i)))
       '(0 1 2 3 4))
      v) => #(0 1 4 9 16))
+  ((begin
+     (define x 1)
+     (define y 2)
+     (or x y)) => #t)
 )
 
 (define-tests cyclicity-tests
