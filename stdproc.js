@@ -701,8 +701,8 @@ R5JS_builtins['symbol'] = {
     'string->symbol': {
         argc: 1,
         argtypes: ['string'],
-        proc: function(s) {
-            return newIdOrLiteral(s, 'identifier');
+        proc: function(node) {
+            return newIdOrLiteral(node.payload, 'identifier');
         }
     }
 };
@@ -712,43 +712,43 @@ R5JS_builtins['char'] = {
     'char=?': {
         argc: 2,
         argtypes: ['char', 'char'],
-        proc: function(c1, c2) {
-            return c1 === c2;
+        proc: function(node1, node2) {
+            return node1.payload === node2.payload;
         }
     },
     'char<?': {
         argc: 2,
         argtypes: ['char', 'char'],
-        proc: function(c1, c2) {
-            return c1 < c2;
+        proc: function(node1, node2) {
+            return node1.payload < node2.payload;
         }
     },
     'char>?': {
         argc: 2,
         argtypes: ['char', 'char'],
-        proc: function(c1, c2) {
-            return c1 > c2;
+        proc: function(node1, node2) {
+            return node1.payload > node2.payload;
         }
     },
     'char<=?': {
         argc: 2,
         argtypes: ['char', 'char'],
-        proc: function(c1, c2) {
-            return c1 <= c2;
+        proc: function(node1, node2) {
+            return node1.payload <= node2.payload;
         }
     },
     'char>=?': {
         argc: 2,
         argtypes: ['char', 'char'],
-        proc: function(c1, c2) {
-            return c1 >= c2;
+        proc: function(node1, node2) {
+            return node1.payload >= node2.payload;
         }
     },
     'char->integer': {
         argc: 1,
         argtypes: ['char'],
-        proc: function(c) {
-            return c.charCodeAt(0);
+        proc: function(node) {
+            return node.payload.charCodeAt(0);
         }
     },
     'integer->char': {
@@ -761,15 +761,15 @@ R5JS_builtins['char'] = {
     'char-upcase': {
         argc: 1,
         argtypes: ['char'],
-        proc: function(c) {
-            return newIdOrLiteral(c.toUpperCase(), 'character');
+        proc: function(node) {
+            return newIdOrLiteral(node.payload.toUpperCase(), 'character');
         }
     },
     'char-downcase': {
         argc: 1,
         argtypes: ['char'],
-        proc: function(c) {
-            return newIdOrLiteral(c.toLowerCase(), 'character');
+        proc: function(node) {
+            return newIdOrLiteral(node.payload.toLowerCase(), 'character');
         }
     }
 };
@@ -779,11 +779,11 @@ R5JS_builtins['string'] = {
     'make-string': {
         argc: {min: 1, max: 2},
         argtypes: ['number', 'char'],
-        proc: function(n, c) {
+        proc: function(n, charNode) {
             /* R5RS 6.3.5: "If char is given, then all elements of the
              string are initialized to char, otherwise the contents
              of the string are unspecified." */
-            c = c || ' ';
+            var c = charNode ? charNode.payload : ' ';
             var s = '';
             for (var i = 0; i < n; ++i)
                 s += c;
@@ -793,15 +793,15 @@ R5JS_builtins['string'] = {
     'string-length': {
         argc: 1,
         argtypes: ['string'],
-        proc: function(s) {
-            return s.length;
+        proc: function(node) {
+            return node.payload.length;
         }
     },
     'string-ref': {
         argc: 2,
         argtypes: ['string', 'number'],
-        proc: function(s, i) {
-            return newIdOrLiteral(s.charAt(i), 'character');
+        proc: function(node, i) {
+            return newIdOrLiteral(node.payload.charAt(i), 'character');
         }
     },
     'string-set!': {

@@ -419,7 +419,10 @@ Datum.prototype.sequence = function(env) {
 
 function maybeWrapResult(result, type) {
 
-    if (result === null || result instanceof Datum)
+    if (result === null
+        || result instanceof Datum
+        || result instanceof Continuation
+        || result instanceof SchemeMacro)
         return result; // no-op, strictly for convenience
 
     var ans = new Datum();
@@ -560,8 +563,23 @@ Datum.prototype.quote = function() {
 };
 
 Datum.prototype.unwrap = function() {
+    /* Datums representing identifiers, strings, and characters
+     all have payloads of type string. If they all unwrapped as JavaScript
+     strings, it would be impossible to re-wrap them correctly
+     (noninjective mapping). We choose to store identifiers unwrapped
+     because they're expected to be more common than the other two.
+
+     Environment specifiers cannot be unwrapped to their Environment
+     payloads because Environment values in Environments already have
+     a meaning, namely, a redirect to look up the name in some other
+     Environment.
+
+     Finally, the vector stuff may need to be overhauled. */
     return (this.payload !== undefined
-        && !this.isVector()) // watch out for 0's and falses
+        && !this.isVector() // watch out for 0's and falses
+        && !this.isEnvironmentSpecifier()
+        && !this.isString()
+        && !this.isCharacter())
         ? this.payload
         : this;
 };
