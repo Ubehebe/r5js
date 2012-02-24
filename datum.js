@@ -546,12 +546,8 @@ Datum.prototype.quote = function() {
     return ans;
 };
 
-/* Convenience function for builtin evaluation: unwrap the argument if
-    it's "primitive". We never unwrap SchemeProcedures or JavaScript functions
-    (though not completely sure why not). */
 Datum.prototype.unwrap = function() {
     return (this.payload !== undefined
-        && !this.isProcedure()
         && !this.isVector()) // watch out for 0's and falses
         ? this.payload
         : this;

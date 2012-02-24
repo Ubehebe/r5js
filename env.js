@@ -90,11 +90,12 @@ Environment.prototype.get = function(name, disableDatumClone) {
         // Redirects for free ids in macro transcriptions
         if (maybe instanceof Environment)
             return maybe.get(name);
-        /* Wrap primitive procedures in a Datum. We could store primitive
-         procedures already wrapped. But if getProcedure() is expected
-         to be more common for primitive procedures than get(), I think it
-         is better to only wrap them for get(). Only profiling can say. */
-        else if (typeof maybe === 'function')
+        /* We store primitive and non-primitive procedures unwrapped,
+         but wrap them in a Datum if they are requested through get.
+         (getProcedure, which is intended just for evaluating the operator
+         on the trampoline, will return the unwrapped procedures.) */
+        else if (typeof maybe === 'function'
+            || maybe instanceof SchemeProcedure)
             return newProcedureDatum(name, maybe);
         else if (maybe === this.unspecifiedSentinel)
             return null;
@@ -151,11 +152,10 @@ Environment.prototype.getProcedure = function(name) {
     var maybe = this.bindings[name];
 
     if (maybe) {
-        if (maybe instanceof Environment)
+        if (maybe instanceof Environment) {
             return maybe.getProcedure(name);
-        else if (maybe instanceof Datum && maybe.isProcedure()) {
-            return maybe.payload;
         } else if (typeof maybe === 'function'
+            || maybe instanceof SchemeProcedure
             || maybe instanceof SchemeMacro
             || maybe instanceof Continuation) {
             return maybe;
@@ -255,9 +255,8 @@ Environment.prototype.addBinding = function(name, val) {
              bind null or undefined, but this would probably lead to bugs in
              conditionals (if (this.bindings[env]) ...) */
             this.bindings[name] = this.unspecifiedSentinel;
-        } else if (val instanceof SchemeProcedure) { /* non-primitive procedure */
-            this.bindings[name] = newProcedureDatum(name, val);
         } else if (typeof val === 'function' /* primitive procedure */
+            || val instanceof SchemeProcedure /* non-primitive procedure */
             || val instanceof Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
             || val instanceof SchemeMacro /* macros */
@@ -272,6 +271,23 @@ Environment.prototype.addBinding = function(name, val) {
              wrapper has a backlink to the closure in which it was created.) */
             if (val.isVector() && !val.isArrayBacked())
                 this.bindings[name] = val.convertVectorToArrayBacked();
+            /* Environment.prototype.get should honor requests to store both
+             unwrapped procedures (= JavaScript functions and SchemeProcedure
+             objects) and those things wrapped in a Datum. In the latter case,
+             we should store the unwrapped thing.
+
+             We can see the first pathway in the desugar functions
+             for procedures: they explicitly call addBinding with
+             a SchemeProcedure as the second argument. The second pathway
+             happens on the trampoline, for example:
+
+             (define foo +)
+
+             Environment.protoype.get will return + wrapped in a Datum,
+             then the trampoline will call Environment.prototype.addBinding with
+             this wrapped procedure as the second argument. */
+            else if (val.isProcedure())
+                this.bindings[name] = val.unwrap();
             else
                 this.bindings[name] = val;
         } else {
