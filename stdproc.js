@@ -11,12 +11,6 @@ R5JS_builtins['equiv'] = {
             /* This implementation closely follows the description of eqv?
              in R5RS 6.1, which explicitly leaves some comparisons undefined. */
 
-            /* Since several of the below tests include pointer comparisons,
-             we need to be sure we're working with the "master" versions of the
-             datums and not defensive clones. */
-            p = p.getCloneSource();
-            q = q.getCloneSource();
-
             if (p.sameTypeAs(q)) {
 
                 if (p.isBoolean())
@@ -140,7 +134,6 @@ R5JS_builtins['type'] = {
     'list?': {
         argc: 1,
         proc: function(node) {
-            node = node.getCloneSource();
             if (node.isList()) {
                 // It's okay for the car to be cyclic, but not the cdr.
                 if (node.firstChild
@@ -650,14 +643,10 @@ R5JS_builtins['pair'] = {
                 car.nextSibling = p.firstChild.nextSibling;
                 p.firstChild = car;
 
+                // todo bl remove: this makes set-car! O(n)
                 p.labelCycles();
 
-                /* If this was a derivative copy, mutate the source as well.
-                 (Although this is written recursively, there should be at most one
-                 recursion. See Datum.prototype.getCloneSource.) */
-                return p.src
-                    ? setCar(p.src, car.clone())
-                    : null; // unspecified return value
+                return null; // unspecified return value
             } else throw new ArgumentTypeError(p, 0, 'set-car!', 'pair');
         }
     },
@@ -675,14 +664,10 @@ R5JS_builtins['pair'] = {
                     p.type = '.(';
                 }
 
+                // todo bl remove: this makes set-cdr! O(n)
                 p.labelCycles();
 
-                /* If this was a derivative copy, mutate the source as well.
-                 (Although this is written recursively, there should be at most one
-                 recursion. See Datum.prototype.getCloneSource.) */
-                return p.src
-                    ? setCdr(p.src, cdr)
-                    : null; // unspecified return value
+                return null; // unspecified return value
             } else throw new ArgumentTypeError(p, 0, 'set-cdr!', 'pair');
         }
     }
@@ -821,12 +806,7 @@ R5JS_builtins['string'] = {
                 + c.payload
                 + s.substr(k.payload + 1);
 
-            /* If this was a derivative copy, mutate the source as well.
-             (Although this is written recursively, there should be at most one
-             recursion. See Datum.prototype.getCloneSource.) */
-            return str.src
-                ? stringSet(str.src, k, c)
-                : null; // unspecified return value
+            return null; // unspecified return value
         }
     }
 };

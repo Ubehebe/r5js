@@ -200,21 +200,12 @@ Reader.prototype.read = function() {
 // This is the inverse of Reader.prototype.read, which is why it's here.
 Datum.prototype.toString = function() {
 
-    /* This is necessary just for programmer-introduced cyclic
-     data structures. When Datum.prototype.clone sees a cycle,
-     it basically stops cloning, leaving out information that would be
-     nice to have in the external representation. But it does record
-     the clone source, and we can use this to recover the correct
-     external representation.
-
-     The real solution is to get rid of datum cloning as much as possible. */
-    if (this.getCloneSource() !== this)
-        return this.getCloneSource().toString();
-
     var ans, child;
     var endDelimiter = "";
 
     switch (this.type) {
+        case 'ref':
+            return this.payload.toString();
         case 'environment-specifier': // R5RS 6.5
             return this.payload === 5
                 ? 'scheme-report-environment-5'

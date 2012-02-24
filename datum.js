@@ -28,32 +28,6 @@ Datum.prototype.forEach = function(callback) {
     }
 };
 
-/* Cyclical data structures are visible to the programmer in three ways.
- First, list? is required to return false on cyclical lists.
- (Somewhat inconsistently, vector? seems to return true on cyclical vectors.)
- Second, the external representations of cyclical data structures should
- probably show the cyclicity in some way, for example by displaying "holes"
- in the cyclic parts. (But the standard says nothing about this.)
- Third, procedures that traverse a cyclic data structure need not terminate,
- for example:
-
- (define x (cons 1 2))
- (set-cdr! x x)
- (length x) => ; infinite loop
-
- Inside this implementation, there's a fourth concern: since datums are
- defensively cloned all the time, a cycle in a datum "tree" could easily
- send the interpreter into an infinite loop when it is not supposed to.
-
- In light of these issues, I've decided to gate every mutation procedure
- that could introduce a cycle into a data structure with the following
- post-processing function. (I'll need to write a similar one for vectors.)
-
- Unfortunately, this makes set-car! and set-cdr! O(n) instead of O(1).
-
- In the best case, if I could remove all defensive Datum cloning,
- I could put all cycle-detection logic into list? and Datum.prototype.toString,
- which have to be O(n) anyway. */
 Datum.prototype.labelCycles = function() {
     /* Fun fact: all keys in JavaScript are strings. So we get this
      surprising behavior:
@@ -156,34 +130,14 @@ Datum.prototype.sameTypeAs = function(other) {
     return this.type === other.type;
 };
 
-/* See comment at Environment.prototype.get for why vector-set!
- is not an issue. */
-Datum.prototype.couldBeMutated = function() {
-    return this.isString() // string-set!
-        || this.isList() // set-car! and set-cdr!
-        || this.isImproperList(); // set-car! and set-cdr!
-};
-
-Datum.prototype.setCloneSource = function(src) {
-    if (this.src)
-        throw new InternalInterpreterError('invariant incorrect');
-    this.src = src;
-    return this;
-};
-
-Datum.prototype.getCloneSource = function () {
-    return this.src || this;
-};
-
 Datum.prototype.clone = function(parent) {
 
-    var ans = new Datum();
+    /* Invariant: although cyclical Datum structures can be created by
+     the programmer (through set-cdr!, etc.), they will never be cloned.
+     They are created by mutation, i.e. once a value is already bound in an
+     Environment, and once that happens, we never clone it again. */
 
-    /* Yes, two different objects will have the same hashCode.
-     This is currently required for detection of programmer-induced
-     cycles in data structures, but the better solution is to not clone
-     Datums at all. See comment to Datum.prototype.labelCycles. */
-    ans.hashCode = this.hashCode;
+    var ans = new Datum();
 
     if (this.type)
         ans.type = this.type;
@@ -195,7 +149,7 @@ Datum.prototype.clone = function(parent) {
         ans.nonterminals = shallowArrayCopy(this.nonterminals);
     if (this.firstChild) {
         var buf = new SiblingBuffer();
-        for (var child = this.firstChild; child && !child.isCycle; child = child.nextSibling) {
+        for (var child = this.firstChild; child; child = child.nextSibling) {
             buf.appendSibling(child.clone(ans));
         }
         ans.firstChild = buf.toSiblings();
