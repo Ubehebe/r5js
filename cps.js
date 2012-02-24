@@ -434,8 +434,8 @@ Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer
     on the trampoline. */
     var testResult = this.test.isIdentifier()
         ? envBuffer.get(this.test.payload)
-        : maybeWrapResult(this.test, this.test.type);
-    if (testResult.payload === false) {
+        : maybeWrapResult(this.test, this.test.type).payload;
+    if (testResult === false) {
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;
         /* We must clear the environment off the non-taken branch.
@@ -495,7 +495,7 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
                 return node.shouldUnquote();
             },
             function(node) {
-                var ans = env.get(node.payload);
+                var ans = maybeWrapResult(env.get(node.payload)).maybeDeref();
                 if (node.shouldUnquoteSplice()) {
                     if (ans.isList()) {
                         if (ans.firstChild) // `(1 ,@(list 2 3) 4) => (1 2 3 4)
@@ -731,12 +731,7 @@ ProcCall.prototype.bindResult = function(continuation, val) {
 };
 
 ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
-    /* Calling Environment.prototype.get with disableDatumClone = true
-     retrieves the "master" Datum, not some defensive clone. This is not
-     necessary, since Environment.prototype.mutate will "fast-forward" to
-     the master Datum given a defensive clone, but it does save the time
-     of cloning and fast-forwarding. */
-    var src = this.env.get(this.firstOperand.nextSibling.payload, true);
+    var src = this.env.get(this.firstOperand.nextSibling.payload);
     /* In Scheme, macros can be bound to identifiers but they are not really
      first-class citizens; you cannot say
 
@@ -785,7 +780,13 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultSt
 
     else {
 
-        var args = evalArgs(this.firstOperand, this.env);
+        var args = evalArgs(this.firstOperand, this.env, true);
+
+        // todo bl document why we're doing this...
+        for (var i =0; i< args.length; ++i) {
+            if (args[i] instanceof Datum)
+                args[i] = args[i].maybeDeref();
+        }
 
         /* For call/cc etc: push the current ProcCall, the continuation,
          and the result struct. todo bl: pushing the ProcCall invites trouble
@@ -843,7 +844,9 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resul
 
     else {
 
-        var args = evalArgs(this.firstOperand, this.env);
+        // todo bl we should be able to pass false as the last parameter.
+        // need to resolve some bugs.
+        var args = evalArgs(this.firstOperand, this.env, true);
 
         /* If we're at a tail call we can reuse the existing environment.
             Otherwise create a new environment pointing back to the current one.
@@ -888,7 +891,7 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
 };
 
 ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) {
-    var arg = evalArgs(this.firstOperand, this.env)[0]; // there will only be 1 arg
+    var arg = evalArgs(this.firstOperand, this.env, false)[0]; // there will only be 1 arg
     this.env.addBinding(proc.lastResultName, arg);
     resultStruct.ans = arg;
     resultStruct.nextContinuable = proc.nextContinuable;
@@ -937,7 +940,7 @@ ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) 
     }
 };
 
-function evalArgs(firstOperand, env) {
+function evalArgs(firstOperand, env, wrapArgs) {
     var args = [];
 
     /* Special logic for values and call-with-values. Example:
@@ -966,7 +969,9 @@ function evalArgs(firstOperand, env) {
         if (cur instanceof Continuation)
             args.push(cur);
         else if (cur.isIdentifier()) {
-            var toPush = env.get(cur.payload);
+            var toPush = wrapArgs
+                ? maybeWrapResult(env.get(cur.payload))
+                : env.get(cur.payload);
             /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
              for convenience. The isLetOrLetrecSyntax flag discriminates
