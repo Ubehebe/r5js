@@ -269,3 +269,14 @@
       '(0 1 2 3 4))
      v) => #(0 1 4 9 16))
 )
+
+(define-tests cyclicity-tests
+  ((begin
+     (define x (list 1 2))
+     (set-car! x x)
+     (list? x)) => #t)
+  ((begin
+     (define x (list 1 2))
+     (set-cdr! x x)
+     (list? x)) => #f)
+)

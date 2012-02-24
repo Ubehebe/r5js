@@ -200,6 +200,17 @@ Reader.prototype.read = function() {
 // This is the inverse of Reader.prototype.read, which is why it's here.
 Datum.prototype.toString = function() {
 
+    /* This is necessary just for programmer-introduced cyclic
+     data structures. When Datum.prototype.clone sees a cycle,
+     it basically stops cloning, leaving out information that would be
+     nice to have in the external representation. But it does record
+     the clone source, and we can use this to recover the correct
+     external representation.
+
+     The real solution is to get rid of datum cloning as much as possible. */
+    if (this.getCloneSource() !== this)
+        return this.getCloneSource().toString();
+
     var ans, child;
     var endDelimiter = "";
 
@@ -250,18 +261,48 @@ Datum.prototype.toString = function() {
              (These should not make it into any external representation.)
              if (this.qqLevel !== undefined && ans !== "'")
              ans += 'qq' + this.qqLevel; */
-            for (child = this.firstChild; child && child.nextSibling; child = child.nextSibling)
-                ans += child.toString() + ' ';
-            var lastChildString = child ? child.toString() : '';
+            for (child = this.firstChild;
+                 child && child.nextSibling;
+                 child = child.nextSibling) {
+                if (child.isCycle) {
+                    ans += '[cycle]';
+                    child = null;
+                    break;
+                } else {
+                    ans += child.toString() + ' ';
+                }
+            }
+            var lastChildString = '';
+            if (child)
+                lastChildString = child.isCycle ? '[cycle]' : child.toString();
             return ans + lastChildString + endDelimiter;
         case '.(':
             ans = '(';
             for (child = this.firstChild;
                  child && child.nextSibling && child.nextSibling.nextSibling;
-                 child = child.nextSibling)
-                ans += child.toString() + ' ';
-            return ans + child.toString() + ' . ' + child.nextSibling.toString() + ')';
+                 child = child.nextSibling) {
+                if (child.isCycle) {
+                    ans += '[cycle]';
+                    child = null;
+                    break;
+                } else {
+                    ans += child.toString() + ' ';
+                }
+            }
+            var nextToLastChildString = '';
+            if (child) {
+                nextToLastChildString = child.isCycle
+                    ? '[cycle]'
+                    : child.toString();
+            }
+            var lastChildString = '';
+            if (child.nextSibling) {
+                lastChildString = child.nextSibling.isCycle
+                    ? '[cycle]'
+                    : child.nextSibling.toString();
+            }
 
+            return ans + nextToLastChildString + ' . ' + lastChildString + ')';
         default:
             throw new InternalInterpreterError('unknown datum type ' + this.type);
     }

@@ -10,7 +10,12 @@ function Datum() {
     this.nextDesugar = -1;
      this.name = null; // only for procedures
      */
+    /* Only used for detecting programmer-created cycles in lists
+     (set-cdr! and vector-set! I think are the only ways). */
+    this.hashCode = datumCounter++;
 }
+
+var datumCounter = 0; // see comment in Datum constructor
 
 // todo bl too many utility functions; reduce to minimal set
 Datum.prototype.forEach = function(callback) {
@@ -20,6 +25,64 @@ Datum.prototype.forEach = function(callback) {
         callback(this);
         for (var cur = this.firstChild; cur; cur = cur.nextSibling)
                 cur.forEach(callback);
+    }
+};
+
+/* Cyclical data structures are visible to the programmer in three ways.
+ First, list? is required to return false on cyclical lists.
+ (Somewhat inconsistently, vector? seems to return true on cyclical vectors.)
+ Second, the external representations of cyclical data structures should
+ probably show the cyclicity in some way, for example by displaying "holes"
+ in the cyclic parts. (But the standard says nothing about this.)
+ Third, procedures that traverse a cyclic data structure need not terminate,
+ for example:
+
+ (define x (cons 1 2))
+ (set-cdr! x x)
+ (length x) => ; infinite loop
+
+ Inside this implementation, there's a fourth concern: since datums are
+ defensively cloned all the time, a cycle in a datum "tree" could easily
+ send the interpreter into an infinite loop when it is not supposed to.
+
+ In light of these issues, I've decided to gate every mutation procedure
+ that could introduce a cycle into a data structure with the following
+ post-processing function. (I'll need to write a similar one for vectors.)
+
+ Unfortunately, this makes set-car! and set-cdr! O(n) instead of O(1).
+
+ In the best case, if I could remove all defensive Datum cloning,
+ I could put all cycle-detection logic into list? and Datum.prototype.toString,
+ which have to be O(n) anyway. */
+Datum.prototype.labelCycles = function() {
+    /* Fun fact: all keys in JavaScript are strings. So we get this
+     surprising behavior:
+
+     var dict = {};
+     dict[new Object()] = true;
+     dict[new Object()] => true!
+
+     even though new Object() !== new Object().
+
+     So I added hashCodes to the Datum objects myself. */
+    var seen = {};
+    seen[this.hashCode] = true;
+    for (var child = this.firstChild; child; child = child.nextSibling) {
+        if (seen[child.hashCode]) {
+            /* We mark containsCycle on the second element. Here's why:
+
+             (define x (cons 1 2))
+             (set-car! x x)
+             (list? x) => #t
+
+             That is, it's ok for the first element to be cyclic. */
+            if (this.firstChild.nextSibling && child !== this.firstChild)
+                this.firstChild.nextSibling.containsCycle = true;
+            child.isCycle = true;
+            break;
+        }
+        else
+            seen[child.hashCode] = true;
     }
 };
 
@@ -121,6 +184,12 @@ Datum.prototype.clone = function(parent) {
 
     var ans = new Datum();
 
+    /* Yes, two different objects will have the same hashCode.
+     This is currently required for detection of programmer-induced
+     cycles in data structures, but the better solution is to not clone
+     Datums at all. See comment to Datum.prototype.labelCycles. */
+    ans.hashCode = this.hashCode;
+
     if (this.type)
         ans.type = this.type;
     if (this.payload !== undefined) // watch out for 0's and falses
@@ -131,8 +200,9 @@ Datum.prototype.clone = function(parent) {
         ans.nonterminals = shallowArrayCopy(this.nonterminals);
     if (this.firstChild) {
         var buf = new SiblingBuffer();
-        for (var child = this.firstChild; child; child = child.nextSibling)
+        for (var child = this.firstChild; child && !child.isCycle; child = child.nextSibling) {
             buf.appendSibling(child.clone(ans));
+        }
         ans.firstChild = buf.toSiblings();
     }
     // We only need the parent pointer on the last sibling.

@@ -140,7 +140,17 @@ R5JS_builtins['type'] = {
     'list?': {
         argc: 1,
         proc: function(node) {
-            return node.isList();
+            node = node.getCloneSource();
+            if (node.isList()) {
+                // It's okay for the car to be cyclic, but not the cdr.
+                if (node.firstChild
+                    && node.firstChild.nextSibling
+                    && node.firstChild.nextSibling.containsCycle)
+                    return false;
+                else
+                    return true;
+
+            } else return false;
         }
     },
 
@@ -605,8 +615,18 @@ R5JS_builtins['pair'] = {
         argc: 1,
         argtypes: ['pair'],
         proc: function(p) {
+            /* todo bl start here:  siblingsToList creates a new
+            object, which makes the following fail:
+
+             (define x '(1 2 3))
+             (set-car! (list-tail x 1) "hi")
+             x => (1 2 3) ; should be (1 "hi" 3)
+
+             The mismatch between the internal first-child/next-sibling
+             representation and the external car/cdr representation is
+             starting to be tedious. */
             /* Conversion from the internal first-child/next-sibling
-             representation to the internal car-cdr representation
+             representation to the external car-cdr representation
              is simple but a bit subtle. If we're at the end of the
              siblings, we either return that last element as "cdr"
              (if we're in at the end of an improper list) or wrap it
@@ -630,6 +650,8 @@ R5JS_builtins['pair'] = {
                 car.nextSibling = p.firstChild.nextSibling;
                 p.firstChild = car;
 
+                p.labelCycles();
+
                 /* If this was a derivative copy, mutate the source as well.
                  (Although this is written recursively, there should be at most one
                  recursion. See Datum.prototype.getCloneSource.) */
@@ -652,6 +674,8 @@ R5JS_builtins['pair'] = {
                     p.firstChild.nextSibling = cdr;
                     p.type = '.(';
                 }
+
+                p.labelCycles();
 
                 /* If this was a derivative copy, mutate the source as well.
                  (Although this is written recursively, there should be at most one
@@ -873,6 +897,8 @@ R5JS_builtins['vector'] = {
                 v.payload[k] = fill;
             else
                 v.convertVectorToArrayBacked().payload[k] = fill;
+
+            // todo bl requires a cycle-labeling procedure like set-car! and set-cdr!
 
             return null;
         }
