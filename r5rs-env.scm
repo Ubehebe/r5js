@@ -115,6 +115,50 @@
 (define cdddar (compose cdr cdr cdr car))
 (define cddddr (compose cdr cdr cdr cdr))
 
+(define (list? l)
+  ; The interview staple: find a cycle in a linked list.
+  ;
+  ; The main idea is to send one pointer through the list hitting every node,
+  ; and another pointer through the list hitting every second node. If there
+  ; is a cycle of length n, the two pointers will eventually coincide.
+  ;
+  ; Proof: suppose pointers X and Y start at positions x and y
+  ; respectively on the cycle, 0 <= x,y < n. After k moves:
+  ;
+  ; X is at x+k (mod n)
+  ; Y is at y+2k (mod n)
+  ;
+  ; So we just have to show that
+  ;
+  ; x+k = y+2k (mod n)
+  ;
+  ; always has a solution. Sure:
+  ;
+  ; k = x-y (mod n)
+  ;
+  ; so the two pointers coincide after fewer than n steps.
+  (define (detect-cycle x y)
+    (cond ((null? x) (list? y)) ; x finished first, just check y is ok
+	  ((null? y) (list? x)) ; y finished first, just check x is ok
+	  ((or (not (pair? x)) (not (pair? y)))
+	   #f) ; x or y is not a pair: fail
+	  ((eq? x y) #f) ; cycle: fail
+	  (else
+	   (let* ((next-x (cdr x))
+		  (next-y (cdr y)))
+	     (cond ((null? next-y) (list? next-x)) ; y finished, just check x is ok
+		   ((not (pair? next-y)) #f) ; next-y is not a pair: fail
+		   (else ; advance x by 1 and y by 2
+		    (detect-cycle next-x (cdr next-y))))))))
+  (cond ((null? l) #t) ; various corner cases before input to detect-cycle
+	((not (pair? l)) #f)
+	((null? (cdr l))
+	 (if (pair? (car l)) ; not sure about this but seems to be required...
+	     (detect-cycle (car l) (caar l))
+	     #t))
+	((not (pair? (cdr l))) #f)
+	(else (detect-cycle l (cdr l)))))
+
 (define (list . xs) xs) ; p. 27
 
 (define (foldl f start xs) ; helper function, not in R5RS

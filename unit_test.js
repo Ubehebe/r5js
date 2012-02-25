@@ -497,6 +497,8 @@ function testEvaluator() {
         "(define x '(1)) (cons x x)": '((1) 1)',
         "(define x '#(a b c)) (define y x) (vector-set! x 0 'hi!) (vector-ref y 0)": 'hi!',
         "(define x (make-vector 3)) (define y x) (vector-set! x 0 'hi!) (vector-ref y 0)": 'hi!',
+        "(define x (list 2 3 4)) (set-car! (list-tail x 1) 100) x": '(2 100 4)',
+        "(define x '(a b c)) (set-cdr! (list-tail x 0) 'y) x": '(a . y)',
 
         // Let-versions of the above
         '(let* ((x "hello") (y x)) (string-set! x 0 #\\x) y)': '"xello"',
@@ -514,7 +516,9 @@ function testEvaluator() {
         "(let ((x (list 1))) (cons x x))": '((1) 1)',
         "(let ((x '(1))) (cons x x))": '((1) 1)',
         "(let* ((x '#(a b c)) (y x)) (vector-set! x 0 'hi!) (vector-ref y 0))": 'hi!',
-        "(let* ((x (make-vector 3)) (y x)) (vector-set! x 0 'hi!) (vector-ref y 0))": 'hi!'
+        "(let* ((x (make-vector 3)) (y x)) (vector-set! x 0 'hi!) (vector-ref y 0))": 'hi!',
+        "(let ((x (list 2 3 4))) (set-car! (list-tail x 1) 100) x)": '(2 100 4)',
+        "(let ((x '(a b c))) (set-cdr! (list-tail x 0) 'y) x)": '(a . y)'
     };
 
     var numErrors = 0;

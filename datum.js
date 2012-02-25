@@ -10,12 +10,7 @@ function Datum() {
     this.nextDesugar = -1;
      this.name = null; // only for procedures
      */
-    /* Only used for detecting programmer-created cycles in lists
-     (set-cdr! and vector-set! I think are the only ways). */
-    this.hashCode = datumCounter++;
 }
-
-var datumCounter = 0; // see comment in Datum constructor
 
 // todo bl too many utility functions; reduce to minimal set
 Datum.prototype.forEach = function(callback) {
@@ -25,38 +20,6 @@ Datum.prototype.forEach = function(callback) {
         callback(this);
         for (var cur = this.firstChild; cur; cur = cur.nextSibling)
                 cur.forEach(callback);
-    }
-};
-
-Datum.prototype.labelCycles = function() {
-    /* Fun fact: all keys in JavaScript are strings. So we get this
-     surprising behavior:
-
-     var dict = {};
-     dict[new Object()] = true;
-     dict[new Object()] => true!
-
-     even though new Object() !== new Object().
-
-     So I added hashCodes to the Datum objects myself. */
-    var seen = {};
-    seen[this.hashCode] = true;
-    for (var child = this.firstChild; child; child = child.nextSibling) {
-        if (seen[child.hashCode]) {
-            /* We mark containsCycle on the second element. Here's why:
-
-             (define x (cons 1 2))
-             (set-car! x x)
-             (list? x) => #t
-
-             That is, it's ok for the first element to be cyclic. */
-            if (this.firstChild.nextSibling && child !== this.firstChild)
-                this.firstChild.nextSibling.containsCycle = true;
-            child.isCycle = true;
-            break;
-        }
-        else
-            seen[child.hashCode] = true;
     }
 };
 
@@ -645,6 +608,15 @@ Datum.prototype.siblingsToList = function(dotted) {
     ans.type = dotted ? '.(' : '(';
     ans.firstChild = this;
     return ans;
+};
+
+Datum.prototype.setCdrHelper = function(cdrHelper) {
+    this.cdrHelper = cdrHelper;
+    return this;
+};
+
+Datum.prototype.getCdrHelper = function() {
+    return this.cdrHelper;
 };
 
 function newCpsName() {

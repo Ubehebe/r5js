@@ -247,6 +247,19 @@ Datum.prototype.toString = function() {
         case '`':
         case ',':
         case ',@':
+            /* Note: this will be an infinite loop for cyclical data
+             structures created by the programmer through set-cdr!, etc.
+             Some implementations do nice things, like print "holes" where
+             a cycle starts. But the R5RS standard does not seem to define
+             external representations for lists (vectors, etc.) that contain
+             cycles. In general, the spirit of the standard seems to be that
+             the programmer is responsible for mayhem caused by the creation
+             of such structures.
+
+             There is one exception: list? (a library procedure) must return
+             false for cyclical lists. Accordingly, I've written the
+             cycle-detecting logic wholly in Scheme, not bothering
+             to reimplement it here. */
             ans = this.type;
             /* Uncomment to show quasiquotation levels.
              (These should not make it into any external representation.)
@@ -254,45 +267,23 @@ Datum.prototype.toString = function() {
              ans += 'qq' + this.qqLevel; */
             for (child = this.firstChild;
                  child && child.nextSibling;
-                 child = child.nextSibling) {
-                if (child.isCycle) {
-                    ans += '[cycle]';
-                    child = null;
-                    break;
-                } else {
+                 child = child.nextSibling)
                     ans += child.toString() + ' ';
-                }
-            }
-            var lastChildString = '';
-            if (child)
-                lastChildString = child.isCycle ? '[cycle]' : child.toString();
-            return ans + lastChildString + endDelimiter;
+            return ans
+                + (child ? child.toString() : '')
+                + endDelimiter;
         case '.(':
             ans = '(';
             for (child = this.firstChild;
                  child && child.nextSibling && child.nextSibling.nextSibling;
-                 child = child.nextSibling) {
-                if (child.isCycle) {
-                    ans += '[cycle]';
-                    child = null;
-                    break;
-                } else {
+                 child = child.nextSibling)
                     ans += child.toString() + ' ';
-                }
-            }
-            var nextToLastChildString = '';
-            if (child) {
-                nextToLastChildString = child.isCycle
-                    ? '[cycle]'
-                    : child.toString();
-            }
-            var lastChildString = '';
-            if (child.nextSibling) {
-                lastChildString = child.nextSibling.isCycle
-                    ? '[cycle]'
-                    : child.nextSibling.toString();
-            }
-
+            var nextToLastChildString = child
+            ? child.toString()
+                : '';
+            var lastChildString = child.nextSibling ?
+                child.nextSibling.toString()
+                : '';
             return ans + nextToLastChildString + ' . ' + lastChildString + ')';
         default:
             throw new InternalInterpreterError('unknown datum type ' + this.type);

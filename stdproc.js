@@ -21,8 +21,24 @@ R5JS_builtins['equiv'] = {
                     return p.payload === q.payload; // todo bl numerical precision...
                 else if (p.isCharacter())
                     return p.payload === q.payload;
-                else if (p.isList())
-                    return p === q || p.isEmptyList() && q.isEmptyList();
+                else if (p.isList()) {
+                    var ans;
+                    if (p === q || p.isEmptyList() && q.isEmptyList())
+                        ans = true;
+                    else {
+                        var pHelper = p.getCdrHelper();
+                        var qHelper = q.getCdrHelper();
+                        if (pHelper && qHelper) {
+                            ans = pHelper.equals(qHelper);
+                        } else if (pHelper) {
+                            ans = pHelper.resolvesTo(q);
+                        } else if (qHelper) {
+                            ans = qHelper.resolvesTo(p);
+                        } else ans = false;
+                    }
+
+                        return ans;
+                }
                 else if (p.isImproperList())
                     return p === q;
                 else if (p.isVector()) {
@@ -123,27 +139,6 @@ R5JS_builtins['type'] = {
                 || node.isImproperList()
                 || node.isQuote())
                 && !!node.firstChild; // 3.2: (pair? '()) => #f
-        }
-    },
-
-    /* This is a library procedure in R5RS, which means
-     it ought to be written in Scheme. We provide it in JavaScript
-     because some of the primitive procedures take list arguments
-     (example: apply), so it's nice to define list? at the same time
-     so we can do type-checking of the arguments. */
-    'list?': {
-        argc: 1,
-        proc: function(node) {
-            if (node.isList()) {
-                // It's okay for the car to be cyclic, but not the cdr.
-                if (node.firstChild
-                    && node.firstChild.nextSibling
-                    && node.firstChild.nextSibling.containsCycle)
-                    return false;
-                else
-                    return true;
-
-            } else return false;
         }
     },
 
@@ -608,43 +603,28 @@ R5JS_builtins['pair'] = {
         argc: 1,
         argtypes: ['pair'],
         proc: function(p) {
-            /* todo bl start here:  siblingsToList creates a new
-            object, which makes the following fail:
-
-             (define x '(1 2 3))
-             (set-car! (list-tail x 1) "hi")
-             x => (1 2 3) ; should be (1 "hi" 3)
-
-             The mismatch between the internal first-child/next-sibling
-             representation and the external car/cdr representation is
-             starting to be tedious. */
-            /* Conversion from the internal first-child/next-sibling
-             representation to the external car-cdr representation
-             is simple but a bit subtle. If we're at the end of the
-             siblings, we either return that last element as "cdr"
-             (if we're in at the end of an improper list) or wrap it
-             in a list (if we're at the end of a proper list).
-             If we're not at the end of the siblings, we package up the
-             remaining elements and return that as "cdr". See also
-             comments to Datum.prototype.siblingsToList. */
             var startOfCdr = p.firstChild.nextSibling;
+            var ans;
             if (startOfCdr) {
-                return (startOfCdr.nextSibling || p.isList())
+                ans = (startOfCdr.nextSibling || p.isList())
                     ? startOfCdr.siblingsToList(p.isImproperList())
                     : startOfCdr;
+                return ans.setCdrHelper(new CdrHelper(p, startOfCdr));
             } else return newEmptyList();
         }
     },
 
     'set-car!': {
         argc: 2,
-        proc: function setCar(p, car) {
+        proc: function(p, car) {
             if (p.isList() || p.isImproperList()) {
                 car.nextSibling = p.firstChild.nextSibling;
                 p.firstChild = car;
 
-                // todo bl remove: this makes set-car! O(n)
-                p.labelCycles();
+                for (var helper = p.getCdrHelper();
+                     helper;
+                     helper = helper.getCdrHelper())
+                    helper.setCar(car);
 
                 return null; // unspecified return value
             } else throw new ArgumentTypeError(p, 0, 'set-car!', 'pair');
@@ -653,7 +633,7 @@ R5JS_builtins['pair'] = {
 
     'set-cdr!': {
         argc: 2,
-        proc: function setCdr(p, cdr) {
+        proc: function(p, cdr) {
             if (p.isList() || p.isImproperList()) {
 
                 if (cdr.isList()) {
@@ -664,8 +644,10 @@ R5JS_builtins['pair'] = {
                     p.type = '.(';
                 }
 
-                // todo bl remove: this makes set-cdr! O(n)
-                p.labelCycles();
+                for (var helper = p.getCdrHelper();
+                    helper; helper = helper.getCdrHelper()) {
+                    helper.setCdr(cdr);
+                }
 
                 return null; // unspecified return value
             } else throw new ArgumentTypeError(p, 0, 'set-cdr!', 'pair');

@@ -271,7 +271,7 @@
   ((begin
      (define x 1)
      (define y 2)
-     (or x y)) => #t)
+     (or x y)) => 1)
 )
 
 (define-tests cyclicity-tests
@@ -283,4 +283,9 @@
      (define x (list 1 2))
      (set-cdr! x x)
      (list? x)) => #f)
+  ((begin
+     (define x (list 1 2 3 4))
+     (define y (cdr x))
+     (set-cdr! y y)
+     (or (list? x) (list? y))) => #f)
 )
