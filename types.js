@@ -101,8 +101,6 @@ SchemeProcedure.prototype.bindArgs = function(args, env) {
 
     if (this.formalsArray.length > 0) {
 
-        /* Thanks to non-scoped JavaScript local variables,
-         i is now this.formalsArray.length - 1. */
         name = this.formalsArray[i];
         if (!this.isDotted) {
             env.addBinding(name, args[i]);
