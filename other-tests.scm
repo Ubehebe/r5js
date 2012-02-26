@@ -272,6 +272,23 @@
      (define x 1)
      (define y 2)
      (or x y)) => 1)
+  ((let* ((x '(1 2 3 4))
+	  (y (cdr x))
+	  (z (cdr y)))
+     (set-car! z 100)
+     (and
+      (equal? x '(1 2 100 4))
+      (equal? y '(2 100 4))
+      (equal? z '(100 4)))) => #t)
+  ((let* ((x '(1 2 3 4))
+	  (y (cdr x))
+	  (z (cdr y)))
+     (set-cdr! z 100)
+     (and
+      (equal? x '(1 2 3 . 100))
+      (equal? y '(2 3 . 100))
+      (equal? z '(3 . 100)))) => #t)
+)
 )
 
 (define-tests cyclicity-tests
@@ -288,4 +305,9 @@
      (define y (cdr x))
      (set-cdr! y y)
      (or (list? x) (list? y))) => #f)
+  ((let* ((x (list 1 2 3 4))
+	  (y (cdr x))
+	  (z (cdr y)))
+     (set-cdr! z z)
+     (or (list? x) (list? y) (list? z))) => #f)
 )

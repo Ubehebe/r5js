@@ -589,20 +589,19 @@ Datum.prototype.decorateQuasiquote = function(qqLevel) {
 
 /* Notice that our representation of lists is not recursive: the "second element"
  of (x y z) is y, not (y z). So we provide this function as an aid whenever
- we want that recursive property (which in practice is seldom).
+ we want that recursive property. Mainly, this is for cdr: we allocate a new
+ head-of-list object and point it to the second element of the list in question.
 
- Why not use car/cdr-style lists? I've gone back and forth (and back) on this, and
- may still change my mind. The current first-child/next-sibling representation
- works; I'm sure I'd break something (especially with the hacky "parent" pointers)
- by changing to car/cdr. Also, car/cdr would double memory usage for lists.
- Consider this list as an example: (x y (1 2)). In first-child/next-sibling, this
- allocates six Datum objects, one for each atom and one for the head of each list.
- In car/cdr, this would allocate five Pair objects and four Atom objects (they would
- have to be a separate datatype).
+ Unfortunately, this approach breaks referential transparency: (cdr x) does not
+ point to the same region of memory as x.firstChild.nextSibling. So we have to
+ build in special logic to the primitive equivalence predicates, and especially
+ into the primitive mutation procedures (set-car! and set-cdr!). That is what
+ the CdrHelper class does.
 
- Also, first-child/next-sibling is easier to draw by hand, something that's important
- to me.
- */
+ Conceptually, it would not be difficult to switch to an internal car/cdr
+ representation, and the performance would be similar. But practically,
+ it would involve a lot of refactoring, because the pointers are manipulated
+ directly (without function calls) all over the place. So it's a "nice to have". */
 Datum.prototype.siblingsToList = function(dotted) {
     var ans = new Datum();
     ans.type = dotted ? '.(' : '(';

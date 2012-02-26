@@ -1,10 +1,14 @@
+/* See the comment to Datum.prototype.siblingsToList for an explanation
+ of what this class does. */
 function CdrHelper(head, startOfCdr) {
     this.head = head;
     this.startOfCdr = startOfCdr;
 }
 
 CdrHelper.prototype.getCdrHelper = function() {
-    return this.head.getCdrHelper();
+    /* todo bl: this used to return this.head.getCdrHelper(), but
+     I am not sure that's necessary. */
+    return null;
 };
 
 // Basically, call set-car! on the master list.
@@ -15,8 +19,12 @@ CdrHelper.prototype.setCar = function(car) {
 // Basically, call set-cdr! on the master list.
 CdrHelper.prototype.setCdr = function(cdr) {
     this.startOfCdr.nextSibling = cdr;
-    if (!cdr.isList())
-        this.head.type = '.(';
+    if (!cdr.isList()) {
+        var cur = this;
+        do {
+            cur.head.type = '.(';
+        } while (cur = cur.head.getCdrHelper());
+    }
 };
 
 /* Two CdrHelpers are equal iff they point to the same list and have
