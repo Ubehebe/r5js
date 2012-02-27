@@ -289,6 +289,370 @@
       (equal? y '(2 3 . 100))
       (equal? z '(3 . 100)))) => #t)
 )
+
+(define-tests macro-shadowing-tests
+  ((begin
+     (define foo (lambda () 'procedure))
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo) 'macro)))
+     (foo)) => macro)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo) 'macro)))
+     (define foo (lambda () 'procedure))
+     (foo)) => procedure)
+  ((begin
+     (define (foo) 'procedure)
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo) 'macro)))
+     (foo)) => macro)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo) 'macro)))
+     (define (foo) 'procedure)
+     (foo)) => procedure)
+)
+
+(define-tests macro-nonliteral-matching-tests
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo x) 'nonliteral-id))))
+     (foo foo)) => nonliteral-id)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo y) (+ y y)))))
+     (foo 100)) => 200)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo x) "hi"))))
+     (foo (1 2))) => "hi")
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo x) x))))
+     (foo "hi")) => "hi")
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo x) x))))
+     (foo '(1 2))) => (1 2))
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo x y) (+ x y)))))
+     (foo 3 4)) => 7)
+)
+
+(define-tests macro-literal-matching-tests
+  ((let-syntax
+       ((foo (syntax-rules (x)
+	       ((foo x) 'literal-id))))
+     (foo x)) => literal-id)
+  ((begin
+     (define x 1)
+     (define-syntax foo
+       (syntax-rules (x)
+	 ((foo x) 'literal-id)))
+     (foo x)) => literal-id)
+)
+
+(define-tests macro-list-matching-tests
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (a b c)) c))))
+     (foo (1 2 3))) => 3)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (((((x)))))) x))))
+     (foo ((((('five))))))) => five)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo ((((x))))) x))))
+     (foo (((('four)))))) => four)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (((x)))) x))))
+     (foo ((('three))))) => three)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo ((x))) x))))
+     (foo (('two)))) => two)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (x)) x))))
+     (foo ('one))) => one)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (a (b (c (d)))))
+	    (+ a b c d)))))
+     (foo (1 (2 (3 (4)))))) => 10)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo ((((a) b) c)))
+	  (/ a b c))))
+     (foo ((((12) 2) 3)))) => 2)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo x y)
+	    (+ x (* 2 y))))))
+     (foo 3 4)) => 11)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (x) (y))
+	  (+ x (* 2 y)))))
+     (foo (3) (4))) => 11)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (a b) (c d))
+	    (+ a c)))))
+     (foo (1 2) (3 4))) => 4)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (x y z))
+	  (quote (x y . z)))))
+     (foo (a b c))) => (a b . c))
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (x y z))
+	    (quote #(x y z))))))
+     (foo (a b c))) => #(a b c))
+)
+
+(define-tests macro-improper-list-matching-tests
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (x . y))
+	  (/ y x))))
+     (foo (2 . 1024))) => 512)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (x y . z))
+	    (+ x y z)))))
+     (foo (10 11 . 12))) => 33)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (a . b) (c . d))
+	  (/ a b c d))))
+     (foo (1024 . 2) (4 . 8))) => 16)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (a . (b . (c . d))))
+	    (/ a b c d)))))
+     (+ (foo (100 . (2 . (5 . 2)))) 100)) => 105)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (((a . b) . c) . d))
+	  (/ d c b a))))
+     (foo (((2 . 3) . 5) . 60))) => 2)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (x . y))
+	    'ok))))
+     (foo (1 2))) => ok)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (x . y))
+	  y)))
+     (foo (1 . 2))) => 2)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (x . y))
+	    (quote y)))))
+     (foo (1 2))) => (2))
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (x . y))
+	  (quote y))))
+     (foo (1 2 3 (4 5)))) => (2 3 (4 5)))
+)
+
+(define-tests macro-ellipsis-matching-tests
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo x ...)
+	    (quote (x ...))))))
+     (foo 1 2)) => (1 2))
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo x ...)
+	  (x ...))))
+     (foo + 1 2 3)) => 6)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo x ...)
+	    (+ x ...)))))
+     (foo)) => 0)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo x ...)
+	  (+ x ...))))
+     (foo)) => 0)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (x ...) (y ...))
+	    (+ x ... y ...)))))
+     (foo (1 2 3) (4 5 6))) => 21)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (x ...) (y ...))
+	  (+ x ... y ...))))
+     (foo () ())) => 0)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (x y ...) (z w ...))
+	    (+ y ... w ...)))))
+     (foo ('not-a-number) ('not-a-number-either))) => 0)
+)
+
+(define-tests macro-vector-matching-tests
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo #(a b c))
+	  c)))
+     (foo #(1 2 3))) => 3)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo #(#(#(#(#(x)))))) x))))
+     (foo #(#(#(#(#('five))))))) => five)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo #(#(#(#(x))))) x)))
+     (foo #(#(#(#('four)))))) => four)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo #(#(#(x)))) x))))
+     (foo #(#(#('three))))) => three)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo #(#(x))) x)))
+     (foo #(#('two)))) => two)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo #(x)) x))))
+     (foo #('one))) => one)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo #(a (b #(c (d)))))
+	  (+ a b c d))))
+     (foo #(1 (2 #(3 (4)))))) => 10)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo #((((a) b) c)))
+	    (/ a b c)))))
+     (foo #((((12) 2) 3)))) => 2)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo #(x) #(y)) (+ x (* 2 y)))))
+     (foo #(3) #(4))) => 11)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo #(a b) #(c d)) (+ a c)))))
+     (foo #(1 2) #(3 4))) => 4)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo #(x y z))
+	  (quote (x y . z)))))
+     (foo #(a b c))) => (a b . c))
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo #(x y z))
+	    (quote #(y z x))))))
+     (foo #(a b c))) => #(b c a))
+)
+
+(define-tests macro-nested-ellipses-tests
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo #(x ...) ...)
+	  (+ (* x ...) ...))))
+     (foo #(1 2 3) #(4 5) #())) => 27)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (x ...) ...)
+	    (+ (* x ...) ...)))))
+     (foo (1 2 3) (4 5) ())) => 27)
+)
+
+(define-tests macro-definition-environment-tests
+  ((begin
+     (define x 1)
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo) x)))
+     ((lambda (x) (foo)) 2)) => 1)
+  ((let ((x 1))
+     (let-syntax ((foo (syntax-rules () ((foo) x))))
+       (define (bar x)
+	 (+ x (foo)))
+       (bar 2))) => 3)
+  ((begin
+     (define x 1)
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo) x)))
+     (define (bar x)
+       (+ x (foo) x))
+     (bar 2)) => 5)
+  ((let ((x 1))
+     (let-syntax ((foo (syntax-rules () ((foo) x))))
+       (let ((bar (lambda (x) (+ (foo) x (foo)))))
+	 (bar 2)))) => 4)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo) x)))
+     (define x 'whew)
+     (foo)) => whew)
 )
 
 (define-tests cyclicity-tests
