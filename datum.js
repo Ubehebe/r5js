@@ -731,15 +731,14 @@ Datum.prototype.desugarMacroBlock = function(env, operatorName) {
     var letBindings = new SiblingBuffer();
 
     for (var spec = this.at('(').firstChild; spec; spec = spec.nextSibling) {
-        var kw = spec.at('keyword');
+        var kw = spec.at('keyword').clone();
         var macro = spec.at('transformer-spec').desugar(env);
-        kw.nextSibling = macro;
-        var list = newEmptyList();
+        var buf = new SiblingBuffer();
         /* We have to wrap the SchemeMacro object in a Datum to get it into
             the parse tree. */
-        list.prependChild(newMacroDatum(macro));
-        list.prependChild(kw);
-        letBindings.appendSibling(list);
+        buf.appendSibling(kw);
+        buf.appendSibling(newMacroDatum(macro));
+        letBindings.appendSibling(buf.toList());
     }
 
     var _let = new SiblingBuffer();
