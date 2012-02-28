@@ -32,8 +32,8 @@
          If we add non-core libraries (for example, if we start targeting R6RS),
          it would make sense to have them fetched via ajax even in production.*/
         window.addEventListener('load', function() {
-            ajax('null-env.scm', function(syntaxLib) {
-                ajax('r5rs-env.scm', function(procLib) {
+            ajax('../scm/r5rs-syntax.scm', function(syntaxLib) {
+                ajax('../scm/r5rs-procedures.scm', function(procLib) {
                     bootstrap(syntaxLib, procLib);
                 })
             });
@@ -96,9 +96,9 @@
          is remarkable and should serve as a point of departure for
          performance investigations. */
         function doUnitTests() {
-            ajax('unit-test.scm', function(testFramework) {
-                ajax('r5rs-tests.scm', function(r5rsTests) {
-                    ajax('other-tests.scm', function(otherTests) {
+            ajax('../../test/unit-test.scm', function(testFramework) {
+                ajax('../../test/r5rs-tests.scm', function(r5rsTests) {
+                    ajax('../../test/other-tests.scm', function(otherTests) {
                     R5JS.eval(testFramework + r5rsTests + otherTests);
                 })
             })
