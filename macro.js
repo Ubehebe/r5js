@@ -107,12 +107,14 @@ For example:
  with "incorporation". Do we even need it?
 
  */
-function TemplateBindings(letSyntaxEnv, patternIds) {
+function TemplateBindings(letSyntaxEnv, patternIds, templateRenameCandidates) {
     this.bindings = {};
     this.children = [];
     this.curChild = 0;
     this.letSyntaxEnv = letSyntaxEnv;
     this.patternIds = patternIds;
+    this.templateRenameCandidates = templateRenameCandidates;
+    this.renameInTemplate = {};
 }
 
 TemplateBindings.prototype.resetCurChild = function() {
@@ -132,6 +134,30 @@ TemplateBindings.prototype.addTemplateBinding = function(name, val) {
     else {
         this.bindings[name] = val;
     }
+
+    var self = this;
+
+    /* We have to check the datum to be bound for conflicts with identifiers
+    in the template. Example:
+
+    (define-syntax or
+        (syntax-rules ()
+            (or test1 test2 ...)
+            (let ((x test1)) (if x x (or test2 ...)))))
+
+    (let ((x 4) (y 3)) (or x y))
+
+     The identifier x occurs in the template but not the pattern, so it will
+     appear in templateRenameCandidates (see Transformer.prototype.setupIds).
+     Then, during pattern matching, addTemplateBinding(test1, x) will be
+     called. This should signal that, during transcription, any occurrence of
+     the _template's_ x should be safely renamed.
+     See SchemeMacro.prototype.transcribe. */
+    val.forEach(function (datum) {
+        if (datum.isIdentifier()
+            && self.templateRenameCandidates[datum.payload])
+            self.renameInTemplate[datum.payload] = true;
+    });
 };
 
 // Purely for debugging.
@@ -232,6 +258,14 @@ TemplateBindings.prototype.getPatternIds = function() {
     return this.patternIds;
 };
 
+TemplateBindings.prototype.getTemplateRenameCandidates = function() {
+    return this.templateRenameCandidates;
+};
+
+TemplateBindings.prototype.wasRenamed = function(id) {
+    return this.renameInTemplate[id];
+};
+
 function Transformer(pattern, template) {
     /* This is an InternalInterpreterError (= sanity check) instead of a
      MacroError because the grammar should make it impossible for
@@ -257,7 +291,7 @@ Transformer.prototype.getName = function() {
 
 Transformer.prototype.setupIds = function() {
     var patternIds = {}; // names to nesting levels
-    var maybeRename = {};
+    var templateRenameCandidates = {};
     var pattern = this.pattern;
     var template = this.template;
     var macroName = this.name;
@@ -277,8 +311,17 @@ Transformer.prototype.setupIds = function() {
             if (subtrans.datum.isIdentifier()) {
                 var name = subtrans.datum.payload;
                 var maybeInPattern = patternIds[name];
-                if (maybeInPattern === undefined) {
-                    maybeRename[name] = true;
+                /* An identifier in a template is a candidate for being
+                 renamed during transcription if it doesn't occur in the pattern
+                 and is not the name of the macro. I've also thrown in a check
+                 that it's not a parser-sensititive identifier so we don't
+                 accidentally break the parser, but this may be buggy.
+                 The right thing to do is to remove the parser altogether.
+                 See comments at the top of Parser. */
+                if (maybeInPattern === undefined
+                    && name !== macroName) {
+                    if (!isParserSensitiveId(name))
+                        templateRenameCandidates[name] = true;
                 } else if (maybeInPattern !== ellipsisLevel
                     && name !== macroName) {
                     throw new MacroError(
@@ -302,7 +345,7 @@ Transformer.prototype.setupIds = function() {
     pattern.forEachSubtransformer(patternFn, 0);
     template.forEachSubtransformer(templateFn, 0);
 
-    this.maybeRename = maybeRename;
+    this.templateRenameCandidates = templateRenameCandidates;
     this.patternIds = patternIds;
 
     return this;
@@ -311,6 +354,11 @@ Transformer.prototype.setupIds = function() {
 Transformer.prototype.getPatternIds = function() {
     return this.patternIds;
 };
+
+Transformer.prototype.getTemplateRenameCandidates = function() {
+    return this.templateRenameCandidates;
+};
+
 
 /* ListLikeTransformer, EllipsisTransformer, and IdOrLiteralTransformer
 all "implement" the following "interface":
@@ -502,10 +550,17 @@ EllipsisTransformer.prototype.matchInput = function(inputDatum, literalIds, defi
      (+ (*) (*) (*)) => 3.
      */
     if (!inputDatum)
-        bindings.addChildBindings(new TemplateBindings(useEnv, bindings.getPatternIds()));
+        bindings.addChildBindings(
+            new TemplateBindings(
+                useEnv,
+                bindings.getPatternIds(),
+                bindings.getTemplateRenameCandidates()));
 
     for (var subinput = inputDatum; subinput; subinput = subinput.nextSibling) {
-        var childBindings = new TemplateBindings(useEnv, bindings.getPatternIds());
+        var childBindings = new TemplateBindings(
+            useEnv,
+            bindings.getPatternIds(),
+            bindings.getTemplateRenameCandidates());
         var maybeMatched = this.subtransformer.matchInput(subinput, literalIds, definitionEnv, useEnv, childBindings);
         if (maybeMatched)
             bindings.addOrIncorporateChild(childBindings)
@@ -594,7 +649,7 @@ SchemeMacro.prototype.transcribe = function(datum, useEnv) {
     var transformer, bindings, newDatumTree;
     for (var i = 0; i < this.transformers.length; ++i) {
         transformer = this.transformers[i];
-        bindings = new TemplateBindings(useEnv, transformer.getPatternIds());
+        bindings = new TemplateBindings(useEnv, transformer.getPatternIds(), transformer.getTemplateRenameCandidates());
         if (transformer.matchInput(datum, this.literalIdentifiers, this.definitionEnv, useEnv, bindings)
             && (newDatumTree = transformer.template.toDatum(bindings))) {
             // this is a good place to see the TemplateBindings object
@@ -629,11 +684,22 @@ SchemeMacro.prototype.transcribe = function(datum, useEnv) {
              I don't think this is correct, but it works for the letrec macro definition,
              which is the most complex case I've tried so far. */
             var toRename = {};
-            for (var id in transformer.maybeRename) {
+            for (var id in transformer.templateRenameCandidates) {
                 if (this.definitionEnv.hasBindingRecursive(id))
                     useEnv.addBinding(id, this.definitionEnv);
-                else if (!isParserSensitiveId(id))
-                    toRename[id] = newCpsName();
+                else if (!isParserSensitiveId(id)) {
+                    var tmpName = newCpsName();
+                    toRename[id] = tmpName;
+                    /* If the TemplateBindings object has detected that the same
+                     identifier is used in the input and (unrelatedly) in the template, id
+                     may be replaced in the template, so we have to manually add
+                     the binding here. See the logic at the end of
+                     TemplateBindings.prototype.addTemplateBinding. */
+                    if (bindings.wasRenamed(id)
+                        && useEnv.hasBindingRecursive(id)) {
+                        useEnv.addBinding(tmpName, useEnv.get(id));
+                    }
+                }
             }
 
             if (newParseTree) {

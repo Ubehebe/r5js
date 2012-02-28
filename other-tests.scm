@@ -665,6 +665,19 @@
      (foo)) => whew)
 )
 
+(define-tests macro-id-collision-tests
+  ((let-syntax
+       ((foo ; this is basically the definition of or
+	 (syntax-rules ()
+	   ((foo) #f)
+	   ((foo x) x)
+	   ((foo x y ...)
+	    (let ((z x))
+	      (if z z (foo y ...)))))))
+     (let ((z 32))
+       (foo z #f))) => 32)
+)
+
 (define-tests cyclicity-tests
   ((begin
      (define x (list 1 2))

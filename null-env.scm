@@ -49,23 +49,13 @@
          (begin result1 result2 ...)
          (case key clause clauses ...)))))
 
-; todo bl: there's a serious bug in the macro facility dealing with identifiers
-; that appear in templates accidentally capturing identifiers in the input with
-; the same name. Example:
-;
-; (define x 1)
-; (define y 2)
-; (or x y) => ; transcription error!
-;
-; The identifier "fml" below should be "x". I've temporarily renamed it
-; to get other things working before I circle back and fix this bug.
 (define-syntax or
   (syntax-rules ()
     ((or) #f)
     ((or test) test)
     ((or test1 test2 ...)
-     (let ((fml test1))
-       (if fml fml (or test2 ...))))))
+     (let ((x test1))
+       (if x x (or test2 ...))))))
 
 (define-syntax let
   (syntax-rules ()
