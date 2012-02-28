@@ -630,11 +630,10 @@ SchemeMacro.prototype.transcribe = function(datum, useEnv) {
              which is the most complex case I've tried so far. */
             var toRename = {};
             for (var id in transformer.maybeRename) {
-                if (this.definitionEnv.hasBindingRecursive(id) || isParserSensitiveId(id))
+                if (this.definitionEnv.hasBindingRecursive(id))
                     useEnv.addBinding(id, this.definitionEnv);
-                else {
+                else if (!isParserSensitiveId(id))
                     toRename[id] = newCpsName();
-                }
             }
 
             if (newParseTree) {
