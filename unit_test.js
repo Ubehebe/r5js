@@ -335,82 +335,19 @@ function testEvaluator() {
 
     // R5RS 6.4
     tests['control-features'] = {
-        "(apply + '(1 2 3))": '6',
-        "(procedure? procedure?)": "#t",
-        "(procedure? +)": "#t",
-        "(procedure? (lambda () 1))": "#t",
-        "(procedure? 2)": "#f",
-        "(apply apply (list + (list 3 4 5)))": "12",
         "(apply apply '(+ (3 4 5)))": false, // tricky!
-        '(define (foo x) (x 3.14)) (call-with-current-continuation foo)': '3.14',
-        "(call-with-values (lambda () (values '(1 2 3))) cdr)": '(2 3)',
-        "(eval + (null-environment 5))": '+',
         "(eval '+ (null-environment 5))": false, // tricky!
         "(eval () (null-environment 5)": false,
         "(eval '() (null-environment 5))": false,
-        "(eval ''() (null-environment 5))": '()',
         "(eval '(()) (null-environment 5))": false,
         "(eval (()) (null-environment 5))": false,
-        "(eval ''(()) (null-environment 5))": '(())',
-        "(define buf 0) (define cont #f) (set! buf (+ buf (call-with-current-continuation (lambda (c) (set! cont c) 100)))) (cont 200) buf": '300',
-        "(define cont #f) (+ (call-with-current-continuation (lambda (c) (set! cont c) 100)) 100) (cont 1000)": '1100',
-        "(define cont #f) (define buf '()) (set! buf (cons (call-with-current-continuation (lambda (c) (set! cont c) 'inside)) buf)) (cont 'outside) buf": '(outside inside)',
-        "(let ((path '()) (c #f)) (let ((add (lambda (s) (set! path (cons s path))))) (dynamic-wind (lambda () (add 'connect)) (lambda () (add (call-with-current-continuation (lambda (c0) (set! c c0) 'talk1)))) (lambda () (add 'disconnect))) (if (< (length path) 4) (c 'talk2) (reverse path))))": '(connect talk1 disconnect connect talk2 disconnect)',
-        "(eqv? 'a 'a)": '#t',
-        "(eqv? ''a ''a)": '#f', // somewhat tricky
-        "(pair? 'a)": '#f',
-        "(pair? ''a)": '#t' // somewhat tricky
     };
 
     tests['syntax-rebinding'] = {
         "(define x let)": false,
         "(define x define)": false,
-        "(define let 3) let": '3',
         "(let ((x let*)) 1)": false,
         "(let ((x let)) 1)": false,
-        "(define let* 3) (let ((x let*)) let*)": '3',
-        "(define if +) (if 1 2 3)": '6'
-    };
-
-    tests['mutations'] = {
-        '(define x "hello") (define y x) (string-set! x 0 #\\x) y': '"xello"',
-        '(define x (make-string 5 #\\A)) (define y x) (string-set! x 0 #\\x) y': '"xAAAA"',
-        "(define x '(1 2 3)) (define y x) (set-car! x 'hello) y": '(hello 2 3)',
-        "(define x (list 1 2 3)) (define y x) (set-car! x 'hello) y": '(hello 2 3)',
-        "(define x '(1 2 3)) (define y x) (set-cdr! x 'hello) (list? y)": '#f',
-        "(define x (list 1 2 3)) (define y x) (set-cdr! x 'hello) (list? y)": '#f',
-        "(define x '(x . y)) (define y (cdr x)) (set-cdr! x 'whoops) y": 'y',
-        "(define x (cons 'x 'y)) (define y (cdr x)) (set-cdr! x 'whoops) y": 'y',
-        "(define x 1) (list x x)": '(1 1)',
-        "(define x 1) (cons x (cons x '()))": '(1 1)',
-        "(define x (list 1)) (list x x)": '((1) (1))',
-        "(define x '(1)) (cons x (cons x '()))": '((1) (1))',
-        "(define x (list 1)) (cons x x)": '((1) 1)',
-        "(define x '(1)) (cons x x)": '((1) 1)',
-        "(define x '#(a b c)) (define y x) (vector-set! x 0 'hi!) (vector-ref y 0)": 'hi!',
-        "(define x (make-vector 3)) (define y x) (vector-set! x 0 'hi!) (vector-ref y 0)": 'hi!',
-        "(define x (list 2 3 4)) (set-car! (list-tail x 1) 100) x": '(2 100 4)',
-        "(define x '(a b c)) (set-cdr! (list-tail x 0) 'y) x": '(a . y)',
-
-        // Let-versions of the above
-        '(let* ((x "hello") (y x)) (string-set! x 0 #\\x) y)': '"xello"',
-        '(let* ((x (make-string 5 #\\A)) (y x)) (string-set! x 0 #\\x) y)': '"xAAAA"',
-        "(let* ((x '(1 2 3)) (y x)) (set-car! x 'hello) y)": '(hello 2 3)',
-        "(let* ((x (list 1 2 3)) (y x)) (set-car! x 'hello) y)": '(hello 2 3)',
-        "(let* ((x '(1 2 3)) (y x)) (set-cdr! x 'hello) (list? y))": '#f',
-        "(let* ((x (list 1 2 3)) (y x)) (set-cdr! x 'hello) (list? y))": '#f',
-        "(let* ((x '(x . y)) (y (cdr x))) (set-cdr! x 'whoops) y)": 'y',
-        "(let* ((x (cons 'x 'y)) (y (cdr x))) (set-cdr! x 'whoops) y)": 'y',
-        "(let ((x 1)) (list x x))": '(1 1)',
-        "(let ((x 1)) (cons x (cons x '())))": '(1 1)',
-        "(let ((x (list 1))) (list x x))": '((1) (1))',
-        "(let ((x '(1))) (cons x (cons x '())))": '((1) (1))',
-        "(let ((x (list 1))) (cons x x))": '((1) 1)',
-        "(let ((x '(1))) (cons x x))": '((1) 1)',
-        "(let* ((x '#(a b c)) (y x)) (vector-set! x 0 'hi!) (vector-ref y 0))": 'hi!',
-        "(let* ((x (make-vector 3)) (y x)) (vector-set! x 0 'hi!) (vector-ref y 0))": 'hi!',
-        "(let ((x (list 2 3 4))) (set-car! (list-tail x 1) 100) x)": '(2 100 4)',
-        "(let ((x '(a b c))) (set-cdr! (list-tail x 0) 'y) x)": '(a . y)'
     };
 
     var numErrors = 0;

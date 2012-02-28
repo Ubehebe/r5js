@@ -698,3 +698,133 @@
      (set-cdr! z z)
      (or (list? x) (list? y) (list? z))) => #f)
 )
+
+(define-tests control-feature-tests
+  ((apply + '(1 2 3)) => 6)
+  ((procedure? procedure?) => #t)
+  ((procedure? +) => #t)
+  ((procedure? (lambda () 1)) => #t)
+  ((procedure? 2) => #f)
+  ((apply apply (list + (list 3 4 5))) => 12)
+  ((begin
+     (define (foo x) (x 3.14))
+     (call-with-current-continuation foo)) => 3.14)
+  ((call-with-values
+       (lambda () (values '(1 2 3))) cdr) => (2 3))
+  ((eval + (null-environment 5)) => +)
+  ((eval ''() (null-environment 5)) => ())
+  ((eval ''(()) (null-environment 5)) => (()))
+  ((begin
+     (define buf 0)
+     (define cont #f)
+     (set! buf
+	   (+ buf
+	      (call-with-current-continuation
+	       (lambda (c) (set! cont c) 100))))
+     (cont 200)
+     buf) => 300)
+  ((begin
+     (define cont #f)
+     (+ (call-with-current-continuation
+	 (lambda (c) (set! cont c) 100))
+	100)
+     (cont 1000)) => 1100)
+  ((begin
+     (define cont #f)
+     (define buf '())
+     (set! buf
+	   (cons
+	    (call-with-current-continuation
+	     (lambda (c) (set! cont c) 'inside))
+	    buf))
+     (cont 'outside)
+     buf) => (outside inside))
+  ((eqv? 'a 'a) => #t) ; doesn't really belong here
+  ((eqv? ''a ''a) => #f) ; doesn't really belong here
+  ((pair? 'a) => #f) ; doesn't really belong here
+  ((pair? ''a) => #t)
+)
+
+(define-tests syntax-rebinding-tests
+  ((begin
+     (define let 3)
+     let) => 3)
+  ((begin
+     (define let* 3)
+     (let ((x let*))
+       let*)) => 3)
+  ((begin
+     (define if +)
+     (if 1 2 3)) => 6)
+)
+
+(define-tests mutation-tests
+  ((begin
+     (define x "hello")
+     (define y x)
+     (string-set! x 0 #\x)
+     y) => "xello")
+  ((let*
+       ((x (make-string 5 #\A))
+	(y x))
+     (string-set! x 0 #\x)
+     y) => "xAAAA")
+  ((begin
+     (define x '(1 2 3))
+     (define y x)
+     (set-car! x 'hello)
+     y) => (hello 2 3))
+  ((let* ((x (list 1 2 3))
+	  (y x))
+     (set-car! x 'hello)
+     y) => (hello 2 3))
+  ((begin
+     (define x '(1 2 3))
+     (define y x)
+     (set-cdr! x 'hello)
+     (list? y)) => #f)
+  ((let* ((x (list 1 2 3))
+	  (y x))
+     (set-cdr! x 'hello)
+     (list? y)) => #f)
+  ((begin
+     (define x '(x . y))
+     (define y (cdr x))
+     (set-cdr! x 'whoops)
+     y) => y)
+  ((let* ((x (cons 'x 'y))
+	  (y (cdr x)))
+     (set-cdr! x 'whoops)
+     y) => y)
+  ((begin
+     (define x 1)
+     (list x x)) => (1 1))
+  ((let ((x 1))
+     (cons x (cons x '()))) => (1 1))
+  ((begin
+     (define x (list 1))
+     (list x x)) => ((1) (1)))
+  ((let ((x '(1)))
+     (cons x (cons x '()))) => ((1) (1)))
+  ((begin
+     (define x (list 1))
+     (cons x x)) => ((1) 1))
+  ((let ((x '(1)))
+     (cons x x)) => ((1) 1))
+  ((begin
+     (define x '#(a b c))
+     (define y x)
+     (vector-set! x 0 'hi!)
+     (vector-ref y 0)) => hi!)
+  ((let* ((x (make-vector 3))
+	  (y x))
+     (vector-set! x 0 'hi!)
+     (vector-ref y 0)) => hi!)
+  ((begin
+     (define x (list 2 3 4))
+     (set-car! (list-tail x 1) 100)
+     x) => (2 100 4))
+  ((let ((x '(a b c)))
+     (set-cdr! (list-tail x 0) 'y)
+     x) => (a . y))
+)
