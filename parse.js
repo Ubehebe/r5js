@@ -1293,7 +1293,9 @@ Parser.prototype['template'] = function() {
             {type: "'"},
             {type: 'template'},
             {desugar: function(node) {
-                return new IdOrLiteralTransformer(node.normalizeInput());
+                var ans = new ListLikeTransformer("'");
+                ans.addSubtransformer(node.at('template').desugar());
+                return ans;
             }}
         ]
     );

@@ -348,6 +348,16 @@
 	 (syntax-rules ()
 	   ((foo x y) (+ x y)))))
      (foo 3 4)) => 7)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo x y) '(x x x y))))
+     (foo 3 4)) => (3 3 3 4))
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo x y) (quote (x x x y))))))
+     (foo 3 4)) => (3 3 3 4))
 )
 
 (define-tests macro-literal-matching-tests

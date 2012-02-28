@@ -337,8 +337,12 @@ ListLikeTransformer.prototype.addSubtransformer = function(subtransformer) {
 };
 
 ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
-  for (var i=0; i<this.subtransformers.length; ++i)
-    callback(this.subtransformers[i], args);
+    /* This is a no-op mainly so we don't accidentally rename identifiers
+     inside quotes in Transformer.prototype.setupIds. */
+    if (this.type !== "'") {
+        for (var i = 0; i < this.subtransformers.length; ++i)
+            callback(this.subtransformers[i], args);
+    }
 };
 
 ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
