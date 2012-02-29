@@ -101,3 +101,19 @@
   (let ((x let*)) 1)
   (let ((x let)) 1)
 )
+
+(define-negative-tests mutation-errors
+  (begin
+    (define x "hello")
+    (string-set! x 0 #\x))
+  (let ((x '(1 2 3)))
+    (set-car! x 'hello))
+  (begin
+    (define x '(1 2 3))
+    (set-cdr! x 'hello))
+  (let ((x '(1 . 2)))
+    (set-car! x 'hello))
+  (begin
+    (define x '#(a b c))
+    (vector-set! x 2 "hi"))
+)

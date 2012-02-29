@@ -618,6 +618,10 @@ R5JS_builtins['pair'] = {
         argc: 2,
         proc: function(p, car) {
             if (p.isList() || p.isImproperList()) {
+
+                if (p.isImmutable())
+                    throw new ImmutableError(p.toString());
+
                 car.nextSibling = p.firstChild.nextSibling;
                 p.firstChild = car;
 
@@ -635,6 +639,9 @@ R5JS_builtins['pair'] = {
         argc: 2,
         proc: function(p, cdr) {
             if (p.isList() || p.isImproperList()) {
+
+                if (p.isImmutable())
+                    throw new ImmutableError(p.toString());
 
                 if (cdr.isList()) {
                     p.firstChild.nextSibling = cdr.firstChild;
@@ -661,7 +668,7 @@ R5JS_builtins['symbol'] = {
         argc: 1,
         argtypes: ['symbol'],
         proc: function(sym) {
-            return newIdOrLiteral(sym, 'string');
+            return newIdOrLiteral(sym, 'string').setImmutable();
         }
     },
 
@@ -782,6 +789,9 @@ R5JS_builtins['string'] = {
             if (!c.isCharacter())
                 throw new ArgumentTypeError(c, 2, 'string-set!', 'character');
 
+            if (str.isImmutable())
+                throw new ImmutableError(str.payload);
+
             var s = str.payload;
 
             str.payload = s.substr(0, k.payload)
@@ -854,6 +864,9 @@ R5JS_builtins['vector'] = {
                 throw new ArgumentTypeError(v, 0, 'vector-set!', 'vector');
             else if (typeof k !== 'number')
                 throw new ArgumentTypeError(k, 1, 'vector-set!', 'number');
+
+            if (v.isImmutable())
+                throw new ImmutableError(v.toString());
 
             if (v.isArrayBacked())
                 v.payload[k] = fill;

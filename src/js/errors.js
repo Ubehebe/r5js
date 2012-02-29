@@ -116,3 +116,9 @@ function EvalError(what) {
         return 'evaluation error: ' + what;
     };
 }
+
+function ImmutableError(what) {
+    this.toString = function() {
+        return 'cannot mutate immutable object: ' + what;
+    };
+}

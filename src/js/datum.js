@@ -23,6 +23,27 @@ Datum.prototype.forEach = function(callback) {
     }
 };
 
+Datum.prototype.setImmutable = function() {
+    this.immutable = true;
+    return this;
+};
+
+Datum.prototype.setImmutableOnQuote = function () {
+    if (this.firstChild) {
+        switch (this.firstChild.type) {
+            case '(':
+            case '.(':
+            case '#(':
+                this.firstChild.setImmutable();
+        }
+    }
+    return this;
+};
+
+Datum.prototype.isImmutable = function() {
+    return this.immutable;
+};
+
 // This penetrates quotations because it's used in quasiquote evaluation.
 Datum.prototype.replaceChildren = function(predicate, transform) {
 
@@ -122,6 +143,8 @@ Datum.prototype.clone = function(parent) {
         ans.parent = parent;
     if (this.name)
         ans.name = this.name;
+    if (this.immutable)
+        ans.immutable = true;
 
     return ans;
 };
@@ -557,7 +580,7 @@ Datum.prototype.normalizeInput = function() {
         }
     }
 
-    return this;
+    return this.setImmutableOnQuote();
 };
 
 /* Example:

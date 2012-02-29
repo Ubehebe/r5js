@@ -477,7 +477,9 @@ Parser.prototype['self-evaluating'] = function() {
                 case 'boolean':
                 case 'number':
                 case 'character':
+                    return true;
                 case 'string':
+                    datum.setImmutable(); // to defeat string-set! on a literal
                     return true;
                 default:
                     return false;

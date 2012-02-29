@@ -783,7 +783,7 @@
 
 (define-tests mutation-tests
   ((begin
-     (define x "hello")
+     (define x (string-copy "hello"))
      (define y x)
      (string-set! x 0 #\x)
      y) => "xello")
@@ -793,7 +793,7 @@
      (string-set! x 0 #\x)
      y) => "xAAAA")
   ((begin
-     (define x '(1 2 3))
+     (define x (list 1 2 3))
      (define y x)
      (set-car! x 'hello)
      y) => (hello 2 3))
@@ -802,7 +802,7 @@
      (set-car! x 'hello)
      y) => (hello 2 3))
   ((begin
-     (define x '(1 2 3))
+     (define x (list 1 2 3))
      (define y x)
      (set-cdr! x 'hello)
      (list? y)) => #f)
@@ -811,7 +811,7 @@
      (set-cdr! x 'hello)
      (list? y)) => #f)
   ((begin
-     (define x '(x . y))
+     (define x (cons 'x 'y))
      (define y (cdr x))
      (set-cdr! x 'whoops)
      y) => y)
@@ -835,7 +835,7 @@
   ((let ((x '(1)))
      (cons x x)) => ((1) 1))
   ((begin
-     (define x '#(a b c))
+     (define x (vector 'a 'b 'c))
      (define y x)
      (vector-set! x 0 'hi!)
      (vector-ref y 0)) => hi!)
@@ -847,7 +847,7 @@
      (define x (list 2 3 4))
      (set-car! (list-tail x 1) 100)
      x) => (2 100 4))
-  ((let ((x '(a b c)))
+  ((let ((x (list 'a 'b 'c)))
      (set-cdr! (list-tail x 0) 'y)
      x) => (a . y))
 )

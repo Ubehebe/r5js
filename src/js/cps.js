@@ -516,8 +516,11 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
         return;
     } else if (arg.isImproperList()) {
         throw new GeneralSyntaxError(arg);
-    } else
+    } else {
         ans = maybeWrapResult(arg.payload, arg.type);
+        if (arg.isImmutable())
+            ans.setImmutable();
+    }
 
     this.bindResult(continuation, ans);
 
@@ -981,8 +984,10 @@ function evalArgs(firstOperand, env, wrapArgs) {
                 throw new MacroError(cur.payload, 'bad syntax');
             args.push(toPush);
         }
-        else if (cur.isQuote())
+        else if (cur.isQuote()) {
+            cur.setImmutableOnQuote();
             args.push(cur.firstChild);
+        }
         else if (cur.isProcedure()) {
             args.push(cur);
         } else if (cur.payload !== undefined) {
