@@ -1118,17 +1118,14 @@ R5JS_builtins['eval'] = {
     },
     /* This is not part of any Scheme standard, but it should be useful to
      test Scheme expressions that should not evaluate. */
-    'eval-or-else': {
-        argc: 3,
-        proc: function(expr, envSpec, orElse) {
+    'will-eval?': {
+        argc: 2,
+        proc: function(expr, envSpec) {
             try {
-                if (!(expr instanceof Datum))
-                    throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
-                else if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
-                    throw new ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
-                else return R5JS.evalDatum(expr, envSpec.payload);
+                R5JS_builtins['eval']['eval'].proc(expr, envSpec);
+                return true;
             } catch (e) {
-                return orElse;
+                return false;
             }
         }
     },

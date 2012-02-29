@@ -91,17 +91,19 @@
             document.getElementById('result').value = ans;
         }
 
-        /* bl: the difference in speed between this function (Scheme-based
-         unit testing) and testEvaluator() (JavaScript-based unit testing)
-         is remarkable and should serve as a point of departure for
-         performance investigations. */
         function doUnitTests() {
-            ajax('../../test/unit-test.scm', function(testFramework) {
-                ajax('../../test/r5rs-tests.scm', function(r5rsTests) {
-                    ajax('../../test/other-tests.scm', function(otherTests) {
-                    R5JS.eval(testFramework + r5rsTests + otherTests);
-                })
-            })
+            // todo bl unsightly pipeline
+            ajax('../../test/unit-test.scm', function (testFramework) {
+                ajax('../../test/unit-test-negative.scm', function (negativeTestFramework) {
+                    ajax('../../test/r5rs-tests.scm', function (r5rsTests) {
+                        ajax('../../test/other-tests.scm', function (otherTests) {
+                            ajax('../../test/negative-tests.scm', function (negativeTests) {
+                                R5JS.eval(testFramework + r5rsTests + otherTests);
+                                R5JS.eval(negativeTestFramework + negativeTests);
+                            });
+                        })
+                    })
+                });
             });
         }
     </script>
@@ -123,8 +125,7 @@
 <p>
     <button onclick="testScanner()">scanner unit tests</button>
     <button onclick="testParser()">parser unit tests</button>
-    <button onclick="testEvaluator()">evaluator unit tests (JavaScript)</button>
-    <button onclick="doUnitTests()">evaluator unit tests (Scheme)</button>
+    <button onclick="doUnitTests()">evaluator unit tests</button>
 </p>
 </body>
 

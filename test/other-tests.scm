@@ -678,6 +678,29 @@
        (foo z #f))) => 32)
 )
 
+(define-tests misc-macro-tests
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (x ...)) 'ok)))
+     (foo ())) => ok)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo #(x ...)) 'ok))))
+     (foo #())) => ok)
+  ((begin
+     (define-syntax foo
+       (syntax-rules ()
+	 ((foo (x . y)) 'ok)))
+     (foo (a b))) => ok)
+  ((let-syntax
+       ((foo
+	 (syntax-rules ()
+	   ((foo (x . y)) 'ok))))
+     (foo (a . b))) => ok)
+)
+
 (define-tests cyclicity-tests
   ((begin
      (define x (list 1 2))
