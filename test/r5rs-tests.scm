@@ -430,7 +430,7 @@
   ((symbol->string
     (string->symbol "Malvina")) => "Malvina")
   ((eq? 'mISSISSIppi 'mississippi) => #t)
-  ((string->symbol "mISSISSIppi") => mISSISSIppi)
+  ((eq? (string->symbol "mISSISSIppi") (string->symbol "mISSISSIppi")) => #t)
   ((eq? 'bitBlt (string->symbol "bitBlt")) => #f)
   ((eq? 'JollyWog
 	(string->symbol
