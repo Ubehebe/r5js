@@ -1,0 +1,32 @@
+Correctness-related improvements:
+- Eliminate the parser. I didn't realize this until almost the end
+  of the project, but Scheme has no concept of "reserved keywords"
+  like other languages do. This means a programmer can write
+
+  (define if +)
+
+  and every subsequent conditional is now a procedure call.
+  (This would be fine if "if" was a macro, but it is a fundamental piece of
+  syntax whose semantics are hard-coded into the parser.)
+  Currently we deal with redefinition of "parser-sensitive identifiers"
+  by renaming and reparsing, but this approach is almost certain to be buggy.
+  A better idea is to get rid of the parser entirely, putting the raw datum
+  tree directly on the trampoline. But if we did this, the trampoline
+  would become responsible for enforcing the grammar. For example, it
+  would have to check that in the body of a procedure, all definitions
+  precede all expressions, even though it could conceivably execute a malformed
+  procedure body like
+
+  (define (foo)
+  	  (+ 1 1)
+	  (define x 2))
+
+Performance-related improvements:
+- Replace the scanner by regexes.
+
+Standards-related improvements:
+- Implement the full numerical tower. This is not required by R5RS but it is
+  required by R6RS.
+
+Miscellaneous improvements:
+- JavaScript/JSON/DOM <-> Scheme interoperability.
