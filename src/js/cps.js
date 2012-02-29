@@ -852,10 +852,10 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resul
         var args = evalArgs(this.firstOperand, this.env, true);
 
         /* If we're at a tail call we can reuse the existing environment.
-            Otherwise create a new environment pointing back to the current one.
-
-            todo bl: reenable tail recursion! */
-        var newEnv = new Environment('tmp-'
+         Otherwise create a new environment pointing back to the current one. */
+        var newEnv = proc.isTailCall(continuation)
+            ? this.env.allowRedefs()
+            : new Environment('tmp-'
             + proc.name
             + '-'
             + (uniqueNodeCounter++), proc.env).addClosuresFrom(proc.env);
