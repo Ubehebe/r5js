@@ -57,6 +57,7 @@ function testScanner() {
                 suffixes.push(exponentMarkers[i] + signs[j] + "2387");
 
         var decimals = ["8762",
+            "-3",
             "4987566###",
             ".765",
             ".549867#",
