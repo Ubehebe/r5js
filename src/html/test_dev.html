@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<!--For dev testing only. -->
+<html>
+<head>
+    <title>r5js</title>
+    <script type="text/javascript" src="../js/timer.js"></script>
+    <script type="text/javascript" src="../js/main.js"></script>
+    <script type="text/javascript" src="../js/rename_helper.js"></script>
+    <script type="text/javascript" src="../js/env.js"></script>
+    <script type="text/javascript" src="../js/datum.js"></script>
+    <script type="text/javascript" src="../js/types.js"></script>
+    <script type="text/javascript" src="../js/errors.js"></script>
+    <script type="text/javascript" src="../js/scan.js"></script>
+    <script type="text/javascript" src="../js/parse.js"></script>
+    <script type="text/javascript" src="../js/read.js"></script>
+    <script type="text/javascript" src="../js/macro.js"></script>
+    <script type="text/javascript" src="../js/cps.js"></script>
+    <script type="text/javascript" src="../js/cdr_helper.js"></script>
+    <script type="text/javascript" src="../js/stdproc.js"></script>
+    <script type="text/javascript" src="../js/unit_test.js"></script>
+    <script type="text/javascript">
+
+        /* Get the syntax library, then get the procedure library, then
+         turn on the interpreter.
+
+         This ajax stuff is just for development and so probably not
+         portable. In production, it makes sense to ship the interpreter as one
+         JavaScript file into which the Scheme libraries have been embedded
+         as string literals. This is because the interpreter is fairly useless without
+         things like "let" and "not".
+
+         If we add non-core libraries (for example, if we start targeting R6RS),
+         it would make sense to have them fetched via ajax even in production.*/
+        window.addEventListener('load', function() {
+            ajax('../scm/r5rs-syntax.scm', function(syntaxLib) {
+                ajax('../scm/r5rs-procedures.scm', function(procLib) {
+                    bootstrap(syntaxLib, procLib);
+                })
+            });
+        });
+
+        function ajax(url, callback) {
+            var req = new XMLHttpRequest();
+            req.open('GET', url);
+            req.onreadystatechange = function() {
+                if (req.readyState === 4 && req.status === 200)
+                    callback(req.responseText);
+            };
+            req.send();
+        }
+
+        function doScan() {
+            console.log(
+                    R5JS._tokenize(
+                            document.getElementById('toEval').value));
+        }
+
+        function doRead() {
+            var ans =
+                    R5JS._read(
+                            R5JS._scan(
+                                    document.getElementById('toEval').value));
+            console.log(ans);
+            document.getElementById('result').value = ans;
+        }
+
+        function doParse() {
+            console.log(
+                    R5JS._parse(
+                            R5JS._read(
+                                    R5JS._scan(
+                                            document.getElementById('toEval').value)
+                            ), document.getElementById('lhs').value));
+        }
+
+        function doDesugar() {
+            var desugared =
+                    R5JS._desugar(
+                            R5JS._parse(
+                                    R5JS._read(
+                                            R5JS._scan(
+                                                    document.getElementById('toEval').value)
+                                    ), document.getElementById('lhs').value));
+            console.log(desugared);
+            document.getElementById('result').value = desugared.toString();
+        }
+
+        function doEval() {
+            var ans = R5JS.eval(document.getElementById('toEval').value);
+            console.log(ans);
+            document.getElementById('result').value = ans;
+        }
+
+        function doUnitTests() {
+            // todo bl unsightly pipeline
+            ajax('../../test/unit-test.scm', function (testFramework) {
+                ajax('../../test/unit-test-negative.scm', function (negativeTestFramework) {
+                    ajax('../../test/r5rs-tests.scm', function (r5rsTests) {
+                        ajax('../../test/other-tests.scm', function (otherTests) {
+                            ajax('../../test/negative-tests.scm', function (negativeTests) {
+                                R5JS.eval(testFramework + r5rsTests + otherTests);
+                                R5JS.eval(negativeTestFramework + negativeTests);
+                            });
+                        })
+                    })
+                });
+            });
+        }
+    </script>
+
+</head>
+<body>
+<textarea id='toEval' rows="15" cols="80"></textarea>
+<textarea id='result' rows="1" cols="80"></textarea>
+<p>
+    <button onclick="doScan()">scan</button>
+    <button onclick='doRead()'>read</button>
+    <button onclick='doParse()'>parse</button>
+    <button onclick='doDesugar()'>desugar</button>
+    <button onclick='doEval()'>eval</button>
+</p>
+<p>
+    <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
+</p>
+<p>
+    <button onclick="testScanner()">scanner unit tests</button>
+    <button onclick="testParser()">parser unit tests</button>
+    <button onclick="doUnitTests()">evaluator unit tests</button>
+</p>
+</body>
+
+</html>

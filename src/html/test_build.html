@@ -1,42 +1,15 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
+<!--This file is manipulated during the build process, so it will probably
+not do what you want if you use it in its pristine state in the source control. -->
 <html>
 <head>
     <title>r5js</title>
-    <script type="text/javascript" src="timer.js"></script>
-    <script type="text/javascript" src="main.js"></script>
-    <script type="text/javascript" src="rename_helper.js"></script>
-    <script type="text/javascript" src="env.js"></script>
-    <script type="text/javascript" src="datum.js"></script>
-    <script type="text/javascript" src="types.js"></script>
-    <script type="text/javascript" src="errors.js"></script>
-    <script type="text/javascript" src="scan.js"></script>
-    <script type="text/javascript" src="parse.js"></script>
-    <script type="text/javascript" src="read.js"></script>
-    <script type="text/javascript" src="macro.js"></script>
-    <script type="text/javascript" src="cps.js"></script>
-    <script type="text/javascript" src="cdr_helper.js"></script>
-    <script type="text/javascript" src="stdproc.js"></script>
-    <script type="text/javascript" src="unit_test.js"></script>
+    <script type="text/javascript" src="r5js.js"></script>
     <script type="text/javascript">
 
-        /* Get the syntax library, then get the procedure library, then
-         turn on the interpreter.
-
-         This ajax stuff is just for development and so probably not
-         portable. In production, it makes sense to ship the interpreter as one
-         JavaScript file into which the Scheme libraries have been embedded
-         as string literals. This is because the interpreter is fairly useless without
-         things like "let" and "not".
-
-         If we add non-core libraries (for example, if we start targeting R6RS),
-         it would make sense to have them fetched via ajax even in production.*/
         window.addEventListener('load', function() {
-            ajax('../scm/r5rs-syntax.scm', function(syntaxLib) {
-                ajax('../scm/r5rs-procedures.scm', function(procLib) {
-                    bootstrap(syntaxLib, procLib);
-                })
-            });
+                    bootstrap(syntax, procedures);
         });
 
         function ajax(url, callback) {
@@ -93,11 +66,11 @@
 
         function doUnitTests() {
             // todo bl unsightly pipeline
-            ajax('../../test/unit-test.scm', function (testFramework) {
-                ajax('../../test/unit-test-negative.scm', function (negativeTestFramework) {
-                    ajax('../../test/r5rs-tests.scm', function (r5rsTests) {
-                        ajax('../../test/other-tests.scm', function (otherTests) {
-                            ajax('../../test/negative-tests.scm', function (negativeTests) {
+            ajax('../test/unit-test.scm', function (testFramework) {
+                ajax('../test/unit-test-negative.scm', function (negativeTestFramework) {
+                    ajax('../test/r5rs-tests.scm', function (r5rsTests) {
+                        ajax('../test/other-tests.scm', function (otherTests) {
+                            ajax('../test/negative-tests.scm', function (negativeTests) {
                                 R5JS.eval(testFramework + r5rsTests + otherTests);
                                 R5JS.eval(negativeTestFramework + negativeTests);
                             });
