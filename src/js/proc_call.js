@@ -13,219 +13,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-function Continuation(lastResultName) {
-
-    this.lastResultName = lastResultName;
-
-    /* Example: (g (f x y) z) desugared is
-     (f x y [f' (g f' z [g' ...])])
-     The continuation c is [f' (g f' z [g' ...])]
-     c.lastResultName is f'
-     c.nextContinuable is (g f' z ...)
-     */
-}
-
-/* Just for call/ccs inside dynamic-winds.
- todo bl: document why we don't have to install the "after" thunk.
- (I'm pretty sure the reason is it's already in the continuable chain
- somewhere.) */
-Continuation.prototype.installBeforeThunk = function(before) {
-    this.beforeThunk = before;
-};
-
-// Just for debugging
-Continuation.prototype.toString = function(indentLevel) {
-
-    if (indentLevel == null) {
-        /* If no indent level is given, this function is being used to
-         construct an external representation, so we should hide all the
-         implementation details. It's legal to return continuations directly,
-         as in
-
-         (define x 3)
-         (call-with-current-continuation (lambda (c) (set! x c)))
-         x
-         */
-        return '[continuation]';
-    } else {
-
-        // Otherwise this is being used for debugging, show all the things.
-
-        var ans = '[' + this.lastResultName;
-
-        if (this.nextContinuable) {
-            for (var i = 0; i < indentLevel; ++i)
-                ans += '\t';
-            ans += ' ' + this.nextContinuable.toString(indentLevel + 1);
-        }
-        return ans + ']';
-    }
-};
-
-/* todo bl: Continuable was originally envisioned as the parent
- type of objects on the trampoline. Originally we had three subtypes:
- ProcCall, Branch, and IdShim. But IdShim was turned into a subtype of
- ProcCall in order to take advantage of ProcCall's environment-handling
- logic. Subsequently other "procedure-call-like" entities (assignments,
- for example) have been written as ProcCalls. So it may no longer make
- sense to create both a Continuable and a ProcCall object for most
- things on the trampoline. */
-function Continuable(subtype, continuation) {
-    if (!subtype || !continuation) // todo bl take out after testing
-        throw new InternalInterpreterError('invariant incorrect');
-    this.subtype = subtype;
-    this.continuation = continuation;
-    //this.lastContinuable = this.getLastContinuable(); // todo bl caching problems
-}
-
-/* This returns null if the very next Continuable isn't a ProcCall
-(in particular, if it is a Branch). */
-Continuation.prototype.getAdjacentProcCall = function() {
-    return this.nextContinuable
-        && this.nextContinuable.subtype instanceof ProcCall
-        && this.nextContinuable.subtype;
-};
-
-Continuation.prototype.rememberEnv = function(env) {
-    /* In general, we need to remember to jump out of the newEnv at
-     the end of the procedure body. See ProcCall.prototype.maybeSetEnv
-     for detailed logic (and maybe bugs). */
-    if (this.nextContinuable) {
-        var next = this.nextContinuable.subtype;
-        if (next instanceof ProcCall)
-            next.maybeSetEnv(env);
-        /* Somewhat tricky. We can't know in advance which branch we'll take,
-         so we set the environment on both branches. Later, when we actually
-         decide which branch to take, we must clear the environment on the
-         non-taken branch to prevent old environments from hanging around.
-
-         todo bl: it would probably be better to remember the environment on
-         the Branch directly. Then Branch.prototype.evalAndAdvance can set the
-         environment on the taken branch without having to remember to clear
-         it off the non-taken branch. I'll save this for the next time I refactor
-         ProcCalls and Branches. (The explicit "subtypes" suggest my command of
-         prototypal inheritance wasn't great when I wrote this code.) */
-        else if (next instanceof Branch) {
-            if (next.consequent.subtype instanceof ProcCall)
-                next.consequent.subtype.maybeSetEnv(env);
-            if (next.alternate.subtype instanceof ProcCall)
-                next.alternate.subtype.maybeSetEnv(env);
-        } else throw new InternalInterpreterError('invariant incorrect');
-    }
-};
-
-Continuable.prototype.setStartingEnv = function(env) {
-    if (this.subtype instanceof ProcCall)
-        this.subtype.setEnv(env, true);
-
-    return this;
-};
-
-Continuable.prototype.setTopLevelAssignment = function() {
-    if (!(this.subtype instanceof ProcCall
-        && this.subtype.operatorName === ProcCall.prototype.specialOps._set))
-        throw new InternalInterpreterError('invariant incorrect');
-    this.subtype.isTopLevelAssignment = true;
-    return this;
-};
-
-Continuable.prototype.setSyntaxAssignment = function() {
-    if (!(this.subtype instanceof ProcCall
-        && this.subtype.operatorName === ProcCall.prototype.specialOps._set))
-        throw new InternalInterpreterError('invariant incorrect');
-    this.subtype.isSyntaxAssignment = true;
-    return this;
-};
-
-/* The last continuable of a continuable-continuation chain is the first
- continuable c such that c.continuation.nextContinuable is null. */
-Continuable.prototype.getLastContinuable = function() {
-    if (!this.continuation)
-        throw new InternalInterpreterError('invariant violated');
-    return this.continuation.nextContinuable
-        ? this.continuation.nextContinuable.getLastContinuable()
-        : this;
-};
-
-Continuable.prototype.appendContinuable = function(next) {
-    this.getLastContinuable().continuation.nextContinuable = next;
-    return this;
-};
-
-// delegate to subtype, passing in the continuation for debugging
-Continuable.prototype.toString = function(indentLevel) {
-    return this.subtype.toString(this.continuation, indentLevel || 0);
-};
-
-/* If a nonterminal in the grammar has no associated desugar function,
- desugaring it will be a no-op. That is often the right behavior,
- but sometimes we would like to wrap the datum in a Continuable
- object for convenience on the trampoline. For example, the program
- "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]).
-
- We represent these id shims as ProcCalls whose operatorNames are null
- and whose firstOperand is the payload. */
-function newIdShim(payload, continuationName) {
-    return newProcCall(ProcCall.prototype.specialOps._id, payload, new Continuation(continuationName));
-}
-
-function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
-    return new Continuable(
-        new Branch(testIdOrLiteral, consequentContinuable, alternateContinuable),
-        continuation);
-}
-
-// For composition; should only be called from newBranch
-function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
-    this.test = testIdOrLiteral;
-    this.consequent = consequentContinuable;
-    /* If there's no alternate given, we create a shim that will return
-     an undefined value. Example:
-
-     (display (if #f 42))
-
-     We give a type of "number" for the shim because passing in a null type
-     would activate the default type, identifier, which would change the
-     semantics. */
-    this.alternate = alternateContinuable
-        || newIdShim(newIdOrLiteral(null, 'number'), newCpsName());
-    this.consequentLastContinuable = this.consequent.getLastContinuable();
-    this.alternateLastContinuable = this.alternate.getLastContinuable();
-}
-
-// Just for debugging
-Branch.prototype.toString = function(continuation, indentLevel) {
-
-    /* Don't print the continuations at the end of the branches;
-     these are probably old and will be overwritten on the next
-     this.evalAndAdvance, so they produce misleading debugging info. */
-
-    var tmpConsequent = this.consequentLastContinuable.continuation;
-    var tmpAlternate = this.alternateLastContinuable.continuation;
-
-    this.consequentLastContinuable.continuation = null;
-    this.alternateLastContinuable.continuation = null;
-
-    var ans = '\n';
-    for (var i = 0; i < indentLevel; ++i)
-        ans += '\t';
-    ans += '{' + this.test
-        + ' ? '
-        + this.consequent.toString(indentLevel + 1)
-        + (this.alternate && this.alternate.toString(indentLevel + 1));
-    if (continuation) {
-        ans += '\n';
-        for (i=0; i < indentLevel; ++i)
-            ans += '\t';
-        ans += continuation.toString(indentLevel + 1);
-    }
-
-    this.consequentLastContinuable.continuation = tmpConsequent;
-    this.alternateLastContinuable.continuation = tmpAlternate;
-
-    return ans + '}';
-};
-
 // For composition; should only be called from newProcCall
 function ProcCall(operatorName, firstOperand) {
     /* todo bl operatorName is an identifier _datum_...I think
@@ -276,6 +63,18 @@ function newProcCall(operatorName, firstOperand, continuation) {
     return new Continuable(new ProcCall(operatorName, firstOperand), continuation);
 }
 
+/* If a nonterminal in the grammar has no associated desugar function,
+ desugaring it will be a no-op. That is often the right behavior,
+ but sometimes we would like to wrap the datum in a Continuable
+ object for convenience on the trampoline. For example, the program
+ "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]).
+
+ We represent these id shims as ProcCalls whose operatorNames are null
+ and whose firstOperand is the payload. */
+function newIdShim(payload, continuationName) {
+    return newProcCall(ProcCall.prototype.specialOps._id, payload, new Continuation(continuationName));
+}
+
 function newAssignment(dstName, srcName, continuation) {
     var operands = new SiblingBuffer()
         .appendSibling(newIdOrLiteral(dstName))
@@ -304,169 +103,6 @@ ProcCall.prototype.toString = function(continuation, indentLevel, suppressEnv) {
     if (continuation)
         ans += ' ' + continuation.toString(indentLevel+1);
     return ans + ')';
-};
-
-function TrampolineResultStruct() {
-    /*
-     this.ans;
-     this.nextContinuable;
-     this.beforeThunk;
-     */
-}
-
-TrampolineResultStruct.prototype.clear = function() {
-    this.ans = null;
-    this.nextContinuable = null;
-};
-
-/* Just a pointer to an environment. It's separate from the
- TrampolineResultStruct to make it clear that old environments are only
- reused in a few situations. */
-function EnvBuffer() {
-    this.env = null;
-}
-
-EnvBuffer.prototype.setEnv = function(env) {
-    this.env = env;
-};
-
-EnvBuffer.prototype.get = function(name) {
-    return this.env.get(name);
-};
-
-/* This is the main evaluation function.
-
-    The subtlest part is probably the question "what is the current environment?"
-    In general, a Continuable object should have an attached Environment
-    object that tells it where to look up identifiers. The code that attaches
-    Environments to Continuables is scattered about and may be buggy.
-
- Here is a worked example. Pen and paper is recommended!
-
- (define (fac n) (if (= n 0) 1 (* n (fac (- n 1)))))
-
- (fac 3 [_0 ...]) ; create new env A where n = 3
-
- [jump to procedure body, choose consequent]
-
- (*{env A} n (fac (- n 1)) [_0 ...]) ; this needs to be CPSified
-
- (-{env A} n 1 [_1
-    (fac{env A} _1 [_2
-        (*{env A} n _2 [_0 ...])])]) ; CPSified
-
- [bind _1 = 2 in env A]
-
- (fac{env A} _1 [_2
-    (*{env A} n _2 [_0 ...])]) ; create new env B where n = 2
-
- [jump to procedure body, choose consequent]
-
- (*{env B} n (fac (- n 1)) [_2
-    (*{env A} n _2 [_0 ...])]) ; this needs to be CPSified
-
- (-{env B} n 1 [_3
-    (fac{env B} _3 [_4
-        (*{env B} n _4 [_2
-            (*{env A} n _2 [_0 ...])])]) ; CPSified
-
- [bind _3 = 1 in env B]
-
- (fac{env B} _3 [_4
-    (*{env B} n _4 [_2
-        (*{env A} n _2 [_0 ...])])]) ; create new env C where n = 1
-
- [jump to procedure body, choose consequent]
-
- (*{env C} n (fac (- n 1)) [_4
-    (*{env B} n _4 [_2
-        (*{env A} n _2 [_0 ...])])]) ; this needs to be CPSified
-
- (-{env C} n 1 [_5
-    (fac{env C} _5 [_6
-        (*{env C} n _6 [_4
-            (*{env B} n _4 [_2
-                (*{env A} n _2 [_0 ...])])])])]) ; CPSified
-
- [bind _5 = 0 in env C]
-
- (fac{env C} _5 [_6
-    (*{env C} n _6 [_4
-        (*{env B} n _4 [_2
-            (*{env A} n _2 [_0 ...])])])]) ; create new env D where n = 0
-
- [jump to procedure body, choose alternate]
-
- (id{env D} 1 [_6
-    (*{env C} n _6 [_4
-        (*{env B} n _4 [_2
-            (*{env A} n _2 [_0 ...])])])]) ; bind _6 = 1 in env C
-
- (*{env C} n _6 [_4
-    (*{env B} n _4 [_2
-        (*{env A} n _2 [_0 ...])])]) ; bind _4 = 1 in env B
-
- (*{env B} n _4 [_2
-    (*{env A} n _2 [_0 ...])]) ; bind _2 = 2 in env A
-
- (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
- */
-function trampoline(continuable, debug) {
-
-    var cur = continuable;
-    var resultStruct = new TrampolineResultStruct();
-    var savedEnv = new EnvBuffer();
-    var ans;
-
-    /* The debug check is hoisted out of the while loop because this
-     is expected to be hot code. */
-    if (debug) {
-
-        while (cur) {
-            // a good first step for debugging:
-            console.log('boing: ' + cur);
-            resultStruct = cur.subtype.evalAndAdvance(cur.continuation, resultStruct, savedEnv);
-            ans = resultStruct.ans;
-            cur = resultStruct.nextContinuable;
-            resultStruct.clear();
-        }
-
-    } else {
-        while (cur) {
-            resultStruct = cur.subtype.evalAndAdvance(cur.continuation, resultStruct, savedEnv);
-            ans = resultStruct.ans;
-            cur = resultStruct.nextContinuable;
-            resultStruct.clear();
-        }
-    }
-
-    return ans;
-}
-
-Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
-
-    /* Branches always use the old environment left by the previous action
-    on the trampoline. */
-    var testResult = this.test.isIdentifier()
-        ? envBuffer.get(this.test.payload)
-        : maybeWrapResult(this.test, this.test.type).payload;
-    if (testResult === false) {
-        this.alternateLastContinuable.continuation = continuation;
-        resultStruct.nextContinuable = this.alternate;
-        /* We must clear the environment off the non-taken branch.
-         See comment at Continuation.prototype.rememberEnv. */
-        if (this.consequent.subtype instanceof ProcCall)
-            this.consequent.subtype.clearEnv();
-    } else {
-        this.consequentLastContinuable.continuation = continuation;
-        resultStruct.nextContinuable = this.consequent;
-        /* We must clear the environment off the non-taken branch.
-         See comment at Continuation.prototype.rememberEnv. */
-        if (this.alternate.subtype instanceof ProcCall)
-            this.alternate.subtype.clearEnv();
-    }
-
-    return resultStruct;
 };
 
 ProcCall.prototype.reconstructDatum = function() {
@@ -547,70 +183,6 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
 
     resultStruct.ans = ans;
     resultStruct.nextContinuable = continuation.nextContinuable;
-};
-
-/* Just a buffer to accumulate siblings without the client having to do
- the pointer arithmetic. */
-function SiblingBuffer() {
-    //this.first;
-    // this.last;
-}
-
-SiblingBuffer.prototype.isEmpty = function() {
-    return !this.first;
-};
-
-SiblingBuffer.prototype.appendSibling = function(node) {
-    if (node) {
-        if (!this.first) {
-            this.first = node;
-            this.last = node.lastSibling();
-        } else {
-            this.last.nextSibling = node;
-            this.last = node.lastSibling();
-        }
-    }
-    return this;
-};
-
-SiblingBuffer.prototype.toSiblings = function() {
-    return this.first;
-};
-
-SiblingBuffer.prototype.toList = function(type) {
-  var ans = newEmptyList();
-    ans.firstChild = this.first;
-    if (type)
-        ans.type = type; // default is (
-    return ans;
-};
-
-SiblingBuffer.prototype.toString = function() {
-    var tmp = newEmptyList();
-    tmp.appendChild(this.first);
-    return tmp.toString();
-};
-
-/* Just a buffer to accumulate a Continuable-Continuation chain
- without the client having to do the pointer arithmetic. */
-function ContinuableHelper() {
-    // this.firstContinuable;
-    // this.lastContinuable;
-}
-
-ContinuableHelper.prototype.appendContinuable = function(continuable) {
-
-    if (!this.firstContinuable) {
-        this.firstContinuable = continuable;
-        this.lastContinuable = continuable.getLastContinuable();
-    } else {
-        this.lastContinuable.continuation.nextContinuable = continuable;
-        this.lastContinuable = continuable.getLastContinuable();
-    }
-};
-
-ContinuableHelper.prototype.toContinuable = function() {
-    return this.firstContinuable;
 };
 
 /* If the operator resolves as a primitive or non-primitive procedure,
@@ -798,7 +370,7 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultSt
 
     else {
 
-        var args = evalArgs(this.firstOperand, this.env, true);
+        var args = this.evalArgs(true);
 
         // todo bl document why we're doing this...
         for (var i =0; i< args.length; ++i) {
@@ -864,7 +436,7 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resul
 
         // todo bl we should be able to pass false as the last parameter.
         // need to resolve some bugs.
-        var args = evalArgs(this.firstOperand, this.env, true);
+        var args = this.evalArgs(true);
 
         /* If we're at a tail call we can reuse the existing environment.
          Otherwise create a new environment pointing back to the current one. */
@@ -909,7 +481,7 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
 };
 
 ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) {
-    var arg = evalArgs(this.firstOperand, this.env, false)[0]; // there will only be 1 arg
+    var arg = this.evalArgs(false)[0]; // there will only be 1 arg
     this.env.addBinding(proc.lastResultName, arg);
     resultStruct.ans = arg;
     resultStruct.nextContinuable = proc.nextContinuable;
@@ -958,7 +530,21 @@ ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) 
     }
 };
 
-function evalArgs(firstOperand, env, wrapArgs) {
+/* This is my attempt at a JavaScript enum idiom. Is there a better way to
+ get guaranteed constant-time lookup given an ordinal? */
+ProcCall.prototype.specialOps = {
+
+    _id: 0,
+    _set: 1,
+
+    names: ['id', 'set!'],
+    logic: [
+        ProcCall.prototype.tryIdShim,
+        ProcCall.prototype.tryAssignment
+    ]
+};
+
+ProcCall.prototype.evalArgs = function(wrapArgs) {
     var args = [];
 
     /* Special logic for values and call-with-values. Example:
@@ -973,23 +559,23 @@ function evalArgs(firstOperand, env, wrapArgs) {
         In this implementation, this will bind the JavaScript array [1, 2, 3]
         to _0. Later on the trampoline, we reach (+ _0). We have to know that
         _0 refers to an array of values, not a single value. */
-    if (firstOperand instanceof Datum
-        && !firstOperand.nextSibling
-        && firstOperand.isIdentifier()) {
-        var maybeArray = env.get(firstOperand.payload);
+    if (this.firstOperand instanceof Datum
+        && !this.firstOperand.nextSibling
+        && this.firstOperand.isIdentifier()) {
+        var maybeArray = this.env.get(this.firstOperand.payload);
         if (maybeArray instanceof Array)
             return maybeArray;
         // Otherwise, fall through to normal logic.
     }
 
     // todo bl too much logic
-    for (var cur = firstOperand; cur; cur = cur.nextSibling) {
+    for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
         if (cur instanceof Continuation)
             args.push(cur);
         else if (cur.isIdentifier()) {
             var toPush = wrapArgs
-                ? maybeWrapResult(env.get(cur.payload))
-                : env.get(cur.payload);
+                ? maybeWrapResult(this.env.get(cur.payload))
+                : this.env.get(cur.payload);
             /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
              for convenience. The isLetOrLetrecSyntax flag discriminates
@@ -1013,18 +599,3 @@ function evalArgs(firstOperand, env, wrapArgs) {
 
     return args;
 }
-
-/* This is my attempt at a JavaScript enum idiom. Is there a better way to
- get guaranteed constant-time lookup given an ordinal? */
-ProcCall.prototype.specialOps = {
-
-    _id: 0,
-    _set: 1,
-
-    names: ['id', 'set!'],
-    logic: [
-        ProcCall.prototype.tryIdShim,
-        ProcCall.prototype.tryAssignment
-    ]
-};
-
