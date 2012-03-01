@@ -21,9 +21,6 @@ Correctness-related improvements:
   	  (+ 1 1)
 	  (define x 2))
 
-Performance-related improvements:
-- Replace the scanner by regexes.
-
 Standards-related improvements:
 - Implement the full numerical tower. This is not required by R5RS but it is
   required by R6RS.
