@@ -182,7 +182,7 @@ R5JS_builtins['type'] = {
     'port?': {
         argc: 1,
         proc: function(p) {
-            return p instanceof SchemePort;
+            throw new UnimplementedOptionError('port?');
         }
     }
 };

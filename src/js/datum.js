@@ -144,8 +144,6 @@ Datum.prototype.clone = function(parent) {
         ans.payload = this.payload;
     if (this.parent)
         ans.parent = this.parent;
-    if (this.nonterminals)
-        ans.nonterminals = shallowArrayCopy(this.nonterminals);
     if (this.firstChild) {
         var buf = new SiblingBuffer();
         for (var child = this.firstChild; child; child = child.nextSibling) {
@@ -314,6 +312,10 @@ function newMacroDatum(macro) {
     ans.type = 'macro';
     ans.payload = macro;
     return ans;
+}
+
+function newEnvironmentSpecifier(version) {
+    return newIdOrLiteral(new Environment(null, version), 'environment-specifier');
 }
 
 Datum.prototype.getMacro = function() {
