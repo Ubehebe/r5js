@@ -13,10 +13,8 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-function Token(type, start, stop) {
+function Token(type) {
     this.type = type;
-    this.start = start;
-    this.stop = stop;
 }
 
 Token.prototype.setPayload = function(payload) {
