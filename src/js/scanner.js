@@ -191,7 +191,7 @@ Scanner.prototype.token = (function() {
      The order of the subgroups is quite important, because some tokens
      are prefixes of others (for example, "." and "...", "-2" vs. "-" "2".) */
 
-    var letter = "[A-Za-z]";
+    var letter = "[a-z]";
     var specialInitial = "[\\!\\$%&\\*\/\\:<\\=\\>\\?\\^_~]";
     var initial = "(?:" + letter + "|" + specialInitial + ")";
     var specialSubsequent = "[\\+\\-\\.@]";
@@ -238,7 +238,7 @@ Scanner.prototype.token = (function() {
 
     var prefix2 = "(?:" + radix2 + exactness + "?|" + exactness + "?" + radix2 + ")";
     var prefix8 = "(?:" + radix8 + exactness + "?|" + exactness + "?" + radix8 + ")";
-    var prefix10 = "(?:" + radix10 + exactness + "?|" + exactness + "?" + radix10 + ")";
+    var prefix10 = "(?:" + radix10 + exactness + "?|" + exactness + "?" + radix10 + "|" + exactness + ")";
     var prefix16 = "(?:" + radix16 + exactness + "?|" + exactness + "?" + radix16 + ")";
 
     var ureal2 = "(?:" + uinteger2 + "\\/" + uinteger2 + "|" + uinteger2 + ")";

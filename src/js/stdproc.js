@@ -192,9 +192,9 @@ R5JS_builtins['number'] = {
     'complex?': {
         argc: 1,
         proc: function(x) {
-            return false;
+            return x.isNumber();
         }
-    }, // Not required to support this. See 6.2.3.
+    },
 
     'real?': {
         argc: 1,
