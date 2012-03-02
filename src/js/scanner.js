@@ -64,6 +64,8 @@ function Scanner(text) {
 
     this.text = text;
 
+    this.start = 0;
+
     /* Since all scanners use the same RegExp objects, we have to
      reset the RegExp's state. If concurrent scanners are ever needed,
      each will need its own RegExps. */
@@ -83,23 +85,36 @@ Scanner.prototype.tokenize = function() {
 
 };
 
-Scanner.prototype.nextToken = function() {
+Scanner.prototype.shouldMatchAgain = function(matchArray) {
+    if (!matchArray) {
+        return false; // eof
+    } else {
+        var indexOfWhitespace = 7;
+        if (this.token.lastIndex > this.start + matchArray[0].length)
+            throw new ScanError(this.text.substr(this.start, this.token.lastIndex - this.start));
+        else
+            this.start = this.token.lastIndex;
+        return !!matchArray[indexOfWhitespace];
+    }
+};
 
-    var indexOfWhitespace = 7;
+Scanner.prototype.nextToken = function() {
 
     var match;
 
     do {
         match = this.token.exec(this.text);
-        // todo bl this silently hops over malformed input
-    } while (match && match[indexOfWhitespace]);
+    } while (this.shouldMatchAgain(match));
 
     if (!match) {
         /* token.exec silently sets token.lastIndex to 0 on failure.
          The only way exec can currently fail is at the end of input.
          Since we want the scanner to stay at the end of input, we
          manually set token.lastIndex. */
-        this.token.lastIndex = this.text.length;
+        if (this.start === this.text.length)
+            this.token.lastIndex = this.text.length;
+        else
+            throw new ScanError(this.text.substr(this.start));
         return match;
     } else {
         return this.matchToToken(match);
@@ -152,7 +167,10 @@ Scanner.prototype.token = (function() {
     var bool = "(#t|#f)";
     var character = "(#\\\\space|#\\\\newline|#\\\\.)";
     var string = "(\"(?:[^\"\\\\]|\\\\\\\"|\\\\\\\\)*\")";
-    var intertokenSpace = "((?:[ \n]|;.*$|;.*\n)+)";
+
+    /* Tabs are not part of the R5RS whitespace syntax, but I've included them
+     here for sanity's sake. */
+    var intertokenSpace = "((?:[ \n\t]|;.*$|;.*\n)+)";
     var specialTokens = "([\\(\\)'`\\.]|#\\(|,@|,)";
 
     var radix2 = "#b";

@@ -15,8 +15,6 @@
 
 function testScanner() {
 
-    // todo bl add negative tests (properly raises errors)
-
     function assertValidToken(text, type) {
         var tokens = new Scanner(text).tokenize();
         if (tokens.length !== 1) {
@@ -28,11 +26,28 @@ function testScanner() {
         } else return true;
     }
 
+    function assertInvalidToken(text) {
+        try {
+            new Scanner(text).tokenize();
+            console.error('error: successfully scanned input ' + text + ', but it is supposed to be rejected');
+            return false;
+        } catch (e) {
+            return true;
+        }
+    }
+
     var validTokens = {
-        'identifier': ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>', '?', '~', '_', '^', '&+', 'h+...@@@-.'],
-        'character': ['#\\c', '#\\space', '#\\newline', '#\\\\'],
-        'string': ['""', '"hello, world"', '" \\" "', '"\\\\"'],
-        'boolean': ['#t', '#f', '#T', '#F']
+        identifier: ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>', '?', '~', '_', '^', '&+', 'h+...@@@-.'],
+        character: ['#\\c', '#\\space', '#\\newline', '#\\\\'],
+        string: ['""', '"hello, world"', '" \\" "', '"\\\\"'],
+        boolean: ['#t', '#f', '#T', '#F']
+    };
+
+    var invalidTokens = {
+        identifier: ['|', '[', ']', '{', '}'],
+        character: [/* todo bl */],
+        string: ['"', "\\"],
+        boolean: ['##f', '#', '#']
     };
 
     validTokens['number'] = (function() {
@@ -86,6 +101,15 @@ function testScanner() {
             ++numTests;
         });
     }
+
+    for (var type in invalidTokens) {
+        invalidTokens[type].forEach(function(text) {
+            if (!assertInvalidToken(text))
+                ++numErrors;
+            ++numTests;
+        });
+    }
+
     console.log('testScanner: ' + numTests + ' tests, ' + numErrors + ' errors');
 }
 

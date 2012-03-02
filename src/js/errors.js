@@ -137,3 +137,9 @@ function ImmutableError(what) {
         return 'cannot mutate immutable object: ' + what;
     };
 }
+
+function ScanError(what) {
+    this.toString = function() {
+        return 'scan error on ' + what;
+    };
+}
