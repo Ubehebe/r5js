@@ -22,12 +22,10 @@ Token.prototype.numberForbidden = /[i@]/i;
 
 Token.prototype.convertNumber = function (payload) {
 
-    /* Get rid of all exactness annotations and lone hashes.
-     The lone hashes appear in the <decimal 10> rule, but don't
-     appear to have any semantic significance. And because we're
+    /* Get rid of all exactness annotations. Because we're
      using JavaScript math, all numbers are inexact, so the
-     exactness annotations have no semantic significance either. */
-    payload = payload.replace(/#i|#e|#/i, '');
+     exactness annotations have no semantic significance. */
+    payload = payload.replace(/#i|#e/i, '');
 
     var originalLength = payload.length;
 
@@ -35,21 +33,31 @@ Token.prototype.convertNumber = function (payload) {
         throw new ScanError('unsupported number literal: ' + payload);
 
     var base = 10;
-    if ((payload = payload.replace(/x/i, '')).length < originalLength) {
+    if ((payload = payload.replace(/#x/i, '')).length < originalLength) {
         base = 16;
-    } else if ((payload = payload.replace(/d/i, '')).length < originalLength) {
+    } else if ((payload = payload.replace(/#d/i, '')).length < originalLength) {
         ;
-    } else if ((payload = payload.replace(/o/i, '')).length < originalLength) {
+    } else if ((payload = payload.replace(/#o/i, '')).length < originalLength) {
         base = 8;
-    } else if ((payload = payload.replace(/b/i, '')).length < originalLength) {
+    } else if ((payload = payload.replace(/#b/i, '')).length < originalLength) {
         base = 2;
     }
+
+    /* Get rid of all lone hashes. The lone hashes appear in the <decimal 10>
+     rule, but don't appear to have any semantic significance. */
+    payload = payload.replace('#', '');
 
     var maybeRational = payload.split('/');
     if (maybeRational.length === 2)
         return parseInt(maybeRational[0], base) / parseInt(maybeRational[1], base);
+
+    /* If the base is 10, it could have additional features like an exponent
+     or a decimal point. ([sfdl] are precision annotations for exponents, which
+     we ignore.) If the base is not 10, it can't have any features
+     other than a base annotation (like "#x") and a division sign, both of
+     which have already been taken care of. */
     else return base === 10
-        ? parseFloat(payload)
+        ? parseFloat(payload.replace(/[sfdl]/i, 'e'))
         : parseInt(payload, base);
 };
 
