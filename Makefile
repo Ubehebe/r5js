@@ -25,4 +25,4 @@ r5js:
 	cp src/html/test_build.html build/test.html
 
 clean:
-	rm build/*
+	rm -f build/*
