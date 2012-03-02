@@ -14,6 +14,7 @@
 # Note that we're not doing minification on the JavaScript yet.
 # We'll leave that to one of the many excellent libraries for the job.
 r5js:
+	mkdir -p build
 	cat src/js/*.js > build/r5js.js
 	echo "\nvar syntax = \"\c" >> build/r5js.js
 	sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < src/scm/r5rs-syntax.scm | tr -s '\n\t ' ' ' >> build/r5js.js
