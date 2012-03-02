@@ -1,6 +1,8 @@
 (define-tests sanity-checks
   (1 => 1)
   (#xff => 255) ; todo bl add more of these
+  (#Xcafebabe => 3405691582)
+  (#xdeadbeef => 3735928559)
   ((+ 1 1) => 2)
   ('(1 1) => (1 1))
   ('(1 . 1) => (1 . 1))

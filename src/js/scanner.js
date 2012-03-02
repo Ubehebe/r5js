@@ -34,14 +34,14 @@ Token.prototype.convertNumber = function (payload) {
         throw new ScanError('unsupported number literal: ' + payload);
 
     var base = 10;
-    if ((payload = payload.replace(/b/i, '')).length < originalLength) {
-        base = 2;
-    } else if ((payload = payload.replace(/o/i, '')).length < originalLength) {
-        base = 8;
+    if ((payload = payload.replace(/x/i, '')).length < originalLength) {
+        base = 16;
     } else if ((payload = payload.replace(/d/i, '')).length < originalLength) {
         ;
-    } else if ((payload = payload.replace(/x/i, '')).length < originalLength) {
-        base = 16;
+    } else if ((payload = payload.replace(/o/i, '')).length < originalLength) {
+        base = 8;
+    } else if ((payload = payload.replace(/b/i, '')).length < originalLength) {
+        base = 2;
     }
 
     // if the base is other than 10, it must be an integer
