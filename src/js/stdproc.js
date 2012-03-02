@@ -1162,7 +1162,7 @@ R5JS_builtins['eval'] = {
         argtypes: ['number'],
         proc: function(num) {
             if (num === 5)
-                return newEnvironmentSpecifier(R5JS_R5RSEnv);
+                return newEnvironmentSpecifier(r5RSEnv);
             else throw new InternalInterpreterError(
                 'unsupported scheme report environment ' + num);
         }
@@ -1172,7 +1172,7 @@ R5JS_builtins['eval'] = {
         argtypes: ['number'],
         proc: function(num) {
             if (num === 5)
-                return newEnvironmentSpecifier(R5JS_nullEnv);
+                return newEnvironmentSpecifier(nullEnv);
             else throw new InternalInterpreterError(
                 'unsupported null environment ' + num);
         }

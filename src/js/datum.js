@@ -663,12 +663,9 @@ function newCpsName() {
 }
 
 function newAnonymousLambdaName() {
-    return 'proc' + (anonymousLambdaCounter++);
+    return 'proc' + (uniqueNodeCounter++);
 }
 
-// todo bl encapsulate these in a global object
-var uniqueNodeCounter = 0;
-var anonymousLambdaCounter = 0;
 // Not a valid identifier prefix so we can easily tell these apart
 var cpsPrefix = '@';
 
