@@ -17,6 +17,39 @@ function Token(type) {
     this.type = type;
 }
 
+Token.prototype.numberFunnyBusiness = /[esfdli#\/]/i;
+Token.prototype.numberForbidden = /[\/i@]/i;
+
+Token.prototype.convertNumber = function (payload) {
+    /* Get rid of all exactness annotations and lone hashes.
+     The lone hashes appear in the <decimal 10> rule, but don't
+     appear to have any semantic significance. And because we're
+     using JavaScript math, all numbers are inexact, so the
+     exactness annotations have no semantic significance either. */
+    payload = payload.replace(/#i|#e|#/i, '');
+
+    var originalLength = payload.length;
+
+    if (this.numberForbidden.test(payload))
+        throw new ScanError('unsupported number literal: ' + payload);
+
+    var base = 10;
+    if ((payload = payload.replace(/b/i, '')).length < originalLength) {
+        base = 2;
+    } else if ((payload = payload.replace(/o/i, '')).length < originalLength) {
+        base = 8;
+    } else if ((payload = payload.replace(/d/i, '')).length < originalLength) {
+        ;
+    } else if ((payload = payload.replace(/x/i, '')).length < originalLength) {
+        base = 16;
+    }
+
+    // if the base is other than 10, it must be an integer
+    return base === 10
+        ? parseFloat(payload)
+        : parseInt(payload, base);
+};
+
 Token.prototype.setPayload = function(payload) {
     /* As a small optimization, we 'evaluate' these payloads here, rather than in
      semantic actions attached in the parser. This should be a little more efficient
@@ -36,8 +69,9 @@ Token.prototype.setPayload = function(payload) {
             this.payload = payload === '#t' || payload === '#T';
             break;
         case 'number':
-            // todo bl MUCH more parsing is required: for bases, exactness, etc.
-            this.payload = parseFloat(payload);
+            this.payload = this.numberFunnyBusiness.test(payload)
+                ? this.convertNumber(payload)
+                : parseFloat(payload);
             break;
         case 'character':
             var afterSlash = payload.substr(2);
@@ -206,20 +240,20 @@ Scanner.prototype.token = (function() {
     var prefix10 = "(?:" + radix10 + exactness + "?|" + exactness + "?" + radix10 + ")";
     var prefix16 = "(?:" + radix16 + exactness + "?|" + exactness + "?" + radix16 + ")";
 
-    var ureal2 = "(?:" + uinteger2 + "|" + uinteger2 + "\\/" + uinteger2 + ")";
-    var ureal8 = "(?:" + uinteger8 + "|" + uinteger8 + "\\/" + uinteger8 + ")";
-    var ureal10 = "(?:" + decimal10 + "|" + uinteger10 + "|" + uinteger10 + "\\/" + uinteger10 + ")";
-    var ureal16 = "(?:" + uinteger16 + "|" + uinteger16 + "\\/" + uinteger16 + ")";
+    var ureal2 = "(?:" + uinteger2 + "\\/" + uinteger2 + "|" + uinteger2 + ")";
+    var ureal8 = "(?:" + uinteger8 + "\\/" + uinteger8 + "|" + uinteger8 + ")";
+    var ureal10 = "(?:" + uinteger10 + "\\/" + uinteger10 + "|" + decimal10 + "|" + uinteger10 + ")";
+    var ureal16 = "(?:" + uinteger16 + "\\/" + uinteger16 + "|" + uinteger16 + ")";
 
     var real2 = "(?:" + sign + "?" + ureal2 + ")";
     var real8 = "(?:" + sign + "?" + ureal8 + ")";
     var real10 = "(?:" + sign + "?" + ureal10 + ")";
     var real16 = "(?:" + sign + "?" + ureal16 + ")";
 
-    var complex2 = "(?:" + real2 + "|" + real2 + "@" + real2 + "|" + real2 + "\\+" + ureal2 + "i|" + real2 + "\\-" + ureal2 + "i|" + real2 + "\\+i|" + real2 + "\\-i|\\+" + ureal2 + "i|\\-" + ureal2 + "i|\\+i|\\-i)";
-    var complex8 = "(?:" + real8 + "|" + real8 + "@" + real8 + "|" + real8 + "\\+" + ureal8 + "i|" + real8 + "\\-" + ureal8 + "i|" + real8 + "\\+i|" + real8 + "\\-i|\\+" + ureal8 + "i|\\-" + ureal8 + "i|\\+i|\\-i)";
-    var complex10 = "(?:" + real10 + "|" + real10 + "@" + real10 + "|" + real10 + "\\+" + ureal10 + "i|" + real10 + "\\-" + ureal10 + "i|" + real10 + "\\+i|" + real10 + "\\-i|\\+" + ureal10 + "i|\\-" + ureal10 + "i|\\+i|\\-i)";
-    var complex16 = "(?:" + real16 + "|" + real16 + "@" + real16 + "|" + real16 + "\\+" + ureal16 + "i|" + real16 + "\\-" + ureal16 + "i|" + real16 + "\\+i|" + real16 + "\\-i|\\+" + ureal16 + "i|\\-" + ureal16 + "i|\\+i|\\-i)";
+    var complex2 = "(?:" + real2 + "@" + real2 + "|" + real2 + "[\\+\\-]" + ureal2 + "i|" + real2 + "[\\+\\-]i|[\\\\-]+" + ureal2 + "i|[\\+\\-]i|" + real2 + ")";
+    var complex8 = "(?:" + real8 + "@" + real8 + "|" + real8 + "[\\+\\-]" + ureal8 + "i|" + real8 + "[\\+\\-]i|[\\\\-]+" + ureal8 + "i|[\\+\\-]i|" + real8 + ")";
+    var complex10 = "(?:" + real10 + "@" + real10 + "|" + real10 + "[\\+\\-]" + ureal10 + "i|" + real10 + "[\\+\\-]i|[\\\\-]+" + ureal10 + "i|[\\+\\-]i|" + real10 + ")";
+    var complex16 = "(?:" + real16 + "@" + real16 + "|" + real16 + "[\\+\\-]" + ureal16 + "i|" + real16 + "[\\+\\-]i|[\\\\-]+" + ureal16 + "i|[\\+\\-]i|" + real16 + ")";
 
     var num2 = "(?:" + prefix2 + complex2 + ")";
     var num8 = "(?:" + prefix8 + complex8 + ")";
