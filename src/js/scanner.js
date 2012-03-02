@@ -18,9 +18,10 @@ function Token(type) {
 }
 
 Token.prototype.numberFunnyBusiness = /[esfdli#\/]/i;
-Token.prototype.numberForbidden = /[\/i@]/i;
+Token.prototype.numberForbidden = /[i@]/i;
 
 Token.prototype.convertNumber = function (payload) {
+
     /* Get rid of all exactness annotations and lone hashes.
      The lone hashes appear in the <decimal 10> rule, but don't
      appear to have any semantic significance. And because we're
@@ -44,23 +45,15 @@ Token.prototype.convertNumber = function (payload) {
         base = 2;
     }
 
-    // if the base is other than 10, it must be an integer
-    return base === 10
+    var maybeRational = payload.split('/');
+    if (maybeRational.length === 2)
+        return parseInt(maybeRational[0], base) / parseInt(maybeRational[1], base);
+    else return base === 10
         ? parseFloat(payload)
         : parseInt(payload, base);
 };
 
 Token.prototype.setPayload = function(payload) {
-    /* As a small optimization, we 'evaluate' these payloads here, rather than in
-     semantic actions attached in the parser. This should be a little more efficient
-     when creating self-evaluating datums on the fly. For example:
-
-     (let-syntax ((foo (syntax-rules () ((foo x) (+ x x x x x x))))) (foo 24))
-
-     As the macro facility currently works, this will create a datum corresponding
-     to 24, clone it six times, and insert the datums as siblings into the datum tree,
-     bypassing the scanner. It is less work to parse the string "24" into the number
-     24 before the cloning than after. */
     switch (this.type) {
         case 'identifier':
             this.payload = payload.toLowerCase();
