@@ -7,6 +7,7 @@
 # We'll leave that to one of the many excellent libraries for the job.
 
 output = build/gay_lisp.js
+unit_tests = build/unit_tests.scm
 
 # Target the first line after the first brace in src/api/api.js
 gay-lisp: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e 's/^\([0-9]*\).*/\1/'`
@@ -17,6 +18,7 @@ gay-lisp:
 	cat src/js/*.js >> $(output)
 	echo "\nvar syntax = \"\c" >> $(output)
 	# Remove Scheme comments, escape Scheme backslashes and quotes, compress whitespace
+	# (Note that we compress whitespace inside string literals, which is not really correct...)
 	sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < src/scm/r5rs-syntax.scm | tr -s '\n\t ' ' ' >> $(output)
 	echo "\";" >> $(output)
 	echo "var procedures = \"\c" >> $(output)
@@ -24,6 +26,8 @@ gay-lisp:
 	echo "\";" >> $(output)
 	tail -n+$(afterFirstBrace) src/api/api.js >> $(output)
 	cp src/html/test_build.html build/test.html
+	cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
+	cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 
 clean:
 	rm -f build/*

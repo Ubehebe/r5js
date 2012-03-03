@@ -8,16 +8,6 @@ not do what you want if you use it in its pristine state in the source control. 
     <script type="text/javascript" src="gay_lisp.js"></script>
     <script type="text/javascript">
 
-        function ajax(url, callback) {
-            var req = new XMLHttpRequest();
-            req.open('GET', url);
-            req.onreadystatechange = function() {
-                if (req.readyState === 4 && req.status === 200)
-                    callback(req.responseText);
-            };
-            req.send();
-        }
-
         function doScan() {
             console.log(
                     GayLisp.tokenize(
@@ -43,22 +33,6 @@ not do what you want if you use it in its pristine state in the source control. 
             console.log(ans);
             document.getElementById('result').value = ans;
         }
-
-        function doUnitTests() {
-            // todo bl unsightly pipeline
-            ajax('../test/unit-test.scm', function (testFramework) {
-                ajax('../test/unit-test-negative.scm', function (negativeTestFramework) {
-                    ajax('../test/r5rs-tests.scm', function (r5rsTests) {
-                        ajax('../test/other-tests.scm', function (otherTests) {
-                            ajax('../test/negative-tests.scm', function (negativeTests) {
-                                GayLisp.eval(testFramework + r5rsTests + otherTests);
-                                GayLisp.eval(negativeTestFramework + negativeTests);
-                            });
-                        })
-                    })
-                });
-            });
-        }
     </script>
 
 </head>
@@ -75,8 +49,7 @@ not do what you want if you use it in its pristine state in the source control. 
     <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
 </p>
 <p>
-    <button onclick="GayLisp.test()">unit tests</button>
-    <button onclick="doUnitTests()">evaluator unit tests</button>
+    <button onclick="GayLisp.test('unit_tests.scm')">unit tests</button>
 </p>
 </body>
 

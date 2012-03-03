@@ -57,10 +57,12 @@ var GayLisp = (function() {
      the normal operation of the interpreter; normally the
      scanner and reader interact on a token-by-token basis,
      rather than scanning the whole input at once. */
-    return {
-        test: function() {
+    var publicApi = {
+        test: function(unitTestUrl) {
             testScanner();
             testParser();
+            if (unitTestUrl)
+                publicApi.evalUrl(unitTestUrl);
         },
 
         tokenize: function(string) {
@@ -90,7 +92,19 @@ var GayLisp = (function() {
                             pipeline.read(
                                 pipeline.scan(string)))));
             return ans ? ans.toString() : 'undefined';
+        },
+
+        evalUrl: function(url) {
+            var req = new XMLHttpRequest();
+            req.open('GET', url);
+            req.onreadystatechange = function() {
+                if (req.readyState === 4 && req.status === 200)
+                    publicApi.eval(req.responseText);
+            };
+            req.send();
         }
     };
+
+    return publicApi;
 
 })();
