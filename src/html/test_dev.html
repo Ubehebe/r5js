@@ -3,7 +3,7 @@
 <!--For dev testing only. -->
 <html>
 <head>
-    <title>r5js</title>
+    <title>Gay Lisp</title>
     <script type="text/javascript" src="../js/globals.js"></script>
     <script type="text/javascript" src="../js/timer.js"></script>
     <script type="text/javascript" src="../js/rename_helper.js"></script>
@@ -34,39 +34,34 @@
     <script type="text/javascript" src="../js/stdproc.js"></script>
     <script type="text/javascript" src="../js/unit_test.js"></script>
     <script type="text/javascript" src="../js/boot.js"></script>
-
-    <script type="text/javascript" src="../api/api.js"></script>
     <script type="text/javascript">
+        /* Set up the syntax and procedures vars so that the bootstrap call
+         in api.js works. */
 
-        /* Get the syntax library, then get the procedure library, then
-         turn on the interpreter.
-
-         This ajax stuff is just for development and so probably not
-         portable. In production, it makes sense to ship the interpreter as one
-         JavaScript file into which the Scheme libraries have been embedded
-         as string literals. This is because the interpreter is fairly useless without
-         things like "let" and "not".
-
-         If we add non-core libraries (for example, if we start targeting R6RS),
-         it would make sense to have them fetched via ajax even in production.*/
-        window.addEventListener('load', function() {
-            ajax('../scm/r5rs-syntax.scm', function(syntaxLib) {
-                ajax('../scm/r5rs-procedures.scm', function(procLib) {
-                    bootstrap(syntaxLib, procLib);
-                })
-            });
-        });
-
-        function ajax(url, callback) {
+        /* This synchronous ajax stuff is just for development.
+         In production, the Scheme syntax and procedure libraries are embedded
+         as string literals into the big JavaScript file. */
+        function ajaxSync(url, callback) {
             var req = new XMLHttpRequest();
-            req.open('GET', url);
-            req.onreadystatechange = function() {
+            req.open('GET', url, false /* synchronous */);
+            req.onreadystatechange = function () {
                 if (req.readyState === 4 && req.status === 200)
                     callback(req.responseText);
             };
             req.send();
         }
 
+        var syntax, procedures;
+
+        ajaxSync('../scm/r5rs-syntax.scm', function (syntaxLib) {
+            ajaxSync('../scm/r5rs-procedures.scm', function (procLib) {
+                syntax = syntaxLib;
+                procedures = procLib;
+            });
+        });
+    </script>
+    <script type="text/javascript" src="../api/api.js"></script>
+    <script type="text/javascript">
         function doScan() {
             console.log(
                     GayLisp.tokenize(
@@ -94,11 +89,11 @@
 
         function doUnitTests() {
             // todo bl unsightly pipeline
-            ajax('../../test/unit-test.scm', function (testFramework) {
-                ajax('../../test/unit-test-negative.scm', function (negativeTestFramework) {
-                    ajax('../../test/r5rs-tests.scm', function (r5rsTests) {
-                        ajax('../../test/other-tests.scm', function (otherTests) {
-                            ajax('../../test/negative-tests.scm', function (negativeTests) {
+            ajaxSync('../../test/unit-test.scm', function (testFramework) {
+                ajaxSync('../../test/unit-test-negative.scm', function (negativeTestFramework) {
+                    ajaxSync('../../test/r5rs-tests.scm', function (r5rsTests) {
+                        ajaxSync('../../test/other-tests.scm', function (otherTests) {
+                            ajaxSync('../../test/negative-tests.scm', function (negativeTests) {
                                 GayLisp.eval(testFramework + r5rsTests + otherTests);
                                 GayLisp.eval(negativeTestFramework + negativeTests);
                             });

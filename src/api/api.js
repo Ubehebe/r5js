@@ -15,13 +15,9 @@
 
 var GayLisp = (function() {
 
-    /* The build process inserts src/js/* and src/scm/* here.
-     Without these insertions, this file will be useless. */
-
-    // globals.js here
-    // Scheme libraries and syntax here
-    // All other js here
-    // boot.js here
+    /* The build process inserts src/js/* here (after the first opening brace
+     in this file).. It also inserts src/scm/* here, embedded as JavaScript string
+     literals and appropriately escaped. See the Makefile for details. */
 
     /* The pipeline is not public because it inputs and outputs
         internal data structures. */
@@ -51,10 +47,9 @@ var GayLisp = (function() {
         eval: function(continuable) {
             return trampoline(continuable, debug);
         }
-
-
-
     };
+
+    bootstrap(syntax, procedures);
 
     /* This is the public API. It runs the above non-public
      pipeline from string input to the relevant stop point.
@@ -63,6 +58,11 @@ var GayLisp = (function() {
      scanner and reader interact on a token-by-token basis,
      rather than scanning the whole input at once. */
     return {
+        test: function() {
+            testScanner();
+            testParser();
+        },
+
         tokenize: function(string) {
             return new Scanner(string).tokenize();
         },

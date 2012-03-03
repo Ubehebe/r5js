@@ -4,17 +4,9 @@
 not do what you want if you use it in its pristine state in the source control. -->
 <html>
 <head>
-    <title>r5js</title>
-    <script type="text/javascript" src="r5js.js"></script>
-    <!--api.js is temporary! It will become part of r5js.js-->
-    <script type="text/javascript" src="../src/api/api.js"></script>
+    <title>Gay Lisp</title>
+    <script type="text/javascript" src="gay_lisp.js"></script>
     <script type="text/javascript">
-
-        /* todo bl this should happen the first time the interpreter is
-         used, not when the window loads. */
-        window.addEventListener('load', function() {
-                    bootstrap(syntax, procedures);
-        });
 
         function ajax(url, callback) {
             var req = new XMLHttpRequest();
@@ -83,8 +75,7 @@ not do what you want if you use it in its pristine state in the source control. 
     <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
 </p>
 <p>
-    <button onclick="testScanner()">scanner unit tests</button>
-    <button onclick="testParser()">parser unit tests</button>
+    <button onclick="GayLisp.test()">unit tests</button>
     <button onclick="doUnitTests()">evaluator unit tests</button>
 </p>
 </body>
