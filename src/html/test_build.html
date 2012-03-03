@@ -6,8 +6,12 @@ not do what you want if you use it in its pristine state in the source control. 
 <head>
     <title>r5js</title>
     <script type="text/javascript" src="r5js.js"></script>
+    <!--api.js is temporary! It will become part of r5js.js-->
+    <script type="text/javascript" src="../src/api/api.js"></script>
     <script type="text/javascript">
 
+        /* todo bl this should happen the first time the interpreter is
+         used, not when the window loads. */
         window.addEventListener('load', function() {
                     bootstrap(syntax, procedures);
         });
@@ -24,42 +28,26 @@ not do what you want if you use it in its pristine state in the source control. 
 
         function doScan() {
             console.log(
-                    R5JS._tokenize(
+                    GayLisp.tokenize(
                             document.getElementById('toEval').value));
         }
 
         function doRead() {
             var ans =
-                    R5JS._read(
-                            R5JS._scan(
-                                    document.getElementById('toEval').value));
+                    GayLisp.read(
+                            document.getElementById('toEval').value);
             console.log(ans);
             document.getElementById('result').value = ans;
         }
 
         function doParse() {
             console.log(
-                    R5JS._parse(
-                            R5JS._read(
-                                    R5JS._scan(
-                                            document.getElementById('toEval').value)
-                            ), document.getElementById('lhs').value));
-        }
-
-        function doDesugar() {
-            var desugared =
-                    R5JS._desugar(
-                            R5JS._parse(
-                                    R5JS._read(
-                                            R5JS._scan(
-                                                    document.getElementById('toEval').value)
-                                    ), document.getElementById('lhs').value));
-            console.log(desugared);
-            document.getElementById('result').value = desugared.toString();
+                    GayLisp.parse(document.getElementById('toEval').value,
+                            document.getElementById('lhs').value));
         }
 
         function doEval() {
-            var ans = R5JS.eval(document.getElementById('toEval').value);
+            var ans = GayLisp.eval(document.getElementById('toEval').value);
             console.log(ans);
             document.getElementById('result').value = ans;
         }
@@ -71,8 +59,8 @@ not do what you want if you use it in its pristine state in the source control. 
                     ajax('../test/r5rs-tests.scm', function (r5rsTests) {
                         ajax('../test/other-tests.scm', function (otherTests) {
                             ajax('../test/negative-tests.scm', function (negativeTests) {
-                                R5JS.eval(testFramework + r5rsTests + otherTests);
-                                R5JS.eval(negativeTestFramework + negativeTests);
+                                GayLisp.eval(testFramework + r5rsTests + otherTests);
+                                GayLisp.eval(negativeTestFramework + negativeTests);
                             });
                         })
                     })
@@ -89,7 +77,6 @@ not do what you want if you use it in its pristine state in the source control. 
     <button onclick="doScan()">scan</button>
     <button onclick='doRead()'>read</button>
     <button onclick='doParse()'>parse</button>
-    <button onclick='doDesugar()'>desugar</button>
     <button onclick='doEval()'>eval</button>
 </p>
 <p>

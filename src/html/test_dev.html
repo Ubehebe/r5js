@@ -6,7 +6,6 @@
     <title>r5js</title>
     <script type="text/javascript" src="../js/globals.js"></script>
     <script type="text/javascript" src="../js/timer.js"></script>
-    <script type="text/javascript" src="../js/main.js"></script>
     <script type="text/javascript" src="../js/rename_helper.js"></script>
     <script type="text/javascript" src="../js/environment.js"></script>
     <script type="text/javascript" src="../js/root_environment.js"></script>
@@ -34,6 +33,9 @@
     <script type="text/javascript" src="../js/cdr_helper.js"></script>
     <script type="text/javascript" src="../js/stdproc.js"></script>
     <script type="text/javascript" src="../js/unit_test.js"></script>
+    <script type="text/javascript" src="../js/boot.js"></script>
+
+    <script type="text/javascript" src="../api/api.js"></script>
     <script type="text/javascript">
 
         /* Get the syntax library, then get the procedure library, then
@@ -67,42 +69,25 @@
 
         function doScan() {
             console.log(
-                    R5JS._tokenize(
+                    GayLisp.tokenize(
                             document.getElementById('toEval').value));
         }
 
         function doRead() {
-            var ans =
-                    R5JS._read(
-                            R5JS._scan(
-                                    document.getElementById('toEval').value));
+            var ans = GayLisp.read(document.getElementById('toEval').value);
             console.log(ans);
             document.getElementById('result').value = ans;
         }
 
         function doParse() {
             console.log(
-                    R5JS._parse(
-                            R5JS._read(
-                                    R5JS._scan(
-                                            document.getElementById('toEval').value)
-                            ), document.getElementById('lhs').value));
-        }
-
-        function doDesugar() {
-            var desugared =
-                    R5JS._desugar(
-                            R5JS._parse(
-                                    R5JS._read(
-                                            R5JS._scan(
-                                                    document.getElementById('toEval').value)
-                                    ), document.getElementById('lhs').value));
-            console.log(desugared);
-            document.getElementById('result').value = desugared.toString();
+                    GayLisp.parse(
+                            document.getElementById('toEval').value,
+                            document.getElementById('lhs').value));
         }
 
         function doEval() {
-            var ans = R5JS.eval(document.getElementById('toEval').value);
+            var ans = GayLisp.eval(document.getElementById('toEval').value);
             console.log(ans);
             document.getElementById('result').value = ans;
         }
@@ -114,8 +99,8 @@
                     ajax('../../test/r5rs-tests.scm', function (r5rsTests) {
                         ajax('../../test/other-tests.scm', function (otherTests) {
                             ajax('../../test/negative-tests.scm', function (negativeTests) {
-                                R5JS.eval(testFramework + r5rsTests + otherTests);
-                                R5JS.eval(negativeTestFramework + negativeTests);
+                                GayLisp.eval(testFramework + r5rsTests + otherTests);
+                                GayLisp.eval(negativeTestFramework + negativeTests);
                             });
                         })
                     })
@@ -132,7 +117,6 @@
     <button onclick="doScan()">scan</button>
     <button onclick='doRead()'>read</button>
     <button onclick='doParse()'>parse</button>
-    <button onclick='doDesugar()'>desugar</button>
     <button onclick='doEval()'>eval</button>
 </p>
 <p>
