@@ -29,5 +29,12 @@ gay-lisp:
 	cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 	cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 
+# Requires Google Closure Compiler compiler.jar to be in pwd
+min: gay-lisp
+min:
+	cat src/api/closure_exports.js >> $(output)
+	java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS < $(output) > tmp
+	mv tmp $(output)
+
 clean:
 	rm -f build/*

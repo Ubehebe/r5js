@@ -37,17 +37,17 @@ function testScanner() {
     }
 
     var validTokens = {
-        identifier: ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>', '?', '~', '_', '^', '&+', 'h+...@@@-.'],
-        character: ['#\\c', '#\\space', '#\\newline', '#\\\\'],
-        string: ['""', '"hello, world"', '" \\" "', '"\\\\"'],
-        boolean: ['#t', '#f', '#T', '#F']
+        'identifier': ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>', '?', '~', '_', '^', '&+', 'h+...@@@-.'],
+        'character': ['#\\c', '#\\space', '#\\newline', '#\\\\'],
+        'string': ['""', '"hello, world"', '" \\" "', '"\\\\"'],
+        'boolean': ['#t', '#f', '#T', '#F']
     };
 
     var invalidTokens = {
-        identifier: ['|', '[', ']', '{', '}'],
-        character: [/* todo bl */],
-        string: ['"', "\\"],
-        boolean: ['##f', '#', '#']
+        'identifier': ['|', '[', ']', '{', '}'],
+        'character': [/* todo bl */],
+        'string': ['"', "\\"],
+        'boolean': ['##f', '#', '#']
     };
 
     validTokens['number'] = (function() {
@@ -302,7 +302,7 @@ function testParser() {
                         console.log(actualResult);
                     }
 
-                    else ; // ...got the correct parse, do nothing
+                    else {} // ...got the correct parse, do nothing
                 }
 
                 else { // ...but unexpectedly got failure
@@ -314,9 +314,9 @@ function testParser() {
 
             // Expected failure...
             else {
-                if (!actualResult || actualResult.peekParse() !== type)
+                if (!actualResult || actualResult.peekParse() !== type) {
                     ; // ...and got failure, according to expectation
-                else { // ...but unexpectedly got success
+                } else { // ...but unexpectedly got success
                     ++numErrors;
                     console.log('testParser ' + type + ': ' + toParse + ': expected failure, got');
                     console.log(actualResult);

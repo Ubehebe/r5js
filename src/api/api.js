@@ -51,32 +51,31 @@ var GayLisp = (function() {
 
     bootstrap(syntax, procedures);
 
-    /* This is the public API. It runs the above non-public
+    /* This is the public API. It mainly runs the above non-public
      pipeline from string input to the relevant stop point.
-     The exception is tokenize, which is never really used during
-     the normal operation of the interpreter; normally the
-     scanner and reader interact on a token-by-token basis,
-     rather than scanning the whole input at once. */
+
+     The names are quoted in order to prevent the Google Closure Compiler
+     from renaming the public API methods. */
     var publicApi = {
-        test: function(unitTestUrl) {
+        'test': function(unitTestUrl) {
             testScanner();
             testParser();
             if (unitTestUrl)
-                publicApi.evalUrl(unitTestUrl);
+                publicApi['evalUrl'](unitTestUrl);
         },
 
-        tokenize: function(string) {
+        'tokenize': function(string) {
             return new Scanner(string).tokenize();
         },
 
-        read: function(string) {
+        'read': function(string) {
             var ans =
                 pipeline.read(
                     pipeline.scan(string));
             return ans;
         },
 
-        parse: function(string) {
+        'parse': function(string) {
             var ans =
                 pipeline.parse(
                     pipeline.read(
@@ -84,7 +83,7 @@ var GayLisp = (function() {
             return ans;
         },
 
-        eval: function(string) {
+        'eval': function(string) {
             var ans =
                 pipeline.eval(
                     pipeline.desugar(
@@ -94,12 +93,12 @@ var GayLisp = (function() {
             return ans ? ans.toString() : 'undefined';
         },
 
-        evalUrl: function(url) {
+        'evalUrl': function(url) {
             var req = new XMLHttpRequest();
             req.open('GET', url);
             req.onreadystatechange = function() {
                 if (req.readyState === 4 && req.status === 200)
-                    publicApi.eval(req.responseText);
+                    publicApi['eval'](req.responseText);
             };
             req.send();
         }
