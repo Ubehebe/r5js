@@ -14,6 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 function LazyBoot(delegate, onBoot) {
+    this.delegate = delegate;
     this.booted = false;
     this.onBoot = onBoot;
     for (var name in delegate)
@@ -30,6 +31,6 @@ LazyBoot.prototype.wrap = function(f) {
             self.onBoot();
             self.booted = true;
         }
-        return f.apply(null, arguments);
+        return f.apply(self.delegate, arguments);
     };
 };

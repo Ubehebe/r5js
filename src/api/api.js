@@ -21,33 +21,10 @@ var GayLisp = (function() {
 
     /* The pipeline is not public because it inputs and outputs
         internal data structures. */
-    var pipeline = {
-
-        scan: function(string) {
-            return new Scanner(string);
-        },
-
-        read: function(scanner) {
-            return new Reader(scanner).read();
-        },
-
-        parse: function(root, lhs) {
-            var ans = new Parser(root).parse(lhs);
-            if (ans)
-                return ans;
-            else throw new ParseError(root);
-        },
-
-        desugar: function(root, env) {
-            if (!env)
-                env = new Environment('global', r5RSEnv);
-            return root.desugar(env).setStartingEnv(env);
-        },
-
-        eval: function(continuable) {
-            return trampoline(continuable, debug);
-        }
-    };
+    var pipeline = new LazyBoot(new Pipeline(), function() {
+        bootstrap(syntax, procedures);
+        pipeline.delegate.setRootEnv(r5RSEnv);
+    });
 
     /* This is the public API. It mainly runs the above non-public
      pipeline from string input to the relevant stop point.
@@ -91,6 +68,17 @@ var GayLisp = (function() {
             return ans == null ? 'undefined' : ans.toString();
         },
 
+        // Just like eval, but we reuse the old environment
+        'repl': function(string) {
+            var ans =
+                pipeline.eval(
+                    pipeline.desugar(
+                        pipeline.parse(
+                            pipeline.read(
+                                pipeline.scan(string))), true));
+            return ans == null ? 'undefined' : ans.toString();
+        },
+
         'evalUrl': function(url) {
             var req = new XMLHttpRequest();
             req.open('GET', url);
@@ -102,6 +90,5 @@ var GayLisp = (function() {
         }
     };
 
-    return new LazyBoot(publicApi, function() { bootstrap(syntax, procedures); });
-
+    return publicApi;
 })();
