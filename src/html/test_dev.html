@@ -36,6 +36,7 @@ build process to see changes. -->
     <script type="text/javascript" src="../js/stdproc.js"></script>
     <script type="text/javascript" src="../js/unit_test.js"></script>
     <script type="text/javascript" src="../js/boot.js"></script>
+    <script type="text/javascript" src="../js/lazy_boot.js"></script>
     <script type="text/javascript">
         /* Set up the syntax and procedures vars so that the bootstrap call
          in api.js works. */
@@ -90,7 +91,6 @@ build process to see changes. -->
         }
 
         function doUnitTests() {
-            // todo bl unsightly pipeline
             ajaxSync('../../test/framework/unit-test.scm', function (testFramework) {
                 ajaxSync('../../test/framework/unit-test-negative.scm', function (negativeTestFramework) {
                     ajaxSync('../../test/r5rs-tests.scm', function (r5rsTests) {

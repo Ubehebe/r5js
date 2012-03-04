@@ -49,8 +49,6 @@ var GayLisp = (function() {
         }
     };
 
-    bootstrap(syntax, procedures);
-
     /* This is the public API. It mainly runs the above non-public
      pipeline from string input to the relevant stop point.
 
@@ -90,7 +88,7 @@ var GayLisp = (function() {
                         pipeline.parse(
                             pipeline.read(
                                 pipeline.scan(string)))));
-            return ans ? ans.toString() : 'undefined';
+            return ans == null ? 'undefined' : ans.toString();
         },
 
         'evalUrl': function(url) {
@@ -104,6 +102,6 @@ var GayLisp = (function() {
         }
     };
 
-    return publicApi;
+    return new LazyBoot(publicApi, function() { bootstrap(syntax, procedures); });
 
 })();
