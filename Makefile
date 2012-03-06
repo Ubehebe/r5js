@@ -9,6 +9,7 @@ unit_tests = build/unit_tests.scm
 # Target the first line after the first brace in src/api/api.js
 gay-lisp: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e 's/^\([0-9]*\).*/\1/'`
 gay-lisp: afterFirstBrace = `grep -m1 -A1 -n { src/api/api.js | tail -1 | sed -e 's/^\([0-9]*\).*/\1/'`
+gay-lisp: banner_src = src/banner.txt
 gay-lisp:
 	mkdir -p build
 	head -n$(firstBrace) src/api/api.js > $(output)
@@ -21,8 +22,22 @@ gay-lisp:
 	echo "var procedures = \"\c" >> $(output)
 	sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < src/scm/r5rs-procedures.scm | tr -s '\n\t ' ' ' >> $(output)
 	echo "\";" >> $(output)
+
+	# Embed the banner
+	echo "\nvar banner = \"\c" >> $(output)
+
+	cp $(banner_src) build/tmp
+	echo "\n;; Version \c" >> build/tmp
+	cat VERSION >> build/tmp
+	echo "\n;; Built on \c" >> build/tmp
+	echo `date` >> build/tmp
+	cat build/tmp | sed -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' | awk '{ printf "%s\\n", $$0}' >> $(output)
+	echo "\";" >> $(output)
+	rm build/tmp
+
 	tail -n+$(afterFirstBrace) src/api/api.js >> $(output)
-	cp src/html/test_build.html build/test.html
+	cp src/html/repl.html build/
+	cp lib/* build/
 	cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 	cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 

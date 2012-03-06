@@ -87,6 +87,10 @@ var GayLisp = (function() {
                     publicApi['eval'](req.responseText);
             };
             req.send();
+        },
+
+        'getMetadata': function() {
+            return {'banner': banner};
         }
     };
 
