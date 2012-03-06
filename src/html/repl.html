@@ -4,26 +4,46 @@ not do what you want if you use it in its pristine state in the source control. 
 <html>
 <head>
     <title>Gay Lisp</title>
-    <link rel="stylesheet" href="repl.css" />
-    <script src="https://www.google.com/jsapi" type="text/javascript"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-    <script src="jquery.terminal-0.4.11.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="repl.css"/>
     <script src="gay-lisp.js" type="text/javascript"></script>
     <script type="text/javascript">
-        jQuery(function($) {
-            $('#terminal').terminal(function(command, term) {
-                if (command !== '')
-                    term.echo(GayLisp.repl(command));
-            }, {
-                greetings: GayLisp.getMetadata().banner,
-                name:'gay_lisp',
-                height:300,
-                width:450,
-                prompt:'>>'});
-        });
+        function doScan() {
+            console.log(
+                    GayLisp.tokenize(
+                            document.getElementById('toEval').value));
+        }
+
+        function doRead() {
+            var ans = GayLisp.read(document.getElementById('toEval').value);
+            console.log(ans);
+            document.getElementById('result').value = ans;
+        }
+
+        function doParse() {
+            console.log(
+                    GayLisp.parse(
+                            document.getElementById('toEval').value,
+                            document.getElementById('lhs').value));
+        }
+
+        function doEval() {
+            var ans = GayLisp.eval(document.getElementById('toEval').value);
+            console.log(ans);
+            document.getElementById('result').value = ans;
+        }
     </script>
 </head>
 <body>
-<div id="terminal"></div>
+<p>
+    <button onclick="doScan()">scan</button>
+    <button onclick='doRead()'>read</button>
+    <button onclick='doParse()'>parse</button>
+    <button onclick='doEval()'>eval</button>
+</p>
+<p>
+    <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
+</p>
+<textarea id='toEval' rows="15" cols="80"></textarea>
+<textarea id='result' rows="1" cols="80"></textarea>
 </body>
 </html>

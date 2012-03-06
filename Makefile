@@ -8,10 +8,7 @@ output = build/gay-lisp-$(version).js
 unit_tests = build/unit_tests.scm
 
 # JS library plus a simple HTML terminal emulator
-# (requires jQuery plugin in submodule)
 repl: interpreter
-repl: term = submodules/jquery.terminal
-repl: files = $(term)/js/jquery.terminal-0.4.11.min.js
 repl:
 	cat src/html/repl.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/repl.html
 	cp src/css/repl.css build/
