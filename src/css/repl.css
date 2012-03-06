@@ -34,15 +34,15 @@
     float: left;
 }
 .terminal .cmd span.inverted {
-    background-color: #aaa;
+    background-color: #adff2f;
     color: #000;
 }
 .terminal div::-moz-selection, .terminal span::-moz-selection {
-    background-color: #aaa;
+    background-color: #adff2f;
     color: #000;
 }
 .terminal div::selection, .terminal span::selection {
-    background-color: #aaa;
+    background-color: #adff2f;
     color: #000;
 }
 .terminal .terminal-output div.error, .terminal .terminal-output div.error div {
