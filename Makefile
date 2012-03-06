@@ -6,6 +6,7 @@
 output = build/gay_lisp.js
 unit_tests = build/unit_tests.scm
 
+gay-lisp: copy-from-submodules
 # Target the first line after the first brace in src/api/api.js
 gay-lisp: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e 's/^\([0-9]*\).*/\1/'`
 gay-lisp: afterFirstBrace = `grep -m1 -A1 -n { src/api/api.js | tail -1 | sed -e 's/^\([0-9]*\).*/\1/'`
@@ -37,9 +38,14 @@ gay-lisp:
 
 	tail -n+$(afterFirstBrace) src/api/api.js >> $(output)
 	cp src/html/repl.html build/
-	cp lib/* build/
+	cp src/css/repl.css build/
 	cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 	cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
+
+copy-from-submodules: term = submodules/jquery.terminal
+copy-from-submodules: files = $(term)/js/jquery.terminal-0.4.11.min.js
+copy-from-submodules:
+	cp $(files) build/
 
 # Requires Google Closure Compiler compiler.jar to be in pwd
 min: gay-lisp
