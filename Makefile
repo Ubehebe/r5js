@@ -3,15 +3,30 @@
 # It also embeds src/scm/syntax.scm and src/scm/procedures.scm as string
 # literals into the body of the same function.
 
-output = build/gay_lisp.js
+version = `cat VERSION`
+output = build/gay-lisp-$(version).js
 unit_tests = build/unit_tests.scm
 
-gay-lisp: copy-from-submodules
+# JS library plus a simple HTML terminal emulator
+# (requires jQuery plugin in submodule)
+repl: interpreter
+repl: term = submodules/jquery.terminal
+repl: files = $(term)/js/jquery.terminal-0.4.11.min.js
+repl:
+	cat src/html/repl.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/repl.html
+	cp src/css/repl.css build/
+	cp $(files) build/
+
+repl-min: interpreter-min repl
+repl-min:
+	sed -i -e "s/gay-lisp-$(version)\.js/gay-lisp-$(version)-min.js/g" build/repl.html
+
+# Just make the JS library (no UI)
 # Target the first line after the first brace in src/api/api.js
-gay-lisp: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e 's/^\([0-9]*\).*/\1/'`
-gay-lisp: afterFirstBrace = `grep -m1 -A1 -n { src/api/api.js | tail -1 | sed -e 's/^\([0-9]*\).*/\1/'`
-gay-lisp: banner_src = src/banner.txt
-gay-lisp:
+interpreter: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e 's/^\([0-9]*\).*/\1/'`
+interpreter: afterFirstBrace = `grep -m1 -A1 -n { src/api/api.js | tail -1 | sed -e 's/^\([0-9]*\).*/\1/'`
+interpreter: banner_src = src/banner.txt
+interpreter:
 	mkdir -p build
 	head -n$(firstBrace) src/api/api.js > $(output)
 	cat src/js/*.js >> $(output)
@@ -28,33 +43,27 @@ gay-lisp:
 	echo "\nvar banner = \"\c" >> $(output)
 
 	cp $(banner_src) build/tmp
-	echo "\n;; Version \c" >> build/tmp
-	cat VERSION >> build/tmp
-	echo "\n;; Built on \c" >> build/tmp
+	echo "\n;; Version $(version) (source commit \c" >> build/tmp
+	cat .git/refs/heads/master | sed -e 's/\(.\{7\}\).*/\1)/' >> build/tmp
+	echo ";; Built on \c" >> build/tmp
 	echo `date` >> build/tmp
 	cat build/tmp | sed -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' | awk '{ printf "%s\\n", $$0}' >> $(output)
 	echo "\";" >> $(output)
 	rm build/tmp
 
 	tail -n+$(afterFirstBrace) src/api/api.js >> $(output)
-	cp src/html/repl.html build/
-	cp src/css/repl.css build/
 	cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 	cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 
-copy-from-submodules: term = submodules/jquery.terminal
-copy-from-submodules: files = $(term)/js/jquery.terminal-0.4.11.min.js
-copy-from-submodules:
-	cp $(files) build/
 
 # Requires Google Closure Compiler compiler.jar to be in pwd
-min: gay-lisp
-min:
+interpreter-min: interpreter
+interpreter-min:
 	cat src/api/closure_exports.js >> $(output)
 	java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS < $(output) > tmp
-	mv tmp $(output)
+	mv tmp build/gay-lisp-$(version)-min.js
 
-node: gay-lisp
+node: interpreter
 node:
 	# In a server environment, file size is not a big deal, so we
 	# embed the Scheme-based unit tests directly in the module.
@@ -67,7 +76,7 @@ node:
 test: node
 test:
 	hash node 2>&- || echo >&2 "testing requires node"; exit
-	node -e 'require("./build/gay_lisp").test()'
+	node -e "require('./build/gay-lisp-$(version)').test()"
 
 clean:
 	rm -f build/*
