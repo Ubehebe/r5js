@@ -28,72 +28,140 @@
  (1) the horrible state of keydown API and (2) implementing a character
  device (a terminal) on top of what is essentially a block device
  (the textarea, which was meant to provide snapshots of completed strings
- to the server through forms). Hopefully, the HTML5 <input> API can remedy
- the situation. */
+ to the server through forms). Hopefully, once the DOM Level 3 Events
+ spec is standardized, we can rewrite this using the proposed textinput event
+ or the proposed "key" property of the existing keydown event. */
 function MockTerminal(textArea) {
-    this.hasFocus = textArea.autofocus;
-    this.entryCode = 13; // enter. customize?
-    this.numColumns = 80; // customize?
     this.textArea = textArea;
-    this.prompt = '';
-    this.banner = '';
-    this.inputHandlers = [];
 
-    this.inputKey = '\n'.charCodeAt(0);
+    /* Properties set by setters
+     this.prompt;
+     this.banner;
+     this.interpreter;
+     this.lineStart;
+     this.lineEnd;
+     this.numColumns; */
+
+    // May want to customize these, or, if not, move to prototype
+    this.inputKey = '\r'.charCodeAt(0);
+    this.backspace = '\b'.charCodeAt(0);
 
     var self = this;
 
-    textArea.addEventListener('focusin', function () {
-        self.setFocus();
-    });
-    textArea.addEventListener('focusout', function () {
-        self.unsetFocus();
-    });
-
-    window.addEventListener('resize', function () {
-        self.resize();
-    });
-
-    window.addEventListener('keydown', function (e) { self.onKeyDown(e); });
+    textArea.addEventListener('keydown', function (e) { self.onKeyDown(e); });
 }
 
-MockTerminal.prototype.onKeyDown = function (e) {
-
-    if (this.hasFocus) {
-        if (e.keyCode === this.entryCode) {
-            var input = this.textArea.value.substr(this.curStart, this.curStop - this.curStart + 1);
-//                console.log('input: from ' + self.curStart + ' to ' + self.curStop + ': [' + input + ']');
-            var output;
-            for (var i=0; i < this.inputHandlers.length; ++i) {
-                try {
-                if (output = this.inputHandlers[i](input))
-                    break;
-                } catch (x) {
-                    output = x.toString();
-                    break;
-                }
-            }
-            output = '\n' + output + '\n' + this.prompt;
-            this.textArea.value += output;
-            this.curStart = this.curStop + output.length + 2;
-            if (input.length === 0)
-                --this.curStart;
-            this.curStop = this.oldLen = this.curStart;
-        } else if (this.textArea.value.length === this.oldLen + 1) {
-            ++this.oldLen;
-            ++this.curStop;
-        }
+MockTerminal.prototype.onKeyDown = function(e) {
+    if (this.shouldSuppress(e)) {
+        e.preventDefault();
+    } else if (this.shouldEndLine(e)) {
+        /* The default behavior here would be to print a newline.
+         But it would happen after this handler completes, so the prompt
+         would have a stray newline after it. So we disable that behavior. */
+        e.preventDefault();
+        var input = this.getCurLine();
+        var output = this.interpret(input);
+        this.print('\n' + output + '\n' + this.prompt);
+        this.lineStart = this.lineEnd = this.textArea.selectionEnd;
+        /* Make sure we don't have to scroll down to see the latest output.
+         Not sure how portable this is. */
+        this.textArea.scrollTop = this.textArea.scrollHeight;
     }
 };
 
-MockTerminal.prototype.addInputHandler = function(closure) {
-    this.inputHandlers.push(closure);
+MockTerminal.prototype.shouldSuppress = function(keydownEvent) {
+    /* The current caret of the textarea, before this event makes it
+     to the textarea. */
+    var cur = this.textArea.selectionEnd;
+
+    /* If the user has selected some text that reaches back before the start
+     of the current line, don't do anything until they deselect it.
+     The cut/copy/paste semantics are too hard using just the keydown event. */
+    if (this.textArea.selectionStart < cur
+        && this.textArea.selectionStart < this.lineStart) {
+        return true;
+    }
+
+    /* If the caret is strictly before the current line, we disallow
+     anything that would mutate that text. */
+    else if (cur < this.lineStart)
+        return this.willMutateText(keydownEvent);
+
+    /* If the caret is right at the beginning of the current line,
+     we allow it unless they're trying to backspace. */
+    else if (cur === this.lineStart)
+        return keydownEvent.keyCode === this.backspace;
+
+    /* Otherwise, we're inside the current line, so the user should
+     be allowed to do whatever. */
+    else return false;
+};
+
+/* These are just heuristics. It's hard to know in general
+ if a keypress will change the contents of a text input; the OS
+ is the proper owner of that information. (For example, someone
+ could conceivably map shift-X/C/V to cut/copy/paste instead of
+ the usualy ctrl-X/C/V.) We also don't want to get in the way of
+ useful browser bindings like ctrl-T to open a new tab. */
+MockTerminal.prototype.willMutateText = function(e) {
+
+    if (e.altKey || e.metaKey || e.ctrlKey)
+        return false;
+
+    /* Unfortunately, pressing the Enter/Return key does not set
+     e.keyIdentifier to the Unicode for \n or \r, but to the string
+     "Enter", so we cannot use the final branch below. */
+    else if (e.keyCode === this.inputKey)
+        return true;
+
+    /* JavaScript: The Definitive Guide, 6th ed., says (p.485):
+     "For printing keys, this property [keyIdentifier] holds a less useful
+     string representation of the Unicode encoding of the character. It is
+     "U+0041" for the A key, for example." */
+    else
+        return e.keyIdentifier.substr(0, 2) === 'U+';
+};
+
+MockTerminal.prototype.print = function(string) {
+    this.textArea.value += string;
+    this.textArea.selectionEnd = this.textArea.value.length;
+};
+
+MockTerminal.prototype.shouldEndLine = function(e) {
+
+    var lineEnd = this.textArea.selectionEnd;
+
+    if (lineEnd < this.lineStart) {
+        return false;
+    } else {
+        this.lineEnd = lineEnd; // an important side effect
+        return e.keyCode === this.inputKey;
+    }
+};
+
+MockTerminal.prototype.getCurLine = function() {
+    return this.textArea.value.substr(
+        this.lineStart,
+        this.lineEnd - this.lineStart + 1);
+};
+
+MockTerminal.prototype.setInterpreter = function(interpreter) {
+    this.interpreter = interpreter;
     return this;
 };
 
+MockTerminal.prototype.interpret = function(string) {
+    try {
+        return this.interpreter(string);
+    } catch (e) {
+        return e.toString();
+    }
+};
+
 MockTerminal.prototype.start = function () {
-    this.textArea.defaultValue = this.banner + '\n' + this.prompt;
-    this.curStart = this.curStop = this.oldLen = this.textArea.defaultValue.length;
+    this.textArea.value = this.banner + '\n' + this.prompt;
+    this.lineStart = this.textArea.selectionEnd;
+    this.lineEnd = this.lineStart+1;
     return this;
 };
 
@@ -124,17 +192,5 @@ MockTerminal.prototype.setBanner = function (banner) {
 
 MockTerminal.prototype.setPrompt = function (prompt) {
     this.prompt = prompt;
-    return this;
-};
-
-MockTerminal.prototype.setFocus = function () {
-    console.log('setFocus');
-    this.hasFocus = true;
-    return this;
-};
-
-MockTerminal.prototype.unsetFocus = function () {
-    console.log('unsetFocus');
-    this.hasFocus = false;
     return this;
 };

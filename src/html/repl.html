@@ -12,12 +12,12 @@ not do what you want if you use it in its pristine state in the source control. 
             new MockTerminal(document.getElementById('repl'))
                     .setPrompt('>> ')
                     .setBanner(GayLisp.getMetadata().banner)
-                    .addInputHandler(GayLisp.repl)
+                    .setInterpreter(GayLisp.repl)
                     .start();
         });
     </script>
 </head>
 <body>
-<textarea class='terminal' id='repl' rows=15 cols=80 autofocus></textarea>
+<textarea class='terminal' id='repl' rows=15 cols=80 autofocus spellcheck="false"></textarea>
 </body>
 </html>
