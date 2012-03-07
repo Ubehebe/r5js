@@ -4,46 +4,20 @@ not do what you want if you use it in its pristine state in the source control. 
 <html>
 <head>
     <title>Gay Lisp</title>
-    <link rel="stylesheet" href="repl.css"/>
+    <link rel="stylesheet" href="repl.css" />
     <script src="gay-lisp.js" type="text/javascript"></script>
+    <script src="mockterm.js" type="text/javascript"></script>
     <script type="text/javascript">
-        function doScan() {
-            console.log(
-                    GayLisp.tokenize(
-                            document.getElementById('toEval').value));
-        }
-
-        function doRead() {
-            var ans = GayLisp.read(document.getElementById('toEval').value);
-            console.log(ans);
-            document.getElementById('result').value = ans;
-        }
-
-        function doParse() {
-            console.log(
-                    GayLisp.parse(
-                            document.getElementById('toEval').value,
-                            document.getElementById('lhs').value));
-        }
-
-        function doEval() {
-            var ans = GayLisp.eval(document.getElementById('toEval').value);
-            console.log(ans);
-            document.getElementById('result').value = ans;
-        }
+        window.addEventListener('load', function () {
+            new MockTerminal(document.getElementById('repl'))
+                    .setPrompt('>> ')
+                    .setBanner(GayLisp.getMetadata().banner)
+                    .addInputHandler(GayLisp.repl)
+                    .start();
+        });
     </script>
 </head>
 <body>
-<p>
-    <button onclick="doScan()">scan</button>
-    <button onclick='doRead()'>read</button>
-    <button onclick='doParse()'>parse</button>
-    <button onclick='doEval()'>eval</button>
-</p>
-<p>
-    <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
-</p>
-<textarea id='toEval' rows="15" cols="80"></textarea>
-<textarea id='result' rows="1" cols="80"></textarea>
+<textarea class='terminal' id='repl' rows=15 cols=80 autofocus></textarea>
 </body>
 </html>
