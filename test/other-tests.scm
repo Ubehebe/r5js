@@ -205,6 +205,7 @@
   ((let ((foo (display "")))
      foo
      32) => 32)
+  ((eqv? 2 (display 2)) => #f)
   ((dynamic-wind
        (lambda () 1)
        (lambda () 2)

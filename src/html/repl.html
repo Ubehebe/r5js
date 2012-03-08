@@ -8,12 +8,17 @@ not do what you want if you use it in its pristine state in the source control. 
     <script src="gay-lisp.js" type="text/javascript"></script>
     <script src="mockterm.js" type="text/javascript"></script>
     <script type="text/javascript">
-        window.addEventListener('load', function () {
-            new MockTerminal(document.getElementById('repl'))
+        window.addEventListener('load', function() {
+            var terminal = new MockTerminal(document.getElementById('repl'))
                     .setPrompt('>> ')
                     .setBanner(GayLisp.getMetadata().banner)
-                    .setInterpreter(GayLisp.repl)
+                    .setInterpreter(function(string) {
+                        return GayLisp.repl(string, function(sideEffect) {
+                            terminal.print('\n' + sideEffect);
+                        });
+                    })
                     .start();
+
         });
     </script>
 </head>
