@@ -17,6 +17,7 @@ not do what you want if you use it in its pristine state in the source control. 
                             terminal.print('\n' + sideEffect);
                         });
                     })
+                    .setInputCompleteHandler(GayLisp.willParse)
                     .start();
 
         });

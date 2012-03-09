@@ -40,6 +40,7 @@ function MockTerminal(textArea) {
      this.interpreter;
      this.lineStart;
      this.lineEnd;
+     this.lineBuf;
      this.numColumns; */
 
     // May want to customize these, or, if not, move to prototype
@@ -60,7 +61,7 @@ MockTerminal.prototype.onKeyDown = function(e) {
          would have a stray newline after it. So we disable that behavior. */
         e.preventDefault();
         var input = this.getCurLine();
-        var output = this.interpret(input);
+        var output = this.maybeInterpret(input);
         this.print('\n' + output + '\n' + this.prompt);
         this.lineStart = this.lineEnd = this.textArea.selectionEnd;
         /* Make sure we don't have to scroll down to see the latest output.
@@ -150,11 +151,26 @@ MockTerminal.prototype.setInterpreter = function(interpreter) {
     return this;
 };
 
-MockTerminal.prototype.interpret = function(string) {
-    try {
-        return this.interpreter(string);
-    } catch (e) {
-        return e.toString();
+MockTerminal.prototype.setInputCompleteHandler = function(inputCompleteHandler) {
+    this.inputCompleteHandler = inputCompleteHandler;
+    return this;
+};
+
+MockTerminal.prototype.maybeInterpret = function(string) {
+
+    this.lineBuf += '\n' + string;
+
+    if (this.inputCompleteHandler
+        && !this.inputCompleteHandler(this.lineBuf)) {
+        return '...';
+    } else {
+        try {
+            var input = this.lineBuf;
+            this.lineBuf = '';
+            return this.interpreter(input);
+        } catch (e) {
+            return e.toString();
+        }
     }
 };
 
@@ -162,6 +178,7 @@ MockTerminal.prototype.start = function () {
     this.textArea.value = this.banner + '\n' + this.prompt;
     this.lineStart = this.textArea.selectionEnd;
     this.lineEnd = this.lineStart+1;
+    this.lineBuf = '';
     return this;
 };
 

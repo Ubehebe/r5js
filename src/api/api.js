@@ -58,6 +58,19 @@ var GayLisp = (function() {
             return ans;
         },
 
+        /* Mainly intended for multiline input on a terminal:
+         when the programmer presses enter, the terminal needs to know
+         whether to send the line out for evaluation or wait for another
+         line to complete the input. */
+        'willParse': function(string) {
+            try {
+                publicApi['parse'](string);
+                return true;
+            } catch (x) {
+                return false;
+            }
+        },
+
         'eval': function(string, sideEffectHandler) {
             var ans =
                 pipeline.eval(
