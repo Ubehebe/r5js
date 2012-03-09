@@ -138,10 +138,9 @@ Datum.prototype.clone = function(parent) {
 
     var ans = new Datum();
 
-    if (this.type)
-        ans.type = this.type;
-    if (this.payload !== undefined) // watch out for 0's and falses
-        ans.payload = this.payload;
+    ans.type = this.type;
+    ans.payload = this.payload;
+
     if (this.parent)
         ans.parent = this.parent;
     if (this.firstChild) {
@@ -483,6 +482,10 @@ Datum.prototype.isQuasiquote = function() {
     return this.type === '`';
 };
 
+Datum.prototype.isUndefined = function() {
+  return this.type === null;
+};
+
 /* In most situations, we want to detect both unquote (,) and
 unquote-splicing (,@) */
 Datum.prototype.isUnquote = function() {
@@ -536,7 +539,8 @@ Datum.prototype.unwrap = function() {
         && !this.isVector() // watch out for 0's and falses
         && !this.isEnvironmentSpecifier()
         && !this.isString()
-        && !this.isCharacter())
+        && !this.isCharacter()
+        && !this.isUndefined())
         ? this.payload
         : this;
 };

@@ -205,6 +205,9 @@
   ((let ((foo (display "")))
      foo
      32) => 32)
+  ((eqv? 2 (display 2)) => #f)
+  ((length (map display '(1 2 3))) => 3)
+  ((pair? (cons (if #f #f) (if #f #f))) => #t)
   ((dynamic-wind
        (lambda () 1)
        (lambda () 2)

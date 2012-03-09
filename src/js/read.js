@@ -219,6 +219,9 @@ Datum.prototype.toString = function() {
     var endDelimiter = "";
 
     switch (this.type) {
+        case null:
+            // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
+            return 'undefined';
         case 'ref':
             return this.payload.toString();
         case 'environment-specifier': // R5RS 6.5

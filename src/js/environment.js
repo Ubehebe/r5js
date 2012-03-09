@@ -52,7 +52,11 @@ function Environment(name, enclosingEnv) {
 }
 
 // See comments in Environment.prototype.addBinding.
-Environment.prototype.unspecifiedSentinel = new Object();
+Environment.prototype.unspecifiedSentinel = (function() {
+    var ans = new Datum();
+    ans.type = ans.payload = null;
+    return ans;
+}());
 
 /* Just for environments defined in the standard; users shouldn't be able to
     add to them. */
@@ -111,10 +115,9 @@ Environment.prototype.get = function(name) {
             || maybe instanceof SchemeProcedure)
             return newProcedureDatum(name, maybe);
         else if (maybe === this.unspecifiedSentinel)
-            return null;
-        else if (maybe instanceof Datum) {
+            return maybe;
+        else if (maybe instanceof Datum)
             return newDatumRef(maybe);
-        }
         // Everything else
         else return maybe;
     } else if (maybe = this.closures[name]) {

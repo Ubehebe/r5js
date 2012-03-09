@@ -83,8 +83,11 @@ R5JS_builtins['equiv'] = {
                      the qqLevels, but it's been a while since I've looked at
                      that subsystem. */
                     return p.isEqual(q);
-                }
-                else return false;
+                } else if (p.isUndefined()) {
+                    /* There is only one undefined value Datum:
+                     Environment.prototype.unspecifiedSentinel. */
+                    return p === q;
+                } else return false;
 
             } else return false;
         }
