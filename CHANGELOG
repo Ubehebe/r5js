@@ -1,1 +1,5 @@
+0.9.1	API addition: sideEffectHandler param on GayLisp.eval(),
+	    	      			      	 GayLisp.evalUrl(),
+						 GayLisp.repl(),
+	    	      			         GayLisp.test().
 0.9.0	API addition: GayLisp.getMetadata().

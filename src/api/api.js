@@ -32,11 +32,11 @@ var GayLisp = (function() {
      The names are quoted in order to prevent the Google Closure Compiler
      from renaming the public API methods. */
     var publicApi = {
-        'test': function(unitTestUrl) {
+        'test': function(unitTestUrl, sideEffectHandler) {
             testScanner();
             testParser();
             if (unitTestUrl)
-                publicApi['evalUrl'](unitTestUrl);
+                publicApi['evalUrl'](unitTestUrl, sideEffectHandler);
         },
 
         'tokenize': function(string) {
@@ -58,33 +58,33 @@ var GayLisp = (function() {
             return ans;
         },
 
-        'eval': function(string) {
+        'eval': function(string, sideEffectHandler) {
             var ans =
                 pipeline.eval(
                     pipeline.desugar(
                         pipeline.parse(
                             pipeline.read(
-                                pipeline.scan(string)))));
-            return ans == null ? 'undefined' : ans.toString();
+                                pipeline.scan(string)))), sideEffectHandler);
+            return ans ? ans.toString() : '';
         },
 
         // Just like eval, but we reuse the old environment
-        'repl': function(string) {
+        'repl': function(string, sideEffectHandler) {
             var ans =
                 pipeline.eval(
                     pipeline.desugar(
                         pipeline.parse(
                             pipeline.read(
-                                pipeline.scan(string))), true));
-            return ans == null ? 'undefined' : ans.toString();
+                                pipeline.scan(string))), true), sideEffectHandler);
+            return ans ? ans.toString() : '';
         },
 
-        'evalUrl': function(url) {
+        'evalUrl': function(url, sideEffectHandler) {
             var req = new XMLHttpRequest();
             req.open('GET', url);
             req.onreadystatechange = function() {
                 if (req.readyState === 4 && req.status === 200)
-                    publicApi['eval'](req.responseText);
+                    publicApi['eval'](req.responseText, sideEffectHandler);
             };
             req.send();
         },

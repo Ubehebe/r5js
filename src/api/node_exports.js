@@ -26,6 +26,6 @@ exports.eval = GayLisp.eval;
  So "make node" just embeds the Scheme tests in a JavaScript string literal
  named "tests" and runs directly on that. */
 exports.test = function() {
-    GayLisp.test();
-    GayLisp.eval(tests);
+    GayLisp.test(null, function(sideEffect) { console.log(sideEffect); });
+    GayLisp.eval(tests, function(sideEffect) { console.log(sideEffect); });
 };

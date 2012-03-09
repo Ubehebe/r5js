@@ -90,10 +90,10 @@
 
  (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  */
-function trampoline(continuable, debug) {
+function trampoline(continuable, sideEffectHandler, debug) {
 
     var cur = continuable;
-    var resultStruct = new TrampolineResultStruct();
+    var resultStruct = new TrampolineResultStruct(sideEffectHandler);
     var savedEnv = new EnvBuffer();
     var ans;
 

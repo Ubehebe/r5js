@@ -1172,7 +1172,7 @@ R5JS_builtins['eval'] = {
                 if (!parsed)
                     throw new ParseError(expr);
                 var continuable = parsed.desugar(env).setStartingEnv(env);
-                return trampoline(continuable, debug);
+                return trampoline(continuable, null, debug);
             }
         }
     },
@@ -1241,19 +1241,25 @@ R5JS_builtins['io'] = {
             parameter to specify the port, but this doesn't make a lot of sense
             on a web page. Make a decision about whether to support these. */
         argc: 1,
-        proc: function(x) {
-            /* Don't show quotes when displaying strings, even though they
-             are part of the external representation. */
-            if (x instanceof Datum
-                && (x.isString() || x.isCharacter()))
-                console.log(x.payload);
-            else if (x && x.toString)
-                console.log(x.toString());
-            else
-                console.log(x);
+        hasSpecialEvalLogic: true,
+        proc: function(x, procCall, continuation, resultStruct) {
+            var sideEffectHandler = resultStruct.sideEffectHandler;
+            if (sideEffectHandler) {
+                /* Don't show quotes when displaying strings, even though they
+                 are part of the external representation. */
+                if (x instanceof Datum
+                    && (x.isString() || x.isCharacter()))
+                    sideEffectHandler(x.payload);
+                else if (x && x.toString)
+                    sideEffectHandler(x.toString());
+                else
+                    sideEffectHandler(x);
+            }
 
             // The return value is unspecified.
-            return null;
+            resultStruct.nextContinuable = continuation.nextContinuable;
+            procCall.bindResult(continuation, null);
+            resultStruct.ans = null;
         }
     }
 };
