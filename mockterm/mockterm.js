@@ -214,7 +214,10 @@ MockTerminal.prototype.maybeInterpret = function(string) {
 
 MockTerminal.prototype.start = function () {
     this.textArea.value = this.banner + '\n' + this.prompt;
-    this.lineStart = this.textArea.selectionEnd;
+    this.lineStart
+        = this.textArea.selectionStart
+        = this.textArea.selectionEnd
+        = this.textArea.value.length;
     this.lineEnd = this.lineStart+1;
     this.lineBuf = '';
     return this;
