@@ -40,14 +40,17 @@ function MockTerminal(textArea) {
      this.interpreter;
      this.lineStart;
      this.lineEnd;
-     this.lineBuf;
-     this.numColumns; */
+     this.lineBuf; */
 
     // May want to customize these, or, if not, move to prototype
     this.inputKey = '\r'.charCodeAt(0);
     this.backspace = '\b'.charCodeAt(0);
+    this.numColumns = 80;
 
     var self = this;
+
+    this.recordCharWidth();
+    this.resize();
 
     textArea.addEventListener('keydown', function (e) { self.onKeyDown(e); });
 }
@@ -224,11 +227,12 @@ MockTerminal.prototype.start = function () {
 };
 
 MockTerminal.prototype.recordCharWidth = function () {
+    /* Note that this assumes that the font style of the newly created
+     span will be identical to the textarea's font style. May want to
+     document. */
     var charSandbox = document.createElement('span');
-    charSandbox.className = this.textArea.className;
     charSandbox.style.visibility = 'hidden';
-    charSandbox.appendChild(document.createTextNode('x'));
-    charSandbox.style.marginRight = 'inherit';
+    charSandbox.appendChild(document.createTextNode('X'));
     document.body.appendChild(charSandbox);
     var box = charSandbox.getBoundingClientRect();
     this.charHtoW = box.height / box.width;
@@ -236,11 +240,11 @@ MockTerminal.prototype.recordCharWidth = function () {
 
 MockTerminal.prototype.resize = function () {
     var width = this.textArea.getBoundingClientRect().width;
-    console.log('width ' + width);
+//    console.log('width ' + width);
     var charWidth = width / this.numColumns;
     var charHeight = charWidth * this.charHtoW;
     this.textArea.style.fontSize = charHeight + 'px';
-    console.log('each char should be ' + charHeight);
+//    console.log('each char should be ' + charHeight);
 };
 
 MockTerminal.prototype.setBanner = function (banner) {
