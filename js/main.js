@@ -15,17 +15,20 @@ function load() {
     /* Lay out the divs like a pile of index cards thrown somewhat
      randomly on a table. */
     var zindexManager = new ZIndexManager();
-    var sections = document.querySelectorAll('section');
-    for (var i = 0; i < sections.length; ++i) {
-        var section = sections[i];
-        section.style.top = ((Math.random() * 50) + 25) + '%';
-        section.style.left = ((Math.random() * 25) + 25) + '%';
-        section.style.width = '50%';
-        // todo bl why does only the first work?
-        section.style.webkitTransform = 'rotate(' + ((Math.random() * 40) - 20) + 'deg)';
-        section.style.mozTransform = 'rotate(' + ((Math.random() * 40) - 20) + 'deg)';
-        if (section.id !== 'index')
-            zindexManager.push(section);
+    var cards = document.querySelectorAll('section');
+    for (var i = 0; i < cards.length; ++i) {
+        var card = cards[i];
+        card.style.top = ((Math.random() * 50) + 25) + '%';
+        card.style.left = ((Math.random() * 25) + 25) + '%';
+        card.style.width = '50%';
+        card.style.transform
+            = card.style.WebkitTransform /* or webkitTransform */
+            = card.style.MozTransform /* case sensitive */
+            = card.style.OTransform /* case sensitive */
+            = card.style.msTransform /* case sensitive */
+            = 'rotate(' + ((Math.random() * 40) - 20) + 'deg)';
+        if (card.id !== 'index')
+            zindexManager.push(card);
     }
 
     // The index div is topmost, followed by the terminal itself.
