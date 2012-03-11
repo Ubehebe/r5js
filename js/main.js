@@ -15,25 +15,22 @@ function load() {
     /* Lay out the divs like a pile of index cards thrown somewhat
      randomly on a table. */
     var zindexManager = new ZIndexManager();
-    var cards = document.querySelectorAll('section');
-    for (var i = 0; i < cards.length; ++i) {
-        var card = cards[i];
-        card.style.top = ((Math.random() * 50) + 25) + '%';
-        card.style.left = ((Math.random() * 25) + 25) + '%';
-        card.style.width = '50%';
-        card.style.transform
-            = card.style.WebkitTransform /* or webkitTransform */
-            = card.style.MozTransform /* case sensitive */
-            = card.style.OTransform /* case sensitive */
-            = card.style.msTransform /* case sensitive */
+    var sections = document.querySelectorAll('section');
+    for (var i = 0; i < sections.length; ++i) {
+        var s = sections[i];
+        s.style.top = ((Math.random() * 50) + 25) + '%';
+        s.style.left = ((Math.random() * 25) + 25) + '%';
+        s.style.width = '50%';
+        s.style.transform
+            = s.style.WebkitTransform /* or webkitTransform */
+            = s.style.MozTransform /* case sensitive */
+            = s.style.OTransform /* case sensitive */
+            = s.style.msTransform /* case sensitive */
             = 'rotate(' + ((Math.random() * 40) - 20) + 'deg)';
-        if (card.id !== 'index')
-            zindexManager.push(card);
+        zindexManager.push(s);
     }
 
-    // The index div is topmost, followed by the terminal itself.
-    zindexManager.push(document.getElementById('repl'))
-        .push(document.getElementById('index'));
+    zindexManager.push(document.getElementById('repl'));
 
     /* Fragment links to the divs should cause the same pop-to-front
      behavior as manually clicking on the divs. */
@@ -54,8 +51,9 @@ function load() {
     }
 
     /* If the browser is trying to navigate directly to a fragment, make sure
-    it's on top. */
+    it's on top. Otherwise index on top. */
     zindexManager.bringToFront(
         document.getElementById(
-            document.location.hash.substr(1)));
+            document.location.hash.substr(1))
+            || document.getElementById('index'));
 }
