@@ -105,22 +105,60 @@ MockTerminal.prototype.shouldSuppress = function(keydownEvent) {
  the usualy ctrl-X/C/V.) We also don't want to get in the way of
  useful browser bindings like ctrl-T to open a new tab. */
 MockTerminal.prototype.willMutateText = function(e) {
+    return (e.altKey || e.metaKey || e.ctrlKey)
+        ? false
+        : !this.isHarmlessKeyCode(e.keyCode);
+};
 
-    if (e.altKey || e.metaKey || e.ctrlKey)
-        return false;
-
-    /* Unfortunately, pressing the Enter/Return key does not set
-     e.keyIdentifier to the Unicode for \n or \r, but to the string
-     "Enter", so we cannot use the final branch below. */
-    else if (e.keyCode === this.inputKey)
-        return true;
-
-    /* JavaScript: The Definitive Guide, 6th ed., says (p.485):
-     "For printing keys, this property [keyIdentifier] holds a less useful
-     string representation of the Unicode encoding of the character. It is
-     "U+0041" for the A key, for example." */
-    else
-        return e.keyIdentifier.substr(0, 2) === 'U+';
+/* This is taken from Example 17-8 of "JavaScript: The Definitive Guide",
+ 6th ed. (page 488). The comment to that source code reads:
+ "The legacy keyCode property of the keydown event object is not standardized.
+ But the following values seem to work for most browsers and OSes." */
+MockTerminal.prototype.isHarmlessKeyCode = function(keyCode) {
+    switch (keyCode) {
+        case 16: // shift
+        case 17: // control
+        case 18: // alt
+        case 19: // pause
+        case 20: // caps lock
+        case 27: // escape
+        case 33: // page up
+        case 34: // page down
+        case 35: // end
+        case 36: // home
+        case 37: // left
+        case 38: // up
+        case 39: // right
+        case 40: // down
+        case 45: // insert
+        case 112: // F1
+        case 113: // F2
+        case 114: // F3
+        case 115: // F4
+        case 116: // F5
+        case 117: // F6
+        case 118: // F7
+        case 119: // F8
+        case 120: // F9
+        case 121: // F10
+        case 122: // F11
+        case 123: // F12
+        case 124: // F13
+        case 125: // F14
+        case 126: // F15
+        case 127: // F16
+        case 128: // F17
+        case 129: // F18
+        case 130: // F19
+        case 131: // F20
+        case 132: // F21
+        case 133: // F22
+        case 134: // F23
+        case 135: // F24
+            return true;
+        default:
+            return false;
+    }
 };
 
 MockTerminal.prototype.print = function(string) {
