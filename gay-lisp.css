@@ -1,9 +1,0 @@
-* {
-    background-color: black;
-}
-
-.terminal {
-    -webkit-transform: rotate(-5deg);
-    font-family: monospace;
-    color: #adff2f;
-}
