@@ -13,7 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-function TrampolineResultStruct(sideEffectHandler) {
+function TrampolineHelper(sideEffectHandler) {
     this.sideEffectHandler = sideEffectHandler;
     /*
      this.ans;
@@ -22,7 +22,7 @@ function TrampolineResultStruct(sideEffectHandler) {
      */
 }
 
-TrampolineResultStruct.prototype.clear = function() {
+TrampolineHelper.prototype.clear = function() {
     this.ans = null;
     this.nextContinuable = null;
 };

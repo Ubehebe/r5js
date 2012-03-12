@@ -93,7 +93,7 @@
 function trampoline(continuable, sideEffectHandler, debug) {
 
     var cur = continuable;
-    var resultStruct = new TrampolineResultStruct(sideEffectHandler);
+    var resultStruct = new TrampolineHelper(sideEffectHandler);
     var savedEnv = new EnvBuffer();
     var ans;
 
