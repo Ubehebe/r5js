@@ -2,13 +2,7 @@
     font-family: monospace;
 }
 
-body {
-    background-color: white;
-}
-
 section {
-    border: thin black solid;
-    position: absolute;
     background-color: #fafad2;
     padding: 1%;
     box-shadow: 5px 5px 20px black;
@@ -27,20 +21,23 @@ a {
 }
 
 em {
+    /*outline: thin dotted gray;*/
+    padding-right: 5%;
     text-transform: uppercase;
+    text-align: start;
     font-style: italic;
     font-size: 3em;
+    clear: both;
+    float: left;
 }
 
-.terminal {
-    -webkit-transform: rotate(-5deg);
-    -moz-transform: rotate(-5deg);
+#repl {
     background-color: black;
     font-family: monospace;
     font-weight: bold;
     color: #adff2f;
-    position: absolute; /* todo bl lay out dynamically */
-    border: 5px solid tan;
+    opacity: 0.90;
+    border: 5px solid #fafad2;
     border-radius: 5px;
     outline: none;
     box-shadow: 5px 5px 20px black;

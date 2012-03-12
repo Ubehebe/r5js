@@ -20,7 +20,7 @@ function load() {
         var s = sections[i];
         s.style.top = ((Math.random() * 50) + 25) + '%';
         s.style.left = ((Math.random() * 25) + 25) + '%';
-        s.style.width = '50%';
+//        s.style.width = '50%';
         s.style.transform
             = s.style.WebkitTransform /* or webkitTransform */
             = s.style.MozTransform /* case sensitive */
