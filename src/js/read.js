@@ -252,10 +252,12 @@ Datum.prototype.toString = function() {
         case '#(':
             if (this.isArrayBacked()) {
                 ans = '#(';
-                for (var i = 0; i < this.payload.length-1; ++i) {
-                    ans += this.payload[i] + ' ';
+                if (this.payload.length > 0) {
+                    for (var i = 0; i < this.payload.length - 1; ++i)
+                        ans += this.payload[i] + ' ';
+                    ans += this.payload[this.payload.length - 1];
                 }
-                return ans + this.payload[i] + ')';
+                return ans + ')';
             }
         // fallthrough for non-array-backed vectors
         case '(':
