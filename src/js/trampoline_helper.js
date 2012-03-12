@@ -13,8 +13,10 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-function TrampolineHelper(sideEffectHandler) {
-    this.sideEffectHandler = sideEffectHandler;
+function TrampolineHelper(inputPort, outputPort) {
+    this.inputPort = inputPort;
+    this.outputPort = outputPort;
+
     /*
      this.ans;
      this.nextContinuable;

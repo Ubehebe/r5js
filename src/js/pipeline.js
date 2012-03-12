@@ -43,5 +43,5 @@ Pipeline.prototype.desugar = function(root, replMode) {
 };
 
 Pipeline.prototype.eval = function(continuable, sideEffectHandler) {
-    return trampoline(continuable, sideEffectHandler, debug);
+    return trampoline(continuable, null, sideEffectHandler, debug);
 };

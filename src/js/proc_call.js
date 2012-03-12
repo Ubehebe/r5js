@@ -388,15 +388,20 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultSt
             args.push(continuation);
             args.push(resultStruct);
             proc.apply(null, args);
-        }
-
-        else {
+        } else {
+            /* For display, etc., push the current input and output ports.
+             We'll have to change this logic if any primitive procedure ever
+             has both hasSpecialEvalLogic and needsCurrentPorts. */
+            if (proc.needsCurrentPorts) {
+                args.push(resultStruct.inputPort);
+                args.push(resultStruct.outputPort);
+            }
             var ans = proc.apply(null, args);
             this.bindResult(continuation, ans);
             resultStruct.ans = ans;
             resultStruct.nextContinuable = continuation.nextContinuable;
         }
-    }
+        }
 };
 
 /* Non-primitive procedure, represented by SchemeProcedure object.

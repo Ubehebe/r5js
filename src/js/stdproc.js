@@ -1135,7 +1135,8 @@ R5JS_builtins['control'] = {
 R5JS_builtins['eval'] = {
     'eval': {
         argc: 2,
-        proc: function(expr, envSpec) {
+        needsCurrentPorts: true,
+        proc: function(expr, envSpec, curInputPort, curOutputPort) {
             if (!(expr instanceof Datum))
                 throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
             if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
@@ -1175,7 +1176,7 @@ R5JS_builtins['eval'] = {
                 if (!parsed)
                     throw new ParseError(expr);
                 var continuable = parsed.desugar(env).setStartingEnv(env);
-                return trampoline(continuable, null, debug);
+                return trampoline(continuable, curInputPort, curOutputPort, debug);
             }
         }
     },
@@ -1238,31 +1239,34 @@ R5JS_builtins['io'] = {
         /* According to R5RS 6.6.3, display is supposed to be a library
             procedure. Since the only non-library output routine is write-char,
             display would presumably have to be written in terms of write-char.
-            That's not too efficient, so decided to write it in JavaScript.
-
-            todo bl: all the I/O routines in Scheme take an optional second
-            parameter to specify the port, but this doesn't make a lot of sense
-            on a web page. Make a decision about whether to support these. */
-        argc: 1,
-        hasSpecialEvalLogic: true,
-        proc: function(x, procCall, continuation, resultStruct) {
-            var sideEffectHandler = resultStruct.sideEffectHandler;
-            if (sideEffectHandler) {
-                /* Don't show quotes when displaying strings, even though they
-                 are part of the external representation. */
-                if (x instanceof Datum
-                    && (x.isString() || x.isCharacter()))
-                    sideEffectHandler(x.payload);
-                else if (x && x.toString)
-                    sideEffectHandler(x.toString());
-                else
-                    sideEffectHandler(x);
+            That's not too efficient, so decided to write it in JavaScript. */
+        needsCurrentPorts: true,
+        proc: function() {
+            var numUserArgs = arguments.length - 2;
+            if (numUserArgs < 1) {
+                throw new TooFewArgs('display', 1, numUserArgs);
+            } else if (numUserArgs > 2) {
+                throw new TooManyArgs('display', 2, numUserArgs);
+            } else {
+                var x = arguments[0];
+                /* If the programmer gave an output port, use that,
+                 otherwise use the current output port. */
+                var outputPort = (numUserArgs === 1)
+                    ? arguments[arguments.length - 1]
+                    : arguments[1];
+                if (outputPort) {
+                    /* Don't show quotes when displaying strings, even though they
+                     are part of the external representation. */
+                    if (x instanceof Datum
+                        && (x.isString() || x.isCharacter()))
+                        outputPort(x.payload);
+                    else if (x && x.toString)
+                        outputPort(x.toString());
+                    else
+                        outputPort(x);
+                }
+                return null; // unspecified return value
             }
-
-            // The return value is unspecified.
-            resultStruct.nextContinuable = continuation.nextContinuable;
-            procCall.bindResult(continuation, null);
-            resultStruct.ans = null;
         }
     }
 };
@@ -1295,6 +1299,8 @@ function registerBuiltin(name, definition, targetEnv) {
              the ProcCall, the Continuation, and the TrampolineResultStruct. */
             if (definition.hasSpecialEvalLogic)
                 numArgsFromUser -= 3;
+            else if (definition.needsCurrentPorts)
+                numArgsFromUser -= 2;
 
             // If argc is a number, it means exactly that many args are required
             if (typeof argc === 'number' && numArgsFromUser !== argc)
@@ -1360,6 +1366,8 @@ function registerBuiltin(name, definition, targetEnv) {
      that it has special evaluation logic. */
     if (definition.hasSpecialEvalLogic)
         binding.hasSpecialEvalLogic = true;
+    else if (definition.needsCurrentPorts)
+        binding.needsCurrentPorts = true;
     targetEnv.addBinding(name, binding);
 }
 
