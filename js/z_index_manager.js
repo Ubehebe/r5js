@@ -5,6 +5,7 @@ function ZIndexManager() {
 
 ZIndexManager.prototype.push = function (element) {
     element.style.zIndex = String(this.elements.length);
+    element.style.position = 'absolute';
     this.elements.push(element);
 
     var self = this;
