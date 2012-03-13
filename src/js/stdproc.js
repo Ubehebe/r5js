@@ -1214,7 +1214,20 @@ R5JS_builtins['eval'] = {
 };
 
 R5JS_builtins['io'] = {
-    // todo bl: explain why we are using string literals and not properties!
+
+    /* Important: several of the primitive IO procedures delegate actual
+     work by calling methods on the payload of the input- or output-port
+     Datum. (This was done to collect all the filesystem-aware code in one
+     place, as it may not be relevant for browser environments.) Such a
+     payload can be anything, but it must provide the functions defined
+     in the Port "interface": close, read-char, write-char, and so on.
+
+     Unfortunately, this polymorphism interacts poorly with the Google
+     Closure Compiler, which renames the functions both at the call site
+     and in the implementation class definition (and to different names,
+     which is the problem). To defeat this, the call and definition sites must
+     both access the functions via string literals, not properties:
+     datum.payload['write'](), not datum.payload.write(). */
 
     'input-port?': {
         argc: 1,
@@ -1332,7 +1345,7 @@ R5JS_builtins['io'] = {
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
                     throw new ArgumentTypeError(inputPort, 0, 'char-ready?', 'input-port');
-                } else if (inputPort['isEof']()) {
+                } else if (inputPort.payload['isEof']()) {
                     /* R5RS 6.6.2: "If the port is at end of file then
                      char-ready? returns true." (Because the next call to
                      read-char is guaranteed not to block -- it'll return EOF.) */
