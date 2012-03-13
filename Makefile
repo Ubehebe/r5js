@@ -70,6 +70,11 @@ node:
 	echo "\";" >> $(output)
 	cat src/node/node_exports.js >> $(output)
 
+node-repl: node
+node-repl:
+	echo "var GayLisp = require('./gay-lisp-$(version)')" >> build/node_repl.js
+	cat src/node/node_repl.js >> build/node_repl.js
+
 test: node
 test:
 	hash node 2>&- || echo >&2 "testing requires node"; exit
