@@ -39,10 +39,14 @@ function load() {
         registerAnchor(anchors[i]);
 
     function registerAnchor(anchor) {
+        /* We get the plain text of the href to avoid looking at
+         external links that happen to have a fragment. Oddly, writing
+         anchor.href will give us the "processed" link (for example
+         http://localhost/#foo instead of #foo) which is not what we want. */
+        var text = anchor.getAttribute('href');
         var fragment;
-        if (anchor.hash
-            && anchor.pathname === '/'
-            && (fragment = document.getElementById(anchor.hash.substr(1)))) {
+        if (text && text.charAt(0) === '#'
+            && (fragment = document.getElementById(text.substr(1)))) {
             anchor.addEventListener('click', function (event) {
                 zindexManager.bringToFront(fragment);
                 event.stopPropagation();
