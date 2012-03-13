@@ -41,7 +41,7 @@ function Port() {
 
 function portImplCheck(portImplObj) {
     if (!portImplObj)
-        throw new PortImplError(portImplObj, 'is null!');
+        throw new IOError(portImplObj, 'is null!');
 
     var required = [
         'close',
@@ -56,7 +56,9 @@ function portImplCheck(portImplObj) {
     for (var i=0; i< required.length; ++i) {
         if (typeof portImplObj[required[i]] !== 'function') {
             console.log(portImplObj);
-            throw new PortImplError(portImplObj, required[i]);
+            throw new IOError(portImplObj
+                + "doesn't have required function "
+                + required[i]);
         }
     }
     return portImplObj;

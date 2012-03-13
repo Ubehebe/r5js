@@ -14,8 +14,22 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 function NodeBackedPort(filename, mode) {
-    if (!NodeBackedPort.prototype.fsModule)
-        NodeBackedPort.prototype.fsModule = require('fs');
+
+    /* We set this inside the constructor instead of the usual way
+     so that a ReferenceError isn't thrown during parsing. */
+    if (!NodeBackedPort.prototype.fsModule) {
+        try {
+            /* Of course, require might be defined but do something other
+             than what we expect, which is to import the filesystem module.
+             We don't check for that. */
+            NodeBackedPort.prototype.fsModule = require('fs');
+        } catch (re) {
+            if (re instanceof ReferenceError) {
+                throw new IOError("the JavaScript environment lacks filesystem access required for this IO procedure. "
+                + "(This probably means you are running in a browser.)");
+            }
+        }
+    }
 
     this.fd = this.fsModule.openSync(filename, mode);
     this.size = this.fsModule.statSync(filename).size;

@@ -108,9 +108,9 @@ function GeneralSyntaxError(what) {
     };
 }
 
-function PortImplError(port, functionName) {
+function IOError(what) {
     this.toString = function() {
-        return 'port ' + port + ' doesn\'t have required function ' + functionName;
+        return 'IO error: ' + what;
     };
 }
 
