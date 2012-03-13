@@ -299,6 +299,13 @@
       (equal? x '(1 2 3 . 100))
       (equal? y '(2 3 . 100))
       (equal? z '(3 . 100)))) => #t)
+  ((and (port? (current-input-port))
+	(input-port? (current-input-port))) => #t)
+  ((and (port? (current-output-port))
+	(output-port? (current-output-port))) => #t)
+  ((or (port? 1)
+       (input-port? '())
+       (output-port? output-port?)) => #f)
 )
 
 (define-tests macro-shadowing-tests

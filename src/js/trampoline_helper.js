@@ -14,8 +14,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 function TrampolineHelper(inputPort, outputPort) {
-    this.inputPort = inputPort;
-    this.outputPort = outputPort;
+    this.inputPort = inputPort
+        ? newInputPortDatum(inputPort)
+        : this.discardInputPort;
+    this.outputPort = outputPort
+        ? newOutputPortDatum(outputPort)
+        : this.discardOutputPort;
 
     /*
      this.ans;
@@ -28,3 +32,13 @@ TrampolineHelper.prototype.clear = function() {
     this.ans = null;
     this.nextContinuable = null;
 };
+
+TrampolineHelper.prototype.discardInputPort = newInputPortDatum(
+    new CallbackBackedPort(
+        function() {
+        }));
+
+TrampolineHelper.prototype.discardOutputPort = newOutputPortDatum(
+    new CallbackBackedPort(
+        function() {
+        }));

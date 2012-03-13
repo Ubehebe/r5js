@@ -293,6 +293,20 @@ function newProcedureDatum(name, procedure) {
     return ans;
 }
 
+function newInputPortDatum(mustImplementPort) {
+    var ans = new Datum();
+    ans.type = 'input-port';
+    ans.payload = portImplCheck(mustImplementPort);
+    return ans;
+}
+
+function newOutputPortDatum(mustImplementPort) {
+    var ans = new Datum();
+    ans.type = 'output-port';
+    ans.payload = portImplCheck(mustImplementPort);
+    return ans;
+}
+
 function newDatumRef(deref) {
     var ans = new Datum();
     ans.type = 'ref';
@@ -333,6 +347,18 @@ function newVectorDatum(array) {
 
 Datum.prototype.isProcedure = function() {
   return this.type === 'lambda';
+};
+
+Datum.prototype.isPort = function() {
+    return this.isInputPort() || this.isOutputPort();
+};
+
+Datum.prototype.isInputPort = function() {
+    return this.type === 'input-port';
+};
+
+Datum.prototype.isOutputPort = function() {
+    return this.type === 'output-port';
 };
 
 Datum.prototype.isMacro = function() {
@@ -540,7 +566,8 @@ Datum.prototype.unwrap = function() {
         && !this.isEnvironmentSpecifier()
         && !this.isString()
         && !this.isCharacter()
-        && !this.isUndefined())
+        && !this.isUndefined()
+        && !this.isPort())
         ? this.payload
         : this;
 };

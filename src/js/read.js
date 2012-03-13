@@ -219,6 +219,12 @@ Datum.prototype.toString = function() {
     var endDelimiter = "";
 
     switch (this.type) {
+        case 'input-port':
+            if (this.payload['isEof']())
+                return 'EOF';
+            // otherwise fallthrough
+        case 'output-port':
+                return this.type + ':' + this.payload.toString();
         case null:
             // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
             return 'undefined';

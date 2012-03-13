@@ -14,10 +14,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 // Mostly re-export the stuff exported by api.js...
-exports.tokenize = GayLisp.tokenize;
-exports.read = GayLisp.read;
-exports.parse = GayLisp.parse;
-exports.eval = GayLisp.eval;
+for (var name in GayLisp)
+    exports[name] = GayLisp[name];
 
 /* ...but testing is different. In a server environment, there's no point
  in keeping the tests in a separate file and pulling them in asynchronously.

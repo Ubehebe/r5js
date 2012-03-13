@@ -108,6 +108,12 @@ function GeneralSyntaxError(what) {
     };
 }
 
+function PortImplError(port, functionName) {
+    this.toString = function() {
+        return 'port ' + port + ' doesn\'t have required function ' + functionName;
+    };
+}
+
 function QuasiquoteError(what) {
     this.toString = function() {
         return 'quasiquote error: ' + what;

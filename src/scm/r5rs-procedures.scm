@@ -447,3 +447,14 @@
 		  (begin (set! result-ready? #t)
 			 (set! result x)
 			 result))))))))
+
+(define (call-with-input-file string proc) ; p. 35
+  (proc (open-input-file string)))
+
+(define (call-with-output-file string proc) ; p. 35
+  (proc (open-output-file string)))
+
+(define (newline . maybe-port) ; p. 37
+  (if (null? maybe-port)
+      (write-char #\newline)
+      (write-char #\newline (car maybe-port))))

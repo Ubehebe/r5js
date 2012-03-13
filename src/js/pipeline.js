@@ -42,6 +42,6 @@ Pipeline.prototype.desugar = function(root, replMode) {
     return root.desugar(this.env).setStartingEnv(this.env);
 };
 
-Pipeline.prototype.eval = function(continuable, sideEffectHandler) {
-    return trampoline(continuable, null, sideEffectHandler, debug);
+Pipeline.prototype.eval = function(continuable, onOutput) {
+    return trampoline(continuable, null, new CallbackBackedPort(onOutput), debug);
 };

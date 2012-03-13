@@ -181,11 +181,10 @@ R5JS_builtins['type'] = {
         }
     },
 
-    // todo bl have no idea...
     'port?': {
         argc: 1,
-        proc: function(p) {
-            throw new UnimplementedOptionError('port?');
+        proc: function(datum) {
+            return datum.isPort();
         }
     }
 };
@@ -1135,8 +1134,7 @@ R5JS_builtins['control'] = {
 R5JS_builtins['eval'] = {
     'eval': {
         argc: 2,
-        needsCurrentPorts: true,
-        proc: function(expr, envSpec, curInputPort, curOutputPort) {
+        proc: function(expr, envSpec) {
             if (!(expr instanceof Datum))
                 throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
             if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
@@ -1176,7 +1174,7 @@ R5JS_builtins['eval'] = {
                 if (!parsed)
                     throw new ParseError(expr);
                 var continuable = parsed.desugar(env).setStartingEnv(env);
-                return trampoline(continuable, curInputPort, curOutputPort, debug);
+                return trampoline(continuable, null, null, debug);
             }
         }
     },
@@ -1215,58 +1213,191 @@ R5JS_builtins['eval'] = {
     }
 };
 
-// todo bl
 R5JS_builtins['io'] = {
-    'call-with-input-file': {},
-    'call-with-output-file': {},
-    'input-port?': {},
-    'output-port?': {},
-    'current-input-port': {},
-    'current-output-port': {},
-    'with-input-from-file': {},
-    'with-output-to-file': {},
-    'open-input-file': {},
-    'open-output-file': {},
-    'close-input-port': {},
-    'close-output-port': {},
-    'read-char': {},
-    'peek-char': {},
-    'eof-object?': {},
-    'char-ready?': {},
+    // todo bl: explain why we are using string literals and not properties!
+
+    'input-port?': {
+        argc: 1,
+        proc: function(node) {
+            return node instanceof Datum
+            && node.isInputPort();
+        }
+    },
+    'output-port?': {
+        argc: 1,
+        proc: function(node) {
+            return node instanceof Datum
+                && node.isOutputPort();
+        }
+    },
+    'current-input-port': {
+        argc: 0,
+        needsCurrentPorts: true, // pushes current input, current output
+        proc: function() {
+            return arguments[0];
+        }
+    },
+    'current-output-port': {
+        argc: 0,
+        needsCurrentPorts: true, // pushes current input, current output
+        proc: function() {
+            return arguments[1];
+        }
+    },
+    'open-input-file': {
+        argc: 1,
+        argtypes: ['string'],
+        proc: function(datum) {
+            return newInputPortDatum(
+                new NodeBackedPort(datum.payload, 'r'));
+        }
+    },
+    'open-output-file': {
+        argc: 1,
+        argtypes: ['string'],
+        proc: function(datum) {
+            return newOutputPortDatum(
+                new NodeBackedPort(datum.payload, 'w'));
+        }
+    },
+    'close-input-port': {
+        argc: 1,
+        argtypes: ['port'],
+        proc: function(datum) {
+            if (datum.isInputPort())
+                datum.payload['close']();
+            return null;
+        }
+    },
+    'close-output-port': {
+        argc: 1,
+        argtypes: ['port'],
+        proc: function(datum) {
+            if (datum.isOutputPort())
+                datum.payload['close']();
+            return null;
+        }
+    },
+    'read-char': {
+        needsCurrentPorts: true,
+        proc: function() {
+            var numUserArgs = arguments.length - 2;
+            if (numUserArgs === 0 || numUserArgs === 1) {
+                var inputPort = (numUserArgs === 0)
+                    ? arguments[arguments.length - 2]
+                    : arguments[0];
+                if (!inputPort.isInputPort()) {
+                    throw new ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
+                } else if (inputPort.payload['isEof']()) {
+                    /* R5RS 6.6.2: "If no more characters are available,
+                     an end of file object is returned." */
+                    return inputPort;
+                } else return newIdOrLiteral(inputPort.payload['readChar']());
+            } else throw new TooManyArgs('read-char', 1, numUserArgs);
+        }
+    },
+    'peek-char': {
+        needsCurrentPorts: true,
+        proc: function() {
+            var numUserArgs = arguments.length - 2;
+            if (numUserArgs === 0 || numUserArgs === 1) {
+                var inputPort = (numUserArgs === 0)
+                    ? arguments[arguments.length - 2]
+                    : arguments[0];
+                if (!inputPort.isInputPort()) {
+                    throw new ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
+                } else if (inputPort.payload['isEof']()) {
+                    /* R5RS 6.6.2: "If no more characters are available,
+                     an end of file object is returned." */
+                    return inputPort;
+                } else return newIdOrLiteral(inputPort.payload['peekChar']());
+            } else throw new TooManyArgs('read-char', 1, numUserArgs);
+        }
+    },
+    'eof-object?': {
+        argc: 1,
+        proc: function(port) {
+            return port instanceof Datum
+                && port.isPort()
+                && port.payload['isEof']();
+        }
+    },
+    'char-ready?': {
+        needsCurrentPorts: true,
+        proc: function() {
+            var numUserArgs = arguments.length-2;
+            if (numUserArgs === 0 || numUserArgs === 1) {
+                var inputPort = (numUserArgs === 0)
+                    ? arguments[arguments.length-2]
+                    : arguments[0];
+                if (!inputPort.isInputPort()) {
+                    throw new ArgumentTypeError(inputPort, 0, 'char-ready?', 'input-port');
+                } else if (inputPort['isEof']()) {
+                    /* R5RS 6.6.2: "If the port is at end of file then
+                     char-ready? returns true." (Because the next call to
+                     read-char is guaranteed not to block -- it'll return EOF.) */
+                    return true;
+                } else return inputPort.payload['isCharReady']();
+            } else throw new TooManyArgs('char-ready?', 1, arguments.length);
+        }
+    },
     'write-char': {
+        needsCurrentPorts: true,
+        proc: function() {
+            var numUserArgs = arguments.length - 2;
+            if (numUserArgs === 0) {
+                throw new TooFewArgs('write-char', 1, 0);
+            } else if (numUserArgs === 1 || numUserArgs === 2) {
+                var c = arguments[0];
+                if (!c.isCharacter())
+                    throw new ArgumentTypeError(c, 0, 'write-char', 'character');
+                var outputPort = (numUserArgs === 1)
+                    ? arguments[arguments.length - 1]
+                    : arguments[1];
+                if (!outputPort.isOutputPort())
+                    throw new ArgumentTypeError(outputPort, 1, 'write-char', 'output-port');
+
+                outputPort.payload['writeChar'](c.payload);
+            } else throw new TooManyArgs('write-char', 2, numUserArgs);
+            return null;
+        }
     },
     'display': {
         /* According to R5RS 6.6.3, display is supposed to be a library
             procedure. Since the only non-library output routine is write-char,
             display would presumably have to be written in terms of write-char.
-            That's not too efficient, so decided to write it in JavaScript. */
+            That's not too efficient, so I decided to write it in JavaScript. */
         needsCurrentPorts: true,
         proc: function() {
             var numUserArgs = arguments.length - 2;
-            if (numUserArgs < 1) {
+            if (numUserArgs === 0) {
                 throw new TooFewArgs('display', 1, numUserArgs);
-            } else if (numUserArgs > 2) {
-                throw new TooManyArgs('display', 2, numUserArgs);
-            } else {
+            } else if (numUserArgs === 1 || numUserArgs === 2) {
                 var x = arguments[0];
                 /* If the programmer gave an output port, use that,
                  otherwise use the current output port. */
                 var outputPort = (numUserArgs === 1)
                     ? arguments[arguments.length - 1]
                     : arguments[1];
-                if (outputPort) {
+                if (outputPort.isOutputPort()) {
                     /* Don't show quotes when displaying strings, even though they
                      are part of the external representation. */
-                    if (x instanceof Datum
+                    var toDisplay = (x instanceof Datum
                         && (x.isString() || x.isCharacter()))
-                        outputPort(x.payload);
-                    else if (x && x.toString)
-                        outputPort(x.toString());
-                    else
-                        outputPort(x);
+                        ? x.payload
+                        : String(x);
+                    /* Port implementations aren't required to implement
+                     display. If they don't, we just call writeChar (which they
+                     must implement) on every single character. */
+                    if (outputPort.payload['display']) {
+                        outputPort.payload['display'](toDisplay);
+                    } else {
+                        for (var i = 0; i < toDisplay.length; ++i)
+                            outputPort.payload['writeChar'](toDisplay[i]);
+                    }
                 }
                 return null; // unspecified return value
-            }
+            } else throw new TooManyArgs('display', 2, numUserArgs);
         }
     }
 };
