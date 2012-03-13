@@ -186,6 +186,20 @@ R5JS_builtins['type'] = {
         proc: function(datum) {
             return datum.isPort();
         }
+    },
+
+    'input-port?': {
+        argc: 1,
+        proc: function(datum) {
+            return datum.isInputPort();
+        }
+    },
+
+    'output-port?': {
+        argc: 1,
+        proc: function(datum) {
+            return datum.isOutputPort();
+        }
     }
 };
 
@@ -1229,20 +1243,6 @@ R5JS_builtins['io'] = {
      both access the functions via string literals, not properties:
      datum.payload['write'](), not datum.payload.write(). */
 
-    'input-port?': {
-        argc: 1,
-        proc: function(node) {
-            return node instanceof Datum
-            && node.isInputPort();
-        }
-    },
-    'output-port?': {
-        argc: 1,
-        proc: function(node) {
-            return node instanceof Datum
-                && node.isOutputPort();
-        }
-    },
     'current-input-port': {
         argc: 0,
         needsCurrentPorts: true, // pushes current input, current output
@@ -1275,19 +1275,17 @@ R5JS_builtins['io'] = {
     },
     'close-input-port': {
         argc: 1,
-        argtypes: ['port'],
+        argtypes: ['input-port'],
         proc: function(datum) {
-            if (datum.isInputPort())
-                datum.payload['close']();
+            datum.payload['close']();
             return null;
         }
     },
     'close-output-port': {
         argc: 1,
-        argtypes: ['port'],
+        argtypes: ['output-port'],
         proc: function(datum) {
-            if (datum.isOutputPort())
-                datum.payload['close']();
+            datum.payload['close']();
             return null;
         }
     },
@@ -1392,22 +1390,22 @@ R5JS_builtins['io'] = {
                 var outputPort = (numUserArgs === 1)
                     ? arguments[arguments.length - 1]
                     : arguments[1];
-                if (outputPort.isOutputPort()) {
-                    /* Don't show quotes when displaying strings, even though they
-                     are part of the external representation. */
-                    var toDisplay = (x instanceof Datum
-                        && (x.isString() || x.isCharacter()))
-                        ? x.payload
-                        : String(x);
-                    /* Port implementations aren't required to implement
-                     display. If they don't, we just call writeChar (which they
-                     must implement) on every single character. */
-                    if (outputPort.payload['display']) {
-                        outputPort.payload['display'](toDisplay);
-                    } else {
-                        for (var i = 0; i < toDisplay.length; ++i)
-                            outputPort.payload['writeChar'](toDisplay[i]);
-                    }
+                if (!outputPort.isOutputPort())
+                    throw new ArgumentTypeError(outputPort, 1, 'display', 'output-port');
+                /* Don't show quotes when displaying strings, even though they
+                 are part of the external representation. */
+                var toDisplay = (x instanceof Datum
+                    && (x.isString() || x.isCharacter()))
+                    ? x.payload
+                    : String(x);
+                /* Port implementations aren't required to implement
+                 display. If they don't, we just call writeChar (which they
+                 must implement) on every single character. */
+                if (outputPort.payload['display']) {
+                    outputPort.payload['display'](toDisplay);
+                } else {
+                    for (var i = 0; i < toDisplay.length; ++i)
+                        outputPort.payload['writeChar'](toDisplay[i]);
                 }
                 return null; // unspecified return value
             } else throw new TooManyArgs('display', 2, numUserArgs);

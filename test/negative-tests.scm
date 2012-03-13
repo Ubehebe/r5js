@@ -9,6 +9,9 @@
   `(1 2 ,@(+ 3 4))
   (let ())
   (let (x ()) 1)
+  (display "hello" (current-input-port))
+  (close-input-port (current-output-port))
+  (close-output-port (current-input-port))
 )
 
 (define-negative-tests r5rs-errors
