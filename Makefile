@@ -56,7 +56,7 @@ interpreter:
 # Requires Google Closure Compiler compiler.jar to be in pwd
 interpreter-min: interpreter
 interpreter-min:
-	cat src/api/closure_exports.js >> $(output)
+	cat src/closure/closure_exports.js >> $(output)
 	java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS < $(output) > tmp
 	mv tmp build/gay-lisp-$(version)-min.js
 
@@ -68,7 +68,7 @@ node:
 	echo "var tests = \"\c" >> $(output)
 	sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < $(unit_tests) | tr -s '\n\t ' ' ' >> $(output)
 	echo "\";" >> $(output)
-	cat src/api/node_exports.js >> $(output)
+	cat src/node/node_exports.js >> $(output)
 
 test: node
 test:
