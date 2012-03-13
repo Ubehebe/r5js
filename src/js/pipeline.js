@@ -43,5 +43,5 @@ Pipeline.prototype.desugar = function(root, replMode) {
 };
 
 Pipeline.prototype.eval = function(continuable, onOutput) {
-    return trampoline(continuable, null, new CallbackBackedPort(onOutput), debug);
+    return trampoline(continuable, null, onOutput && new CallbackBackedPort(onOutput), debug);
 };
