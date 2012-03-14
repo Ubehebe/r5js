@@ -496,8 +496,7 @@ Parser.prototype['self-evaluating'] = function() {
                 case 'string':
                     /* String literals could have escaped backslashes
                      and double quotes, but we want to store them unescaped. */
-                    datum.payload = datum.payload.replace(/\\(["\\])/g, "$1");
-                    datum.setImmutable(); // to defeat string-set! on a literal
+                    datum.unescapeStringLiteral().setImmutable(); // to defeat string-set! on a literal
                     return true;
                 default:
                     return false;

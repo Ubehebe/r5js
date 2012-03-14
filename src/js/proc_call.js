@@ -591,7 +591,7 @@ ProcCall.prototype.evalArgs = function(wrapArgs) {
             args.push(toPush);
         }
         else if (cur.isQuote()) {
-            cur.setImmutableOnQuote();
+            cur.normalizeInput();
             args.push(cur.firstChild);
         }
         else if (cur.isProcedure()) {

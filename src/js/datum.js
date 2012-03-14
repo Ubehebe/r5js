@@ -161,6 +161,11 @@ Datum.prototype.clone = function(parent) {
     return ans;
 };
 
+Datum.prototype.unescapeStringLiteral = function() {
+    this.payload = this.payload.replace(/\\(["\\])/g, "$1");
+    return this;
+};
+
 Datum.prototype.setParse = function(type) {
     if (!this.nonterminals)
         this.nonterminals = [];
@@ -627,6 +632,9 @@ Datum.prototype.normalizeInput = function() {
             }
         }
     }
+
+    if (this.isString())
+        this.unescapeStringLiteral();
 
     return this.setImmutableOnQuote();
 };
