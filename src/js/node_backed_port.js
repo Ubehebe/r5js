@@ -59,13 +59,13 @@ NodeBackedPort.prototype['isEof'] = function() {
 NodeBackedPort.prototype['peekChar'] = function() {
     return this.isEof()
         ? this
-        : this.fsModule.readSync(inputPort.payload, 1, this.offset)[0];
+        : this.fsModule.readSync(this.fd, 1, this.offset)[0];
 };
 
 NodeBackedPort.prototype['readChar'] = function() {
     return this.isEof()
         ? this
-        : this.fsModule.readSync(inputPort.payload, 1, this.offset++)[0];
+        : this.fsModule.readSync(this.fd, 1, this.offset++)[0];
 };
 
 NodeBackedPort.prototype['toString'] = function() {
