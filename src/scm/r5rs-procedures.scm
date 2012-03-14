@@ -439,10 +439,27 @@
 			 result))))))))
 
 (define (call-with-input-file string proc) ; p. 35
-  (proc (open-input-file string)))
+  (let* ((input (open-input-file string))
+	 (result (proc input)))
+    (close-input-port input)
+    result))
 
 (define (call-with-output-file string proc) ; p. 35
-  (proc (open-output-file string)))
+  (let* ((output (open-output-file string))
+	 (result (proc output)))
+    (close-output-port output)
+    result))
+
+(define (file->string filename) ; not in R5RS, thought it was useful
+  (define (port->string port chars)
+    (let ((maybe (read-char port)))
+      (if (eof-object? maybe)
+	  (list->string (reverse chars))
+	  (port->string port (cons maybe chars)))))
+  (let* ((input (open-input-file filename))
+	 (result (port->string input '())))
+    (close-input-port input)
+    result))
 
 (define (newline . maybe-port) ; p. 37
   (if (null? maybe-port)

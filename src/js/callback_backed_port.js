@@ -49,6 +49,6 @@ CallbackBackedPort.prototype['writeChar'] = function(c) {
     this.onOutput(c);
 };
 
-CallbackBackedPort.prototype['display'] = function(str) {
+CallbackBackedPort.prototype['write'] = function(str) {
     this.onOutput(str);
 };

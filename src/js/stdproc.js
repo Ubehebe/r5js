@@ -1352,6 +1352,37 @@ R5JS_builtins['io'] = {
             } else throw new TooManyArgs('char-ready?', 1, arguments.length);
         }
     },
+    'write': {
+        needsCurrentPorts: true,
+        proc: function() {
+            var numUserArgs = arguments.length - 2;
+            if (numUserArgs === 0) {
+                throw new TooFewArgs('write', 1, numUserArgs);
+            } else if (numUserArgs === 1 || numUserArgs === 2) {
+                var x = arguments[0];
+                var outputPort = (numUserArgs === 1)
+                    ? arguments[arguments.length - 1]
+                    : arguments[1];
+                if (!outputPort.isOutputPort())
+                    throw new ArgumentTypeError(outputPort, 1, 'write', 'output-port');
+                var toWrite = x instanceof Datum
+                    ? x.toString(OutputModes.WRITE)
+                    : String(x);
+                /* Port implementations aren't required to implement
+                 write. If they don't, we just call writeChar (which they
+                 must implement) on every single character. */
+                if (outputPort.payload['write']) {
+                    outputPort.payload['write'](toWrite);
+                } else {
+                    for (var i = 0; i < toWrite.length; ++i)
+                        outputPort.payload['writeChar'](toWrite[i]);
+                }
+                return null; // unspecified return value
+            } else throw new TooManyArgs('write', 2, numUserArgs);
+        }
+
+
+    },
     'write-char': {
         needsCurrentPorts: true,
         proc: function() {
@@ -1392,20 +1423,17 @@ R5JS_builtins['io'] = {
                     : arguments[1];
                 if (!outputPort.isOutputPort())
                     throw new ArgumentTypeError(outputPort, 1, 'display', 'output-port');
-                /* Don't show quotes when displaying strings, even though they
-                 are part of the external representation. */
-                var toDisplay = (x instanceof Datum
-                    && (x.isString() || x.isCharacter()))
-                    ? x.payload
+                var toWrite = x instanceof Datum
+                    ? x.toString(OutputModes.DISPLAY)
                     : String(x);
                 /* Port implementations aren't required to implement
-                 display. If they don't, we just call writeChar (which they
+                 write. If they don't, we just call writeChar (which they
                  must implement) on every single character. */
-                if (outputPort.payload['display']) {
-                    outputPort.payload['display'](toDisplay);
+                if (outputPort.payload['write']) {
+                    outputPort.payload['write'](toWrite);
                 } else {
-                    for (var i = 0; i < toDisplay.length; ++i)
-                        outputPort.payload['writeChar'](toDisplay[i]);
+                    for (var i = 0; i < toWrite.length; ++i)
+                        outputPort.payload['writeChar'](toWrite[i]);
                 }
                 return null; // unspecified return value
             } else throw new TooManyArgs('display', 2, numUserArgs);

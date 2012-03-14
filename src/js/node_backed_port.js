@@ -44,10 +44,6 @@ NodeBackedPort.prototype['close'] = function() {
     this.fsModule.closeSync(this.fd);
 };
 
-NodeBackedPort.prototype['display'] = function(str) {
-    this.fsModule.writeSync(this.fd, str, null);
-};
-
 NodeBackedPort.prototype['isCharReady'] = function() {
     return true;
 };
@@ -70,6 +66,10 @@ NodeBackedPort.prototype['readChar'] = function() {
 
 NodeBackedPort.prototype['toString'] = function() {
     return String(this.fd);
+};
+
+NodeBackedPort.prototype['write'] = function(str) {
+    this.fsModule.writeSync(this.fd, str, null);
 };
 
 NodeBackedPort.prototype['writeChar'] = function(c) {
