@@ -869,3 +869,8 @@
      (set-cdr! (list-tail x 0) 'y)
      x) => (a . y))
 )
+
+(define-tests escaping-tests
+  ((string-length "\"") => 1)
+  ((string-length "\\") => 1)
+)
