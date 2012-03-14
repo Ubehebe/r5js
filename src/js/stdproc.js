@@ -1303,7 +1303,7 @@ R5JS_builtins['io'] = {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
                     return inputPort;
-                } else return newIdOrLiteral(inputPort.payload['readChar']());
+                } else return newIdOrLiteral(inputPort.payload['readChar'](), 'character');
             } else throw new TooManyArgs('read-char', 1, numUserArgs);
         }
     },
@@ -1321,7 +1321,7 @@ R5JS_builtins['io'] = {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
                     return inputPort;
-                } else return newIdOrLiteral(inputPort.payload['peekChar']());
+                } else return newIdOrLiteral(inputPort.payload['peekChar'](), 'character');
             } else throw new TooManyArgs('read-char', 1, numUserArgs);
         }
     },
