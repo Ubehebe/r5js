@@ -213,7 +213,7 @@ Reader.prototype.read = function() {
 };
 
 // This is the inverse of Reader.prototype.read, which is why it's here.
-Datum.prototype.toString = function() {
+Datum.prototype.toString = function(outputMode) {
 
     var ans, child;
     var endDelimiter = "";
@@ -229,7 +229,7 @@ Datum.prototype.toString = function() {
             // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
             return 'undefined';
         case 'ref':
-            return this.payload.toString();
+            return this.payload.toString(outputMode);
         case 'environment-specifier': // R5RS 6.5
             return this.payload === 5
                 ? 'scheme-report-environment-5'
@@ -247,71 +247,86 @@ Datum.prototype.toString = function() {
         case 'number':
             return this.payload + '';
         case 'character':
-            if (this.payload === ' ')
-                return '#\\space';
-            else if (this.payload === '\n')
-                return '#\\newline';
-            else
-                return '#\\' + this.payload;
-        case 'string':
-            return '"' + this.payload + '"';
-        case '#(':
-            if (this.isArrayBacked()) {
-                ans = '#(';
-                if (this.payload.length > 0) {
-                    for (var i = 0; i < this.payload.length - 1; ++i)
-                        ans += this.payload[i] + ' ';
-                    ans += this.payload[this.payload.length - 1];
-                }
-                return ans + ')';
+            switch (outputMode) {
+                case OutputModes.WRITE:
+                    if (this.payload === ' ')
+                        return '#\\space';
+                    else if (this.payload === '\n')
+                        return '#\\newline';
+                    else
+                        return '#\\' + this.payload;
+                case OutputModes.DISPLAY:
+                default:
+                    return this.payload;
             }
-        // fallthrough for non-array-backed vectors
-        case '(':
-            endDelimiter = ')';
-        // fallthrough
-        case "'":
-        case '`':
-        case ',':
-        case ',@':
-            /* Note: this will be an infinite loop for cyclical data
-             structures created by the programmer through set-cdr!, etc.
-             Some implementations do nice things, like print "holes" where
-             a cycle starts. But the R5RS standard does not seem to define
-             external representations for lists (vectors, etc.) that contain
-             cycles. In general, the spirit of the standard seems to be that
-             the programmer is responsible for mayhem caused by the creation
-             of such structures.
+            break;
+        case 'string':
+            switch (outputMode) {
+                case OutputModes.WRITE:
+                    var ans = this.payload;
+                    return '"' + ans.replace(/([\\"])/g, "\\$1") + '"';
+                case OutputModes.DISPLAY:
+                default:
+                    return this.payload;
+            }
+            break;
+        case '#(':
+                    if (this.isArrayBacked()) {
+                        ans = '#(';
+                        if (this.payload.length > 0) {
+                            for (var i = 0; i < this.payload.length - 1; ++i)
+                                ans += this.payload[i] + ' ';
+                            ans += this.payload[this.payload.length - 1];
+                        }
+                        return ans + ')';
+                    }
+                // fallthrough for non-array-backed vectors
+                case '(':
+                    endDelimiter = ')';
+                // fallthrough
+                case "'":
+                case '`':
+                case ',':
+                case ',@':
+                    /* Note: this will be an infinite loop for cyclical data
+                     structures created by the programmer through set-cdr!, etc.
+                     Some implementations do nice things, like print "holes" where
+                     a cycle starts. But the R5RS standard does not seem to define
+                     external representations for lists (vectors, etc.) that contain
+                     cycles. In general, the spirit of the standard seems to be that
+                     the programmer is responsible for mayhem caused by the creation
+                     of such structures.
 
-             There is one exception: list? (a library procedure) must return
-             false for cyclical lists. Accordingly, I've written the
-             cycle-detecting logic wholly in Scheme, not bothering
-             to reimplement it here. */
-            ans = this.type;
-            /* Uncomment to show quasiquotation levels.
-             (These should not make it into any external representation.)
-             if (this.qqLevel !== undefined && ans !== "'")
-             ans += 'qq' + this.qqLevel; */
-            for (child = this.firstChild;
-                 child && child.nextSibling;
-                 child = child.nextSibling)
-                    ans += child.toString() + ' ';
-            return ans
-                + (child ? child.toString() : '')
-                + endDelimiter;
-        case '.(':
-            ans = '(';
-            for (child = this.firstChild;
-                 child && child.nextSibling && child.nextSibling.nextSibling;
-                 child = child.nextSibling)
-                    ans += child.toString() + ' ';
-            var nextToLastChildString = child
-            ? child.toString()
-                : '';
-            var lastChildString = child.nextSibling ?
-                child.nextSibling.toString()
-                : '';
-            return ans + nextToLastChildString + ' . ' + lastChildString + ')';
-        default:
-            throw new InternalInterpreterError('unknown datum type ' + this.type);
-    }
-};
+                     There is one exception: list? (a library procedure) must return
+                     false for cyclical lists. Accordingly, I've written the
+                     cycle-detecting logic wholly in Scheme, not bothering
+                     to reimplement it here. */
+                    ans = this.type;
+                    /* Uncomment to show quasiquotation levels.
+                     (These should not make it into any external representation.)
+                     if (this.qqLevel !== undefined && ans !== "'")
+                     ans += 'qq' + this.qqLevel; */
+                    for (child = this.firstChild;
+                         child && child.nextSibling;
+                         child = child.nextSibling)
+                        ans += child.toString(outputMode) + ' ';
+                    return ans
+                        + (child ? child.toString(outputMode) : '')
+                        + endDelimiter;
+                case '.(':
+                    ans = '(';
+                    for (child = this.firstChild;
+                         child && child.nextSibling && child.nextSibling.nextSibling;
+                         child = child.nextSibling)
+                        ans += child.toString(outputMode) + ' ';
+                    var nextToLastChildString = child
+                        ? child.toString(outputMode)
+                        : '';
+                    var lastChildString = child.nextSibling ?
+                        child.nextSibling.toString(outputMode)
+                        : '';
+                    return ans + nextToLastChildString + ' . ' + lastChildString + ')';
+                default:
+                    throw new InternalInterpreterError('unknown datum type ' + this.type);
+            }
+    };
