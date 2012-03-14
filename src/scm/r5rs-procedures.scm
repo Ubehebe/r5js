@@ -263,46 +263,36 @@
      cs)
     new-string))
 
-; todo bl the string comparisons are all extremely slow.
-; Consider moving them to primitives.
-(define (lexicographic compare terminate) ; helper function, not in R5RS
+(define (lexicographic true-if goto-next-if compare-lengths-at-end) ; helper function, not in R5RS
   (lambda (str1 str2)
     (let* ((len1 (string-length str1))
 	   (len2 (string-length str2))
-	   (stop (- (min len1 len2) 1)))
+	   (len (min len1 len2)))
       (define (lexico-tail i)
-	(let* ((c1 (string-ref str1 i))
-	       (c2 (string-ref str2 i))
-	       (c1-vs-c2 (compare c1 c2))
-	       (c2-vs-c1 (compare c2 c1)))
-	  (cond
-	   (c1-vs-c2 #t)
-	   (c2-vs-c1 #f)
-	   ((= i stop) (terminate len1 len2))
-	   (else (lexico-tail (+ i 1))))))
-      (if (< stop 0)
-	  (terminate len1 len2)
-	  (lexico-tail 0)))))
+	(if (= i len)
+	    (compare-lengths-at-end len1 len2)
+	    (let* ((yes
+		    (true-if (string-ref str1 i)
+			     (string-ref str2 i)))
+		   (maybe
+		    (goto-next-if (string-ref str1 i)
+				  (string-ref str2 i))))
+	      (cond
+	       (yes #t)
+	       (maybe (lexico-tail (+ i 1)))
+	       (else #f)))))
+      (lexico-tail 0))))
 
-(define string=? (lexicographic char=? =)) ; p. 30
-
-(define string-ci=? (lexicographic char-ci=? =)) ; p. 30
-
-(define string<? (lexicographic char<? <)) ; p. 30
-
-(define string>? (lexicographic char>? >)) ; p. 30
-
-(define string<=? (lexicographic char<=? <=)) ; p. 30
-
-(define string>=? (lexicographic char>=? >=)) ; p. 30
-
-(define string-ci<? (lexicographic char-ci<? <)) ; p. 30
-
-(define string-ci>? (lexicographic char-ci>? >)) ; p. 30
-
-(define string-ci<=? (lexicographic char-ci<=? <=)) ; p. 30
-
-(define string-ci>=? (lexicographic char-ci>=? >=)) ; p. 30
+(define string=?     (lexicographic (lambda (x y) #f) char=? =)) ; p. 30
+(define string-ci=?  (lexicographic (lambda (x y) #f) char-ci=? =))
+(define string<?     (lexicographic char<? char=? <))
+(define string>?     (lexicographic char>? char=? >))
+(define string<=?    (lexicographic char<? char=? <=))
+(define string>=?    (lexicographic char>? char=? >=))
+(define string-ci<?  (lexicographic char-ci<? char-ci=? <))
+(define string-ci>?  (lexicographic char-ci>? char-ci=? >))
+(define string-ci<=? (lexicographic char-ci<? char-ci=? <=))
+(define string-ci>=? (lexicographic char-ci>? char-ci=? >=))
 
 (define (substring str start end) ; p. 30
   (letrec ((new-str (make-string (- end start)))
