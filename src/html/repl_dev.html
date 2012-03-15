@@ -40,6 +40,7 @@
     <script src="../js/boot.js"></script>
     <script src="../js/lazy_boot.js"></script>
     <script src="../../mockterm/mockterm.js"></script>
+    <script src="../../tutorial/tutorial.js"></script>
     <script type="text/javascript">
         /* Set up the syntax and procedures vars so that the bootstrap call
          in api.js works. */
@@ -68,19 +69,22 @@
     </script>
     <script src="../api/api.js"></script>
     <script>
-        window.addEventListener('load', function() {
+        addEventListener('load', function () {
             var terminal = new MockTerminal(document.getElementById('repl'))
                     .setPrompt('>> ')
                     .setInterpreter(function(string) {
-//                        if (string === '(tutorial)') {
-//                            terminal.reset();
-//                            terminal.print('\nEntering tutorial!');
-//                            return '';
-//                        } else {
-                            return GayLisp.repl(string, function (sideEffect) {
+                        if (string === '(tutorial)') {
+                            terminal.reset();
+                            terminal.print(tutorial.getIntroMessage());
+                            terminal.setInterpreter(function(string) {
+                                return tutorial.eval(string);
+                            });
+                            return '';
+                        } else {
+                            return GayLisp.repl(string, function(sideEffect) {
                                 terminal.print('\n' + sideEffect);
                             });
-//                        }
+                        }
                     })
                     .setInputCompleteHandler(GayLisp.willParse)
                     .start();
