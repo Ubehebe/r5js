@@ -75,14 +75,14 @@
                     .setInterpreter(function(string) {
                         if (string === '(tutorial)') {
                             terminal.reset();
-                            terminal.print(tutorial.getIntroMessage());
+                            terminal.println(tutorial.getIntroMessage());
                             terminal.setInterpreter(function(string) {
                                 return tutorial.eval(string);
                             });
                             return '';
                         } else {
                             return GayLisp.repl(string, function(sideEffect) {
-                                terminal.print('\n' + sideEffect);
+                                terminal.println(sideEffect);
                             });
                         }
                     })

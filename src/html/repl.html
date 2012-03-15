@@ -14,7 +14,7 @@ not do what you want if you use it in its pristine state in the source control. 
                     .setBanner(GayLisp.getMetadata().banner)
                     .setInterpreter(function(string) {
                         return GayLisp.repl(string, function(sideEffect) {
-                            terminal.print('\n' + sideEffect);
+                            terminal.println(sideEffect);
                         });
                     })
                     .setInputCompleteHandler(GayLisp.willParse)

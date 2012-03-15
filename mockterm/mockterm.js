@@ -66,12 +66,34 @@ MockTerminal.prototype.onKeyDown = function(e) {
         e.preventDefault();
         var input = this.getCurLine();
         var output = this.maybeInterpret(input);
-        this.print('\n' + output + '\n' + this.prompt);
+        this.println((output || '') + '\n\n' + this.prompt);
         this.lineStart = this.lineEnd = this.textArea.selectionEnd;
         /* Make sure we don't have to scroll down to see the latest output.
          Not sure how portable this is. */
         this.textArea.scrollTop = this.textArea.scrollHeight;
     }
+};
+
+MockTerminal.prototype.wordRegex = /\S+/g;
+
+MockTerminal.prototype.reflowContent = function(str) {
+
+    var word;
+    var buf = '';
+    var buflen = 0;
+
+    while ((word = this.wordRegex.exec(str))
+        && (word = word[0])) {
+        if (buflen + word.length + 1 <= this.numColumns) {
+            buf += word + ' ';
+            buflen += word.length + 1;
+        } else {
+            buf += '\n' + word + ' ';
+            buflen = word.length + 1;
+        }
+    }
+
+    return buf;
 };
 
 MockTerminal.prototype.shouldSuppress = function(keydownEvent) {
@@ -163,6 +185,15 @@ MockTerminal.prototype.isHarmlessKeyCode = function(keyCode) {
         default:
             return false;
     }
+};
+
+/* if reflowOk is true, we'll treat the line as a stream of whitespace-
+ delimited tokens and try to lay them out on the terminal so there's
+ no splitting within a token. This could have unintended semantic
+ consequences -- for example, compressing the whitespace within
+ a string literal. That's why it defaults to off. */
+MockTerminal.prototype.println = function(line, reflowOk) {
+  this.print('\n' + (reflowOk ? this.reflowContent(line) : line));
 };
 
 MockTerminal.prototype.print = function(string) {
