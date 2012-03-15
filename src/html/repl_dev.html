@@ -41,6 +41,7 @@
     <script src="../js/lazy_boot.js"></script>
     <script src="../../mockterm/mockterm.js"></script>
     <script src="../../tutorial/tutorial.js"></script>
+    <script src="../../tutorial/tutorial_data.js"></script>
     <script type="text/javascript">
         /* Set up the syntax and procedures vars so that the bootstrap call
          in api.js works. */
@@ -88,6 +89,7 @@
                     })
                     .setInputCompleteHandler(GayLisp.willParse)
                     .start();
+            tutorial.setTerminal(terminal);
         });
     </script>
 </head>
