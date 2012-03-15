@@ -35,8 +35,6 @@ function MockTerminal(textArea) {
     this.textArea = textArea;
 
     /* Properties set by setters
-     this.prompt;
-     this.banner;
      this.interpreter;
      this.lineStart;
      this.lineEnd;
@@ -46,6 +44,9 @@ function MockTerminal(textArea) {
     this.inputKey = '\r'.charCodeAt(0);
     this.backspace = '\b'.charCodeAt(0);
     this.numColumns = 80;
+
+    this.prompt = '';
+    this.banner = '';
 
     var self = this;
 
@@ -199,7 +200,9 @@ MockTerminal.prototype.setInputCompleteHandler = function(inputCompleteHandler) 
 
 MockTerminal.prototype.maybeInterpret = function(string) {
 
-    this.lineBuf += '\n' + string;
+    this.lineBuf = this.lineBuf
+        ? this.lineBuf + '\n' + string
+        : string;
 
     if (this.inputCompleteHandler
         && !this.inputCompleteHandler(this.lineBuf)) {
@@ -207,7 +210,7 @@ MockTerminal.prototype.maybeInterpret = function(string) {
     } else {
         try {
             var input = this.lineBuf;
-            this.lineBuf = '';
+            this.lineBuf = null;
             return this.interpreter(input);
         } catch (e) {
             return e.toString();
@@ -216,13 +219,18 @@ MockTerminal.prototype.maybeInterpret = function(string) {
 };
 
 MockTerminal.prototype.start = function () {
-    this.textArea.value = this.banner + '\n' + this.prompt;
+    return this.reset(this.banner);
+};
+
+MockTerminal.prototype.reset = function(banner) {
+    banner = banner || '';
+    this.textArea.value = banner + this.prompt;
     this.lineStart
         = this.textArea.selectionStart
         = this.textArea.selectionEnd
         = this.textArea.value.length;
     this.lineEnd = this.lineStart+1;
-    this.lineBuf = '';
+    this.lineBuf = null;
     return this;
 };
 
