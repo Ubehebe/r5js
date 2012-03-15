@@ -50,6 +50,7 @@ function MockTerminal(textArea) {
 
     var self = this;
 
+    this.printQueue = new AsyncQueue(3);
     this.recordCharWidth();
     this.resize();
 
@@ -64,13 +65,18 @@ MockTerminal.prototype.onKeyDown = function(e) {
          But it would happen after this handler completes, so the prompt
          would have a stray newline after it. So we disable that behavior. */
         e.preventDefault();
+        var self = this;
         var input = this.getCurLine();
         var output = this.maybeInterpret(input);
-        this.println((output || '') + '\n\n' + this.prompt);
-        this.lineStart = this.lineEnd = this.textArea.selectionEnd;
-        /* Make sure we don't have to scroll down to see the latest output.
-         Not sure how portable this is. */
-        this.textArea.scrollTop = this.textArea.scrollHeight;
+        this.print('\n' + (output || '') + '\n\n' + this.prompt);
+        /*The above print call is asynchronous, so we have to update the
+         various offsets in the future, not the present. */
+        this.printQueue.enqueue(function() {
+            self.lineStart
+                = self.lineEnd
+                = self.textArea.selectionEnd
+                = self.textArea.value.length;
+        });
     }
 };
 
@@ -120,8 +126,19 @@ MockTerminal.prototype.shouldSuppress = function(keydownEvent) {
         return keydownEvent.keyCode === this.backspace;
 
     /* Otherwise, we're inside the current line, so the user should
-     be allowed to do whatever. */
-    else return false;
+     be allowed to do whatever, as long as we're not currently printing
+     to the terminal.
+
+     (Of course, in real terminals, you can type while the terminal
+     is printing, but the DOM APIs make it difficult to do this. We would
+     like to say, "if a user presses a key while the terminal is printing,
+     queue whatever action the key press would have made and do
+     it when the printing is over." But there's no good way to figure out
+     "what the action would have been" from the keydown API. That's the
+     point of the missing else clause in MockTerminal.prototype.onKeyDown:
+     we don't know what the action would have been, but we're pretty sure
+     it's OK, and we let the browser do it.) */
+    else return this.printQueue.isRunning();
 };
 
 /* These are just heuristics. It's hard to know in general
@@ -196,9 +213,37 @@ MockTerminal.prototype.println = function(line, reflowOk) {
   this.print('\n' + (reflowOk ? this.reflowContent(line) : line));
 };
 
+/* In order to achieve the "crappy high latency terminal" effect,
+ this function is asynchronous, though it presents a synchronous
+ interface to the programmer. */
 MockTerminal.prototype.print = function(string) {
-    this.textArea.value += string;
-    this.textArea.selectionEnd = this.textArea.value.length;
+
+    var self = this;
+    var wrapped = new StrWrapper(string);
+
+    for (var i=0; i<string.length; ++i) {
+    this.printQueue.enqueue(function() {
+        self.textArea.value += wrapped.next();
+        /* Make sure we don't have to scroll down to see the latest output.
+         Not sure how portable this is. */
+        self.textArea.scrollTop = self.textArea.scrollHeight;
+    });
+    }
+
+    this.printQueue.enqueue(function() {
+        self.textArea.selectionEnd = self.textArea.value.length;
+    });
+
+    function StrWrapper(str) {
+        this.str = str;
+        this.offset = 0;
+    }
+
+    StrWrapper.prototype.next = function() {
+        return this.str.charAt(this.offset++);
+    };
+
+    return this;
 };
 
 MockTerminal.prototype.shouldEndLine = function(e) {
