@@ -210,7 +210,23 @@ MockTerminal.prototype.isHarmlessKeyCode = function(keyCode) {
  consequences -- for example, compressing the whitespace within
  a string literal. That's why it defaults to off. */
 MockTerminal.prototype.println = function(line, reflowOk) {
-  this.print('\n' + (reflowOk ? this.reflowContent(line) : line));
+    /* If line is an array, that means we should print out each element
+     separately. Just for convenience so clients don't have to insert
+     newlines manually. */
+    if (line instanceof Array) {
+        for (var i = 0; i < line.length; ++i)
+            this.println(line[i], reflowOk).println('').pause(500);
+    } else {
+        this.print('\n' + (reflowOk ? this.reflowContent(line) : line));
+    }
+    return this;
+};
+
+MockTerminal.prototype.pause = function(ms) {
+    var periodsToPause = Math.floor(Math.abs(ms/this.printQueue.latency));
+    for (var i=0; i<periodsToPause; ++i)
+        this.printQueue.enqueue(function() {});
+    return this;
 };
 
 /* In order to achieve the "crappy high latency terminal" effect,
