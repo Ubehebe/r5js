@@ -27,11 +27,6 @@ function Tutorial() {
     this.curStep = 0;
 }
 
-Tutorial.prototype.setTerminal = function(terminal) {
-    this.terminal = terminal;
-    return this;
-};
-
 function Step(prompt, advanceWhen, customFeedback) {
     this.prompt = prompt;
     this.advanceWhen = advanceWhen;
@@ -76,27 +71,30 @@ Tutorial.prototype.advanceToNextStep = function() {
     return this.getCurStep();
 };
 
-Tutorial.prototype.eval = function(input) {
+Tutorial.prototype.eval = function(input, terminal) {
     var curStep = this.getCurStep();
-    var terminal = this.terminal;
     if (curStep) {
         if (curStep.inputOk(input)) {
             if (curStep.customFeedback)
-                this.terminal.println(curStep.customFeedback, false);
+                terminal.println(curStep.customFeedback, false);
             else
-                this.terminal.println(this.getArbitraryFeedback(), true);
+                terminal.println(this.getArbitraryFeedback(), true);
 
             var nextStep = this.advanceToNextStep();
 
             if (nextStep)
-                this.terminal.println(nextStep.prompt, true);
+                terminal.println(nextStep.prompt, true);
             else
-                this.terminal.println(this.goodbye, true);
-
+                terminal.println(this.goodbye, true);
+            return ' ';
         } else {
-            this.terminal.println(this.errorMessage, true);
+            terminal.println(this.errorMessage, true);
+            return ' ';
         }
-    } else return GayLisp.repl(input, function(sideEffect) { terminal.println(sideEffect); });
+    } else {
+        terminal.popInterpreter();
+        return null;
+    }
 };
 
 Tutorial.prototype.setVapidFeedbackMessages = function(messages) {
