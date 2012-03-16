@@ -219,6 +219,8 @@ Datum.prototype.toString = function(outputMode) {
     var endDelimiter = "";
 
     switch (this.type) {
+        case 'ffi': // JavaScript object
+            return this.payload.toString();
         case 'input-port':
             if (this.payload['isEof']())
                 return 'EOF';

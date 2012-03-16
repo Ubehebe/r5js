@@ -67,4 +67,13 @@ function installBuiltins(env) {
         for (var name in procs)
             registerBuiltin(name, procs[name], env);
     }
+
+    /* Experimental Scheme->JS FFI is browser-only for now.
+     I used to have if (this.window === this), which is cleverer but
+     doesn't work for strict mode. (Thanks, Stack Overflow!) */
+    if (Function('return this;')().window) {
+        env.addBinding('window', newFFIDatum(new JsObjOrMethod(window)));
+        for (var name in FFI)
+            registerBuiltin(name, FFI[name], env);
+    }
 }

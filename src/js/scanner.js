@@ -64,6 +64,15 @@ Token.prototype.convertNumber = function (payload) {
 Token.prototype.setPayload = function(payload) {
     switch (this.type) {
         case 'identifier':
+            /* todo bl converting Scheme identifiers to a canonical case makes
+             interoperability with JavaScript awkward. For example:
+
+             (((window 'document) 'querySelector) "body")
+
+             If querySelector is lowercased to queryselector, we might
+             have to search the receiver case-insensitively, which would
+             compromise correctness. Alternatively (but more syntactically rude)
+             we could require JS method names to be string literals. */
             this.payload = payload.toLowerCase();
             break;
         case 'boolean':

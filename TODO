@@ -26,4 +26,6 @@ Standards-related improvements:
   required by R6RS.
 
 Miscellaneous improvements:
-- JavaScript/JSON/DOM <-> Scheme interoperability.
+- Improve JavaScript/JSON/DOM <-> Scheme interoperability. You can call
+  JavaScript methods and do simple things like set CSS properties from
+  the Scheme, but it's poorly tested.

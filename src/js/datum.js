@@ -409,7 +409,8 @@ function maybeWrapResult(result, type) {
     if (result === null
         || result instanceof Datum
         || result instanceof Continuation
-        || result instanceof SchemeMacro)
+        || result instanceof SchemeMacro
+        || result instanceof JsObjOrMethod /* JS interop (experimental) */)
         return result; // no-op, strictly for convenience
 
     var ans = new Datum();

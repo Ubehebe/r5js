@@ -145,7 +145,8 @@ Environment.prototype.getProcedure = function(name) {
         } else if (typeof maybe === 'function'
             || maybe instanceof SchemeProcedure
             || maybe instanceof SchemeMacro
-            || maybe instanceof Continuation) {
+            || maybe instanceof Continuation
+            || maybe instanceof JsObjOrMethod) {
             return maybe;
         } else throw new EvalError('expected procedure, given ' + name);
     } else if (this.enclosingEnv)
@@ -252,7 +253,8 @@ Environment.prototype.addBinding = function(name, val) {
             || val instanceof Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
             || val instanceof SchemeMacro /* macros */
-            || val instanceof Environment /* Redirects for free ids in macro transcriptions */) {
+            || val instanceof Environment /* Redirects for free ids in macro transcriptions */
+            || val instanceof JsObjOrMethod /* JavaScript interop (experimental!) */) {
             this.bindings[name] = val;
         } else if (val instanceof Datum) {
         // lots of stuff, including wrapped procedures
