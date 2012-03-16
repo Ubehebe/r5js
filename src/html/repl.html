@@ -8,23 +8,26 @@ not do what you want if you use it in its pristine state in the source control. 
     <script src="gay-lisp.js"></script>
     <script src="async_queue.js"></script>
     <script src="mockterm.js"></script>
-    <script type="text/javascript">
-        window.addEventListener('load', function() {
-            var terminal = new MockTerminal(document.getElementById('repl'))
+    <script src="tutorial.js"></script>
+    <script src="tutorial_data.js"></script>
+    <script>
+        addEventListener('load', function () {
+            new MockTerminal(document.getElementById('repl'))
+                    .println(GayLisp.getMetadata().banner)
+                    .println(';; Type (tutorial) and press enter for an interactive tutorial.')
                     .setPrompt('>> ')
-                    .setBanner(GayLisp.getMetadata().banner)
-                    .setInterpreter(function(string) {
-                        return GayLisp.repl(string, function(sideEffect) {
+                    .pushInterpreter(function(string, terminal) {
+                        return GayLisp.repl(string, function (sideEffect) {
                             terminal.println(sideEffect);
                         });
                     })
+                    .pushInterpreter(tutorial)
                     .setInputCompleteHandler(GayLisp.willParse)
                     .start();
-
         });
     </script>
 </head>
 <body>
-<textarea class='terminal' id='repl' rows=15 cols=80 autofocus spellcheck="false"></textarea>
+<textarea class='terminal' id='repl' rows=20 cols=80 autofocus spellcheck="false"></textarea>
 </body>
 </html>

@@ -74,29 +74,21 @@
     <script src="../api/api.js"></script>
     <script>
         addEventListener('load', function () {
-            var terminal = new MockTerminal(document.getElementById('repl'))
+            new MockTerminal(document.getElementById('repl'))
+                    .println(';; Type (tutorial) and press enter for an interactive tutorial.')
                     .setPrompt('>> ')
-                    .setInterpreter(function(string) {
-                        if (string === '(tutorial)') {
-                            terminal.reset();
-                            terminal.println(tutorial.getIntroMessage());
-                            terminal.setInterpreter(function(string) {
-                                return tutorial.eval(string);
-                            });
-                            return '';
-                        } else {
-                            return GayLisp.repl(string, function(sideEffect) {
-                                terminal.println(sideEffect);
-                            });
-                        }
+                    .pushInterpreter(function(string, terminal) {
+                        return GayLisp.repl(string, function(sideEffect) {
+                            terminal.println(sideEffect);
+                        });
                     })
+                    .pushInterpreter(tutorial)
                     .setInputCompleteHandler(GayLisp.willParse)
                     .start();
-            tutorial.setTerminal(terminal);
-        });
+        })
     </script>
 </head>
 <body>
-<textarea class='terminal' id='repl' rows=15 cols=80 autofocus spellcheck="false"></textarea>
+<textarea class='terminal' id='repl' rows=20 cols=80 autofocus spellcheck="false"></textarea>
 </body>
 </html>
