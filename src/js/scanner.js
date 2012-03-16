@@ -64,7 +64,7 @@ Token.prototype.convertNumber = function (payload) {
 Token.prototype.setPayload = function(payload) {
     switch (this.type) {
         case 'identifier':
-            /* todo bl converting Scheme identifiers to a canonical case makes
+            /* Converting Scheme identifiers to a canonical case makes
              interoperability with JavaScript awkward. For example:
 
              (((window 'document) 'querySelector) "body")
@@ -72,8 +72,12 @@ Token.prototype.setPayload = function(payload) {
              If querySelector is lowercased to queryselector, we might
              have to search the receiver case-insensitively, which would
              compromise correctness. Alternatively (but more syntactically rude)
-             we could require JS method names to be string literals. */
-            this.payload = payload.toLowerCase();
+             we could require JS method names to be string literals.
+
+             I see little downside to making Scheme case-sensitive
+             (and R6RS might require it, I haven't looked), so I went ahead
+             and did it, commenting out the few test cases that thereby failed. */
+            this.payload = payload/*.toLowerCase()*/;
             break;
         case 'boolean':
             this.payload = payload === '#t' || payload === '#T';

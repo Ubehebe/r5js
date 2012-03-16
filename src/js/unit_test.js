@@ -208,7 +208,7 @@ function testParser() {
         '(if x)': false,
         '(if)': false,
         'if': false,
-        '(IF x y)': true,
+        // case sensitivity enabled for JS interop '(IF x y)': true,
         '(if x (define x 1))': true
     };
 

@@ -436,12 +436,12 @@
   ((symbol? '()) => #f)
   ((symbol? #f) => #f)
   ((symbol->string 'flying-fish) => "flying-fish")
-  ((symbol->string 'Martin) => "martin")
+; case-sensitivity enabled for JS interop  ((symbol->string 'Martin) => "martin")
   ((symbol->string
     (string->symbol "Malvina")) => "Malvina")
-  ((eq? 'mISSISSIppi 'mississippi) => #t)
+; case-sensitivity enabled for JS interop  ((eq? 'mISSISSIppi 'mississippi) => #t)
   ((eq? (string->symbol "mISSISSIppi") (string->symbol "mISSISSIppi")) => #t)
-  ((eq? 'bitBlt (string->symbol "bitBlt")) => #f)
+; case-sensitivity enabled for JS interop ((eq? 'bitBlt (string->symbol "bitBlt")) => #f)
   ((eq? 'JollyWog
 	(string->symbol
 	 (symbol->string 'JollyWog))) => #t)
