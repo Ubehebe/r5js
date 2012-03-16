@@ -35,7 +35,6 @@ function MockTerminal(textArea) {
     this.textArea = textArea;
 
     /* Properties set by setters
-     this.interpreter;
      this.lineStart;
      this.lineEnd;
      this.lineBuf; */
@@ -47,6 +46,8 @@ function MockTerminal(textArea) {
 
     this.prompt = '';
     this.banner = '';
+
+    this.interpreters = [];
 
     var self = this;
 
@@ -280,9 +281,14 @@ MockTerminal.prototype.getCurLine = function() {
         this.lineEnd - this.lineStart + 1);
 };
 
-MockTerminal.prototype.setInterpreter = function(interpreter) {
-    this.interpreter = interpreter;
+MockTerminal.prototype.pushInterpreter = function(interpreter) {
+    this.interpreters.push(interpreter);
     return this;
+};
+
+MockTerminal.prototype.popInterpreter = function() {
+    var ans = this.interpreters.pop();
+    return ans;
 };
 
 MockTerminal.prototype.setInputCompleteHandler = function(inputCompleteHandler) {
@@ -300,10 +306,16 @@ MockTerminal.prototype.maybeInterpret = function(string) {
         && !this.inputCompleteHandler(this.lineBuf)) {
         return '...';
     } else {
+        var input = this.lineBuf;
+        this.lineBuf = null;
         try {
-            var input = this.lineBuf;
-            this.lineBuf = null;
-            return this.interpreter(input);
+            /* Go back down the stack of interpreters. The most recently
+             pushed interpreter is the one we should consult first. */
+            for (var i = this.interpreters.length - 1; i >= 0; --i) {
+                var result = this.interpreters[i](input, this);
+                if (result)
+                    return result;
+            }
         } catch (e) {
             return e.toString();
         }
