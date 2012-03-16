@@ -323,18 +323,30 @@ MockTerminal.prototype.maybeInterpret = function(string) {
 };
 
 MockTerminal.prototype.start = function () {
-    return this.reset(this.banner);
+    this.println(this.prompt);
+    var self = this;
+    this.printQueue.enqueue(function () {
+        self.lineStart
+            = self.textArea.selectionStart
+            = self.textArea.selectionEnd
+            = self.textArea.value.length;
+        self.lineEnd = self.lineStart + 1;
+        self.lineBuf = null;
+    });
+    return this;
 };
 
-MockTerminal.prototype.reset = function(banner) {
-    banner = banner || '';
-    this.textArea.value = banner + this.prompt;
-    this.lineStart
-        = this.textArea.selectionStart
-        = this.textArea.selectionEnd
-        = this.textArea.value.length;
-    this.lineEnd = this.lineStart+1;
-    this.lineBuf = null;
+MockTerminal.prototype.reset = function() {
+    var self = this;
+    this.printQueue.enqueue(function() {
+        self.textArea.value = '';
+        self.lineStart
+                = self.textArea.selectionStart
+                = self.textArea.selectionEnd
+                = self.textArea.value.length;
+            self.lineEnd = self.lineStart+1;
+            self.lineBuf = null;
+    });
     return this;
 };
 
@@ -357,11 +369,6 @@ MockTerminal.prototype.resize = function () {
     var charHeight = charWidth * this.charHtoW;
     this.textArea.style.fontSize = charHeight + 'px';
 //    console.log('each char should be ' + charHeight);
-};
-
-MockTerminal.prototype.setBanner = function (banner) {
-    this.banner = banner;
-    return this;
 };
 
 MockTerminal.prototype.setPrompt = function (prompt) {
