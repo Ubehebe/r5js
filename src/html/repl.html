@@ -10,22 +10,7 @@ not do what you want if you use it in its pristine state in the source control. 
     <script src="mockterm.js"></script>
     <script src="tutorial.js"></script>
     <script src="tutorial_data.js"></script>
-    <script>
-        addEventListener('load', function () {
-            new MockTerminal(document.getElementById('repl'))
-                    .println(GayLisp.getMetadata().banner)
-                    .println(';; Type (tutorial) and press enter for an interactive tutorial.')
-                    .setPrompt('>> ')
-                    .pushInterpreter(function(string, terminal) {
-                        return GayLisp.repl(string, function (sideEffect) {
-                            terminal.println(sideEffect);
-                        });
-                    })
-                    .pushInterpreter(tutorial)
-                    .setInputCompleteHandler(GayLisp.willParse)
-                    .start();
-        });
-    </script>
+    <script src="main.js"></script>
 </head>
 <body>
 <textarea class='terminal' id='repl' rows=20 cols=80 autofocus spellcheck="false"></textarea>
