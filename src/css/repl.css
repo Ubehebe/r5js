@@ -2,50 +2,12 @@ body {
     font-family: sans-serif;
 }
 
-* {
-    font-weight: normal;
-}
-
-div {
-    /*outline: thin solid red;*/
-}
-
 .terminal {
     font-family: monospace;
     background-color: black;
     color: #adff2f;
-    width: 50%;
-    border: 5px solid #fafad2;
+    width: 100%;
     overflow: hidden;
-    outline: none;
-    position: fixed;
 }
 
-.c2 {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 40%;
-    margin-left: 2.5%;
-    padding-left: 2.5%;
-    margin-right: 5%;
-    border-left: 1px solid black;
-}
 
-h1 {
-    text-align: center;
-    font-size: 3em;
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.on {
-    display: block;
-}
-
-p, ul {
-    display: none;
-}

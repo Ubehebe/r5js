@@ -15,7 +15,6 @@
 
 addEventListener('load', function() {
     new MockTerminal(document.getElementById('repl'))
-        .matchHeightOf(document.querySelector('.c2'))
         .println(GayLisp.getMetadata().banner)
         .println(';; Type (tutorial) and press enter for an interactive tutorial.')
         .setPrompt('>> ')

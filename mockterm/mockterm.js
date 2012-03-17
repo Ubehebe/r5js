@@ -61,11 +61,6 @@ function MockTerminal(textArea) {
     });
 }
 
-MockTerminal.prototype.matchHeightOf = function(element) {
-    this.textArea.style.height = element.getBoundingClientRect().height + 'px';
-    return this;
-};
-
 MockTerminal.prototype.onKeyDown = function(e) {
     if (this.shouldSuppress(e)) {
         e.preventDefault();
