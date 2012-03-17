@@ -42,7 +42,7 @@ function MockTerminal(textArea) {
     // May want to customize these, or, if not, move to prototype
     this.inputKey = '\r'.charCodeAt(0);
     this.backspace = '\b'.charCodeAt(0);
-    this.numColumns = 80;
+    this.numColumns = 65;
 
     this.prompt = '';
     this.banner = '';
@@ -56,7 +56,15 @@ function MockTerminal(textArea) {
     this.resize();
 
     textArea.addEventListener('keydown', function (e) { self.onKeyDown(e); });
+    addEventListener('resize', function() {
+        self.resize();
+    });
 }
+
+MockTerminal.prototype.matchHeightOf = function(element) {
+    this.textArea.style.height = element.getBoundingClientRect().height + 'px';
+    return this;
+};
 
 MockTerminal.prototype.onKeyDown = function(e) {
     if (this.shouldSuppress(e)) {

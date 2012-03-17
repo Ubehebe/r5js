@@ -15,6 +15,7 @@
 
 addEventListener('load', function() {
     new MockTerminal(document.getElementById('repl'))
+        .matchHeightOf(document.querySelector('.c2'))
         .println(GayLisp.getMetadata().banner)
         .println(';; Type (tutorial) and press enter for an interactive tutorial.')
         .setPrompt('>> ')
@@ -26,4 +27,19 @@ addEventListener('load', function() {
         .pushInterpreter(tutorial)
         .setInputCompleteHandler(GayLisp.willParse)
         .start();
+
+    var anchors = document.querySelectorAll('a');
+    var anchor;
+    for (var i=0; i<anchors.length; ++i) {
+        anchor = anchors[i];
+        if (anchor.hash.charAt(0) === '#'
+        && document.getElementById(anchor.hash.substr(1))) {
+            anchor.addEventListener('click', function(e) {
+                var pleaseNotIE = document.getElementById(e.target.hash.substr(1)).classList;
+                if (pleaseNotIE)
+                    pleaseNotIE.toggle('on');
+            });
+        }
+    }
+
 });
