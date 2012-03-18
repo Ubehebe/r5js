@@ -84,28 +84,6 @@ MockTerminal.prototype.onKeyDown = function(e) {
     }
 };
 
-MockTerminal.prototype.wordRegex = /\S+/g;
-
-MockTerminal.prototype.reflowContent = function(str) {
-
-    var word;
-    var buf = '';
-    var buflen = 0;
-
-    while ((word = this.wordRegex.exec(str))
-        && (word = word[0])) {
-        if (buflen + word.length + 1 <= this.numColumns) {
-            buf += word + ' ';
-            buflen += word.length + 1;
-        } else {
-            buf += '\n' + word + ' ';
-            buflen = word.length + 1;
-        }
-    }
-
-    return buf;
-};
-
 MockTerminal.prototype.shouldSuppress = function(keydownEvent) {
     /* The current caret of the textarea, before this event makes it
      to the textarea. */
@@ -208,20 +186,15 @@ MockTerminal.prototype.isHarmlessKeyCode = function(keyCode) {
     }
 };
 
-/* if reflowOk is true, we'll treat the line as a stream of whitespace-
- delimited tokens and try to lay them out on the terminal so there's
- no splitting within a token. This could have unintended semantic
- consequences -- for example, compressing the whitespace within
- a string literal. That's why it defaults to off. */
-MockTerminal.prototype.println = function(line, reflowOk) {
+MockTerminal.prototype.println = function(line) {
     /* If line is an array, that means we should print out each element
      separately. Just for convenience so clients don't have to insert
      newlines manually. */
     if (line instanceof Array) {
         for (var i = 0; i < line.length; ++i)
-            this.println(line[i], reflowOk).println('').pause(500);
+            this.println(line[i]).println('').pause(500);
     } else {
-        this.print('\n' + (reflowOk ? this.reflowContent(line) : line));
+        this.print('\n' + line);
     }
     return this;
 };
