@@ -193,6 +193,8 @@ MockTerminal.prototype.println = function(line) {
     if (line instanceof Array) {
         for (var i = 0; i < line.length; ++i)
             this.println(line[i]).println('').pause(500);
+    } else if (typeof line === 'function') {
+        this.println(line());
     } else {
         this.print('\n' + line);
     }
