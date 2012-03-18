@@ -10,7 +10,7 @@ unit_tests = build/unit_tests.scm
 # JS library plus a simple HTML terminal emulator
 repl: interpreter
 repl:
-	cat src/html/repl.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/repl.html
+	cat src/html/index.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
 	cp src/css/repl.css build/
 	cp src/main/*.js build/
 	cp mockterm/*.js build/
@@ -18,7 +18,7 @@ repl:
 
 repl-min: interpreter-min repl
 repl-min:
-	sed -i -e "s/gay-lisp-$(version)\.js/gay-lisp-$(version)-min.js/g" build/repl.html
+	sed -i -e "s/gay-lisp-$(version)\.js/gay-lisp-$(version)-min.js/g" build/index.html
 
 # Just make the JS library (no UI)
 # Target the first line after the first brace in src/api/api.js
