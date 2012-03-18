@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 addEventListener('load', function() {
-    new MockTerminal(document.getElementById('repl'))
+    new MockTerminal(document.getElementById('repl'), 80, 5)
         .println(GayLisp.getMetadata().banner)
         .println(';; Type (tutorial) and press enter for an interactive tutorial.')
         .setPrompt('>> ')

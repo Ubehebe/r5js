@@ -74,7 +74,7 @@
     <script src="../api/api.js"></script>
     <script>
         addEventListener('load', function () {
-            new MockTerminal(document.getElementById('repl'))
+            new MockTerminal(document.getElementById('repl'), 80, 5)
                     .println(';; Type (tutorial) and press enter for an interactive tutorial.')
                     .setPrompt('>> ')
                     .pushInterpreter(function(string, terminal) {
