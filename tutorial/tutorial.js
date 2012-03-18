@@ -25,13 +25,20 @@
 function Tutorial() {
     this.steps = [];
     this.curStep = 0;
+    this.localVars = {};
 }
 
-function Step(prompt, advanceWhen, customFeedback) {
-    this.prompt = prompt;
+function Step(questionArray, advanceWhen, explanationArray) {
+    this.questionArray = questionArray;
     this.advanceWhen = advanceWhen;
-    this.customFeedback = customFeedback;
+    this.explanationArray = explanationArray;
+    this.congratulate = true;
 }
+
+Step.prototype.disableRandomCongrat = function() {
+    this.congratulate = false;
+    return this;
+};
 
 Step.prototype.inputOk = function(input) {
     try {
@@ -42,7 +49,7 @@ Step.prototype.inputOk = function(input) {
 };
 
 Tutorial.prototype.getIntroMessage = function() {
-     return this.steps[0].prompt;
+     return this.steps[0].questionArray;
 };
 
 Tutorial.prototype.setErrorMessage = function(errorMessage) {
@@ -55,9 +62,37 @@ Tutorial.prototype.setGoodbye = function(goodbye) {
     return this;
 };
 
-Tutorial.prototype.addStep = function(prompt, advanceWhen, customFeedback) {
-    this.steps.push(new Step(prompt, advanceWhen, customFeedback));
+Tutorial.prototype.addStep = function(step) {
+    this.steps.push(step);
     return this;
+};
+
+Tutorial.prototype.setLocalVar = function(name, val) {
+    this.localVars[name] = val;
+    return this;
+};
+
+/* This is a convenience method so that a Tutorial can be laid out in a
+ straight line without having to indent every time we want to set
+ a local variable. Example:
+
+ var foo;
+ tut.addStep(
+ new Step(
+ "enter foo: ",
+ function(input) { foo = input; return true; },
+ "you entered: " + foo));
+
+ This is wrong; when foo is referenced in the last line, it hasn't been set yet.
+ Instead the last line should be:
+
+ tut.withLocalVar("foo", function(foo) { return "you entered: " + foo; })
+ */
+Tutorial.prototype.withLocalVar = function(name, cb) {
+    var self = this;
+    return function() {
+        return cb(self.localVars[name] || '');
+    };
 };
 
 Tutorial.prototype.getCurStep = function() {
@@ -75,21 +110,21 @@ Tutorial.prototype.eval = function(input, terminal) {
     var curStep = this.getCurStep();
     if (curStep) {
         if (curStep.inputOk(input)) {
-            if (curStep.customFeedback)
-                terminal.println(curStep.customFeedback, false);
-            else
-                terminal.println(this.getArbitraryFeedback(), true);
+
+            if (curStep.congratulate)
+                terminal.println(this.getCongratulation());
+
+            if (curStep.explanationArray)
+                terminal.println(curStep.explanationArray);
 
             var nextStep = this.advanceToNextStep();
 
-            if (nextStep)
-                terminal.println(nextStep.prompt, true);
-            else
-                terminal.println(this.goodbye, true);
-            return ' ';
+            terminal.println(nextStep ? nextStep.questionArray : this.goodbye);
+
+            return ' '; // todo bl eliminate
         } else {
-            terminal.println(this.errorMessage, true);
-            return ' ';
+            terminal.println(this.errorMessage);
+            return ' '; // todo bl eliminate
         }
     } else {
         terminal.popInterpreter();
@@ -97,15 +132,15 @@ Tutorial.prototype.eval = function(input, terminal) {
     }
 };
 
-Tutorial.prototype.setVapidFeedbackMessages = function(messages) {
-    this.vapidFeedbackMessages = messages;
+Tutorial.prototype.setRandomCongrats = function(messages) {
+    this.congratulations = messages;
     return this;
 };
 
-Tutorial.prototype.getArbitraryFeedback = function() {
-    return this.vapidFeedbackMessages[
+Tutorial.prototype.getCongratulation = function() {
+    return this.congratulations[
         Math.floor(
-            Math.random() * this.vapidFeedbackMessages.length)];
+            Math.random() * this.congratulations.length)];
 };
 
 
