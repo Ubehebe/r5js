@@ -31,7 +31,7 @@
  to the server through forms). Hopefully, once the DOM Level 3 Events
  spec is standardized, we can rewrite this using the proposed textinput event
  or the proposed "key" property of the existing keydown event. */
-function MockTerminal(textArea, numColumns, charLatency) {
+function MockTerminal(textArea, numColumns, charLatency, lineLatency) {
     this.textArea = textArea;
 
     /* Properties set by setters
@@ -52,6 +52,7 @@ function MockTerminal(textArea, numColumns, charLatency) {
 
     this.numColumns = numColumns || 80;
     this.printQueue = new AsyncQueue(charLatency || 0);
+    this.lineLatency = lineLatency || 0;
     this.recordCharWidth();
     this.resize();
 
@@ -192,7 +193,7 @@ MockTerminal.prototype.println = function(line) {
      newlines manually. */
     if (line instanceof Array) {
         for (var i = 0; i < line.length; ++i)
-            this.println(line[i]).println('').pause(500);
+            this.println(line[i]).println('').pause(this.lineLatency);
     } else if (typeof line === 'function') {
         this.println(line());
     } else {
