@@ -40,6 +40,11 @@ Step.prototype.disableRandomCongrat = function() {
     return this;
 };
 
+Step.prototype.pauseFor = function(ms) {
+    this.pause = ms;
+    return this;
+};
+
 Step.prototype.inputOk = function(input) {
     try {
         return this.advanceWhen(input);
@@ -116,6 +121,9 @@ Tutorial.prototype.eval = function(input, terminal) {
 
             if (curStep.explanationArray)
                 terminal.println(curStep.explanationArray);
+
+            if (curStep.pause)
+                terminal.pause(curStep.pause);
 
             var nextStep = this.advanceToNextStep();
 

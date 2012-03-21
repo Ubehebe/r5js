@@ -99,27 +99,44 @@ var tutorial = (function() {
     ).addStep(new Step([
         "Numbers, strings, lists -- we've covered the most important kinds of things in Lisp.",
         "Lists are the most important, because they can contain anything.",
-        "And this brings us to the secret of Lisp, the one thing that sets it apart from almost every other language.",
+        "And this brings us to the secret of Lisp, the thing that sets it apart from almost every other language.",
         tut.withLocalVar('name', function(name) { return name + ", are you ready to learn the secret of Lisp?";}),
         '(Type "yes", with the quotes.)'],
         function(input) {
             return GayLisp.eval('(string=? "yes" ' + input + ')') === '#t';
         },
         ["The secret of Lisp is:",
-            theSecretOfLisp,
-            "What does this mean? It means you tell the computer what to do by typing lists.",
+            theSecretOfLisp]
+    ).disableRandomCongrat().pauseFor(5000)
+    ).addStep(new Step([
+        "That sounds banal, but it really is the secret of Lisp, and the more you use Lisp, the more profound it gets.",
+        "Type \"tell me more\" (in quotes) when you're ready to go on. No rush."
+    ], function(input) {
+        return input ==='"tell me more"';
+    },
+        ["OK. Lists are programs. What does that mean?",
+            "It means you tell the computer what to do by typing lists.",
             'For example, when you type',
-            '(list "Edmund" "Edgar")',
-            'you tell the computer to create a list of two elements, "Edmund" and "Edgar". But the text you type in,',
-            "(list \"Edmund\" \"Edgar\")",
-            'is itself a list of *three* elements: the command named "list", and the two strings "Edmund" and "Edgar".',
-            'When the computer sees a list starting with the "list" command, it knows to create a list out of the remaining elements.'
-        ]
+            '(list "Gloucester" "Kent")',
+            'you tell the computer to create a list of two elements, "Gloucester" and "Kent". But the text you type in is itself a list of *three* elements: the command named "list", and the two strings "Gloucester" and "Kent".',
+            'When the computer sees a list starting with the "list" command, it knows to create a list out of the remaining elements.']
     ).disableRandomCongrat()
-    ).addStep(new Step(['What do you think the computer prints when it sees the list (- 2 100)?'],
+    ).addStep(new Step([
+        "Type \"okay\" (with the quotes) when you're ready to go on."],
         function(input) {
-            return input === '-98';
-        }, ["The first element of the list tells the computer to do subtraction, and the other elements are the numbers that get subtracted, in order. So it is equivalent to 2 minus 100.",
+            return input === '"okay"';
+        }
+    ).disableRandomCongrat()
+    ).addStep(new Step(['There\'s nothing special about the "list" command.',
+        "Any command you put at the beginning of a list, the computer will try to run it on the other elements.",
+        "Here are some commands you probably already know: + - * /.",
+        "For example, if you type in",
+        "(+ 3 (* 4 5))",
+        "the computer will add 3 to the result of multiplying 4 and 5. In other words, 23.",
+        'What do you think the computer prints when it sees the list (- 2 100)?'],
+        function(input) {
+            return evalTrue('(and (= -98 ' + input + ') (number? (quote ' + input + ')))');
+        }, ["The first element of the list tells the computer to do subtraction, and the other elements are the numbers that get subtracted, in order. So it means 2 minus 100.",
             "This is how almost everything in Lisp works: you type in a list, and the computer uses the first element to decide what to do with the other elements."])
     ).addStep(new Step([
         "For example, to define a variable x to be the result of dividing 17 by 3, you type",
@@ -191,12 +208,20 @@ var tutorial = (function() {
         "The fourth element is a representation of a program that will make an empty list." // '(list)
     ],
         function(input) {
-            if (evalTrue("(define x " + input + ") (equal? x '(() '() (list) '(list)))")) {
+            return evalTrue("(define x " + input + ") (equal? x '(() '() (list) '(list)))");
+        },
+        [tut.withLocalVar('name', function(name) { return "YES!! You did it, " + name +"!";})]
+    ).disableRandomCongrat()
+    ).addStep(new Step([
+        "By finishing this tutorial, you have prepared yourself to join an ancient society, one that stretches back before the dawn of time (1970) into the prehistory of our species (1958).",
+        "Lisp is more than 50 years old, but it continues to flourish and influence cutting-edge technology.",
+        "The issues raised in this tutorial -- what something is versus what it does, instruction (code) versus representation (data), and self-reference -- are not just syntactic puzzles. They go straight to the heart of computer science.",
+        "(Type \"go on\" when you're ready.)"],
+        function(input) {
+            if (input === '"go on"') {
                 tut.setGoodbye([
-                    "By finishing this tutorial, you have prepared yourself to join an ancient society, one that stretches back before the dawn of time (1970) into the prehistory of our species (1958).",
-                    "Lisp is more than 50 years old, but it continues to flourish and influence cutting-edge technology.",
-                    "The issues raised in this tutorial -- what something is versus what it does, instruction (code) versus representation (data), and self-reference -- are not just syntactic puzzles. They go straight to the heart of computer science.",
-                    "Here are some links you might find pleasurable on your journey. Bon voyage!",
+                    tut.withLocalVar('name', function(name) { return name + ", it's time for you to leave me behind and explore Lisp on your own."; }),
+                    "Fortunately, there are tons of good books, articles, and websites about Lisp. Here are a few of the best:",
                     "=> Structure and Interpretation of Computer Programs: http://mitpress.mit.edu/sicp/. This is one of the best books about programming ever written. It uses Scheme (a dialect of Lisp).",
                     "=> Recursive Functions of Symbolic Expressions and Their Computation by Machine, Part I. http://www-formal.stanford.edu/jmc/recursive/recursive.html/. This is the first paper written about Lisp, published in 1960. It's highly readable.",
                     "=> Paul Graham's Lisp pages. http://paulgraham.com/lisp.html/",
@@ -204,9 +229,7 @@ var tutorial = (function() {
                 ]);
                 return true;
             } else return false;
-        },
-        [tut.withLocalVar('name', function(name) { return "YES!! You did it, " + name +"!";})]
-    ).disableRandomCongrat()
+        }).disableRandomCongrat()
     );
 
     return function(string, terminal) {
