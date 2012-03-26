@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rotary Nav Demo</title>
+    <style>
+        #center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+    </style>
+    <script async src="rotary_nav.js"></script>
+    <script>
+        addEventListener('load', function() {
+            new RotaryNav(document.getElementById('center'), 0, -360)
+                    .setTransitionSpeed(1)
+                    .registerNodes(document.getElementById('nav').children);
+        });
+    </script>
+</head>
+<body>
+
+<div id="center">The Origin</div>
+
+<ol id="nav">
+    <li>One</li>
+    <li>Two</li>
+    <li>Threeeeeee</li>
+    <li>Four</li>
+    <li>Five</li>
+    <li>Six</li>
+    <li>Seven</li>
+    <li>Eight</li>
+    <li>Nine</li>
+</ol>
+
+</body>
+</html>
