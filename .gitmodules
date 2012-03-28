@@ -1,0 +1,6 @@
+[submodule "gay-lisp"]
+	path = gay-lisp
+	url = https://github.com/Ubehebe/Gay-Lisp.git
+[submodule "spec"]
+	path = spec
+	url = https://github.com/Ubehebe/r5rs-html5.git
