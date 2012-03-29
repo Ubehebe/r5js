@@ -1,0 +1,4 @@
+/build
+/compiler.jar
+.*
+!.gitignore
