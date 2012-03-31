@@ -32,6 +32,7 @@ RotaryNav.prototype.push = function(element) {
     element.style.position = 'fixed';
     element.style.left = (this.centerX - element.getBoundingClientRect().width) + 'px';
     element.style.top = this.centerY + 'px';
+    element.style.visibility = 'visible';
 
     var self = this;
     var index = this.elements.length;
