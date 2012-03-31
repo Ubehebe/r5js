@@ -30,6 +30,9 @@ addEventListener('load', function() {
         .start();
 
 
+    /* Set up the layers on the page */
+    new ZIndexManager().registerAnchors(document.querySelectorAll('#navlist a'));
+
     /* Set up the rotary-phone-like nav thing in the corner.
      (This shouldn't escape the private branch.) */
     new RotaryNav(document.getElementById('nav'), 45, -45)
