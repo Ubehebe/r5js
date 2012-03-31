@@ -14,6 +14,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 addEventListener('load', function() {
+
+    // Set up the terminal
     new MockTerminal(document.getElementById('repl'), 80, 5, 500)
         .println(GayLisp.getMetadata().banner)
         .println(';; Type (tutorial) and press enter for an interactive tutorial.')
@@ -26,4 +28,20 @@ addEventListener('load', function() {
         .pushInterpreter(tutorial)
         .setInputCompleteHandler(GayLisp.willParse)
         .start();
+
+
+    /* Set up the rotary-phone-like nav thing in the corner.
+     (This shouldn't escape the private branch.) */
+    new RotaryNav(document.getElementById('nav'), 45, -45)
+        .setTransitionSpeed(0.5)
+        .registerNodes(document.getElementById('navlist').children);
+
+    var h1s = document.querySelectorAll('section > h1');
+
+    for (var i = 0; i < h1s.length; ++i) {
+        var a = document.createElement('a');
+        a.href = '#contents';
+        a.appendChild(document.createTextNode('⇧'));
+        h1s[i].parentElement.insertBefore(a, h1s[i].nextElementSibling);
+    }
 });
