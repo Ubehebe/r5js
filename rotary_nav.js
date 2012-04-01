@@ -79,16 +79,9 @@ RotaryNav.prototype.recalculateAngles = function() {
 
 RotaryNav.prototype.registerNodes = function(nodeArray) {
 
-    var self = this;
+    for (var i=0; i<nodeArray.length; ++i)
+        this.push(nodeArray[i]);
 
-    var cb = function(i) {
-        if (i < nodeArray.length) {
-            self.push(nodeArray[i]);
-            setTimeout(cb, (this.transitionSpeed || 0) * 1000, i + 1);
-        }
-    };
-
-    cb(0);
     return this;
 };
 
