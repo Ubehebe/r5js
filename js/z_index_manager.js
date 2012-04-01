@@ -22,14 +22,13 @@ ZIndexManager.prototype.pushAnchor = function(a) {
 };
 
 ZIndexManager.prototype.bringToFront = function (element) {
-    console.log('bring to front: ' + element.id);
     var i = this.elements.indexOf(element);
     if (i !== -1) {
         this.elements.splice(i, 1);
         this.elements.push(element);
         for (i = 0; i < this.elements.length; ++i) {
             this.elements[i].style.zIndex = String(i);
-            console.log(this.elements[i].id + ': zIndex ' + i);
+            this.elements[i].style.visibility = 'visible';
         }
     }
 };
