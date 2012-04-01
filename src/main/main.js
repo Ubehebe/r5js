@@ -29,15 +29,35 @@ addEventListener('load', function() {
         .setInputCompleteHandler(GayLisp.willParse)
         .start();
 
+    var startOn;
+    switch (document.location.hash) {
+        // No fragment: start at the REPL
+        case '':
+            startOn = '#repl';
+            break;
+        // Fragment corresponding to one of the rotary nav items: start at that item
+        case '#repl':
+        case '#spec':
+        case '#about':
+            startOn = document.location.hash;
+            break;
+        // Other fragment: it's inside the spec, start there.
+        default:
+            startOn = '#spec';
+            break;
+    }
 
     /* Set up the layers on the page */
-    new ZIndexManager().registerAnchors(document.querySelectorAll('#navlist a'));
+    new ZIndexManager()
+        .registerAnchors(document.querySelectorAll('#navlist a'))
+    .bringToFront(document.querySelector(startOn));
 
     /* Set up the rotary-phone-like nav thing in the corner.
      (This shouldn't escape the private branch.) */
     new RotaryNav(document.getElementById('nav'), 45, -45)
         .setTransitionSpeed(0.5)
-        .registerNodes(document.getElementById('navlist').children);
+        .registerNodes(document.getElementById('navlist').children)
+        .rotateElementToFront(document.querySelector('a[href="' + startOn + '"]').parentElement);
 
     var h1s = document.querySelectorAll('section > h1');
 
