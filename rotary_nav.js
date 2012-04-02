@@ -13,10 +13,8 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-function RotaryNav(centerElement, fromDegree, toDegree) {
-    var box = centerElement.getBoundingClientRect();
-    this.centerX = box.left + box.width/2;
-    this.centerY = box.top + box.height/2;
+function RotaryNav(centerElement, radius, fromDegree, toDegree) {
+    this.radius = radius;
     this.fromDegree = fromDegree;
     this.toDegree = toDegree;
     this.elements = [];
@@ -43,7 +41,7 @@ RotaryNav.prototype.push = function(element) {
     this.elements.push(new TransformHelper(element)
         .setTransitionSpeed(this.transitionSpeed || 0)
         .setPermanentTransformOrigin('top right')
-        .setPermanentTransform('translate(-50px)'));
+        .setPermanentTransform('translate(-' + this.radius + 'px)'));
     return this.recalculateAngles();
 };
 
