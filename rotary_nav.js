@@ -14,10 +14,27 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 function RotaryNav(centerElement, radius, fromDegree, toDegree) {
+    this.centerElement = centerElement;
     this.radius = radius;
     this.fromDegree = fromDegree;
     this.toDegree = toDegree;
     this.elements = [];
+
+    function recenter(self) {
+        var box = self.centerElement.getBoundingClientRect();
+        self.centerX = box.left + box.width/2;
+        self.centerY = box.top + box.height/2;
+    }
+
+    var self = this;
+
+    recenter(self);
+
+    addEventListener('resize', function() {
+        recenter(self);
+        for (var i=0; i<self.elements.length; ++i)
+            self.elements[i].setPosition(self.centerX, self.centerY);
+    });
 }
 
 RotaryNav.prototype.setTransitionSpeed = function(seconds) {
@@ -26,10 +43,7 @@ RotaryNav.prototype.setTransitionSpeed = function(seconds) {
 };
 
 RotaryNav.prototype.push = function(element) {
-    element.style.display = 'inline-block';
     element.style.position = 'fixed';
-    element.style.left = (this.centerX - element.getBoundingClientRect().width) + 'px';
-    element.style.top = this.centerY + 'px';
     element.style.visibility = 'visible';
 
     var self = this;
@@ -39,8 +53,9 @@ RotaryNav.prototype.push = function(element) {
     });
 
     this.elements.push(new TransformHelper(element)
+        .setPosition(this.centerX, this.centerY)
         .setTransitionSpeed(this.transitionSpeed || 0)
-        .setPermanentTransformOrigin('top right')
+        .setPermanentTransformOrigin('center right')
         .setPermanentTransform('translate(-' + this.radius + 'px)'));
     return this.recalculateAngles();
 };
@@ -86,11 +101,26 @@ RotaryNav.prototype.registerNodes = function(nodeArray) {
 // Save the current rotation to avoid parsing CSS to recover it
 function TransformHelper(element) {
     this.element = element;
+    var bounding = element.getBoundingClientRect();
+    this.w = bounding.width;
+    this.h = bounding.height;
     this.rot = 0;
 }
 
 TransformHelper.prototype.getElement = function() {
     return this.element;
+};
+
+TransformHelper.prototype.setPosition = function(x,y) {
+    /* Since these elements have transformOrigin 'center right',
+     we have to subtract the width and half the height to get back to
+     the top left of the element.
+
+     The width and height are cached at instantiation time because rotations
+     seem to change them. */
+    this.element.style.left = (x - this.w) + 'px';
+    this.element.style.top = (y - this.h/2) + 'px';
+    return this;
 };
 
 TransformHelper.prototype.setPermanentTransform = function(str) {
