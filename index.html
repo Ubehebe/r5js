@@ -12,13 +12,18 @@
         li {
             list-style: none;
         }
+
+        .selected {
+            background-color: red;
+        }
     </style>
     <script async src="rotary_nav.js"></script>
     <script>
         addEventListener('load', function() {
             new RotaryNav(document.getElementById('center'), 50, 0, -360)
                     .setTransitionSpeed(1)
-                    .registerNodes(document.getElementById('nav').children);
+                    .registerNodes(document.getElementById('nav').children)
+                    .setSelectClass('selected');
         });
     </script>
 </head>

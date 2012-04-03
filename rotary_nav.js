@@ -37,6 +37,11 @@ function RotaryNav(centerElement, radius, fromDegree, toDegree) {
     });
 }
 
+RotaryNav.prototype.setSelectClass = function(cssClass) {
+    this.selectedItemClass = cssClass;
+    return this;
+};
+
 RotaryNav.prototype.setTransitionSpeed = function(seconds) {
     this.transitionSpeed = seconds;
     return this;
@@ -79,7 +84,8 @@ RotaryNav.prototype.rotateToFront = function(index) {
     var which = this.elements[index];
     var offset = which.rot;
     for (var i=0; i<this.elements.length; ++i)
-        this.elements[i].incRot(-offset);
+        this.elements[i].incRot(-offset).removeClass(this.selectedItemClass);
+    this.elements[index].addClass(this.selectedItemClass);
     return this;
 };
 
@@ -142,7 +148,7 @@ TransformHelper.prototype.setTransitionSpeed = function(seconds) {
         = this.element.style.webkitTransition
         = this.element.style.MozTransition
         = this.element.style.OTransition
-        = 'all ' + seconds + 's ease-in-out';
+        = 'all ' + seconds + 's ease-in-out'; // todo bl: 'all' may be too coarse
     return this;
 };
 
@@ -172,4 +178,33 @@ TransformHelper.prototype.setRot = function(rot) {
 TransformHelper.prototype.incRot = function(delta) {
     this.rot += this.normalizeAngle(delta);
     return this.reapply();
+};
+
+TransformHelper.prototype.addClass = function(cssClass) {
+    if (cssClass) {
+        if (this.element.classList)
+            this.element.classList.add(cssClass);
+        else {
+            /* As of early 2012, all major browsers support classList except
+             for IE 9. Ugh!. */
+            var curClasses = this.element.className;
+            if (curClasses.search('\\b' + cssClass + '\\b') === -1)
+                this.element.className += ' ' + cssClass;
+        }
+    }
+    return this;
+};
+
+TransformHelper.prototype.removeClass = function(cssClass) {
+    if (cssClass) {
+        if (this.element.classList)
+            this.element.classList.remove(cssClass);
+        else {
+            /* As of early 2012, all major browsers support classList except
+             for IE 9. Ugh!. */
+            var pattern = new RegExp('\\b' + cssClass + '\\b\\s*', 'g');
+            this.element.className = this.element.className.replace(pattern, '');
+        }
+    }
+    return this;
 };
