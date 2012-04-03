@@ -38,13 +38,15 @@ addEventListener('load', function() {
     .bringToFront(document.querySelector(startOn));
 
     // Set up the rotary-phone-like nav thing in the corner
-    new RotaryNav(document.getElementById('logo'), 50, 45, -45)
+    new RotaryNav(document.getElementById('logo'), 40, 45, -45)
         .setTransitionSpeed(0.5)
         .registerNodes(document.getElementById('navlist').children)
+        .setSelectClass('selected')
         .rotateElementToFront(document.querySelector('a[href="' + startOn + '"]').parentElement);
 
     var h1s = document.querySelectorAll('section > h1');
 
+    // Decorate the major headings with links back to the top
     for (var i = 0; i < h1s.length; ++i) {
         var a = document.createElement('a');
         a.href = '#contents';
@@ -52,12 +54,26 @@ addEventListener('load', function() {
         h1s[i].parentElement.insertBefore(a, h1s[i].nextElementSibling);
     }
 
-    var colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
 
+    // Make the logo in the rotary nav thing change colors intermittently.
+    var colors = [
+        'rgba(255,0,0,0.8)', // red
+        'rgba(0,0,0,0)',
+        'rgba(255,165,0,0.8)', // orange
+        'rgba(0,0,0,0)',
+        'rgba(255,255,0,0.8)', // yellow
+        'rgba(0,0,0,0)',
+        'rgba(0,255,0,0.8)', // green
+        'rgba(0,0,0,0)',
+        'rgba(0,0,255,0.8)', // blue
+        'rgba(0,0,0,0)',
+        'rgba(75,0,130,0.8)', // indigo
+        'rgba(0,0,0,0)',
+        'rgba(238,130,238,0.8)', // violet
+        'rgba(0,0,0,0)'];
     function changeColor(i) {
-        document.getElementById('logo').style.color = colors[i];
+        document.getElementById('logo').style.backgroundColor = colors[i];
         setTimeout(changeColor, 10000, (i+1) % colors.length);
     }
-
     setTimeout(changeColor, 10000, 0);
 });

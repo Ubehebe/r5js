@@ -1,19 +1,16 @@
 #nav {
     position: fixed;
     z-index: 10;
-    top: 15%;
+    top: 10%;
     right: 10%;
-    opacity: 0.75;
 }
 
 #nav li {
-    /*visibility: hidden;*/
-    font-family: monospace;
-    font-weight: bold;
+    font-family: sans-serif;
     text-transform: uppercase;
     line-height: .75;
-    padding: 0.75%;
-    font-size: 1em;
+    padding: 5px;
+    font-size: 0.75em;
     list-style: none;
     border-radius: 15%;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
@@ -22,36 +19,34 @@
     background: -o-linear-gradient(black, gray);
     background: linear-gradient(black, gray);
     box-shadow:rgba(192,192,192,0.75) 0px 0px 10px;
+    opacity: 0.8;
 }
 
-
+.selected {
+    text-decoration: underline;
+}
 
 #nav li a {
     color: white;
 }
 
 #logo {
-    font-size: 3em;
-    text-shadow: 3px 3px 5px rgba(0,0,0,0.5);
-    background:-webkit-linear-gradient(black, white);
-    background:-moz-linear-gradient(black, white);
-    background:-o-linear-gradient(black, white);
-    background: linear-gradient(black, white);
-    box-shadow:rgba(0,0,0,0.75) 10px 10px 10px;
+    font-size: 2em;
+    text-shadow: 5px 5px 3px rgba(0,0,0,0.8);
+    /* As of early 2012, the only current browser that requires a vendor prefix
+    for box-shadow is the Android browser (-webkit-). */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
     border-radius: 100%;
     font-style: italic;
-    -webkit-transition: color 5s ease-in-out;
-    -moz-transition: color 5s ease-in-out;
-    -o-transition: color 5s ease-in-out;
-    -ms-transition: color 5s ease-in-out;
-    transition: color 5s ease-in-out;
-
-    padding: 0.5em;
+    -webkit-transition: background-color 10s ease-in-out;
+    -moz-transition: background-color 10s ease-in-out;
+    -o-transition: background-color 10s ease-in-out;
+    -ms-transition: background-color 10s ease-in-out;
+    transition: background-color 10s ease-in-out;
+    padding: 0.8em;
     color: white;
-    /*background-image: -webkit-radial-gradient(center center, circle closest-side, rgba(255,255,255,1.0), rgba(255,255,255,0));*/
-    /*box-shadow: 0 0 50px 50px rgba(255, 255, 255, 0.5);*/
-    /*box-shadow: 0px 0px 100px 10px black;*/
-
+    background-color: transparent;
 }
 
 
