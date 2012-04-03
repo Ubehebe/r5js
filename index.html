@@ -8,11 +8,15 @@
             top: 50%;
             left: 50%;
         }
+
+        li {
+            list-style: none;
+        }
     </style>
     <script async src="rotary_nav.js"></script>
     <script>
         addEventListener('load', function() {
-            new RotaryNav(document.getElementById('center'), 0, -360)
+            new RotaryNav(document.getElementById('center'), 50, 0, -360)
                     .setTransitionSpeed(1)
                     .registerNodes(document.getElementById('nav').children);
         });
