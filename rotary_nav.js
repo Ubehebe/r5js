@@ -69,11 +69,8 @@ RotaryNav.prototype.push = function(element) {
  but we expose this method in case another client wants to rotate the
  nav to some desired element. */
 RotaryNav.prototype.rotateElementToFront = function(element) {
-    console.log('rotate to front: ');
-    console.log(element);
     for (var i=0; i<this.elements.length; ++i) {
         if (this.elements[i].getElement() === element) {
-            console.log('got match');
             return this.rotateToFront(i);
         }
     }
