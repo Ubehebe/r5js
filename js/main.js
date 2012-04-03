@@ -33,7 +33,7 @@ addEventListener('load', function() {
     }
 
     // Set up the layers on the page
-    new ZIndexManager()
+    new VisibilityManager()
         .registerAnchors(document.querySelectorAll('#navlist a'))
     .bringToFront(document.querySelector(startOn));
 
