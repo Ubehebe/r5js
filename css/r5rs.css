@@ -49,6 +49,31 @@
     background-color: transparent;
 }
 
+#hero-top {
+    font-family: 'Futura', sans-serif;
+    display: block;
+    font-weight: normal;
+    margin: 0;
+    text-align: center;
+    /* The effect we're aiming for is a whole phrase on one line.
+    For this to happen we have to tell the browser to disable line breaking. */
+    white-space: nowrap;
+}
+
+#hero-top sup {
+    background-color: rgba(255,255,0,0.5);
+    border-radius: 100%;
+    box-shadow:rgba(255,255,0,0.95) 0px 0px 50px;
+}
+
+#hero {
+    line-height: 0.9;
+    text-align: center;
+    font-family: 'Futura', sans-serif;
+    display: block;
+    font-weight: normal;
+    margin: 0;
+}
 
 .terminal {
     font-family: monospace;
@@ -70,6 +95,7 @@
 #spec {
     background-color: white;
     position: relative; /* so that the body will contain this div (so resizing will work properly) */
+    padding-top: 20%; /* so that the nav thing doesn't obscure the hero text */
     visibility: hidden;
 }
 

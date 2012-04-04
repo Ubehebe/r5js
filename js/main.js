@@ -76,4 +76,8 @@ addEventListener('load', function() {
         setTimeout(changeColor, 10000, (i+1) % colors.length);
     }
     setTimeout(changeColor, 10000, 0);
+
+    // Set the title of the spec attractively
+    new TextResizer(document.getElementById('hero-top'));
+    new TextResizer(document.getElementById('hero'));
 });
