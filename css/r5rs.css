@@ -32,7 +32,8 @@
 
 #logo {
     font-size: 2em;
-    text-shadow: 5px 5px 3px rgba(0,0,0,0.8);
+    /* A black outline around the letters so we can see them on a dark and a light background */
+    text-shadow: 0 0 3px black;
     /* As of early 2012, the only current browser that requires a vendor prefix
     for box-shadow is the Android browser (-webkit-). */
     box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
@@ -58,12 +59,13 @@
     /* The effect we're aiming for is a whole phrase on one line.
     For this to happen we have to tell the browser to disable line breaking. */
     white-space: nowrap;
+    color: rgba(0,0,0,0.75);
 }
 
 #hero-top sup {
-    background-color: rgba(255,255,0,0.5);
+    background-color: rgba(255,255,0,0.25);
     border-radius: 100%;
-    box-shadow:rgba(255,255,0,0.95) 0px 0px 50px;
+    box-shadow:rgba(255,255,0,0.95) 0 0 50px;
 }
 
 #hero {
@@ -72,8 +74,9 @@
     font-family: 'Futura', sans-serif;
     display: block;
     font-weight: normal;
-    padding-bottom: 1em;
     margin: 0;
+    color: rgba(0,0,0,0.75);
+    text-shadow: 0 0.1em 0.1em gray;
 }
 
 .terminal {
@@ -94,9 +97,7 @@
 }
 
 #spec {
-    background-color: white;
     position: relative; /* so that the body will contain this div (so resizing will work properly) */
-    padding-top: 20%; /* so that the nav thing doesn't obscure the hero text */
     visibility: hidden;
 }
 
@@ -109,7 +110,6 @@ body {
 /* The "back to top" links inserted via script */
 h1+a {
     font-size: 0.75em;
-    font-family: sans-serif;
     color: #a9a9a9;
 }
 
@@ -124,13 +124,27 @@ h1 {
 }
 
 #notice {
-    padding: 5em 0 5em;
+    padding: 2em 0 2em;
     text-align: center;
+}
+
+#notice a {
+    font-family: 'Futura', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    padding: 1px 4px 2px;
+    color: white;
+    background-color: #3a87ad;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -o-border-radius: 3px;
 }
 
 section > h1, footer > h1, nav > h1 {
     display: inline;
-    font-family: 'Geneva', sans-serif;
+    font-family: 'Futura', sans-serif;
     text-transform: uppercase;
     color: gray;
 }
@@ -146,19 +160,19 @@ a:hover {
 
 code, pre {
     color: #d14;
+    overflow: auto;
     background-color: #f7f7f9;
     border: 1px solid #e1e1e8;
     font-family: monospace;
 }
 
 .meta {
-    font-family: 'Geneva', sans-serif;
+    font-family: 'Futura', sans-serif;
     font-weight: normal;
     font-style: normal;
     padding: 1px 4px 2px;
     color: white;
     background-color: #3a87ad;
-    /*vertical-align: baseline;*/
     text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
     border-radius: 3px;
     -moz-border-radius: 3px;
@@ -167,7 +181,7 @@ code, pre {
 }
 
 .ex em, .ex dd em {
-    font-family: sans-serif;
+    font-family: 'Futura', sans-serif;
     color: black;
 }
 
@@ -178,6 +192,7 @@ code, pre {
 .error {
     padding: 1px 4px 2px;
     font-style: normal;
+    font-family: 'Futura', sans-serif;
     color: white;
     background-color: #b94a48;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
@@ -203,7 +218,7 @@ br {
 }
 
 .entry h2 {
-    font-family: sans-serif;
+    font-family: 'Futura', sans-serif;
     line-height: 100%;
     color: #a9a9a9;
     vertical-align: middle;
@@ -223,6 +238,7 @@ br {
 time {
     display: inline;
     color: gray;
+    font-variant: small-caps;
 }
 
 .ex {
@@ -235,6 +251,7 @@ time {
     white-space: pre;
     font-weight: normal;
     background-color: white;
+    overflow: auto;
 }
 
 .ex dd:before {
@@ -272,8 +289,31 @@ sub {
 }
 
 .title {
-    font-family: 'Geneva', sans-serif;
+    padding: 20% 0 20%; /* so that the nav thing doesn't obscure the hero text */
     text-transform: uppercase;
+    background-size: 20px 20px; /* Controls the size of the stripes */
+
+    background-color: #ffebcd;
+    background-image: -webkit-gradient(linear, 0 200%, 100% 0,
+    color-stop(.25, rgba(255, 255, 255, .2)), color-stop(.25, transparent),
+    color-stop(.5, transparent), color-stop(.5, rgba(255, 255, 255, .2)),
+    color-stop(.75, rgba(255, 255, 255, .2)), color-stop(.75, transparent),
+    to(transparent));
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+    background-image: -moz-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+    background-image: -ms-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
 }
 
 .editors, .contributors {
@@ -286,10 +326,18 @@ sub {
     font-variant: small-caps;
 }
 
+.editors dt:after, .contributors dt:after {
+    content: ' ·';
+}
+
 .editors dd, .contributors dd {
     display: inline;
     font-style: italic;
     margin-left: 0;
+}
+
+.editors dd:after, .contributors dd:after {
+    content: ' ·';
 }
 
 .dedication {
@@ -299,6 +347,10 @@ sub {
 .dedicatee {
     font-style: normal;
     font-variant: small-caps;
+}
+
+.dedicatee:after {
+    content: ' ·';
 }
 
 
