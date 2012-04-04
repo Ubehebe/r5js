@@ -38,7 +38,7 @@ addEventListener('load', function() {
     .bringToFront(document.querySelector(startOn));
 
     // Set up the rotary-phone-like nav thing in the corner
-    new RotaryNav(document.getElementById('logo'), 40, 45, -45)
+    new RotaryNav(document.getElementById('logo'), 40, 60, -60)
         .setTransitionSpeed(0.5)
         .registerNodes(document.getElementById('navlist').children)
         .setSelectClass('selected')
@@ -80,4 +80,10 @@ addEventListener('load', function() {
     // Set the title of the spec attractively
     new TextResizer(document.getElementById('hero-top'));
     new TextResizer(document.getElementById('hero'));
+
+    // Open Tweet in a popup, not a new tab/window.
+    document.getElementById('tweet').addEventListener('click', function(e) {
+       open(e.target.href, '_blank', 'width=550,height=450');
+        e.preventDefault();
+    });
 });

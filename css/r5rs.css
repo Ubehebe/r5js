@@ -5,6 +5,11 @@
     right: 10%;
 }
 
+#tweet {
+    padding-left: 20px;
+    background: url('http://a4.twimg.com/images/favicon.ico') 1px center no-repeat;
+}
+
 #nav li {
     font-family: sans-serif;
     text-transform: uppercase;
