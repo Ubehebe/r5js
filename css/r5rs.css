@@ -72,6 +72,7 @@
     font-family: 'Futura', sans-serif;
     display: block;
     font-weight: normal;
+    padding-bottom: 1em;
     margin: 0;
 }
 
@@ -118,9 +119,16 @@ h1+a:hover, h1+a :active {
 
 h1 {
     line-height: 2.0;
+    margin: 0;
+    font-weight: normal;
 }
 
-section > h1 {
+#notice {
+    padding: 5em 0 5em;
+    text-align: center;
+}
+
+section > h1, footer > h1, nav > h1 {
     display: inline;
     font-family: 'Geneva', sans-serif;
     text-transform: uppercase;
@@ -210,8 +218,11 @@ br {
 }
 
 .note {
-    /* temporary don't display */
-    display: none;
+}
+
+time {
+    display: inline;
+    color: gray;
 }
 
 .ex {
@@ -264,4 +275,30 @@ sub {
     font-family: 'Geneva', sans-serif;
     text-transform: uppercase;
 }
+
+.editors, .contributors {
+    display: inline;
+    color: gray;
+}
+
+.editors dt, .contributors dt {
+    display: inline;
+    font-variant: small-caps;
+}
+
+.editors dd, .contributors dd {
+    display: inline;
+    font-style: italic;
+    margin-left: 0;
+}
+
+.dedication {
+    color: gray;
+}
+
+.dedicatee {
+    font-style: normal;
+    font-variant: small-caps;
+}
+
 
