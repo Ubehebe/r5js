@@ -5,9 +5,9 @@
     right: 10%;
 }
 
-#tweet {
-    padding-left: 20px;
-    background: url('http://a4.twimg.com/images/favicon.ico') 1px center no-repeat;
+.fb-like {
+    display: inline;
+    outline: thin solid yellow;
 }
 
 #nav li {
@@ -73,7 +73,8 @@
     box-shadow:rgba(255,255,0,0.95) 0 0 50px;
 }
 
-#hero {
+#hero, #about-hero {
+    white-space: nowrap;
     line-height: 0.9;
     text-align: center;
     font-family: 'Futura', sans-serif;
@@ -103,6 +104,11 @@
 
 #spec {
     position: relative; /* so that the body will contain this div (so resizing will work properly) */
+    visibility: hidden;
+}
+
+#about {
+    position: absolute; /* todo bl resizing will break */
     visibility: hidden;
 }
 
@@ -356,6 +362,15 @@ sub {
 
 .dedicatee:after {
     content: ' ·';
+}
+
+#about-hero+h2 {
+    text-transform: none;
+    text-align: center;
+}
+
+.title dl {
+    text-transform: none;
 }
 
 
