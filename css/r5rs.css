@@ -103,12 +103,14 @@
 }
 
 #spec {
-    position: relative; /* so that the body will contain this div (so resizing will work properly) */
+    position: absolute;
+    width: 100%;
     visibility: hidden;
 }
 
 #about {
-    position: absolute; /* todo bl resizing will break */
+    position: absolute;
+    width: 100%;
     visibility: hidden;
 }
 
