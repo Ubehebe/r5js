@@ -3,7 +3,7 @@
 	url = https://github.com/Ubehebe/Gay-Lisp.git
 [submodule "spec"]
 	path = spec
-	url = https://github.com/Ubehebe/r5rs-html5.git
+	url = ../Dropbox/r5rs-html5/
 [submodule "rotary-nav"]
 	path = rotary-nav
-	url = /Users/brendan/Dropbox/radial-nav/
+	url = ../Dropbox/radial-nav/
