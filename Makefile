@@ -3,10 +3,16 @@ website:
 	mkdir -p build
 	cp rotary-nav/*.js build/
 
-	cd gay-lisp && make clean && make repl && cp build/* ../build/
+	cd gay-lisp && make clean && make repl && cp build/*.js ../build/
 	# Must be after we make gay-lisp because we intentionally overwrite
 	# build/main.js.
 	cp js/* build/
+	cp html/* build/
+	cat build/*.js > tmp && rm build/*.js && mv tmp build/all.js
+
+website-min: website
+website-min:
+	java -jar compiler.jar < build/all.js > tmp && mv tmp build/all.js
 
 spec: .fake
 spec:
