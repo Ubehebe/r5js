@@ -87,4 +87,32 @@ addEventListener('load', function() {
        open(e.target.href, '_blank', 'width=550,height=450');
         e.preventDefault();
     });
+
+
+    // Replace the answers in the spec with buttons to call the interpreter
+    var qs = document.querySelectorAll('.ex dt');
+
+    for (var i=0; i<qs.length; ++i) {
+        var question = qs[i];
+        var input = question.textContent;
+        var answer = question.nextElementSibling; // <dd>
+        var button = document.createElement('button');
+        button['type'] = 'button';
+        button.className = 'evalButton';
+        button['data-input'] = input;
+        button.addEventListener('click', function(e) {
+            var output;
+            try {
+                output = GayLisp.repl(e.target['data-input']);
+            } catch(x) {
+                output = x.toString();
+            }
+
+            e.target.parentElement.replaceChild(
+                document.createTextNode('⇒ ' + output),
+                e.target);
+        });
+        button.appendChild(document.createTextNode('eval'));
+        answer.replaceChild(button, answer.firstChild);
+    }
 });
