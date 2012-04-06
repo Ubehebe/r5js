@@ -102,22 +102,26 @@
     visibility: hidden;
 }
 
-#spec {
+#spec, #about {
     position: absolute;
     width: 100%;
-    visibility: hidden;
-}
-
-#about {
-    position: absolute;
-    width: 100%;
-    visibility: hidden;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0 1% 0 1%;
 }
 
 body {
     font-family: 'Georgia', serif;
-    font-size: 1.2em;
-    line-height: 170%;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    /* todo bl: i'm not sure why we would get any overflow here,
+    but at very small widths we do get horizontal scrollbars (even though
+    they aren't necessary to read any text). I'm probably missing a detail
+    of the box model. */
+    overflow-x: hidden;
+    /*font-size: 1.2em;*/
+    /*line-height: 1;*/
 }
 
 /* The "back to top" links inserted via script */
