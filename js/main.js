@@ -1,4 +1,10 @@
-addEventListener('load', function() {
+(function() {
+
+    document.addEventListener
+        ? document.addEventListener('DOMContentLoaded', main, false)
+        : window.attachEvent('onload', main);
+
+function main() {
 
     asyncLoadSpec();
     setupTerminal();
@@ -148,4 +154,5 @@ addEventListener('load', function() {
             answer.replaceChild(button, answer.firstChild);
         }
     }
-});
+}
+}());
