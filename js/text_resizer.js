@@ -43,15 +43,12 @@ TextResizer.prototype.resize = function () {
     var tol = 10000;
 
     while (this.sandbox.getBoundingClientRect().width < targetWidth && tol-- > 0) {
-        console.log('targetWidth ' + targetWidth + ', current width ' + this.sandbox.getBoundingClientRect().width + ': increasing!');
         this.sandbox.style.fontSize = (++this.curFontSize) + 'px';
     }
     while (this.sandbox.getBoundingClientRect().width > targetWidth && tol-- > 0)
         this.sandbox.style.fontSize = (--this.curFontSize) + 'px';
 
-
     this.element.style.fontSize = (this.curFontSize-1) + 'px';
-    console.log('done: final width ' + this.element.getBoundingClientRect().width);
 
     return this;
 };

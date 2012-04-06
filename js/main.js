@@ -81,7 +81,6 @@ addEventListener('load', function() {
     new TextResizer(document.getElementById('hero-top'));
     new TextResizer(document.getElementById('hero'));
     new TextResizer(document.getElementById('about-hero'));
-    new TextResizer(document.getElementById('about-hero-bot'));
 
     // Open Tweet in a popup, not a new tab/window.
     document.getElementById('tweet').addEventListener('click', function(e) {
