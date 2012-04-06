@@ -1,9 +1,9 @@
 addEventListener('load', function() {
 
     setupMockTerminal();
-    setupVisibilityManager();
+    setupNav();
     setupColors();
-    setupTextResizers();
+    setupHeroText();
     setupTweets();
     setupSpecExamples();
 
@@ -22,7 +22,7 @@ addEventListener('load', function() {
             .start();
     }
 
-    function setupVisibilityManager() {
+    function setupNav() {
         var startOn;
         switch (document.location.hash) {
             // No fragment: start at the REPL
@@ -43,23 +43,23 @@ addEventListener('load', function() {
         new VisibilityManager()
             .registerAnchors(document.querySelectorAll('.vis-manager'))
             .bringToFront(document.querySelector(startOn));
-    }
 
-    // Set up the rotary-phone-like nav thing in the corner
-    new RotaryNav(document.getElementById('logo'), 40, 60, -60)
-        .setTransitionSpeed(0.5)
-        .registerNodes(document.getElementById('navlist').children)
-        .setSelectClass('selected')
-        .rotateElementToFront(document.querySelector('a[href="' + startOn + '"]').parentElement);
+        // Set up the rotary-phone-like nav thing in the corner
+        new RotaryNav(document.getElementById('logo'), 40, 60, -60)
+            .setTransitionSpeed(0.5)
+            .registerNodes(document.getElementById('navlist').children)
+            .setSelectClass('selected')
+            .rotateElementToFront(document.querySelector('a[href="' + startOn + '"]').parentElement);
 
-    var h1s = document.querySelectorAll('section > h1');
+        var h1s = document.querySelectorAll('section > h1');
 
-    // Decorate the major headings with links back to the top
-    for (var i = 0; i < h1s.length; ++i) {
-        var a = document.createElement('a');
-        a.href = '#contents';
-        a.appendChild(document.createTextNode('⬆'));
-        h1s[i].parentElement.insertBefore(a, h1s[i].nextElementSibling);
+        // Decorate the major headings with links back to the top
+        for (var i = 0; i < h1s.length; ++i) {
+            var a = document.createElement('a');
+            a.href = '#contents';
+            a.appendChild(document.createTextNode('⬆'));
+            h1s[i].parentElement.insertBefore(a, h1s[i].nextElementSibling);
+        }
     }
 
     function setupColors() {
@@ -89,8 +89,7 @@ addEventListener('load', function() {
         setTimeout(changeColor, 10000, 0);
     }
 
-    function setupTextResizers() {
-        // Set the title of the spec attractively
+    function setupHeroText() {
         new TextResizer(document.getElementById('hero-top'));
         new TextResizer(document.getElementById('hero'));
         new TextResizer(document.getElementById('about-hero'));
