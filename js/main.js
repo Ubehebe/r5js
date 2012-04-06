@@ -34,7 +34,7 @@ addEventListener('load', function() {
 
     // Set up the layers on the page
     new VisibilityManager()
-        .registerAnchors(document.querySelectorAll('#navlist a'))
+        .registerAnchors(document.querySelectorAll('.vis-manager'))
     .bringToFront(document.querySelector(startOn));
 
     // Set up the rotary-phone-like nav thing in the corner
