@@ -148,5 +148,4 @@ addEventListener('load', function() {
             answer.replaceChild(button, answer.firstChild);
         }
     }
-}
 });
