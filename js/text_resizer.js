@@ -37,24 +37,35 @@ function TextResizer(element) {
     self.resize();
 }
 
-/* todo bl: this is synchronous and takes linear time. There will be
- noticable lag if the window is suddenly grows or shrinks a lot. I implemented
- an asynchronous version, but found the performance to be no better (perhaps
- because of the pressure it puts on setTimeout). I think this is acceptable for
- now, because resize events should be rare, but may want to investigate
- a binary-search-like algorithm to make this logarithmic. */
 TextResizer.prototype.resize = function () {
     var targetWidth = this.element.getBoundingClientRect().width;
+    var tolerance = 0.001; // get within 0.1% of targetWidth
+    var numHops = 50;
+    var heuristic;
 
-    var tol = 10000;
+    /* Heuristic: if the box needs to grow by x%, the font size ought to
+     grow by x%. This is only a heuristic because making a font x% larger
+     (that is, making its height x% larger) doesn't guarantee the width
+     of the text increases by x%. Since this is only a heuristic, there are
+     no guarantees about termination (imagine a degenerate font that has
+     positive height but zero width), so I've kept the numHops bound.
 
-    while (this.sandbox.getBoundingClientRect().width < targetWidth && tol-- > 0) {
-        this.sandbox.style.fontSize = (++this.curFontSize) + 'px';
-    }
-    while (this.sandbox.getBoundingClientRect().width > targetWidth && tol-- > 0)
+     Note that this is still synchronous and O(n) (just with a smaller
+     constant than the naive "plus or minus one pixel" approach),
+     so it still may be worth making asynchronous.*/
+    do {
+        heuristic = targetWidth / this.sandbox.getBoundingClientRect().width;
+        this.sandbox.style.fontSize = (this.curFontSize*=heuristic) + 'px';
+    } while (numHops-- && Math.abs(heuristic-1.0) > tolerance);
+
+    numHops = 50;
+
+    // For display purposes, it's much better to underfill than to overfill.
+    while (--numHops
+        && this.sandbox.getBoundingClientRect().width > targetWidth)
         this.sandbox.style.fontSize = (--this.curFontSize) + 'px';
 
-    this.element.style.fontSize = (this.curFontSize-1) + 'px';
+    this.element.style.fontSize = (this.curFontSize) + 'px';
 
     return this;
 };
