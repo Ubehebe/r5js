@@ -37,6 +37,12 @@ function TextResizer(element) {
     self.resize();
 }
 
+/* todo bl: this is synchronous and takes linear time. There will be
+ noticable lag if the window is suddenly grows or shrinks a lot. I implemented
+ an asynchronous version, but found the performance to be no better (perhaps
+ because of the pressure it puts on setTimeout). I think this is acceptable for
+ now, because resize events should be rare, but may want to investigate
+ a binary-search-like algorithm to make this logarithmic. */
 TextResizer.prototype.resize = function () {
     var targetWidth = this.element.getBoundingClientRect().width;
 
