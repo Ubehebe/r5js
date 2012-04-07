@@ -9,7 +9,6 @@ function main() {
     asyncLoadSpec();
     setupTerminal();
     setupColors();
-    setupTweets();
 
     function setupTerminal() {
         new MockTerminal(document.getElementById('repl'), 80, 5, 500)
@@ -64,7 +63,7 @@ function main() {
             .bringToFront(document.querySelector(startOn));
 
         // Set up the rotary-phone-like nav thing in the corner
-        new RotaryNav(document.getElementById('logo'), 40, 60, -60)
+        new RotaryNav(document.getElementById('logo'), 40, 90, -90)
             .setTransitionSpeed(0.5)
             .registerNodes(document.getElementById('navlist').children)
             .setSelectClass('selected')
@@ -115,14 +114,6 @@ function main() {
         new TextResizer(document.getElementById('hero-top'));
         new TextResizer(document.getElementById('hero'));
         new TextResizer(document.getElementById('about-hero'));
-    }
-
-    function setupTweets() {
-        // Open Tweet in a popup, not a new tab/window.
-        document.getElementById('tweet').addEventListener('click', function (e) {
-            open(e.target.href, '_blank', 'width=550,height=450');
-            e.preventDefault();
-        });
     }
 
     function setupSpecExamples() {

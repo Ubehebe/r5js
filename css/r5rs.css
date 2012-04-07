@@ -5,9 +5,14 @@
     right: 10%;
 }
 
-.fb-like {
+/* todo bl: the iframes cause the center of the rotary nav to drift
+to the left in Firefox and Opera. When I comment them out, the center
+goes back to where it should be. I haven't been able to track down a CSS
+difference, but that's what it probably is. (Also, the Firefox/Opera thing
+corrects on resize, so as a last-ditch effort, I could trigger a resize event
+myself.) */
+iframe {
     display: inline;
-    outline: thin solid yellow;
 }
 
 #nav li {
@@ -256,6 +261,13 @@ time {
     display: inline;
     color: gray;
     font-variant: small-caps;
+}
+
+.flipped {
+    transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
 }
 
 .ex {
