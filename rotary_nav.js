@@ -28,8 +28,9 @@ function RotaryNav(centerElement, radius, fromDegree, toDegree) {
 
     var self = this;
 
-    recenter(self);
-
+    /* Clients may want to manually dispatch a resize event
+     to get the UI looking good. We don't do it here because other parts
+     of the boot process may want to listen in too. */
     addEventListener('resize', function() {
         recenter(self);
         for (var i=0; i<self.elements.length; ++i)
