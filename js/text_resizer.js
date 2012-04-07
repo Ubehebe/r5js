@@ -28,13 +28,14 @@ function TextResizer(element) {
 
     document.body.appendChild(this.sandbox);
 
-
     var self = this;
+
+    /* Clients may want to manually dispatch a resize event
+     to get the UI looking good. We don't do it here because other parts
+     of the boot process may want to listen in too. */
     addEventListener('resize', function() {
         self.resize();
     });
-
-    self.resize();
 }
 
 TextResizer.prototype.resize = function () {

@@ -35,6 +35,8 @@ function main() {
                 setupBackLinks();
                 setupHeroText();
                 setupNav();
+                // To get the nav and hero text looking good
+                manualResize();
             }
         };
         req.send();
@@ -144,6 +146,12 @@ function main() {
             button.appendChild(document.createTextNode('eval'));
             answer.replaceChild(button, answer.firstChild);
         }
+    }
+
+    function manualResize() {
+        var e = document.createEvent('Event');
+        e.initEvent('resize', false, false);
+        dispatchEvent(e);
     }
 }
 }());
