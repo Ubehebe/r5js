@@ -1,0 +1,3 @@
+[submodule "mockterm"]
+	path = mockterm
+	url = git@github.com:Ubehebe/term.js
