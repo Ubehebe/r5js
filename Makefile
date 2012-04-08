@@ -13,7 +13,7 @@ repl:
 	cat src/html/index.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
 	cp src/css/repl.css build/
 	cp src/main/*.js build/
-	cp mockterm/*.js build/
+	cp mockterm/mockterm.js build/
 	cp tutorial/*.js build/
 
 repl-min: interpreter-min repl
