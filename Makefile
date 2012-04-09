@@ -7,11 +7,28 @@ website:
 	# Must be after we make gay-lisp because we intentionally overwrite
 	# build/main.js.
 	cp js/* build/
-	cp html/* build/
+	cp html/index.html build/
 	cat build/*.js > tmp && rm build/*.js && mv tmp build/all.js
 
 website-min: website
 website-min:
+	java -jar compiler.jar < build/all.js > tmp && mv tmp build/all.js
+
+mobile: spec
+mobile:
+	mkdir -p build
+	cd gay-lisp && make clean && make smslike && cp build/*.js ../build/
+	# Must be after we make gay-lisp because we intentionally overwrite
+	# build/main.js.
+	cp js/main.js build/
+	cp html/index_mobile.html build/index.html
+	cp css/mobile.css build/
+	cp spec/r5rs.html build/
+	mv build/main-smslike.js build/main.js
+	cat build/*.js > tmp && mv tmp build/all.js
+
+mobile-min: mobile
+mobile-min:
 	java -jar compiler.jar < build/all.js > tmp && mv tmp build/all.js
 
 spec: .fake
