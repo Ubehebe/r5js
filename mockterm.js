@@ -194,6 +194,12 @@ MockTerminal.prototype.println = function(line) {
             this.println(line[i]).println('').pause(this.lineLatency);
     } else if (typeof line === 'function') {
         this.println(line());
+    } else if (line.bannerToString) {
+        /* If line is an object that has a bannerToString() function, use that
+         because MockTerminal supports displaying of banners. */
+        this.println(line.bannerToString());
+    } else if (typeof line !== 'string' && line.toString) {
+        this.println(line.toString());
     } else {
         this.print('\n' + line);
     }

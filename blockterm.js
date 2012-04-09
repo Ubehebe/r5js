@@ -72,10 +72,20 @@ BlockTerm.prototype.print = function(string, templateElement) {
         var newOutput = templateElement.cloneNode();
         newOutput.appendChild(textNode);
         this.outputContainer.appendChild(newOutput);
+BlockTerm.prototype.println = function(line) {
+    /* If line is an array, that means we should print out each element
+     separately. Just for convenience so clients don't have to insert
+     newlines manually. */
+    if (line instanceof Array) {
+        for (var i = 0; i < line.length; ++i)
+            this.println(line[i]);
+    } else if (typeof line === 'function') {
+        this.println(line());
+    } else if (typeof line !== 'string' && line.toString) {
+        this.println(line.toString());
     } else {
-        this.outputContainer.appendChild(textNode);
+        this.print('\n' + line, this.outputTemplate);
     }
-
     return this;
 };
 
