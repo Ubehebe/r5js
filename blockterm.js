@@ -19,11 +19,14 @@
  different-colored text bubbles down the left side. This kind of UI may be
  more appropriate for REPL-like applications on mobile devices than
  emulating an entire terminal within a single textarea. */
-function BlockTerm(textArea, outputContainer, submitElement) {
+function BlockTerm(textArea, outputContainer, submitElement, latency) {
 
     this.textArea = textArea;
     this.outputContainer = outputContainer;
     this.interpreters = [];
+    this.printQueue = new AsyncQueue(latency || 0);
+    // Echoing should not have any latency
+    this.echoQueue = new AsyncQueue(0);
 
     var self = this;
 
@@ -46,7 +49,7 @@ BlockTerm.prototype.onInputComplete = function() {
     var input = this.textArea.value;
     // Only echo input if we've explicitly set an echo template
     if (this.echoTemplate)
-        this.print(input, this.echoTemplate);
+        this.print(input, this.echoTemplate, this.echoQueue);
     var output = this.interpret(input);
 
     // If we haven't set an output template, it will just appear as a text node
@@ -66,12 +69,22 @@ BlockTerm.prototype.interpret = function(input) {
     }
 };
 
-BlockTerm.prototype.print = function(string, templateElement) {
-    var textNode = document.createTextNode(string);
-    if (templateElement) {
-        var newOutput = templateElement.cloneNode();
-        newOutput.appendChild(textNode);
-        this.outputContainer.appendChild(newOutput);
+BlockTerm.prototype.print = function(string, templateElement, printQueue) {
+    var outputContainer = this.outputContainer;
+    (printQueue || this.printQueue).enqueue(function () {
+        var textNode = document.createTextNode(string);
+        if (templateElement) {
+            var newOutput = templateElement.cloneNode();
+            newOutput.appendChild(textNode);
+            outputContainer.appendChild(newOutput);
+        } else {
+            outputContainer.appendChild(textNode);
+        }
+    });
+
+    return this;
+};
+
 BlockTerm.prototype.println = function(line) {
     /* If line is an array, that means we should print out each element
      separately. Just for convenience so clients don't have to insert
@@ -91,6 +104,12 @@ BlockTerm.prototype.println = function(line) {
 
 BlockTerm.prototype.pause = function(ms) {
     // ???
+    return this;
+};
+
+BlockTerm.prototype.reset  = function() {
+    ; // no-op
+    return this;
 };
 
 BlockTerm.prototype.pushInterpreter = function(interpreter) {
