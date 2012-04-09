@@ -9,4 +9,12 @@ body {
     width: 100%;
 }
 
+.echo {
+    background-color: #add8e6;
+}
+
+.output {
+    background-color: #fafad2;
+    text-align: right;
+}
 

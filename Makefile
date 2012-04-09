@@ -20,6 +20,19 @@ repl-min: interpreter-min repl
 repl-min:
 	sed -i -e "s/gay-lisp-$(version)\.js/gay-lisp-$(version)-min.js/g" build/index.html
 
+# JS library plus an SMS-like interface for the REPL
+smslike: interpreter
+smslike:
+	cat src/html/index-smslike.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
+	cp src/css/repl.css build/
+	cp src/main/*.js build/
+	cp mockterm/blockterm.js mockterm/async_queue.js build/
+	cp tutorial/*.js build/
+
+smslike-min: interpreter-min smslike
+smslike-min:
+	sed -i -e "s/gay-lisp-$(version)\.js/gay-lisp-$(version)-min.js/g" build/index.html
+
 # Just make the JS library (no UI)
 # Target the first line after the first brace in src/api/api.js
 interpreter: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e 's/^\([0-9]*\).*/\1/'`

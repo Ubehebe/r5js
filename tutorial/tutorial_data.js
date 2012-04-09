@@ -25,7 +25,7 @@ var tutorial = (function() {
     }
 
     var theSecretOfLisp = " _    ___ ___ _____ ___ \n| |  |_ _/ __|_   _/ __|\n| |__ | |\\__ \\ | | \\__ \\\n|____|___|___/ |_| |___/\n                        \n   _   ___ ___ \n  /_\\ | _ \\ __|\n / _ \\|   / _| \n/_/ \\_\\_|_\\___|\n               \n ___ ___  ___   ___ ___    _   __  __ ___ \n| _ \\ _ \\/ _ \\ / __| _ \\  /_\\ |  \\/  / __|\n|  _/   / (_) | (_ |   / / _ \\| |\\/| \\__ \\\n|_| |_|_\\\\___/ \\___|_|_\\/_/ \\_\\_|  |_|___/\n                                          \n";
-
+    var theSecretOfLispFallback = "Lists are programs.";
 
     var tut = new Tutorial(
     ).setRandomCongrats([
@@ -106,7 +106,16 @@ var tutorial = (function() {
             return GayLisp.eval('(string=? "yes" ' + input + ')') === '#t';
         },
         ["The secret of Lisp is:",
-            theSecretOfLisp]
+            /* This custom object will get passed to a terminal implementation,
+             which ought to decide whether to display the banner or the fallback
+             based on its own capabilities. There's probably a more OO way
+             to do this. */
+            new function() {
+                this.fancy = theSecretOfLisp;
+                this.unfancy  = theSecretOfLispFallback;
+                this.bannerToString = function() { return this.fancy; };
+                this.toString = function() { return this.unfancy; };
+            }]
     ).disableRandomCongrat().pauseFor(5000)
     ).addStep(new Step([
         "That sounds banal, but it really is the secret of Lisp, and the more you use Lisp, the more profound it gets.",
