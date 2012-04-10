@@ -25,11 +25,10 @@ addEventListener('load', function() {
     new BlockTerm(
         document.getElementById('blockterm-input'),
         document.getElementById('blockterm-output'),
-        document.getElementById('eval'),
         3000)
         .setEchoTemplate(echoTemplate)
         .setOutputTemplate(outputTemplate)
-        .println('Type (tutorial) and press Eval for an interactive tutorial.')
+        .println('Type (tutorial) and press enter for an interactive tutorial.')
         .pushInterpreter(
         function (string, terminal) {
             return GayLisp.repl(string, function (sideEffect) {
