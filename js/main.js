@@ -6,6 +6,17 @@
 
 function main() {
 
+    /* Redirect to mobile site.
+     As of early 2012, the fanciest mobile device is the "new iPad" with
+     a resolution of 2048x1536. However, Safari on that device reports
+     a resolution of 1024x768 on purpose, so we're safe for now. Note that
+     screen real estate is not the only reason to switch to the mobile site;
+     the MockTerminal implementation puts every character on a setTimeout
+     to achieve a "old, high-latency terminal" effect, and this really slows
+     down mobile devices, even iPads. */
+    if (window.screen && window.screen.width < 800)
+        location.replace('//m.gay-lisp.org');
+
     asyncLoadSpec();
     setupTerminal();
     setupColors();
