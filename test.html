@@ -32,8 +32,7 @@
 
                 new BlockTerm(
                         document.getElementById('blockterm-input'),
-                        document.getElementById('blockterm-output'),
-                        document.getElementById('blockterm-eval'))
+                        document.getElementById('blockterm-output'))
                         .setOutputTemplate(answerTemplate)
                         .setEchoTemplate(echoTemplate)
                         .pushInterpreter(echo);
@@ -63,8 +62,7 @@
     <h1>BlockTerm test</h1>
     <h2>This uses an SMS-like UI. May be more appropriate for mobile devices.</h2>
     <div id="blockterm-output"></div>
-    <textarea id="blockterm-input"></textarea>
-<button type="button" id="blockterm-eval" style="display: block">Eval</button>
+    <input type="text" id="blockterm-input" style="position: relative; width: 100%" />
 </section>
 
 </body>

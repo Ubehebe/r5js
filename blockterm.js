@@ -19,19 +19,22 @@
  different-colored text bubbles down the left side. This kind of UI may be
  more appropriate for REPL-like applications on mobile devices than
  emulating an entire terminal within a single textarea. */
-function BlockTerm(textArea, outputContainer, submitElement, latency) {
+function BlockTerm(textInput, outputContainer, latency) {
 
-    this.textArea = textArea;
+    this.textInput = textInput;
     this.outputContainer = outputContainer;
     this.interpreters = [];
     this.printQueue = new AsyncQueue(latency || 0);
     // Echoing should not have any latency
     this.echoQueue = new AsyncQueue(0);
 
+    this.inputKey = '\r'.charCodeAt(0);
+
     var self = this;
 
-    submitElement.addEventListener('click', function() {
-        self.onInputComplete();
+    textInput.addEventListener('keydown', function(e) {
+        if (e.keyCode === self.inputKey)
+            self.onInputComplete();
     });
 }
 
@@ -46,15 +49,24 @@ BlockTerm.prototype.setOutputTemplate = function(element) {
 };
 
 BlockTerm.prototype.onInputComplete = function() {
-    var input = this.textArea.value;
+    var input = this.textInput.value;
     // Only echo input if we've explicitly set an echo template
     if (this.echoTemplate)
         this.print(input, this.echoTemplate, this.echoQueue);
     var output = this.interpret(input);
 
-    // If we haven't set an output template, it will just appear as a text node
-    this.print(output, this.outputTemplate);
-    this.textArea.value = '';
+    /* todo bl: currently we don't have a good way of signaling
+     "interpretation succeeded, but there is nothing to print". By convention,
+     all my interpreters return ' ' in such situations, but in this terminal
+     implementation, spaces may be visible (and highly annoying). Review the
+     return values of all my interpreters when I get a chance. */
+
+    if (output && output.trim().length) {
+        // If we haven't set an output template, it will just appear as a text node
+        this.print(output, this.outputTemplate);
+    }
+
+    this.textInput.value = '';
 };
 
 BlockTerm.prototype.interpret = function(input) {
