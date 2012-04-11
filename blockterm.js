@@ -86,7 +86,7 @@ BlockTerm.prototype.print = function(string, templateElement, printQueue) {
     (printQueue || this.printQueue).enqueue(function () {
         var textNode = document.createTextNode(string);
         if (templateElement) {
-            var newOutput = templateElement.cloneNode();
+            var newOutput = templateElement.cloneNode(false);
             newOutput.appendChild(textNode);
             outputContainer.appendChild(newOutput);
         } else {
