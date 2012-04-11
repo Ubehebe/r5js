@@ -22,7 +22,7 @@ function main() {
     setupColors();
 
     function setupTerminal() {
-        new MockTerminal(document.getElementById('repl'), 80, 5, 500)
+        new MockTerminal(document.getElementById('play'), 80, 5, 500)
             .println(GayLisp.getMetadata().banner)
             .println(';; Type (tutorial) and press enter for an interactive tutorial.')
             .setPrompt('>> ')
@@ -58,10 +58,10 @@ function main() {
         switch (document.location.hash) {
             // No fragment: start at the REPL
             case '':
-                startOn = '#repl';
+                startOn = '#play';
                 break;
             // Fragment corresponding to one of the rotary nav items: start at that item
-            case '#repl':
+            case '#play':
             case '#spec':
             case '#about':
                 startOn = document.location.hash;
@@ -124,9 +124,9 @@ function main() {
     }
 
     function setupHeroText() {
-        new TextResizer(document.getElementById('hero-top'));
-        new TextResizer(document.getElementById('hero'));
-        new TextResizer(document.getElementById('about-hero'));
+        var heroes = document.getElementsByClassName('hero');
+        for (var i=0; i<heroes.length; ++i)
+            new TextResizer(heroes[i]);
     }
 
     function setupSpecExamples() {

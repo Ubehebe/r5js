@@ -7,8 +7,8 @@ website:
 	# Must be after we make gay-lisp because we intentionally overwrite
 	# build/main.js.
 	cp js/* build/
-	cp html/index.html build/
 	cat build/*.js > tmp && rm build/*.js && mv tmp build/all.js
+	xsltproc xsl/desktop.xsl src/index.html > build/index.html
 
 website-min: website
 website-min:
