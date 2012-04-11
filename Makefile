@@ -21,11 +21,11 @@ mobile:
 	# Must be after we make gay-lisp because we intentionally overwrite
 	# build/main.js.
 	cp js/main.js build/
-	cp html/index_mobile.html build/index.html
 	cp css/mobile.css build/
 	cp spec/r5rs.html build/
 	mv build/main-smslike.js build/main.js
 	cat build/*.js > tmp && mv tmp build/all.js
+	xsltproc xsl/mobile.xsl src/index.html > build/index.html
 
 mobile-min: mobile
 mobile-min:
