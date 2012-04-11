@@ -12,7 +12,7 @@ repl: interpreter
 repl:
 	cat src/html/index.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
 	cp src/css/repl.css build/
-	cp src/main/*.js build/
+	cp src/main/main.js build/
 	cp mockterm/mockterm.js mockterm/async_queue.js build/
 	cp tutorial/*.js build/
 
@@ -25,7 +25,7 @@ smslike: interpreter
 smslike:
 	cat src/html/index-smslike.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
 	cp src/css/repl.css build/
-	cp src/main/*.js build/
+	cp src/main/main-smslike.js build/
 	cp mockterm/blockterm.js mockterm/async_queue.js build/
 	cp tutorial/*.js build/
 
