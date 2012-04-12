@@ -11,8 +11,7 @@ unit_tests = build/unit_tests.scm
 repl: interpreter
 repl:
 	cat ui/index.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
-	cp src/css/repl.css build/
-	cp ui/main.js build/
+	cp ui/main.js ui/repl.css build/
 	cp mockterm/mockterm.js mockterm/async_queue.js build/
 	cp tutorial/*.js build/
 
@@ -24,8 +23,7 @@ repl-min:
 smslike: interpreter
 smslike:
 	cat ui/index-smslike.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
-	cp src/css/repl.css build/
-	cp ui/main-smslike.js build/
+	cp ui/main-smslike.js ui/repl.css build/
 	cp mockterm/blockterm.js mockterm/async_queue.js build/
 	cp tutorial/*.js build/
 
