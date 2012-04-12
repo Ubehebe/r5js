@@ -142,7 +142,7 @@ function main() {
             button['type'] = 'button';
             button.className = 'evalButton';
             button['data-input'] = input;
-            button.addEventListener('click', function (e) {
+            var cb = function(e) {
                 var output;
                 try {
                     output = GayLisp.repl(e.target['data-input']);
@@ -153,7 +153,10 @@ function main() {
                 e.target.parentElement.replaceChild(
                     document.createTextNode('⇒ ' + output),
                     e.target);
-            });
+            };
+            button.addEventListener
+                ? button.addEventListener('click', cb, false)
+                : button.attachEvent('onclick', cb);
             button.appendChild(document.createTextNode('eval'));
             answer.replaceChild(button, answer.firstChild);
         }

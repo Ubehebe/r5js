@@ -22,11 +22,14 @@ VisibilityManager.prototype.pushAnchor = function(a) {
         var shouldPreventDefault = a.getAttribute('data-prevent-default') === 'true';
         if (altTarget)
             target = document.querySelector(altTarget);
-        a.addEventListener('click', function(e) {
+        var cb = function(e) {
             self.bringToFront(target);
             if (shouldPreventDefault)
                 e.preventDefault();
-        });
+        };
+        a.addEventListener
+            ? a.addEventListener('click', cb, false)
+            : a.attachEvent('click', cb);
     }
 };
 

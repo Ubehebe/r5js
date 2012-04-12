@@ -33,9 +33,13 @@ function TextResizer(element) {
     /* Clients may want to manually dispatch a resize event
      to get the UI looking good. We don't do it here because other parts
      of the boot process may want to listen in too. */
-    addEventListener('resize', function() {
+    var cb = function() {
         self.resize();
-    });
+    };
+
+    window.addEventListener
+        ? addEventListener('resize', cb, false)
+        : attachEvent('onresize', cb);
 }
 
 TextResizer.prototype.resize = function () {
