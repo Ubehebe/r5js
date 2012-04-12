@@ -14,6 +14,20 @@ website-min: website
 website-min:
 	java -jar compiler.jar < build/all.js > tmp && mv tmp build/all.js
 
+
+# todo bl: want to say "make deploy" and "make deploy mobile"
+deploy: clean website-min
+deploy:
+	# Images are already on server
+	rm -rf build/img
+	scp build/* ubehebe_gaylisp@ssh.phx.nearlyfreespeech.net:/home/public/
+
+deploy-mobile: clean mobile-min
+deploy-mobile:
+	# Images are already on server
+	rm -rf build/img
+	scp build/* ubehebe_mgaylisp@ssh.phx.nearlyfreespeech.net:/home/public/
+
 mobile: spec
 mobile:
 	mkdir -p build
