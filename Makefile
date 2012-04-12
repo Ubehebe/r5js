@@ -10,9 +10,9 @@ unit_tests = build/unit_tests.scm
 # JS library plus a simple HTML terminal emulator
 repl: interpreter
 repl:
-	cat src/html/index.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
+	cat ui/index.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
 	cp src/css/repl.css build/
-	cp src/main/main.js build/
+	cp ui/main.js build/
 	cp mockterm/mockterm.js mockterm/async_queue.js build/
 	cp tutorial/*.js build/
 
@@ -23,9 +23,9 @@ repl-min:
 # JS library plus an SMS-like interface for the REPL
 smslike: interpreter
 smslike:
-	cat src/html/index-smslike.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
+	cat ui/index-smslike.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
 	cp src/css/repl.css build/
-	cp src/main/main-smslike.js build/
+	cp ui/main-smslike.js build/
 	cp mockterm/blockterm.js mockterm/async_queue.js build/
 	cp tutorial/*.js build/
 
