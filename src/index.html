@@ -22,9 +22,7 @@
     </head>
     <body>
 
-        <header id="header">
-            <h1>Gay Lisp</h1>This is Gay Lisp, the first standards-compliant Scheme that runs in the browser.
-        </header>
+        <header id="header"><h1>Gay Lisp</h1>This is Gay Lisp, the first standards-compliant Scheme that runs in the browser.</header>
 
         <nav>
             <ul>
@@ -48,10 +46,7 @@
             <!--This section will contain a terminal, an SMS-like UI, etc. -->
         </section>
 
-        <section id="join">
-            <h1>Join</h1>
-            Let a thousand languages blossom!
-        </section>
+        <section id="join"><h1>Join</h1>Let a thousand languages blossom!</section>
 
         <section id="about">
             <h1>About</h1>
@@ -60,110 +55,38 @@
             <dl itemscope="" itemtype="http://schema.org/CreativeWork">
                 <dt>What is Lisp/Scheme?</dt>
                 <dd>
-                    <p>Lisp is one of the oldest and most influential
-                        programming languages. Kind of like Latin is to
-                        European languages.
-                    </p>
-                    <p>Scheme is a modern dialect of Lisp, renowned for its
-                        beauty but seldom used in the real world. Kind of like
-                        Italian.
-                    </p>
+                    <p>Lisp is one of the oldest and most influential programming languages. Kind of like Latin is to European languages.</p>
+                    <p>Scheme is a modern dialect of Lisp, renowned for its beauty but seldom used in the real world. Kind of like Italian.</p>
                 </dd>
                 <dt>What is <span itemprop="name">Gay Lisp</span>?</dt>
-                <dd itemprop="description">An interpreter for
-                    <a href="r5rs.html">R<sup>5</sup>RS
-                        Scheme
-                    </a>
-                    that runs in the browser, no plugins or
-                    downloads required. You can also run it on a server.
-                </dd>
+                <dd itemprop="description">An interpreter for <a href="r5rs.html">R<sup>5</sup>RS Scheme </a> that runs in the browser, no plugins or downloads required. You can also run it on a server.</dd>
                 <dt>What do I need to run Gay Lisp?</dt>
                 <dd>
-                    <p>If you are reading this, Gay Lisp is
-                        <a href="#play">probably running</a>
-                        on your device.
-                    </p>
-
-                    <p>Gay Lisp is written in an unfancy version of JavaScript
-                        that has been included in browsers for more than a
-                        decade, so it should work in most browsers as long as
-                        JavaScript is not disabled.
-                    </p>
-
-                    <p>This website, however, uses some more recent bells
-                        and whistles, so an up-to-date browser is recommended.
-                    </p>
+                    <p>If you are reading this, Gay Lisp is <a href="#play">probably running</a> on your device.</p>
+                    <p>Gay Lisp is written in an unfancy version of JavaScript that has been included in browsers for more than a decade, so it should work in most browsers as long as JavaScript is not disabled.</p>
+                    <p>This website, however, uses some more recent bells and whistles, so an up-to-date browser is recommended.</p>
                 </dd>
                 <dt>How does it work?</dt>
                 <dd>
-                    <p>There is a regex-based scanner and a recursive descent
-                        parser, both handwritten.
-                    </p>
-
-                    <p>Programs are incrementally transformed into
-                        continuation-passing style and evaluated on a
-                        trampoline.
-                    </p>
-
-                    <p>Primitive Scheme values are implemented by their
-                        primitive JavaScript counterparts as much as
-                        practical; in particular, the semantics of numerical
-                        operations are mostly those of JavaScript, while
-                        still complying with the Scheme standard.</p>
-
-                    <p>All the non-primitive syntax and procedures are
-                        written in Scheme and loaded at boot time.
-                    </p>
+                    <p>There is a regex-based scanner and a recursive descent parser, both handwritten.</p>
+                    <p>Programs are incrementally transformed into continuation-passing style and evaluated on a trampoline.</p>
+                    <p>Primitive Scheme values are implemented by their primitive JavaScript counterparts as much as practical; in particular, the semantics of numerical operations are mostly those of JavaScript, while still complying with the Scheme standard.</p>
+                    <p>All the non-primitive syntax and procedures are written in Scheme and loaded at boot time.</p>
                 </dd>
                 <dt>Really the first?</dt>
                 <dd>
-                    <p>Yes. Gay Lisp is the first standards-compliant Scheme
-                        that runs in the browser.</p>
-
-                    <p>Most JavaScript Scheme implementations provide a useful
-                        subset of Scheme without aiming for compliance with
-                        any standard. Typically, this means standard features
-                        that significantly complicate the implementation are
-                        omittted:</p>
+                    <p>Yes. Gay Lisp is the first standards-compliant Scheme that runs in the browser.</p>
+                    <p>Most JavaScript Scheme implementations provide a useful subset of Scheme without aiming for compliance with any standard. Typically, this means standard features that significantly complicate the implementation are omittted:</p>
                     <ul>
-                        <li>
-                            <a href="http://www.biwascheme.org/">BiwaScheme</a>
-                            lacks macros.
-                        </li>
-                        <li>
-                            <a href="http://fargo.jcoglan.com/">Fargo</a>
-                            has incomplete library support (no
-                            <code>dynamic-wind</code>,<code>call-with-values</code>, etc.)
-                        </li>
-                        <li>
-                            <a href="http://www.bluishcoder.co.nz/jsscheme/">jsScheme</a>
-                            does not support nested ellipses in macro
-                            transformers. This means the implementation cannot
-                            provide the <a href="r5rs.html#do-definition">canonical
-                            definition of <code>do</code></a>.
-                        </li>
+                        <li><a href="http://www.biwascheme.org/">BiwaScheme</a> lacks macros.</li>
+                        <li><a href="http://fargo.jcoglan.com/">Fargo</a> has incomplete library support (no <code>dynamic-wind</code>,<code>call-with-values</code>, etc.)</li>
+                        <li><a href="http://www.bluishcoder.co.nz/jsscheme/">jsScheme</a> does not support nested ellipses in macro transformers. This means the implementation cannot provide the <a href="r5rs.html#do-definition">canonical definition of <code>do</code></a>.</li>
                     </ul>
-                    <p>By contrast, Gay Lisp aims for complete compliance
-                        with R<sup>5</sup>RS. You can jump between the
-                        <a href="r5rs.html">specification</a> and the
-                        <a href="#play">implementation</a> in order to test
-                        features. And you can run every example in the
-                        specification straight from the specification.</p>
-
-                    <p>Please <a href="https://github.com/Ubehebe/Gay-Lisp/issues">
-                        open an issue on GitHub</a> if you know of a more
-                        complete JavaScript Scheme implementation.</p>
+                    <p>By contrast, Gay Lisp aims for complete compliance with R<sup>5</sup>RS. You can jump between the <a href="r5rs.html">specification</a> and the <a href="#play">implementation</a> in order to test features. And you can run every example in the specification straight from the specification.</p>
+                    <p>Please <a href="https://github.com/Ubehebe/Gay-Lisp/issues">open an issue on GitHub</a> if you know of a more complete JavaScript Scheme implementation.</p>
                 </dd>
-                <dt>Why R<sup>5</sup>RS instead of R<sup>6</sup>RS?
-                </dt>
-                <dd>As of early 2012, the status of
-                    <a href="http://www.r6rs.org">R<sup>6</sup>RS</a>
-                    as a community standard is in doubt. There is
-                    <a href="http://scheme-reports.org/2009/position-statement.html">talk
-                        of splitting standarization efforts into two tracks</a>,
-                    one of which could abrogate features introduced by
-                    R<sup>6</sup>RS.
-                </dd>
+                <dt>Why R<sup>5</sup>RS instead of R<sup>6</sup>RS?</dt>
+                <dd>As of early 2012, the status of <a href="http://www.r6rs.org">R<sup>6</sup>RS</a> as a community standard is in doubt. There is <a href="http://scheme-reports.org/2009/position-statement.html">talk of splitting standarization efforts into two tracks</a>, one of which could abrogate features introduced by R<sup>6</sup>RS.</dd>
                 <dt>Is this useful for anything?</dt>
                 <dd>There is some experimental DOM interoperability:
                     <dl>
@@ -174,10 +97,7 @@
                     </dl>
                 </dd>
                 <dt>Why?</dt>
-                <dd>
-                    <em>[Channeling George Mallory and George Costanza]</em>
-                    Because it's there.
-                </dd>
+                <dd><em>[Channeling George Mallory and George Costanza]</em> Because it's there.</dd>
                 <dt>I don't get the pun.</dt>
                 <dd>...</dd>
             </dl>
