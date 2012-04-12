@@ -17,7 +17,7 @@ function bootstrap(syntaxLib, procLib) {
     nullEnv = new Environment('null-environment-5');
     install(syntaxLib, nullEnv);
     nullEnv.seal();
-    console.log('installed syntax lib ok');
+    window.console && console.log('installed syntax lib ok');
 
     /* r5RSEnv is the normal "root" environment. But we also have to
      support the "null environment", which is just the R5RS required syntax
@@ -43,12 +43,12 @@ function bootstrap(syntaxLib, procLib) {
 
     r5RSEnv = new RootEnvironment(nullEnv.clone('scheme-report-environment-5'));
     installBuiltins(r5RSEnv);
-    console.log('installed primitive procedures ok');
+    window.console && console.log('installed primitive procedures ok');
     install(procLib, r5RSEnv);
-    console.log('installed library procedures ok');
+    window.console && console.log('installed library procedures ok');
     r5RSEnv.seal();
-    console.log('interpreter is ready');
-    console.log('----------------------------------------------------------------------');
+    window.console && console.log('interpreter is ready');
+    window.console && console.log('----------------------------------------------------------------------');
 }
 
 function install(lib, env) {

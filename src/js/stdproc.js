@@ -1454,7 +1454,7 @@ function registerBuiltin(name, definition, targetEnv) {
     }
 
     if (targetEnv.hasBinding(name))
-        console.log('warning, redefining ' + name);
+        window.console && console.log('warning, redefining ' + name);
 
     if (argtypes)
         requirePresenceOf(name, argtypes, targetEnv);

@@ -15,6 +15,9 @@
 
 function testScanner() {
 
+    if (!window.console)
+            alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
+
     function assertValidToken(text, type) {
         var tokens = new Scanner(text).tokenize();
         if (tokens.length !== 1) {
@@ -114,6 +117,9 @@ function testScanner() {
 }
 
 function testParser() {
+
+    if (!window.console)
+            alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
 
     // todo bl add lots of unit tests focusing on headless clauses (sequence, body)
 

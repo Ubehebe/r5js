@@ -73,6 +73,8 @@ build process to see changes. -->
     <script type="text/javascript" src="../api/api.js"></script>
     <script type="text/javascript">
         function doScan() {
+            if (!window.console)
+                alert('The console is used to display tokens, but your JavaScript environment doesn\'t have a console.');
             console.log(
                     GayLisp.tokenize(
                             document.getElementById('toEval').value));
@@ -80,11 +82,13 @@ build process to see changes. -->
 
         function doRead() {
             var ans = GayLisp.read(document.getElementById('toEval').value);
-            console.log(ans);
+            window.console && console.log(ans);
             document.getElementById('result').value = ans;
         }
 
         function doParse() {
+            if (!window.console)
+                alert('The console is used to display parse trees, but your JavaScript environment doesn\'t have a console.');
             console.log(
                     GayLisp.parse(
                             document.getElementById('toEval').value,
@@ -93,13 +97,15 @@ build process to see changes. -->
 
         function doEval() {
             var ans = GayLisp.eval(document.getElementById('toEval').value, function(sideEffect) {
-                console.log(sideEffect);
+                window.console && console.log(sideEffect);
             });
-            console.log(ans);
+            window.console && console.log(ans);
             document.getElementById('result').value = ans;
         }
 
         function doUnitTests() {
+            if (!window.console)
+                alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
             ajaxSync('../../test/framework/unit-test.scm', function (testFramework) {
                 ajaxSync('../../test/framework/unit-test-negative.scm', function (negativeTestFramework) {
                     ajaxSync('../../test/r5rs-tests.scm', function (r5rsTests) {
@@ -133,7 +139,7 @@ build process to see changes. -->
     <label>as:</label><textarea id='lhs' rows="1" cols="20"></textarea>
 </p>
 <p>
-    <button onclick="GayLisp.test(null, function(se) { console.log(se); })">parser/scanner unit tests</button>
+    <button onclick="GayLisp.test(null, function(se) { window.console && console.log(se); })">parser/scanner unit tests</button>
     <button onclick="doUnitTests()">evaluator unit tests</button>
 </p>
 </body>
