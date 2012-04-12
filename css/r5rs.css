@@ -5,14 +5,22 @@
     right: 10%;
 }
 
-/* todo bl: the iframes cause the center of the rotary nav to drift
-to the left in Firefox and Opera. When I comment them out, the center
-goes back to where it should be. I haven't been able to track down a CSS
-difference, but that's what it probably is. (Also, the Firefox/Opera thing
-corrects on resize, so as a last-ditch effort, I could trigger a resize event
-myself.) */
 iframe {
-    display: inline;
+    display: block;
+    background-color: transparent;
+    overflow: hidden;
+    border: 0;
+    padding-bottom: 5px;
+}
+
+iframe.fb {
+    height: 20px;
+    width: 90px;
+}
+
+iframe.tw {
+    height: 20px;
+    width: 130px;
 }
 
 #nav li {
@@ -105,6 +113,14 @@ iframe {
     top: 0;
     left: 0;
     visibility: hidden;
+}
+
+#social {
+    position: fixed;
+    top: 2%;
+    left: 2%;
+    opacity: 0.75;
+    z-index: 100;
 }
 
 #spec, #about {

@@ -134,3 +134,21 @@ jQuery Mobile soon. */
     padding: 0.8em;
     background-color: #c7ffd9;
 }
+
+iframe {
+    display: block;
+    background-color: transparent;
+    overflow: hidden;
+    border: 0;
+    padding-top: 5px;
+}
+
+iframe.fb {
+    height: 20px;
+    width: 90px;
+}
+
+iframe.tw {
+    height: 20px;
+    width: 130px;
+}

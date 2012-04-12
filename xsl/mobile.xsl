@@ -32,6 +32,14 @@
     <!--Strip comments. -->
     <xsl:template match="comment()" />
 
+    <!--Strip Facebook and Twitter buttons...-->
+        <xsl:template match="//div[@id='social']" />
+
+    <!--...but instead append them below the navs.-->
+    <xsl:variable name="social">
+        <xsl:apply-templates select="//div[@id='social']/*"/>
+    </xsl:variable>
+
     <!--Strip nav bar...-->
     <xsl:template match="nav" />
 
@@ -41,6 +49,7 @@
             <ul data-role="listview">
                 <xsl:apply-templates select='//nav/ul/*'/>
             </ul>
+            <xsl:copy-of select="$social"/>
         </div>
     </xsl:variable>
 
