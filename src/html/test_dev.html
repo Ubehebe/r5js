@@ -2,7 +2,13 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <!--This is an "exploded" version of test_build.html intended for development use.
 It loads all the dependencies explicitly so you don't have to go through the
-build process to see changes. -->
+build process to see changes. The downside is that you can't serve it off
+the filesystem (no file://). The build process embeds the Scheme libraries
+as JavaScript string literals. Without this, we ajax them in, but browsers do
+not allow ajax on the filesystem.
+
+   todo bl: perhaps we could embed them via a non-standard <script>?
+   -->
 <html>
 <head>
     <title>Gay Lisp</title>
