@@ -216,9 +216,9 @@ Scanner.prototype.token = (function() {
     var character = "(#\\\\space|#\\\\newline|#\\\\.)";
     var string = "(\"(?:[^\"\\\\]|\\\\\\\"|\\\\\\\\)*\")";
 
-    /* Tabs are not part of the R5RS whitespace syntax, but I've included them
-     here for sanity's sake. */
-    var intertokenSpace = "((?:[ \n\t]|;.*$|;.*\n)+)";
+    /* Tabs and carriage returns are not part of the R5RS whitespace syntax,
+    but I've included them here for sanity's sake. */
+    var intertokenSpace = "((?:[ \n\r\t]|;.*$|;.*[\n\r])+)";
     var specialTokens = "([\\(\\)'`\\.]|#\\(|,@|,)";
 
     var radix2 = "#b";
