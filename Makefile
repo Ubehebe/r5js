@@ -20,12 +20,14 @@ deploy: clean website-min
 deploy:
 	# Images are already on server
 	rm -rf build/img
+	cp robots.txt build/
 	scp build/* ubehebe_gaylisp@ssh.phx.nearlyfreespeech.net:/home/public/
 
 deploy-mobile: clean mobile-min
 deploy-mobile:
 	# Images are already on server
 	rm -rf build/img
+	cp robots.txt build/
 	scp build/* ubehebe_mgaylisp@ssh.phx.nearlyfreespeech.net:/home/public/
 
 mobile: spec
