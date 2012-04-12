@@ -19,12 +19,16 @@
     </style>
     <script async src="rotary_nav.js"></script>
     <script>
-        addEventListener('load', function() {
+        window.addEventListener
+                ? addEventListener('load', main, false)
+                : attachEvent('load', main);
+
+        function main() {
             new RotaryNav(document.getElementById('center'), 50, 0, -360)
                     .setTransitionSpeed(1)
                     .registerNodes(document.getElementById('nav').children)
                     .setSelectClass('selected');
-        });
+        }
     </script>
 </head>
 <body>

@@ -31,11 +31,14 @@ function RotaryNav(centerElement, radius, fromDegree, toDegree) {
     /* Clients may want to manually dispatch a resize event
      to get the UI looking good. We don't do it here because other parts
      of the boot process may want to listen in too. */
-    addEventListener('resize', function() {
+    var cb = function() {
         recenter(self);
         for (var i=0; i<self.elements.length; ++i)
             self.elements[i].setPosition(self.centerX, self.centerY);
-    });
+    };
+    window.addEventListener
+        ? addEventListener('resize', cb, false)
+        : attachEvent('resize', cb);
 }
 
 RotaryNav.prototype.setSelectClass = function(cssClass) {
@@ -54,9 +57,13 @@ RotaryNav.prototype.push = function(element) {
 
     var self = this;
     var index = this.elements.length;
-    element.addEventListener('click', function () {
+    var cb = function() {
         self.rotateToFront(index);
-    });
+    };
+
+    element.addEventListener
+        ? element.addEventListener('click', cb, false)
+        : element.attachEvent('click', cb);
 
     this.elements.push(new TransformHelper(element)
         .setPosition(this.centerX, this.centerY)
