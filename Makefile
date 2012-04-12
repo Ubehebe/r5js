@@ -1,8 +1,3 @@
-# The build process inserts src/js/* inside the body of the anonymous function
-# in src/api/api.js in order to hide as much of the implementation as possible.
-# It also embeds src/scm/syntax.scm and src/scm/procedures.scm as string
-# literals into the body of the same function.
-
 version = `cat VERSION`
 output = build/gay-lisp-$(version).js
 unit_tests = build/unit_tests.scm
@@ -32,6 +27,11 @@ smslike-min:
 	sed -i -e "s/gay-lisp-$(version)\.js/gay-lisp-$(version)-min.js/g" build/index.html
 
 # Just make the JS library (no UI)
+# Inserts src/js/* inside the body of the anonymous function in src/api/api.js
+# in order to hide as much of the implementation as possible.
+# It also embeds src/scm/syntax.scm and src/scm/procedures.scm as string
+# literals into the body of the same function.
+
 # Target the first line after the first brace in src/api/api.js
 interpreter: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e 's/^\([0-9]*\).*/\1/'`
 interpreter: afterFirstBrace = `grep -m1 -A1 -n { src/api/api.js | tail -1 | sed -e 's/^\([0-9]*\).*/\1/'`
