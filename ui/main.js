@@ -13,17 +13,24 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-addEventListener('load', function() {
-    new MockTerminal(document.getElementById('repl'), 80, 5, 500)
-        .println(GayLisp.getMetadata().banner)
-        .println(';; Type (tutorial) and press enter for an interactive tutorial.')
-        .setPrompt('>> ')
-        .pushInterpreter(function(string, terminal) {
-            return GayLisp.repl(string, function(sideEffect) {
-                terminal.println(sideEffect);
-            });
-        })
-        .pushInterpreter(tutorial)
-        .setInputCompleteHandler(GayLisp.willParse)
-        .start();
-});
+(function() {
+
+    window.addEventListener
+        ? addEventListener('load', main, false)
+        : attachEvent('onload', main);
+
+    function main() {
+        new MockTerminal(document.getElementById('repl'), 80, 5, 500)
+            .println(GayLisp.getMetadata().banner)
+            .println(';; Type (tutorial) and press enter for an interactive tutorial.')
+            .setPrompt('>> ')
+            .pushInterpreter(function (string, terminal) {
+                return GayLisp.repl(string, function (sideEffect) {
+                    terminal.println(sideEffect);
+                });
+            })
+            .pushInterpreter(tutorial)
+            .setInputCompleteHandler(GayLisp.willParse)
+            .start();
+    }
+}());

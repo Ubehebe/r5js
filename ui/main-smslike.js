@@ -13,26 +13,33 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-addEventListener('load', function() {
+(function() {
 
-    // Set up the "terminal"
-    var echoTemplate = document.createElement('p');
-    echoTemplate.className = 'echo';
+    window.addEventListener
+        ? addEventListener('load', main, false)
+        : attachEvent('onload', main);
 
-    var outputTemplate = document.createElement('p');
-    outputTemplate.className = 'output';
+    function main() {
 
-    new BlockTerm(
-        document.getElementById('blockterm-input'),
-        document.getElementById('blockterm-output'),
-        3000)
-        .setEchoTemplate(echoTemplate)
-        .setOutputTemplate(outputTemplate)
-        .println('Type (tutorial) and press enter for an interactive tutorial.')
-        .pushInterpreter(
-        function (string, terminal) {
-            return GayLisp.repl(string, function (sideEffect) {
-                terminal.println(sideEffect);
-            });
-        }).pushInterpreter(tutorial);
-});
+        // Set up the "terminal"
+        var echoTemplate = document.createElement('p');
+        echoTemplate.className = 'echo';
+
+        var outputTemplate = document.createElement('p');
+        outputTemplate.className = 'output';
+
+        new BlockTerm(
+            document.getElementById('blockterm-input'),
+            document.getElementById('blockterm-output'),
+            3000)
+            .setEchoTemplate(echoTemplate)
+            .setOutputTemplate(outputTemplate)
+            .println('Type (tutorial) and press enter for an interactive tutorial.')
+            .pushInterpreter(
+            function (string, terminal) {
+                return GayLisp.repl(string, function (sideEffect) {
+                    terminal.println(sideEffect);
+                });
+            }).pushInterpreter(tutorial);
+    }
+}());
