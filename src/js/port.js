@@ -55,7 +55,7 @@ function portImplCheck(portImplObj) {
 
     for (var i=0; i< required.length; ++i) {
         if (typeof portImplObj[required[i]] !== 'function') {
-            console.log(portImplObj);
+            window.console && console.log(portImplObj);
             throw new IOError(portImplObj
                 + "doesn't have required function "
                 + required[i]);
