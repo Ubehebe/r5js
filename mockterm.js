@@ -54,10 +54,21 @@ function MockTerminal(textArea, numColumns, charLatency, lineLatency) {
     this.recordCharWidth();
     this.resize();
 
-    textArea.addEventListener('keydown', function (e) { self.onKeyDown(e); });
-    addEventListener('resize', function() {
-        self.resize();
-    });
+    if (textArea.addEventListener) {
+        textArea.addEventListener('keydown', function(e) {
+            self.onKeyDown(e);
+        }, false);
+        addEventListener('resize', function () {
+            self.resize();
+        }, false);
+    } else {
+        textArea.attachEvent('onkeydown', function(e) {
+            self.onKeyDown(e);
+        });
+        attachEvent('onresize', function() {
+            self.resize();
+        });
+    }
 }
 
 MockTerminal.prototype.onKeyDown = function(e) {

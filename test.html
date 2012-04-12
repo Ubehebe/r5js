@@ -19,7 +19,11 @@
     <script src="blockterm.js"></script>
     <script>
 
-        addEventListener('load', function() {
+        window.addEventListener
+                ? addEventListener('load', main, false)
+                : attachEvent('onload', main);
+
+        function main() {
 
             setupBlockTerm();
             setupMockTerm();
@@ -50,7 +54,7 @@
             function echo(input) {
                 return 'You typed: ' + input;
             }
-        });
+        }
     </script>
 </head>
 <body>

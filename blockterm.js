@@ -31,11 +31,14 @@ function BlockTerm(textInput, outputContainer, latency) {
     this.inputKey = '\r'.charCodeAt(0);
 
     var self = this;
-
-    textInput.addEventListener('keydown', function(e) {
+    var cb = function(e) {
         if (e.keyCode === self.inputKey)
             self.onInputComplete();
-    });
+    };
+
+    textInput.addEventListener
+        ? textInput.addEventListener('keydown', cb, false)
+        : textInput.attachEvent('onkeydown', cb);
 }
 
 BlockTerm.prototype.setEchoTemplate = function(element) {
