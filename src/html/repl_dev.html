@@ -73,7 +73,11 @@
     </script>
     <script src="../api/api.js"></script>
     <script>
-        addEventListener('load', function () {
+        window.addEventListener
+                ? addEventListener('load', main, false)
+                : attachEvent('onload', main);
+
+        function main() {
             new MockTerminal(document.getElementById('repl'), 80, 5)
                     .println(';; Type (tutorial) and press enter for an interactive tutorial.')
                     .setPrompt('>> ')
@@ -85,7 +89,7 @@
                     .pushInterpreter(tutorial)
                     .setInputCompleteHandler(GayLisp.willParse)
                     .start();
-        })
+        }
     </script>
 </head>
 <body>
