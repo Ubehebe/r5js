@@ -61,13 +61,6 @@
         </textarea>
     </xsl:template>
 
-    <!--Transform sections into divs for now.-->
-    <xsl:template match="section">
-        <div id="{@id}">
-            <xsl:apply-templates/>
-        </div>
-    </xsl:template>
-
     <!--Make hero text.-->
     <xsl:template match="//header/h1">
         <h1 class="hero">
