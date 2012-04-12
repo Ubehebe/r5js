@@ -8,6 +8,17 @@
         <title>Gay Lisp</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+        <!--According to Google in 2011/12, the only meta tag they really look at. -->
+        <meta name="description" content="The first standards-compliant Scheme that runs in the browser" />
+
+        <!--Open Graph metadata (Facebook). Note that "property" is not an
+        attribute of <meta>, so these cause the page to be invalid HTML5.
+        Thanks, Facebook. -->
+        <meta property="og:description" content="The first standards-compliant Scheme that runs in the browser" />
+        <meta property="og:title" content="Gay Lisp"/>
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="http://gay-lisp.org"/>
     </head>
     <body>
 
@@ -44,7 +55,9 @@
 
         <section id="about">
             <h1>About</h1>
-            <dl>
+            <!--As of early 2012, decorating the DOM with this itemscope stuff
+            is preferred by search engines to microdata. -->
+            <dl itemscope="" itemtype="http://schema.org/CreativeWork">
                 <dt>What is Lisp/Scheme?</dt>
                 <dd>
                     <p>Lisp is one of the oldest and most influential
@@ -56,8 +69,8 @@
                         Italian.
                     </p>
                 </dd>
-                <dt>What is Gay Lisp?</dt>
-                <dd>An interpreter for
+                <dt>What is <span itemprop="name">Gay Lisp</span>?</dt>
+                <dd itemprop="description">An interpreter for
                     <a href="r5rs.html">R<sup>5</sup>RS
                         Scheme
                     </a>
