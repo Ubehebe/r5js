@@ -76,7 +76,7 @@ function main() {
             .bringToFront(document.querySelector(startOn));
 
         // Set up the rotary-phone-like nav thing in the corner
-        new RotaryNav(document.getElementById('logo'), 40, 90, -90)
+        new RotaryNav(document.getElementById('logo'), 40, 60, -60)
             .setTransitionSpeed(0.5)
             .registerNodes(document.getElementById('navlist').children)
             .setSelectClass('selected')
