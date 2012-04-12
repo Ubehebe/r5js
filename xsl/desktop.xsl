@@ -4,14 +4,20 @@
 
     <xsl:strip-space elements="*"/>
 
-    <!--XSLT processors generally don't know about HTML5, so
-    we have to have some kludges. For xsltproc, setting method to "xml"
-    prevents it from annoyingly inserting an http-equiv header. Setting
-     doctype-system to "about: legacy-compat" gets the generated doctype
+    <!--XSLT processors generally don't know about HTML5, and HTML5
+    generally isn't valid XML, so there are going to be some kludges.
+
+    xsltproc annoyingly inserts an http-equiv <meta> tag when method is "html".
+    To disable this, we could change method to "xml", but this has an even
+    worse consequence: empty tags like <script ...></script> will get into the
+    generated HTML as <script ... />, which some browsers unfathmoably
+    can't handle. So we choose method="html".
+
+     doctype-system="about: legacy-compat" gets the generated doctype
      to a legacy string considered valid by HTML5. (Generating the short-form
      <!DOCTYPE html> is apparently only possible in XSLT via a kludge.) -->
     <xsl:output
-            method="xml"
+            method="html"
             encoding="UTF-8"
             omit-xml-declaration="yes"
             doctype-system="about:legacy-compat"/>
@@ -35,7 +41,6 @@
             <xsl:apply-templates/>
             <link rel="stylesheet" href="r5rs.css"/>
             <script src="all.js">
-                <xsl:comment/>
             </script>
         </head>
     </xsl:template>
@@ -53,7 +58,6 @@
     <!--Setup the terminal UI.-->
     <xsl:template match='section[@id="play"]'>
         <textarea class='terminal' id='play' rows="20">
-            <xsl:comment/>
         </textarea>
     </xsl:template>
 
