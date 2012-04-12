@@ -17,7 +17,7 @@ function bootstrap(syntaxLib, procLib) {
     nullEnv = new Environment('null-environment-5');
     install(syntaxLib, nullEnv);
     nullEnv.seal();
-    console.log('installed syntax lib ok');
+    window.console && console.log('installed syntax lib ok');
 
     /* r5RSEnv is the normal "root" environment. But we also have to
      support the "null environment", which is just the R5RS required syntax
