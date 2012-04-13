@@ -20,6 +20,7 @@
             method="html"
             encoding="UTF-8"
             omit-xml-declaration="yes"
+            indent="no"
             doctype-system="about:legacy-compat"/>
 
     <!--Default transform is identity.-->
