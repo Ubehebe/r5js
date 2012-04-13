@@ -77,6 +77,7 @@
 
     <!--Setup the text-message-like UI.-->
     <xsl:template match='section[@id="play"]/comment()'>
+        <noscript>Gay Lisp is written in JavaScript, but it looks like you have disabled JavaScript.</noscript>
         <div id="blockterm-output">
         </div>
         <input type="text" class='terminal' id='blockterm-input'/>
