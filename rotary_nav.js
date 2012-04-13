@@ -61,6 +61,12 @@ RotaryNav.prototype.push = function(element) {
         self.rotateToFront(index);
     };
 
+    /* todo bl: we should listen for window.onhashchange instead of
+     element.onclick, so that the rotary nav will function properly
+     when you click the Back button or type in a hash manually. This
+     will require a little indirection; arbitrary elements can be added to the
+     RotaryNav, not just anchors that point to fragments.*/
+
     element.addEventListener
         ? element.addEventListener('click', cb, false)
         : element.attachEvent('click', cb);
