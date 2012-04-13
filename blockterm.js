@@ -64,7 +64,11 @@ BlockTerm.prototype.onInputComplete = function() {
      implementation, spaces may be visible (and highly annoying). Review the
      return values of all my interpreters when I get a chance. */
 
-    if (output && output.trim().length) {
+    /* IE<9 doesn't implement String.trim, so we'll let it print spurious
+     spaces for now, until we fix the todo above. */
+    var shouldPrintOutput = output && (!output.trim || output.trim().length);
+
+    if (shouldPrintOutput) {
         // If we haven't set an output template, it will just appear as a text node
         this.print(output, this.outputTemplate);
     }
