@@ -1,11 +1,5 @@
 (function() {
 
-    document.addEventListener
-        ? document.addEventListener('DOMContentLoaded', main, false)
-        : window.attachEvent('onload', main);
-
-function main() {
-
     /* Redirect to mobile site.
      As of early 2012, the fanciest mobile device is the "new iPad" with
      a resolution of 2048x1536. However, Safari on that device reports
@@ -20,6 +14,12 @@ function main() {
     if ((window.screen && window.screen.width < 800)
         || window.attachEvent)
         location.replace('//m.gay-lisp.org');
+
+    document.addEventListener
+        ? document.addEventListener('DOMContentLoaded', main, false)
+        : window.attachEvent('onload', main);
+
+function main() {
 
     asyncLoadSpec();
     setupTerminal();
