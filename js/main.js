@@ -13,8 +13,12 @@ function main() {
      screen real estate is not the only reason to switch to the mobile site;
      the MockTerminal implementation puts every character on a setTimeout
      to achieve a "old, high-latency terminal" effect, and this really slows
-     down mobile devices, even iPads. */
-    if (window.screen && window.screen.width < 800)
+     down mobile devices, even iPads.
+
+     We also redirect IE<9 to the mobile site, since I haven't yet made the
+     terminal UI compatible with them. */
+    if ((window.screen && window.screen.width < 800)
+        || window.attachEvent)
         location.replace('//m.gay-lisp.org');
 
     asyncLoadSpec();
