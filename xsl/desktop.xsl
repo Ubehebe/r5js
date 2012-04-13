@@ -32,8 +32,13 @@
     <!--Strip comments. -->
     <xsl:template match="comment()"/>
 
-    <!--Strip header.-->
+    <!--Strip header...-->
     <xsl:template match="header"/>
+
+    <!--...but save it for later insertion in the about section. -->
+    <xsl:variable name="header">
+        <xsl:apply-templates select="//header/*" />
+    </xsl:variable>
 
     <!--Inject CSS and JavaScript.-->
     <xsl:template match="head">
@@ -45,7 +50,7 @@
         </head>
     </xsl:template>
 
-    <!--Style nav bar...-->
+    <!--Style nav bar-->
     <xsl:template match="nav">
         <div id="nav">
             <span id="logo">gλ</span>
@@ -63,10 +68,14 @@
     </xsl:template>
 
     <!--Make hero text.-->
-    <xsl:template match="//header/h1">
-        <h1 class="hero">
+    <xsl:template match="//header/h1|//section/h1">
+        <h1 class="hero title shiny">
             <xsl:apply-templates/>
         </h1>
+    </xsl:template>
+
+    <xsl:template match="//section[@id='about']/h1">
+        <xsl:copy-of select="$header"/>
     </xsl:template>
 
     <!--Fix links. -->

@@ -89,7 +89,7 @@ function main() {
 
     function setupBackLinks() {
 
-        var h1s = document.querySelectorAll('section > h1');
+        var h1s = document.querySelectorAll('#spec section > h1');
 
         // Decorate the major headings with links back to the top
         for (var i = 0; i < h1s.length; ++i) {

@@ -86,7 +86,7 @@ iframe.tw {
     box-shadow:rgba(255,255,0,0.95) 0 0 50px;
 }
 
-#hero, #about-hero {
+.shiny {
     white-space: nowrap;
     line-height: 0.9;
     text-align: center;
@@ -112,7 +112,6 @@ iframe.tw {
     position: fixed;
     top: 0;
     left: 0;
-    visibility: hidden;
 }
 
 #social {
@@ -121,14 +120,6 @@ iframe.tw {
     left: 2%;
     opacity: 0.75;
     z-index: 100;
-}
-
-#spec, #about {
-    position: absolute;
-    width: 100%;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    padding: 0 1% 0 1%;
 }
 
 body {
@@ -180,8 +171,14 @@ h1 {
     -o-border-radius: 3px;
 }
 
-section {
+body > section {
+    position: absolute;
+    top: 0;
     visibility: hidden;
+    width: 100%;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0 1% 0 1%;
 }
 
 section > h1, footer > h1, nav > h1 {
