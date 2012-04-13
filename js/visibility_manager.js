@@ -1,6 +1,23 @@
 // There's probably something in jQuery to do this...oh well.
 function VisibilityManager() {
     this.elements = [];
+    this.managedHashes = {};
+
+    var self = this;
+
+    var cb = function() {
+        /* todo bl: location.hash is a classic XSS vector.
+         I believe my use of it is safe, since the VisibilityManager ignores
+         hashes it hasn't been previously informed of, but my experience
+         with XSS is limited. */
+        var rawHash = location.hash;
+        if (self.managedHashes[rawHash])
+            self.bringToFront(document.querySelector(rawHash));
+    };
+
+    window.addEventListener
+        ? addEventListener('hashchange', cb, false)
+        : attachEvent('onhashchange', cb);
 }
 
 VisibilityManager.prototype.registerAnchors = function(array) {
@@ -12,24 +29,8 @@ VisibilityManager.prototype.registerAnchors = function(array) {
 VisibilityManager.prototype.pushAnchor = function(a) {
     var target = a.hash.length && document.querySelector(a.hash);
     if (target) {
-        /* If it has a data-target, don't add the actual target to
-         the visibility manager. The use case is a link to an element that's
-         inside an element tracked by the visibility manager. */
-        var altTarget = a.getAttribute('data-target');
-        if (!altTarget)
-            this.pushIfAbsent(target);
-        var self = this;
-        var shouldPreventDefault = a.getAttribute('data-prevent-default') === 'true';
-        if (altTarget)
-            target = document.querySelector(altTarget);
-        var cb = function(e) {
-            self.bringToFront(target);
-            if (shouldPreventDefault)
-                e.preventDefault();
-        };
-        a.addEventListener
-            ? a.addEventListener('click', cb, false)
-            : a.attachEvent('click', cb);
+        this.managedHashes[a.hash] = true;
+        this.pushIfAbsent(target);
     }
 };
 

@@ -80,11 +80,15 @@ function main() {
             .bringToFront(document.querySelector(startOn));
 
         // Set up the rotary-phone-like nav thing in the corner
-        new RotaryNav(document.getElementById('logo'), 40, 60, -60)
+        var rotaryNav = new RotaryNav(document.getElementById('logo'), 40, 60, -60)
             .setTransitionSpeed(0.5)
-            .registerNodes(document.getElementById('navlist').children)
-            .setSelectClass('selected')
-            .rotateElementToFront(document.querySelector('a[href="' + startOn + '"]').parentElement);
+            .setSelectClass('selected');
+
+        var lis = document.getElementById('navlist').children;
+        for (var i = 0; i < lis.length; ++i)
+            rotaryNav.push(lis[i], lis[i].getElementsByTagName('a')[0].hash);
+
+        rotaryNav.rotateToFront(startOn);
     }
 
     function setupBackLinks() {
