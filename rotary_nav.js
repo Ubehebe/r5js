@@ -19,6 +19,7 @@ function RotaryNav(centerElement, radius, fromDegree, toDegree) {
     this.fromDegree = fromDegree;
     this.toDegree = toDegree;
     this.elements = [];
+    this.hashes = {};
 
     function recenter(self) {
         var box = self.centerElement.getBoundingClientRect();
@@ -31,14 +32,28 @@ function RotaryNav(centerElement, radius, fromDegree, toDegree) {
     /* Clients may want to manually dispatch a resize event
      to get the UI looking good. We don't do it here because other parts
      of the boot process may want to listen in too. */
-    var cb = function() {
+    var onResize = function() {
         recenter(self);
         for (var i=0; i<self.elements.length; ++i)
             self.elements[i].setPosition(self.centerX, self.centerY);
     };
-    window.addEventListener
-        ? addEventListener('resize', cb, false)
-        : attachEvent('resize', cb);
+
+    var onHashChange = function() {
+        /* todo bl: location.hash is a vector for client-side XSS.
+         I believe my usage is safe, because rotateToFront will do nothing
+         when given a hash that it hasn't previously been informed of
+         (and in any case, RotaryNav doesn't add to the DOM). But I should
+         double-check, as I have little experience with XSS. */
+        self.rotateToFront(location.hash);
+    };
+
+    if (window.addEventListener) {
+        addEventListener('resize', onResize, false);
+        addEventListener('hashchange', onHashChange, false);
+    } else {
+        attachEvent('onresize', onResize);
+        attachEvent('onhashchange', onHashChange);
+    }
 }
 
 RotaryNav.prototype.setSelectClass = function(cssClass) {
@@ -51,25 +66,18 @@ RotaryNav.prototype.setTransitionSpeed = function(seconds) {
     return this;
 };
 
-RotaryNav.prototype.push = function(element) {
+/* RotaryNav listens for the hashchange event, not click events, in order
+ to integrate with the browser history and Back button. For example, suppose
+ the RotaryNav has a list item that contains a link to an FAQ section, but
+ other sections on the page also have links to the FAQ section. When any
+ of those links is clicked, the RotaryNav should rotate to the FAQ list item
+ around the same time the page is scrolling to the FAQ section. */
+RotaryNav.prototype.push = function(element, hashToListenFor) {
     element.style.position = 'fixed';
     element.style.visibility = 'visible';
-
-    var self = this;
     var index = this.elements.length;
-    var cb = function() {
-        self.rotateToFront(index);
-    };
-
-    /* todo bl: we should listen for window.onhashchange instead of
-     element.onclick, so that the rotary nav will function properly
-     when you click the Back button or type in a hash manually. This
-     will require a little indirection; arbitrary elements can be added to the
-     RotaryNav, not just anchors that point to fragments.*/
-
-    element.addEventListener
-        ? element.addEventListener('click', cb, false)
-        : element.attachEvent('click', cb);
+    if (!(hashToListenFor in this.hashes))
+        this.hashes[hashToListenFor] = index;
 
     this.elements.push(new TransformHelper(element)
         .setPosition(this.centerX, this.centerY)
@@ -79,24 +87,15 @@ RotaryNav.prototype.push = function(element) {
     return this.recalculateAngles();
 };
 
-/* The rotary nav usually rotates when the user clicks on an item,
- but we expose this method in case another client wants to rotate the
- nav to some desired element. */
-RotaryNav.prototype.rotateElementToFront = function(element) {
-    for (var i=0; i<this.elements.length; ++i) {
-        if (this.elements[i].getElement() === element) {
-            return this.rotateToFront(i);
-        }
+RotaryNav.prototype.rotateToFront = function(hash) {
+    var index = this.hashes[hash];
+    if (index != null) {
+        var which = this.elements[index];
+        var offset = which.rot;
+        for (var i = 0; i < this.elements.length; ++i)
+            this.elements[i].incRot(-offset).removeClass(this.selectedItemClass);
+        this.elements[index].addClass(this.selectedItemClass);
     }
-};
-
-RotaryNav.prototype.rotateToFront = function(index) {
-
-    var which = this.elements[index];
-    var offset = which.rot;
-    for (var i=0; i<this.elements.length; ++i)
-        this.elements[i].incRot(-offset).removeClass(this.selectedItemClass);
-    this.elements[index].addClass(this.selectedItemClass);
     return this;
 };
 
@@ -104,14 +103,6 @@ RotaryNav.prototype.recalculateAngles = function() {
     var offset = (this.toDegree-this.fromDegree)/this.elements.length;
     for (var i=0; i<this.elements.length; ++i)
         this.elements[i].setRot(this.fromDegree + i*offset);
-    return this;
-};
-
-RotaryNav.prototype.registerNodes = function(nodeArray) {
-
-    for (var i=0; i<nodeArray.length; ++i)
-        this.push(nodeArray[i]);
-
     return this;
 };
 

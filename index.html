@@ -21,13 +21,16 @@
     <script>
         window.addEventListener
                 ? addEventListener('load', main, false)
-                : attachEvent('load', main);
+                : attachEvent('onload', main);
 
         function main() {
-            new RotaryNav(document.getElementById('center'), 50, 0, -360)
+            var nav = new RotaryNav(document.getElementById('center'), 50, 0, -360)
                     .setTransitionSpeed(1)
-                    .registerNodes(document.getElementById('nav').children)
                     .setSelectClass('selected');
+
+            var lis = document.getElementById('nav').children;
+            for (var i = 0; i < lis.length; ++i)
+                nav.push(lis[i], lis[i].getElementsByTagName('a')[0].hash);
         }
     </script>
 </head>
@@ -36,15 +39,15 @@
 <div id="center">The Origin</div>
 
 <ol id="nav">
-    <li>One</li>
-    <li>Two</li>
-    <li>Threeeeeee</li>
-    <li>Four</li>
-    <li>Five</li>
-    <li>Six</li>
-    <li>Seven</li>
-    <li>Eight</li>
-    <li>Nine</li>
+    <li><a href="#one">One</a></li>
+    <li><a href="#two">Two</a></li>
+    <li><a href="#three">Threeeeeee</a></li>
+    <li><a href="#four">Four</a></li>
+    <li><a href="#five">Five</a></li>
+    <li><a href="#six">Six</a></li>
+    <li><a href="#seven">Seven</a></li>
+    <li><a href="#eight">Eight</a></li>
+    <li><a href="#nine">Nine</a></li>
 </ol>
 
 </body>
