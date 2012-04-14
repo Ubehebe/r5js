@@ -53,9 +53,12 @@ function portImplCheck(portImplObj) {
         'writeChar'
     ];
 
+    var useConsole = Function('return "console" in this')();
+
     for (var i=0; i< required.length; ++i) {
         if (typeof portImplObj[required[i]] !== 'function') {
-            window.console && console.log(portImplObj);
+            if (useConsole)
+                console.log(portImplObj);
             throw new IOError(portImplObj
                 + "doesn't have required function "
                 + required[i]);

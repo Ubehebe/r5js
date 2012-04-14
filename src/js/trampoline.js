@@ -103,7 +103,7 @@ function trampoline(continuable, inputPort, outputPort, debug) {
 
         while (cur) {
             // a good first step for debugging:
-            window.console && console.log('boing: ' + cur);
+            console.log('boing: ' + cur);
             resultStruct = cur.subtype.evalAndAdvance(cur.continuation, resultStruct, savedEnv);
             ans = resultStruct.ans;
             cur = resultStruct.nextContinuable;

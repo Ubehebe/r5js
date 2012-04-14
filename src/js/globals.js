@@ -15,5 +15,5 @@
 
 var nullEnv; // this is (null-environment 5)
 var r5RSEnv; // this is (scheme-report-environment 5)
-var debug = false; // setting this to true shows every bounce of the trampoline
+var debug = Function('return "console" in this;')() && false; // setting this to true shows every bounce of the trampoline
 var uniqueNodeCounter = 0; // mostly for getting fresh temp variable names
