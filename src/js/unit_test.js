@@ -50,7 +50,8 @@ function testScanner() {
         'identifier': ['|', '[', ']', '{', '}'],
         'character': [/* todo bl */],
         'string': ['"', "\\"],
-        'boolean': ['##f', '#', '#']
+        'boolean': ['##f', '#', '#'],
+        'number': ['1+2']
     };
 
     validTokens['number'] = (function() {
