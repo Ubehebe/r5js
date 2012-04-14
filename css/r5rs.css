@@ -98,29 +98,17 @@ iframe.tw {
     text-shadow: 0 0.1em 0.1em gray;
 }
 
-/* We want to give a comfortable buffer between the bottom of the
-    terminal and the bottom of the page, so the user isn't always reading
-    right at the bottom. Ordinarily we'd just set padding-bottom on the
-    textarea and be done, but Firefox has a decade-long bug that
-    incorrectly applies the padding on the *outside* of the textarea!
-    (https://bugzilla.mozilla.org/show_bug.cgi?id=157846) The next best
-    thing is to wrap the textarea in another block and specify the height
-    of the textarea (or, I suppose, margin-bottom). But this looks ugly when
-    scrollbars appear on the textarea but not the buffer below. Ugh. */
 .terminal {
     font-family: 'Ubuntu Mono', monospace;
     background-color: black;
     color: #adff2f;
-    width: 100%;
-    height: 80%;
-    border: none;
     outline: none;
 }
 
 #play {
     width: 100%;
-    height: 100%;
-    background-color: black;
+    height: 80%;
+    padding-bottom: 20%;
     position: fixed;
     top: 0;
     left: 0;

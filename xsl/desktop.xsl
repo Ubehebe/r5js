@@ -64,10 +64,8 @@
     <!--Setup the terminal UI.-->
     <xsl:template match='section[@id="play"]'>
         <noscript>Gay Lisp is written in JavaScript, but it looks like you have disabled JavaScript.</noscript>
-        <div id='play'>
-            <textarea class='terminal' rows="20" spellcheck="false">
-            </textarea>
-        </div>
+        <textarea class='terminal' id='play' rows="20" spellcheck="false" autofocus="autofocus">
+        </textarea>
     </xsl:template>
 
     <!--Make hero text.-->

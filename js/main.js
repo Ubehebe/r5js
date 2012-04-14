@@ -26,7 +26,20 @@ function main() {
     setupColors();
 
     function setupTerminal() {
-        new MockTerminal(document.getElementsByClassName('terminal')[0], 80, 5, 500)
+        var textArea = document.getElementById('play');
+        /* The CSS assigns padding-bottom: 20% to the textarea, so there is
+         always a nice buffer between the command line and the bottom of the
+         screen. Unfortunately, as of early 2012 Firefox applies padding to
+         textareas incorrectly, on the outside instead of the inside. The result
+         is the terminal scrolls below the bottom of the screen and is unusable.
+         This bug (https://bugzilla.mozilla.org/show_bug.cgi?id=157846)
+         has been open since 2002. We sniff the userAgent string and get
+         rid of the padding if we're on Firefox. */
+        if (navigator && navigator.userAgent.search(/Firefox/) !== -1) {
+            textArea.style.paddingBottom = '0';
+            textArea.style.height = '100%';
+        }
+        new MockTerminal(textArea, 80, 5, 500)
             .println(GayLisp.getMetadata().banner)
             .println(';; Type (tutorial) and press enter for an interactive tutorial.')
             .setPrompt('>> ')
