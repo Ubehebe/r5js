@@ -158,7 +158,8 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
                 return ans;
             });
         // Now strip away the quote mark.
-        ans = ans.firstChild;
+        // the newIdOrLiteral part is for (quote quote)
+        ans = ans.firstChild ? ans.firstChild : newIdOrLiteral('quote');
     }
     else if (arg.isQuasiquote()) {
         resultStruct.nextContinuable =
@@ -594,7 +595,8 @@ ProcCall.prototype.evalArgs = function(wrapArgs) {
         }
         else if (cur.isQuote()) {
             cur.normalizeInput();
-            args.push(cur.firstChild);
+            // the newIdOrLiteral part is for (quote quote)
+            args.push(cur.firstChild ? cur.firstChild : newIdOrLiteral('quote'));
         }
         else if (cur.isProcedure()) {
             args.push(cur);
