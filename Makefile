@@ -21,14 +21,18 @@ deploy:
 	# Images are already on server
 	rm -rf build/img
 	cp robots.txt build/
+	git tag `date +deploy_%Y_%m_%d_%k_%M_%S`
 	scp build/* ubehebe_gaylisp@ssh.phx.nearlyfreespeech.net:/home/public/
+	git push --tags
 
 deploy-mobile: clean mobile-min
 deploy-mobile:
 	# Images are already on server
 	rm -rf build/img
 	cp robots.txt build/
+	git tag `date +deploy_mobile_%Y_%m_%d_%k_%M_%S`
 	scp build/* ubehebe_mgaylisp@ssh.phx.nearlyfreespeech.net:/home/public/
+	git push --tags
 
 mobile: spec
 mobile:
