@@ -93,7 +93,7 @@ function main() {
             .bringToFront(document.querySelector(startOn));
 
         // Set up the rotary-phone-like nav thing in the corner
-        var rotaryNav = new RotaryNav(document.getElementById('logo'), 40, 60, -60)
+        var rotaryNav = new RotaryNav(document.getElementById('logo'), 40, 45, -45)
             .setTransitionSpeed(0.5)
             .setSelectClass('selected');
 
