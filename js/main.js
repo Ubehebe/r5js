@@ -26,7 +26,7 @@ function main() {
     setupColors();
 
     function setupTerminal() {
-        new MockTerminal(document.getElementById('play'), 80, 5, 500)
+        new MockTerminal(document.getElementsByClassName('terminal')[0], 80, 5, 500)
             .println(GayLisp.getMetadata().banner)
             .println(';; Type (tutorial) and press enter for an interactive tutorial.')
             .setPrompt('>> ')
