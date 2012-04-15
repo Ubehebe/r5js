@@ -29,3 +29,9 @@ Miscellaneous improvements:
 - Improve JavaScript/JSON/DOM <-> Scheme interoperability. You can call
   JavaScript methods and do simple things like set CSS properties from
   the Scheme, but it's poorly tested.
+- Replace the pure interpreter with a JavaScript code generator. With the
+  interpretation overhead out of the way, we can include Scheme scripts
+  in HTML in the manner of CoffeeScript:
+
+  <script type="text/javascript" src="compiler.js"></script>
+  <script type="text/scm" src="foo.scm"></script>
