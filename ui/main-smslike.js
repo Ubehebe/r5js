@@ -34,7 +34,7 @@
             3000)
             .setEchoTemplate(echoTemplate)
             .setOutputTemplate(outputTemplate)
-            .println('Type (tutorial) and press enter for an interactive tutorial.')
+            .println('Type (tutorial) (with the parentheses) and press enter for an interactive tutorial.')
             .pushInterpreter(
             function (string, terminal) {
                 return GayLisp.repl(string, function (sideEffect) {
