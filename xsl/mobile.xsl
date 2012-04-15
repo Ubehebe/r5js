@@ -60,7 +60,7 @@
             <xsl:apply-templates/>
             <link
                     rel="stylesheet"
-                    href="//code.jquery.com/mobile/1.1.0-rc.2/jquery.mobile-1.1.0-rc.2.min.css"/>
+                    href="//code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css"/>
             <link
                     rel="stylesheet"
                     href="mobile.css"/>
@@ -68,7 +68,7 @@
                     src="//code.jquery.com/jquery-1.7.1.min.js">
             </script>
             <script
-                    src="//code.jquery.com/mobile/1.1.0-rc.2/jquery.mobile-1.1.0-rc.2.min.js">
+                    src="//code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js">
             </script>
             <script
                     src="all.js">
