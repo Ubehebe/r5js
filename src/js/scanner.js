@@ -118,6 +118,11 @@ function Scanner(text) {
      reset the RegExp's state. If concurrent scanners are ever needed,
      each will need its own RegExps. */
     this.token.lastIndex = 0;
+
+    /* R5RS 7.1.1: "Tokens which require implicit termination (identifiers,
+     numbers, characters, and dot) may be terminated by any
+     delimiter, but not necessarily by anything else." */
+    this.needDelimiter = false;
 }
 
 // Just for debugging.
@@ -136,13 +141,17 @@ Scanner.prototype.tokenize = function() {
 Scanner.prototype.shouldMatchAgain = function(matchArray) {
     if (!matchArray) {
         return false; // eof
+    } else if (this.token.lastIndex > this.start + matchArray[0].length) {
+        throw new ScanError(this.text.substr(this.start, this.token.lastIndex - this.start));
     } else {
         var indexOfWhitespace = 7;
-        if (this.token.lastIndex > this.start + matchArray[0].length)
-            throw new ScanError(this.text.substr(this.start, this.token.lastIndex - this.start));
-        else
-            this.start = this.token.lastIndex;
-        return !!matchArray[indexOfWhitespace];
+        this.start = this.token.lastIndex;
+        var ans = !!matchArray[indexOfWhitespace];
+        /* Whitespace counts as a delimiter, so if the previous token needed
+         a delimiter, we just found one. */
+        if (ans)
+            this.needDelimiter = false;
+        return ans;
     }
 };
 
@@ -173,17 +182,29 @@ Scanner.prototype.matchToToken = function(matchArray) {
     /* See the return value of Scanner.prototype.token for the significance
      of the magic numbers here. */
     var payload = matchArray[0];
-    if (matchArray[6]) {
+
+    if (this.needDelimiter && !matchArray[6]) {
+        /* If the previous token required a delimiter but we didn't get
+         one, that's a scan error. Example: 1+2 scans as two numbers
+         (1 and +2), but there has to be a delimiter between them. */
+        throw new ScanError(this.text.substr(this.token.lastIndex));
+    } else if (matchArray[6]) {
+        this.needDelimiter = false;
         return new Token(payload);
     } else if (matchArray[5]) {
+        this.needDelimiter = true;
         return new Token('identifier').setPayload(payload);
     } else if (matchArray[2]) {
+        this.needDelimiter = false;
         return new Token('boolean').setPayload(payload);
     } else if (matchArray[3]) {
+        this.needDelimiter = true;
         return new Token('character').setPayload(payload);
     } else if (matchArray[4]) {
+        this.needDelimiter = false;
         return new Token('string').setPayload(payload);
     } else if (matchArray[1]) {
+        this.needDelimiter = true;
         return new Token('number').setPayload(payload);
     } else throw new InternalInterpreterError('invariant incorrect');
 };

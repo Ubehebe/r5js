@@ -15,7 +15,7 @@
 
 function testScanner() {
 
-    if (!window.console)
+    if (!Function('return "console" in this;')())
             alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
 
     function assertValidToken(text, type) {
@@ -50,7 +50,8 @@ function testScanner() {
         'identifier': ['|', '[', ']', '{', '}'],
         'character': [/* todo bl */],
         'string': ['"', "\\"],
-        'boolean': ['##f', '#', '#']
+        'boolean': ['##f', '#', '#'],
+        'number': ['1+2']
     };
 
     validTokens['number'] = (function() {
@@ -118,7 +119,7 @@ function testScanner() {
 
 function testParser() {
 
-    if (!window.console)
+    if (!Function('return "console" in this;')())
             alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
 
     // todo bl add lots of unit tests focusing on headless clauses (sequence, body)
