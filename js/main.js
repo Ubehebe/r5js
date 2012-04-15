@@ -41,7 +41,7 @@ function main() {
         }
         new MockTerminal(textArea, 80, 5, 500)
             .println(GayLisp.getMetadata().banner)
-            .println(';; Type (tutorial) and press enter for an interactive tutorial.')
+            .println(';; Type (tutorial) (with the parentheses) and press enter for an interactive tutorial.')
             .setPrompt('>> ')
             .pushInterpreter(function (string, terminal) {
                 return GayLisp.repl(string, function (sideEffect) {
