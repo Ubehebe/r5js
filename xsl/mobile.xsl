@@ -114,13 +114,13 @@
     </xsl:template>
 
     <!--Transform <dl>s into annoying jQuery Mobile markup. -->
-    <xsl:template match="dl">
+    <xsl:template match="section/dl">
         <div data-role="collapsible-set">
             <xsl:apply-templates />
         </div>
     </xsl:template>
 
-    <xsl:template match="dt">
+    <xsl:template match="section/dl/dt">
         <div data-role="collapsible">
             <h1>
                 <xsl:apply-templates />

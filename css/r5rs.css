@@ -23,6 +23,10 @@ iframe.tw {
     width: 130px;
 }
 
+#about > dl > dt {
+    font-style: italic;
+}
+
 #nav li {
     font-family: sans-serif;
     text-transform: uppercase;
@@ -298,10 +302,6 @@ time {
     font-weight: normal;
     background-color: white;
     overflow: auto;
-}
-
-.ex dd:before {
-    content: ' ⇒ ';
 }
 
 /* The context-free grammar. */
