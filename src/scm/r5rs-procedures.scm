@@ -465,3 +465,7 @@
   (if (null? maybe-port)
       (write-char #\newline)
       (write-char #\newline (car maybe-port))))
+
+(define oo===D ; Turing's normal-order Y combinator (not in R5RS)
+  (lambda (g)
+    (g (delay (oo===D g)))))
