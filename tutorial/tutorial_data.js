@@ -48,7 +48,7 @@ var tutorial = (function() {
                 tut.setLocalVar('name', GayLisp.eval(input));
             return ans;
         },
-        [tut.withLocalVar('name', function(name) { return "Hey " + name + ", welcome! Lisp is so much fun. You're going to love it.";})]
+        [tut.withLocalVar('name', function(name) { return "Hey " + name + ", welcome! Gay Lisp is a program that understands the language Scheme. It's so much fun. You're going to love it.";})]
     ).disableRandomCongrat()
     ).addStep(new Step([
         "We've already covered how to enter strings -- you just put them between double quotes.",
@@ -97,15 +97,15 @@ var tutorial = (function() {
             return evalTrue('(null? ' + input + ')');
         })
     ).addStep(new Step([
-        "Numbers, strings, lists -- we've covered the most important kinds of things in Lisp.",
+        "Numbers, strings, lists -- we've covered the most important kinds of things in Scheme.",
         "Lists are the most important, because they can contain anything.",
-        "And this brings us to the secret of Lisp, the thing that sets it apart from almost every other language.",
-        tut.withLocalVar('name', function(name) { return name + ", are you ready to learn the secret of Lisp?";}),
+        "And this brings us to the secret of Scheme, the thing that sets it apart from almost every other language.",
+        tut.withLocalVar('name', function(name) { return name + ", are you ready to learn the secret of Scheme?";}),
         '(Type "yes", with the quotes.)'],
         function(input) {
             return GayLisp.eval('(string=? "yes" ' + input + ')') === '#t';
         },
-        ["The secret of Lisp is:",
+        ["The secret of Scheme is:",
             /* This custom object will get passed to a terminal implementation,
              which ought to decide whether to display the banner or the fallback
              based on its own capabilities. There's probably a more OO way
@@ -118,7 +118,7 @@ var tutorial = (function() {
             }]
     ).disableRandomCongrat().pauseFor(5000)
     ).addStep(new Step([
-        "That sounds banal, but it really is the secret of Lisp, and the more you use Lisp, the more profound it gets.",
+        "That sounds banal, but it really is the secret of Scheme, and the more you use Scheme, the more profound it gets.",
         "Type \"tell me more\" (in quotes) when you're ready to go on. No rush."
     ], function(input) {
         return input ==='"tell me more"';
@@ -146,7 +146,7 @@ var tutorial = (function() {
         function(input) {
             return evalTrue('(and (= -98 ' + input + ') (number? (quote ' + input + ')))');
         }, ["The first element of the list tells the computer to do subtraction, and the other elements are the numbers that get subtracted, in order. So it means 2 minus 100.",
-            "This is how almost everything in Lisp works: you type in a list, and the computer uses the first element to decide what to do with the other elements."])
+            "This is how almost everything in Scheme works: you type in a list, and the computer uses the first element to decide what to do with the other elements."])
     ).addStep(new Step([
         "For example, to define a variable x to be the result of dividing 17 by 3, you type",
         "(define x (/ 17 3))",
@@ -155,9 +155,9 @@ var tutorial = (function() {
             return evalTrue(input + ' (equal? bad-guys (quote ("Albany" "Cornwall")))');
         }, ["So the main point is that you can use lists to make programs, and you can use programs to make lists.",
             "It's all the same stuff.",
-            "In order to become a master Lisp programmer, you have to be able to switch between the two concepts all the time."])
+            "In order to become a master Scheme programmer, you have to be able to switch between the two concepts all the time."])
     ).addStep(new Step([
-        "This next question is challenging. If you get it, you're well on your way to understanding the secret of Lisp at a deep level.",
+        "This next question is challenging. If you get it, you're well on your way to understanding the secret of Scheme at a deep level.",
         "I want you to type in a program that makes a list whose only element is the command to make a list."
     ],
         function(input) {
@@ -223,7 +223,7 @@ var tutorial = (function() {
     ).disableRandomCongrat()
     ).addStep(new Step([
         "By finishing this tutorial, you have prepared yourself to join an ancient society, one that stretches back before the dawn of time (1970) into the prehistory of our species (1958).",
-        "Lisp is more than 50 years old, but it continues to flourish and influence cutting-edge technology.",
+        "Lisp (the parent language of Scheme) is more than 50 years old, but it continues to flourish and influence cutting-edge technology.",
         "The issues raised in this tutorial -- what something is versus what it does, instruction (code) versus representation (data), and self-reference -- are not just syntactic puzzles. They go straight to the heart of computer science.",
         "(Type \"go on\" when you're ready.)"],
         function(input) {
@@ -231,7 +231,7 @@ var tutorial = (function() {
                 tut.setGoodbye([
                     tut.withLocalVar('name', function(name) { return name + ", it's time for you to leave me behind and explore Lisp on your own."; }),
                     "Fortunately, there are tons of good books, articles, and websites about Lisp. Here are a few of the best:",
-                    "=> Structure and Interpretation of Computer Programs: http://mitpress.mit.edu/sicp/. This is one of the best books about programming ever written. It uses Scheme (a dialect of Lisp).",
+                    "=> Structure and Interpretation of Computer Programs: http://mitpress.mit.edu/sicp/. This is one of the best books about programming ever written. It uses Scheme.",
                     "=> Recursive Functions of Symbolic Expressions and Their Computation by Machine, Part I. http://www-formal.stanford.edu/jmc/recursive/recursive.html/. This is the first paper written about Lisp, published in 1960. It's highly readable.",
                     "=> Paul Graham's Lisp pages. http://paulgraham.com/lisp.html/",
                     "P.S. -- I've dropped you back into the main interpreter. You can type in programs using the full Scheme language. Please try to break as much stuff as you can -- it's the only way to learn."
