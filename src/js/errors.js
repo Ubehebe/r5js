@@ -19,6 +19,7 @@ goog.provide('r5js.ArgumentTypeError');
 goog.provide('r5js.EvalError');
 
 
+goog.provide('r5js.GeneralSyntaxError');
 goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.TooFewArgs');
@@ -152,11 +153,17 @@ function UnimplementedOptionError(what) {
     }
 }
 
-function GeneralSyntaxError(what) {
+/**
+ * @param {*} what The object that caused the syntax error.
+ * @constructor
+ * TODO bl: narrow the type of the parameter.
+ * TODO bl: Consider eliminating. It's vague.
+ */
+r5js.GeneralSyntaxError = function(what) {
     this.toString = function() {
         return 'bad syntax in ' + what;
     };
-}
+};
 
 function IOError(what) {
     this.toString = function() {

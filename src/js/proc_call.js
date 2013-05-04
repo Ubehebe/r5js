@@ -174,7 +174,7 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
                 .appendContinuable(continuation.nextContinuable);
         return;
     } else if (arg.isImproperList()) {
-        throw new GeneralSyntaxError(arg);
+        throw new r5js.GeneralSyntaxError(arg);
     } else {
         ans = maybeWrapResult(arg.payload, arg.type);
         if (arg.isImmutable())
@@ -237,7 +237,7 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
         } else if (arg.isProcedure()) {
             finalArgs.appendSibling(newIdOrLiteral(arg.name));
         } else if (arg.isImproperList()) {
-            throw new GeneralSyntaxError(arg);
+            throw new r5js.GeneralSyntaxError(arg);
         } else if ((maybeContinuable = arg.desugar(this.env)) instanceof Continuable) {
             /* todo bl is it an invariant violation to be a list
              and not to desugar to a Continuable? */
@@ -356,7 +356,7 @@ ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
     if (src instanceof SchemeMacro
         && !src.isLetOrLetrecSyntax
         && !this.isSyntaxAssignment)
-        throw new GeneralSyntaxError(this);
+        throw new r5js.GeneralSyntaxError(this);
     this.env.mutate(this.firstOperand.payload, src, this.isTopLevelAssignment);
     /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
