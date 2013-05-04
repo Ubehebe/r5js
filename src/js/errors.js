@@ -20,6 +20,7 @@ goog.provide('r5js.EvalError');
 
 
 goog.provide('r5js.GeneralSyntaxError');
+goog.provide('r5js.IllegalEmptyApplication');
 goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.TooFewArgs');
@@ -177,11 +178,16 @@ function QuasiquoteError(what) {
     };
 }
 
-function IllegalEmptyApplication(where) {
+/**
+ * @param {*} where Object that caused the empty application.
+ * @constructor
+ * TODO bl: narrow the type of the parameter. Can it be string?
+ */
+r5js.IllegalEmptyApplication = function(where) {
     this.toString = function() {
         return 'illegal empty application in ' + where;
     };
-}
+};
 
 function ParseError(what) {
     this.toString = function() {

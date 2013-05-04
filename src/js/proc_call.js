@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.proc_call');
 
 
 goog.require('r5js.EvalError');
+goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 
 // For composition; should only be called from newProcCall
@@ -124,7 +125,7 @@ ProcCall.prototype.operandsInCpsStyle = function() {
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
         if (cur instanceof Datum) {
             if (cur.isEmptyList())
-                throw new IllegalEmptyApplication(this.operatorName.payload);
+                throw new r5rs.IllegalEmptyApplication(this.operatorName.payload);
             else if (!cur.isLiteral())
                 return false;
         }
