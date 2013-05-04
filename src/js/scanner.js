@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.scanner');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ScanError');
 
 function Token(type) {
     this.type = type;
@@ -36,7 +37,7 @@ Token.prototype.convertNumber = function (payload) {
     var originalLength = payload.length;
 
     if (this.numberForbidden.test(payload))
-        throw new ScanError('unsupported number literal: ' + payload);
+        throw new r5js.ScanError('unsupported number literal: ' + payload);
 
     var base = 10;
     if ((payload = payload.replace(/#x/i, '')).length < originalLength) {
@@ -148,7 +149,7 @@ Scanner.prototype.shouldMatchAgain = function(matchArray) {
     if (!matchArray) {
         return false; // eof
     } else if (this.token.lastIndex > this.start + matchArray[0].length) {
-        throw new ScanError(this.text.substr(this.start, this.token.lastIndex - this.start));
+        throw new r5js.ScanError(this.text.substr(this.start, this.token.lastIndex - this.start));
     } else {
         var indexOfWhitespace = 7;
         this.start = this.token.lastIndex;
@@ -177,7 +178,7 @@ Scanner.prototype.nextToken = function() {
         if (this.start === this.text.length)
             this.token.lastIndex = this.text.length;
         else
-            throw new ScanError(this.text.substr(this.start));
+            throw new r5js.ScanError(this.text.substr(this.start));
         return match;
     } else {
         return this.matchToToken(match);
@@ -193,7 +194,7 @@ Scanner.prototype.matchToToken = function(matchArray) {
         /* If the previous token required a delimiter but we didn't get
          one, that's a scan error. Example: 1+2 scans as two numbers
          (1 and +2), but there has to be a delimiter between them. */
-        throw new ScanError(this.text.substr(this.token.lastIndex));
+        throw new r5js.ScanError(this.text.substr(this.token.lastIndex));
     } else if (matchArray[6]) {
         this.needDelimiter = false;
         return new Token(payload);

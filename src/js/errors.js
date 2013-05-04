@@ -17,8 +17,6 @@
 goog.provide('r5js.tmp.errors');
 goog.provide('r5js.ArgumentTypeError');
 goog.provide('r5js.EvalError');
-
-
 goog.provide('r5js.GeneralSyntaxError');
 goog.provide('r5js.IllegalEmptyApplication');
 goog.provide('r5js.ImmutableError');
@@ -29,6 +27,7 @@ goog.provide('r5js.MacroError');
 goog.provide('r5js.ParseError');
 goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.QuasiquoteError');
+goog.provide('r5js.ScanError');
 goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
@@ -254,8 +253,12 @@ r5js.ImmutableError = function(what) {
     };
 };
 
-function ScanError(what) {
+/**
+ * @param {string} what An error message.
+ * @constructor
+ */
+r5js.ScanError = function(what) {
     this.toString = function() {
         return 'scan error on ' + what;
     };
-}
+};
