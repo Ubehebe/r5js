@@ -1414,7 +1414,7 @@ Parser.prototype.parse = function(lhs) {
         if (ans && ans.nonterminals) {
             // See comments at top of Parser.
             if (this.fixParserSensitiveIds) {
-                var helper = new RenameHelper();
+                var helper = new RenameHelper(null);
                 ans.fixParserSensitiveIds(helper);
                 if (helper.wasUsed()) {
                     /* todo bl inefficient, but i've had errors fusing this
