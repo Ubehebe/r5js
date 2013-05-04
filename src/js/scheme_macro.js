@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.scheme_macro');
 
+
+goog.require('r5js.MacroError');
+
 function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
 
     this.definitionEnv = definitionEnv;
@@ -165,5 +168,5 @@ SchemeMacro.prototype.transcribe = function(datum, useEnv) {
             return newParseTree;
         }
     }
-    throw new MacroError(this.transformers[0].getName(), 'no pattern match for input ' + datum);
+    throw new r5js.MacroError(this.transformers[0].getName(), 'no pattern match for input ' + datum);
 };

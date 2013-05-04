@@ -25,6 +25,7 @@ goog.provide('r5js.ImmutableError');
 goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.IOError');
+goog.provide('r5js.MacroError');
 goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
@@ -141,12 +142,18 @@ r5js.ArgumentTypeError = function(argument, which, procName, expectedType) {
     };
 };
 
-function MacroError(keyword, msg) {
+/**
+ * @param {string} keyword Keyword of macro.
+ * @param {string} msg Error message.
+ * @constructor
+ * TODO bl: This should accept a macro object to simplify call sites.
+ */
+r5js.MacroError = function(keyword, msg) {
     this.toString = function() {
         return 'Error in macro '
         + keyword + ': ' + msg;
     };
-}
+};
 
 function UnimplementedOptionError(what) {
     this.toString = function() {

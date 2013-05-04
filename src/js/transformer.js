@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.transformer');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.MacroError');
 
 function Transformer(pattern, template) {
     /* This is an InternalInterpreterError (= sanity check) instead of a
@@ -77,7 +78,7 @@ Transformer.prototype.setupIds = function() {
                         templateRenameCandidates[name] = true;
                 } else if (maybeInPattern !== ellipsisLevel
                     && name !== macroName) {
-                    throw new MacroError(
+                    throw new r5js.MacroError(
                         macroName,
                         name
                             + ' is at ellipsis level '

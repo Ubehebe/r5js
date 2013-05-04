@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.parse');
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.MacroError');
 
 /* todo bl: this file should not exist.
 
@@ -1391,7 +1392,7 @@ Parser.prototype['syntax-definition'] = function() {
             var kw = node.at('keyword').payload;
             var macro = node.at('transformer-spec').desugar(env);
             if (!macro.allPatternsBeginWith(kw))
-                throw new MacroError(kw, "all patterns must begin with " + kw);
+                throw new r5js.MacroError(kw, "all patterns must begin with " + kw);
             var anonymousName = newAnonymousLambdaName();
             env.addBinding(anonymousName, macro);
             return newAssignment(kw, anonymousName, new Continuation(newCpsName()))

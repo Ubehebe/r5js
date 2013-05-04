@@ -20,6 +20,7 @@ goog.provide('r5js.tmp.proc_call');
 goog.require('r5js.EvalError');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.MacroError');
 
 // For composition; should only be called from newProcCall
 function ProcCall(operatorName, firstOperand) {
@@ -188,7 +189,7 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
      trying to return a macro object off the trampoline, that's an error.
      The input was a bare macro name. */
     if (!continuation.nextContinuable && ans instanceof SchemeMacro)
-        throw new MacroError(this.firstOperand, 'bad macro syntax');
+        throw new r5js.MacroError(this.firstOperand, 'bad macro syntax');
 
     resultStruct.ans = ans;
     resultStruct.nextContinuable = continuation.nextContinuable;
@@ -598,7 +599,7 @@ ProcCall.prototype.evalArgs = function(wrapArgs) {
              between the programmer and the implementation. */
             if (toPush instanceof SchemeMacro
                 && !toPush.isLetOrLetrecSyntax)
-                throw new MacroError(cur.payload, 'bad syntax');
+                throw new r5js.MacroError(cur.payload, 'bad syntax');
             args.push(toPush);
         }
         else if (cur.isQuote()) {
