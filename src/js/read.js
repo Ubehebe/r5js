@@ -274,7 +274,7 @@ Datum.prototype.toString = function(outputMode) {
         case 'string':
             switch (outputMode) {
                 case OutputModes.WRITE:
-                    var ans = this.payload;
+                    ans = this.payload;
                     return '"' + ans.replace(/([\\"])/g, "\\$1") + '"';
                 case OutputModes.DISPLAY:
                 default:
