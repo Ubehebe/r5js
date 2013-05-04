@@ -20,6 +20,9 @@ goog.provide('r5js.tmp.pipeline');
 
 goog.require('r5js.ParseError');
 
+/**
+ * @constructor
+ */
 function Pipeline() {}
 
 Pipeline.prototype.setRootEnv = function(rootEnv) {

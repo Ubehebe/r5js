@@ -16,8 +16,11 @@
 
 goog.provide('r5js.tmp.sibling_buffer');
 
-/* Just a buffer to accumulate siblings without the client having to do
- the pointer arithmetic. */
+/**
+ * Just a buffer to accumulate siblings without the client having to do
+ * the pointer arithmetic.
+ * @constructor
+ */
 function SiblingBuffer() {
     //this.first;
     // this.last;

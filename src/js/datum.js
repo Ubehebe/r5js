@@ -19,6 +19,9 @@ goog.provide('r5js.tmp.datum');
 
 goog.require('r5js.InternalInterpreterError');
 
+/**
+ * @constructor
+ */
 function Datum() {
     /* No need to set this stuff until it's needed, just here for documentation
      this.firstChild = null;

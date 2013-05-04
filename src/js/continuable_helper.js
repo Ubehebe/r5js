@@ -16,8 +16,11 @@
 
 goog.provide('r5js.tmp.continuable_helper');
 
-/* Just a buffer to accumulate a Continuable-Continuation chain
- without the client having to do the pointer arithmetic. */
+/**
+ * Just a buffer to accumulate a Continuable-Continuation chain
+ * without the client having to do the pointer arithmetic.
+ * @constructor
+ */
 function ContinuableHelper() {
     // this.firstContinuable;
     // this.lastContinuable;
