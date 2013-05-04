@@ -16,6 +16,8 @@
 
 goog.provide('r5js.tmp.proc_call');
 
+
+goog.require('r5js.EvalError');
 // For composition; should only be called from newProcCall
 function ProcCall(operatorName, firstOperand) {
     /* todo bl operatorName is an identifier _datum_...I think
@@ -287,7 +289,7 @@ ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuff
     } else if (proc instanceof JsObjOrMethod) {
         this.tryFFI.apply(this, args);
     } else {
-        throw new EvalError(
+        throw new r5js.EvalError(
             'procedure application: expected procedure, given '
                 + this.operatorName);
     }

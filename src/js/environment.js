@@ -16,6 +16,8 @@
 
 goog.provide('r5js.tmp.environment');
 
+
+goog.require('r5js.EvalError');
 /* An Environment stores three common kinds of objects:
     - Datums (most Scheme values: numbers, identifiers, etc.)
     - SchemeProcedures (native Scheme procedures)
@@ -151,7 +153,7 @@ Environment.prototype.getProcedure = function(name) {
             || maybe instanceof Continuation
             || maybe instanceof JsObjOrMethod) {
             return maybe;
-        } else throw new EvalError('expected procedure, given ' + name);
+        } else throw new r5js.EvalError('expected procedure, given ' + name);
     } else if (this.enclosingEnv)
         return this.enclosingEnv.getProcedure(name);
     else

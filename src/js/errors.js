@@ -16,6 +16,7 @@
 
 goog.provide('r5js.tmp.errors');
 goog.provide('r5js.ArgumentTypeError');
+goog.provide('r5js.EvalError');
 
 
 function UnboundVariable(name) {
@@ -147,11 +148,15 @@ function ParseError(what) {
     };
 }
 
-function EvalError(what) {
+/**
+ * @param {string} what Error message.
+ * @constructor
+ */
+r5js.EvalError = function(what) {
     this.toString = function() {
         return 'evaluation error: ' + what;
     };
-}
+};
 
 function ImmutableError(what) {
     this.toString = function() {
