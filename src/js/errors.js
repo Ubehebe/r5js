@@ -24,6 +24,7 @@ goog.provide('r5js.IllegalEmptyApplication');
 goog.provide('r5js.ImmutableError');
 goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.InternalInterpreterError');
+goog.provide('r5js.IOError');
 goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
@@ -167,11 +168,15 @@ r5js.GeneralSyntaxError = function(what) {
     };
 };
 
-function IOError(what) {
+/**
+ * @param {string} what An error message.
+ * @constructor
+ */
+r5js.IOError = function(what) {
     this.toString = function() {
         return 'IO error: ' + what;
     };
-}
+};
 
 function QuasiquoteError(what) {
     this.toString = function() {

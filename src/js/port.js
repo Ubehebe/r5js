@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.port');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.IOError');
 
 /* This class is never instantiated; it's just used to double-check that
  objects that purport to provide Scheme-port-like-services do. Of course,
@@ -47,7 +48,7 @@ function Port() {
 
 function portImplCheck(portImplObj) {
     if (!portImplObj)
-        throw new IOError(portImplObj, 'is null!');
+        throw new r5js.IOError(portImplObj + ' is null!');
 
     var required = [
         'close',
@@ -65,7 +66,7 @@ function portImplCheck(portImplObj) {
         if (typeof portImplObj[required[i]] !== 'function') {
             if (useConsole)
                 console.log(portImplObj);
-            throw new IOError(portImplObj
+            throw new r5js.IOError(portImplObj
                 + "doesn't have required function "
                 + required[i]);
         }

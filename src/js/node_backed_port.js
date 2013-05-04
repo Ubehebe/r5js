@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.node_backed_port');
 
+
+goog.require('r5js.IOError');
+
 function NodeBackedPort(filename, mode) {
 
     /* We set this inside the constructor instead of the usual way
@@ -28,7 +31,7 @@ function NodeBackedPort(filename, mode) {
             NodeBackedPort.prototype.fsModule = require('fs');
         } catch (re) {
             if (re instanceof ReferenceError) {
-                throw new IOError("the JavaScript environment lacks filesystem access required for this IO procedure. "
+                throw new r5js.IOError("the JavaScript environment lacks filesystem access required for this IO procedure. "
                 + "(This probably means you are running in a browser.)");
             }
         }
