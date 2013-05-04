@@ -20,9 +20,10 @@ goog.provide('r5js.tmp.node_backed_port');
 goog.require('r5js.IOError');
 
 /**
- * @suppress {undefinedVars} for require.
+ * @suppress {missingProperties, undefinedVars} For this.fsModule.openSync,
+ * this.fsModule.statSync, and require().
  * @constructor
- * TODO bl: remove the @suppress.
+ * TODO bl: remove the @suppress annotations when Node interop is better.
  */
 function NodeBackedPort(filename, mode) {
 
@@ -51,6 +52,9 @@ function NodeBackedPort(filename, mode) {
  prevent the Google Closure Compiler from renaming them. See comments
  at Port. */
 
+/** @suppress {missingProperties} For fsModule.closeSync.
+ * TODO bl: remove @suppress once Node interop is better.
+ */
 NodeBackedPort.prototype['close'] = function() {
     this.fsModule.closeSync(this.fd);
 };
@@ -63,12 +67,20 @@ NodeBackedPort.prototype['isEof'] = function() {
     return this.offset >= this.size;
 };
 
+/**
+ * @suppress {missingProperties} For this.fsModule.readSync.
+ * TODO bl: remove @suppress once Node interop is better.
+ */
 NodeBackedPort.prototype['peekChar'] = function() {
     return this.isEof()
         ? this
         : this.fsModule.readSync(this.fd, 1, this.offset)[0];
 };
 
+/**
+ * @suppress {missingProperties} For this.fsModule.readSync.
+ * TODO bl: remove @suppress once Node interop is better.
+ */
 NodeBackedPort.prototype['readChar'] = function() {
     return this.isEof()
         ? this
@@ -79,10 +91,18 @@ NodeBackedPort.prototype['toString'] = function() {
     return String(this.fd);
 };
 
+/**
+ * @suppress {missingProperties} For this.fsModule.writeSync.
+ * TODO bl: remove @suppress once Node interop is better.
+ */
 NodeBackedPort.prototype['write'] = function(str) {
     this.fsModule.writeSync(this.fd, str, null);
 };
 
+/**
+ * @suppress {missingProperties} For this.fsModule.writeSync.
+ * TODO bl: remove @suppress once Node interop is better.
+ */
 NodeBackedPort.prototype['writeChar'] = function(c) {
     this.fsModule.writeSync(this.fd, c, null);
 };
