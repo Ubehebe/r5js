@@ -49,10 +49,16 @@ goog.require('r5js.UnboundVariable');
  */
 
 /**
+ * @param {string} name The environment's name. Just for pretty-printing.
+ * @param {Environment=} enclosingEnv The enclosing environment, if any.
  * @constructor
  */
 function Environment(name, enclosingEnv) {
-    this.name = name; // just for use in pretty-printing
+    /**
+     * @type {string}
+     */
+    this.name = name;
+
     if (enclosingEnv) {
         this.enclosingEnv = enclosingEnv;
         if (enclosingEnv instanceof RootEnvironment)
