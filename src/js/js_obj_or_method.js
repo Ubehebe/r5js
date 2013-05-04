@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.js_obj_or_method');
 
+
+goog.require('r5js.InternalInterpreterError');
+
 /* It's kind of silly to have an object representing an object.
  I did this to avoid dispatching on typeof x === 'object' in the
  evaluator, which in my experience is error-prone. */
@@ -30,7 +33,7 @@ JsObjOrMethod.prototype.isBoundMethod = function() {
 
 JsObjOrMethod.prototype.getObject = function() {
     if (this.isBoundMethod())
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
     return this.receiver;
 };
 

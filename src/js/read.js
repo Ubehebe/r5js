@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.read');
 
+
+goog.require('r5js.InternalInterpreterError');
+
 function Reader(scanner) {
     this.scanner = scanner;
     this.readyTokens = [];
@@ -332,6 +335,6 @@ Datum.prototype.toString = function(outputMode) {
                         : '';
                     return ans + nextToLastChildString + ' . ' + lastChildString + ')';
                 default:
-                    throw new InternalInterpreterError('unknown datum type ' + this.type);
+                    throw new r5js.InternalInterpreterError('unknown datum type ' + this.type);
             }
     };

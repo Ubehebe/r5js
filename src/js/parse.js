@@ -16,6 +16,8 @@
 
 goog.provide('r5js.tmp.parse');
 
+goog.require('r5js.InternalInterpreterError');
+
 /* todo bl: this file should not exist.
 
  Short explanation: (define if +) (if 1 2 3) => 6 ; legal
@@ -174,7 +176,7 @@ Parser.prototype.rhs = function() {
                 the integrity of all its data structures before it starts
                 accepting input from the user. */
             if (i !== arguments.length - 1)
-                throw new InternalInterpreterError('desugaring actions '
+                throw new r5js.InternalInterpreterError('desugaring actions '
                 + 'are only allowed as the last element in the right-hand '
                 + 'side of a grammar rule.');
             /* If we are here, root must be an instance of Datum. The only
@@ -1427,5 +1429,5 @@ Parser.prototype.parse = function(lhs) {
         }
     }
     else
-        throw new InternalInterpreterError('unknown lhs: ' + lhs);
+        throw new r5js.InternalInterpreterError('unknown lhs: ' + lhs);
 };

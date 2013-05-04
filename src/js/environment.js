@@ -18,7 +18,9 @@ goog.provide('r5js.tmp.environment');
 
 
 goog.require('r5js.EvalError');
+goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.UnboundVariable');
+
 /* An Environment stores three common kinds of objects:
     - Datums (most Scheme values: numbers, identifiers, etc.)
     - SchemeProcedures (native Scheme procedures)
@@ -78,7 +80,7 @@ Environment.prototype.allowRedefs = function() {
 Environment.prototype.clone = function(name) {
 
       if (this.enclosingEnv)
-        throw new InternalInterpreterError('clone should only be used during '
+        throw new r5js.InternalInterpreterError('clone should only be used during '
         + 'interpreter bootstrapping');
 
     var cloned = new Environment(name);
@@ -212,14 +214,14 @@ Environment.prototype.addClosuresFrom = function(other) {
  (fooEnv). */
 Environment.prototype.addClosure = function(name, proc) {
     if (this.sealed) {
-        throw new InternalInterpreterError('tried to bind '
+        throw new r5js.InternalInterpreterError('tried to bind '
             + name
             + ' in sealed environment '
             + this.name);
     } else if (!(proc instanceof SchemeProcedure)) {
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
     } else if (this.closures[name]) {
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
     } else {
         this.closures[name] = proc;
     }
@@ -228,7 +230,7 @@ Environment.prototype.addClosure = function(name, proc) {
 Environment.prototype.addBinding = function(name, val) {
 
     if (this.sealed) {
-        throw new InternalInterpreterError('tried to bind ' + name + ' in sealed environment ' + this);
+        throw new r5js.InternalInterpreterError('tried to bind ' + name + ' in sealed environment ' + this);
     }
 
     else if (this.bindings[name] == null || this.redefsOk || name.charAt(0) === '@') {
@@ -284,14 +286,14 @@ Environment.prototype.addBinding = function(name, val) {
             else
                 this.bindings[name] = val.unwrap();
         } else {
-            throw new InternalInterpreterError('tried to store '
+            throw new r5js.InternalInterpreterError('tried to store '
                 + name
                 + ' = '
                 + val
                 + ', which is not an acceptable value');
         }
     } else {
-        throw new InternalInterpreterError('redefining '
+        throw new r5js.InternalInterpreterError('redefining '
             + name
             + ' in same env, not allowed');
     }

@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.scanner');
 
+
+goog.require('r5js.InternalInterpreterError');
+
 function Token(type) {
     this.type = type;
 }
@@ -100,13 +103,13 @@ Token.prototype.setPayload = function(payload) {
                 this.payload = ' ';
             else if (afterSlash.toLowerCase() === 'newline')
                 this.payload = '\n';
-            else throw new InternalInterpreterError('invalid character payload ' + payload);
+            else throw new r5js.InternalInterpreterError('invalid character payload ' + payload);
             break;
         case 'string':
             this.payload = payload.substr(1, payload.length - 2);
             break;
         default:
-            throw new InternalInterpreterError('invalid token type ' + this.type);
+            throw new r5js.InternalInterpreterError('invalid token type ' + this.type);
     }
     return this;
 };
@@ -209,7 +212,7 @@ Scanner.prototype.matchToToken = function(matchArray) {
     } else if (matchArray[1]) {
         this.needDelimiter = true;
         return new Token('number').setPayload(payload);
-    } else throw new InternalInterpreterError('invariant incorrect');
+    } else throw new r5js.InternalInterpreterError('invariant incorrect');
 };
 
 Scanner.prototype.token = (function() {

@@ -20,6 +20,7 @@ goog.provide('r5js.EvalError');
 
 
 goog.provide('r5js.IncorrectNumArgs');
+goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
@@ -99,11 +100,15 @@ r5js.IncorrectNumArgs = function(name, expectedNumArgs, actualNumArgs) {
     };
 };
 
-function InternalInterpreterError(msg) {
+/**
+ * @param {string} msg An error message.
+ * @constructor
+ */
+r5js.InternalInterpreterError = function(msg) {
     this.toString = function() {
         return msg;
     };
-}
+};
 
 function PrimitiveProcedureError(message) {
     this.toString = function() { return message; };

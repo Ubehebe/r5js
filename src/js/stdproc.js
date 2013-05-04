@@ -19,6 +19,7 @@ goog.provide('r5js.tmp.stdproc');
 
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
+goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 
@@ -1220,7 +1221,7 @@ R5JS_builtins['eval'] = {
         proc: function(num) {
             if (num === 5)
                 return newEnvironmentSpecifier(r5RSEnv);
-            else throw new InternalInterpreterError(
+            else throw new r5js.InternalInterpreterError(
                 'unsupported scheme report environment ' + num);
         }
     },
@@ -1230,7 +1231,7 @@ R5JS_builtins['eval'] = {
         proc: function(num) {
             if (num === 5)
                 return newEnvironmentSpecifier(nullEnv);
-            else throw new InternalInterpreterError(
+            else throw new r5js.InternalInterpreterError(
                 'unsupported null environment ' + num);
         }
     }
@@ -1552,7 +1553,7 @@ function registerBuiltin(name, definition, targetEnv) {
 
 function requirePresenceOf(name, argtypes, targetEnv) {
     if (typeof argtypes === 'string' && !targetEnv.hasBinding(argtypes + '?'))
-        throw new InternalInterpreterError('builtin procedure '
+        throw new r5js.InternalInterpreterError('builtin procedure '
             + name
             + ' requires an argument to have type '
             + argtypes
@@ -1560,7 +1561,7 @@ function requirePresenceOf(name, argtypes, targetEnv) {
     else if (argtypes instanceof Array) {
         for (var i = 0; i < argtypes.length; ++i)
             if (typeof argtypes[i] === 'string' && !targetEnv.hasBinding(argtypes[i] + '?'))
-                throw new InternalInterpreterError('builtin procedure '
+                throw new r5js.InternalInterpreterError('builtin procedure '
                     + name
                     + ' requires an argument to have type '
                     + argtypes[i]

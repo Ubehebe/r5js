@@ -16,6 +16,8 @@
 
 goog.provide('r5js.tmp.template_bindings');
 
+goog.require('r5js.InternalInterpreterError');
+
 /* My approach for supporting nested ellipses in macro transcriptions
 is to take a single pass through the input and build up a TemplateBindings
 object whose tree structure mirrors the ellipsis nesting in the pattern.
@@ -87,7 +89,7 @@ TemplateBindings.prototype.resetCurChild = function() {
 
 TemplateBindings.prototype.addTemplateBinding = function(name, val) {
     if (this.bindings[name])
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
     else if (val.isMacro()) {
         // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
         var fakeName = newCpsName();
@@ -185,7 +187,7 @@ TemplateBindings.prototype.getNextChild = function() {
 
 TemplateBindings.prototype.resolveDatum = function(datum) {
     if (!this.patternIds)
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
 
     if (datum.isIdentifier()) {
         var name = datum.payload;

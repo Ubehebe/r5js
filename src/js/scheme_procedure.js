@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.scheme_procedure');
 
 
 goog.require('r5js.IncorrectNumArgs');
+goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.TooFewArgs');
 
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
@@ -78,7 +79,7 @@ SchemeProcedure.prototype.setEnv = function(env) {
         if (this.body.subtype instanceof ProcCall)
             this.body.subtype.setEnv(env, true);
         else
-            throw new InternalInterpreterError(
+            throw new r5js.InternalInterpreterError(
                 'invariant incorrect -- procedure does not begin with proc call');
     }
 };

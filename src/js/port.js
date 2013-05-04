@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.port');
 
+
+goog.require('r5js.InternalInterpreterError');
+
 /* This class is never instantiated; it's just used to double-check that
  objects that purport to provide Scheme-port-like-services do. Of course,
  the check occurs at runtime, so it's of limited helpfulness. But it is
@@ -36,7 +39,7 @@ function Port() {
         = this.toString
         = this.writeChar
         = function () {
-        throw new InternalInterpreterError(
+        throw new r5js.InternalInterpreterError(
             'this class should never be instantiated, '
                 + 'it\'s just here for documentation')
     };

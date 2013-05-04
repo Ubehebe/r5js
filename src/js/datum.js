@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.datum');
 
+
+goog.require('r5js.InternalInterpreterError');
+
 function Datum() {
     /* No need to set this stuff until it's needed, just here for documentation
      this.firstChild = null;
@@ -343,7 +346,7 @@ Datum.prototype.getMacro = function() {
     if (this.payload instanceof SchemeMacro)
         return this.payload.setIsLetOrLetrecSyntax();
     else
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
 };
 
 function newVectorDatum(array) {
@@ -437,7 +440,7 @@ function maybeWrapResult(result, type) {
                     break;
                 }
             default:
-                throw new InternalInterpreterError('cannot deduce type from value '
+                throw new r5js.InternalInterpreterError('cannot deduce type from value '
                     + result + ': noninjective mapping from values to types');
         }
     }

@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.continuation');
 
+
+goog.require('r5js.InternalInterpreterError');
+
 function Continuation(lastResultName) {
 
     this.lastResultName = lastResultName;
@@ -97,6 +100,6 @@ Continuation.prototype.rememberEnv = function(env) {
                 next.consequent.subtype.maybeSetEnv(env);
             if (next.alternate.subtype instanceof ProcCall)
                 next.alternate.subtype.maybeSetEnv(env);
-        } else throw new InternalInterpreterError('invariant incorrect');
+        } else throw new r5js.InternalInterpreterError('invariant incorrect');
     }
 };

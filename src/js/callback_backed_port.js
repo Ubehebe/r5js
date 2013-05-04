@@ -20,9 +20,12 @@
 
 goog.provide('r5js.tmp.callback_backed_port');
 
+
+goog.require('r5js.InternalInterpreterError');
+
 function CallbackBackedPort(onOutput) {
     if (typeof onOutput !== 'function')
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
     this.onOutput = onOutput;
 }
 

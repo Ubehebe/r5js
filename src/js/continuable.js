@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.continuable');
 
+
+goog.require('r5js.InternalInterpreterError');
+
 /* todo bl: Continuable was originally envisioned as the parent
  type of objects on the trampoline. Originally we had three subtypes:
  ProcCall, Branch, and IdShim. But IdShim was turned into a subtype of
@@ -26,7 +29,7 @@ goog.provide('r5js.tmp.continuable');
  things on the trampoline. */
 function Continuable(subtype, continuation) {
     if (!subtype || !continuation) // todo bl take out after testing
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
     this.subtype = subtype;
     this.continuation = continuation;
     //this.lastContinuable = this.getLastContinuable(); // todo bl caching problems
@@ -42,7 +45,7 @@ Continuable.prototype.setStartingEnv = function(env) {
 Continuable.prototype.setTopLevelAssignment = function() {
     if (!(this.subtype instanceof ProcCall
         && this.subtype.operatorName === ProcCall.prototype.specialOps._set))
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
     this.subtype.isTopLevelAssignment = true;
     return this;
 };
@@ -50,7 +53,7 @@ Continuable.prototype.setTopLevelAssignment = function() {
 Continuable.prototype.setSyntaxAssignment = function() {
     if (!(this.subtype instanceof ProcCall
         && this.subtype.operatorName === ProcCall.prototype.specialOps._set))
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
     this.subtype.isSyntaxAssignment = true;
     return this;
 };
@@ -59,7 +62,7 @@ Continuable.prototype.setSyntaxAssignment = function() {
  continuable c such that c.continuation.nextContinuable is null. */
 Continuable.prototype.getLastContinuable = function() {
     if (!this.continuation)
-        throw new InternalInterpreterError('invariant violated');
+        throw new r5js.InternalInterpreterError('invariant violated');
     return this.continuation.nextContinuable
         ? this.continuation.nextContinuable.getLastContinuable()
         : this;

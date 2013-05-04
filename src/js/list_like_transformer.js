@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.list_like_transformer');
 
+
+goog.require('r5js.InternalInterpreterError');
+
 /* ListLikeTransformer, EllipsisTransformer, and IdOrLiteralTransformer
 all "implement" the following "interface":
 
@@ -61,7 +64,7 @@ ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
             // Vector patterns match only vector inputs
             return inputDatum.isVector();
         default:
-            throw new InternalInterpreterError('enum changed');
+            throw new r5js.InternalInterpreterError('enum changed');
     }
 };
 

@@ -18,6 +18,8 @@ goog.provide('r5js.tmp.proc_call');
 
 
 goog.require('r5js.EvalError');
+goog.require('r5js.InternalInterpreterError');
+
 // For composition; should only be called from newProcCall
 function ProcCall(operatorName, firstOperand) {
     /* todo bl operatorName is an identifier _datum_...I think
@@ -29,7 +31,7 @@ function ProcCall(operatorName, firstOperand) {
 
 ProcCall.prototype.setEnv = function(env, override) {
     if (this.env && !override)
-        throw new InternalInterpreterError('invariant incorrect');
+        throw new r5js.InternalInterpreterError('invariant incorrect');
     this.env = env;
 };
 
@@ -608,7 +610,7 @@ ProcCall.prototype.evalArgs = function(wrapArgs) {
         } else if (cur.payload !== undefined) {
             args.push(maybeWrapResult(cur.payload, cur.type));
         }
-        else throw new InternalInterpreterError('unexpected datum ' + cur);
+        else throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
     }
 
     return args;
