@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.ffi');
+
 /* Warning: experimental. The intent is to allows things like
  (js-set! ((((window 'document) 'querySelector) "body") 'style) 'background-color "red")
  ((window 'alert) "Hello, world!")

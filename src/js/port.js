@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.port');
+
 /* This class is never instantiated; it's just used to double-check that
  objects that purport to provide Scheme-port-like-services do. Of course,
  the check occurs at runtime, so it's of limited helpfulness. But it is

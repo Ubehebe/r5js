@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.template_bindings');
+
 /* My approach for supporting nested ellipses in macro transcriptions
 is to take a single pass through the input and build up a TemplateBindings
 object whose tree structure mirrors the ellipsis nesting in the pattern.

@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.trampoline');
+
 /* This is the main evaluation function.
 
     The subtlest part is probably the question "what is the current environment?"

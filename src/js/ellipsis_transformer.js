@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.ellipsis_transformer');
+
 // See comments at top of ListLikeTransformer.
 function EllipsisTransformer(subtransformer) {
     this.subtransformer = subtransformer;

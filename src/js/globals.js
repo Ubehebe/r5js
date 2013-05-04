@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.globals');
+
 var nullEnv; // this is (null-environment 5)
 var r5RSEnv; // this is (scheme-report-environment 5)
 var debug = Function('return "console" in this;')() && false; // setting this to true shows every bounce of the trampoline

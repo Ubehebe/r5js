@@ -13,6 +13,12 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.trampoline_helper');
+
+
+goog.require('r5js.tmp.callback_backed_port');
+
 function TrampolineHelper(inputPort, outputPort) {
     this.inputPort = inputPort
         ? newInputPortDatum(inputPort)

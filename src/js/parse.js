@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.parse');
+
 /* todo bl: this file should not exist.
 
  Short explanation: (define if +) (if 1 2 3) => 6 ; legal

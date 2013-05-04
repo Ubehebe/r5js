@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.continuable_helper');
+
 /* Just a buffer to accumulate a Continuable-Continuation chain
  without the client having to do the pointer arithmetic. */
 function ContinuableHelper() {

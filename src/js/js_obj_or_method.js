@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.js_obj_or_method');
+
 /* It's kind of silly to have an object representing an object.
  I did this to avoid dispatching on typeof x === 'object' in the
  evaluator, which in my experience is error-prone. */

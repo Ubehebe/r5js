@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.sibling_buffer');
+
 /* Just a buffer to accumulate siblings without the client having to do
  the pointer arithmetic. */
 function SiblingBuffer() {

@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.transformer');
+
 function Transformer(pattern, template) {
     /* This is an InternalInterpreterError (= sanity check) instead of a
      MacroError because the grammar should make it impossible for

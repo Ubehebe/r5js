@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.output_modes');
+
 /* R5RS 6.6.3:
 write: "Strings that appear in the written representation are en-
 closed in doublequotes, and within those strings backslash

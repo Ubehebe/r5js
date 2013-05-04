@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.stdproc');
+
 var R5JS_builtins = {};
 
 /* The names of the different categories of builtins are just for

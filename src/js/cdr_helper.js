@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.cdr_helper');
+
 /* See the comment to Datum.prototype.siblingsToList for an explanation
  of what this class does. */
 function CdrHelper(head, startOfCdr) {

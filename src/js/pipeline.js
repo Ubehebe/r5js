@@ -13,6 +13,10 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+
+goog.provide('r5js.tmp.pipeline');
+
 function Pipeline() {}
 
 Pipeline.prototype.setRootEnv = function(rootEnv) {

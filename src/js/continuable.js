@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.continuable');
+
 /* todo bl: Continuable was originally envisioned as the parent
  type of objects on the trampoline. Originally we had three subtypes:
  ProcCall, Branch, and IdShim. But IdShim was turned into a subtype of

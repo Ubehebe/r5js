@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.environment');
+
 /* An Environment stores three common kinds of objects:
     - Datums (most Scheme values: numbers, identifiers, etc.)
     - SchemeProcedures (native Scheme procedures)

@@ -17,6 +17,9 @@
  prevent the Google Closure Compiler from renaming them. See comments
  at Port. */
 
+
+goog.provide('r5js.tmp.callback_backed_port');
+
 function CallbackBackedPort(onOutput) {
     if (typeof onOutput !== 'function')
         throw new InternalInterpreterError('invariant incorrect');

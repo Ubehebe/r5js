@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+
+goog.provide('r5js.tmp.proc_call');
+
 // For composition; should only be called from newProcCall
 function ProcCall(operatorName, firstOperand) {
     /* todo bl operatorName is an identifier _datum_...I think
