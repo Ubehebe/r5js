@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.environment');
 
 
 goog.require('r5js.EvalError');
+goog.require('r5js.UnboundVariable');
 /* An Environment stores three common kinds of objects:
     - Datums (most Scheme values: numbers, identifiers, etc.)
     - SchemeProcedures (native Scheme procedures)
@@ -138,7 +139,7 @@ Environment.prototype.get = function(name) {
     else if (this.enclosingEnv)
         return this.enclosingEnv.get(name);
     else
-        throw new UnboundVariable(name + ' in env ' + this.name);
+        throw new r5js.UnboundVariable(name + ' in env ' + this.name);
 };
 
 Environment.prototype.getProcedure = function(name) {
@@ -325,5 +326,5 @@ Environment.prototype.mutate = function(name, newVal, isTopLevel) {
         }
     } else if (this.enclosingEnv) {
         this.enclosingEnv.mutate(name, newVal, isTopLevel);
-    } else throw new UnboundVariable(name);
+    } else throw new r5js.UnboundVariable(name);
 };

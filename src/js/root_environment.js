@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.root_environment');
 
+
+goog.require('r5js.UnboundVariable');
+
 function RootEnvironment(delegate) {
     this.delegate = delegate;
 }
@@ -29,7 +32,7 @@ RootEnvironment.prototype.get = function(name) {
         return this.delegate.get(name);
     else if (this.lookaside.hasBindingRecursive(name, true))
         return this.lookaside.get(name);
-    else throw new UnboundVariable(name + ' in env ' + this.toString());
+    else throw new r5js.UnboundVariable(name + ' in env ' + this.toString());
 };
 
 RootEnvironment.prototype.getProcedure = function(name) {

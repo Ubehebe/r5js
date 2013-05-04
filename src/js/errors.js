@@ -19,11 +19,17 @@ goog.provide('r5js.ArgumentTypeError');
 goog.provide('r5js.EvalError');
 
 
-function UnboundVariable(name) {
+goog.provide('r5js.UnboundVariable');
+/**
+ * @param {string} name The name of the variable that was supposed to be
+ * bound but wasn't.
+ * @constructor
+ */
+r5js.UnboundVariable = function(name) {
     this.toString = function() {
         return 'unbound variable ' + name;
     };
-}
+};
 
 function TooFewArgs(name, minNumArgs, actualNumArgs) {
     this.toString = function() {
