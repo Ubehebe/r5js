@@ -122,6 +122,12 @@ function newEmptyList() {
     return ans;
 }
 
+/**
+ * @param {*} payload The payload.
+ * @param {string=} type The type tag.
+ * @return {!Datum}
+ * TODO bl: narrow the type of the payload param.
+ */
 function newIdOrLiteral(payload, type) {
     // todo bl: we're sometimes creating these with undefined payloads! Investigate.
     var ans = new Datum();
