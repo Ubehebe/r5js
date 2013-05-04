@@ -24,10 +24,20 @@ goog.require('r5js.InternalInterpreterError');
  evaluator, which in my experience is error-prone. */
 
 /**
+ * @param {*} receiver The receiver.
+ * @param {*=} msg The message to send.
  * @constructor
+ * TODO bl: narrow the types of the parameters.
  */
-function JsObjOrMethod(receiver, msg /* null for obj */) {
+function JsObjOrMethod(receiver, msg) {
+    /**
+     * @type {*}
+     */
     this.receiver = receiver;
+
+    /**
+     * @type {*}
+     */
     this.msg = msg;
 }
 
