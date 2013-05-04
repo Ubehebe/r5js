@@ -58,6 +58,7 @@ JsObjOrMethod.prototype.callWith = function(args) {
     return this.msg.apply(this.receiver, args);
 };
 
+/** @override */
 JsObjOrMethod.prototype.toString = function() {
     return this.receiver.toString();
 };
