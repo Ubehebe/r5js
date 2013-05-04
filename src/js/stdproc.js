@@ -22,6 +22,7 @@ goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ParseError');
+goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 
@@ -373,7 +374,7 @@ R5JS_builtins['number'] = {
         argtypes: 'number',
         proc: function(p, q) {
             if (q === 0)
-                throw new PrimitiveProcedureError('remainder: undefined for 0');
+                throw new r5js.PrimitiveProcedureError('remainder: undefined for 0');
             // The JavaScript % semantics are precisely the Scheme remainder semantics.
             else return p % q;
         }
@@ -384,7 +385,7 @@ R5JS_builtins['number'] = {
         argtypes: 'number',
         proc: function(p, q) {
             if (q === 0)
-                throw new PrimitiveProcedureError('quotient: undefined for 0');
+                throw new r5js.PrimitiveProcedureError('quotient: undefined for 0');
             else {
                 /* In Scheme, quotient rounds towards zero, which is unfortunately
                 not what JavaScript's Math.round() does. */
@@ -400,7 +401,7 @@ R5JS_builtins['number'] = {
         argtypes: 'number',
         proc: function(p, q) {
             if (q === 0)
-                throw new PrimitiveProcedureError('modulo: undefined for 0');
+                throw new r5js.PrimitiveProcedureError('modulo: undefined for 0');
             else {
                 var remainder = p % q;
                 var sign = p*q;

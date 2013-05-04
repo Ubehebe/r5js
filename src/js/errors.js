@@ -27,6 +27,7 @@ goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.IOError');
 goog.provide('r5js.MacroError');
 goog.provide('r5js.ParseError');
+goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
@@ -116,9 +117,14 @@ r5js.InternalInterpreterError = function(msg) {
     };
 };
 
-function PrimitiveProcedureError(message) {
+/**
+ * @param {string} message An error message.
+ * @constructor
+ * TODO bl: consider renaming to RuntimeError.
+ */
+r5js.PrimitiveProcedureError = function(message) {
     this.toString = function() { return message; };
-}
+};
 
 /**
  * @param {*} argument The argument.
