@@ -139,10 +139,15 @@ function Parser(root) {
 //    this.fixParserSensitiveIds = false;
 }
 
-/* When a parse of a node n succeeds, n is returned and this.next
- is advanced to the next node to parse. When a parse of n fails,
- null is returned and this.next still points to n. */
-Parser.prototype.rhs = function() {
+
+/**
+ * When a parse of a node n succeeds, n is returned and this.next
+ * is advanced to the next node to parse. When a parse of n fails,
+ * null is returned and this.next still points to n.
+ * @param {...*} var_args
+ * TODO bl: narrow the signature.
+ */
+Parser.prototype.rhs = function(var_args) {
     var parseFunction;
 
     var root = this.next;
@@ -196,7 +201,11 @@ Parser.prototype.rhs = function() {
     return root;
 };
 
-Parser.prototype.alternation = function() {
+/**
+ * @param {...*} var_args
+ * TODO bl: narrow the signature.
+ */
+Parser.prototype.alternation = function(var_args) {
     var possibleRhs;
     for (var i = 0; i < arguments.length; ++i) {
         if (possibleRhs = this.rhs.apply(this, arguments[i]))
@@ -1406,6 +1415,10 @@ Parser.prototype['syntax-definition'] = function() {
     );
 };
 
+/**
+ * @param {*=} lhs
+ * TODO bl: narrow the type of the parameter.
+ */
 Parser.prototype.parse = function(lhs) {
     var fun = this[lhs || 'program'];
     if (fun) {
