@@ -47,6 +47,10 @@ SiblingBuffer.prototype.toSiblings = function() {
     return this.first;
 };
 
+/**
+ * @param {*=} type
+ * TODO bl: narrow the type of the parameter.
+ */
 SiblingBuffer.prototype.toList = function(type) {
   var ans = newEmptyList();
     ans.firstChild = this.first;
