@@ -41,6 +41,9 @@ function JsObjOrMethod(receiver, msg) {
     this.msg = msg;
 }
 
+/**
+ * @return {boolean} True iff the object represents a bound method.
+ */
 JsObjOrMethod.prototype.isBoundMethod = function() {
     return !!this.msg;
 };
