@@ -17,6 +17,10 @@
 goog.provide('r5js.tmp.ellipsis_transformer');
 
 // See comments at top of ListLikeTransformer.
+
+/**
+ * @constructor
+ */
 function EllipsisTransformer(subtransformer) {
     this.subtransformer = subtransformer;
     this.bindings = [];

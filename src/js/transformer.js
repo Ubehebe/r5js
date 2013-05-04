@@ -20,6 +20,9 @@ goog.provide('r5js.tmp.transformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.MacroError');
 
+/**
+ * @constructor
+ */
 function Transformer(pattern, template) {
     /* This is an InternalInterpreterError (= sanity check) instead of a
      MacroError because the grammar should make it impossible for

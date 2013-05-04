@@ -20,6 +20,9 @@ goog.provide('r5js.tmp.scheme_macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.ParseError');
 
+/**
+ * @constructor
+ */
 function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
 
     this.definitionEnv = definitionEnv;

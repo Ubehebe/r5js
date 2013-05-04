@@ -19,6 +19,10 @@ goog.provide('r5js.tmp.env_buffer');
 /* Just a pointer to an environment. It's separate from the
  TrampolineResultStruct to make it clear that old environments are only
  reused in a few situations. */
+
+/**
+ * @constructor
+ */
 function EnvBuffer() {
     this.env = null;
 }

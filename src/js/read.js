@@ -19,6 +19,9 @@ goog.provide('r5js.tmp.read');
 
 goog.require('r5js.InternalInterpreterError');
 
+/**
+ * @constructor
+ */
 function Reader(scanner) {
     this.scanner = scanner;
     this.readyTokens = [];

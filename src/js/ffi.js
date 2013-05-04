@@ -21,6 +21,9 @@ goog.provide('r5js.tmp.ffi');
  ((window 'alert) "Hello, world!")
  */
 
+/**
+ * @constructor
+ */
 function FFIError() {
     this.toString = function() {
         return 'JS interop is an experimental feature. Sorry!';

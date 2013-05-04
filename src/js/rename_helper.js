@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.rename_helper');
 
+/**
+ * @constructor
+ */
 function RenameHelper(parent) {
     this.bindings = {}; // don't use this directly
     this.parent = parent;

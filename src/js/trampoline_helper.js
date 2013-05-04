@@ -19,6 +19,9 @@ goog.provide('r5js.tmp.trampoline_helper');
 
 goog.require('r5js.tmp.callback_backed_port');
 
+/**
+ * @constructor
+ */
 function TrampolineHelper(inputPort, outputPort) {
     this.inputPort = inputPort
         ? newInputPortDatum(inputPort)

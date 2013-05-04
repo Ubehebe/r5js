@@ -47,6 +47,10 @@ goog.require('r5js.UnboundVariable');
     function, you can use Environment.prototype.getProcedure to avoid the
     wrapping and unwrapping.
  */
+
+/**
+ * @constructor
+ */
 function Environment(name, enclosingEnv) {
     this.name = name; // just for use in pretty-printing
     if (enclosingEnv) {

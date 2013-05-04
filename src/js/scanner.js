@@ -20,6 +20,9 @@ goog.provide('r5js.tmp.scanner');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
 
+/**
+ * @constructor
+ */
 function Token(type) {
     this.type = type;
 }
@@ -115,6 +118,9 @@ Token.prototype.setPayload = function(payload) {
     return this;
 };
 
+/**
+ * @constructor
+ */
 function Scanner(text) {
 
     this.text = text;

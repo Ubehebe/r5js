@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.timer');
 
+/**
+ * @constructor
+ */
 function Timer() {
     this.names = [];
     this.startingTimes = [];

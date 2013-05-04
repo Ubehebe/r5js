@@ -19,6 +19,9 @@ goog.provide('r5js.tmp.node_backed_port');
 
 goog.require('r5js.IOError');
 
+/**
+ * @constructor
+ */
 function NodeBackedPort(filename, mode) {
 
     /* We set this inside the constructor instead of the usual way

@@ -31,6 +31,9 @@ goog.require('r5js.IOError');
  PortImpl.prototype.close = ...), to prevent the Google Closure Compiler
  from renaming them and thus making them useless on the trampoline. */
 
+/**
+ * @constructor
+ */
 function Port() {
     this.close
         = this.isCharReady

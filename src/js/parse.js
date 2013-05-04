@@ -91,6 +91,9 @@ goog.require('r5js.MacroError');
  todo bl: implement the circularity-checking algorithm described
  in R6RS. */
 
+/**
+ * @constructor
+ */
 function Parser(root) {
     /* The next datum to parse. When a parse of a node is successful,
      the next pointer advanced to the node's next sibling. Thus, this.next

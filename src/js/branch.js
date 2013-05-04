@@ -22,6 +22,9 @@ function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable,
 }
 
 // For composition; should only be called from newBranch
+/**
+ * @constructor
+ */
 function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
     this.test = testIdOrLiteral;
     this.consequent = consequentContinuable;

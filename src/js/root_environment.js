@@ -19,6 +19,9 @@ goog.provide('r5js.tmp.root_environment');
 
 goog.require('r5js.UnboundVariable');
 
+/**
+ * @constructor
+ */
 function RootEnvironment(delegate) {
     this.delegate = delegate;
 }

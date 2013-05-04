@@ -22,6 +22,10 @@ goog.require('r5js.InternalInterpreterError');
 /* It's kind of silly to have an object representing an object.
  I did this to avoid dispatching on typeof x === 'object' in the
  evaluator, which in my experience is error-prone. */
+
+/**
+ * @constructor
+ */
 function JsObjOrMethod(receiver, msg /* null for obj */) {
     this.receiver = receiver;
     this.msg = msg;

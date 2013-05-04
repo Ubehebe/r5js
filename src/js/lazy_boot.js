@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.lazy_boot');
 
+/**
+ * @constructor
+ */
 function LazyBoot(delegate, onBoot) {
     this.delegate = delegate;
     this.booted = false;

@@ -17,6 +17,10 @@
 goog.provide('r5js.tmp.id_or_literal_transformer');
 
 // See comments at top of ListLikeTransformer.
+
+/**
+ * @constructor
+ */
 function IdOrLiteralTransformer(datum) {
     this.datum = datum;
 }

@@ -21,6 +21,9 @@ goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.TooFewArgs');
 
+/**
+ * @constructor
+ */
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.isDotted = isDotted;
     this.env = new Environment(name, env);

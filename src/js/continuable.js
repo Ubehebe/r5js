@@ -27,6 +27,10 @@ goog.require('r5js.InternalInterpreterError');
  for example) have been written as ProcCalls. So it may no longer make
  sense to create both a Continuable and a ProcCall object for most
  things on the trampoline. */
+
+/**
+ * @constructor
+ */
 function Continuable(subtype, continuation) {
     if (!subtype || !continuation) // todo bl take out after testing
         throw new r5js.InternalInterpreterError('invariant incorrect');

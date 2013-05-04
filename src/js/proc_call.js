@@ -24,6 +24,10 @@ goog.require('r5js.MacroError');
 goog.require('r5js.QuasiquoteError');
 
 // For composition; should only be called from newProcCall
+
+/**
+ * @constructor
+ */
 function ProcCall(operatorName, firstOperand) {
     /* todo bl operatorName is an identifier _datum_...I think
         some call sites might be passing in strings... */

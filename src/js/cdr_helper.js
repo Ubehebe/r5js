@@ -21,6 +21,10 @@ goog.require('r5js.ImmutableError');
 
 /* See the comment to Datum.prototype.siblingsToList for an explanation
  of what this class does. */
+
+/**
+ * @constructor
+ */
 function CdrHelper(head, startOfCdr) {
     this.head = head;
     this.startOfCdr = startOfCdr;

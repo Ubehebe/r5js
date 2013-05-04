@@ -33,6 +33,10 @@ they didn't share any implementations of these functions, nor any common state,
 all the ancestor did was throw "pure virtual" exceptions if a function
 hadn't been overridden. In view of this lack of usefulness, I got rid of the
 "superclass". */
+
+/**
+ * @constructor
+ */
 function ListLikeTransformer(type) {
     this.type = type;
     this.subtransformers = [];

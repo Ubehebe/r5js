@@ -72,6 +72,10 @@ For example:
  with "incorporation". Do we even need it?
 
  */
+
+/**
+ * @constructor
+ */
 function TemplateBindings(letSyntaxEnv, patternIds, templateRenameCandidates) {
     this.bindings = {};
     this.children = [];

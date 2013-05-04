@@ -19,6 +19,9 @@ goog.provide('r5js.tmp.continuation');
 
 goog.require('r5js.InternalInterpreterError');
 
+/**
+ * @constructor
+ */
 function Continuation(lastResultName) {
 
     this.lastResultName = lastResultName;
