@@ -15,6 +15,7 @@
 
 
 goog.provide('r5js.tmp.errors');
+goog.provide('r5js.ArgumentTypeError');
 
 
 function UnboundVariable(name) {
@@ -78,7 +79,17 @@ function PrimitiveProcedureError(message) {
     this.toString = function() { return message; };
 }
 
-function ArgumentTypeError(argument, which, procName, expectedType) {
+/**
+ * @param {*} argument The argument.
+ * @param {number} which The position of the argument in the argument list
+ * (zero-indexed).
+ * @param {string} procName The procedure that the interpreter was invoking
+ * when this error occurred.
+ * @param {string} expectedType The type of the argument that the interpreter
+ * expected.
+ * @constructor
+ */
+r5js.ArgumentTypeError = function(argument, which, procName, expectedType) {
     this.toString = function() {
         return 'The object '
             + argument.toString()
@@ -89,7 +100,7 @@ function ArgumentTypeError(argument, which, procName, expectedType) {
             + ', is not of the correct type '
             + expectedType;
     };
-}
+};
 
 function MacroError(keyword, msg) {
     this.toString = function() {

@@ -16,6 +16,8 @@
 
 goog.provide('r5js.tmp.stdproc');
 
+
+goog.require('r5js.ArgumentTypeError');
 var R5JS_builtins = {};
 
 /* The names of the different categories of builtins are just for
@@ -665,7 +667,7 @@ R5JS_builtins['pair'] = {
                     helper.setCar(car);
 
                 return null; // unspecified return value
-            } else throw new ArgumentTypeError(p, 0, 'set-car!', 'pair');
+            } else throw new r5js.ArgumentTypeError(p, 0, 'set-car!', 'pair');
         }
     },
 
@@ -691,7 +693,7 @@ R5JS_builtins['pair'] = {
                 }
 
                 return null; // unspecified return value
-            } else throw new ArgumentTypeError(p, 0, 'set-cdr!', 'pair');
+            } else throw new r5js.ArgumentTypeError(p, 0, 'set-cdr!', 'pair');
         }
     }
 };
@@ -817,11 +819,11 @@ R5JS_builtins['string'] = {
         proc: function stringSet(str, k, c) {
 
             if (!str.isString())
-                throw new ArgumentTypeError(str, 0, 'string-set!', 'string');
+                throw new r5js.ArgumentTypeError(str, 0, 'string-set!', 'string');
             if (!k.isNumber())
-                throw new ArgumentTypeError(k, 1, 'string-set!', 'number');
+                throw new r5js.ArgumentTypeError(k, 1, 'string-set!', 'number');
             if (!c.isCharacter())
-                throw new ArgumentTypeError(c, 2, 'string-set!', 'character');
+                throw new r5js.ArgumentTypeError(c, 2, 'string-set!', 'character');
 
             if (str.isImmutable())
                 throw new ImmutableError(str.payload);
@@ -856,7 +858,7 @@ R5JS_builtins['vector'] = {
              C'est la vie. */
             n = n.unwrap();
             if (typeof n !== 'number')
-                throw new ArgumentTypeError(n, 0, 'make-vector', 'number');
+                throw new r5js.ArgumentTypeError(n, 0, 'make-vector', 'number');
             /* R5RS 6.3.6: "If a second argument is given, then each
              element is initialized to fill. Otherwise the initial
              contents of each element is unspecified."
@@ -895,9 +897,9 @@ R5JS_builtins['vector'] = {
             k = k.unwrap();
 
             if (!v.isVector())
-                throw new ArgumentTypeError(v, 0, 'vector-set!', 'vector');
+                throw new r5js.ArgumentTypeError(v, 0, 'vector-set!', 'vector');
             else if (typeof k !== 'number')
-                throw new ArgumentTypeError(k, 1, 'vector-set!', 'number');
+                throw new r5js.ArgumentTypeError(k, 1, 'vector-set!', 'number');
 
             if (v.isImmutable())
                 throw new ImmutableError(v.toString());
@@ -928,7 +930,7 @@ R5JS_builtins['control'] = {
 
             var mustBeProc = arguments[0];
             if (!mustBeProc.isProcedure())
-                throw new ArgumentTypeError(mustBeProc, 0, 'apply', 'procedure');
+                throw new r5js.ArgumentTypeError(mustBeProc, 0, 'apply', 'procedure');
 
             var curProcCall = arguments[arguments.length - 3];
             /* todo bl: very little idea what's going on here, but we seem to
@@ -940,7 +942,7 @@ R5JS_builtins['control'] = {
             var lastRealArgIndex = arguments.length - 4;
             var mustBeList = arguments[lastRealArgIndex];
             if (!mustBeList.isList())
-                throw new ArgumentTypeError(mustBeList, lastRealArgIndex, 'apply', 'list');
+                throw new r5js.ArgumentTypeError(mustBeList, lastRealArgIndex, 'apply', 'list');
 
             // (apply foo '(x y z))
             if (lastRealArgIndex === 1) {
@@ -1153,9 +1155,9 @@ R5JS_builtins['eval'] = {
         argc: 2,
         proc: function(expr, envSpec) {
             if (!(expr instanceof Datum))
-                throw new ArgumentTypeError(expr, 0, 'eval', 'datum');
+                throw new r5js.ArgumentTypeError(expr, 0, 'eval', 'datum');
             if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
-                throw new ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
+                throw new r5js.ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
 
             /* An interesting special case. If we're about to evaluate a wrapped
              procedure (primitive JavaScript or SchemeProcedure), return its name
@@ -1301,7 +1303,7 @@ R5JS_builtins['io'] = {
                     ? arguments[arguments.length - 2]
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
-                    throw new ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
+                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
                 } else if (inputPort.payload['isEof']()) {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
@@ -1319,7 +1321,7 @@ R5JS_builtins['io'] = {
                     ? arguments[arguments.length - 2]
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
-                    throw new ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
+                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
                 } else if (inputPort.payload['isEof']()) {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
@@ -1345,7 +1347,7 @@ R5JS_builtins['io'] = {
                     ? arguments[arguments.length-2]
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
-                    throw new ArgumentTypeError(inputPort, 0, 'char-ready?', 'input-port');
+                    throw new r5js.ArgumentTypeError(inputPort, 0, 'char-ready?', 'input-port');
                 } else if (inputPort.payload['isEof']()) {
                     /* R5RS 6.6.2: "If the port is at end of file then
                      char-ready? returns true." (Because the next call to
@@ -1367,7 +1369,7 @@ R5JS_builtins['io'] = {
                     ? arguments[arguments.length - 1]
                     : arguments[1];
                 if (!outputPort.isOutputPort())
-                    throw new ArgumentTypeError(outputPort, 1, 'write', 'output-port');
+                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write', 'output-port');
                 var toWrite = x instanceof Datum
                     ? x.toString(OutputModes.WRITE)
                     : String(x);
@@ -1395,12 +1397,12 @@ R5JS_builtins['io'] = {
             } else if (numUserArgs === 1 || numUserArgs === 2) {
                 var c = arguments[0];
                 if (!c.isCharacter())
-                    throw new ArgumentTypeError(c, 0, 'write-char', 'character');
+                    throw new r5js.ArgumentTypeError(c, 0, 'write-char', 'character');
                 var outputPort = (numUserArgs === 1)
                     ? arguments[arguments.length - 1]
                     : arguments[1];
                 if (!outputPort.isOutputPort())
-                    throw new ArgumentTypeError(outputPort, 1, 'write-char', 'output-port');
+                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write-char', 'output-port');
 
                 outputPort.payload['writeChar'](c.payload);
             } else throw new TooManyArgs('write-char', 2, numUserArgs);
@@ -1425,7 +1427,7 @@ R5JS_builtins['io'] = {
                     ? arguments[arguments.length - 1]
                     : arguments[1];
                 if (!outputPort.isOutputPort())
-                    throw new ArgumentTypeError(outputPort, 1, 'display', 'output-port');
+                    throw new r5js.ArgumentTypeError(outputPort, 1, 'display', 'output-port');
                 var toWrite = x instanceof Datum
                     ? x.toString(OutputModes.DISPLAY)
                     : String(x);
@@ -1505,7 +1507,7 @@ function registerBuiltin(name, definition, targetEnv) {
                     if (classifier(arguments[i]).unwrap())
                         maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
                     else
-                        throw new ArgumentTypeError(arguments[i], i, name, argtypes);
+                        throw new r5js.ArgumentTypeError(arguments[i], i, name, argtypes);
                 }
             }
 
@@ -1519,7 +1521,7 @@ function registerBuiltin(name, definition, targetEnv) {
                      we still need to collect them. */
                     if (i < argtypes.length
                         && !targetEnv.getProcedure(argtypes[i] + '?')(arguments[i]).unwrap())
-                        throw new ArgumentTypeError(arguments[i], i, name, argtypes[i]);
+                        throw new r5js.ArgumentTypeError(arguments[i], i, name, argtypes[i]);
                     maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
                 }
             }
