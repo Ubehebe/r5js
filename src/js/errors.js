@@ -21,6 +21,7 @@ goog.provide('r5js.EvalError');
 
 goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.TooFewArgs');
+goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
 /**
  * @param {string} name The name of the variable that was supposed to be
@@ -36,7 +37,8 @@ r5js.UnboundVariable = function(name) {
 /**
  * @param {string} name The name of the procedure.
  * @param {number} minNumArgs The procedure's minimum number of arguments.
- * @param {number} actualNumArgs The actual number of arguments.
+ * @param {number} actualNumArgs The actual number of arguments passed to
+ * the procedure.
  * @constructor
  */
 r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
@@ -54,7 +56,14 @@ r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
     };
 };
 
-function TooManyArgs(name, maxNumArgs, actualNumArgs) {
+/**
+ * @param {string} name The name of the procedure.
+ * @param {number} maxNumArgs The procedure's maximum number of arguments.
+ * @param {number} actualNumArgs The actual number of arguments passed to
+ * the procedure.
+ * @constructor
+ */
+r5js.TooManyArgs = function(name, maxNumArgs, actualNumArgs) {
     this.toString = function() {
         return 'The procedure '
             + name
@@ -67,7 +76,7 @@ function TooManyArgs(name, maxNumArgs, actualNumArgs) {
             + ' argument'
             + (maxNumArgs === 1 ? '' : 's');
     };
-}
+};
 
 /**
  * @param {string} name The name of the procedure.

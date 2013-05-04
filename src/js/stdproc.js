@@ -20,6 +20,8 @@ goog.provide('r5js.tmp.stdproc');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.TooFewArgs');
+goog.require('r5js.TooManyArgs');
+
 var R5JS_builtins = {};
 
 /* The names of the different categories of builtins are just for
@@ -516,7 +518,7 @@ R5JS_builtins['number'] = {
                 case 2:
                     return Math.atan2(arguments[0], arguments[1]);
                 default:
-                    throw new TooManyArgs('atan', 2, arguments.length);
+                    throw new r5js.TooManyArgs('atan', 2, arguments.length);
             }
         }
     },
@@ -1311,7 +1313,7 @@ R5JS_builtins['io'] = {
                      an end of file object is returned." */
                     return inputPort;
                 } else return newIdOrLiteral(inputPort.payload['readChar'](), 'character');
-            } else throw new TooManyArgs('read-char', 1, numUserArgs);
+            } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
     },
     'peek-char': {
@@ -1329,7 +1331,7 @@ R5JS_builtins['io'] = {
                      an end of file object is returned." */
                     return inputPort;
                 } else return newIdOrLiteral(inputPort.payload['peekChar'](), 'character');
-            } else throw new TooManyArgs('read-char', 1, numUserArgs);
+            } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
     },
     'eof-object?': {
@@ -1356,7 +1358,7 @@ R5JS_builtins['io'] = {
                      read-char is guaranteed not to block -- it'll return EOF.) */
                     return true;
                 } else return inputPort.payload['isCharReady']();
-            } else throw new TooManyArgs('char-ready?', 1, arguments.length);
+            } else throw new r5js.TooManyArgs('char-ready?', 1, arguments.length);
         }
     },
     'write': {
@@ -1385,7 +1387,7 @@ R5JS_builtins['io'] = {
                         outputPort.payload['writeChar'](toWrite[i]);
                 }
                 return null; // unspecified return value
-            } else throw new TooManyArgs('write', 2, numUserArgs);
+            } else throw new r5js.TooManyArgs('write', 2, numUserArgs);
         }
 
 
@@ -1407,7 +1409,7 @@ R5JS_builtins['io'] = {
                     throw new r5js.ArgumentTypeError(outputPort, 1, 'write-char', 'output-port');
 
                 outputPort.payload['writeChar'](c.payload);
-            } else throw new TooManyArgs('write-char', 2, numUserArgs);
+            } else throw new r5js.TooManyArgs('write-char', 2, numUserArgs);
             return null;
         }
     },
@@ -1443,7 +1445,7 @@ R5JS_builtins['io'] = {
                         outputPort.payload['writeChar'](toWrite[i]);
                 }
                 return null; // unspecified return value
-            } else throw new TooManyArgs('display', 2, numUserArgs);
+            } else throw new r5js.TooManyArgs('display', 2, numUserArgs);
         }
     }
 };
@@ -1485,7 +1487,7 @@ function registerBuiltin(name, definition, targetEnv) {
             else if (argc.min && numArgsFromUser < argc.min)
                 throw new r5js.TooFewArgs(name, argc.min, numArgsFromUser);
             else if (argc.max && numArgsFromUser > argc.max)
-                throw new TooManyArgs(name, argc.max, numArgsFromUser);
+                throw new r5js.TooManyArgs(name, argc.max, numArgsFromUser);
         }
 
         var maybeUnwrappedArgs;
