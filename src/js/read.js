@@ -55,7 +55,11 @@ Reader.prototype.assertNextTokenType = function(type) {
     }
 };
 
-Reader.prototype.rhs = function() {
+/**
+ * @param {...*} var_args
+ * TODO bl: narrow the signature.
+ */
+Reader.prototype.rhs = function(var_args) {
     var ansDatum = new Datum();
     var parseFunction;
     var tokenStreamStart = this.nextTokenToReturn;
@@ -128,7 +132,11 @@ Reader.prototype.onTerminal = function(ansDatum, element) {
     } else return null;
 };
 
-Reader.prototype.alternation = function() {
+/**
+ * @param {...*} var_args
+ * TODO bl: narrow the signature.
+ */
+Reader.prototype.alternation = function(var_args) {
     var possibleRhs;
     // The most informative error is probably the failed parse
     // that got furthest through the input.
