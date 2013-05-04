@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.stdproc');
 
 
 goog.require('r5js.ArgumentTypeError');
+goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.TooFewArgs');
@@ -661,7 +662,7 @@ R5JS_builtins['pair'] = {
             if (p.isList() || p.isImproperList()) {
 
                 if (p.isImmutable())
-                    throw new ImmutableError(p.toString());
+                    throw new r5js.ImmutableError(p.toString());
 
                 car.nextSibling = p.firstChild.nextSibling;
                 p.firstChild = car;
@@ -682,7 +683,7 @@ R5JS_builtins['pair'] = {
             if (p.isList() || p.isImproperList()) {
 
                 if (p.isImmutable())
-                    throw new ImmutableError(p.toString());
+                    throw new r5js.ImmutableError(p.toString());
 
                 if (cdr.isList()) {
                     p.firstChild.nextSibling = cdr.firstChild;
@@ -831,7 +832,7 @@ R5JS_builtins['string'] = {
                 throw new r5js.ArgumentTypeError(c, 2, 'string-set!', 'character');
 
             if (str.isImmutable())
-                throw new ImmutableError(str.payload);
+                throw new r5js.ImmutableError(str.payload);
 
             var s = str.payload;
 
@@ -907,7 +908,7 @@ R5JS_builtins['vector'] = {
                 throw new r5js.ArgumentTypeError(k, 1, 'vector-set!', 'number');
 
             if (v.isImmutable())
-                throw new ImmutableError(v.toString());
+                throw new r5js.ImmutableError(v.toString());
 
             if (v.isArrayBacked())
                 v.payload[k] = fill;

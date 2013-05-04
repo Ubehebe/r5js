@@ -21,6 +21,7 @@ goog.provide('r5js.EvalError');
 
 goog.provide('r5js.GeneralSyntaxError');
 goog.provide('r5js.IllegalEmptyApplication');
+goog.provide('r5js.ImmutableError');
 goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.TooFewArgs');
@@ -205,11 +206,15 @@ r5js.EvalError = function(what) {
     };
 };
 
-function ImmutableError(what) {
+/**
+ * @param {string} what Object that caused the error.
+ * @constructor
+ */
+r5js.ImmutableError = function(what) {
     this.toString = function() {
         return 'cannot mutate immutable object: ' + what;
     };
-}
+};
 
 function ScanError(what) {
     this.toString = function() {

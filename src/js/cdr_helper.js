@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.cdr_helper');
 
+
+goog.require('r5js.ImmutableError');
+
 /* See the comment to Datum.prototype.siblingsToList for an explanation
  of what this class does. */
 function CdrHelper(head, startOfCdr) {
@@ -32,14 +35,14 @@ CdrHelper.prototype.getCdrHelper = function() {
 // Basically, call set-car! on the master list.
 CdrHelper.prototype.setCar = function(car) {
     if (this.head.isImmutable())
-        throw new ImmutableError(this.head.toString());
+        throw new r5js.ImmutableError(this.head.toString());
     this.head.firstChild.nextSibling = car;
 };
 
 // Basically, call set-cdr! on the master list.
 CdrHelper.prototype.setCdr = function(cdr) {
     if (this.head.isImmutable())
-        throw new ImmutableError(this.head.toString());
+        throw new r5js.ImmutableError(this.head.toString());
     this.startOfCdr.nextSibling = cdr;
     if (!cdr.isList()) {
         var cur = this;
