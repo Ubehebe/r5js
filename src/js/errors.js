@@ -20,6 +20,7 @@ goog.provide('r5js.EvalError');
 
 
 goog.provide('r5js.IncorrectNumArgs');
+goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.UnboundVariable');
 /**
  * @param {string} name The name of the variable that was supposed to be
@@ -32,7 +33,13 @@ r5js.UnboundVariable = function(name) {
     };
 };
 
-function TooFewArgs(name, minNumArgs, actualNumArgs) {
+/**
+ * @param {string} name The name of the procedure.
+ * @param {number} minNumArgs The procedure's minimum number of arguments.
+ * @param {number} actualNumArgs The actual number of arguments.
+ * @constructor
+ */
+r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
     this.toString = function() {
         return 'The procedure '
             + name
@@ -45,7 +52,7 @@ function TooFewArgs(name, minNumArgs, actualNumArgs) {
             + ' argument'
             + (minNumArgs === 1 ? '' : 's');
     };
-}
+};
 
 function TooManyArgs(name, maxNumArgs, actualNumArgs) {
     this.toString = function() {

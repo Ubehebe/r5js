@@ -18,6 +18,8 @@ goog.provide('r5js.tmp.scheme_procedure');
 
 
 goog.require('r5js.IncorrectNumArgs');
+goog.require('r5js.TooFewArgs');
+
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.isDotted = isDotted;
     this.env = new Environment(name, env);
@@ -102,7 +104,7 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
     } else {
         var minNumArgs = this.formalsArray.length - 1;
         if (numActuals < minNumArgs)
-            throw new TooFewArgs(this.toString(), minNumArgs, numActuals);
+            throw new r5js.TooFewArgs(this.toString(), minNumArgs, numActuals);
     }
 };
 

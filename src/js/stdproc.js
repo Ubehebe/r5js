@@ -19,6 +19,7 @@ goog.provide('r5js.tmp.stdproc');
 
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
+goog.require('r5js.TooFewArgs');
 var R5JS_builtins = {};
 
 /* The names of the different categories of builtins are just for
@@ -1363,7 +1364,7 @@ R5JS_builtins['io'] = {
         proc: function() {
             var numUserArgs = arguments.length - 2;
             if (numUserArgs === 0) {
-                throw new TooFewArgs('write', 1, numUserArgs);
+                throw new r5js.TooFewArgs('write', 1, numUserArgs);
             } else if (numUserArgs === 1 || numUserArgs === 2) {
                 var x = arguments[0];
                 var outputPort = (numUserArgs === 1)
@@ -1394,7 +1395,7 @@ R5JS_builtins['io'] = {
         proc: function() {
             var numUserArgs = arguments.length - 2;
             if (numUserArgs === 0) {
-                throw new TooFewArgs('write-char', 1, 0);
+                throw new r5js.TooFewArgs('write-char', 1, 0);
             } else if (numUserArgs === 1 || numUserArgs === 2) {
                 var c = arguments[0];
                 if (!c.isCharacter())
@@ -1419,7 +1420,7 @@ R5JS_builtins['io'] = {
         proc: function() {
             var numUserArgs = arguments.length - 2;
             if (numUserArgs === 0) {
-                throw new TooFewArgs('display', 1, numUserArgs);
+                throw new r5js.TooFewArgs('display', 1, numUserArgs);
             } else if (numUserArgs === 1 || numUserArgs === 2) {
                 var x = arguments[0];
                 /* If the programmer gave an output port, use that,
@@ -1482,7 +1483,7 @@ function registerBuiltin(name, definition, targetEnv) {
             if (typeof argc === 'number' && numArgsFromUser !== argc)
                 throw new r5js.IncorrectNumArgs(name, argc, numArgsFromUser);
             else if (argc.min && numArgsFromUser < argc.min)
-                throw new TooFewArgs(name, argc.min, numArgsFromUser);
+                throw new r5js.TooFewArgs(name, argc.min, numArgsFromUser);
             else if (argc.max && numArgsFromUser > argc.max)
                 throw new TooManyArgs(name, argc.max, numArgsFromUser);
         }
