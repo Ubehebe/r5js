@@ -36,6 +36,11 @@ function ProcCall(operatorName, firstOperand) {
     // this.env = null;
 }
 
+/**
+ * @param {!Environment} env An environment to use.
+ * @param {boolean=} override True iff the ProcCall's own environment
+ * should be overriden.
+ */
 ProcCall.prototype.setEnv = function(env, override) {
     if (this.env && !override)
         throw new r5js.InternalInterpreterError('invariant incorrect');
