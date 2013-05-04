@@ -15,8 +15,10 @@
 
 
 goog.provide('r5js.tmp.unit_test');
+goog.provide('r5js.test.parser');
+goog.provide('r5js.test.scanner');
 
-function testScanner() {
+r5js.test.scanner = function() {
 
     if (!Function('return "console" in this;')())
             alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
@@ -117,10 +119,10 @@ function testScanner() {
         });
     }
 
-    console.log('testScanner: ' + numTests + ' tests, ' + numErrors + ' errors');
-}
+    console.log('r5js.test.scanner: ' + numTests + ' tests, ' + numErrors + ' errors');
+};
 
-function testParser() {
+r5js.test.parser = function() {
 
     if (!Function('return "console" in this;')())
             alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
@@ -308,7 +310,7 @@ function testParser() {
 
                     if (actualResult.peekParse() !== type) { // ...but it was an incorrect parse
                         ++numErrors;
-                        console.log('testParser ' + type + ': ' + toParse + ': mis-parsed as');
+                        console.log('r5js.test.parser ' + type + ': ' + toParse + ': mis-parsed as');
                         console.log(actualResult);
                     }
 
@@ -317,7 +319,7 @@ function testParser() {
 
                 else { // ...but unexpectedly got failure
                     ++numErrors;
-                    console.log('testParser ' + type + ': ' + toParse + ': expected success, got failure');
+                    console.log('r5js.test.parser ' + type + ': ' + toParse + ': expected success, got failure');
                 }
 
             }
@@ -328,12 +330,12 @@ function testParser() {
                     ; // ...and got failure, according to expectation
                 } else { // ...but unexpectedly got success
                     ++numErrors;
-                    console.log('testParser ' + type + ': ' + toParse + ': expected failure, got');
+                    console.log('r5js.test.parser ' + type + ': ' + toParse + ': expected failure, got');
                     console.log(actualResult);
                 }
             }
             ++numTests;
         }
     }
-    console.log('testParser: ' + numTests + ' tests, ' + numErrors + ' errors');
+    console.log('r5js.test.parser: ' + numTests + ' tests, ' + numErrors + ' errors');
 }

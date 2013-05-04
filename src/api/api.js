@@ -55,6 +55,10 @@ goog.require('r5js.tmp.trampoline_helper');
 goog.require('r5js.tmp.transformer');
 goog.require('r5js.tmp.unit_test');
 
+goog.require('r5js.test.parser');
+goog.require('r5js.test.scanner');
+
+
 
 var GayLisp = (function() {
 
@@ -84,8 +88,8 @@ var GayLisp = (function() {
      from renaming the public API methods. */
     var publicApi = {
         'test': function(unitTestUrl, sideEffectHandler) {
-            testScanner();
-            testParser();
+            r5js.test.scanner();
+            r5js.test.parser();
             if (unitTestUrl)
                 publicApi['evalUrl'](unitTestUrl, sideEffectHandler);
         },
