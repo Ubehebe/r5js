@@ -419,6 +419,11 @@ Datum.prototype.sequence = function(env) {
 // todo bl once we have hidden these types behind functions, we can
 // switch their representations to ints instead of strings
 
+/**
+ * @param {*} result A result
+ * @param {*=} type An optional type.
+ * TODO bl: narrow the types of the parameters.
+ */
 function maybeWrapResult(result, type) {
 
     if (result === null
