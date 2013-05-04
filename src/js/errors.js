@@ -28,6 +28,7 @@ goog.provide('r5js.IOError');
 goog.provide('r5js.MacroError');
 goog.provide('r5js.ParseError');
 goog.provide('r5js.PrimitiveProcedureError');
+goog.provide('r5js.QuasiquoteError');
 goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
@@ -199,11 +200,17 @@ r5js.IOError = function(what) {
     };
 };
 
-function QuasiquoteError(what) {
+/**
+ * @param {string} what An error message.
+ * @constructor
+ * TODO bl: There is only one caller of this exception. Can that caller use
+ * something else?
+ */
+r5js.QuasiquoteError = function(what) {
     this.toString = function() {
         return 'quasiquote error: ' + what;
     };
-}
+};
 
 /**
  * @param {*} where Object that caused the empty application.

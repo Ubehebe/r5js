@@ -21,6 +21,7 @@ goog.require('r5js.EvalError');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.MacroError');
+goog.require('r5js.QuasiquoteError');
 
 // For composition; should only be called from newProcCall
 function ProcCall(operatorName, firstOperand) {
@@ -162,7 +163,7 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
                             ans = ans.firstChild;
                         else // `(1 ,@(list) 2) => (1 2)
                             ans = null;
-                    } else throw new QuasiquoteError(ans + ' is not a list');
+                    } else throw new r5js.QuasiquoteError(ans + ' is not a list');
                 }
                 return ans;
             });
