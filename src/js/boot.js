@@ -63,8 +63,12 @@ function install(lib, env) {
             new Reader(
                 new Scanner(lib)
             ).read()
-        ).parse()
-            .desugar(env).setStartingEnv(env));
+        ).parse(null)
+            .desugar(env).setStartingEnv(env),
+        null,
+        null,
+        null
+    );
 }
 
 function installBuiltins(env) {
