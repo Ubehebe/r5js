@@ -16,6 +16,8 @@
 
 goog.provide('r5js.tmp.scheme_procedure');
 
+
+goog.require('r5js.IncorrectNumArgs');
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.isDotted = isDotted;
     this.env = new Environment(name, env);
@@ -96,7 +98,7 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
 
     if (!this.isDotted) {
         if (numActuals !== this.formalsArray.length)
-            throw new IncorrectNumArgs(this.toString(), this.formalsArray.length, numActuals);
+            throw new r5js.IncorrectNumArgs(this.toString(), this.formalsArray.length, numActuals);
     } else {
         var minNumArgs = this.formalsArray.length - 1;
         if (numActuals < minNumArgs)

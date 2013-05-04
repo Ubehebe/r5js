@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.stdproc');
 
 
 goog.require('r5js.ArgumentTypeError');
+goog.require('r5js.IncorrectNumArgs');
 var R5JS_builtins = {};
 
 /* The names of the different categories of builtins are just for
@@ -1479,7 +1480,7 @@ function registerBuiltin(name, definition, targetEnv) {
 
             // If argc is a number, it means exactly that many args are required
             if (typeof argc === 'number' && numArgsFromUser !== argc)
-                throw new IncorrectNumArgs(name, argc, numArgsFromUser);
+                throw new r5js.IncorrectNumArgs(name, argc, numArgsFromUser);
             else if (argc.min && numArgsFromUser < argc.min)
                 throw new TooFewArgs(name, argc.min, numArgsFromUser);
             else if (argc.max && numArgsFromUser > argc.max)

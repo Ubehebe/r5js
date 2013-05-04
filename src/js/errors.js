@@ -19,6 +19,7 @@ goog.provide('r5js.ArgumentTypeError');
 goog.provide('r5js.EvalError');
 
 
+goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.UnboundVariable');
 /**
  * @param {string} name The name of the variable that was supposed to be
@@ -61,7 +62,13 @@ function TooManyArgs(name, maxNumArgs, actualNumArgs) {
     };
 }
 
-function IncorrectNumArgs(name, expectedNumArgs, actualNumArgs) {
+/**
+ * @param {string} name The name of the procedure.
+ * @param {number} expectedNumArgs The expected number of arguments.
+ * @param {number} actualNumArgs The actual number of arguments.
+ * @constructor
+ */
+r5js.IncorrectNumArgs = function(name, expectedNumArgs, actualNumArgs) {
     this.toString = function() {
         return 'The procedure '
             + name
@@ -74,7 +81,7 @@ function IncorrectNumArgs(name, expectedNumArgs, actualNumArgs) {
             + ' argument'
             + (expectedNumArgs === 1 ? '' : 's');
     };
-}
+};
 
 function InternalInterpreterError(msg) {
     this.toString = function() {
