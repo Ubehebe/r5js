@@ -131,7 +131,7 @@ ProcCall.prototype.operandsInCpsStyle = function() {
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
         if (cur instanceof Datum) {
             if (cur.isEmptyList())
-                throw new r5rs.IllegalEmptyApplication(this.operatorName.payload);
+                throw new r5js.IllegalEmptyApplication(this.operatorName.payload);
             else if (!cur.isLiteral())
                 return false;
         }
