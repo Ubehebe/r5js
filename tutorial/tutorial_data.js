@@ -43,6 +43,7 @@ var tutorial = (function() {
     ).addStep(new Step([
         'Welcome to Gay Lisp! To get started, please type your name in double quotes, like this: "Cordelia"'],
         function(input) {
+            tut.setLocalVar('tutStart', new Date());
             var ans = evalTrue('(string? ' + input + ')');
             if (ans)
                 tut.setLocalVar('name', GayLisp.eval(input));
@@ -228,6 +229,9 @@ var tutorial = (function() {
         "(Type \"go on\" when you're ready.)"],
         function(input) {
             if (input === '"go on"') {
+                tut.withLocalVar('tutStart', function(tutStart) {
+                    _gaq.push(['_trackEvent', 'tutorial', 'done', null, new Date() - tutStart]);
+                })();
                 tut.setGoodbye([
                     tut.withLocalVar('name', function(name) { return name + ", it's time for you to leave me behind and explore Lisp on your own."; }),
                     "Fortunately, there are tons of good books, articles, and websites about Lisp. Here are a few of the best:",
