@@ -26,6 +26,7 @@ goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.IOError');
 goog.provide('r5js.MacroError');
+goog.provide('r5js.ParseError');
 goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
@@ -202,11 +203,16 @@ r5js.IllegalEmptyApplication = function(where) {
     };
 };
 
-function ParseError(what) {
+/**
+ * @param {*} what
+ * @constructor
+ * TODO bl: Narrow the type of the parameter.
+ */
+r5js.ParseError = function(what) {
     this.toString = function() {
         return 'parse error on ' + what;
     };
-}
+};
 
 /**
  * @param {string} what Error message.

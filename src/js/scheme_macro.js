@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.scheme_macro');
 
 
 goog.require('r5js.MacroError');
+goog.require('r5js.ParseError');
 
 function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
 
@@ -162,7 +163,7 @@ SchemeMacro.prototype.transcribe = function(datum, useEnv) {
                     }
                 );
             } else {
-                throw new ParseError(newDatumTree);
+                throw new r5js.ParseError(newDatumTree);
             }
 
             return newParseTree;

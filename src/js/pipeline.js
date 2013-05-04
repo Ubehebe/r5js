@@ -17,6 +17,9 @@
 
 goog.provide('r5js.tmp.pipeline');
 
+
+goog.require('r5js.ParseError');
+
 function Pipeline() {}
 
 Pipeline.prototype.setRootEnv = function(rootEnv) {
@@ -36,7 +39,7 @@ Pipeline.prototype.parse = function(root, lhs) {
     var ans = new Parser(root).parse(lhs);
     if (ans)
         return ans;
-    else throw new ParseError(root);
+    else throw new r5js.ParseError(root);
 };
 
 Pipeline.prototype.desugar = function(root, replMode) {

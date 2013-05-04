@@ -21,6 +21,7 @@ goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ParseError');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 
@@ -1197,7 +1198,7 @@ R5JS_builtins['eval'] = {
 
                 var parsed = new Parser(expr).parse();
                 if (!parsed)
-                    throw new ParseError(expr);
+                    throw new r5js.ParseError(expr);
                 var continuable = parsed.desugar(env).setStartingEnv(env);
                 return trampoline(continuable, null, null, debug);
             }
