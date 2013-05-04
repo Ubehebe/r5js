@@ -25,6 +25,7 @@ goog.require('r5js.ParseError');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
+goog.require('r5js.UnimplementedOptionError');
 
 var R5JS_builtins = {};
 
@@ -544,42 +545,42 @@ R5JS_builtins['number'] = {
         argc: 2,
         argtypes: 'number',
         proc: function(r, theta) {
-            throw new UnimplementedOptionError('make-rectangular');
+            throw new r5js.UnimplementedOptionError('make-rectangular');
         }
     },
     'make-polar': {
         argc: 2,
         argtypes: 'number',
         proc: function(x, y) {
-            throw new UnimplementedOptionError('make-polar');
+            throw new r5js.UnimplementedOptionError('make-polar');
         }
     },
     'real-part': {
         argc: 1,
         argtypes: 'number',
         proc: function(z) {
-            throw new UnimplementedOptionError('real-part');
+            throw new r5js.UnimplementedOptionError('real-part');
         }
     },
     'imag-part': {
         argc: 1,
         argtypes: 'number',
         proc: function(z) {
-            throw new UnimplementedOptionError('imag-part');
+            throw new r5js.UnimplementedOptionError('imag-part');
         }
     },
     'magnitude': {
         argc: 1,
         argtypes: 'number',
         proc: function(z) {
-            throw new UnimplementedOptionError('magnitude');
+            throw new r5js.UnimplementedOptionError('magnitude');
         }
     },
     'angle': {
         argc: 1,
         argtypes: 'number',
         proc: function(z) {
-            throw new UnimplementedOptionError('angle');
+            throw new r5js.UnimplementedOptionError('angle');
         }
     },
     'exact->inexact': {

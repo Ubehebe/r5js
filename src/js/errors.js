@@ -31,6 +31,9 @@ goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
+goog.provide('r5js.UnimplementedOptionError');
+
+
 /**
  * @param {string} name The name of the variable that was supposed to be
  * bound but wasn't.
@@ -162,13 +165,17 @@ r5js.MacroError = function(keyword, msg) {
     };
 };
 
-function UnimplementedOptionError(what) {
+/**
+ * @param {string} what An error message.
+ * @constructor
+ */
+r5js.UnimplementedOptionError = function(what) {
     this.toString = function() {
         return 'Sorry, '
             + what
             + ' is optional according to R5RS and unimplemented';
     }
-}
+};
 
 /**
  * @param {*} what The object that caused the syntax error.
