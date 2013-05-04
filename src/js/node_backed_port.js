@@ -20,7 +20,9 @@ goog.provide('r5js.tmp.node_backed_port');
 goog.require('r5js.IOError');
 
 /**
+ * @suppress {undefinedVars} for require.
  * @constructor
+ * TODO bl: remove the @suppress.
  */
 function NodeBackedPort(filename, mode) {
 

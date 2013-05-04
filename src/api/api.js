@@ -64,10 +64,18 @@ var GayLisp = (function() {
 
     /* The pipeline is not public because it inputs and outputs
         internal data structures. */
-    var pipeline = new LazyBoot(new Pipeline(), function() {
-        bootstrap(syntax, procedures);
-        pipeline.delegate.setRootEnv(r5RSEnv);
-    });
+
+
+    var pipeline = new LazyBoot(new Pipeline(),
+        /**
+         * @suppress {undefinedVars} For syntax and procedures
+         * TODO bl: remove @suppress when we have a better build procedure.
+         */
+        function() {
+            bootstrap(syntax, procedures);
+            pipeline.delegate.setRootEnv(r5RSEnv);
+        }
+    );
 
     /* This is the public API. It mainly runs the above non-public
      pipeline from string input to the relevant stop point.
@@ -174,9 +182,14 @@ var GayLisp = (function() {
             req.send();
         },
 
-        'getMetadata': function() {
-            return {'banner': banner};
-        }
+        'getMetadata':
+            /**
+             * @suppress {undefinedVars} For the banner.
+             * TODO bl: remove @suppress when we have a better build process.
+             */
+            function() {
+                return {'banner': banner};
+            }
     };
 
     return publicApi;

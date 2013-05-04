@@ -93,6 +93,10 @@ goog.provide('r5js.tmp.trampoline');
 
  (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  */
+/**
+ * @suppress {undefinedVars} For console.
+ * TODO bl: remove the @suppress.
+ */
 function trampoline(continuable, inputPort, outputPort, debug) {
 
     var cur = continuable;
