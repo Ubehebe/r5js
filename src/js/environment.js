@@ -95,9 +95,9 @@ Environment.prototype.clone = function(name) {
 
     var cloned = new Environment(name);
 
-    for (var name in this.bindings) {
-        var val = this.bindings[name];
-        cloned.bindings[name] = val instanceof SchemeMacro
+    for (var name_ in this.bindings) {
+        var val = this.bindings[name_];
+        cloned.bindings[name_] = val instanceof SchemeMacro
             ? val.clone(cloned)
             : val;
     }
