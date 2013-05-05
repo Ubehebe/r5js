@@ -21,23 +21,28 @@ goog.provide('r5js.tmp.pipeline');
 goog.require('r5js.ParseError');
 
 /**
+ * @implements {r5js.IPipeline}
  * @constructor
  */
 function Pipeline() {}
 
+/** @override */
 Pipeline.prototype.setRootEnv = function(rootEnv) {
     this.rootEnv = rootEnv;
     this.env = new Environment('global', rootEnv);
 };
 
+/** @override */
 Pipeline.prototype.scan = function(string) {
     return new Scanner(string);
 };
 
+/** @override */
 Pipeline.prototype.read = function(scanner) {
     return new Reader(scanner).read();
 };
 
+/** @override */
 Pipeline.prototype.parse = function(root, lhs) {
     var ans = new Parser(root).parse(lhs);
     if (ans)
@@ -45,6 +50,7 @@ Pipeline.prototype.parse = function(root, lhs) {
     else throw new r5js.ParseError(root);
 };
 
+/** @override */
 Pipeline.prototype.desugar = function(root, replMode) {
     if (!replMode) {
         this.env = new Environment('global', this.rootEnv);
@@ -52,6 +58,7 @@ Pipeline.prototype.desugar = function(root, replMode) {
     return root.desugar(this.env).setStartingEnv(this.env);
 };
 
+/** @override */
 Pipeline.prototype.eval = function(continuable, onOutput) {
     return trampoline(continuable, null, onOutput && new CallbackBackedPort(onOutput), debug);
 };
