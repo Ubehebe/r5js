@@ -30,7 +30,7 @@
                 });
             })
             .pushInterpreter(tutorial)
-            .setInputCompleteHandler(GayLisp.willParse)
+            .setInputCompleteHandler(GayLisp.willParse.bind(GayLisp))
             .start();
     }
 }());
