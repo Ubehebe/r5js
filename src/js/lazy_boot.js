@@ -17,26 +17,78 @@
 goog.provide('r5js.tmp.lazy_boot');
 
 /**
+ * @param {!Pipeline} pipeline Pipeline delegate.
+ * @param {function()} onBoot Callback that will be called
+ * when the interpreter has booted.
+ * @implements {r5js.IPipeline}
  * @constructor
  */
-function LazyBoot(delegate, onBoot) {
-    this.delegate = delegate;
-    this.booted = false;
-    this.onBoot = onBoot;
-    for (var name in delegate)
-        this[name] = this.wrap(delegate[name]);
+function LazyBoot(pipeline, onBoot) {
+    /**
+     * @type {!Pipeline}
+     * @private
+     */
+    this.pipeline_ = pipeline;
+
+    /**
+     * @type {boolean}
+     * @private
+     */
+    this.booted_ = false;
+
+    /**
+     * @type {function()}
+     * @private
+     */
+    this.onBoot_ = onBoot;
 }
 
-LazyBoot.prototype.wrap = function(f) {
-    var self = this;
-    return function() {
-        /* The actual booting blocks until done. We could change this
-         to call a callback when done, but there seems no great need
-         for this yet. */
-        if (!self.booted) {
-            self.onBoot();
-            self.booted = true;
-        }
-        return f.apply(self.delegate, arguments);
-    };
+/** @override */
+LazyBoot.prototype.setRootEnv = function(rootEnv) {
+    return this.pipeline_.setRootEnv(rootEnv);
+};
+
+/** @override */
+LazyBoot.prototype.scan = function(string) {
+    this.checkBooted_();
+    return this.pipeline_.scan(string);
+};
+
+/** @override */
+LazyBoot.prototype.read = function(scanner) {
+    this.checkBooted_();
+    return this.pipeline_.read(scanner);
+};
+
+
+/** @override */
+LazyBoot.prototype.parse = function(root, lhs) {
+    this.checkBooted_();
+    return this.pipeline_.parse(root, lhs);
+};
+
+
+/** @override */
+LazyBoot.prototype.desugar = function(root, replMode) {
+    this.checkBooted_();
+    return this.pipeline_.desugar(root, replMode);
+};
+
+
+/** @override */
+LazyBoot.prototype.eval = function(continuable, onOutput) {
+    this.checkBooted_();
+    return this.pipeline_.eval(continuable, onOutput);
+};
+
+
+/** @private */
+LazyBoot.prototype.checkBooted_ = function () {
+    /* The actual booting blocks until done. We could change this
+     to call a callback when done, but there seems no great need
+     for this yet. */
+    if (!this.booted_) {
+        this.onBoot_();
+        this.booted_ = true;
+    }
 };
