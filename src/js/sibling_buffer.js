@@ -21,15 +21,29 @@ goog.provide('r5js.tmp.sibling_buffer');
  * the pointer arithmetic.
  * @constructor
  */
-function SiblingBuffer() {
-    //this.first;
-    // this.last;
-}
+function SiblingBuffer() {}
 
+/**
+ * @type {Datum}
+ */
+SiblingBuffer.prototype.first;
+
+/**
+ * @type {Datum}
+ */
+SiblingBuffer.prototype.last;
+
+/**
+ * @return {boolean} True iff the buffer is empty.
+ */
 SiblingBuffer.prototype.isEmpty = function() {
     return !this.first;
 };
 
+/**
+ * @param {!Datum} node Node to append.
+ * @return {!SiblingBuffer} This object, for chaining.
+ */
 SiblingBuffer.prototype.appendSibling = function(node) {
     if (node) {
         if (!this.first) {
@@ -43,6 +57,9 @@ SiblingBuffer.prototype.appendSibling = function(node) {
     return this;
 };
 
+/**
+ * @return {Datum}
+ */
 SiblingBuffer.prototype.toSiblings = function() {
     return this.first;
 };
@@ -59,6 +76,7 @@ SiblingBuffer.prototype.toList = function(type) {
     return ans;
 };
 
+/** @override */
 SiblingBuffer.prototype.toString = function() {
     var tmp = newEmptyList();
     tmp.appendChild(this.first);
