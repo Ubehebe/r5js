@@ -64,7 +64,7 @@ goog.require('r5js.test.scanner');
 var GayLisp = (function () {
 
     /* The build process inserts src/js/* here (after the first opening brace
-     in this file).. It also inserts src/scm/* here, embedded as JavaScript string
+     in this file). It also inserts src/scm/* here, embedded as JavaScript string
      literals and appropriately escaped. See the Makefile for details. */
 
     var pipeline = new LazyBoot(new Pipeline(),
