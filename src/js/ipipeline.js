@@ -66,6 +66,7 @@ r5js.IPipeline.prototype.desugar = function(root, replMode) {};
 /**
  * @param {!Continuable} continuable The continuable to evaluate.
  * @param {function()} onOutput Output callback.
- * TODO bl: tighten the function signature of onOutput.
+ * @return {*} TODO bl what does this return?
+ * TODO bl: tighten the types of onOutput and the return param.
  */
 r5js.IPipeline.prototype.Eval = function(continuable, onOutput) {};

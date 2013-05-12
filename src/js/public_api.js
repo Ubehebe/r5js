@@ -21,6 +21,9 @@ goog.require('r5js.tmp.scanner'); // TODO bl fix
 goog.require('r5js.test.parser');
 goog.require('r5js.test.scanner');
 
+
+goog.require('r5js.OutputMode');
+
 /**
  *
  * @param {!r5js.IPipeline} pipeline A pipeline object.
@@ -163,7 +166,10 @@ r5js.PublicApi.prototype.repl = function (string, sideEffectHandler) {
             ),
             goog.nullFunction
         );
-    return ans ? ans.toString() : '';
+    return ans instanceof Datum ?
+        (/** @type {!Datum} */ (ans)).stringForOutputMode(
+            r5js.OutputMode.DISPLAY) :
+        (ans ? ans.toString() : '');
 };
 
 
