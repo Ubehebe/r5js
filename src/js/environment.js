@@ -31,8 +31,9 @@ goog.require('r5js.UnboundVariable');
 r5js.Environment = function(name, enclosingEnv) {
     /**
      * @type {string}
+     * @private
      */
-    this.name = name;
+    this.name_ = name;
 
     if (enclosingEnv) {
         this.enclosingEnv = enclosingEnv;
@@ -131,7 +132,7 @@ r5js.Environment.prototype.get = function(name) {
     else if (this.enclosingEnv)
         return this.enclosingEnv.get(name);
     else
-        throw new r5js.UnboundVariable(name + ' in env ' + this.name);
+        throw new r5js.UnboundVariable(name + ' in env ' + this.name_);
 };
 
 /** @override */
@@ -176,7 +177,7 @@ r5js.Environment.prototype.addClosure = function(name, proc) {
         throw new r5js.InternalInterpreterError('tried to bind '
             + name
             + ' in sealed environment '
-            + this.name);
+            + this.name_);
     } else if (!(proc instanceof SchemeProcedure)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     } else if (this.closures[name]) {
@@ -262,7 +263,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
 
 /** @override */
 r5js.Environment.prototype.toString = function() {
-    return this.name;
+    return this.name_;
 };
 
 
