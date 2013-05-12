@@ -348,7 +348,7 @@ function newMacroDatum(macro) {
 }
 
 function newEnvironmentSpecifier(version) {
-    return newIdOrLiteral(new Environment(null, version), 'environment-specifier');
+    return newIdOrLiteral(new Environment('', version), 'environment-specifier');
 }
 
 Datum.prototype.getMacro = function() {
