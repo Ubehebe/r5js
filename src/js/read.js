@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.read');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.OutputMode');
 
 /**
  * @constructor
@@ -229,8 +230,12 @@ Reader.prototype.read = function() {
     return datums.firstChild;
 };
 
-// This is the inverse of Reader.prototype.read, which is why it's here.
-Datum.prototype.toString = function(outputMode) {
+/**
+ * This is the inverse of {@link Reader.read}, which is why it's here.
+ * @param {!r5js.OutputMode} outputMode Desired output mode.
+ * @return {string} String representation for desired output mode.
+ */
+Datum.prototype.stringForOutputMode = function(outputMode) {
 
     var ans, child;
     var endDelimiter = "";
@@ -248,7 +253,7 @@ Datum.prototype.toString = function(outputMode) {
             // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
             return 'undefined';
         case 'ref':
-            return this.payload.toString(outputMode);
+            return this.payload.stringForOutputMode(outputMode);
         case 'environment-specifier': // R5RS 6.5
             return this.payload === 5
                 ? 'scheme-report-environment-5'
@@ -267,24 +272,24 @@ Datum.prototype.toString = function(outputMode) {
             return this.payload + '';
         case 'character':
             switch (outputMode) {
-                case OutputModes.WRITE:
+                case r5js.OutputMode.WRITE:
                     if (this.payload === ' ')
                         return '#\\space';
                     else if (this.payload === '\n')
                         return '#\\newline';
                     else
                         return '#\\' + this.payload;
-                case OutputModes.DISPLAY:
+                case r5js.OutputMode.DISPLAY:
                 default:
                     return this.payload;
             }
             break;
         case 'string':
             switch (outputMode) {
-                case OutputModes.WRITE:
+                case r5js.OutputMode.WRITE:
                     ans = this.payload;
                     return '"' + ans.replace(/([\\"])/g, "\\$1") + '"';
-                case OutputModes.DISPLAY:
+                case r5js.OutputMode.DISPLAY:
                 default:
                     return this.payload;
             }
@@ -328,21 +333,21 @@ Datum.prototype.toString = function(outputMode) {
                     for (child = this.firstChild;
                          child && child.nextSibling;
                          child = child.nextSibling)
-                        ans += child.toString(outputMode) + ' ';
+                        ans += child.stringForOutputMode(outputMode) + ' ';
                     return ans
-                        + (child ? child.toString(outputMode) : '')
+                        + (child ? child.stringForOutputMode(outputMode) : '')
                         + endDelimiter;
                 case '.(':
                     ans = '(';
                     for (child = this.firstChild;
                          child && child.nextSibling && child.nextSibling.nextSibling;
                          child = child.nextSibling)
-                        ans += child.toString(outputMode) + ' ';
+                        ans += child.stringForOutputMode(outputMode) + ' ';
                     var nextToLastChildString = child
-                        ? child.toString(outputMode)
+                        ? child.stringForOutputMode(outputMode)
                         : '';
                     var lastChildString = child.nextSibling ?
-                        child.nextSibling.toString(outputMode)
+                        child.nextSibling.stringForOutputMode(outputMode)
                         : '';
                     return ans + nextToLastChildString + ' . ' + lastChildString + ')';
                 default:

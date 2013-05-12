@@ -21,6 +21,7 @@ goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.OutputMode');
 goog.require('r5js.ParseError');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.TooFewArgs');
@@ -1380,7 +1381,7 @@ R5JS_builtins['io'] = {
                 if (!outputPort.isOutputPort())
                     throw new r5js.ArgumentTypeError(outputPort, 1, 'write', 'output-port');
                 var toWrite = x instanceof Datum
-                    ? x.toString(OutputModes.WRITE)
+                    ? x.stringForOutputMode(r5js.OutputMode.WRITE)
                     : String(x);
                 /* Port implementations aren't required to implement
                  write. If they don't, we just call writeChar (which they
@@ -1438,7 +1439,7 @@ R5JS_builtins['io'] = {
                 if (!outputPort.isOutputPort())
                     throw new r5js.ArgumentTypeError(outputPort, 1, 'display', 'output-port');
                 var toWrite = x instanceof Datum
-                    ? x.toString(OutputModes.DISPLAY)
+                    ? x.stringForOutputMode(r5js.OutputMode.DISPLAY)
                     : String(x);
                 /* Port implementations aren't required to implement
                  write. If they don't, we just call writeChar (which they

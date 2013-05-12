@@ -16,18 +16,23 @@
 
 goog.provide('r5js.tmp.output_modes');
 
-/* R5RS 6.6.3:
-write: "Strings that appear in the written representation are en-
-closed in doublequotes, and within those strings backslash
-and doublequote characters are escaped by backslashes.
-Character objects are written using the #\ notation."
+goog.provide('r5js.OutputMode');
 
-display: "Strings that appear in the written representation are not enclosed
-in doublequotes, and no characters are escaped within
-those strings. Character objects appear in the representation as if written
-by write-char instead of by write." */
-
-var OutputModes = {
+/**
+ * R5RS 6.6.3:
+ * write: "Strings that appear in the written representation are en-
+ * closed in doublequotes, and within those strings backslash
+ * and doublequote characters are escaped by backslashes.
+ * Character objects are written using the #\ notation."
+ *
+ * display: "Strings that appear in the written representation are not enclosed
+ * in doublequotes, and no characters are escaped within
+ * those strings. Character objects appear in the representation as if written
+ * by write-char instead of by write."
+ *
+ * @enum {number}
+ */
+r5js.OutputMode = {
     WRITE: 0,
     DISPLAY: 1
 };
