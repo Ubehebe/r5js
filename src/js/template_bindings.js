@@ -130,13 +130,15 @@ TemplateBindings.prototype.addTemplateBinding = function(name, val) {
 };
 
 // Purely for debugging.
-TemplateBindings.prototype.toString = function(tabs) {
+TemplateBindings.prototype.debugString = function(tabs) {
     tabs = tabs || '';
     var ans = '';
-    for (var name in this.bindings)
+    for (var name in this.bindings) {
         ans += tabs + name + ' = ' + this.bindings[name].toString() + '\n';
-    for (var i=0; i<this.children.length; ++i)
-        ans += tabs + 'child ' + i + ':\n' + this.children[i].toString(tabs+'\t');
+    }
+    for (var i = 0; i < this.children.length; ++i) {
+        ans += tabs + 'child ' + i + ':\n' + this.children[i].debugString(tabs+'\t');
+    }
     return ans;
 };
 
