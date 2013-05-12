@@ -116,6 +116,7 @@ r5js.IEnvironment.prototype.get = function(name) {};
 
 /**
  * @param {string} name Name of the procedure to get.
+ * @return {*} Value of binding, if any.
  */
 r5js.IEnvironment.prototype.getProcedure = function(name) {};
 
