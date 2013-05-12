@@ -104,7 +104,8 @@ function newAssignment(dstName, srcName, continuation) {
 }
 
 // Just for debugging
-ProcCall.prototype.toString = function(continuation, indentLevel, suppressEnv) {
+ProcCall.prototype.debugString = function(
+    continuation, indentLevel, suppressEnv) {
     var ans = '\n';
     for (var i = 0; i < indentLevel; ++i)
         ans += '\t';
