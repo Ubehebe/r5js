@@ -24,7 +24,7 @@ goog.require('r5js.UnboundVariable');
 
 /**
  * @param {string} name The environment's name. Just for pretty-printing.
- * @param {!r5js.IEnvironment} enclosingEnv The enclosing environment, if any.
+ * @param {r5js.IEnvironment} enclosingEnv The enclosing environment, if any.
  * @constructor
  * @implements {r5js.IEnvironment}
  */
@@ -69,7 +69,7 @@ Environment.prototype.clone = function(name) {
         throw new r5js.InternalInterpreterError('clone should only be used during '
         + 'interpreter bootstrapping');
 
-    var cloned = new Environment(name);
+    var cloned = new Environment(name, null);
 
     for (var name_ in this.bindings) {
         var val = this.bindings[name_];
