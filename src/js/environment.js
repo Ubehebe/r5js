@@ -43,7 +43,14 @@ r5js.Environment = function(name, enclosingEnv) {
         }
         // useful for debugging console.log('created env ' + this + ' referencing ' + enclosingEnv);
     }
-    this.bindings = {}; // hey, never use this; use this.get() instead
+
+    /**
+     * @type {!Object.<string,*>}
+     * @private
+     * TODO bl: narrow the type of the value.
+     */
+    this.bindings_ = {};
+
     this.closures = {};  // See Environment.prototype.addClosure
 };
 
@@ -79,9 +86,9 @@ r5js.Environment.prototype.clone = function(name) {
 
     var cloned = new r5js.Environment(name, null);
 
-    for (var name_ in this.bindings) {
-        var val = this.bindings[name_];
-        cloned.bindings[name_] = val instanceof SchemeMacro
+    for (var name_ in this.bindings_) {
+        var val = this.bindings_[name_];
+        cloned.bindings_[name_] = val instanceof SchemeMacro
             ? val.clone(cloned)
             : val;
     }
@@ -92,7 +99,7 @@ r5js.Environment.prototype.clone = function(name) {
 /** @override */
 r5js.Environment.prototype.hasBinding = function(name) {
     // We must never store null or undefined as a value.
-    return this.bindings[name] != null;
+    return this.bindings_[name] != null;
 };
 
 /** @override */
@@ -107,7 +114,7 @@ r5js.Environment.prototype.hasBindingRecursive = function(
 /** @override */
 r5js.Environment.prototype.get = function(name) {
 
-    var maybe = this.bindings[name];
+    var maybe = this.bindings_[name];
 
     if (maybe != null) {
 
@@ -146,7 +153,7 @@ r5js.Environment.prototype.get = function(name) {
 
 /** @override */
 r5js.Environment.prototype.getProcedure = function(name) {
-    var maybe = this.bindings[name];
+    var maybe = this.bindings_[name];
 
     if (maybe != null) {
         if (maybe instanceof r5js.Environment) {
@@ -204,7 +211,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
         throw new r5js.InternalInterpreterError('tried to bind ' + name + ' in sealed environment ' + this);
     }
 
-    else if (this.bindings[name] == null || this.redefsOk || name.charAt(0) === '@') {
+    else if (this.bindings_[name] == null || this.redefsOk || name.charAt(0) === '@') {
 
         // useful for debugging if (val instanceof Datum)
         //    console.log(this + ' addBinding ' + name + ' = ' + val);
@@ -219,14 +226,14 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              || typeof val === 'string'
              || val === true
              || val === false) {
-             this.bindings[name] = val;
+             this.bindings_[name] = val;
          } else if (val === null) {
             /* A value of null on the trampoline means an unspecified value.
              For example, the JavaScript implementation of display returns null.
              In order to distinguish between an unbound variable (error) and
              a variable bound to an unspecified value (not an error), we use
              r5js.Environment.prototype.unspecifiedSentinel. */
-            this.bindings[name] = this.unspecifiedSentinel;
+            this.bindings_[name] = this.unspecifiedSentinel;
         } else if (typeof val === 'function' /* primitive procedure */
             || val instanceof SchemeProcedure /* non-primitive procedure */
             || val instanceof Continuation /* call-with-current-continuation etc. */
@@ -234,11 +241,11 @@ r5js.Environment.prototype.addBinding = function(name, val) {
             || val instanceof SchemeMacro /* macros */
             || val instanceof r5js.Environment /* Redirects for free ids in macro transcriptions */
             || val instanceof JsObjOrMethod /* JavaScript interop (experimental!) */) {
-            this.bindings[name] = val;
+            this.bindings_[name] = val;
         } else if (val instanceof Datum) {
         // lots of stuff, including wrapped procedures
-            if (val.isVector() && !val.isArrayBacked())
-                this.bindings[name] = val.convertVectorToArrayBacked();
+            if (val.isVector() && !val.isArrayBacked()) {
+                this.bindings_[name] = val.convertVectorToArrayBacked();
             /* r5js.Environment.prototype.get should honor requests to store
              both unwrapped procedures (= JavaScript functions and
              SchemeProcedure objects) and those things wrapped in a Datum.
@@ -255,8 +262,9 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              then the trampoline will call
              r5js.Environment.prototype.addBinding with this wrapped procedure
              as the second argument. */
-            else
-                this.bindings[name] = val.unwrap();
+            } else {
+                this.bindings_[name] = val.unwrap();
+            }
         } else {
             throw new r5js.InternalInterpreterError('tried to store '
                 + name
@@ -280,12 +288,12 @@ r5js.Environment.prototype.toString = function() {
 
 /** @override */
 r5js.Environment.prototype.mutate = function(name, newVal, isTopLevel) {
-    var maybeBinding = this.bindings[name];
+    var maybeBinding = this.bindings_[name];
     if (maybeBinding != null || isTopLevel) {
         if (maybeBinding instanceof r5js.Environment) {
             maybeBinding.mutate(name, newVal, isTopLevel);
         } else {
-            this.bindings[name] = null;
+            this.bindings_[name] = null;
             this.addBinding(name, newVal);
         }
     } else if (this.enclosingEnv_) {
