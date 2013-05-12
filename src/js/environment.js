@@ -21,32 +21,6 @@ goog.require('r5js.EvalError');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.UnboundVariable');
 
-/* An Environment stores three common kinds of objects:
-    - Datums (most Scheme values: numbers, identifiers, etc.)
-    - SchemeProcedures (native Scheme procedures)
-    - JavaScript functions ('primitive' Scheme procedures)
-
-    There is a fourth kind of object, a Continuation, which can get stored
-    when calling "magical" procedures like call/cc, where the current
-    continuation is bound to a formal parameter.
-
-    Environment.prototype.get will only ever return Datums and Continuations;
-    it will wrap SchemeProcedures and JavaScript functions in Datum
-    wrappers before returning, to allow for things like
-
-    (cons + (lambda () "hi!"))
-
-    A drawback is that comparisons on stuff retrieved from an Environment
-    may need to be unwrapped:
-
-    var x = env.get('foo');
-    var y = env.get('foo');
-    x == y // false if foo is a SchemeProcedure or JavaScript function!
-
-    If you know your key should retrieve a SchemeProcedure or JavaScript
-    function, you can use Environment.prototype.getProcedure to avoid the
-    wrapping and unwrapping.
- */
 
 /**
  * @param {string} name The environment's name. Just for pretty-printing.
@@ -79,8 +53,6 @@ Environment.prototype.unspecifiedSentinel = (function() {
     return ans;
 }());
 
-/* Just for environments defined in the standard; users shouldn't be able to
-    add to them. */
 /** @override */
 Environment.prototype.seal = function() {
     this.sealed = true;
@@ -181,7 +153,10 @@ Environment.prototype.getProcedure = function(name) {
         return null;
 };
 
-// See comment at Environment.prototype.addClosure.
+/**
+ * @param {!Environment} other Environment to add closures from.
+ * See comment to {@link r5js.IEnvironment.addClosure}.
+ */
 Environment.prototype.addClosuresFrom = function(other) {
     /* todo bl: we have to clone the SchemeProcedures to prevent
      some kind of infinite loop. I'm not entirely clear about what loop, though,
@@ -192,44 +167,7 @@ Environment.prototype.addClosuresFrom = function(other) {
     return this;
 };
 
-/* This is used exclusively during desugaring of lambda expressions.
 
- Lambda expressions have much in common with procedure definitions,
- even though they don't introduce a new binding (in a programmer-visible
- way, at least). For example:
-
- (define (foo x) (define (bar y) (+ x y)) bar)
-
- (define (foo x) (lambda (y) (+ x y)))
-
- With either definition of foo, we must have
-
- ((foo 10) 11) => 22
-
- With internal definitions, this is easy. The grammar of Scheme says that
- all internal definitions must precede all expressions in a procedure body,
- so the SchemeProcedure constructor can intercept all the definitions and deal
- with them appropriately.
-
- Lambda expressions, however, can appear anywhere in a procedure's body,
- so we deal with them in a generic way here. Using the second definition of
- foo above as an example, here's what happens:
-
- - During parsing of foo, we create a new Environment for the procedure (say,
- fooEnv), and note all foo's lambdas in fooEnv,
- using Environment.prototype.addClosure.
- - Later, when we want to evaluate (foo 10), we create a new Environment
- hanging off fooEnv (say, tmp-fooEnv). (We have to do this to support
- multiple active calls to the same procedure.) We copy all of fooEnv's
- closures into tmp-fooEnv as actual bound SchemeProcedures, using
- Environment.prototype.addClosuresFrom. We also bind the arguments
- (in this case x = 10) in tmp-fooEnv, then advance to foo's body.
-
- In this way, when we get to the body of the lambda expression, both x and y
- are already in scope. The key point is that the Environment
- of (lambda (y) (+ x y)) points back to the Environment representing the
- _execution_ of foo (tmp-fooEnv), not the Environment representing foo itself
- (fooEnv). */
 
 /** @override */
 Environment.prototype.addClosure = function(name, proc) {
@@ -324,20 +262,7 @@ Environment.prototype.toString = function() {
     return this.name;
 };
 
-/* R5RS 5.2.1: "At the top level of a program, a definition
 
- (define <variable> <expression>)
-
- has essentially the same effect as the assignment expression
-
- (set! <variable> <expression>)
-
- if <variable> is bound. If <variable> is not bound, however, then
- the definition will bind <variable> to a new location before performing
- the assignment, whereas it would be an error to perform a set! on
- an unbound variable."
-
- We use the isTopLevel parameter to perform the override mentioned. */
 
 /** @override */
 Environment.prototype.mutate = function(name, newVal, isTopLevel) {
