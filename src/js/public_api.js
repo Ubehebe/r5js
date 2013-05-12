@@ -131,7 +131,7 @@ r5js.PublicApi.prototype.willParse = function(logicalLine) {
  */
 r5js.PublicApi.prototype.eval = function(string, sideEffectHandler) {
     var ans =
-        this.pipeline_.eval(
+        this.pipeline_.Eval(
             this.pipeline_.desugar(
                 this.pipeline_.parse(
                     this.pipeline_.read(
@@ -152,7 +152,7 @@ r5js.PublicApi.prototype.eval = function(string, sideEffectHandler) {
  */
 r5js.PublicApi.prototype.repl = function (string, sideEffectHandler) {
     var ans =
-        this.pipeline_.eval(
+        this.pipeline_.Eval(
             this.pipeline_.desugar(
                 this.pipeline_.parse(
                     this.pipeline_.read(

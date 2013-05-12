@@ -68,4 +68,4 @@ r5js.IPipeline.prototype.desugar = function(root, replMode) {};
  * @param {function()} onOutput Output callback.
  * TODO bl: tighten the function signature of onOutput.
  */
-r5js.IPipeline.prototype.eval = function(continuable, onOutput) {};
+r5js.IPipeline.prototype.Eval = function(continuable, onOutput) {};
