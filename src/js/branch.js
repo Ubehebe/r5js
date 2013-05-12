@@ -69,7 +69,7 @@ Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer
 };
 
 // Just for debugging
-Branch.prototype.toString = function(continuation, indentLevel) {
+Branch.prototype.debugString = function(continuation, indentLevel) {
 
     /* Don't print the continuations at the end of the branches;
      these are probably old and will be overwritten on the next
