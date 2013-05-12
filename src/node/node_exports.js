@@ -25,5 +25,5 @@ for (var name in GayLisp)
  named "tests" and runs directly on that. */
 exports.test = function() {
     GayLisp.test(null, function(sideEffect) { console.log(sideEffect); });
-    GayLisp.eval(tests, function(sideEffect) { console.log(sideEffect); });
+    GayLisp.Eval(tests, function(sideEffect) { console.log(sideEffect); });
 };

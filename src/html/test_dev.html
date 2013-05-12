@@ -102,7 +102,7 @@ not allow ajax on the filesystem.
         }
 
         function doEval() {
-            var ans = GayLisp.eval(document.getElementById('toEval').value, function(sideEffect) {
+            var ans = GayLisp.Eval(document.getElementById('toEval').value, function(sideEffect) {
                 window.console && console.log(sideEffect);
             });
             window.console && console.log(ans);
@@ -117,10 +117,10 @@ not allow ajax on the filesystem.
                     ajaxSync('../../test/r5rs-tests.scm', function (r5rsTests) {
                         ajaxSync('../../test/other-tests.scm', function (otherTests) {
                             ajaxSync('../../test/negative-tests.scm', function (negativeTests) {
-                                GayLisp.eval(testFramework + r5rsTests + otherTests, function(sideEffect) {
+                                GayLisp.Eval(testFramework + r5rsTests + otherTests, function(sideEffect) {
                                     console.log(sideEffect);
                                 });
-                                GayLisp.eval(negativeTestFramework + negativeTests, function(sideEffect) {
+                                GayLisp.Eval(negativeTestFramework + negativeTests, function(sideEffect) {
                                     console.log(sideEffect);
                                 });
                             });

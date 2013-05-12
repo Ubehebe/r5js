@@ -111,7 +111,7 @@ Tutorial.prototype.advanceToNextStep = function() {
     return this.getCurStep();
 };
 
-Tutorial.prototype.eval = function(input, terminal) {
+Tutorial.prototype.Eval = function(input, terminal) {
     var curStep = this.getCurStep();
     if (curStep) {
         if (curStep.inputOk(input)) {

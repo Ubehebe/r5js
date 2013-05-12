@@ -21,7 +21,7 @@
 var tutorial = (function() {
 
     function evalTrue(input) {
-        return GayLisp.eval(input) === '#t';
+        return GayLisp.Eval(input) === '#t';
     }
 
     var theSecretOfLisp = " _    ___ ___ _____ ___ \n| |  |_ _/ __|_   _/ __|\n| |__ | |\\__ \\ | | \\__ \\\n|____|___|___/ |_| |___/\n                        \n   _   ___ ___ \n  /_\\ | _ \\ __|\n / _ \\|   / _| \n/_/ \\_\\_|_\\___|\n               \n ___ ___  ___   ___ ___    _   __  __ ___ \n| _ \\ _ \\/ _ \\ / __| _ \\  /_\\ |  \\/  / __|\n|  _/   / (_) | (_ |   / / _ \\| |\\/| \\__ \\\n|_| |_|_\\\\___/ \\___|_|_\\/_/ \\_\\_|  |_|___/\n                                          \n";
@@ -46,7 +46,7 @@ var tutorial = (function() {
             tut.setLocalVar('tutStart', new Date());
             var ans = evalTrue('(string? ' + input + ')');
             if (ans)
-                tut.setLocalVar('name', GayLisp.eval(input));
+                tut.setLocalVar('name', GayLisp.Eval(input));
             return ans;
         },
         [tut.withLocalVar('name', function(name) { return "Hey " + name + ", welcome! Gay Lisp is a program that understands the language Scheme. It's so much fun. You're going to love it.";})]
@@ -55,7 +55,7 @@ var tutorial = (function() {
         "We've already covered how to enter strings -- you just put them between double quotes.",
         "Numbers are pretty easy too. Type 10 to get the number 10."],
         function(input) {
-            return GayLisp.eval(input) === '10';
+            return GayLisp.Eval(input) === '10';
         })
     ).addStep(new Step([
         "Negative numbers, decimals, exponents, different bases -- no problem.",
@@ -104,7 +104,7 @@ var tutorial = (function() {
         tut.withLocalVar('name', function(name) { return name + ", are you ready to learn the secret of Scheme?";}),
         '(Type "yes", with the quotes.)'],
         function(input) {
-            return GayLisp.eval('(string=? "yes" ' + input + ')') === '#t';
+            return GayLisp.Eval('(string=? "yes" ' + input + ')') === '#t';
         },
         ["The secret of Scheme is:",
             /* This custom object will get passed to a terminal implementation,
@@ -184,7 +184,7 @@ var tutorial = (function() {
         function(input) {
             if (evalTrue("(define x '" + input + ") (and (= -10 (car x)) (= 3 (cadr x)) (string=? \"Cornwall\" (caddr x)))")) {
                 try {
-                    GayLisp.eval(input);
+                    GayLisp.Eval(input);
                     return false;
                 } catch (x) {
                     tut.setLocalVar('list-error', x.toString());
@@ -251,7 +251,7 @@ var tutorial = (function() {
                 .println(tut.getIntroMessage(), true)
                 .popInterpreter();
             terminal.pushInterpreter(function(string, terminal) {
-                return tut.eval(string, terminal);
+                return tut.Eval(string, terminal);
             });
             return ' ';
         } else return null;

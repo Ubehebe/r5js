@@ -132,7 +132,7 @@ r5js.PublicApi.prototype.willParse = function(logicalLine) {
  * @return {string} A string representation of the value of the evaluation.
  * TODO bl: narrow the type of sideEffectHandler.
  */
-r5js.PublicApi.prototype.eval = function(string, sideEffectHandler) {
+r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
@@ -187,7 +187,7 @@ r5js.PublicApi.prototype.evalUrl = function(url, sideEffectHandler) {
     var self = this;
     req.onreadystatechange = function() {
       if (req.readyState === 4 && req.status === 200) {
-          self.eval(req.responseText, sideEffectHandler);
+          self.Eval(req.responseText, sideEffectHandler);
       }
     };
     req.send();
