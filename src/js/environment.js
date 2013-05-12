@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.environment');
+goog.provide('r5js.Environment');
 
 
 goog.require('r5js.EvalError');
@@ -28,7 +28,7 @@ goog.require('r5js.UnboundVariable');
  * @constructor
  * @implements {r5js.IEnvironment}
  */
-function Environment(name, enclosingEnv) {
+r5js.Environment = function(name, enclosingEnv) {
     /**
      * @type {string}
      */
@@ -47,29 +47,29 @@ function Environment(name, enclosingEnv) {
 }
 
 // See comments in Environment.prototype.addBinding.
-Environment.prototype.unspecifiedSentinel = (function() {
+r5js.Environment.prototype.unspecifiedSentinel = (function() {
     var ans = new Datum();
     ans.type = ans.payload = null;
     return ans;
 }());
 
 /** @override */
-Environment.prototype.seal = function() {
+r5js.Environment.prototype.seal = function() {
     this.sealed = true;
 };
 
-Environment.prototype.allowRedefs = function() {
+r5js.Environment.prototype.allowRedefs = function() {
     this.redefsOk = true;
     return this;
 };
 
-Environment.prototype.clone = function(name) {
+r5js.Environment.prototype.clone = function(name) {
 
       if (this.enclosingEnv)
         throw new r5js.InternalInterpreterError('clone should only be used during '
         + 'interpreter bootstrapping');
 
-    var cloned = new Environment(name, null);
+    var cloned = new r5js.Environment(name, null);
 
     for (var name_ in this.bindings) {
         var val = this.bindings[name_];
@@ -82,27 +82,28 @@ Environment.prototype.clone = function(name) {
 };
 
 /** @override */
-Environment.prototype.hasBinding = function(name) {
+r5js.Environment.prototype.hasBinding = function(name) {
     // We must never store null or undefined as a value.
     return this.bindings[name] != null;
 };
 
 /** @override */
-Environment.prototype.hasBindingRecursive = function(name, searchClosures) {
+r5js.Environment.prototype.hasBindingRecursive = function(
+    name, searchClosures) {
     return this.hasBinding(name)
         || (searchClosures && this.closures[name])
         || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name, searchClosures));
 };
 
 /** @override */
-Environment.prototype.get = function(name) {
+r5js.Environment.prototype.get = function(name) {
 
     var maybe = this.bindings[name];
 
     if (maybe != null) {
 
         // Redirects for free ids in macro transcriptions
-        if (maybe instanceof Environment)
+        if (maybe instanceof r5js.Environment)
             return maybe.get(name);
         /* We store primitive and non-primitive procedures unwrapped,
          but wrap them in a Datum if they are requested through get.
@@ -134,11 +135,11 @@ Environment.prototype.get = function(name) {
 };
 
 /** @override */
-Environment.prototype.getProcedure = function(name) {
+r5js.Environment.prototype.getProcedure = function(name) {
     var maybe = this.bindings[name];
 
     if (maybe != null) {
-        if (maybe instanceof Environment) {
+        if (maybe instanceof r5js.Environment) {
             return maybe.getProcedure(name);
         } else if (typeof maybe === 'function'
             || maybe instanceof SchemeProcedure
@@ -154,10 +155,10 @@ Environment.prototype.getProcedure = function(name) {
 };
 
 /**
- * @param {!Environment} other Environment to add closures from.
+ * @param {!r5js.Environment} other Environment to add closures from.
  * See comment to {@link r5js.IEnvironment.addClosure}.
  */
-Environment.prototype.addClosuresFrom = function(other) {
+r5js.Environment.prototype.addClosuresFrom = function(other) {
     /* todo bl: we have to clone the SchemeProcedures to prevent
      some kind of infinite loop. I'm not entirely clear about what loop, though,
      since SchemeProcedure.prototype.cloneWithEnv itself does not do a lot
@@ -170,7 +171,7 @@ Environment.prototype.addClosuresFrom = function(other) {
 
 
 /** @override */
-Environment.prototype.addClosure = function(name, proc) {
+r5js.Environment.prototype.addClosure = function(name, proc) {
     if (this.sealed) {
         throw new r5js.InternalInterpreterError('tried to bind '
             + name
@@ -186,7 +187,7 @@ Environment.prototype.addClosure = function(name, proc) {
 };
 
 /** @override */
-Environment.prototype.addBinding = function(name, val) {
+r5js.Environment.prototype.addBinding = function(name, val) {
 
     if (this.sealed) {
         throw new r5js.InternalInterpreterError('tried to bind ' + name + ' in sealed environment ' + this);
@@ -213,24 +214,24 @@ Environment.prototype.addBinding = function(name, val) {
              For example, the JavaScript implementation of display returns null.
              In order to distinguish between an unbound variable (error) and
              a variable bound to an unspecified value (not an error), we use
-             Environment.prototype.unspecifiedSentinel. */
+             r5js.Environment.prototype.unspecifiedSentinel. */
             this.bindings[name] = this.unspecifiedSentinel;
         } else if (typeof val === 'function' /* primitive procedure */
             || val instanceof SchemeProcedure /* non-primitive procedure */
             || val instanceof Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
             || val instanceof SchemeMacro /* macros */
-            || val instanceof Environment /* Redirects for free ids in macro transcriptions */
+            || val instanceof r5js.Environment /* Redirects for free ids in macro transcriptions */
             || val instanceof JsObjOrMethod /* JavaScript interop (experimental!) */) {
             this.bindings[name] = val;
         } else if (val instanceof Datum) {
         // lots of stuff, including wrapped procedures
             if (val.isVector() && !val.isArrayBacked())
                 this.bindings[name] = val.convertVectorToArrayBacked();
-            /* Environment.prototype.get should honor requests to store both
-             unwrapped procedures (= JavaScript functions and SchemeProcedure
-             objects) and those things wrapped in a Datum. In the latter case,
-             we should store the unwrapped thing.
+            /* r5js.Environment.prototype.get should honor requests to store
+             both unwrapped procedures (= JavaScript functions and
+             SchemeProcedure objects) and those things wrapped in a Datum.
+             In the latter case, we should store the unwrapped thing.
 
              We can see the first pathway in the desugar functions
              for procedures: they explicitly call addBinding with
@@ -239,9 +240,10 @@ Environment.prototype.addBinding = function(name, val) {
 
              (define foo +)
 
-             Environment.protoype.get will return + wrapped in a Datum,
-             then the trampoline will call Environment.prototype.addBinding with
-             this wrapped procedure as the second argument. */
+             r5js.Environment.protoype.get will return + wrapped in a Datum,
+             then the trampoline will call
+             r5js.Environment.prototype.addBinding with this wrapped procedure
+             as the second argument. */
             else
                 this.bindings[name] = val.unwrap();
         } else {
@@ -258,17 +260,18 @@ Environment.prototype.addBinding = function(name, val) {
     }
 };
 
-Environment.prototype.toString = function() {
+/** @override */
+r5js.Environment.prototype.toString = function() {
     return this.name;
 };
 
 
 
 /** @override */
-Environment.prototype.mutate = function(name, newVal, isTopLevel) {
+r5js.Environment.prototype.mutate = function(name, newVal, isTopLevel) {
     var maybeBinding = this.bindings[name];
     if (maybeBinding != null || isTopLevel) {
-        if (maybeBinding instanceof Environment) {
+        if (maybeBinding instanceof r5js.Environment) {
             maybeBinding.mutate(name, newVal, isTopLevel);
         } else {
             this.bindings[name] = null;

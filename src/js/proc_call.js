@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.proc_call');
 
 
+goog.require('r5js.Environment');
 goog.require('r5js.EvalError');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
@@ -37,7 +38,7 @@ function ProcCall(operatorName, firstOperand) {
 }
 
 /**
- * @param {!Environment} env An environment to use.
+ * @param {!r5js.Environment} env An environment to use.
  * @param {boolean=} override True iff the ProcCall's own environment
  * should be overriden.
  */
@@ -470,7 +471,7 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resul
          Otherwise create a new environment pointing back to the current one. */
         var newEnv = proc.isTailCall(continuation)
             ? this.env.allowRedefs()
-            : new Environment('tmp-'
+            : new r5js.Environment('tmp-'
             + proc.name
             + '-'
             + (uniqueNodeCounter++), proc.env).addClosuresFrom(proc.env);
@@ -492,7 +493,10 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resul
 
 ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
 
-    var newEnv = new Environment('macro-' + (uniqueNodeCounter++), this.env);
+    var newEnv = new r5js.Environment(
+        'macro-' + (uniqueNodeCounter++),
+        this.env
+    );
     var newParseTree = macro.transcribe(this.reconstructDatum(), newEnv);
 
     /* Just like with tryNonPrimitiveProcedures, we have to remember when

@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.scheme_procedure');
 
 
+goog.require('r5js.Environment');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.TooFewArgs');
@@ -26,7 +27,7 @@ goog.require('r5js.TooFewArgs');
  */
 function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     this.isDotted = isDotted;
-    this.env = new Environment(name, env);
+    this.env = new r5js.Environment(name, env);
     this.formalsArray = formalsArray;
 
     /* This name has no semantic importance. It's just used for

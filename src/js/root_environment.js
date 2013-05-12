@@ -65,7 +65,7 @@ RootEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {
 };
 
 /**
- * @param {!Environment} lookaside Lookaside environment.
+ * @param {!r5js.Environment} lookaside Lookaside environment.
  */
 RootEnvironment.prototype.setLookaside = function(lookaside) {
     this.lookaside = lookaside;

@@ -16,8 +16,11 @@
 
 goog.provide('r5js.tmp.boot');
 
+
+goog.require('r5js.Environment');
+
 function bootstrap(syntaxLib, procLib) {
-    nullEnv = new Environment('null-environment-5', null);
+    nullEnv = new r5js.Environment('null-environment-5', null);
     install(syntaxLib, nullEnv);
     nullEnv.seal();
     // Node and IE<9 compat

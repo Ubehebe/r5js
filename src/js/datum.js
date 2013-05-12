@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.datum');
 
 
+goog.require('r5js.Environment');
 goog.require('r5js.InternalInterpreterError');
 
 /**
@@ -348,7 +349,7 @@ function newMacroDatum(macro) {
 }
 
 function newEnvironmentSpecifier(version) {
-    return newIdOrLiteral(new Environment('', version), 'environment-specifier');
+    return newIdOrLiteral(new r5js.Environment('', version), 'environment-specifier');
 }
 
 Datum.prototype.getMacro = function() {

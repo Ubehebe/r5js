@@ -18,6 +18,7 @@
 goog.provide('r5js.tmp.pipeline');
 
 
+goog.require('r5js.Environment');
 goog.require('r5js.ParseError');
 
 /**
@@ -29,7 +30,7 @@ function Pipeline() {}
 /** @override */
 Pipeline.prototype.setRootEnv = function(rootEnv) {
     this.rootEnv = rootEnv;
-    this.env = new Environment('global', rootEnv);
+    this.env = new r5js.Environment('global', rootEnv);
 };
 
 /** @override */
@@ -53,7 +54,7 @@ Pipeline.prototype.parse = function(root, lhs) {
 /** @override */
 Pipeline.prototype.desugar = function(root, replMode) {
     if (!replMode) {
-        this.env = new Environment('global', this.rootEnv);
+        this.env = new r5js.Environment('global', this.rootEnv);
     }
     return root.desugar(this.env, false).setStartingEnv(this.env);
 };

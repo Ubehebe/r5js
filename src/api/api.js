@@ -26,7 +26,6 @@ goog.require('r5js.tmp.continuation');
 goog.require('r5js.tmp.datum');
 goog.require('r5js.tmp.ellipsis_transformer');
 goog.require('r5js.tmp.env_buffer');
-goog.require('r5js.tmp.environment');
 goog.require('r5js.tmp.errors');
 goog.require('r5js.tmp.ffi');
 goog.require('r5js.tmp.globals');
