@@ -56,6 +56,13 @@ r5js.Environment = function(name, enclosingEnv) {
      * @private
      */
     this.closures_ = {};
+
+    /**
+     * @type {!Datum}
+     * @private
+     */
+    this.unspecifiedSentinel_ = new Datum();
+    this.unspecifiedSentinel_.type = this.unspecifiedSentinel_.payload = null;
 };
 
 /**
@@ -64,12 +71,6 @@ r5js.Environment = function(name, enclosingEnv) {
  */
 r5js.Environment.prototype.enclosingEnv_;
 
-// See comments in Environment.prototype.addBinding.
-r5js.Environment.prototype.unspecifiedSentinel = (function() {
-    var ans = new Datum();
-    ans.type = ans.payload = null;
-    return ans;
-}());
 
 /** @override */
 r5js.Environment.prototype.seal = function() {
@@ -132,7 +133,7 @@ r5js.Environment.prototype.get = function(name) {
         else if (typeof maybe === 'function'
             || maybe instanceof SchemeProcedure)
             return newProcedureDatum(name, maybe);
-        else if (maybe === this.unspecifiedSentinel)
+        else if (maybe === this.unspecifiedSentinel_)
             return maybe;
         else if (maybe instanceof Datum)
             return newDatumRef(maybe);
@@ -237,8 +238,8 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              For example, the JavaScript implementation of display returns null.
              In order to distinguish between an unbound variable (error) and
              a variable bound to an unspecified value (not an error), we use
-             r5js.Environment.prototype.unspecifiedSentinel. */
-            this.bindings_[name] = this.unspecifiedSentinel;
+             r5js.Environment.prototype.unspecifiedSentinel_. */
+            this.bindings_[name] = this.unspecifiedSentinel_;
         } else if (typeof val === 'function' /* primitive procedure */
             || val instanceof SchemeProcedure /* non-primitive procedure */
             || val instanceof Continuation /* call-with-current-continuation etc. */
