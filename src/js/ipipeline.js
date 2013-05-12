@@ -25,7 +25,7 @@ r5js.IPipeline = function() {};
 
 
 /**
- * @param {!RootEnvironment} rootEnv The root environment to use.
+ * @param {!r5js.RootEnvironment} rootEnv The root environment to use.
  */
 r5js.IPipeline.prototype.setRootEnv = function(rootEnv) {};
 

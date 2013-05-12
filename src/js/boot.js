@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.boot');
 
 
 goog.require('r5js.Environment');
+goog.require('r5js.RootEnvironment');
 
 function bootstrap(syntaxLib, procLib) {
     nullEnv = new r5js.Environment('null-environment-5', null);
@@ -50,7 +51,7 @@ function bootstrap(syntaxLib, procLib) {
      (remembering to clone the macros and set their backlinks correctly).
      Ugh. */
 
-    r5RSEnv = new RootEnvironment(nullEnv.clone('scheme-report-environment-5'));
+    r5RSEnv = new r5js.RootEnvironment(nullEnv.clone('scheme-report-environment-5'));
     installBuiltins(r5RSEnv);
     consoleAvail && console.log('installed primitive procedures ok');
     install(procLib, r5RSEnv);

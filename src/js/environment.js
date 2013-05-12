@@ -19,6 +19,7 @@ goog.provide('r5js.Environment');
 
 goog.require('r5js.EvalError');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.RootEnvironment');
 goog.require('r5js.UnboundVariable');
 
 
@@ -37,8 +38,8 @@ r5js.Environment = function(name, enclosingEnv) {
 
     if (enclosingEnv) {
         this.enclosingEnv_ = enclosingEnv;
-        if (enclosingEnv instanceof RootEnvironment) {
-            (/** @type {!RootEnvironment} */ (
+        if (enclosingEnv instanceof r5js.RootEnvironment) {
+            (/** @type {!r5js.RootEnvironment} */ (
                 enclosingEnv)).setLookaside(this);
         }
         // useful for debugging console.log('created env ' + this + ' referencing ' + enclosingEnv);

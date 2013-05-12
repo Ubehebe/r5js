@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.root_environment');
+goog.provide('r5js.RootEnvironment');
 
 
 goog.require('r5js.UnboundVariable');
@@ -24,21 +24,21 @@ goog.require('r5js.UnboundVariable');
  * @constructor
  * @implements {r5js.IEnvironment}
  */
-function RootEnvironment(delegate) {
+r5js.RootEnvironment = function(delegate) {
     /**
      * @type {!r5js.IEnvironment}
      * @private
      */
     this.delegate_ = delegate;
-}
+};
 
 /** @override */
-RootEnvironment.prototype.toString = function() {
+r5js.RootEnvironment.prototype.toString = function() {
     return this.delegate_.toString();
 };
 
 /** @override */
-RootEnvironment.prototype.get = function(name) {
+r5js.RootEnvironment.prototype.get = function(name) {
     if (this.delegate_.hasBindingRecursive(name, true))
         return this.delegate_.get(name);
     else if (this.lookaside.hasBindingRecursive(name, true))
@@ -47,7 +47,7 @@ RootEnvironment.prototype.get = function(name) {
 };
 
 /** @override */
-RootEnvironment.prototype.getProcedure = function(name) {
+r5js.RootEnvironment.prototype.getProcedure = function(name) {
     if (this.delegate_.hasBinding(name))
         return this.delegate_.getProcedure(name);
     else if (this.lookaside.hasBinding(name))
@@ -56,39 +56,39 @@ RootEnvironment.prototype.getProcedure = function(name) {
 };
 
 /** @override */
-RootEnvironment.prototype.addClosure = function(name, proc) {
+r5js.RootEnvironment.prototype.addClosure = function(name, proc) {
     this.delegate_.addClosure(name, proc);
 };
 
 /** @override */
-RootEnvironment.prototype.addBinding = function(name, val) {
+r5js.RootEnvironment.prototype.addBinding = function(name, val) {
     this.delegate_.addBinding(name, val);
 };
 
 /** @override */
-RootEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {
+r5js.RootEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {
     this.delegate_.mutate(name, newVal, isTopLevel);
 };
 
 /**
  * @param {!r5js.Environment} lookaside Lookaside environment.
  */
-RootEnvironment.prototype.setLookaside = function(lookaside) {
+r5js.RootEnvironment.prototype.setLookaside = function(lookaside) {
     this.lookaside = lookaside;
 };
 
 /** @override */
-RootEnvironment.prototype.seal = function() {
+r5js.RootEnvironment.prototype.seal = function() {
     this.delegate_.seal();
 };
 
 /** @override */
-RootEnvironment.prototype.hasBinding = function(name) {
+r5js.RootEnvironment.prototype.hasBinding = function(name) {
     return this.delegate_.hasBinding(name);
 };
 
 /** @override */
-RootEnvironment.prototype.hasBindingRecursive = function(
+r5js.RootEnvironment.prototype.hasBindingRecursive = function(
     name, searchClosures) {
     return this.delegate_.hasBindingRecursive(name, false);
 };
