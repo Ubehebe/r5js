@@ -55,7 +55,7 @@ Pipeline.prototype.desugar = function(root, replMode) {
     if (!replMode) {
         this.env = new Environment('global', this.rootEnv);
     }
-    return root.desugar(this.env).setStartingEnv(this.env);
+    return root.desugar(this.env, false).setStartingEnv(this.env);
 };
 
 /** @override */
