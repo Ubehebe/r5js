@@ -144,7 +144,10 @@ r5js.PublicApi.prototype.eval = function(string, sideEffectHandler) {
             ),
             sideEffectHandler
         );
-    return ans ? ans.toString() : '';
+    return ans instanceof Datum ?
+        (/** @type {!Datum} */ (ans)).stringForOutputMode(
+            r5js.OutputMode.DISPLAY) :
+        (ans ? ans.toString() : '');
 };
 
 /**
