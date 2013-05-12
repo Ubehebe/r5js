@@ -36,7 +36,7 @@ r5js.Environment = function(name, enclosingEnv) {
     this.name_ = name;
 
     if (enclosingEnv) {
-        this.enclosingEnv = enclosingEnv;
+        this.enclosingEnv_ = enclosingEnv;
         if (enclosingEnv instanceof RootEnvironment) {
             (/** @type {!RootEnvironment} */ (
                 enclosingEnv)).setLookaside(this);
@@ -46,6 +46,12 @@ r5js.Environment = function(name, enclosingEnv) {
     this.bindings = {}; // hey, never use this; use this.get() instead
     this.closures = {};  // See Environment.prototype.addClosure
 };
+
+/**
+ * @type {r5js.IEnvironment}
+ * @private
+ */
+r5js.Environment.prototype.enclosingEnv_;
 
 // See comments in Environment.prototype.addBinding.
 r5js.Environment.prototype.unspecifiedSentinel = (function() {
@@ -66,9 +72,10 @@ r5js.Environment.prototype.allowRedefs = function() {
 
 r5js.Environment.prototype.clone = function(name) {
 
-      if (this.enclosingEnv)
+      if (this.enclosingEnv_) {
         throw new r5js.InternalInterpreterError('clone should only be used during '
         + 'interpreter bootstrapping');
+      }
 
     var cloned = new r5js.Environment(name, null);
 
@@ -93,7 +100,8 @@ r5js.Environment.prototype.hasBindingRecursive = function(
     name, searchClosures) {
     return this.hasBinding(name)
         || (searchClosures && this.closures[name])
-        || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name, searchClosures));
+        || (this.enclosingEnv_ &&
+        this.enclosingEnv_.hasBindingRecursive(name, searchClosures));
 };
 
 /** @override */
@@ -129,10 +137,11 @@ r5js.Environment.prototype.get = function(name) {
         return maybe;
     }
     // If the current environment has no binding for the name, look one level up
-    else if (this.enclosingEnv)
-        return this.enclosingEnv.get(name);
-    else
+    else if (this.enclosingEnv_) {
+        return this.enclosingEnv_.get(name);
+    } else {
         throw new r5js.UnboundVariable(name + ' in env ' + this.name_);
+    }
 };
 
 /** @override */
@@ -149,10 +158,11 @@ r5js.Environment.prototype.getProcedure = function(name) {
             || maybe instanceof JsObjOrMethod) {
             return maybe;
         } else throw new r5js.EvalError('expected procedure, given ' + name);
-    } else if (this.enclosingEnv)
-        return this.enclosingEnv.getProcedure(name);
-    else
+    } else if (this.enclosingEnv_) {
+        return this.enclosingEnv_.getProcedure(name);
+    } else {
         return null;
+    }
 };
 
 /**
@@ -278,7 +288,7 @@ r5js.Environment.prototype.mutate = function(name, newVal, isTopLevel) {
             this.bindings[name] = null;
             this.addBinding(name, newVal);
         }
-    } else if (this.enclosingEnv) {
-        this.enclosingEnv.mutate(name, newVal, isTopLevel);
+    } else if (this.enclosingEnv_) {
+        this.enclosingEnv_.mutate(name, newVal, isTopLevel);
     } else throw new r5js.UnboundVariable(name);
 };
