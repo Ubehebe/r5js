@@ -20,6 +20,7 @@ goog.provide('r5js.tmp.scheme_procedure');
 goog.require('r5js.Environment');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 
 /**
@@ -38,7 +39,7 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
 
         /* R5RS 5.2.2: "A <body> containing internal definitions can always
         be converted into a completely equivalent letrec expression." */
-        var letrecBindings = new SiblingBuffer();
+        var letrecBindings = new r5js.SiblingBuffer();
         for (var cur = bodyStart; cur && cur.peekParse() === 'definition'; cur = cur.nextSibling) {
                 cur.forEach(function(node) {
                     if (node.firstChild && node.firstChild.payload === 'define')

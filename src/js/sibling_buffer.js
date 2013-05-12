@@ -14,44 +14,46 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.sibling_buffer');
+goog.provide('r5js.SiblingBuffer');
 
 /**
  * Just a buffer to accumulate siblings without the client having to do
  * the pointer arithmetic.
  * @constructor
  */
-function SiblingBuffer() {}
+r5js.SiblingBuffer = function() {};
 
 /**
  * @type {Datum}
+ * @private
  */
-SiblingBuffer.prototype.first;
+r5js.SiblingBuffer.prototype.first_;
 
 /**
  * @type {Datum}
+ * @private
  */
-SiblingBuffer.prototype.last;
+r5js.SiblingBuffer.prototype.last_;
 
 /**
  * @return {boolean} True iff the buffer is empty.
  */
-SiblingBuffer.prototype.isEmpty = function() {
-    return !this.first;
+r5js.SiblingBuffer.prototype.isEmpty = function() {
+    return !this.first_;
 };
 
 /**
  * @param {!Datum} node Node to append.
- * @return {!SiblingBuffer} This object, for chaining.
+ * @return {!r5js.SiblingBuffer} This object, for chaining.
  */
-SiblingBuffer.prototype.appendSibling = function(node) {
+r5js.SiblingBuffer.prototype.appendSibling = function(node) {
     if (node) {
-        if (!this.first) {
-            this.first = node;
-            this.last = node.lastSibling();
+        if (!this.first_) {
+            this.first_ = node;
+            this.last_ = node.lastSibling();
         } else {
-            this.last.nextSibling = node;
-            this.last = node.lastSibling();
+            this.last_.nextSibling = node;
+            this.last_ = node.lastSibling();
         }
     }
     return this;
@@ -60,25 +62,25 @@ SiblingBuffer.prototype.appendSibling = function(node) {
 /**
  * @return {Datum}
  */
-SiblingBuffer.prototype.toSiblings = function() {
-    return this.first;
+r5js.SiblingBuffer.prototype.toSiblings = function() {
+    return this.first_;
 };
 
 /**
  * @param {*=} type
  * TODO bl: narrow the type of the parameter.
  */
-SiblingBuffer.prototype.toList = function(type) {
+r5js.SiblingBuffer.prototype.toList = function(type) {
   var ans = newEmptyList();
-    ans.firstChild = this.first;
+    ans.firstChild = this.first_;
     if (type)
         ans.type = type; // default is (
     return ans;
 };
 
 /** @override */
-SiblingBuffer.prototype.toString = function() {
+r5js.SiblingBuffer.prototype.toString = function() {
     var tmp = newEmptyList();
-    tmp.appendChild(this.first);
+    tmp.appendChild(this.first_);
     return tmp.toString();
 };

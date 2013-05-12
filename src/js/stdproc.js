@@ -24,6 +24,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
 goog.require('r5js.ParseError');
 goog.require('r5js.PrimitiveProcedureError');
+goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
@@ -956,7 +957,7 @@ R5JS_builtins['control'] = {
 
             // (apply foo '(x y z))
             if (lastRealArgIndex === 1) {
-                var newArgs = new SiblingBuffer();
+                var newArgs = new r5js.SiblingBuffer();
                 // todo bl document why we are quoting the arguments
                 for (var arg = mustBeList.firstChild; arg; arg = arg.nextSibling)
                     newArgs.appendSibling(arg.quote());

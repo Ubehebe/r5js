@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.ellipsis_transformer');
 
+
+goog.require('r5js.SiblingBuffer');
+
 // See comments at top of ListLikeTransformer.
 
 /**
@@ -78,7 +81,7 @@ EllipsisTransformer.prototype.matchInput = function(inputDatum, literalIds, defi
 };
 
 EllipsisTransformer.prototype.toDatum = function(bindings) {
-    var buf = new SiblingBuffer();
+    var buf = new r5js.SiblingBuffer();
     var bindingsToUse;
     var success;
     while ((bindingsToUse = bindings.getNextChild())

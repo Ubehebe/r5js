@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.list_like_transformer');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.SiblingBuffer');
 
 /* ListLikeTransformer, EllipsisTransformer, and IdOrLiteralTransformer
 all "implement" the following "interface":
@@ -147,7 +148,7 @@ ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, defi
 
 ListLikeTransformer.prototype.toDatum = function (bindings) {
 
-    var buf = new SiblingBuffer();
+    var buf = new r5js.SiblingBuffer();
     var len = this.subtransformers.length;
     var success;
 

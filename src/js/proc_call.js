@@ -23,6 +23,7 @@ goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.MacroError');
 goog.require('r5js.QuasiquoteError');
+goog.require('r5js.SiblingBuffer');
 
 // For composition; should only be called from newProcCall
 
@@ -96,7 +97,7 @@ function newIdShim(payload, continuationName) {
 }
 
 function newAssignment(dstName, srcName, continuation) {
-    var operands = new SiblingBuffer()
+    var operands = new r5js.SiblingBuffer()
         .appendSibling(newIdOrLiteral(dstName))
         .appendSibling(newIdOrLiteral(srcName))
         .toSiblings();
@@ -221,7 +222,7 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
 ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
 
     var newCallChain = new ContinuableHelper();
-    var finalArgs = new SiblingBuffer();
+    var finalArgs = new r5js.SiblingBuffer();
     var maybeContinuable;
 
     for (var arg = this.firstOperand; arg; arg = arg.nextSibling) {

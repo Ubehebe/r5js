@@ -206,11 +206,11 @@ TemplateBindings.prototype.resolveDatum = function(datum) {
              "falsey" value like null. This value is immediately returned by
              IdOrLiteralTransformer.prototype.matchInput. Meanwhile,
              EllipsisTransformer.prototype.matchInput returns
-             new SiblingBuffer().toList() when it has successfully matched the
+             new r5js.SiblingBuffer().toList() when it has successfully matched the
              ellipsis zero times, which is not a failure. And if you look at
              the implementation, you will see there is a good reason that
 
-             new SiblingBuffer().toList() === null.
+             new r5js.SiblingBuffer().toList() === null.
 
              So we have to return something different.
 

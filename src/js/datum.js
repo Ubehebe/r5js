@@ -19,6 +19,7 @@ goog.provide('r5js.tmp.datum');
 
 goog.require('r5js.Environment');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.SiblingBuffer');
 
 /**
  * @constructor
@@ -160,7 +161,7 @@ Datum.prototype.clone = function(parent) {
     if (this.parent)
         ans.parent = this.parent;
     if (this.firstChild) {
-        var buf = new SiblingBuffer();
+        var buf = new r5js.SiblingBuffer();
         for (var child = this.firstChild; child; child = child.nextSibling) {
             buf.appendSibling(child.clone(ans));
         }
@@ -826,12 +827,12 @@ Datum.prototype.closestAncestorSibling = function() {
  See comments in TemplateBindings.prototype.getTemplateBinding(). */
 Datum.prototype.desugarMacroBlock = function(env, operatorName) {
 
-    var letBindings = new SiblingBuffer();
+    var letBindings = new r5js.SiblingBuffer();
 
     for (var spec = this.at('(').firstChild; spec; spec = spec.nextSibling) {
         var kw = spec.at('keyword').clone();
         var macro = spec.at('transformer-spec').desugar(env);
-        var buf = new SiblingBuffer();
+        var buf = new r5js.SiblingBuffer();
         /* We have to wrap the SchemeMacro object in a Datum to get it into
             the parse tree. */
         buf.appendSibling(kw);
@@ -839,7 +840,7 @@ Datum.prototype.desugarMacroBlock = function(env, operatorName) {
         letBindings.appendSibling(buf.toList());
     }
 
-    var _let = new SiblingBuffer();
+    var _let = new r5js.SiblingBuffer();
     _let.appendSibling(letBindings.toList());
     _let.appendSibling(this.at('(').nextSibling);
 
