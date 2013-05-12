@@ -63,6 +63,12 @@ r5js.Environment = function(name, enclosingEnv) {
      */
     this.unspecifiedSentinel_ = new Datum();
     this.unspecifiedSentinel_.type = this.unspecifiedSentinel_.payload = null;
+
+    /**
+     * @type {boolean}
+     * @private
+     */
+    this.redefsOk_ = false;
 };
 
 /**
@@ -77,8 +83,11 @@ r5js.Environment.prototype.seal = function() {
     this.sealed = true;
 };
 
+/**
+ * @return {!r5js.Environment} This object, for chaining.
+ */
 r5js.Environment.prototype.allowRedefs = function() {
-    this.redefsOk = true;
+    this.redefsOk_ = true;
     return this;
 };
 
@@ -217,7 +226,9 @@ r5js.Environment.prototype.addBinding = function(name, val) {
         throw new r5js.InternalInterpreterError('tried to bind ' + name + ' in sealed environment ' + this);
     }
 
-    else if (this.bindings_[name] == null || this.redefsOk || name.charAt(0) === '@') {
+    else if (this.bindings_[name] == null ||
+        this.redefsOk_ ||
+        name.charAt(0) === '@') {
 
         // useful for debugging if (val instanceof Datum)
         //    console.log(this + ' addBinding ' + name + ' = ' + val);
