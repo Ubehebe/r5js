@@ -51,7 +51,11 @@ r5js.Environment = function(name, enclosingEnv) {
      */
     this.bindings_ = {};
 
-    this.closures = {};  // See Environment.prototype.addClosure
+    /**
+     * @type {!Object.<string, !SchemeProcedure>}
+     * @private
+     */
+    this.closures_ = {};
 };
 
 /**
@@ -106,7 +110,7 @@ r5js.Environment.prototype.hasBinding = function(name) {
 r5js.Environment.prototype.hasBindingRecursive = function(
     name, searchClosures) {
     return this.hasBinding(name)
-        || (searchClosures && this.closures[name])
+        || (searchClosures && this.closures_[name])
         || (this.enclosingEnv_ &&
         this.enclosingEnv_.hasBindingRecursive(name, searchClosures));
 };
@@ -134,7 +138,7 @@ r5js.Environment.prototype.get = function(name) {
             return newDatumRef(maybe);
         // Everything else
         else return maybe;
-    } else if (maybe = this.closures[name]) {
+    } else if (maybe = this.closures_[name]) {
         /* I think this is only used for ProcCall.prototype.cpsify, where
          identifiers are used to keep track of things while the structure
          is changed. Semantic use of procedures should be gated by
@@ -181,8 +185,9 @@ r5js.Environment.prototype.addClosuresFrom = function(other) {
      some kind of infinite loop. I'm not entirely clear about what loop, though,
      since SchemeProcedure.prototype.cloneWithEnv itself does not do a lot
      of copying. */
-    for (var name in other.closures)
-        this.addBinding(name, other.closures[name].cloneWithEnv(this));
+    for (var name in other.closures_) {
+        this.addBinding(name, other.closures_[name].cloneWithEnv(this));
+    }
     return this;
 };
 
@@ -197,10 +202,10 @@ r5js.Environment.prototype.addClosure = function(name, proc) {
             + this.name_);
     } else if (!(proc instanceof SchemeProcedure)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
-    } else if (this.closures[name]) {
+    } else if (this.closures_[name]) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     } else {
-        this.closures[name] = proc;
+        this.closures_[name] = proc;
     }
 };
 
@@ -299,4 +304,14 @@ r5js.Environment.prototype.mutate = function(name, newVal, isTopLevel) {
     } else if (this.enclosingEnv_) {
         this.enclosingEnv_.mutate(name, newVal, isTopLevel);
     } else throw new r5js.UnboundVariable(name);
+};
+
+
+/**
+ * @param {!r5js.Environment} otherEnv Environment whose closures
+ * this environment should use.
+ * TODO bl: this method is only used once. Can I eliminate it?
+ */
+r5js.Environment.prototype.setClosuresFrom = function(otherEnv) {
+  this.closures_ = otherEnv.closures_;
 };

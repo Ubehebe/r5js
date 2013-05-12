@@ -59,9 +59,14 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
     }
 }
 
+/**
+ * @param {!r5js.Environment} env Environment to clone with.
+ * @return {!SchemeProcedure} A clone of this SchemeProcedure,
+ * with the given environment.
+ */
 SchemeProcedure.prototype.cloneWithEnv = function(env) {
     var ans = new SchemeProcedure(this.formalsArray, this.isDotted, null, env, this.name + "'-" + (uniqueNodeCounter++));
-    ans.env.closures = this.env.closures; // non-cloning ok?
+    ans.env.setClosuresFrom(this.env); // non-cloning ok?
     ans.body = this.body;
     ans.lastContinuable = this.lastContinuable;
     return ans;
