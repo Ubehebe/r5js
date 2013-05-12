@@ -44,7 +44,7 @@ r5js.Environment = function(name, enclosingEnv) {
     }
     this.bindings = {}; // hey, never use this; use this.get() instead
     this.closures = {};  // See Environment.prototype.addClosure
-}
+};
 
 // See comments in Environment.prototype.addBinding.
 r5js.Environment.prototype.unspecifiedSentinel = (function() {
