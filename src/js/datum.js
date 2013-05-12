@@ -870,16 +870,17 @@ Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
     var formalRoot = this.at('formals');
 
     var newHelper = new RenameHelper(helper);
+    var cur;
 
     // (lambda (x y) ...) or (lambda (x . y) ...)
     if (formalRoot.firstChild) {
-        for (var cur = formalRoot.firstChild; cur; cur = cur.nextSibling)
+        for (cur = formalRoot.firstChild; cur; cur = cur.nextSibling)
             if (isParserSensitiveId(cur.payload))
                 cur.payload = newHelper.addRenameBinding(cur.payload);
     }
 
     // (lambda x ...)
-    else if (isParserSensitiveId(formalRoot.payload))
+    else if (cur && isParserSensitiveId(formalRoot.payload))
         cur.payload = newHelper.addRenameBinding(formalRoot.payload);
 
     formalRoot.nextSibling.fixParserSensitiveIds(newHelper);
