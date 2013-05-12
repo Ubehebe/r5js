@@ -50,8 +50,9 @@ goog.require('r5js.UnboundVariable');
 
 /**
  * @param {string} name The environment's name. Just for pretty-printing.
- * @param {Environment=} enclosingEnv The enclosing environment, if any.
+ * @param {!r5js.IEnvironment} enclosingEnv The enclosing environment, if any.
  * @constructor
+ * @implements {r5js.IEnvironment}
  */
 function Environment(name, enclosingEnv) {
     /**
@@ -61,8 +62,10 @@ function Environment(name, enclosingEnv) {
 
     if (enclosingEnv) {
         this.enclosingEnv = enclosingEnv;
-        if (enclosingEnv instanceof RootEnvironment)
-            enclosingEnv.setLookaside(this);
+        if (enclosingEnv instanceof RootEnvironment) {
+            (/** @type {!RootEnvironment} */ (
+                enclosingEnv)).setLookaside(this);
+        }
         // useful for debugging console.log('created env ' + this + ' referencing ' + enclosingEnv);
     }
     this.bindings = {}; // hey, never use this; use this.get() instead
@@ -78,6 +81,7 @@ Environment.prototype.unspecifiedSentinel = (function() {
 
 /* Just for environments defined in the standard; users shouldn't be able to
     add to them. */
+/** @override */
 Environment.prototype.seal = function() {
     this.sealed = true;
 };
@@ -105,17 +109,20 @@ Environment.prototype.clone = function(name) {
     return cloned;
 };
 
+/** @override */
 Environment.prototype.hasBinding = function(name) {
     // We must never store null or undefined as a value.
     return this.bindings[name] != null;
 };
 
+/** @override */
 Environment.prototype.hasBindingRecursive = function(name, searchClosures) {
     return this.hasBinding(name)
         || (searchClosures && this.closures[name])
         || (this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name, searchClosures));
 };
 
+/** @override */
 Environment.prototype.get = function(name) {
 
     var maybe = this.bindings[name];
@@ -154,6 +161,7 @@ Environment.prototype.get = function(name) {
         throw new r5js.UnboundVariable(name + ' in env ' + this.name);
 };
 
+/** @override */
 Environment.prototype.getProcedure = function(name) {
     var maybe = this.bindings[name];
 
@@ -222,6 +230,8 @@ Environment.prototype.addClosuresFrom = function(other) {
  of (lambda (y) (+ x y)) points back to the Environment representing the
  _execution_ of foo (tmp-fooEnv), not the Environment representing foo itself
  (fooEnv). */
+
+/** @override */
 Environment.prototype.addClosure = function(name, proc) {
     if (this.sealed) {
         throw new r5js.InternalInterpreterError('tried to bind '
@@ -237,6 +247,7 @@ Environment.prototype.addClosure = function(name, proc) {
     }
 };
 
+/** @override */
 Environment.prototype.addBinding = function(name, val) {
 
     if (this.sealed) {
@@ -327,6 +338,8 @@ Environment.prototype.toString = function() {
  an unbound variable."
 
  We use the isTopLevel parameter to perform the override mentioned. */
+
+/** @override */
 Environment.prototype.mutate = function(name, newVal, isTopLevel) {
     var maybeBinding = this.bindings[name];
     if (maybeBinding != null || isTopLevel) {

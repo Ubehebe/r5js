@@ -21,6 +21,7 @@ goog.require('r5js.UnboundVariable');
 
 /**
  * @constructor
+ * @implements {r5js.IEnvironment}
  */
 function RootEnvironment(delegate) {
     this.delegate = delegate;
@@ -30,6 +31,7 @@ RootEnvironment.prototype.toString = function() {
     return this.delegate.toString();
 };
 
+/** @override */
 RootEnvironment.prototype.get = function(name) {
     if (this.delegate.hasBindingRecursive(name, true))
         return this.delegate.get(name);
@@ -38,6 +40,7 @@ RootEnvironment.prototype.get = function(name) {
     else throw new r5js.UnboundVariable(name + ' in env ' + this.toString());
 };
 
+/** @override */
 RootEnvironment.prototype.getProcedure = function(name) {
     if (this.delegate.hasBinding(name))
         return this.delegate.getProcedure(name);
@@ -46,31 +49,40 @@ RootEnvironment.prototype.getProcedure = function(name) {
     else return null;
 };
 
+/** @override */
 RootEnvironment.prototype.addClosure = function(name, proc) {
     this.delegate.addClosure(name, proc);
 };
 
+/** @override */
 RootEnvironment.prototype.addBinding = function(name, val) {
     this.delegate.addBinding(name, val);
 };
 
+/** @override */
 RootEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {
     this.delegate.mutate(name, newVal, isTopLevel);
 };
 
+/**
+ * @param {!Environment} lookaside Lookaside environment.
+ */
 RootEnvironment.prototype.setLookaside = function(lookaside) {
     this.lookaside = lookaside;
-    return this;
 };
 
+/** @override */
 RootEnvironment.prototype.seal = function() {
     this.delegate.seal();
 };
 
+/** @override */
 RootEnvironment.prototype.hasBinding = function(name) {
     return this.delegate.hasBinding(name);
 };
 
-RootEnvironment.prototype.hasBindingRecursive = function(name) {
-    return this.delegate.hasBindingRecursive(name);
+/** @override */
+RootEnvironment.prototype.hasBindingRecursive = function(
+    name, searchClosures) {
+    return this.delegate.hasBindingRecursive(name, false);
 };
