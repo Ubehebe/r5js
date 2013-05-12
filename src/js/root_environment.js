@@ -32,6 +32,13 @@ r5js.RootEnvironment = function(delegate) {
     this.delegate_ = delegate;
 };
 
+/**
+ * @type {r5js.IEnvironment}
+ * @private
+ * TODO bl: what the heck is a lookaside environment?
+ */
+r5js.RootEnvironment.prototype.lookaside_;
+
 /** @override */
 r5js.RootEnvironment.prototype.toString = function() {
     return this.delegate_.toString();
@@ -39,20 +46,25 @@ r5js.RootEnvironment.prototype.toString = function() {
 
 /** @override */
 r5js.RootEnvironment.prototype.get = function(name) {
-    if (this.delegate_.hasBindingRecursive(name, true))
+    if (this.delegate_.hasBindingRecursive(name, true)) {
         return this.delegate_.get(name);
-    else if (this.lookaside.hasBindingRecursive(name, true))
-        return this.lookaside.get(name);
-    else throw new r5js.UnboundVariable(name + ' in env ' + this.toString());
+    } else if (this.lookaside_ &&
+        this.lookaside_.hasBindingRecursive(name, true)) {
+        return this.lookaside_.get(name);
+    } else {
+        throw new r5js.UnboundVariable(name + ' in env ' + this.toString());
+    }
 };
 
 /** @override */
 r5js.RootEnvironment.prototype.getProcedure = function(name) {
-    if (this.delegate_.hasBinding(name))
+    if (this.delegate_.hasBinding(name)) {
         return this.delegate_.getProcedure(name);
-    else if (this.lookaside.hasBinding(name))
-        return this.lookaside.getProcedure(name);
-    else return null;
+    } else if (this.lookaside_ && this.lookaside_.hasBinding(name)) {
+        return this.lookaside_.getProcedure(name);
+    } else {
+        return null;
+    }
 };
 
 /** @override */
@@ -74,7 +86,7 @@ r5js.RootEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {
  * @param {!r5js.Environment} lookaside Lookaside environment.
  */
 r5js.RootEnvironment.prototype.setLookaside = function(lookaside) {
-    this.lookaside = lookaside;
+    this.lookaside_ = lookaside;
 };
 
 /** @override */
