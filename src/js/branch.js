@@ -86,13 +86,13 @@ Branch.prototype.debugString = function(continuation, indentLevel) {
         ans += '\t';
     ans += '{' + this.test
         + ' ? '
-        + this.consequent.toString(indentLevel + 1)
-        + (this.alternate && this.alternate.toString(indentLevel + 1));
+        + this.consequent.debugString(indentLevel + 1)
+        + (this.alternate && this.alternate.debugString(indentLevel + 1));
     if (continuation) {
         ans += '\n';
         for (i=0; i < indentLevel; ++i)
             ans += '\t';
-        ans += continuation.toString(indentLevel + 1);
+        ans += continuation.debugString(indentLevel + 1);
     }
 
     this.consequentLastContinuable.continuation = tmpConsequent;

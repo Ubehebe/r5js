@@ -78,7 +78,7 @@ Continuable.prototype.appendContinuable = function(next) {
 };
 
 // delegate to subtype, passing in the continuation for debugging
-Continuable.prototype.toString = function(indentLevel) {
+Continuable.prototype.debugString = function(indentLevel) {
     return this.subtype.debugString(
         this.continuation,
         indentLevel || 0

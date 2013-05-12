@@ -120,7 +120,7 @@ ProcCall.prototype.toString = function(continuation, indentLevel, suppressEnv) {
         ans += ' ' + this.firstOperand;
     }
     if (continuation)
-        ans += ' ' + continuation.toString(indentLevel+1);
+        ans += ' ' + continuation.debugString(indentLevel+1);
     return ans + ')';
 };
 

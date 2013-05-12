@@ -43,7 +43,7 @@ Continuation.prototype.installBeforeThunk = function(before) {
 };
 
 // Just for debugging
-Continuation.prototype.toString = function(indentLevel) {
+Continuation.prototype.debugString = function(indentLevel) {
 
     if (indentLevel == null) {
         /* If no indent level is given, this function is being used to
@@ -65,7 +65,7 @@ Continuation.prototype.toString = function(indentLevel) {
         if (this.nextContinuable) {
             for (var i = 0; i < indentLevel; ++i)
                 ans += '\t';
-            ans += ' ' + this.nextContinuable.toString(indentLevel + 1);
+            ans += ' ' + this.nextContinuable.debugString(indentLevel + 1);
         }
         return ans + ']';
     }
