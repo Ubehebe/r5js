@@ -418,8 +418,8 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultSt
              We'll have to change this logic if any primitive procedure ever
              has both hasSpecialEvalLogic and needsCurrentPorts. */
             if (proc.needsCurrentPorts) {
-                args.push(resultStruct.inputPort);
-                args.push(resultStruct.outputPort);
+                args.push(resultStruct.getInputPort());
+                args.push(resultStruct.getOutputPort());
             }
             var ans = proc.apply(null, args);
             this.bindResult(continuation, ans);

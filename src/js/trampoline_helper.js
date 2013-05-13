@@ -23,12 +23,21 @@ goog.require('r5js.tmp.callback_backed_port');
  * @constructor
  */
 function TrampolineHelper(inputPort, outputPort) {
-    this.inputPort = inputPort
-        ? newInputPortDatum(inputPort)
-        : this.discardInputPort_();
-    this.outputPort = outputPort
-        ? newOutputPortDatum(outputPort)
-        : this.discardOutputPort_();
+    /**
+     * @type {!Datum}
+     * @private
+     */
+    this.inputPort_ = inputPort ?
+        newInputPortDatum(inputPort) :
+        this.discardInputPort_();
+
+    /**
+     * @type {!Datum}
+     * @private
+     */
+    this.outputPort_ = outputPort ?
+        newOutputPortDatum(outputPort) :
+        this.discardOutputPort_();
 
     /*
      this.ans;
@@ -62,4 +71,20 @@ TrampolineHelper.prototype.discardOutputPort_ = function() {
         new CallbackBackedPort(
             function() {
             }));
+};
+
+
+/**
+ * @return {!Datum}
+ */
+TrampolineHelper.prototype.getInputPort = function() {
+    return this.inputPort_;
+};
+
+
+/**
+ * @return {!Datum}
+ */
+TrampolineHelper.prototype.getOutputPort = function() {
+    return this.outputPort_;
 };
