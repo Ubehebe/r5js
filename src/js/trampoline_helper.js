@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.trampoline_helper');
+goog.provide('r5js.TrampolineHelper');
 
 
 goog.require('r5js.tmp.callback_backed_port');
@@ -22,7 +22,7 @@ goog.require('r5js.tmp.callback_backed_port');
 /**
  * @constructor
  */
-function TrampolineHelper(inputPort, outputPort) {
+r5js.TrampolineHelper = function(inputPort, outputPort) {
     /**
      * @type {!Datum}
      * @private
@@ -44,9 +44,9 @@ function TrampolineHelper(inputPort, outputPort) {
      this.nextContinuable;
      this.beforeThunk;
      */
-}
+};
 
-TrampolineHelper.prototype.clear = function() {
+r5js.TrampolineHelper.prototype.clear = function() {
     this.ans = null;
     this.nextContinuable = null;
 };
@@ -55,7 +55,7 @@ TrampolineHelper.prototype.clear = function() {
  * @return {!Datum} New Datum representing a discard input port.
  * @private
  */
-TrampolineHelper.prototype.discardInputPort_ = function() {
+r5js.TrampolineHelper.prototype.discardInputPort_ = function() {
     return newInputPortDatum(
         new CallbackBackedPort(
             function() {
@@ -66,7 +66,7 @@ TrampolineHelper.prototype.discardInputPort_ = function() {
  * @return {!Datum} New Datum representing a discard output port.
  * @private
  */
-TrampolineHelper.prototype.discardOutputPort_ = function() {
+r5js.TrampolineHelper.prototype.discardOutputPort_ = function() {
     return newOutputPortDatum(
         new CallbackBackedPort(
             function() {
@@ -77,7 +77,7 @@ TrampolineHelper.prototype.discardOutputPort_ = function() {
 /**
  * @return {!Datum}
  */
-TrampolineHelper.prototype.getInputPort = function() {
+r5js.TrampolineHelper.prototype.getInputPort = function() {
     return this.inputPort_;
 };
 
@@ -85,6 +85,6 @@ TrampolineHelper.prototype.getInputPort = function() {
 /**
  * @return {!Datum}
  */
-TrampolineHelper.prototype.getOutputPort = function() {
+r5js.TrampolineHelper.prototype.getOutputPort = function() {
     return this.outputPort_;
 };

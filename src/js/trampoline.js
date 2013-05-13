@@ -16,6 +16,9 @@
 
 goog.provide('r5js.tmp.trampoline');
 
+
+goog.require('r5js.TrampolineHelper');
+
 /* This is the main evaluation function.
 
     The subtlest part is probably the question "what is the current environment?"
@@ -100,7 +103,7 @@ goog.provide('r5js.tmp.trampoline');
 function trampoline(continuable, inputPort, outputPort, debug) {
 
     var cur = continuable;
-    var resultStruct = new TrampolineHelper(inputPort, outputPort);
+    var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
     var savedEnv = new EnvBuffer();
     var ans;
 
