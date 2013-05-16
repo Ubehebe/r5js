@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.transformer');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
 
 /**
@@ -27,7 +28,7 @@ function Transformer(pattern, template) {
     /* This is an InternalInterpreterError (= sanity check) instead of a
      MacroError because the grammar should make it impossible for
      a programmer to get here. */
-    if (!(pattern instanceof ListLikeTransformer))
+    if (!(pattern instanceof r5js.ListLikeTransformer))
         throw new r5js.InternalInterpreterError(
             'transformer begins with a pattern '
                 + pattern.toString()

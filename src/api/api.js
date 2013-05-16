@@ -31,7 +31,6 @@ goog.require('r5js.tmp.ffi');
 goog.require('r5js.tmp.globals');
 goog.require('r5js.tmp.id_or_literal_transformer');
 goog.require('r5js.tmp.js_obj_or_method');
-goog.require('r5js.tmp.list_like_transformer');
 goog.require('r5js.tmp.node_backed_port');
 goog.require('r5js.tmp.output_modes');
 goog.require('r5js.tmp.parse');

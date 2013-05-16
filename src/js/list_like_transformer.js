@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.list_like_transformer');
+goog.provide('r5js.ListLikeTransformer');
 
 
 goog.require('r5js.InternalInterpreterError');
@@ -22,21 +22,22 @@ goog.require('r5js.SiblingBuffer');
 
 
 /**
+ * @param {string} type The type of this transformer.
  * @implements {r5js.ITransformer}
  * @constructor
  */
-function ListLikeTransformer(type) {
+r5js.ListLikeTransformer = function(type) {
     this.type = type;
     this.subtransformers = [];
-}
+};
 
-ListLikeTransformer.prototype.addSubtransformer = function(subtransformer) {
+r5js.ListLikeTransformer.prototype.addSubtransformer = function(subtransformer) {
     this.subtransformers.push(subtransformer);
     return this;
 };
 
 /** @override */
-ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
+r5js.ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
     /* This is a no-op mainly so we don't accidentally rename identifiers
      inside quotes in Transformer.prototype.setupIds. */
     if (this.type !== "'") {
@@ -45,7 +46,7 @@ ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
     }
 };
 
-ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
+r5js.ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
     switch (this.type) {
         case '(':
             // Proper list patterns can match only proper list inputs
@@ -62,7 +63,7 @@ ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
 };
 
 /** @override */
-ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
     var len = this.subtransformers.length;
     var maybeEllipsis = this.subtransformers[len-1] instanceof EllipsisTransformer
         && this.subtransformers[len-1];
@@ -136,7 +137,7 @@ ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, defi
 };
 
 /** @override */
-ListLikeTransformer.prototype.toDatum = function (bindings) {
+r5js.ListLikeTransformer.prototype.toDatum = function (bindings) {
 
     var buf = new r5js.SiblingBuffer();
     var len = this.subtransformers.length;
@@ -153,7 +154,7 @@ ListLikeTransformer.prototype.toDatum = function (bindings) {
     return buf.toList(this.type);
 };
 
-ListLikeTransformer.prototype.toString = function () {
+r5js.ListLikeTransformer.prototype.toString = function () {
     var ans = this.type === '#(' ? this.type : '(';
     if (this.subtransformers.length === 0) {
         return ans + ')';

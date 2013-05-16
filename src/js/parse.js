@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.parse');
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
 
 /* todo bl: this file should not exist.
@@ -1127,7 +1128,7 @@ Parser.prototype['pattern'] = function() {
             {type: '...'},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new ListLikeTransformer('(');
+                var ans = new r5js.ListLikeTransformer('(');
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
@@ -1146,7 +1147,7 @@ Parser.prototype['pattern'] = function() {
             {type: '...'},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new ListLikeTransformer('#(');
+                var ans = new r5js.ListLikeTransformer('#(');
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
@@ -1170,7 +1171,7 @@ Parser.prototype['pattern'] = function() {
             {type: 'pattern', atLeast: 0},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new ListLikeTransformer('(');
+                var ans = new r5js.ListLikeTransformer('(');
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling)
                     ans.addSubtransformer(cur.desugar());
                 return ans;
@@ -1183,7 +1184,7 @@ Parser.prototype['pattern'] = function() {
             {type: 'pattern'},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new ListLikeTransformer('.(');
+                var ans = new r5js.ListLikeTransformer('.(');
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling)
                     ans.addSubtransformer(cur.desugar());
                 return ans;
@@ -1194,7 +1195,7 @@ Parser.prototype['pattern'] = function() {
             {type: 'pattern', atLeast: 0},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new ListLikeTransformer('#(');
+                var ans = new r5js.ListLikeTransformer('#(');
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling)
                     ans.addSubtransformer(cur.desugar());
                 return ans;
@@ -1276,7 +1277,7 @@ Parser.prototype['template'] = function() {
             {type: 'template'},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new ListLikeTransformer('.(');
+                var ans = new r5js.ListLikeTransformer('.(');
                 for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
@@ -1295,7 +1296,7 @@ Parser.prototype['template'] = function() {
             {type: 'template', atLeast: 0},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new ListLikeTransformer('(');
+                var ans = new r5js.ListLikeTransformer('(');
                 for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
@@ -1313,7 +1314,7 @@ Parser.prototype['template'] = function() {
             {type: 'template', atLeast: 0},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new ListLikeTransformer('#(');
+                var ans = new r5js.ListLikeTransformer('#(');
                 for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
@@ -1330,7 +1331,7 @@ Parser.prototype['template'] = function() {
             {type: "'"},
             {type: 'template'},
             {desugar: function(node) {
-                var ans = new ListLikeTransformer("'");
+                var ans = new r5js.ListLikeTransformer("'");
                 ans.addSubtransformer(node.at('template').desugar());
                 return ans;
             }}
