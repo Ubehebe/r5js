@@ -14,7 +14,9 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.lazy_boot');
+goog.provide('r5js.LazyBoot');
+
+goog.require('r5js.tmp.pipeline');
 
 /**
  * @param {!Pipeline} pipeline Pipeline delegate.
@@ -23,7 +25,7 @@ goog.provide('r5js.tmp.lazy_boot');
  * @implements {r5js.IPipeline}
  * @constructor
  */
-function LazyBoot(pipeline, onBoot) {
+r5js.LazyBoot = function(pipeline, onBoot) {
     /**
      * @type {!Pipeline}
      * @private
@@ -41,49 +43,49 @@ function LazyBoot(pipeline, onBoot) {
      * @private
      */
     this.onBoot_ = onBoot;
-}
+};
 
 /** @override */
-LazyBoot.prototype.setRootEnv = function(rootEnv) {
+r5js.LazyBoot.prototype.setRootEnv = function(rootEnv) {
     return this.pipeline_.setRootEnv(rootEnv);
 };
 
 /** @override */
-LazyBoot.prototype.scan = function(string) {
+r5js.LazyBoot.prototype.scan = function(string) {
     this.checkBooted_();
     return this.pipeline_.scan(string);
 };
 
 /** @override */
-LazyBoot.prototype.read = function(scanner) {
+r5js.LazyBoot.prototype.read = function(scanner) {
     this.checkBooted_();
     return this.pipeline_.read(scanner);
 };
 
 
 /** @override */
-LazyBoot.prototype.parse = function(root, lhs) {
+r5js.LazyBoot.prototype.parse = function(root, lhs) {
     this.checkBooted_();
     return this.pipeline_.parse(root, lhs);
 };
 
 
 /** @override */
-LazyBoot.prototype.desugar = function(root, replMode) {
+r5js.LazyBoot.prototype.desugar = function(root, replMode) {
     this.checkBooted_();
     return this.pipeline_.desugar(root, replMode);
 };
 
 
 /** @override */
-LazyBoot.prototype.Eval = function(continuable, onOutput) {
+r5js.LazyBoot.prototype.Eval = function(continuable, onOutput) {
     this.checkBooted_();
     return this.pipeline_.Eval(continuable, onOutput);
 };
 
 
 /** @private */
-LazyBoot.prototype.checkBooted_ = function () {
+r5js.LazyBoot.prototype.checkBooted_ = function () {
     /* The actual booting blocks until done. We could change this
      to call a callback when done, but there seems no great need
      for this yet. */
