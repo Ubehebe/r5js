@@ -47,7 +47,7 @@ r5js.IPipeline.prototype.read = function(scanner) {};
 
 /**
  * @param {!Datum} root The root to desugar.
- * @param {*=} lhs Not sure what the type of this is.
+ * @param {*} lhs Not sure what the type of this is.
  * @return {!Datum} Don't know this either.
  * TODO bl: figure out the signature.
  */
@@ -56,7 +56,7 @@ r5js.IPipeline.prototype.parse = function(root, lhs) {};
 
 /**
  * @param {!Datum} root The root to desugar.
- * @param {boolean=} replMode If true, desugar in repl mode.
+ * @param {boolean} replMode If true, desugar in repl mode.
  * @return {!Continuable}
  * TODO bl: figure out what repl mode is.
  */
