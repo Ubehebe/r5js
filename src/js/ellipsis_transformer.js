@@ -19,9 +19,9 @@ goog.provide('r5js.tmp.ellipsis_transformer');
 
 goog.require('r5js.SiblingBuffer');
 
-// See comments at top of ListLikeTransformer.
 
 /**
+ * @implements {r5js.ITransformer}
  * @constructor
  */
 function EllipsisTransformer(subtransformer) {
@@ -33,6 +33,7 @@ EllipsisTransformer.prototype.toString = function() {
     return this.subtransformer.toString() + ' ...';
 };
 
+/** @override */
 EllipsisTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
 
     /* We have to leave some evidence in the TemplateBindings object of
@@ -80,6 +81,7 @@ EllipsisTransformer.prototype.matchInput = function(inputDatum, literalIds, defi
     return true;
 };
 
+/** @override */
 EllipsisTransformer.prototype.toDatum = function(bindings) {
     var buf = new r5js.SiblingBuffer();
     var bindingsToUse;
@@ -91,6 +93,7 @@ EllipsisTransformer.prototype.toDatum = function(bindings) {
     return buf.toSiblings();
 };
 
+/** @override */
 EllipsisTransformer.prototype.forEachSubtransformer = function(callback, args) {
     callback(this.subtransformer, args);
 };

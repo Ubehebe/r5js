@@ -16,15 +16,16 @@
 
 goog.provide('r5js.tmp.id_or_literal_transformer');
 
-// See comments at top of ListLikeTransformer.
 
 /**
+ * @implements {r5js.ITransformer}
  * @constructor
  */
 function IdOrLiteralTransformer(datum) {
     this.datum = datum;
 }
 
+/** @override */
 IdOrLiteralTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
     if (this.datum.isIdentifier()) {
         /* R5RS 4.3.2: "A subform in the input matches a literal identifier
@@ -62,6 +63,7 @@ IdOrLiteralTransformer.prototype.matchInput = function(inputDatum, literalIds, d
     }
 };
 
+/** @override */
 IdOrLiteralTransformer.prototype.toDatum = function(bindings) {
     return bindings.resolveDatum(this.datum);
 };
@@ -70,6 +72,7 @@ IdOrLiteralTransformer.prototype.toString = function() {
     return this.datum.toString();
 };
 
+/** @override */
 IdOrLiteralTransformer.prototype.forEachSubtransformer = function(callback, args) {
     callback(this, args);
 };

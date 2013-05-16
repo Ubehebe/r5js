@@ -20,22 +20,9 @@ goog.provide('r5js.tmp.list_like_transformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.SiblingBuffer');
 
-/* ListLikeTransformer, EllipsisTransformer, and IdOrLiteralTransformer
-all "implement" the following "interface":
-
-{
-    forEachSubtransformer: function(callback, args) { ... },
-    matchInput: function(inputDatum, literalIds, definitionEnv, useEnv, bindings) { ... },
-    toDatum: function(bindings) { ... }
-}
-
-In fact, they all used to have a common prototypal ancestor. But since
-they didn't share any implementations of these functions, nor any common state,
-all the ancestor did was throw "pure virtual" exceptions if a function
-hadn't been overridden. In view of this lack of usefulness, I got rid of the
-"superclass". */
 
 /**
+ * @implements {r5js.ITransformer}
  * @constructor
  */
 function ListLikeTransformer(type) {
@@ -48,6 +35,7 @@ ListLikeTransformer.prototype.addSubtransformer = function(subtransformer) {
     return this;
 };
 
+/** @override */
 ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
     /* This is a no-op mainly so we don't accidentally rename identifiers
      inside quotes in Transformer.prototype.setupIds. */
@@ -73,6 +61,7 @@ ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
     }
 };
 
+/** @override */
 ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
     var len = this.subtransformers.length;
     var maybeEllipsis = this.subtransformers[len-1] instanceof EllipsisTransformer
@@ -146,6 +135,7 @@ ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, defi
     }
 };
 
+/** @override */
 ListLikeTransformer.prototype.toDatum = function (bindings) {
 
     var buf = new r5js.SiblingBuffer();
