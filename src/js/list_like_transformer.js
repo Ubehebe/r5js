@@ -17,6 +17,7 @@
 goog.provide('r5js.ListLikeTransformer');
 
 
+goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.SiblingBuffer');
 
@@ -65,7 +66,7 @@ r5js.ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
 /** @override */
 r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
     var len = this.subtransformers.length;
-    var maybeEllipsis = this.subtransformers[len-1] instanceof EllipsisTransformer
+    var maybeEllipsis = this.subtransformers[len-1] instanceof r5js.EllipsisTransformer
         && this.subtransformers[len-1];
 
     if (!this.couldMatch(inputDatum))

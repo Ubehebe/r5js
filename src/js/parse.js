@@ -16,6 +16,7 @@
 
 goog.provide('r5js.tmp.parse');
 
+goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
@@ -1131,7 +1132,7 @@ Parser.prototype['pattern'] = function() {
                 var ans = new r5js.ListLikeTransformer('(');
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
-                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         break;
                     } else {
                         ans.addSubtransformer(cur.desugar());
@@ -1150,7 +1151,7 @@ Parser.prototype['pattern'] = function() {
                 var ans = new r5js.ListLikeTransformer('#(');
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
-                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         break;
                     } else {
                         ans.addSubtransformer(cur.desugar());
@@ -1280,7 +1281,7 @@ Parser.prototype['template'] = function() {
                 var ans = new r5js.ListLikeTransformer('.(');
                 for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
-                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         cur = cur.nextSibling;
                     } else {
                         ans.addSubtransformer(cur.desugar());
@@ -1299,7 +1300,7 @@ Parser.prototype['template'] = function() {
                 var ans = new r5js.ListLikeTransformer('(');
                 for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
-                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         cur = cur.nextSibling;
                     } else {
                         ans.addSubtransformer(cur.desugar());
@@ -1317,7 +1318,7 @@ Parser.prototype['template'] = function() {
                 var ans = new r5js.ListLikeTransformer('#(');
                 for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
-                        ans.addSubtransformer(new EllipsisTransformer(cur.desugar()));
+                        ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         cur = cur.nextSibling;
                     } else {
                         ans.addSubtransformer(cur.desugar());

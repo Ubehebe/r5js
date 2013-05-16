@@ -14,27 +14,30 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.ellipsis_transformer');
+goog.provide('r5js.EllipsisTransformer');
 
 
 goog.require('r5js.SiblingBuffer');
 
 
 /**
+ * @param {!r5js.ITransformer} subtransformer Subtransformer.
  * @implements {r5js.ITransformer}
  * @constructor
+ * TODO bl: what is the meaning of the parameter?
  */
-function EllipsisTransformer(subtransformer) {
+r5js.EllipsisTransformer = function(subtransformer) {
     this.subtransformer = subtransformer;
     this.bindings = [];
-}
+};
 
-EllipsisTransformer.prototype.toString = function() {
+r5js.EllipsisTransformer.prototype.toString = function() {
     return this.subtransformer.toString() + ' ...';
 };
 
 /** @override */
-EllipsisTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+r5js.EllipsisTransformer.prototype.matchInput = function(
+    inputDatum, literalIds,definitionEnv, useEnv, bindings) {
 
     /* We have to leave some evidence in the TemplateBindings object of
         an empty match. Example:
@@ -82,7 +85,7 @@ EllipsisTransformer.prototype.matchInput = function(inputDatum, literalIds, defi
 };
 
 /** @override */
-EllipsisTransformer.prototype.toDatum = function(bindings) {
+r5js.EllipsisTransformer.prototype.toDatum = function(bindings) {
     var buf = new r5js.SiblingBuffer();
     var bindingsToUse;
     var success;
@@ -94,6 +97,6 @@ EllipsisTransformer.prototype.toDatum = function(bindings) {
 };
 
 /** @override */
-EllipsisTransformer.prototype.forEachSubtransformer = function(callback, args) {
+r5js.EllipsisTransformer.prototype.forEachSubtransformer = function(callback, args) {
     callback(this.subtransformer, args);
 };

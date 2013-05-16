@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.transformer');
 
 
+goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
@@ -61,7 +62,7 @@ Transformer.prototype.setupIds = function() {
             }
         } else subtrans.forEachSubtransformer(
             patternFn,
-            subtrans instanceof EllipsisTransformer ? ellipsisLevel + 1 : ellipsisLevel);
+            subtrans instanceof r5js.EllipsisTransformer ? ellipsisLevel + 1 : ellipsisLevel);
     };
 
     var templateFn = function(subtrans, ellipsisLevel) {
@@ -97,7 +98,7 @@ Transformer.prototype.setupIds = function() {
             }
         } else subtrans.forEachSubtransformer(
             templateFn,
-            subtrans instanceof EllipsisTransformer ? ellipsisLevel + 1 : ellipsisLevel);
+            subtrans instanceof r5js.EllipsisTransformer ? ellipsisLevel + 1 : ellipsisLevel);
     };
 
     pattern.forEachSubtransformer(patternFn, 0);
