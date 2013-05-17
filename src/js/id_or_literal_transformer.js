@@ -14,19 +14,20 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.id_or_literal_transformer');
+goog.provide('r5js.IdOrLiteralTransformer');
 
 
 /**
  * @implements {r5js.ITransformer}
  * @constructor
  */
-function IdOrLiteralTransformer(datum) {
+r5js.IdOrLiteralTransformer = function(datum) {
     this.datum = datum;
-}
+};
 
 /** @override */
-IdOrLiteralTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+r5js.IdOrLiteralTransformer.prototype.matchInput = function(
+    inputDatum, literalIds, definitionEnv, useEnv, bindings) {
     if (this.datum.isIdentifier()) {
         /* R5RS 4.3.2: "A subform in the input matches a literal identifier
          if and only if it is an identifier and either both its occurrence
@@ -64,16 +65,16 @@ IdOrLiteralTransformer.prototype.matchInput = function(inputDatum, literalIds, d
 };
 
 /** @override */
-IdOrLiteralTransformer.prototype.toDatum = function(bindings) {
+r5js.IdOrLiteralTransformer.prototype.toDatum = function(bindings) {
     return bindings.resolveDatum(this.datum);
 };
 
-IdOrLiteralTransformer.prototype.toString = function() {
-    return this.datum.toString();
+r5js.IdOrLiteralTransformer.prototype.toString = function() {
+    return this.datum.stringForOutputMode(r5js.OutputMode.DISPLAY);
 };
 
 /** @override */
-IdOrLiteralTransformer.prototype.forEachSubtransformer = function(callback, args) {
+r5js.IdOrLiteralTransformer.prototype.forEachSubtransformer = function(callback, args) {
     callback(this, args);
 };
 

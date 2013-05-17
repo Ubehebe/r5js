@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.parse');
 
 goog.require('r5js.EllipsisTransformer');
+goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
@@ -1163,7 +1164,7 @@ Parser.prototype['pattern'] = function() {
         [
             {type: 'pattern-identifier'},
             {desugar: function(node) {
-                return new IdOrLiteralTransformer(node);
+                return new r5js.IdOrLiteralTransformer(node);
             }
             }
         ],
@@ -1205,7 +1206,7 @@ Parser.prototype['pattern'] = function() {
         [
             {type: 'pattern-datum'},
             {desugar: function(node) {
-                return new IdOrLiteralTransformer(node);
+                return new r5js.IdOrLiteralTransformer(node);
             }}
         ]
     );
@@ -1256,7 +1257,7 @@ Parser.prototype['template'] = function() {
         [
             {type: 'pattern-identifier'},
             {desugar: function(node) {
-                return new IdOrLiteralTransformer(node);
+                return new r5js.IdOrLiteralTransformer(node);
             }
             }
         ],
@@ -1266,7 +1267,7 @@ Parser.prototype['template'] = function() {
         [
             {type: 'template-datum'},
             {desugar: function(node) {
-                return new IdOrLiteralTransformer(node);
+                return new r5js.IdOrLiteralTransformer(node);
             }
             }
 

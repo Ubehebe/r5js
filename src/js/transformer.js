@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.transformer');
 
 
 goog.require('r5js.EllipsisTransformer');
+goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
@@ -56,7 +57,7 @@ Transformer.prototype.setupIds = function() {
     var macroName = this.name;
 
     var patternFn = function(subtrans, ellipsisLevel) {
-        if (subtrans instanceof IdOrLiteralTransformer) {
+        if (subtrans instanceof r5js.IdOrLiteralTransformer) {
             if (subtrans.datum.isIdentifier() && subtrans.datum.payload !== macroName) {
                 patternIds[subtrans.datum.payload] = ellipsisLevel;
             }
@@ -66,7 +67,7 @@ Transformer.prototype.setupIds = function() {
     };
 
     var templateFn = function(subtrans, ellipsisLevel) {
-        if (subtrans instanceof IdOrLiteralTransformer) {
+        if (subtrans instanceof r5js.IdOrLiteralTransformer) {
             if (subtrans.datum.isIdentifier()) {
                 var name = subtrans.datum.payload;
                 var maybeInPattern = patternIds[name];
