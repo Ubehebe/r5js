@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.stdproc');
 
 
 goog.require('r5js.ArgumentTypeError');
+goog.require('r5js.CdrHelper');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
@@ -656,7 +657,7 @@ R5JS_builtins['pair'] = {
                 ans = (startOfCdr.nextSibling || p.isList())
                     ? startOfCdr.siblingsToList(p.isImproperList())
                     : startOfCdr;
-                return ans.setCdrHelper(new CdrHelper(p, startOfCdr));
+                return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
             } else return newEmptyList();
         }
     },

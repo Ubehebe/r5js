@@ -14,39 +14,51 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.cdr_helper');
+goog.provide('r5js.CdrHelper');
 
 
 goog.require('r5js.ImmutableError');
 
-/* See the comment to Datum.prototype.siblingsToList for an explanation
- of what this class does. */
 
 /**
+ * See the comment to {@link Datum.prototype.siblingsToList}
+ * for an explanation of what this class does.
+ * @param {*} head TODO bl
+ * @param {*} startOfCdr TODO bl
  * @constructor
  */
-function CdrHelper(head, startOfCdr) {
+r5js.CdrHelper = function(head, startOfCdr) {
     this.head = head;
     this.startOfCdr = startOfCdr;
-}
+};
 
-CdrHelper.prototype.getCdrHelper = function() {
-    /* todo bl: this used to return this.head.getCdrHelper(), but
-     I am not sure that's necessary. */
+/**
+ * TODO bl: this used to return this.head.getCdrHelper(),
+ * but I am not sure that's necessary.
+ */
+r5js.CdrHelper.prototype.getCdrHelper = function() {
     return null;
 };
 
-// Basically, call set-car! on the master list.
-CdrHelper.prototype.setCar = function(car) {
-    if (this.head.isImmutable())
+/**
+ * Basically, call set-car! on the master list.
+ * @param {*} car TODO bl
+ */
+r5js.CdrHelper.prototype.setCar = function(car) {
+    if (this.head.isImmutable()) {
         throw new r5js.ImmutableError(this.head.toString());
+    }
     this.head.firstChild.nextSibling = car;
 };
 
-// Basically, call set-cdr! on the master list.
-CdrHelper.prototype.setCdr = function(cdr) {
-    if (this.head.isImmutable())
+/**
+ * Basically, call set-cdr! on the master list.
+ * @param {*} cdr TODO bl
+ */
+r5js.CdrHelper.prototype.setCdr = function(cdr) {
+    if (this.head.isImmutable()) {
         throw new r5js.ImmutableError(this.head.toString());
+    }
     this.startOfCdr.nextSibling = cdr;
     if (!cdr.isList()) {
         var cur = this;
@@ -56,23 +68,26 @@ CdrHelper.prototype.setCdr = function(cdr) {
     }
 };
 
-/* Two CdrHelpers are equal iff they point to the same list and have
- the same offset. */
-CdrHelper.prototype.equals = function(cdrHelper) {
+/**
+ * @param {!r5js.CdrHelper} cdrHelper Helper to compare against.
+ * @return {boolean} True iff the two CdrHelpers point to the same list
+ * and have the same offset.
+ */
+r5js.CdrHelper.prototype.equals = function(cdrHelper) {
     return this.head === cdrHelper.head
         && this.startOfCdr === cdrHelper.startOfCdr;
 };
 
-/* A CdrHelper resolves to a given Datum iff it points to that list
-and its offset is that list's first child. */
-CdrHelper.prototype.resolvesTo = function(datum) {
-    if (!datum)
+/**
+ * @return {boolean} True iff the CdrHelper points to the given list datum
+ * and its offset is that list's first child.
+ */
+r5js.CdrHelper.prototype.resolvesTo = function(datum) {
+    if (!datum) {
         return false;
-    else if (this.head === datum)
+    } else if (this.head === datum) {
         return this.startOfCdr === datum.firstChild;
-    else
+    } else {
         return false;
+    }
 };
-
-
-

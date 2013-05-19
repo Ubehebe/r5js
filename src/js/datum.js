@@ -711,11 +711,18 @@ Datum.prototype.siblingsToList = function(dotted) {
     return ans;
 };
 
+/**
+ * @param {!r5js.CdrHelper} cdrHelper A cdr helper.
+ * @return {!Datum} This object, for chaining.
+ */
 Datum.prototype.setCdrHelper = function(cdrHelper) {
     this.cdrHelper = cdrHelper;
     return this;
 };
 
+/**
+ * @return {r5js.CdrHelper} The CdrHelper for this Datum, if one exists.
+ */
 Datum.prototype.getCdrHelper = function() {
     return this.cdrHelper;
 };

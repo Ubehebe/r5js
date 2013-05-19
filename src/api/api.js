@@ -19,7 +19,6 @@ goog.provide('r5js.main');
 goog.require('r5js.tmp.boot');
 goog.require('r5js.tmp.branch');
 goog.require('r5js.tmp.callback_backed_port');
-goog.require('r5js.tmp.cdr_helper');
 goog.require('r5js.tmp.continuable');
 goog.require('r5js.tmp.continuable_helper');
 goog.require('r5js.tmp.continuation');
