@@ -41,7 +41,6 @@ goog.require('r5js.tmp.scanner');
 goog.require('r5js.tmp.scheme_macro');
 goog.require('r5js.tmp.scheme_procedure');
 goog.require('r5js.tmp.stdproc');
-goog.require('r5js.tmp.template_bindings');
 goog.require('r5js.tmp.timer');
 goog.require('r5js.tmp.trampoline');
 goog.require('r5js.tmp.transformer');

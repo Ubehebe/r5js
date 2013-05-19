@@ -14,84 +14,112 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.template_bindings');
+goog.provide('r5js.TemplateBindings');
 
 goog.require('r5js.InternalInterpreterError');
 
-/* My approach for supporting nested ellipses in macro transcriptions
-is to take a single pass through the input and build up a TemplateBindings
-object whose tree structure mirrors the ellipsis nesting in the pattern.
-For example:
-
- (define-syntax foo
-    (syntax-rules ()
-        ((foo ((x y) ...) ...)
-        (quote (((x ...) (y ...)) ...)))))
-
- with input
-
- (foo ((a b)) ((c d) (e f)))
-
- produces this TemplateBindings object:
-
- child 0:
-    child 0:
-        x = a
-        y = b
- child 1:
-    child 0:
-        x = c
-        y = d
-    child 1:
-        x = e
-        y = f
-
- Then transcription involves a single pass through the template with
- this TemplateBindings object, using the ellipses in the template
- to descend through the TemplateBindings tree. Here's the flow of control
- during transcription:
-
- 1. Transcribe ((x ...) (y ...)) with child0
-    2. Transcribe x with child0.child0 => a
-    3. Transcribe x with [no more children] => false. Reset cur child.
-    4. Transcribe y with child0.child0 => b
-    5. Transcribe y with [no more children] => false. Reset cur child.
- [1 completes as ((a) (b))]
- 6. Transcribe ((x ...) (y ...)) with child1
-    7. Transcribe x with child1.child0 => c
-    8. Transcribe x with child1.child1 => e
-    9. Transcribe x with [no more children] => false. Reset cur child.
-    10. Transcribe y with child1.child0 => d
-    11. Transcribe y with chid1.child1 => f
-    12. Transcribe y with [no more children] => false. Reset cur child.
- [6 completes as ((c e) (d f))]
- 13. Transcribe ((x ...) (y ...)) with [no more children] => false. Reset cur child.
- [13 completes as (((a) (b)) ((c e) (d f)))]
-
- TODO bl: explain -- or ideally remove -- all the crazy logic dealing
- with "incorporation". Do we even need it?
-
- */
-
 /**
+ * My approach for supporting nested ellipses in macro transcriptions
+ * is to take a single pass through the input and build up a TemplateBindings
+ * object whose tree structure mirrors the ellipsis nesting in the pattern.
+ * For example:
+ *
+ * (define-syntax foo
+ *  (syntax-rules ()
+ *      ((foo ((x y) ...) ...)
+ *      (quote (((x ...) (y ...)) ...)))))
+ *
+ * with input
+ *
+ * (foo ((a b)) ((c d) (e f)))
+ *
+ * produces this TemplateBindings object:
+ *
+ * child 0:
+ *  child 0:
+ *      x = a
+ *      y = b
+ * child 1:
+ *  child 0:
+ *      x = c
+ *      y = d
+ *  child 1:
+ *      x = e
+ *      y = f
+ *
+ * Then transcription involves a single pass through the template with
+ * this TemplateBindings object, using the ellipses in the template
+ * to descend through the TemplateBindings tree. Here's the flow of control
+ * during transcription:
+ *
+ * 1. Transcribe ((x ...) (y ...)) with child0
+ * 2. Transcribe x with child0.child0 => a
+ * 3. Transcribe x with [no more children] => false. Reset cur child.
+ * 4. Transcribe y with child0.child0 => b
+ * 5. Transcribe y with [no more children] => false. Reset cur child.
+ * [1 completes as ((a) (b))]
+ * 6. Transcribe ((x ...) (y ...)) with child1
+ * 7. Transcribe x with child1.child0 => c
+ * 8. Transcribe x with child1.child1 => e
+ * 9. Transcribe x with [no more children] => false. Reset cur child.
+ * 10. Transcribe y with child1.child0 => d
+ * 11. Transcribe y with chid1.child1 => f
+ * 12. Transcribe y with [no more children] => false. Reset cur child.
+ * [6 completes as ((c e) (d f))]
+ * 13. Transcribe ((x ...) (y ...)) with [no more children] => false. Reset cur child.
+ * [13 completes as (((a) (b)) ((c e) (d f)))]
+ *
+ * TODO bl: explain -- or ideally remove -- all the crazy logic dealing
+ * with "incorporation". Do we even need it?
+ *
+ * @param {!r5js.IEnvironment} letSyntaxEnv TODO bl
+ * @param {*} patternIds TODO bl
+ * @param {*} templateRenameCandidates TODO bl
  * @constructor
  */
-function TemplateBindings(letSyntaxEnv, patternIds, templateRenameCandidates) {
+r5js.TemplateBindings = function(letSyntaxEnv, patternIds, templateRenameCandidates) {
+    /**
+     * @type {!Object.<*,*>}
+     * TODO bl tighten type and make private
+     */
     this.bindings = {};
+
+    /**
+     * @type {!Object.<*,*>}
+     * TODO bl tighten type and make private
+     */
     this.children = [];
+
+    /**
+     * @type {number}
+     * TODO bl make private
+     */
     this.curChild = 0;
+
+    /**
+     * @type {!r5js.IEnvironment}
+     * TODO bl make private
+     */
     this.letSyntaxEnv = letSyntaxEnv;
     this.patternIds = patternIds;
     this.templateRenameCandidates = templateRenameCandidates;
-    this.renameInTemplate = {};
-}
 
-TemplateBindings.prototype.resetCurChild = function() {
+    /**
+     * @type {!Object.<*,*>}
+     * TODO bl make private
+     */
+    this.renameInTemplate = {};
+};
+
+/**
+ * @returns {!r5js.TemplateBindings} This object, for chaining.
+ */
+r5js.TemplateBindings.prototype.resetCurChild = function() {
     this.curChild = 0;
     return this;
 };
 
-TemplateBindings.prototype.addTemplateBinding = function(name, val) {
+r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
     if (this.bindings[name])
         throw new r5js.InternalInterpreterError('invariant incorrect');
     else if (val.isMacro()) {
@@ -129,8 +157,11 @@ TemplateBindings.prototype.addTemplateBinding = function(name, val) {
     });
 };
 
-// Purely for debugging.
-TemplateBindings.prototype.debugString = function(tabs) {
+/**
+ * Purely for debugging.
+ * @return {string}
+ */
+r5js.TemplateBindings.prototype.debugString = function(tabs) {
     tabs = tabs || '';
     var ans = '';
     for (var name in this.bindings) {
@@ -142,29 +173,48 @@ TemplateBindings.prototype.debugString = function(tabs) {
     return ans;
 };
 
-TemplateBindings.prototype.addChildBindings = function(child) {
+/**
+ * @param {*} child TODO bl
+ * @return {!r5js.TemplateBindings} This object, for chaining.
+ */
+r5js.TemplateBindings.prototype.addChildBindings = function(child) {
     this.children.push(child);
     return this;
 };
 
-TemplateBindings.prototype.hasNoneOf = function(other) {
-    for (var name in other.bindings)
-        if (this.bindings[name])
+/**
+ * @param {*} other TODO bl
+ * @return {boolean} TODO bl
+ */
+r5js.TemplateBindings.prototype.hasNoneOf = function(other) {
+    for (var name in other.bindings) {
+        if (this.bindings[name]) {
             return false;
+        }
+    }
     return true;
 };
 
-/* Try to incorporate the child's bindings in an existing child if there's room,
- otherwise just tack the child on to the parent. */
-TemplateBindings.prototype.addOrIncorporateChild = function(child) {
+/**
+ * Try to incorporate the child's bindings in an existing child
+ * if there's room, otherwise just tack the child on to the parent.
+ * @param {*} child TODO bl
+ */
+r5js.TemplateBindings.prototype.addOrIncorporateChild = function(child) {
     return this.incorporateChild(child) || this.addChildBindings(child);
 };
 
-TemplateBindings.prototype.incorporateChild = function(child) {
+/**
+ * @param {*} child TODO bl
+ * @return {r5js.TemplateBindings} This object, or null.
+ * TODO bl: what is the reason behind the odd return type variance?
+ */
+r5js.TemplateBindings.prototype.incorporateChild = function(child) {
 
     // We only incorporate flat TemplateBindings objects.
-    if (child.children.length > 0)
+    if (child.children.length > 0) {
         return null;
+    }
 
     /* Dump all the child's bindings in the first child that doesn't
      have any of the bindings.
@@ -173,8 +223,9 @@ TemplateBindings.prototype.incorporateChild = function(child) {
     for (var i = 0; i < this.children.length; ++i) {
         var candidate = this.children[i];
         if (candidate.hasNoneOf(child)) {
-            for (var name in child.bindings)
+            for (var name in child.bindings) {
                 candidate.addTemplateBinding(name, child.bindings[name]);
+            }
             return this;
         }
     }
@@ -182,7 +233,10 @@ TemplateBindings.prototype.incorporateChild = function(child) {
     return null;
 };
 
-TemplateBindings.prototype.getNextChild = function() {
+/**
+ * @return {*} TODO bl
+ */
+r5js.TemplateBindings.prototype.getNextChild = function() {
     if (this.curChild < this.children.length) {
         return this.children[this.curChild++];
     } else {
@@ -191,7 +245,7 @@ TemplateBindings.prototype.getNextChild = function() {
     }
 };
 
-TemplateBindings.prototype.resolveDatum = function(datum) {
+r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
     if (!this.patternIds)
         throw new r5js.InternalInterpreterError('invariant incorrect');
 
@@ -225,14 +279,14 @@ TemplateBindings.prototype.resolveDatum = function(datum) {
     }
 };
 
-TemplateBindings.prototype.getPatternIds = function() {
+r5js.TemplateBindings.prototype.getPatternIds = function() {
     return this.patternIds;
 };
 
-TemplateBindings.prototype.getTemplateRenameCandidates = function() {
+r5js.TemplateBindings.prototype.getTemplateRenameCandidates = function() {
     return this.templateRenameCandidates;
 };
 
-TemplateBindings.prototype.wasRenamed = function(id) {
+r5js.TemplateBindings.prototype.wasRenamed = function(id) {
     return this.renameInTemplate[id];
 };

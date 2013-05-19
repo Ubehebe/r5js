@@ -18,6 +18,7 @@ goog.provide('r5js.EllipsisTransformer');
 
 
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.TemplateBindings');
 
 
 /**
@@ -66,13 +67,13 @@ r5js.EllipsisTransformer.prototype.matchInput = function(
      */
     if (!inputDatum)
         bindings.addChildBindings(
-            new TemplateBindings(
+            new r5js.TemplateBindings(
                 useEnv,
                 bindings.getPatternIds(),
                 bindings.getTemplateRenameCandidates()));
 
     for (var subinput = inputDatum; subinput; subinput = subinput.nextSibling) {
-        var childBindings = new TemplateBindings(
+        var childBindings = new r5js.TemplateBindings(
             useEnv,
             bindings.getPatternIds(),
             bindings.getTemplateRenameCandidates());

@@ -35,13 +35,13 @@ r5js.ITransformer.prototype.forEachSubtransformer = function(callback, args) {};
  * @param {!Object.<string, boolean>} literalIds Dictionary of literal identifiers.
  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
  * @param {!r5js.IEnvironment} useEnv Use environment.
- * @param {!TemplateBindings} bindings Template bindings.
+ * @param {!r5js.TemplateBindings} bindings Template bindings.
  * TODO bl: what is the use of the value type in the literalIds dictionary?
  */
 r5js.ITransformer.prototype.matchInput = function(
     inputDatum, literalIds, definitionEnv, useEnv, bindings) {};
 
 /**
- * @param {!TemplateBindings} bindings Template bindings.
+ * @param {!r5js.TemplateBindings} bindings Template bindings.
  */
 r5js.ITransformer.prototype.toDatum = function(bindings) {};

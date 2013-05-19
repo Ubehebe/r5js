@@ -19,6 +19,7 @@ goog.provide('r5js.tmp.scheme_macro');
 
 goog.require('r5js.MacroError');
 goog.require('r5js.ParseError');
+goog.require('r5js.TemplateBindings');
 
 /**
  * @constructor
@@ -89,7 +90,7 @@ SchemeMacro.prototype.transcribe = function(datum, useEnv) {
     var transformer, bindings, newDatumTree;
     for (var i = 0; i < this.transformers.length; ++i) {
         transformer = this.transformers[i];
-        bindings = new TemplateBindings(useEnv, transformer.getPatternIds(), transformer.getTemplateRenameCandidates());
+        bindings = new r5js.TemplateBindings(useEnv, transformer.getPatternIds(), transformer.getTemplateRenameCandidates());
         if (transformer.matchInput(datum, this.literalIdentifiers, this.definitionEnv, useEnv, bindings)
             && (newDatumTree = transformer.template.toDatum(bindings))) {
             // this is a good place to see the TemplateBindings object
