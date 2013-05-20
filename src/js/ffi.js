@@ -16,6 +16,8 @@
 
 goog.provide('r5js.tmp.ffi');
 
+goog.require('r5js.Datum');
+
 /* Warning: experimental. The intent is to allows things like
  (js-set! ((((window 'document) 'querySelector) "body") 'style) 'background-color "red")
  ((window 'alert) "Hello, world!")
@@ -30,8 +32,12 @@ function FFIError() {
     };
 }
 
+/**
+ * @param {*} jsObj TODO bl
+ * @return {!r5js.Datum} A new datum representing the given JavaScript object.
+ */
 function newFFIDatum(jsObj) {
-    var ans = new Datum();
+    var ans = new r5js.Datum();
     ans.type = 'ffi';
     ans.payload = jsObj;
     return ans;

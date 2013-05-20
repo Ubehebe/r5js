@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.read');
 
 
+goog.require('r5js.Datum');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
 
@@ -58,10 +59,10 @@ Reader.prototype.assertNextTokenType = function(type) {
 
 /**
  * @param {...*} var_args
- * TODO bl: narrow the signature.
+ * @return {r5js.Datum} TODO bl
  */
 Reader.prototype.rhs = function(var_args) {
-    var ansDatum = new Datum();
+    var ansDatum = new r5js.Datum();
     var parseFunction;
     var tokenStreamStart = this.nextTokenToReturn;
 
@@ -235,7 +236,7 @@ Reader.prototype.read = function() {
  * @param {!r5js.OutputMode} outputMode Desired output mode.
  * @return {string} String representation for desired output mode.
  */
-Datum.prototype.stringForOutputMode = function(outputMode) {
+r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
 
     var ans, child;
     var endDelimiter = "";
@@ -265,7 +266,7 @@ Datum.prototype.stringForOutputMode = function(outputMode) {
         case 'macro':
             return '[macro]';
         case 'identifier':
-            return this.payload;
+            return /** @type {string} */ (this.payload);
         case 'boolean':
             return this.payload ? '#t' : '#f';
         case 'number':
@@ -281,7 +282,7 @@ Datum.prototype.stringForOutputMode = function(outputMode) {
                         return '#\\' + this.payload;
                 case r5js.OutputMode.DISPLAY:
                 default:
-                    return this.payload;
+                    return /** @type {string} */(this.payload);
             }
             break;
         case 'string':
@@ -291,7 +292,7 @@ Datum.prototype.stringForOutputMode = function(outputMode) {
                     return '"' + ans.replace(/([\\"])/g, "\\$1") + '"';
                 case r5js.OutputMode.DISPLAY:
                 default:
-                    return this.payload;
+                    return /** @type {string} */ (this.payload);
             }
             break;
         case '#(':

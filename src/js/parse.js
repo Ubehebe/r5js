@@ -16,6 +16,7 @@
 
 goog.provide('r5js.tmp.parse');
 
+goog.require('r5js.Datum');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.InternalInterpreterError');
@@ -174,7 +175,7 @@ Parser.prototype.rhs = function(var_args) {
             if (!parsed) {
                 /* This check is necessary because root may be the special
                  sentinel object for empty lists. */
-                if (root instanceof Datum)
+                if (root instanceof r5js.Datum)
                     root.unsetParse();
                 this.next = root;
                 return null;
@@ -455,7 +456,7 @@ Parser.prototype['variable'] = function() {
     var self = this;
     return this.rhs(
         {type: function(datum) {
-            var ans = datum instanceof Datum // because it may be emptyListSentinel
+            var ans = datum instanceof r5js.Datum // because it may be emptyListSentinel
                 && datum.isIdentifier();
             if (ans && isParserSensitiveId(datum.payload))
                 self.fixParserSensitiveIds = true;

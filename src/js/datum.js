@@ -15,46 +15,95 @@
 
 
 goog.provide('r5js.tmp.datum');
+goog.provide('r5js.Datum');
 
 
-goog.require('r5js.Environment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.SiblingBuffer');
 
 /**
  * @constructor
  */
-function Datum() {
-    /* No need to set this stuff until it's needed, just here for documentation
-     this.firstChild = null;
-     this.nextSibling = null;
-     this.parent = null; // only for last children
-     this.type = null;
-     this.payload = null;
-     this.nonterminals = [];
-     this.desugars = null;
-    this.nextDesugar = -1;
-     this.name = null; // only for procedures
-     */
-}
+r5js.Datum = function() {};
 
-// todo bl too many utility functions; reduce to minimal set
-Datum.prototype.forEach = function(callback) {
+/**
+ * @type {r5js.Datum}
+ */
+r5js.Datum.prototype.firstChild;
+
+/**
+ * @type {r5js.Datum}
+ */
+r5js.Datum.prototype.nextSibling;
+
+/**
+ * Only for last children.
+ * @type {r5js.Datum}
+ */
+r5js.Datum.prototype.parent;
+
+/**
+ * @type {string|null}
+ * TODO bl make into an enum and eliminate the null.
+ */
+r5js.Datum.prototype.type;
+
+/**
+ * @type {*} TODO bl
+ */
+r5js.Datum.prototype.payload;
+
+/**
+ * @type {Array.<*>} TODO bl
+ */
+r5js.Datum.prototype.nonterminals;
+
+/**
+ * @type {*} TODO bl
+ */
+r5js.Datum.prototype.desugars;
+
+/**
+ * @type {number}
+ */
+r5js.Datum.prototype.nextDesugar;
+
+/**
+ * Only for procedures.
+ * @type {string}
+ */
+r5js.Datum.prototype.name;
+
+
+/**
+ * Executes a callback on this Datum and on each of its children, in order.
+ * TODO bl: there are too many of these utility functions.
+ * Reduce to a minimal set.
+ * @param {function(!r5js.Datum)} callback Callback to execute.
+ */
+r5js.Datum.prototype.forEach = function(callback) {
     /* Quotations are like pseudo-leaves in the datum tree, so they should
      be opaque to this function. */
     if (!this.isQuote()) {
         callback(this);
-        for (var cur = this.firstChild; cur; cur = cur.nextSibling)
-                cur.forEach(callback);
+        for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
+            cur.forEach(callback);
+        }
     }
 };
 
-Datum.prototype.setImmutable = function() {
+/**
+ * @return {!r5js.Datum} This object, for chaining.
+ */
+r5js.Datum.prototype.setImmutable = function() {
     this.immutable = true;
     return this;
 };
 
-Datum.prototype.setImmutableOnQuote = function () {
+/**
+ * @return {!r5js.Datum} This object, for chaining.
+ */
+r5js.Datum.prototype.setImmutableOnQuote = function() {
     if (this.firstChild) {
         switch (this.firstChild.type) {
             case '(':
@@ -66,25 +115,37 @@ Datum.prototype.setImmutableOnQuote = function () {
     return this;
 };
 
-Datum.prototype.isImmutable = function() {
+/**
+ * @return {boolean} True iff {@link r5js.Datum.setImmutable} has been called
+ * on this Datum.
+ */
+r5js.Datum.prototype.isImmutable = function() {
     return this.immutable;
 };
 
-// This penetrates quotations because it's used in quasiquote evaluation.
-Datum.prototype.replaceChildren = function(predicate, transform) {
+/**
+ * This penetrates quotations because it's used in quasiquote evaluation.
+ * @param {function(!r5js.Datum):boolean} predicate Children passing
+ * this predicate are transformed according to the transform parameter.
+ * @param {function(!r5js.Datum):r5js.Datum} transform Function
+ * that will transform children that pass the predicate.
+ * @return {!r5js.Datum} This object, for chaining.
+ */
+r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
 
     for (var cur = this.firstChild, prev; cur; prev = cur,cur = cur.nextSibling) {
-        if (predicate(cur)) {
+        if (predicate(/** @type {!r5js.Datum} */(cur))) {
             var tmp = cur.nextSibling;
             cur.nextSibling = null;
             /* We have to assign to cur so prev will be set correctly
              in the next iteration. */
-            if (cur = transform(cur)) {
+            if (cur = transform(/** @type {!r5js.Datum} */(cur))) {
 
-                if (prev)
+                if (prev) {
                     prev.nextSibling = cur;
-                else
+                } else {
                     this.firstChild = cur;
+                }
 
                 /* If cur suddenly has a sibling, it must have been inserted
                 by the transform. That is, the transform wants to insert
@@ -99,8 +160,9 @@ Datum.prototype.replaceChildren = function(predicate, transform) {
                 by the transform in order to avoid accidentally running the
                 transform on those newly-inserted siblings, which would
                 presumably not be wanted. */
-                if (cur.nextSibling)
+                if (cur.nextSibling) {
                     cur = cur.lastSibling();
+                }
 
                 cur.nextSibling = tmp;
             }
@@ -119,47 +181,59 @@ Datum.prototype.replaceChildren = function(predicate, transform) {
 };
 
 function newEmptyList() {
-    var ans = new Datum();
+    var ans = new r5js.Datum();
     ans.type = '(';
     return ans;
 }
 
 /**
- * @param {*} payload The payload.
- * @param {string=} type The type tag.
- * @return {!Datum}
- * TODO bl: narrow the type of the payload param.
+ * @param {*} payload TODO bl narrow
+ * @param {string=} type The type of the Datum.
+ * If not given, defaults to 'identifier'.
+ * @return {!r5js.Datum} New Datum of given type with given payload.
  */
 function newIdOrLiteral(payload, type) {
     // todo bl: we're sometimes creating these with undefined payloads! Investigate.
-    var ans = new Datum();
-    ans.type = type || 'identifier'; // convenience
+    var ans = new r5js.Datum();
+    ans.type = type || 'identifier';
     ans.payload = payload;
     return ans;
 }
 
-Datum.prototype.isEmptyList = function() {
+/**
+ * @return {boolean} True iff this Datum represents an empty list.
+ */
+r5js.Datum.prototype.isEmptyList = function() {
     return this.isList() && !this.firstChild;
 };
 
-Datum.prototype.sameTypeAs = function(other) {
+/**
+ * @param {!r5js.Datum} other Datum to compare against.
+ * @returns {boolean} True iff both Datum objects have the same type.
+ */
+r5js.Datum.prototype.sameTypeAs = function(other) {
     return this.type === other.type;
 };
 
-Datum.prototype.clone = function(parent) {
+/**
+ * @param {r5js.Datum} parent Datum to use for the parent of the clone, if any.
+ * @return {!r5js.Datum} A new clone of this Datum object.
+ */
+r5js.Datum.prototype.clone = function(parent) {
 
     /* Invariant: although cyclical Datum structures can be created by
      the programmer (through set-cdr!, etc.), they will never be cloned.
      They are created by mutation, i.e. once a value is already bound in an
      Environment, and once that happens, we never clone it again. */
 
-    var ans = new Datum();
+    var ans = new r5js.Datum();
 
     ans.type = this.type;
     ans.payload = this.payload;
 
-    if (this.parent)
+    if (this.parent) {
         ans.parent = this.parent;
+    }
     if (this.firstChild) {
         var buf = new r5js.SiblingBuffer();
         for (var child = this.firstChild; child; child = child.nextSibling) {
@@ -168,28 +242,42 @@ Datum.prototype.clone = function(parent) {
         ans.firstChild = buf.toSiblings();
     }
     // We only need the parent pointer on the last sibling.
-    if (!this.nextSibling)
+    if (!this.nextSibling) {
         ans.parent = parent;
-    if (this.name)
+    }
+    if (this.name) {
         ans.name = this.name;
-    if (this.immutable)
+    }
+    if (this.immutable) {
         ans.immutable = true;
+    }
 
     return ans;
 };
 
-Datum.prototype.unescapeStringLiteral = function() {
+/**
+ * TODO bl document what this method does.
+ * @return {!r5js.Datum} This object, for chaining.
+ */
+r5js.Datum.prototype.unescapeStringLiteral = function() {
     this.payload = this.payload.replace(/\\(["\\])/g, "$1");
     return this;
 };
 
-Datum.prototype.setParse = function(type) {
-    if (!this.nonterminals)
+/**
+ * @param {string} type
+ */
+r5js.Datum.prototype.setParse = function(type) {
+    if (!this.nonterminals) {
         this.nonterminals = [];
+    }
     this.nonterminals.push(type);
 };
 
-Datum.prototype.setDesugar = function(desugarFunc) {
+/**
+ * @param {*} desugarFunc TODO bl
+ */
+r5js.Datum.prototype.setDesugar = function(desugarFunc) {
     if (!this.desugars) {
         this.desugars = [];
         this.nextDesugar = -1;
@@ -198,42 +286,64 @@ Datum.prototype.setDesugar = function(desugarFunc) {
     ++this.nextDesugar;
 };
 
-Datum.prototype.unsetParse = function() {
+/**
+ * TODO bl: document what this method does.
+ */
+r5js.Datum.prototype.unsetParse = function() {
     this.nonterminals = null;
-    for (var child = this.firstChild; child; child = child.nextSibling)
+    for (var child = this.firstChild; child; child = child.nextSibling) {
         child.unsetParse();
+    }
 };
 
-Datum.prototype.peekParse = function() {
+/**
+ * @return {*} TODO bl
+ */
+r5js.Datum.prototype.peekParse = function() {
     if (this.nonterminals) {
         var len = this.nonterminals.length;
-        if (len > 0)
+        if (len > 0) {
             return this.nonterminals[len - 1];
+        }
     }
     return null;
 };
 
-Datum.prototype.hasParse = function(nonterminal) {
+/**
+ * @param {*} nonterminal TODO bl
+ * @return {boolean} True iff this Datum parses as the given nonterminal.
+ */
+r5js.Datum.prototype.hasParse = function(nonterminal) {
     if (this.nonterminals) {
         var len = this.nonterminals.length;
-        for (var i = 0; i < len; ++i)
-            if (this.nonterminals[i] === nonterminal)
+        for (var i = 0; i < len; ++i) {
+            if (this.nonterminals[i] === nonterminal) {
                 return true;
+            }
+        }
     }
     return false;
 };
 
-Datum.prototype.at = function(type) {
+/**
+ * @param {string} type TODO bl
+ * @returns {*} TODO bl
+ */
+r5js.Datum.prototype.at = function(type) {
     for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
         /* The first clause is a convenience for things like node.at('(');
          the second is a convenience for things like node.at('expression') */
-        if (cur.type === type || cur.peekParse() === type)
+        if (cur.type === type || cur.peekParse() === type) {
             return cur;
+        }
     }
     return null;
 };
 
-Datum.prototype.appendSibling = function(sibling) {
+/**
+ * @param {!r5js.Datum} sibling Sibling to append.
+ */
+r5js.Datum.prototype.appendSibling = function(sibling) {
     if (!this.nextSibling) {
         if (this.parent) {
             // Propagate the parent field
@@ -242,156 +352,235 @@ Datum.prototype.appendSibling = function(sibling) {
             this.parent = null;
         }
         this.nextSibling = sibling;
-    }
-    else
+    } else {
         this.nextSibling.appendSibling(sibling);
+    }
 };
 
-/* If we used this to append n children in a row, it would take time O(n^2).
- But we don't actually use it like that. When building a list like (X*), we build
- up the list of X's in linear time, then call appendChild once to append the
- whole list as a child of the list root. We do incur some overhead when building
- a list like (X+ . X): in this case, the X+ list is appended in one go, and then
- we have to re-traverse that list once to append the final X. I expect this to be
- rare enough not to matter in practice, but if necessary we could keep track of
- the root's final child. */
-Datum.prototype.appendChild = function(child) {
-    if (!this.firstChild)
+/**
+ * If we used this to append n children in a row, it would take time O(n^2).
+ * But we don't actually use it like that. When building a list like (X*),
+ * we build up the list of X's in linear time, then call appendChild
+ * once to append the whole list as a child of the list root.
+ * We do incur some overhead when building a list like (X+ . X): in this case,
+ * the X+ list is appended in one go, and then we have to re-traverse that list
+ * once to append the final X. I expect this to be rare enough not to matter
+ * in practice, but if necessary we could keep track of the root's final child.
+ * @param {!r5js.Datum} child Child to append.
+ */
+r5js.Datum.prototype.appendChild = function(child) {
+    if (!this.firstChild) {
         this.firstChild = child;
-    else this.firstChild.appendSibling(child);
+    } else {
+        this.firstChild.appendSibling(child);
+    }
 };
 
-// todo bl deprecate in favor of prependSiblings
-Datum.prototype.prependChild = function(child) {
+/**
+ * @param {!r5js.Datum} child Child to append.
+ */
+r5js.Datum.prototype.prependChild = function(child) {
     var oldFirstChild = this.firstChild;
     this.firstChild = child;
     child.nextSibling = oldFirstChild;
 };
 
-/* Map isn't the best word, since the function returns an array but the children
- are represented as a linked list. */
-Datum.prototype.mapChildren = function(f) {
+/**
+ * Map isn't the best word, since the function returns an array
+ * but the children are represented as a linked list.
+ * @param {function(!r5js.Datum):!r5js.Datum} f Function for transforming
+ * an individual child.
+ * @return {!Array.<!r5js.Datum>} Array of transformed children.
+ */
+r5js.Datum.prototype.mapChildren = function(f) {
     var ans = [];
-    for (var cur = this.firstChild; cur; cur = cur.nextSibling)
-        ans.push(f(cur));
+    for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
+        ans.push(f(/** @type {!r5js.Datum} */(cur)));
+    }
     return ans;
 };
 
-// Convenience functions
-Datum.prototype.isImproperList = function() {
+/**
+ * @return {boolean} True if this datum represents an improper list.
+ */
+r5js.Datum.prototype.isImproperList = function() {
     return this.type === '.(';
 };
 
-Datum.prototype.resetDesugars = function() {
-    if (this.nextDesugar === -1)
+/**
+ * TODO bl: document why you would call this method.
+ */
+r5js.Datum.prototype.resetDesugars = function() {
+    if (this.nextDesugar === -1) {
         this.nextDesugar += this.desugars.length;
-    for (var cur = this.firstChild; cur; cur = cur.nextSibling)
+    }
+    for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
         cur.resetDesugars();
+    }
 };
 
-Datum.prototype.desugar = function(env, forceContinuationWrapper) {
+/**
+ * @param {!r5js.IEnvironment} env TODO bl
+ * @param {boolean=} forceContinuationWrapper TODO bl document
+ * @return {*} TODO bl
+ */
+r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     var desugarFn = this.desugars
         && this.nextDesugar >= 0
         && this.desugars[this.nextDesugar--];
     var ans;
-    if (desugarFn)
+    if (desugarFn) {
         ans = desugarFn(this, env);
-    else if (this.firstChild && this.firstChild.payload === 'begin') {
+    } else if (this.firstChild && this.firstChild.payload === 'begin') {
         ans = this.firstChild.nextSibling ? this.firstChild.nextSibling.sequence(env) : null;
-    }
-    else
+    } else {
         ans = this;
+    }
 
-    if (forceContinuationWrapper && !(ans instanceof Continuable))
+    if (forceContinuationWrapper && !(ans instanceof Continuable)) {
         ans = newIdShim(ans, newCpsName());
+    }
     return ans;
 };
 
+/**
+ * @param {string} name Name of the procedure.
+ * @param {*} procedure TODO bl.
+ * @return {!r5js.Datum} New Datum representing the given procedure.
+ */
 function newProcedureDatum(name, procedure) {
-    var ans = new Datum();
+    var ans = new r5js.Datum();
     ans.type = 'lambda';
     ans.payload = procedure;
     ans.name = name;
     return ans;
 }
 
+/**
+ * @param {*} mustImplementPort TODO bl
+ * @return {!r5js.Datum} New Datum representing an input port.
+ */
 function newInputPortDatum(mustImplementPort) {
-    var ans = new Datum();
+    var ans = new r5js.Datum();
     ans.type = 'input-port';
     ans.payload = portImplCheck(mustImplementPort);
     return ans;
 }
 
+/**
+ * @param {*} mustImplementPort TODO bl
+ * @return {!r5js.Datum} New Datum representing an output port.
+ */
 function newOutputPortDatum(mustImplementPort) {
-    var ans = new Datum();
+    var ans = new r5js.Datum();
     ans.type = 'output-port';
     ans.payload = portImplCheck(mustImplementPort);
     return ans;
 }
 
+/**
+ * @param {!r5js.Datum} deref Datum to dereference.
+ * @return {!r5js.Datum} New Datum capable of dereferencing the given Datum.
+ */
 function newDatumRef(deref) {
-    var ans = new Datum();
+    var ans = new r5js.Datum();
     ans.type = 'ref';
     ans.payload = deref;
     return ans;
 }
 
-Datum.prototype.maybeDeref = function () {
+/**
+ * @return {!r5js.Datum} Dereferences this Datum if possible; otherwise just
+ * returns this Datum.
+ */
+r5js.Datum.prototype.maybeDeref = function () {
     return this.type === 'ref'
-        ? this.payload
+        ? /** @type {!r5js.Datum} */ (this.payload)
         : this;
 };
 
+/**
+ *
+ * @param {*} macro TODO bl
+ * @return {!r5js.Datum} New Datum representing the given macro.
+ */
 function newMacroDatum(macro) {
-    var ans = new Datum();
+    var ans = new r5js.Datum();
     ans.type = 'macro';
     ans.payload = macro;
     return ans;
 }
 
-function newEnvironmentSpecifier(version) {
-    return newIdOrLiteral(new r5js.Environment('', version), 'environment-specifier');
-}
-
-Datum.prototype.getMacro = function() {
-    if (this.payload instanceof SchemeMacro)
+/**
+ * @return {*} TODO bl
+ */
+r5js.Datum.prototype.getMacro = function() {
+    if (this.payload instanceof SchemeMacro) {
         return this.payload.setIsLetOrLetrecSyntax();
-    else
+    } else {
         throw new r5js.InternalInterpreterError('invariant incorrect');
+    }
 };
 
+/**
+ * @param {*} array TODO bl
+ * @return {!r5js.Datum} A new Datum representing the given array.
+ */
 function newVectorDatum(array) {
-    var ans = new Datum();
+    var ans = new r5js.Datum();
     ans.type = '#(';
     ans.payload = array;
     return ans;
 }
 
-Datum.prototype.isProcedure = function() {
+/**
+ * @return {boolean} True iff this datum represents a lambda.
+ */
+r5js.Datum.prototype.isProcedure = function() {
   return this.type === 'lambda';
 };
 
-Datum.prototype.isPort = function() {
+/**
+ * @return {boolean} True iff this datum represents an input or output port.
+ */
+r5js.Datum.prototype.isPort = function() {
     return this.isInputPort() || this.isOutputPort();
 };
 
-Datum.prototype.isInputPort = function() {
+/**
+ * @return {boolean} True iff this datum represents an input port.
+ */
+r5js.Datum.prototype.isInputPort = function() {
     return this.type === 'input-port';
 };
 
-Datum.prototype.isOutputPort = function() {
+/**
+ * @return {boolean} True iff this datum represents an output port.
+ */
+r5js.Datum.prototype.isOutputPort = function() {
     return this.type === 'output-port';
 };
 
-Datum.prototype.isMacro = function() {
+/**
+ * @return {boolean} True iff this datum represents a macro.
+ */
+r5js.Datum.prototype.isMacro = function() {
     return this.type === 'macro';
 };
 
-Datum.prototype.isEnvironmentSpecifier = function() {
+
+/**
+ * @return {boolean} True iff this datum represents an environment specifier.
+ */
+r5js.Datum.prototype.isEnvironmentSpecifier = function() {
     return this.type === 'environment-specifier';
 };
 
-Datum.prototype.sequence = function(env) {
+/**
+ * @param {!r5js.IEnvironment} env TODO bl
+ * @return {*} TODO bl
+ */
+r5js.Datum.prototype.sequence = function(env) {
     var first, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling) {
         // todo bl do we need this check anymore?
@@ -402,12 +591,13 @@ Datum.prototype.sequence = function(env) {
              (for example in Datum.sequenceOperands), but here we need to be
              able to connect the Continuable objects correctly, so we
              wrap them. */
-            if (!(tmp instanceof Continuable))
+            if (!(tmp instanceof Continuable)) {
                 tmp = newIdShim(tmp, newCpsName());
+            }
 
-            if (!first)
+            if (!first) {
                 first = tmp;
-            else if (curEnd) {
+            } else if (curEnd) {
                 curEnd.nextContinuable = tmp;
             }
 
@@ -422,20 +612,21 @@ Datum.prototype.sequence = function(env) {
 // switch their representations to ints instead of strings
 
 /**
- * @param {*} result A result
- * @param {*=} type An optional type.
- * TODO bl: narrow the types of the parameters.
+ * @param {*} result TODO bl
+ * @param {string=} type TODO bl
+ * @return {*} TODO bl
  */
 function maybeWrapResult(result, type) {
 
     if (result === null
-        || result instanceof Datum
+        || result instanceof r5js.Datum
         || result instanceof Continuation
         || result instanceof SchemeMacro
-        || result instanceof JsObjOrMethod /* JS interop (experimental) */)
+        || result instanceof JsObjOrMethod /* JS interop (experimental) */) {
         return result; // no-op, strictly for convenience
+    }
 
-    var ans = new Datum();
+    var ans = new r5js.Datum();
     ans.payload = result;
     if (type)
         ans.type = type;
@@ -463,26 +654,42 @@ function maybeWrapResult(result, type) {
     return ans;
 }
 
-Datum.prototype.isList = function() {
+/**
+ * @return {boolean} True iff this datum represents a list.
+ */
+r5js.Datum.prototype.isList = function() {
     return this.type === '(';
 };
 
-Datum.prototype.isVector = function() {
+/**
+ * @return {boolean} True iff this datum represents a vector.
+ */
+r5js.Datum.prototype.isVector = function() {
     return this.type === '#(';
 };
 
-Datum.prototype.isArrayBacked = function() {
-    return this.payload;
+/**
+ * @return {boolean} True iff this datum represents a vector
+ * and is backed by a JavaScript array.
+ * See {@link r5js.Datum.convertVectorToArrayBacked}.
+ * TODO bl: this method doesn't actually check that the datum represents
+ * a vector.
+ */
+r5js.Datum.prototype.isArrayBacked = function() {
+    return !!this.payload;
 };
 
-/* Vector literals are constructed by the reader as linked lists
- with no random access, while vectors created programmatically
- via make-vector can just use JavaScript arrays. Instead of building
- logic into the reader to convert its inefficient vectors to array-backed
- ones, we check in every primitive vector procedure if the vector
- is array-backed, and mutate it in place if it isn't. There may
- be bugs involving the lost child/sibling pointers.*/
-Datum.prototype.convertVectorToArrayBacked = function () {
+/**
+ * Vector literals are constructed by the reader as linked lists
+ * with no random access, while vectors created programmatically
+ * via make-vector can just use JavaScript arrays. Instead of building
+ * logic into the reader to convert its inefficient vectors to array-backed
+ * ones, we check in every primitive vector procedure if the vector
+ * is array-backed, and mutate it in place if it isn't. There may
+ * be bugs involving the lost child/sibling pointers.
+ * @return {!r5js.Datum} This object, for chaining.
+ */
+r5js.Datum.prototype.convertVectorToArrayBacked = function () {
     this.payload = [];
     for (var cur = this.firstChild; cur; cur = cur.nextSibling)
         this.payload.push(cur);
@@ -490,27 +697,47 @@ Datum.prototype.convertVectorToArrayBacked = function () {
     return this;
 };
 
-Datum.prototype.isBoolean = function() {
+/**
+ * @return {boolean} True iff this datum represents a boolean.
+ */
+r5js.Datum.prototype.isBoolean = function() {
     return this.type === 'boolean';
 };
 
-Datum.prototype.isIdentifier = function() {
+/**
+ * @return {boolean} True iff this datum represents an identifier.
+ */
+r5js.Datum.prototype.isIdentifier = function() {
     return this.type === 'identifier';
 };
 
-Datum.prototype.isCharacter = function() {
+/**
+ * @return {boolean} True iff this datum represents a character.
+ */
+r5js.Datum.prototype.isCharacter = function() {
     return this.type === 'character';
 };
 
-Datum.prototype.isNumber = function() {
+/**
+ * @return {boolean} True iff this datum represents a number.
+ */
+r5js.Datum.prototype.isNumber = function() {
     return this.type === 'number';
 };
 
-Datum.prototype.isString = function() {
+/**
+ * @return {boolean} True iff this datum represents a string.
+ */
+r5js.Datum.prototype.isString = function() {
     return this.type === 'string';
 };
 
-Datum.prototype.isLiteral = function() {
+/**
+ * @return {boolean} True iff this datum represents a boolean, identifier,
+ * character, number, string, or lambda.
+ * TODO bl: would "isPrimitive" be a better name?
+ */
+r5js.Datum.prototype.isLiteral = function() {
     switch (this.type) {
         case 'boolean':
         case 'identifier':
@@ -525,70 +752,98 @@ Datum.prototype.isLiteral = function() {
     }
 };
 
-Datum.prototype.isQuote = function() {
-    return this.type === "'"
-        || (this.isList()
-        && this.firstChild
-        && this.firstChild.payload === 'quote'); // todo bl should datums know about this?
+/**
+ * @return {boolean} True iff this datum represents a quotation (quote or ').
+ */
+r5js.Datum.prototype.isQuote = function() {
+    return this.type === "'" ||
+        (this.isList() && !!this.firstChild && this.firstChild.payload === 'quote');
+    // todo bl should datums know about this?
 };
 
-Datum.prototype.isQuasiquote = function() {
+/**
+ * @return {boolean} True iff this datum represents a quasiquotation (`).
+ */
+r5js.Datum.prototype.isQuasiquote = function() {
     return this.type === '`';
 };
 
-Datum.prototype.isUndefined = function() {
+/**
+ * @return {boolean} True iff this datum has no type.
+ * TODO bl why is this useful?
+ */
+r5js.Datum.prototype.isUndefined = function() {
   return this.type === null;
 };
 
-/* In most situations, we want to detect both unquote (,) and
-unquote-splicing (,@) */
-Datum.prototype.isUnquote = function() {
+/**
+ * In most situations, we want to detect both unquote (,) and
+ * unquote-splicing (,@).
+ * @return {boolean} True iff this datum represents an unquote
+ * or an unquote-splicing.
+ */
+r5js.Datum.prototype.isUnquote = function() {
     return this.type === ',' || this.type === ',@';
 };
 
-Datum.prototype.isUnquoteSplicing = function() {
+/**
+ * @return {boolean} True iff this datum represents an unquote-splicing.
+ */
+r5js.Datum.prototype.isUnquoteSplicing = function() {
     return this.type === ',@';
 };
 
-/* todo bl this is intended to have the exact semantics of the library
- procedure equal?, but I'm not sure that it does. (I put it in JavaScript
- for fast access from the macro subsystem, which needs it in one case.)  */
-Datum.prototype.isEqual = function(other) {
-    if (other instanceof Datum
+/**
+ * TODO bl: this is intended to have the exact semantics of the library
+ * procedure equal?, but I'm not sure that it does.
+ * (I put it in JavaScript for fast access from the macro subsystem,
+ * which needs it in one case.)
+ * @param {!r5js.Datum} other Datum to compare against.
+ */
+r5js.Datum.prototype.isEqual = function(other) {
+    if (other instanceof r5js.Datum
         && this.type === other.type
         && this.payload === other.payload) {
         var thisChild, otherChild;
         for (thisChild = this.firstChild,otherChild = other.firstChild;
              thisChild && otherChild;
-             thisChild = thisChild.nextSibling,otherChild = otherChild.nextSibling)
-            if (!thisChild.isEqual(otherChild))
+             thisChild = thisChild.nextSibling,otherChild = otherChild.nextSibling) {
+            if (!thisChild.isEqual(otherChild)) {
                 return false;
+            }
+        }
 
         return !(thisChild || otherChild);
 
     } else return false;
 };
 
-Datum.prototype.quote = function() {
-    var ans = new Datum();
+/**
+ * @return {!r5js.Datum} A new Datum representing a quotation.
+ */
+r5js.Datum.prototype.quote = function() {
+    var ans = new r5js.Datum();
     ans.type = "'";
     ans.firstChild = this;
     return ans;
 };
 
-Datum.prototype.unwrap = function() {
-    /* Datums representing identifiers, strings, and characters
-     all have payloads of type string. If they all unwrapped as JavaScript
-     strings, it would be impossible to re-wrap them correctly
-     (noninjective mapping). We choose to store identifiers unwrapped
-     because they're expected to be more common than the other two.
+/**
+ * Datums representing identifiers, strings, and characters
+ * all have payloads of type string. If they all unwrapped as JavaScript
+ * strings, it would be impossible to re-wrap them correctly
+ * (noninjective mapping). We choose to store identifiers unwrapped
+ * because they're expected to be more common than the other two.
+ *
+ * Environment specifiers cannot be unwrapped to their Environment
+ * payloads because Environment values in Environments already have
+ * a meaning, namely, a redirect to look up the name in some other
+ * Environment.
+ *
+ * Finally, the vector stuff may need to be overhauled.
+ */
+r5js.Datum.prototype.unwrap = function() {
 
-     Environment specifiers cannot be unwrapped to their Environment
-     payloads because Environment values in Environments already have
-     a meaning, namely, a redirect to look up the name in some other
-     Environment.
-
-     Finally, the vector stuff may need to be overhauled. */
     return (this.payload !== undefined
         && !this.isVector() // watch out for 0's and falses
         && !this.isEnvironmentSpecifier()
@@ -600,26 +855,33 @@ Datum.prototype.unwrap = function() {
         : this;
 };
 
-Datum.prototype.lastSibling = function() {
+/**
+ * @return {!r5js.Datum} The last sibling of this Datum, or this Datum if it's
+ * the last sibling.
+ */
+r5js.Datum.prototype.lastSibling = function() {
     return this.nextSibling ? this.nextSibling.lastSibling() : this;
 };
 
-/*
-    (x . ()) is equivalent to (x). It is useful to perform this normalization
-    prior to evaluation time to simplify the Scheme procedure "list?".
-    With normalization, we can merely say, (list? x) iff x.isList().
-    Without normalization, we would also have to check if x is an
-    improper list, and if so, whether its last element was an empty list.
-
-    This is also an opportune time to do these:
-
-    (quote x) -> 'x
-    (quasiquote x) -> `x
-    (unquote x) -> ,x
-    (unquote-splicing x) -> ,@x
-
-    so we don't have to worry about these synonyms during evaluation proper. */
-Datum.prototype.normalizeInput = function() {
+/**
+ * (x . ()) is equivalent to (x). It is useful to perform this normalization
+ * prior to evaluation time to simplify the Scheme procedure "list?".
+ * With normalization, we can merely say, (list? x) iff x.isList().
+ * Without normalization, we would also have to check if x is an
+ * improper list, and if so, whether its last element was an empty list.
+ *
+ * This is also an opportune time to do these:
+ *
+ * (quote x) -> 'x
+ * (quasiquote x) -> `x
+ * (unquote x) -> ,x
+ * (unquote-splicing x) -> ,@x
+ *
+ * so we don't have to worry about these synonyms during evaluation proper.
+ *
+ * @return {!r5js.Datum} This object, for chaining.
+ */
+r5js.Datum.prototype.normalizeInput = function() {
 
     if (this.firstChild) {
         switch (this.firstChild.payload) {
@@ -656,19 +918,26 @@ Datum.prototype.normalizeInput = function() {
         }
     }
 
-    if (this.isString())
+    if (this.isString()) {
         this.unescapeStringLiteral();
+    }
 
     return this.setImmutableOnQuote();
 };
 
-/* Example:
-    `(a `(b ,(+ x y) ,(foo ,(+ z w) d) e) f)
-
-    should be decorated as
-
-    `1(a `2(b ,2(+ x y) ,2(foo ,1(+ z w) d) e) f) */
-Datum.prototype.decorateQuasiquote = function(qqLevel) {
+/**
+ * Example:
+ *
+ * `(a `(b ,(+ x y) ,(foo ,(+ z w) d) e) f)
+ *
+ * should be decorated as
+ *
+ * `1(a `2(b ,2(+ x y) ,2(foo ,1(+ z w) d) e) f)
+ *
+ * @param {number} qqLevel The level of quasiquotation.
+ * @return {!r5js.Datum} This object, for chaining.
+ */
+r5js.Datum.prototype.decorateQuasiquote = function(qqLevel) {
 
     if (this.isQuasiquote()) {
         this.qqLevel = qqLevel;
@@ -689,23 +958,31 @@ Datum.prototype.decorateQuasiquote = function(qqLevel) {
     return this;
 };
 
-/* Notice that our representation of lists is not recursive: the "second element"
- of (x y z) is y, not (y z). So we provide this function as an aid whenever
- we want that recursive property. Mainly, this is for cdr: we allocate a new
- head-of-list object and point it to the second element of the list in question.
-
- Unfortunately, this approach breaks referential transparency: (cdr x) does not
- point to the same region of memory as x.firstChild.nextSibling. So we have to
- build in special logic to the primitive equivalence predicates, and especially
- into the primitive mutation procedures (set-car! and set-cdr!). That is what
- the CdrHelper class does.
-
- Conceptually, it would not be difficult to switch to an internal car/cdr
- representation, and the performance would be similar. But practically,
- it would involve a lot of refactoring, because the pointers are manipulated
- directly (without function calls) all over the place. So it's a "nice to have". */
-Datum.prototype.siblingsToList = function(dotted) {
-    var ans = new Datum();
+/**
+ * Notice that our representation of lists is not recursive:
+ * the "second element" of (x y z) is y, not (y z). So we provide this function
+ * as an aid whenever we want that recursive property. Mainly, this is for cdr:
+ * we allocate a new head-of-list object and point it to the second element
+ * of the list in question.
+ *
+ * Unfortunately, this approach breaks referential transparency:
+ * (cdr x) does not point to the same region of memory as
+ * x.firstChild.nextSibling. So we have to build in special logic
+ * to the primitive equivalence predicates, and especially into the primitive
+ * mutation procedures (set-car! and set-cdr!).
+ * That is what {@link r5js.CdrHelper} does.
+ *
+ * Conceptually, it would not be difficult to switch to an internal car/cdr
+ * representation, and the performance would be similar. But practically,
+ * it would involve a lot of refactoring, because the pointers are manipulated
+ * directly (without function calls) all over the place.
+ * So it's a "nice to have".
+ *
+ * @param {boolean} dotted True iff this should be a dotted list.
+ * @return {!r5js.Datum} A new Datum representing the siblings of this datum.
+ */
+r5js.Datum.prototype.siblingsToList = function(dotted) {
+    var ans = new r5js.Datum();
     ans.type = dotted ? '.(' : '(';
     ans.firstChild = this;
     return ans;
@@ -713,9 +990,9 @@ Datum.prototype.siblingsToList = function(dotted) {
 
 /**
  * @param {!r5js.CdrHelper} cdrHelper A cdr helper.
- * @return {!Datum} This object, for chaining.
+ * @return {!r5js.Datum} This object, for chaining.
  */
-Datum.prototype.setCdrHelper = function(cdrHelper) {
+r5js.Datum.prototype.setCdrHelper = function(cdrHelper) {
     this.cdrHelper = cdrHelper;
     return this;
 };
@@ -723,14 +1000,20 @@ Datum.prototype.setCdrHelper = function(cdrHelper) {
 /**
  * @return {r5js.CdrHelper} The CdrHelper for this Datum, if one exists.
  */
-Datum.prototype.getCdrHelper = function() {
+r5js.Datum.prototype.getCdrHelper = function() {
     return this.cdrHelper;
 };
 
+/**
+ * @return {string}
+ */
 function newCpsName() {
     return cpsPrefix + (uniqueNodeCounter++);
 }
 
+/**
+ * @return {string}
+ */
 function newAnonymousLambdaName() {
     return 'proc' + (uniqueNodeCounter++);
 }
@@ -738,8 +1021,13 @@ function newAnonymousLambdaName() {
 // Not a valid identifier prefix so we can easily tell these apart
 var cpsPrefix = '@';
 
-// Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
-Datum.prototype.processQuasiquote = function(env, cpsName) {
+/**
+ * Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
+ * @param {!r5js.IEnvironment} env TODO bl
+ * @param {string} cpsName TODO bl
+ * @return {*} TODO bl
+ */
+r5js.Datum.prototype.processQuasiquote = function(env, cpsName) {
 
     var newCalls = new ContinuableHelper();
 
@@ -767,22 +1055,30 @@ Datum.prototype.processQuasiquote = function(env, cpsName) {
     return ans && ans.setStartingEnv(env);
 };
 
-Datum.prototype.shouldUnquote = function() {
+/**
+ * @return {boolean} True iff this Datum is in a quasiquotation and should be
+ * unquoted (i.e. starts with a ,).
+ */
+r5js.Datum.prototype.shouldUnquote = function() {
     return this.isIdentifier() && this.payload.charAt(0) === ',';
 };
 
-/* This is a subcase of shouldUnquote, because unquotes
-and unquote-splicings have pretty much the same logic. */
-Datum.prototype.shouldUnquoteSplice = function() {
+/**
+ * This is a subcase of shouldUnquote, because unquotes and unquote-splicings
+ * have pretty much the same logic.
+ * @return {boolean} TODO bl
+ */
+r5js.Datum.prototype.shouldUnquoteSplice = function() {
     return this.isIdentifier() && this.payload.charAt(1) === '@';
 };
 
-/* Munges definitions to get them in a form suitable for let-type
-bindings. Example:
-
-(define (foo x y z) ...) => (foo (lambda (x y z) ...))
-*/
-Datum.prototype.extractDefinition = function() {
+/**
+ * Munges definitions to get them in a form suitable for let-type bindings.
+ * Example:
+ * (define (foo x y z) ...) => (foo (lambda (x y z) ...))
+ * @return {!r5js.Datum} New Datum representing this datum's definition.
+ */
+r5js.Datum.prototype.extractDefinition = function() {
     var variable = this.at('variable');
     var list = newEmptyList();
     if (variable) {
@@ -795,10 +1091,11 @@ Datum.prototype.extractDefinition = function() {
         lambda.firstChild = bodyStart;
         var newFormalsList = formalsList;
         newFormalsList.firstChild = newFormalsList.firstChild.nextSibling;
-        if (newFormalsList.isImproperList() && !newFormalsList.firstChild.nextSibling)
+        if (newFormalsList.isImproperList() && !newFormalsList.firstChild.nextSibling) {
             lambda.prependChild(newIdOrLiteral(newFormalsList.firstChild.payload));
-        else
+        } else {
             lambda.prependChild(newFormalsList);
+        }
         lambda.prependChild(newIdOrLiteral('lambda'));
         list.prependChild(lambda);
     }
@@ -806,33 +1103,42 @@ Datum.prototype.extractDefinition = function() {
     return list;
 };
 
-Datum.prototype.closestAncestorSibling = function() {
-    if (this.nextSibling)
+/**
+ * TODO bl: document what this method does.
+ * @return {r5js.Datum}
+ */
+r5js.Datum.prototype.closestAncestorSibling = function() {
+    if (this.nextSibling) {
         return this.nextSibling;
-    else if (!this.parent)
+    } else if (!this.parent) {
         return null;
-    else
+    } else {
         return this.parent.closestAncestorSibling();
+    }
 };
 
-/* R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
- but they bind syntactic keywords to macro transformers instead of binding
- variables to locations that contain values."
-
- In this implementation, a macro is just another kind of object that can
- be stored in an environment, so we reuse the existing let machinery.
- For example:
-
- (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
-
- desugars as
-
- (let ((foo [SchemeMacro object])) ...)
-
- We just need to be sure that the SchemeMacro object inserted directly
- into the parse tree plays well when the tree is transcribed and reparsed.
- See comments in TemplateBindings.prototype.getTemplateBinding(). */
-Datum.prototype.desugarMacroBlock = function(env, operatorName) {
+/**
+ * R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
+ * but they bind syntactic keywords to macro transformers instead of binding
+ * variables to locations that contain values."
+ *
+ * In this implementation, a macro is just another kind of object that can
+ * be stored in an environment, so we reuse the existing let machinery.
+ * For example:
+ *
+ * (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
+ *
+ * desugars as
+ *
+ * (let ((foo [SchemeMacro object])) ...)
+ *
+ * We just need to be sure that the SchemeMacro object inserted directly
+ * into the parse tree plays well when the tree is transcribed and reparsed.
+ *
+ * @param {!r5js.IEnvironment} env TODO bl
+ * @param {string} operatorName TODO bl
+ */
+r5js.Datum.prototype.desugarMacroBlock = function(env, operatorName) {
 
     var letBindings = new r5js.SiblingBuffer();
 
@@ -854,7 +1160,11 @@ Datum.prototype.desugarMacroBlock = function(env, operatorName) {
     return newProcCall(newIdOrLiteral(operatorName), _let.toSiblings(), new Continuation(newCpsName()));
 };
 
-// See comments at the top of Parser.
+/**
+ * See comments at the top of Parser.
+ * @param {string} name identifier name to check.
+ * @return {boolean} True iff the given name is parser-sensitive.
+ */
 function isParserSensitiveId(name) {
     switch (name) {
         case 'begin':
@@ -875,7 +1185,11 @@ function isParserSensitiveId(name) {
     }
 }
 
-Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
+/**
+ * TODO bl: document what this method does.
+ * @param {!RenameHelper} helper A rename helper.
+ */
+r5js.Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
     var formalRoot = this.at('formals');
 
     var newHelper = new RenameHelper(helper);
@@ -883,53 +1197,70 @@ Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
 
     // (lambda (x y) ...) or (lambda (x . y) ...)
     if (formalRoot.firstChild) {
-        for (cur = formalRoot.firstChild; cur; cur = cur.nextSibling)
-            if (isParserSensitiveId(cur.payload))
+        for (cur = formalRoot.firstChild; cur; cur = cur.nextSibling) {
+            if (isParserSensitiveId(cur.payload)) {
                 cur.payload = newHelper.addRenameBinding(cur.payload);
+            }
+        }
     }
 
     // (lambda x ...)
-    else if (cur && isParserSensitiveId(formalRoot.payload))
+    else if (cur && isParserSensitiveId(formalRoot.payload)) {
         cur.payload = newHelper.addRenameBinding(formalRoot.payload);
+    }
 
     formalRoot.nextSibling.fixParserSensitiveIds(newHelper);
 };
 
-Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
+/**
+ * TODO bl: document what this method does.
+ * @param {!RenameHelper} helper A rename helper.
+ */
+r5js.Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
     var maybeVar = this.at('variable');
 
     if (maybeVar) {
-        if (isParserSensitiveId(maybeVar.payload))
+        if (isParserSensitiveId(maybeVar.payload)) {
             maybeVar.payload = helper.addRenameBinding(maybeVar.payload);
+        }
     } else {
         var vars = this.firstChild.nextSibling;
         var name = vars.firstChild;
         var newHelper = new RenameHelper(helper);
-        for (var cur = name.nextSibling; cur; cur = cur.nextSibling)
-            if (isParserSensitiveId(cur.payload))
+        for (var cur = name.nextSibling; cur; cur = cur.nextSibling) {
+            if (isParserSensitiveId(/** @type {string} */ (cur.payload))) {
                 cur.payload = newHelper.addRenameBinding(cur.payload);
+            }
+        }
         vars.nextSibling.fixParserSensitiveIds(newHelper);
-        if (isParserSensitiveId(name.payload))
+        if (isParserSensitiveId(/** @type {string} */ (name.payload))) {
             name.payload = helper.addRenameBinding(name.payload);
+        }
     }
 };
 
-Datum.prototype.fixParserSensitiveIds = function(helper) {
+/**
+ * TODO bl: document what this method does.
+ * @param {!RenameHelper} helper A rename helper.
+ */
+r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
 
     if (this.hasParse('lambda-expression')) {
         this.fixParserSensitiveIdsLambda(helper);
     } else if (this.hasParse('definition')) {
         this.fixParserSensitiveIdsDef(helper);
-    } else if (isParserSensitiveId(this.payload)) {
+    } else if (isParserSensitiveId(/** @type {string} */ (this.payload))) {
         this.payload = helper.getRenameBinding(this.payload) || this.payload;
     } else if (this.isQuote()) {
         ; // no-op
     } else {
-        for (var cur = this.firstChild; cur; cur = cur.nextSibling)
+        for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
             cur.fixParserSensitiveIds(helper);
+        }
     }
 
-    if (this.nextSibling)
+    if (this.nextSibling) {
         this.nextSibling.fixParserSensitiveIds(helper);
+    }
 };
 

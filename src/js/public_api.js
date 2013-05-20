@@ -147,8 +147,8 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler) {
             ),
             sideEffectHandler
         );
-    return ans instanceof Datum ?
-        (/** @type {!Datum} */ (ans)).stringForOutputMode(
+    return ans instanceof r5js.Datum ?
+        (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :
         (ans ? ans.toString() : '');
 };
@@ -173,8 +173,8 @@ r5js.PublicApi.prototype.repl = function (string, sideEffectHandler) {
             ),
             goog.nullFunction
         );
-    return ans instanceof Datum ?
-        (/** @type {!Datum} */ (ans)).stringForOutputMode(
+    return ans instanceof r5js.Datum ?
+        (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :
         (ans ? ans.toString() : '');
 };

@@ -19,6 +19,7 @@ goog.provide('r5js.tmp.stdproc');
 
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.CdrHelper');
+goog.require('r5js.Datum');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
@@ -162,7 +163,7 @@ R5JS_builtins['type'] = {
              packages up the current continuation as an "escape procedure"
              and passes it as an argument to proc." Thus a Continuation
              must count as a procedure. */
-            return (p instanceof Datum && p.isProcedure())
+            return (p instanceof r5js.Datum && p.isProcedure())
                 || p instanceof Continuation;
         }
     },
@@ -629,7 +630,7 @@ R5JS_builtins['pair'] = {
                 realCdr.prependChild(realCar);
                 return realCdr;
             } else {
-                var ans = new Datum();
+                var ans = new r5js.Datum();
                 ans.type = '.(';
                 ans.appendChild(realCar);
                 ans.appendChild(realCdr);
@@ -1166,9 +1167,9 @@ R5JS_builtins['eval'] = {
     'eval': {
         argc: 2,
         proc: function(expr, envSpec) {
-            if (!(expr instanceof Datum))
+            if (!(expr instanceof r5js.Datum))
                 throw new r5js.ArgumentTypeError(expr, 0, 'eval', 'datum');
-            if (!(envSpec instanceof Datum) || !envSpec.isEnvironmentSpecifier())
+            if (!(envSpec instanceof r5js.Datum) || !envSpec.isEnvironmentSpecifier())
                 throw new r5js.ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
 
             /* An interesting special case. If we're about to evaluate a wrapped
@@ -1345,7 +1346,7 @@ R5JS_builtins['io'] = {
     'eof-object?': {
         argc: 1,
         proc: function(port) {
-            return port instanceof Datum
+            return port instanceof r5js.Datum
                 && port.isPort()
                 && port.payload['isEof']();
         }
@@ -1382,7 +1383,7 @@ R5JS_builtins['io'] = {
                     : arguments[1];
                 if (!outputPort.isOutputPort())
                     throw new r5js.ArgumentTypeError(outputPort, 1, 'write', 'output-port');
-                var toWrite = x instanceof Datum
+                var toWrite = x instanceof r5js.Datum
                     ? x.stringForOutputMode(r5js.OutputMode.WRITE)
                     : String(x);
                 /* Port implementations aren't required to implement
@@ -1440,7 +1441,7 @@ R5JS_builtins['io'] = {
                     : arguments[1];
                 if (!outputPort.isOutputPort())
                     throw new r5js.ArgumentTypeError(outputPort, 1, 'display', 'output-port');
-                var toWrite = x instanceof Datum
+                var toWrite = x instanceof r5js.Datum
                     ? x.stringForOutputMode(r5js.OutputMode.DISPLAY)
                     : String(x);
                 /* Port implementations aren't required to implement
@@ -1517,7 +1518,7 @@ function registerBuiltin(name, definition, targetEnv) {
                     /* todo bl this wrapping and unwrapping is getting
                      out of hand. */
                     if (classifier(arguments[i]).unwrap())
-                        maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
+                        maybeUnwrappedArgs.push(arguments[i] instanceof r5js.Datum ? arguments[i].unwrap() : arguments[i]);
                     else
                         throw new r5js.ArgumentTypeError(arguments[i], i, name, argtypes);
                 }
@@ -1534,7 +1535,7 @@ function registerBuiltin(name, definition, targetEnv) {
                     if (i < argtypes.length
                         && !targetEnv.getProcedure(argtypes[i] + '?')(arguments[i]).unwrap())
                         throw new r5js.ArgumentTypeError(arguments[i], i, name, argtypes[i]);
-                    maybeUnwrappedArgs.push(arguments[i] instanceof Datum ? arguments[i].unwrap() : arguments[i]);
+                    maybeUnwrappedArgs.push(arguments[i] instanceof r5js.Datum ? arguments[i].unwrap() : arguments[i]);
                 }
             }
         }

@@ -31,7 +31,7 @@ r5js.ITransformer.prototype.forEachSubtransformer = function(callback, args) {};
 
 
 /**
- * @param {!Datum} inputDatum The input datum.
+ * @param {!r5js.Datum} inputDatum The input datum.
  * @param {!Object.<string, boolean>} literalIds Dictionary of literal identifiers.
  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
  * @param {!r5js.IEnvironment} useEnv Use environment.

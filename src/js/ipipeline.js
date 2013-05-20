@@ -39,23 +39,23 @@ r5js.IPipeline.prototype.scan = function(string) {};
 
 /**
  * @param {!Scanner} scanner The scanner to read from.
- * @return {!Datum} Is this correct?
+ * @return {!r5js.Datum} Is this correct?
  * TODO bl: figure out the return type.
  */
 r5js.IPipeline.prototype.read = function(scanner) {};
 
 
 /**
- * @param {!Datum} root The root to desugar.
+ * @param {!r5js.Datum} root The root to desugar.
  * @param {*} lhs Not sure what the type of this is.
- * @return {!Datum} Don't know this either.
+ * @return {!r5js.Datum} Don't know this either.
  * TODO bl: figure out the signature.
  */
 r5js.IPipeline.prototype.parse = function(root, lhs) {};
 
 
 /**
- * @param {!Datum} root The root to desugar.
+ * @param {!r5js.Datum} root The root to desugar.
  * @param {boolean} replMode If true, desugar in repl mode.
  * @return {!Continuable}
  * TODO bl: figure out what repl mode is.

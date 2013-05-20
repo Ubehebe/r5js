@@ -18,6 +18,9 @@ goog.provide('r5js.tmp.unit_test');
 goog.provide('r5js.test.parser');
 goog.provide('r5js.test.scanner');
 
+
+goog.require('r5js.Datum');
+
 r5js.test.scanner = function() {
 
     if (!Function('return "console" in this;')())
@@ -300,7 +303,7 @@ r5js.test.parser = function() {
         var testsForType = tests[type];
         for (var toParse in testsForType) {
             var datumRoot = new Reader(new Scanner(toParse)).read();
-            var actualResult = (datumRoot instanceof Datum) && new Parser(datumRoot).rhs({type: type});
+            var actualResult = (datumRoot instanceof r5js.Datum) && new Parser(datumRoot).rhs({type: type});
             var expectedResult = testsForType[toParse];
 
             // Expected success...

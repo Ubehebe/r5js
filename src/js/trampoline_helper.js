@@ -24,7 +24,7 @@ goog.require('r5js.tmp.callback_backed_port');
  */
 r5js.TrampolineHelper = function(inputPort, outputPort) {
     /**
-     * @type {!Datum}
+     * @type {!r5js.Datum}
      * @private
      */
     this.inputPort_ = inputPort ?
@@ -32,7 +32,7 @@ r5js.TrampolineHelper = function(inputPort, outputPort) {
         this.discardInputPort_();
 
     /**
-     * @type {!Datum}
+     * @type {!r5js.Datum}
      * @private
      */
     this.outputPort_ = outputPort ?
@@ -52,7 +52,7 @@ r5js.TrampolineHelper.prototype.clear = function() {
 };
 
 /**
- * @return {!Datum} New Datum representing a discard input port.
+ * @return {!r5js.Datum} New Datum representing a discard input port.
  * @private
  */
 r5js.TrampolineHelper.prototype.discardInputPort_ = function() {
@@ -63,7 +63,7 @@ r5js.TrampolineHelper.prototype.discardInputPort_ = function() {
 };
 
 /**
- * @return {!Datum} New Datum representing a discard output port.
+ * @return {!r5js.Datum} New Datum representing a discard output port.
  * @private
  */
 r5js.TrampolineHelper.prototype.discardOutputPort_ = function() {
@@ -75,7 +75,7 @@ r5js.TrampolineHelper.prototype.discardOutputPort_ = function() {
 
 
 /**
- * @return {!Datum}
+ * @return {!r5js.Datum}
  */
 r5js.TrampolineHelper.prototype.getInputPort = function() {
     return this.inputPort_;
@@ -83,7 +83,7 @@ r5js.TrampolineHelper.prototype.getInputPort = function() {
 
 
 /**
- * @return {!Datum}
+ * @return {!r5js.Datum}
  */
 r5js.TrampolineHelper.prototype.getOutputPort = function() {
     return this.outputPort_;

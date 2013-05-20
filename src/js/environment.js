@@ -17,6 +17,7 @@
 goog.provide('r5js.Environment');
 
 
+goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.RootEnvironment');
@@ -59,10 +60,10 @@ r5js.Environment = function(name, enclosingEnv) {
     this.closures_ = {};
 
     /**
-     * @type {!Datum}
+     * @type {!r5js.Datum}
      * @private
      */
-    this.unspecifiedSentinel_ = new Datum();
+    this.unspecifiedSentinel_ = new r5js.Datum();
     this.unspecifiedSentinel_.type = this.unspecifiedSentinel_.payload = null;
 
     /**
@@ -149,7 +150,7 @@ r5js.Environment.prototype.get = function(name) {
             return newProcedureDatum(name, maybe);
         else if (maybe === this.unspecifiedSentinel_)
             return maybe;
-        else if (maybe instanceof Datum)
+        else if (maybe instanceof r5js.Datum)
             return newDatumRef(maybe);
         // Everything else
         else return maybe;
@@ -264,7 +265,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
             || val instanceof r5js.Environment /* Redirects for free ids in macro transcriptions */
             || val instanceof JsObjOrMethod /* JavaScript interop (experimental!) */) {
             this.bindings_[name] = val;
-        } else if (val instanceof Datum) {
+        } else if (val instanceof r5js.Datum) {
         // lots of stuff, including wrapped procedures
             if (val.isVector() && !val.isArrayBacked()) {
                 this.bindings_[name] = val.convertVectorToArrayBacked();
@@ -332,3 +333,13 @@ r5js.Environment.prototype.mutate = function(name, newVal, isTopLevel) {
 r5js.Environment.prototype.setClosuresFrom = function(otherEnv) {
   this.closures_ = otherEnv.closures_;
 };
+
+/**
+ * TODO bl: I moved this here from datum.js to fix a goog.require() cycle.
+ * Perhaps move this to a more fitting place.
+ * @param {!r5js.IEnvironment} version Environment to wrap.
+ * @return {!r5js.Datum} A new datum representing the given environment.
+ */
+function newEnvironmentSpecifier(version) {
+    return newIdOrLiteral(new r5js.Environment('', version), 'environment-specifier');
+}

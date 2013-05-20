@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.proc_call');
 
 
+goog.require('r5js.Datum');
 goog.require('r5js.Environment');
 goog.require('r5js.EvalError');
 goog.require('r5js.IllegalEmptyApplication');
@@ -111,7 +112,7 @@ ProcCall.prototype.debugString = function(
     var ans = '\n';
     for (var i = 0; i < indentLevel; ++i)
         ans += '\t';
-    ans += '(' + (this.operatorName instanceof Datum
+    ans += '(' + (this.operatorName instanceof r5js.Datum
         ? this.operatorName.payload
         : this.specialOps.names[this.operatorName]);
     if (this.env && !suppressEnv)
@@ -137,7 +138,7 @@ ProcCall.prototype.reconstructDatum = function() {
 
 ProcCall.prototype.operandsInCpsStyle = function() {
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
-        if (cur instanceof Datum) {
+        if (cur instanceof r5js.Datum) {
             if (cur.isEmptyList())
                 throw new r5js.IllegalEmptyApplication(this.operatorName.payload);
             else if (!cur.isLiteral())
@@ -208,16 +209,21 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
 
-/* If the operator resolves as a primitive or non-primitive procedure,
- check that the operands are simple. If they're not, rearrange the flow
- of control to compute them first.
-
- Example: (+ (* 2 3) (/ 4 5)) will need to be turned into something like
-
- (* 2 3 [_0 (/ 4 5 [_1 (+ _0 _1 [...])])])
-
- (We do _not_ do this if the operator resolves as a macro. Macros
- get their arguments as unevaluated datums.)
+/**
+ * If the operator resolves as a primitive or non-primitive procedure,
+ * check that the operands are simple. If they're not, rearrange the flow
+ * of control to compute them first.
+ *
+ * Example: (+ (* 2 3) (/ 4 5)) will need to be turned into something like
+ *
+ * (* 2 3 [_0 (/ 4 5 [_1 (+ _0 _1 [...])])])
+ *
+ * (We do _not_ do this if the operator resolves as a macro. Macros
+ * get their arguments as unevaluated datums.)
+ *
+ * @param {Function} proc
+ * @param {!Continuation} continuation
+ * @param {!r5js.TrampolineHelper} resultStruct
  */
 ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
 
@@ -278,9 +284,15 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
 operators are the small integers in ProcCall.prototype.specialOps
 rather than Datum objects. */
 ProcCall.prototype.isSpecialOperator = function() {
-    return !(this.operatorName instanceof Datum);
+    return !(this.operatorName instanceof r5js.Datum);
 };
 
+/**
+ * @param {!Continuation} continuation
+ * @param {!r5js.TrampolineHelper} resultStruct
+ * @param {!EnvBuffer} envBuffer
+ * @returns {*}
+ */
 ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
 
     /* If the procedure call has no attached environment, we use
@@ -399,7 +411,7 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultSt
 
         // todo bl document why we're doing this...
         for (var i =0; i< args.length; ++i) {
-            if (args[i] instanceof Datum)
+            if (args[i] instanceof r5js.Datum)
                 args[i] = args[i].maybeDeref();
         }
 
@@ -592,7 +604,7 @@ ProcCall.prototype.evalArgs = function(wrapArgs) {
         In this implementation, this will bind the JavaScript array [1, 2, 3]
         to _0. Later on the trampoline, we reach (+ _0). We have to know that
         _0 refers to an array of values, not a single value. */
-    if (this.firstOperand instanceof Datum
+    if (this.firstOperand instanceof r5js.Datum
         && !this.firstOperand.nextSibling
         && this.firstOperand.isIdentifier()) {
         var maybeArray = this.env.get(this.firstOperand.payload);

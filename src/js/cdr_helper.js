@@ -21,7 +21,7 @@ goog.require('r5js.ImmutableError');
 
 
 /**
- * See the comment to {@link Datum.prototype.siblingsToList}
+ * See the comment to {@link r5js.Datum.siblingsToList}
  * for an explanation of what this class does.
  * @param {*} head TODO bl
  * @param {*} startOfCdr TODO bl
@@ -79,6 +79,7 @@ r5js.CdrHelper.prototype.equals = function(cdrHelper) {
 };
 
 /**
+ * @param {r5js.Datum} datum The datum to test against.
  * @return {boolean} True iff the CdrHelper points to the given list datum
  * and its offset is that list's first child.
  */

@@ -24,13 +24,13 @@ goog.provide('r5js.SiblingBuffer');
 r5js.SiblingBuffer = function() {};
 
 /**
- * @type {Datum}
+ * @type {r5js.Datum}
  * @private
  */
 r5js.SiblingBuffer.prototype.first_;
 
 /**
- * @type {Datum}
+ * @type {r5js.Datum}
  * @private
  */
 r5js.SiblingBuffer.prototype.last_;
@@ -43,7 +43,7 @@ r5js.SiblingBuffer.prototype.isEmpty = function() {
 };
 
 /**
- * @param {!Datum} node Node to append.
+ * @param {!r5js.Datum} node Node to append.
  * @return {!r5js.SiblingBuffer} This object, for chaining.
  */
 r5js.SiblingBuffer.prototype.appendSibling = function(node) {
@@ -60,7 +60,7 @@ r5js.SiblingBuffer.prototype.appendSibling = function(node) {
 };
 
 /**
- * @return {Datum}
+ * @return {r5js.Datum}
  */
 r5js.SiblingBuffer.prototype.toSiblings = function() {
     return this.first_;
