@@ -20,6 +20,7 @@ goog.provide('r5js.tmp.scheme_procedure');
 goog.require('r5js.Environment');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ProcCall');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 
@@ -86,11 +87,12 @@ SchemeProcedure.prototype.setEnv = function(env) {
      continuable is a branch? hopefully not, and I can remove
      the second check. */
     if (this.body) {
-        if (this.body.subtype instanceof ProcCall)
+        if (this.body.subtype instanceof r5js.ProcCall) {
             this.body.subtype.setEnv(env, true);
-        else
+        } else {
             throw new r5js.InternalInterpreterError(
                 'invariant incorrect -- procedure does not begin with proc call');
+        }
     }
 };
 

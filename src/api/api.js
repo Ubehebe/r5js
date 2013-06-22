@@ -33,7 +33,6 @@ goog.require('r5js.tmp.output_modes');
 goog.require('r5js.tmp.parse');
 goog.require('r5js.tmp.pipeline');
 goog.require('r5js.tmp.port');
-goog.require('r5js.tmp.proc_call');
 goog.require('r5js.tmp.read');
 goog.require('r5js.tmp.rename_helper');
 goog.require('r5js.tmp.scanner');

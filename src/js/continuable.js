@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.continuable');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ProcCall');
 
 /* todo bl: Continuable was originally envisioned as the parent
  type of objects on the trampoline. Originally we had three subtypes:
@@ -40,24 +41,27 @@ function Continuable(subtype, continuation) {
 }
 
 Continuable.prototype.setStartingEnv = function(env) {
-    if (this.subtype instanceof ProcCall)
+    if (this.subtype instanceof r5js.ProcCall) {
         this.subtype.setEnv(env, true);
+    }
 
     return this;
 };
 
 Continuable.prototype.setTopLevelAssignment = function() {
-    if (!(this.subtype instanceof ProcCall
-        && this.subtype.operatorName === ProcCall.prototype.specialOps._set))
+    if (!(this.subtype instanceof r5js.ProcCall &&
+        this.subtype.operatorName === r5js.ProcCall.prototype.specialOps._set)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
+    }
     this.subtype.isTopLevelAssignment = true;
     return this;
 };
 
 Continuable.prototype.setSyntaxAssignment = function() {
-    if (!(this.subtype instanceof ProcCall
-        && this.subtype.operatorName === ProcCall.prototype.specialOps._set))
+    if (!(this.subtype instanceof r5js.ProcCall &&
+        this.subtype.operatorName === r5js.ProcCall.prototype.specialOps._set)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
+    }
     this.subtype.isSyntaxAssignment = true;
     return this;
 };

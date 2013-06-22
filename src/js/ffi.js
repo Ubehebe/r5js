@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.ffi');
 
 goog.require('r5js.Datum');
+goog.require('r5js.ProcCall');
 
 /* Warning: experimental. The intent is to allows things like
  (js-set! ((((window 'document) 'querySelector) "body") 'style) 'background-color "red")
@@ -43,7 +44,13 @@ function newFFIDatum(jsObj) {
     return ans;
 }
 
-ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStruct) {
+/**
+ * TODO bl: Why is this method not in proc_call.js?
+ * @param {?} jsObjOrMethod
+ * @param {!Continuation} continuation A continuation.
+ * @param {?} resultStruct
+ */
+r5js.ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStruct) {
     if (!this.operandsInCpsStyle()) {
         this.cpsify(jsObjOrMethod, continuation, resultStruct);
     } else {

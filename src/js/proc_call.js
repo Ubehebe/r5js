@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.proc_call');
+goog.provide('r5js.ProcCall');
 
 
 goog.require('r5js.Datum');
@@ -26,88 +26,139 @@ goog.require('r5js.MacroError');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
 
-// For composition; should only be called from newProcCall
 
 /**
+ * @param {?} operatorName
+ * @param {?} firstOperand
+ * TODO bl: operatorName is an identifier _datum_...I think
+ * some call sites might be passing in strings...
  * @constructor
  */
-function ProcCall(operatorName, firstOperand) {
-    /* todo bl operatorName is an identifier _datum_...I think
-        some call sites might be passing in strings... */
-    this.operatorName = operatorName; // an identifier
-    this.firstOperand = firstOperand; // identifiers or self-evaluating forms
-    // this.env = null;
-}
+r5js.ProcCall = function(operatorName, firstOperand) {
+
+    /**
+     * An identifier.
+     * @type {?} TODO bl
+     */
+    this.operatorName = operatorName;
+
+    /**
+     * Identifiers or self-evaluating forms.
+     * @type {?}
+     */
+    this.firstOperand = firstOperand;
+};
 
 /**
- * @param {!r5js.Environment} env An environment to use.
- * @param {boolean=} override True iff the ProcCall's own environment
- * should be overriden.
+ * @type {r5js.IEnvironment}
  */
-ProcCall.prototype.setEnv = function(env, override) {
+r5js.ProcCall.prototype.env;
+
+/**
+ * @param {!r5js.IEnvironment} env An environment to use.
+ * @param {boolean=} override True iff the ProcCall's own environment
+ * should be overridden.
+ */
+r5js.ProcCall.prototype.setEnv = function(env, override) {
     if (this.env && !override)
         throw new r5js.InternalInterpreterError('invariant incorrect');
     this.env = env;
 };
 
-ProcCall.prototype.maybeSetEnv = function(env) {
-    /* If the ProcCall already has an environment, don't overwrite it.
-    Exception: if this is a continuation "escape call", we do overwrite it.
-    This exception was prompted by things like
-
-     (call-with-current-continuation
-        (lambda (exit)
-            (for-each
-                (lambda (x)
-                    (if (negative? x) (exit x)))
-            '(54 0 37 -3 245 19)) #t))
-
-     At the end of each invocation of (lambda (x) ...), the environment on
-     (exit x) should be updated to reflect the most recent binding of x.
-     Otherwise, the trampoline would see that -3 is negative, but the x in
-     (exit x) would still be bound to 54.
-
-     This is quite ad-hoc and could contain bugs. */
-  if (!this.env
-      || this.env.getProcedure(this.operatorName.payload) instanceof Continuation)
+/**
+ * If the ProcCall already has an environment, don't overwrite it.
+ * Exception: if this is a continuation "escape call", we do overwrite it.
+ * This exception was prompted by things like
+ *
+ * (call-with-current-continuation
+ *   (lambda (exit)
+ *     (for-each
+ *       (lambda (x)
+ *         (if (negative? x) (exit x)))
+ *   '(54 0 37 -3 245 19)) #t))
+ *
+ * At the end of each invocation of (lambda (x) ...), the environment on
+ * (exit x) should be updated to reflect the most recent binding of x.
+ * Otherwise, the trampoline would see that -3 is negative, but the x in
+ * (exit x) would still be bound to 54.
+ *
+ * This is quite ad-hoc and could contain bugs.
+ *
+ * @param {!r5js.IEnvironment} env An environment.
+ */
+r5js.ProcCall.prototype.maybeSetEnv = function(env) {
+  if (!this.env ||
+      this.env.getProcedure(this.operatorName.payload) instanceof Continuation) {
       this.env = env;
+  }
 };
 
-ProcCall.prototype.clearEnv = function() {
+r5js.ProcCall.prototype.clearEnv = function() {
     this.env = null;
 };
 
-ProcCall.prototype.isIdShim = function() {
-    return !this.operatorName;
-};
 
+/**
+ * @param {?} operatorName
+ * @param {?} firstOperand
+ * @param {!Continuation} continuation A continuation.
+ * @return {!Continuable} The new procedure call.
+ */
 function newProcCall(operatorName, firstOperand, continuation) {
-    return new Continuable(new ProcCall(operatorName, firstOperand), continuation);
+    return new Continuable(new r5js.ProcCall(operatorName, firstOperand), continuation);
 }
 
-/* If a nonterminal in the grammar has no associated desugar function,
- desugaring it will be a no-op. That is often the right behavior,
- but sometimes we would like to wrap the datum in a Continuable
- object for convenience on the trampoline. For example, the program
- "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]).
 
- We represent these id shims as ProcCalls whose operatorNames are null
- and whose firstOperand is the payload. */
+/**
+ * If a nonterminal in the grammar has no associated desugar function,
+ * desugaring it will be a no-op. That is often the right behavior,
+ * but sometimes we would like to wrap the datum in a Continuable
+ * object for convenience on the trampoline. For example, the program
+ * "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]).
+ *
+ * We represent these id shims as ProcCalls whose operatorNames are null
+ * and whose firstOperand is the payload.
+ *
+ * @param {?} payload
+ * @param {string} continuationName The name of the continuation.
+ * @return {!Continuable} The new procedure call.
+ */
 function newIdShim(payload, continuationName) {
-    return newProcCall(ProcCall.prototype.specialOps._id, payload, new Continuation(continuationName));
+    return newProcCall(
+        r5js.ProcCall.prototype.specialOps._id,
+        payload,
+        new Continuation(continuationName)
+    );
 }
 
+
+/**
+ * @param {string} dstName
+ * @param {string} srcName
+ * @param {!Continuation} continuation
+ * @return {!Continuable}
+ */
 function newAssignment(dstName, srcName, continuation) {
     var operands = new r5js.SiblingBuffer()
         .appendSibling(newIdOrLiteral(dstName))
         .appendSibling(newIdOrLiteral(srcName))
         .toSiblings();
 
-    return newProcCall(ProcCall.prototype.specialOps._set, operands, continuation);
+    return newProcCall(
+        r5js.ProcCall.prototype.specialOps._set,
+        operands,
+        continuation
+    );
 }
 
-// Just for debugging
-ProcCall.prototype.debugString = function(
+/**
+ * Just for debugging.
+ * @param {!Continuation} continuation
+ * @param {number} indentLevel
+ * @param {boolean} suppressEnv
+ * @return {string}
+ */
+r5js.ProcCall.prototype.debugString = function(
     continuation, indentLevel, suppressEnv) {
     var ans = '\n';
     for (var i = 0; i < indentLevel; ++i)
@@ -128,7 +179,11 @@ ProcCall.prototype.debugString = function(
     return ans + ')';
 };
 
-ProcCall.prototype.reconstructDatum = function() {
+
+/**
+ * @return {!r5js.Datum}
+ */
+r5js.ProcCall.prototype.reconstructDatum = function() {
     var op = newIdOrLiteral(this.operatorName.payload);
     op.nextSibling = this.firstOperand;
     var ans = newEmptyList();
@@ -136,19 +191,29 @@ ProcCall.prototype.reconstructDatum = function() {
     return ans;
 };
 
-ProcCall.prototype.operandsInCpsStyle = function() {
+
+/**
+ * @return {boolean} True iff the operands are in continuation-passing style.
+ */
+r5js.ProcCall.prototype.operandsInCpsStyle = function() {
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
         if (cur instanceof r5js.Datum) {
-            if (cur.isEmptyList())
+            if (cur.isEmptyList()) {
                 throw new r5js.IllegalEmptyApplication(this.operatorName.payload);
-            else if (!cur.isLiteral())
+            } else if (!cur.isLiteral()) {
                 return false;
+            }
         }
     }
     return true;
 };
 
-ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
+
+/**
+ * @param {!Continuation} continuation
+ * @param {?} resultStruct
+ */
+r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
     var ans;
 
     var arg = this.firstOperand;
@@ -225,7 +290,7 @@ ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
  * @param {!Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  */
-ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
+r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
 
     var newCallChain = new ContinuableHelper();
     var finalArgs = new r5js.SiblingBuffer();
@@ -280,10 +345,12 @@ ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
     resultStruct.nextContinuable = ans;
 };
 
-/* Things like set! are represented as ProcCalls whose
-operators are the small integers in ProcCall.prototype.specialOps
-rather than Datum objects. */
-ProcCall.prototype.isSpecialOperator = function() {
+/**
+ * Things like set! are represented as ProcCalls whose operators are
+ * the small integers in {@link r5js.ProcCall.specialOps}
+ * rather than Datum objects.
+ */
+r5js.ProcCall.prototype.isSpecialOperator = function() {
     return !(this.operatorName instanceof r5js.Datum);
 };
 
@@ -293,7 +360,7 @@ ProcCall.prototype.isSpecialOperator = function() {
  * @param {!EnvBuffer} envBuffer
  * @returns {*}
  */
-ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
+r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
 
     /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
@@ -333,7 +400,7 @@ ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuff
     return resultStruct;
 };
 
-ProcCall.prototype.bindResult = function(continuation, val) {
+r5js.ProcCall.prototype.bindResult = function(continuation, val) {
 
     var name = continuation.lastResultName;
     var nextProcCall = continuation.getAdjacentProcCall();
@@ -357,7 +424,7 @@ ProcCall.prototype.bindResult = function(continuation, val) {
     }
 };
 
-ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
+r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
     var src = this.env.get(this.firstOperand.nextSibling.payload);
     /* In Scheme, macros can be bound to identifiers but they are not really
      first-class citizens; you cannot say
@@ -391,11 +458,16 @@ ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
     resultStruct.nextContinuable = continuation.nextContinuable;
 };
 
-/* Primitive procedure, represented by JavaScript function:
-     (+ x y [ans ...]). We perform the action ("+"), bind the
-     result to the continuation's result name ("ans"), and advance
-     to the next continuable ("..."). */
-ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultStruct) {
+/**
+ * Primitive procedure, represented by JavaScript function:
+ * (+ x y [ans ...]). We perform the action ("+"), bind the
+ * result to the continuation's result name ("ans"), and advance
+ * to the next continuable ("...").
+ * @param {Function} proc
+ * @param {!Continuation} continuation
+ * @param {!r5js.TrampolineHelper} resultStruct
+ */
+r5js.ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultStruct) {
 
     /* If the operands aren't simple, we'll have to take a detour to
     restructure them. Example:
@@ -466,7 +538,7 @@ ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultSt
 
  (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
  */
-ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resultStruct) {
+r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resultStruct) {
 
     /* If the operands aren't simple, we'll have to take a detour to
     restructure them. */
@@ -504,7 +576,7 @@ ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resul
     }
 };
 
-ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
+r5js.ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
 
     var newEnv = new r5js.Environment(
         'macro-' + (uniqueNodeCounter++),
@@ -525,7 +597,7 @@ ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
     resultStruct.nextContinuable = newContinuable;
 };
 
-ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) {
+r5js.ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) {
     var arg = this.evalArgs(false)[0]; // there will only be 1 arg
     this.env.addBinding(proc.lastResultName, arg);
     resultStruct.ans = arg;
@@ -575,21 +647,29 @@ ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) 
     }
 };
 
-/* This is my attempt at a JavaScript enum idiom. Is there a better way to
- get guaranteed constant-time lookup given an ordinal? */
-ProcCall.prototype.specialOps = {
+/**
+ * This is my attempt at a JavaScript enum idiom. Is there a better way
+ * to get guaranteed constant-time lookup given an ordinal?
+ */
+r5js.ProcCall.prototype.specialOps = {
 
     _id: 0,
     _set: 1,
 
     names: ['id', 'set!'],
     logic: [
-        ProcCall.prototype.tryIdShim,
-        ProcCall.prototype.tryAssignment
+        r5js.ProcCall.prototype.tryIdShim,
+        r5js.ProcCall.prototype.tryAssignment
     ]
 };
 
-ProcCall.prototype.evalArgs = function(wrapArgs) {
+
+/**
+ * @param wrapArgs
+ * @return {?}
+ * TODO bl: this method is too long.
+ */
+r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
     var args = [];
 
     /* Special logic for values and call-with-values. Example:
@@ -607,7 +687,7 @@ ProcCall.prototype.evalArgs = function(wrapArgs) {
     if (this.firstOperand instanceof r5js.Datum
         && !this.firstOperand.nextSibling
         && this.firstOperand.isIdentifier()) {
-        var maybeArray = this.env.get(this.firstOperand.payload);
+        var maybeArray = this.env.get(/** @type {string} */ (this.firstOperand.payload));
         if (maybeArray instanceof Array)
             return maybeArray;
         // Otherwise, fall through to normal logic.
@@ -644,4 +724,4 @@ ProcCall.prototype.evalArgs = function(wrapArgs) {
     }
 
     return args;
-}
+};

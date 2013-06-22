@@ -15,6 +15,9 @@
 
 goog.provide('r5js.tmp.branch');
 
+
+goog.require('r5js.ProcCall');
+
 function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
     return new Continuable(
         new Branch(testIdOrLiteral, consequentContinuable, alternateContinuable),
@@ -42,6 +45,12 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
     this.alternateLastContinuable = this.alternate.getLastContinuable();
 }
 
+/**
+ * @param {!Continuation} continuation
+ * @param {!r5js.TrampolineHelper} resultStruct
+ * @param {!EnvBuffer} envBuffer
+ * @returns {*}
+ */
 Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
 
     /* Branches always use the old environment left by the previous action
@@ -54,15 +63,17 @@ Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer
         resultStruct.nextContinuable = this.alternate;
         /* We must clear the environment off the non-taken branch.
          See comment at Continuation.prototype.rememberEnv. */
-        if (this.consequent.subtype instanceof ProcCall)
+        if (this.consequent.subtype instanceof r5js.ProcCall) {
             this.consequent.subtype.clearEnv();
+        }
     } else {
         this.consequentLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.consequent;
         /* We must clear the environment off the non-taken branch.
          See comment at Continuation.prototype.rememberEnv. */
-        if (this.alternate.subtype instanceof ProcCall)
+        if (this.alternate.subtype instanceof r5js.ProcCall) {
             this.alternate.subtype.clearEnv();
+        }
     }
 
     return resultStruct;

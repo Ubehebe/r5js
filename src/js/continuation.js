@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.continuation');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ProcCall');
 
 /**
  * @constructor
@@ -75,7 +76,7 @@ Continuation.prototype.debugString = function(indentLevel) {
 (in particular, if it is a Branch). */
 Continuation.prototype.getAdjacentProcCall = function() {
     return this.nextContinuable
-        && this.nextContinuable.subtype instanceof ProcCall
+        && this.nextContinuable.subtype instanceof r5js.ProcCall
         && this.nextContinuable.subtype;
 };
 
@@ -85,7 +86,7 @@ Continuation.prototype.rememberEnv = function(env) {
      for detailed logic (and maybe bugs). */
     if (this.nextContinuable) {
         var next = this.nextContinuable.subtype;
-        if (next instanceof ProcCall)
+        if (next instanceof r5js.ProcCall)
             next.maybeSetEnv(env);
         /* Somewhat tricky. We can't know in advance which branch we'll take,
          so we set the environment on both branches. Later, when we actually
@@ -99,10 +100,12 @@ Continuation.prototype.rememberEnv = function(env) {
          ProcCalls and Branches. (The explicit "subtypes" suggest my command of
          prototypal inheritance wasn't great when I wrote this code.) */
         else if (next instanceof Branch) {
-            if (next.consequent.subtype instanceof ProcCall)
+            if (next.consequent.subtype instanceof r5js.ProcCall) {
                 next.consequent.subtype.maybeSetEnv(env);
-            if (next.alternate.subtype instanceof ProcCall)
+            }
+            if (next.alternate.subtype instanceof r5js.ProcCall) {
                 next.alternate.subtype.maybeSetEnv(env);
+            }
         } else throw new r5js.InternalInterpreterError('invariant incorrect');
     }
 };
