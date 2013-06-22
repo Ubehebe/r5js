@@ -336,6 +336,21 @@ r5js.Environment.prototype.setClosuresFrom = function(otherEnv) {
   this.closures_ = otherEnv.closures_;
 };
 
+
+/** @override */
+r5js.Environment.prototype.newChildEnv = function(name) {
+  return new r5js.Environment(name, this);
+};
+
+
+/** @override
+ * TODO bl: this is here temporarily to avoid a circular dependency
+ * between {@link r5js.Environment} and {@link r5js.RootEnvironment}.
+ */
+r5js.RootEnvironment.prototype.newChildEnv = function(name) {
+  return new r5js.Environment(name, this);
+};
+
 /**
  * TODO bl: I moved this here from datum.js to fix a goog.require() cycle.
  * Perhaps move this to a more fitting place.

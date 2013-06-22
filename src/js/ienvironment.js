@@ -167,3 +167,13 @@ r5js.IEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {};
  */
 r5js.IEnvironment.prototype.seal = function() {};
 
+
+/**
+ * Introduced to break a circular dependency between
+ * {@link r5js.Procedure} and {@link r5js.Environment}.
+ * @param {string} name Name of the new child environment.
+ * @return {!r5js.IEnvironment} A new environment whose parent is
+ *         the receiver of this method.
+ */
+r5js.IEnvironment.prototype.newChildEnv = function(name) {};
+
