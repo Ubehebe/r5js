@@ -20,7 +20,6 @@ goog.require('r5js.tmp.boot');
 goog.require('r5js.tmp.callback_backed_port');
 goog.require('r5js.tmp.datum');
 goog.require('r5js.tmp.env_buffer');
-goog.require('r5js.tmp.errors');
 goog.require('r5js.tmp.ffi');
 goog.require('r5js.tmp.globals');
 goog.require('r5js.tmp.js_obj_or_method');
