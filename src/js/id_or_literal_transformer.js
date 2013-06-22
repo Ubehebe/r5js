@@ -42,11 +42,11 @@ r5js.IdOrLiteralTransformer.prototype.matchInput = function(
                 var name = inputDatum.payload;
                 // Both have no lexical binding
                 if (name === this.datum.payload
-                    && (!definitionEnv.hasBindingRecursive(name)
-                    && !useEnv.hasBindingRecursive(name))) {
+                    && (!definitionEnv.hasBindingRecursive(name, false)
+                    && !useEnv.hasBindingRecursive(name, false))) {
                     bindings.addTemplateBinding(name, inputDatum);
                     return true;
-                } else if (definitionEnv.get(name, true) === useEnv.get(name, true)) {
+                } else if (definitionEnv.get(name) === useEnv.get(name)) {
                     bindings.addTemplateBinding(name, inputDatum);
                     return true;
                 } else return false;

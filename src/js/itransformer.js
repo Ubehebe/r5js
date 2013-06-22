@@ -36,6 +36,7 @@ r5js.ITransformer.prototype.forEachSubtransformer = function(callback, args) {};
  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
  * @param {!r5js.IEnvironment} useEnv Use environment.
  * @param {!r5js.TemplateBindings} bindings Template bindings.
+ * @return {boolean} True iff the transformer is a match (?)
  * TODO bl: what is the use of the value type in the literalIds dictionary?
  */
 r5js.ITransformer.prototype.matchInput = function(
