@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.datum');
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 
