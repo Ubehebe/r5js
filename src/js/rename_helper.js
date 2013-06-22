@@ -14,35 +14,59 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.rename_helper');
+goog.provide('r5js.RenameHelper');
 
 /**
- * @param {*} parent The parent, if any.
+ * @param {r5js.RenameHelper} parent The parent helper, if any.
  * @constructor
  * TODO bl: narrow the type of the parameter.
  */
-function RenameHelper(parent) {
-    this.bindings = {}; // don't use this directly
-    this.parent = parent;
-}
+r5js.RenameHelper = function(parent) {
+    /**
+     * @type {!Object.<string, string>}
+     */
+    this.bindings = {};
 
-RenameHelper.prototype.addRenameBinding = function(from) {
+    /**
+     * @type {?}
+     */
+    this.parent = parent;
+};
+
+/**
+ * @param {string} from Name to add a renaming for.
+ * @return {string} A new name for the given name.
+ */
+r5js.RenameHelper.prototype.addRenameBinding = function(from) {
     var to = newCpsName();
     this.bindings[from] = to;
     return to;
 };
 
-RenameHelper.prototype.getRenameBinding = function(name) {
+
+/**
+ * @param {string} name Name to look up rename binding for.
+ * @return {?string} The renaming of this name, or null if this object
+ * has no such binding.
+ */
+r5js.RenameHelper.prototype.getRenameBinding = function(name) {
     var maybe = this.bindings[name];
-    if (maybe)
+    if (maybe) {
         return maybe;
-    else if (this.parent)
+    } else if (this.parent) {
         return this.parent.getRenameBinding(name);
-    else return null;
+    } else {
+        return null;
+    }
 };
 
-RenameHelper.prototype.wasUsed = function() {
-    for (var name in this.bindings)
+
+/**
+ * @return {boolean} True iff the helper was used.
+ */
+r5js.RenameHelper.prototype.wasUsed = function() {
+    for (var name in this.bindings) {
         return true;
+    }
     return false;
 };

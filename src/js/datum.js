@@ -19,6 +19,7 @@ goog.provide('r5js.Datum');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.RenameHelper');
 goog.require('r5js.SiblingBuffer');
 
 /**
@@ -1187,12 +1188,12 @@ function isParserSensitiveId(name) {
 
 /**
  * TODO bl: document what this method does.
- * @param {!RenameHelper} helper A rename helper.
+ * @param {!r5js.RenameHelper} helper A rename helper.
  */
 r5js.Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
     var formalRoot = this.at('formals');
 
-    var newHelper = new RenameHelper(helper);
+    var newHelper = new r5js.RenameHelper(helper);
     var cur;
 
     // (lambda (x y) ...) or (lambda (x . y) ...)
@@ -1214,7 +1215,7 @@ r5js.Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
 
 /**
  * TODO bl: document what this method does.
- * @param {!RenameHelper} helper A rename helper.
+ * @param {!r5js.RenameHelper} helper A rename helper.
  */
 r5js.Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
     var maybeVar = this.at('variable');
@@ -1226,22 +1227,24 @@ r5js.Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
     } else {
         var vars = this.firstChild.nextSibling;
         var name = vars.firstChild;
-        var newHelper = new RenameHelper(helper);
+        var newHelper = new r5js.RenameHelper(helper);
         for (var cur = name.nextSibling; cur; cur = cur.nextSibling) {
-            if (isParserSensitiveId(/** @type {string} */ (cur.payload))) {
-                cur.payload = newHelper.addRenameBinding(cur.payload);
+            var payload = /** @type {string} */ (cur.payload);
+            if (isParserSensitiveId(payload)) {
+                cur.payload = newHelper.addRenameBinding(payload);
             }
         }
         vars.nextSibling.fixParserSensitiveIds(newHelper);
-        if (isParserSensitiveId(/** @type {string} */ (name.payload))) {
-            name.payload = helper.addRenameBinding(name.payload);
+        var namePayload = /** @type {string} */ (name.payload);
+        if (isParserSensitiveId(namePayload)) {
+            name.payload = helper.addRenameBinding(namePayload);
         }
     }
 };
 
 /**
  * TODO bl: document what this method does.
- * @param {!RenameHelper} helper A rename helper.
+ * @param {!r5js.RenameHelper} helper A rename helper.
  */
 r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
 
@@ -1250,7 +1253,9 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
     } else if (this.hasParse('definition')) {
         this.fixParserSensitiveIdsDef(helper);
     } else if (isParserSensitiveId(/** @type {string} */ (this.payload))) {
-        this.payload = helper.getRenameBinding(this.payload) || this.payload;
+        this.payload =
+            helper.getRenameBinding(/** @type {string} */(this.payload)) ||
+                this.payload;
     } else if (this.isQuote()) {
         ; // no-op
     } else {

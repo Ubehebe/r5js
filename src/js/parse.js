@@ -22,6 +22,7 @@ goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
+goog.require('r5js.RenameHelper');
 
 /* todo bl: this file should not exist.
 
@@ -1431,7 +1432,7 @@ Parser.prototype.parse = function(lhs) {
         if (ans && ans.nonterminals) {
             // See comments at top of Parser.
             if (this.fixParserSensitiveIds) {
-                var helper = new RenameHelper(null);
+                var helper = new r5js.RenameHelper(null);
                 ans.fixParserSensitiveIds(helper);
                 if (helper.wasUsed()) {
                     /* todo bl inefficient, but i've had errors fusing this
