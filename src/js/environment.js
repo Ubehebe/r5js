@@ -17,6 +17,7 @@
 goog.provide('r5js.Environment');
 
 
+goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.InternalInterpreterError');
@@ -148,11 +149,11 @@ r5js.Environment.prototype.get = function(name) {
          on the trampoline, will return the unwrapped procedures.) */
         else if (typeof maybe === 'function'
             || maybe instanceof SchemeProcedure)
-            return newProcedureDatum(name, maybe);
+            return r5js.data.newProcedureDatum(name, maybe);
         else if (maybe === this.unspecifiedSentinel_)
             return maybe;
         else if (maybe instanceof r5js.Datum)
-            return newDatumRef(maybe);
+            return r5js.data.newDatumRef(maybe);
         // Everything else
         else return maybe;
     } else if (maybe = this.closures_[name]) {

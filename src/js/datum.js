@@ -15,6 +15,7 @@
 
 
 goog.provide('r5js.tmp.datum');
+goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 
 
@@ -454,51 +455,6 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     return ans;
 };
 
-/**
- * @param {string} name Name of the procedure.
- * @param {Function|SchemeProcedure} procedure TODO bl.
- * @return {!r5js.Datum} New Datum representing the given procedure.
- */
-function newProcedureDatum(name, procedure) {
-    var ans = new r5js.Datum();
-    ans.type = 'lambda';
-    ans.payload = procedure;
-    ans.name = name;
-    return ans;
-}
-
-/**
- * @param {*} mustImplementPort TODO bl
- * @return {!r5js.Datum} New Datum representing an input port.
- */
-function newInputPortDatum(mustImplementPort) {
-    var ans = new r5js.Datum();
-    ans.type = 'input-port';
-    ans.payload = portImplCheck(mustImplementPort);
-    return ans;
-}
-
-/**
- * @param {*} mustImplementPort TODO bl
- * @return {!r5js.Datum} New Datum representing an output port.
- */
-function newOutputPortDatum(mustImplementPort) {
-    var ans = new r5js.Datum();
-    ans.type = 'output-port';
-    ans.payload = portImplCheck(mustImplementPort);
-    return ans;
-}
-
-/**
- * @param {!r5js.Datum} deref Datum to dereference.
- * @return {!r5js.Datum} New Datum capable of dereferencing the given Datum.
- */
-function newDatumRef(deref) {
-    var ans = new r5js.Datum();
-    ans.type = 'ref';
-    ans.payload = deref;
-    return ans;
-}
 
 /**
  * @return {!r5js.Datum} Dereferences this Datum if possible; otherwise just
@@ -510,17 +466,7 @@ r5js.Datum.prototype.maybeDeref = function () {
         : this;
 };
 
-/**
- *
- * @param {!r5js.Macro} macro Macro object.
- * @return {!r5js.Datum} New Datum representing the given macro.
- */
-function newMacroDatum(macro) {
-    var ans = new r5js.Datum();
-    ans.type = 'macro';
-    ans.payload = macro;
-    return ans;
-}
+
 
 /**
  * @return {r5js.Macro} TODO bl
@@ -622,48 +568,7 @@ r5js.Datum.prototype.sequence = function(env) {
 // todo bl once we have hidden these types behind functions, we can
 // switch their representations to ints instead of strings
 
-/**
- * @param {!r5js.PayloadType} result
- * @param {string=} type TODO bl
- * @return {*} TODO bl
- */
-function maybeWrapResult(result, type) {
 
-    if (result === null
-        || result instanceof r5js.Datum
-        || result instanceof Continuation
-        || result instanceof r5js.Macro
-        || result instanceof JsObjOrMethod /* JS interop (experimental) */) {
-        return result; // no-op, strictly for convenience
-    }
-
-    var ans = new r5js.Datum();
-    ans.payload = result;
-    if (type)
-        ans.type = type;
-    // If no type was supplied, we can deduce it in most (not all) cases
-    else {
-        var inferredType = typeof result;
-        switch (inferredType) {
-            case 'boolean':
-            case 'number':
-                ans.type = inferredType;
-                break;
-            case 'string':
-                ans.type = 'identifier';
-                break;
-            case 'object':
-                if (result instanceof SchemeProcedure) {
-                    ans.type = 'lambda';
-                    break;
-                }
-            default:
-                throw new r5js.InternalInterpreterError('cannot deduce type from value '
-                    + result + ': noninjective mapping from values to types');
-        }
-    }
-    return ans;
-}
 
 /**
  * @return {boolean} True iff this datum represents a list.
@@ -1161,7 +1066,7 @@ r5js.Datum.prototype.desugarMacroBlock = function(env, operatorName) {
         /* We have to wrap the SchemeMacro object in a Datum to get it into
             the parse tree. */
         buf.appendSibling(kw);
-        buf.appendSibling(newMacroDatum(macro));
+        buf.appendSibling(r5js.data.newMacroDatum(macro));
         letBindings.appendSibling(buf.toList());
     }
 
@@ -1169,7 +1074,7 @@ r5js.Datum.prototype.desugarMacroBlock = function(env, operatorName) {
     _let.appendSibling(letBindings.toList());
     _let.appendSibling(this.at('(').nextSibling);
 
-    return newProcCall(newIdOrLiteral(operatorName), _let.toSiblings(), new Continuation(newCpsName()));
+    return r5js.data.newProcCall(newIdOrLiteral(operatorName), _let.toSiblings(), new Continuation(newCpsName()));
 };
 
 /**
@@ -1279,4 +1184,126 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
         this.nextSibling.fixParserSensitiveIds(helper);
     }
 };
+
+/**
+ * Convenience functions for manipulating {@link r5js.Datum} objects.
+ */
+r5js.data = {};
+
+
+/**
+ * @param {?} operatorName
+ * @param {?} firstOperand
+ * @param {!Continuation} continuation A continuation.
+ * @return {!Continuable} The new procedure call.
+ */
+r5js.data.newProcCall = function(operatorName, firstOperand, continuation) {
+    return new Continuable(new r5js.ProcCall(operatorName, firstOperand), continuation);
+};
+
+
+/**
+ * @param {string} name Name of the procedure.
+ * @param {Function|!SchemeProcedure} procedure TODO bl.
+ * @return {!r5js.Datum} New Datum representing the given procedure.
+ */
+r5js.data.newProcedureDatum = function(name, procedure) {
+    var ans = new r5js.Datum();
+    ans.type = 'lambda';
+    ans.payload = procedure;
+    ans.name = name;
+    return ans;
+};
+
+/**
+ * @param {*} mustImplementPort TODO bl
+ * @return {!r5js.Datum} New Datum representing an input port.
+ */
+r5js.data.newInputPortDatum = function(mustImplementPort) {
+    var ans = new r5js.Datum();
+    ans.type = 'input-port';
+    ans.payload = portImplCheck(mustImplementPort);
+    return ans;
+};
+
+/**
+ * @param {*} mustImplementPort TODO bl
+ * @return {!r5js.Datum} New Datum representing an output port.
+ */
+r5js.data.newOutputPortDatum = function(mustImplementPort) {
+    var ans = new r5js.Datum();
+    ans.type = 'output-port';
+    ans.payload = portImplCheck(mustImplementPort);
+    return ans;
+};
+
+/**
+ * @param {!r5js.Datum} deref Datum to dereference.
+ * @return {!r5js.Datum} New Datum capable of dereferencing the given Datum.
+ */
+r5js.data.newDatumRef = function(deref) {
+    var ans = new r5js.Datum();
+    ans.type = 'ref';
+    ans.payload = deref;
+    return ans;
+};
+
+
+/**
+ *
+ * @param {!r5js.Macro} macro Macro object.
+ * @return {!r5js.Datum} New Datum representing the given macro.
+ */
+r5js.data.newMacroDatum = function(macro) {
+    var ans = new r5js.Datum();
+    ans.type = 'macro';
+    ans.payload = macro;
+    return ans;
+};
+
+
+/**
+ * @param {!r5js.PayloadType} result The result to potentially wrap.
+ * @param {string=} type TODO bl
+ * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
+ *         if necessary.
+ */
+r5js.data.maybeWrapResult = function(result, type) {
+
+    if (result === null
+        || result instanceof r5js.Datum
+        || result instanceof Continuation
+        || result instanceof r5js.Macro
+        || result instanceof JsObjOrMethod /* JS interop (experimental) */) {
+        return result; // no-op, strictly for convenience
+    }
+
+    var ans = new r5js.Datum();
+    ans.payload = result;
+    if (type)
+        ans.type = type;
+    // If no type was supplied, we can deduce it in most (not all) cases
+    else {
+        var inferredType = typeof result;
+        switch (inferredType) {
+            case 'boolean':
+            case 'number':
+                ans.type = inferredType;
+                break;
+            case 'string':
+                ans.type = 'identifier';
+                break;
+            case 'object':
+                if (result instanceof SchemeProcedure) {
+                    ans.type = 'lambda';
+                    break;
+                }
+            default:
+                throw new r5js.InternalInterpreterError('cannot deduce type from value '
+                    + result + ': noninjective mapping from values to types');
+        }
+    }
+    return ans;
+};
+
 

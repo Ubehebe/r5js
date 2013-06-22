@@ -24,6 +24,8 @@ goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.Macro');
+goog.require('r5js.data');
+
 
 /* todo bl: this file should not exist.
 
@@ -546,7 +548,7 @@ Parser.prototype['procedure-call'] = function() {
             var operands = node.at('operand'); // will be null if 0 operands
 
             if (operatorNode.isLiteral()) {
-                return newProcCall(operatorNode, operands, new Continuation(newCpsName()));
+                return r5js.data.newProcCall(operatorNode, operands, new Continuation(newCpsName()));
             }
 
             // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
@@ -554,7 +556,7 @@ Parser.prototype['procedure-call'] = function() {
                 var desugaredOp = operatorNode.desugar(env);
                 var lastContinuation = desugaredOp.getLastContinuable().continuation;
                 var opName = lastContinuation.lastResultName;
-                lastContinuation.nextContinuable = newProcCall(
+                lastContinuation.nextContinuable = r5js.data.newProcCall(
                     newIdOrLiteral(opName),
                     operands,
                     new Continuation(newCpsName()));
@@ -1023,7 +1025,7 @@ Parser.prototype['macro-use'] = function() {
                 datums as-is for the macro pattern matching facility to use.
                 The trampoline knows what to do with raw datums in such a
                 context. */
-            return newProcCall(
+            return r5js.data.newProcCall(
                 node.at('keyword'),
                 node.at('datum'),
                 new Continuation(newCpsName()));

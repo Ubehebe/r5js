@@ -16,7 +16,9 @@
 goog.provide('r5js.tmp.branch');
 
 
+goog.require('r5js.data');
 goog.require('r5js.ProcCall');
+
 
 function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
     return new Continuable(
@@ -57,7 +59,7 @@ Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer
     on the trampoline. */
     var testResult = this.test.isIdentifier()
         ? envBuffer.get(this.test.payload)
-        : maybeWrapResult(this.test, this.test.type).payload;
+        : r5js.data.maybeWrapResult(this.test, this.test.type).payload;
     if (testResult === false) {
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;

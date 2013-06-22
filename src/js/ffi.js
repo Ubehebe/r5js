@@ -16,8 +16,10 @@
 
 goog.provide('r5js.tmp.ffi');
 
+goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.ProcCall');
+
 
 /* Warning: experimental. The intent is to allows things like
  (js-set! ((((window 'document) 'querySelector) "body") 'style) 'background-color "red")
@@ -78,7 +80,7 @@ r5js.ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStr
                 ans = null;
                 break;
             default:
-                ans = maybeWrapResult(property, typeof property);
+                ans = r5js.data.maybeWrapResult(property, typeof property);
                 break;
         }
 

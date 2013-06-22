@@ -17,6 +17,7 @@
 goog.provide('r5js.ProcCall');
 
 
+goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.Environment');
 goog.require('r5js.EvalError');
@@ -125,7 +126,7 @@ function newProcCall(operatorName, firstOperand, continuation) {
  * @return {!Continuable} The new procedure call.
  */
 function newIdShim(payload, continuationName) {
-    return newProcCall(
+    return r5js.data.newProcCall(
         r5js.ProcCall.prototype.specialOps._id,
         payload,
         new Continuation(continuationName)
@@ -145,7 +146,7 @@ function newAssignment(dstName, srcName, continuation) {
         .appendSibling(newIdOrLiteral(srcName))
         .toSiblings();
 
-    return newProcCall(
+    return r5js.data.newProcCall(
         r5js.ProcCall.prototype.specialOps._set,
         operands,
         continuation
@@ -235,7 +236,7 @@ r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
                 return node.shouldUnquote();
             },
             function(node) {
-                var ans = maybeWrapResult(env.get(node.payload)).maybeDeref();
+                var ans = r5js.data.maybeWrapResult(env.get(node.payload)).maybeDeref();
                 if (node.shouldUnquoteSplice()) {
                     if (ans.isList()) {
                         if (ans.firstChild) // `(1 ,@(list 2 3) 4) => (1 2 3 4)
@@ -258,7 +259,7 @@ r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
     } else if (arg.isImproperList()) {
         throw new r5js.GeneralSyntaxError(arg);
     } else {
-        ans = maybeWrapResult(arg.payload, arg.type);
+        ans = r5js.data.maybeWrapResult(arg.payload, arg.type);
         if (arg.isImmutable())
             ans.setImmutable();
     }
@@ -336,7 +337,7 @@ r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
     }
 
     newCallChain.appendContinuable(
-        newProcCall(this.operatorName, finalArgs.toSiblings(), new Continuation(newCpsName()))
+        r5js.data.newProcCall(this.operatorName, finalArgs.toSiblings(), new Continuation(newCpsName()))
     );
 
     var ans = newCallChain.toContinuable();
@@ -700,7 +701,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
             args.push(cur);
         else if (cur.isIdentifier()) {
             var toPush = wrapArgs
-                ? maybeWrapResult(this.env.get(cur.payload))
+                ? r5js.data.maybeWrapResult(this.env.get(cur.payload))
                 : this.env.get(cur.payload);
             /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
@@ -719,7 +720,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
         else if (cur.isProcedure()) {
             args.push(cur);
         } else if (cur.payload !== undefined) {
-            args.push(maybeWrapResult(cur.payload, cur.type));
+            args.push(r5js.data.maybeWrapResult(cur.payload, cur.type));
         }
         else throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
     }

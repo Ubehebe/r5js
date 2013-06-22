@@ -19,6 +19,7 @@ goog.provide('r5js.tmp.stdproc');
 
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.CdrHelper');
+goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
@@ -963,7 +964,7 @@ R5JS_builtins['control'] = {
                 // todo bl document why we are quoting the arguments
                 for (var arg = mustBeList.firstChild; arg; arg = arg.nextSibling)
                     newArgs.appendSibling(arg.quote());
-                var actualProcCall = newProcCall(procName, newArgs.toSiblings(), continuation);
+                var actualProcCall = r5js.data.newProcCall(procName, newArgs.toSiblings(), continuation);
                 actualProcCall.setStartingEnv(curProcCall.env);
                 resultStruct.nextContinuable = actualProcCall;
             }
@@ -976,7 +977,7 @@ R5JS_builtins['control'] = {
 
                 var newArgs = newEmptyList();
                 newArgs.appendChild(arguments[1]);
-                var actualProcCall = newProcCall(procName, newArgs.firstChild, continuation);
+                var actualProcCall = r5js.data.newProcCall(procName, newArgs.firstChild, continuation);
                 resultStruct.nextContinuable = actualProcCall;
             }
         }
@@ -1011,7 +1012,7 @@ R5JS_builtins['control'] = {
                 continuation.installBeforeThunk(resultStruct.beforeThunk);
                 resultStruct.beforeThunk = null;
             }
-            var dummyProcCall = newProcCall(procCall.firstOperand, continuation, continuation);
+            var dummyProcCall = r5js.data.newProcCall(procCall.firstOperand, continuation, continuation);
             dummyProcCall.setStartingEnv(procCall.env);
             resultStruct.nextContinuable = dummyProcCall;
         }
@@ -1068,12 +1069,12 @@ R5JS_builtins['control'] = {
 
             var valuesName = newCpsName();
             var producerContinuation = new Continuation(valuesName);
-            var producerCall = newProcCall(
+            var producerCall = r5js.data.newProcCall(
                 procCall.firstOperand,
                 null, // no arguments
                 producerContinuation);
             producerCall.setStartingEnv(procCall.env);
-            var consumerCall = newProcCall(
+            var consumerCall = r5js.data.newProcCall(
                 procCall.firstOperand.nextSibling,
                 newIdOrLiteral(valuesName),
                 continuation);
@@ -1124,13 +1125,13 @@ R5JS_builtins['control'] = {
 
             // todo bl use a ContinuableBuffer for efficiency
 
-            var procCallBefore = newProcCall(
+            var procCallBefore = r5js.data.newProcCall(
                 procCall.firstOperand,
                 null, // no arguments
                 new Continuation(before));
 
 
-            var procCallAfter = newProcCall(
+            var procCallAfter = r5js.data.newProcCall(
                 procCall.firstOperand.nextSibling.nextSibling,
                 null, // no arguments
                 new Continuation(newCpsName())
@@ -1140,7 +1141,7 @@ R5JS_builtins['control'] = {
             procCallAfter.appendContinuable(newIdShim(newIdOrLiteral(result), newCpsName()));
             procCallAfter.getLastContinuable().continuation = continuation;
 
-            var procCallThunk = newProcCall(
+            var procCallThunk = r5js.data.newProcCall(
                 procCall.firstOperand.nextSibling,
                 null, // no arguments
                 new Continuation(result)
@@ -1155,7 +1156,7 @@ R5JS_builtins['control'] = {
              who writes to it, and call/cc is the only one who reads it.
 
              todo bl document why we cannot reuse procCallBefore. */
-            resultStruct.beforeThunk = newProcCall(
+            resultStruct.beforeThunk = r5js.data.newProcCall(
                 procCall.firstOperand,
                 null,
                 new Continuation(before));
@@ -1279,7 +1280,7 @@ R5JS_builtins['io'] = {
         argc: 1,
         argtypes: ['string'],
         proc: function(datum) {
-            return newInputPortDatum(
+            return r5js.data.newInputPortDatum(
                 new NodeBackedPort(datum.payload, 'r'));
         }
     },
@@ -1287,7 +1288,7 @@ R5JS_builtins['io'] = {
         argc: 1,
         argtypes: ['string'],
         proc: function(datum) {
-            return newOutputPortDatum(
+            return r5js.data.newOutputPortDatum(
                 new NodeBackedPort(datum.payload, 'w'));
         }
     },
@@ -1546,7 +1547,7 @@ function registerBuiltin(name, definition, targetEnv) {
         var returnValue = proc.apply(null, maybeUnwrappedArgs);
         return definition.hasSpecialEvalLogic
             ? null /* A function with special eval logic will set the trampolineResultStruct directly. */
-            : maybeWrapResult(returnValue, resultType);
+            : r5js.data.maybeWrapResult(returnValue, resultType);
     };
     /* We are setting a boolean flag on a JavaScript function object.
      Not sure this is good style, but it saves us having to wrap
