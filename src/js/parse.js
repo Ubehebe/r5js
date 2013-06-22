@@ -23,6 +23,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
 goog.require('r5js.RenameHelper');
+goog.require('r5js.Macro');
 
 /* todo bl: this file should not exist.
 
@@ -1100,7 +1101,7 @@ Parser.prototype['transformer-spec'] = function() {
             var rules = node.at('syntax-rule');
             // todo bl implement: It is an error for the same pattern
             // variable to appear more than once in a <pattern>.
-            return new SchemeMacro(ids, rules, env);
+            return new r5js.Macro(ids, rules, env);
         }
         }
     );

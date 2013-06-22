@@ -21,6 +21,7 @@ goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.RootEnvironment');
+goog.require('r5js.Macro');
 goog.require('r5js.UnboundVariable');
 
 
@@ -108,7 +109,7 @@ r5js.Environment.prototype.clone = function(name) {
 
     for (var name_ in this.bindings_) {
         var val = this.bindings_[name_];
-        cloned.bindings_[name_] = val instanceof SchemeMacro
+        cloned.bindings_[name_] = val instanceof r5js.Macro
             ? val.clone(cloned)
             : val;
     }
@@ -180,7 +181,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
             return maybe.getProcedure(name);
         } else if (typeof maybe === 'function'
             || maybe instanceof SchemeProcedure
-            || maybe instanceof SchemeMacro
+            || maybe instanceof r5js.Macro
             || maybe instanceof Continuation
             || maybe instanceof JsObjOrMethod) {
             return maybe;
@@ -241,8 +242,9 @@ r5js.Environment.prototype.addBinding = function(name, val) {
 
         /* Macros require a backlink to the environment they were defined in to resolve
          literal identifiers. todo bl: is there a better place to put this? */
-        if (val instanceof SchemeMacro)
+        if (val instanceof r5js.Macro) {
             val.definitionEnv = this;
+        }
 
         // Store primitive values directly.
         if (typeof val === 'number'
@@ -261,7 +263,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
             || val instanceof SchemeProcedure /* non-primitive procedure */
             || val instanceof Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
-            || val instanceof SchemeMacro /* macros */
+            || val instanceof r5js.Macro /* macros */
             || val instanceof r5js.Environment /* Redirects for free ids in macro transcriptions */
             || val instanceof JsObjOrMethod /* JavaScript interop (experimental!) */) {
             this.bindings_[name] = val;

@@ -24,6 +24,7 @@ goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.MacroError');
 goog.require('r5js.QuasiquoteError');
+goog.require('r5js.Macro');
 goog.require('r5js.SiblingBuffer');
 
 
@@ -220,7 +221,7 @@ r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
 
     /* todo bl: id shims have become quite popular for passing through
      disparate objects on the trampoline. The logic could be made clearer. */
-    if (arg instanceof SchemeMacro)
+    if (arg instanceof r5js.Macro)
         ans = arg;
     else if (typeof arg === 'function' || arg.isProcedure())
         ans = arg;
@@ -267,7 +268,7 @@ r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
     /* If we're at the end of the continuable-continuation chain and we're
      trying to return a macro object off the trampoline, that's an error.
      The input was a bare macro name. */
-    if (!continuation.nextContinuable && ans instanceof SchemeMacro)
+    if (!continuation.nextContinuable && ans instanceof r5js.Macro)
         throw new r5js.MacroError(this.firstOperand, 'bad macro syntax');
 
     resultStruct.ans = ans;
@@ -378,7 +379,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, en
         this.tryPrimitiveProcedure.apply(this, args);
     } else if (proc instanceof SchemeProcedure) {
         this.tryNonPrimitiveProcedure.apply(this, args);
-    } else if (proc instanceof SchemeMacro) {
+    } else if (proc instanceof r5js.Macro) {
         this.tryMacroUse.apply(this, args);
     } else if (proc instanceof Continuation) {
         this.tryContinuation.apply(this, args);
@@ -447,7 +448,7 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
      we as the implementer do exactly what we forbid the programmer to do.
      We tell the difference between the two parties via the isLetOrLetrecSyntax
      flag on the SchemeMacro object, which only the implementation can set. */
-    if (src instanceof SchemeMacro
+    if (src instanceof r5js.Macro
         && !src.isLetOrLetrecSyntax
         && !this.isSyntaxAssignment)
         throw new r5js.GeneralSyntaxError(this);
@@ -705,7 +706,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
              be passed as arguments. Internally, however, we do just that
              for convenience. The isLetOrLetrecSyntax flag discriminates
              between the programmer and the implementation. */
-            if (toPush instanceof SchemeMacro
+            if (toPush instanceof r5js.Macro
                 && !toPush.isLetOrLetrecSyntax)
                 throw new r5js.MacroError(cur.payload, 'bad syntax');
             args.push(toPush);

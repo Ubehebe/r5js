@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.scheme_macro');
+goog.provide('r5js.Macro');
 
 
 goog.require('r5js.MacroError');
@@ -22,15 +22,30 @@ goog.require('r5js.ParseError');
 goog.require('r5js.TemplateBindings');
 
 /**
+ * @param {!r5js.Datum} literalIdentifiers
+ * @param {!r5js.Datum} rules
+ * @param {!r5js.IEnvironment} definitionEnv
  * @constructor
  */
-function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
+r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
 
+    /**
+     * @type {!r5js.IEnvironment}
+     */
     this.definitionEnv = definitionEnv;
-    this.literalIdentifiers = {};
-    for (var curId = literalIdentifiers; curId; curId = curId.nextSibling)
-        this.literalIdentifiers[curId.payload] = true;
 
+    /**
+     * @type {!Object.<string, boolean>}
+     */
+    this.literalIdentifiers = {};
+
+    for (var curId = literalIdentifiers; curId; curId = curId.nextSibling) {
+        this.literalIdentifiers[curId.payload] = true;
+    }
+
+    /**
+     * @type {!Array.<Transformer>}
+     */
     this.transformers = [];
 
     for (var rule = rules; rule; rule = rule.nextSibling) {
@@ -39,54 +54,80 @@ function SchemeMacro(literalIdentifiers, rules, definitionEnv) {
         var transformer = new Transformer(pattern, template);
         this.transformers.push(transformer);
     }
-}
+};
 
-/* Workaround for let-syntax and letrec-syntax.
- This implementation rewrites let-syntax and letrec-syntax
- as let and letrec respectively. For example,
-
- (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
-
- desugars as
-
- (let ((foo [SchemeMacro object wrapped in a Datum])) ...)
-
- When this macro use is matched against the definition of let,
- the wrapped SchemeMacro object will be added to the TemplateBindings
- correctly. The problem arises during transcription: we cannot insert
- the wrapped SchemeMacro object directly into the new parse tree,
- because that parse tree will be handed to the parser, which won't know
- what to do with SchemeMacros.
-
- Indirection comes to the rescue. We insert a new identifier node and
- bind it in the current environment to the SchemeMacro. Later, on
- the trampoline, we will look up the value of that identifier and
- find the SchemeMacro as desired.
-
- We have to set the isLetOrLetrecSyntax flag on the macro to disallow
- this behavior from the programmer. We cannot allow her to write
-
- (let ((x let*)) x) */
-SchemeMacro.prototype.setIsLetOrLetrecSyntax = function() {
+/**
+ * Workaround for let-syntax and letrec-syntax.
+ * This implementation rewrites let-syntax and letrec-syntax
+ * as let and letrec respectively. For example,
+ *
+ * (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
+ *
+ * desugars as
+ *
+ * (let ((foo [SchemeMacro object wrapped in a Datum])) ...)
+ *
+ * When this macro use is matched against the definition of let,
+ * the wrapped SchemeMacro object will be added to the TemplateBindings
+ * correctly. The problem arises during transcription: we cannot insert
+ * the wrapped SchemeMacro object directly into the new parse tree,
+ * because that parse tree will be handed to the parser, which won't know
+ * what to do with SchemeMacros.
+ *
+ * Indirection comes to the rescue. We insert a new identifier node and
+ * bind it in the current environment to the SchemeMacro. Later, on
+ * the trampoline, we will look up the value of that identifier and
+ * find the SchemeMacro as desired.
+ *
+ * We have to set the isLetOrLetrecSyntax flag on the macro to disallow
+ * this behavior from the programmer. We cannot allow her to write
+ *
+ * (let ((x let*)) x)
+ *
+ * @return {!r5js.Macro} This object.
+ */
+r5js.Macro.prototype.setIsLetOrLetrecSyntax = function() {
     this.isLetOrLetrecSyntax = true;
     return this;
 };
 
-/* Should only be used during interpreter bootstrapping. */
-SchemeMacro.prototype.clone = function(newDefinitionEnv) {
-    var ans = new SchemeMacro(this.literalIdentifiers, null, newDefinitionEnv);
+/**
+ * Should only be used during interpreter bootstrapping.
+ * @return {!r5js.Macro} A clone of this macro.
+ * TODO bl: this is almost certainly a bug. The types of the parameters
+ * passed in to the constructor in this method seem to be different than
+ * the types of the parameters passed in the only other use of the constructor
+ * (in the parser). Yet removing this method and changing its callers to
+ * use the uncloned Macro cause tests to fail.
+ * @suppress {checkTypes}
+ */
+r5js.Macro.prototype.clone = function(newDefinitionEnv) {
+    var ans = new r5js.Macro(this.literalIdentifiers, null, newDefinitionEnv);
     ans.transformers = this.transformers;
     return ans;
 };
 
-SchemeMacro.prototype.allPatternsBeginWith = function(kw) {
-    for (var i = 0; i < this.transformers.length; ++i)
-        if (this.transformers[i].getName() !== kw)
+
+/**
+ * @param {string} kw Keyword to test for.
+ * @return {boolean} True iff all of the macro's patterns begin with kw.
+ */
+r5js.Macro.prototype.allPatternsBeginWith = function(kw) {
+    for (var i = 0; i < this.transformers.length; ++i) {
+        if (this.transformers[i].getName() !== kw) {
             return false;
+        }
+    }
     return true;
 };
 
-SchemeMacro.prototype.transcribe = function(datum, useEnv) {
+
+/**
+ * @param {!r5js.Datum} datum
+ * @param {!r5js.IEnvironment} useEnv
+ * @returns {?} TODO bl
+ */
+r5js.Macro.prototype.transcribe = function(datum, useEnv) {
     var transformer, bindings, newDatumTree;
     for (var i = 0; i < this.transformers.length; ++i) {
         transformer = this.transformers[i];
@@ -126,7 +167,7 @@ SchemeMacro.prototype.transcribe = function(datum, useEnv) {
              which is the most complex case I've tried so far. */
             var toRename = {};
             for (var id in transformer.templateRenameCandidates) {
-                if (this.definitionEnv.hasBindingRecursive(id))
+                if (this.definitionEnv.hasBindingRecursive(id, false))
                     useEnv.addBinding(id, this.definitionEnv);
                 else if (!isParserSensitiveId(id)) {
                     var tmpName = newCpsName();
@@ -137,7 +178,7 @@ SchemeMacro.prototype.transcribe = function(datum, useEnv) {
                      the binding here. See the logic at the end of
                      TemplateBindings.prototype.addTemplateBinding. */
                     if (bindings.wasRenamed(id)
-                        && useEnv.hasBindingRecursive(id)) {
+                        && useEnv.hasBindingRecursive(id, false)) {
                         useEnv.addBinding(tmpName, useEnv.get(id));
                     }
                 }

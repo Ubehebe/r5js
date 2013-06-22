@@ -20,6 +20,7 @@ goog.provide('r5js.Datum');
 
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.RenameHelper');
+goog.require('r5js.Macro');
 goog.require('r5js.SiblingBuffer');
 
 /**
@@ -53,7 +54,7 @@ r5js.Datum.prototype.type;
 /**
  * TODO bl: this is out of control. Create an interface and have each
  * type implement it (or wrap them, in the case of JavaScript primitives).
- * @typedef {Array|boolean|Function|number|Object|r5js.Datum|SchemeMacro|SchemeProcedure|string}
+ * @typedef {Array|boolean|Function|number|Object|r5js.Datum|r5js.Macro|SchemeProcedure|string}
  */
 r5js.PayloadType;
 
@@ -511,7 +512,7 @@ r5js.Datum.prototype.maybeDeref = function () {
 
 /**
  *
- * @param {!SchemeMacro} macro Macro object.
+ * @param {!r5js.Macro} macro Macro object.
  * @return {!r5js.Datum} New Datum representing the given macro.
  */
 function newMacroDatum(macro) {
@@ -522,10 +523,10 @@ function newMacroDatum(macro) {
 }
 
 /**
- * @return {*} TODO bl
+ * @return {r5js.Macro} TODO bl
  */
 r5js.Datum.prototype.getMacro = function() {
-    if (this.payload instanceof SchemeMacro) {
+    if (this.payload instanceof r5js.Macro) {
         return this.payload.setIsLetOrLetrecSyntax();
     } else {
         throw new r5js.InternalInterpreterError('invariant incorrect');
@@ -631,7 +632,7 @@ function maybeWrapResult(result, type) {
     if (result === null
         || result instanceof r5js.Datum
         || result instanceof Continuation
-        || result instanceof SchemeMacro
+        || result instanceof r5js.Macro
         || result instanceof JsObjOrMethod /* JS interop (experimental) */) {
         return result; // no-op, strictly for convenience
     }
@@ -1155,7 +1156,7 @@ r5js.Datum.prototype.desugarMacroBlock = function(env, operatorName) {
 
     for (var spec = this.at('(').firstChild; spec; spec = spec.nextSibling) {
         var kw = spec.at('keyword').clone();
-        var macro = /** @type {!SchemeMacro} */ (spec.at('transformer-spec').desugar(env));
+        var macro = /** @type {!r5js.Macro} */ (spec.at('transformer-spec').desugar(env));
         var buf = new r5js.SiblingBuffer();
         /* We have to wrap the SchemeMacro object in a Datum to get it into
             the parse tree. */
