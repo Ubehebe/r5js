@@ -360,7 +360,7 @@ r5js.ProcCall.prototype.isSpecialOperator = function() {
 /**
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
- * @param {!EnvBuffer} envBuffer
+ * @param {!r5js.EnvBuffer} envBuffer
  * @returns {*}
  */
 r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
@@ -368,7 +368,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, en
     /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
     if (!this.env) {
-        this.setEnv(envBuffer.env);
+        this.setEnv(/** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()));
     }
 
     var specialOp = this.isSpecialOperator();
@@ -395,7 +395,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, en
 
     /* Save the environment we used in case the next action on the trampoline
      needs it (for example branches, which have no environment of their own). */
-    envBuffer.setEnv(this.env);
+    envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.env));
 
     // We shouldn't leave the environment pointer hanging around.
     this.clearEnv();

@@ -17,6 +17,7 @@
 goog.provide('r5js.tmp.trampoline');
 
 
+goog.require('r5js.EnvBuffer');
 goog.require('r5js.TrampolineHelper');
 
 /* This is the main evaluation function.
@@ -104,7 +105,7 @@ function trampoline(continuable, inputPort, outputPort, debug) {
 
     var cur = continuable;
     var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
-    var savedEnv = new EnvBuffer();
+    var savedEnv = new r5js.EnvBuffer();
     var ans;
 
     /* The debug check is hoisted out of the while loop because this

@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.env_buffer');
+goog.provide('r5js.EnvBuffer');
 
 /* Just a pointer to an environment. It's separate from the
  TrampolineResultStruct to make it clear that old environments are only
@@ -23,14 +23,35 @@ goog.provide('r5js.tmp.env_buffer');
 /**
  * @constructor
  */
-function EnvBuffer() {
-    this.env = null;
-}
+r5js.EnvBuffer = function() {};
 
-EnvBuffer.prototype.setEnv = function(env) {
-    this.env = env;
+/**
+ * @type {r5js.IEnvironment}
+ * @private
+ */
+r5js.EnvBuffer.prototype.env_;
+
+
+/**
+ * @return {r5js.IEnvironment} The environment, if any was set.
+ */
+r5js.EnvBuffer.prototype.getEnv = function() {
+    return this.env_;
 };
 
-EnvBuffer.prototype.get = function(name) {
-    return this.env.get(name);
+
+/**
+ * @param {!r5js.IEnvironment} env Environment to set.
+ */
+r5js.EnvBuffer.prototype.setEnv = function(env) {
+    this.env_ = env;
+};
+
+/**
+ * @param {string} name Name to look up.
+ * @return {!r5js.PayloadType} The name's value.
+ * TODO bl: this is really non-nullable?
+ */
+r5js.EnvBuffer.prototype.get = function(name) {
+    return this.env_.get(name);
 };
