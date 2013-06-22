@@ -20,7 +20,9 @@ goog.provide('r5js.tmp.boot');
 goog.require('r5js.Environment');
 goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
+goog.require('r5js.trampoline');
 
+/** @suppress {undefinedVars} for console.log */
 function bootstrap(syntaxLib, procLib) {
     nullEnv = new r5js.Environment('null-environment-5', null);
     install(syntaxLib, nullEnv);
@@ -63,7 +65,7 @@ function bootstrap(syntaxLib, procLib) {
 }
 
 function install(lib, env) {
-    return trampoline(
+    return r5js.trampoline(
         new Parser(
             new r5js.Reader(
                 new Scanner(lib)
@@ -72,7 +74,7 @@ function install(lib, env) {
             .desugar(env).setStartingEnv(env),
         null,
         null,
-        null
+        false
     );
 }
 

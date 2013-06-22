@@ -22,6 +22,7 @@ goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.Environment');
 goog.require('r5js.ParseError');
 goog.require('r5js.Reader');
+goog.require('r5js.trampoline');
 
 /**
  * @implements {r5js.IPipeline}
@@ -63,7 +64,7 @@ Pipeline.prototype.desugar = function(root, replMode) {
 
 /** @override */
 Pipeline.prototype.Eval = function(continuable, onOutput) {
-    return trampoline(
+    return r5js.trampoline(
         continuable,
         null,
         onOutput && new r5js.CallbackBackedPort(onOutput),

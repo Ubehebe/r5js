@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.trampoline');
+goog.provide('r5js.trampoline');
 
 
 goog.require('r5js.EnvBuffer');
@@ -100,8 +100,12 @@ goog.require('r5js.TrampolineHelper');
 /**
  * @suppress {undefinedVars} For console.
  * TODO bl: remove the @suppress.
+ * @param {!r5js.Continuable} continuable The continuable object to evaluate.
+ * @param {r5js.Port} inputPort The input port, if any.
+ * @param {r5js.Port} outputPort The output port, if any.
+ * @param {boolean} debug If true, enable debugging features.
  */
-function trampoline(continuable, inputPort, outputPort, debug) {
+r5js.trampoline = function(continuable, inputPort, outputPort, debug) {
 
     var cur = continuable;
     var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);

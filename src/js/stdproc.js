@@ -32,6 +32,7 @@ goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
+goog.require('r5js.trampoline');
 goog.require('r5js.UnimplementedOptionError');
 
 var R5JS_builtins = {};
@@ -1210,7 +1211,7 @@ R5JS_builtins['eval'] = {
                 if (!parsed)
                     throw new r5js.ParseError(expr);
                 var continuable = parsed.desugar(env).setStartingEnv(env);
-                return trampoline(continuable, null, null, debug);
+                return r5js.trampoline(continuable, null, null, debug);
             }
         }
     },

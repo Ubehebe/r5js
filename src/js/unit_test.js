@@ -22,6 +22,7 @@ goog.provide('r5js.test.scanner');
 goog.require('r5js.Datum');
 goog.require('r5js.Reader');
 
+/** @suppress {undefinedVars} for console */
 r5js.test.scanner = function() {
 
     if (!Function('return "console" in this;')())
