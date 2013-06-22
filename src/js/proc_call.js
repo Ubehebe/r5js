@@ -17,6 +17,7 @@
 goog.provide('r5js.ProcCall');
 
 
+goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
@@ -289,7 +290,7 @@ r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
  */
 r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
 
-    var newCallChain = new ContinuableHelper();
+    var newCallChain = new r5js.ContinuableHelper();
     var finalArgs = new r5js.SiblingBuffer();
     var maybeContinuable;
 

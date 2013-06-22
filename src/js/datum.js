@@ -19,6 +19,7 @@ goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 
 
+goog.require('r5js.ContinuableHelper');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.Macro');
@@ -933,7 +934,7 @@ var cpsPrefix = '@';
  */
 r5js.Datum.prototype.processQuasiquote = function(env, cpsName) {
 
-    var newCalls = new ContinuableHelper();
+    var newCalls = new r5js.ContinuableHelper();
 
     var qqLevel = this.qqLevel;
 

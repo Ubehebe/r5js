@@ -14,29 +14,47 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.continuable_helper');
+goog.provide('r5js.ContinuableHelper');
 
 /**
- * Just a buffer to accumulate a Continuable-Continuation chain
- * without the client having to do the pointer arithmetic.
+ * A buffer to accumulate a Continuable-Continuation chain
+ * without the caller having to do the pointer arithmetic.
  * @constructor
  */
-function ContinuableHelper() {
-    // this.firstContinuable;
-    // this.lastContinuable;
-}
+r5js.ContinuableHelper = function() {};
 
-ContinuableHelper.prototype.appendContinuable = function(continuable) {
 
-    if (!this.firstContinuable) {
-        this.firstContinuable = continuable;
-        this.lastContinuable = continuable.getLastContinuable();
+/**
+ * @type {Continuable}
+ * @private
+ */
+r5js.ContinuableHelper.prototype.firstContinuable_;
+
+
+/**
+ * @type {Continuable}
+ * @private
+ */
+r5js.ContinuableHelper.prototype.lastContinuable_;
+
+
+/**
+ * @param {!Continuable} continuable A continuable object.
+ */
+r5js.ContinuableHelper.prototype.appendContinuable = function(continuable) {
+
+    if (!this.firstContinuable_) {
+        this.firstContinuable_ = continuable;
+        this.lastContinuable_ = continuable.getLastContinuable();
     } else {
-        this.lastContinuable.continuation.nextContinuable = continuable;
-        this.lastContinuable = continuable.getLastContinuable();
+        this.lastContinuable_.continuation.nextContinuable = continuable;
+        this.lastContinuable_ = continuable.getLastContinuable();
     }
 };
 
-ContinuableHelper.prototype.toContinuable = function() {
-    return this.firstContinuable;
+/**
+ * @return {Continuable}
+ */
+r5js.ContinuableHelper.prototype.toContinuable = function() {
+    return this.firstContinuable_;
 };
