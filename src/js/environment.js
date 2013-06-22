@@ -360,5 +360,5 @@ r5js.RootEnvironment.prototype.newChildEnv = function(name) {
  * @return {!r5js.Datum} A new datum representing the given environment.
  */
 function newEnvironmentSpecifier(version) {
-    return newIdOrLiteral(new r5js.Environment('', version), 'environment-specifier');
+    return r5js.data.newIdOrLiteral(new r5js.Environment('', version), 'environment-specifier');
 }

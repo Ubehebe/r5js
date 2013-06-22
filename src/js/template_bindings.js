@@ -16,6 +16,7 @@
 
 goog.provide('r5js.TemplateBindings');
 
+// TODO bl circular dependency! goog.require('r5js.data');
 goog.require('r5js.InternalInterpreterError');
 
 /**
@@ -126,7 +127,7 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
         // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
         var fakeName = newCpsName();
         this.letSyntaxEnv.addBinding(fakeName, val.getMacro());
-        this.bindings[name] = newIdOrLiteral(fakeName);
+        this.bindings[name] = r5js.data.newIdOrLiteral(fakeName);
     }
     else {
         this.bindings[name] = val;

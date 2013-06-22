@@ -606,7 +606,7 @@ R5JS_builtins['number'] = {
         argc: 1,
         argtypes: 'number',
         proc: function(x) {
-            return newIdOrLiteral(x + '', 'string');
+            return r5js.data.newIdOrLiteral(x + '', 'string');
         }
     },
     'string->number': {
@@ -718,7 +718,7 @@ R5JS_builtins['symbol'] = {
         argc: 1,
         argtypes: ['symbol'],
         proc: function(sym) {
-            return newIdOrLiteral(sym, 'string').setImmutable();
+            return r5js.data.newIdOrLiteral(sym, 'string').setImmutable();
         }
     },
 
@@ -726,7 +726,7 @@ R5JS_builtins['symbol'] = {
         argc: 1,
         argtypes: ['string'],
         proc: function(node) {
-            return newIdOrLiteral(node.payload, 'identifier');
+            return r5js.data.newIdOrLiteral(node.payload, 'identifier');
         }
     }
 };
@@ -779,21 +779,21 @@ R5JS_builtins['char'] = {
         argc: 1,
         argtypes: ['number'],
         proc: function(i) {
-            return newIdOrLiteral(String.fromCharCode(i), 'character');
+            return r5js.data.newIdOrLiteral(String.fromCharCode(i), 'character');
         }
     },
     'char-upcase': {
         argc: 1,
         argtypes: ['char'],
         proc: function(node) {
-            return newIdOrLiteral(node.payload.toUpperCase(), 'character');
+            return r5js.data.newIdOrLiteral(node.payload.toUpperCase(), 'character');
         }
     },
     'char-downcase': {
         argc: 1,
         argtypes: ['char'],
         proc: function(node) {
-            return newIdOrLiteral(node.payload.toLowerCase(), 'character');
+            return r5js.data.newIdOrLiteral(node.payload.toLowerCase(), 'character');
         }
     }
 };
@@ -811,7 +811,7 @@ R5JS_builtins['string'] = {
             var s = '';
             for (var i = 0; i < n; ++i)
                 s += c;
-            return newIdOrLiteral(s, 'string');
+            return r5js.data.newIdOrLiteral(s, 'string');
         }
     },
     'string-length': {
@@ -825,7 +825,7 @@ R5JS_builtins['string'] = {
         argc: 2,
         argtypes: ['string', 'number'],
         proc: function(node, i) {
-            return newIdOrLiteral(node.payload.charAt(i), 'character');
+            return r5js.data.newIdOrLiteral(node.payload.charAt(i), 'character');
         }
     },
     'string-set!': {
@@ -878,7 +878,7 @@ R5JS_builtins['vector'] = {
              contents of each element is unspecified."
 
              False seems like a good default. */
-            fill = fill || newIdOrLiteral(false, 'boolean');
+            fill = fill || r5js.data.newIdOrLiteral(false, 'boolean');
             var buf = [];
             for (var i = 0; i < n; ++i)
                 buf.push(fill.clone());
@@ -949,7 +949,7 @@ R5JS_builtins['control'] = {
             var curProcCall = arguments[arguments.length - 3];
             /* todo bl: very little idea what's going on here, but we seem to
              use both sources of procName. */
-            var procName = newIdOrLiteral(curProcCall.firstOperand.payload || mustBeProc.name);
+            var procName = r5js.data.newIdOrLiteral(curProcCall.firstOperand.payload || mustBeProc.name);
             var continuation = arguments[arguments.length - 2];
             var resultStruct = arguments[arguments.length - 1];
 
@@ -1076,7 +1076,7 @@ R5JS_builtins['control'] = {
             producerCall.setStartingEnv(procCall.env);
             var consumerCall = r5js.data.newProcCall(
                 procCall.firstOperand.nextSibling,
-                newIdOrLiteral(valuesName),
+                r5js.data.newIdOrLiteral(valuesName),
                 continuation);
             consumerCall.setStartingEnv(procCall.env);
             producerContinuation.nextContinuable = consumerCall;
@@ -1138,7 +1138,7 @@ R5JS_builtins['control'] = {
             );
 
             var result = newCpsName();
-            procCallAfter.appendContinuable(newIdShim(newIdOrLiteral(result), newCpsName()));
+            procCallAfter.appendContinuable(newIdShim(r5js.data.newIdOrLiteral(result), newCpsName()));
             procCallAfter.getLastContinuable().continuation = continuation;
 
             var procCallThunk = r5js.data.newProcCall(
@@ -1190,7 +1190,7 @@ R5JS_builtins['eval'] = {
              escape into the parser? */
 
             if (expr && expr.isProcedure())
-                return newIdOrLiteral(expr.name);
+                return r5js.data.newIdOrLiteral(expr.name);
 
             else {
                 /* Call the parse/desugar/eval portions of the interpreter
@@ -1322,7 +1322,7 @@ R5JS_builtins['io'] = {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
                     return inputPort;
-                } else return newIdOrLiteral(inputPort.payload['readChar'](), 'character');
+                } else return r5js.data.newIdOrLiteral(inputPort.payload['readChar'](), 'character');
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
     },
@@ -1340,7 +1340,7 @@ R5JS_builtins['io'] = {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
                     return inputPort;
-                } else return newIdOrLiteral(inputPort.payload['peekChar'](), 'character');
+                } else return r5js.data.newIdOrLiteral(inputPort.payload['peekChar'](), 'character');
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
     },

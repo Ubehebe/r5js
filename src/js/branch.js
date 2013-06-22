@@ -42,7 +42,7 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
      would activate the default type, identifier, which would change the
      semantics. */
     this.alternate = alternateContinuable
-        || newIdShim(newIdOrLiteral(null, 'number'), newCpsName());
+        || newIdShim(r5js.data.newIdOrLiteral(null, 'number'), newCpsName());
     this.consequentLastContinuable = this.consequent.getLastContinuable();
     this.alternateLastContinuable = this.alternate.getLastContinuable();
 }

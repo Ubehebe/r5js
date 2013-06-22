@@ -16,6 +16,7 @@
 
 goog.provide('r5js.tmp.parse');
 
+goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdOrLiteralTransformer');
@@ -26,7 +27,6 @@ goog.require('r5js.MacroError');
 goog.require('r5js.Procedure');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.Macro');
-goog.require('r5js.data');
 
 
 /* todo bl: this file should not exist.
@@ -559,7 +559,7 @@ Parser.prototype['procedure-call'] = function() {
                 var lastContinuation = desugaredOp.getLastContinuable().continuation;
                 var opName = lastContinuation.lastResultName;
                 lastContinuation.nextContinuable = r5js.data.newProcCall(
-                    newIdOrLiteral(opName),
+                    r5js.data.newIdOrLiteral(opName),
                     operands,
                     new Continuation(newCpsName()));
                 return desugaredOp;
@@ -625,7 +625,7 @@ Parser.prototype['lambda-expression'] = function() {
             env.addClosure(
                 name,
                 new r5js.Procedure(formals, treatAsDotted, formalRoot.nextSibling, env, name));
-            return newIdShim(newIdOrLiteral(name), newCpsName());
+            return newIdShim(r5js.data.newIdOrLiteral(name), newCpsName());
         }
         }
     );
@@ -808,7 +808,7 @@ Parser.prototype['conditional'] = function() {
 
                 var testEndpoint = test.getLastContinuable();
 
-                var testName = newIdOrLiteral(testEndpoint.continuation.lastResultName);
+                var testName = r5js.data.newIdOrLiteral(testEndpoint.continuation.lastResultName);
                 var branch = newBranch(testName, consequent, alternate, new Continuation(newCpsName()));
                 testEndpoint.continuation.nextContinuable = branch;
                 return test;
@@ -827,7 +827,7 @@ Parser.prototype['conditional'] = function() {
 
                 var testEndpoint = test.getLastContinuable();
 
-                var testName = newIdOrLiteral(testEndpoint.continuation.lastResultName);
+                var testName = r5js.data.newIdOrLiteral(testEndpoint.continuation.lastResultName);
                 var branch = newBranch(testName, consequent, null, new Continuation(newCpsName()));
                 testEndpoint.continuation.nextContinuable = branch;
                 return test;

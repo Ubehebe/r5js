@@ -17,6 +17,7 @@
 goog.provide('r5js.Procedure');
 
 
+goog.require('r5js.data');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.SiblingBuffer');
@@ -72,7 +73,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, name) {
             var letrec = newEmptyList();
             letrec.firstChild = letrecBindings.toSiblings();
             letrec.nextSibling = cur;
-            this.body = r5js.data.newProcCall(newIdOrLiteral('letrec'), letrec, new Continuation(newCpsName()));
+            this.body = r5js.data.newProcCall(r5js.data.newIdOrLiteral('letrec'), letrec, new Continuation(newCpsName()));
         }
 
         this.lastContinuable = this.body.getLastContinuable();

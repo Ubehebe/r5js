@@ -198,19 +198,7 @@ function newEmptyList() {
     return ans;
 }
 
-/**
- * @param {!r5js.PayloadType} payload
- * @param {string=} type The type of the Datum.
- * If not given, defaults to 'identifier'.
- * @return {!r5js.Datum} New Datum of given type with given payload.
- */
-function newIdOrLiteral(payload, type) {
-    // todo bl: we're sometimes creating these with undefined payloads! Investigate.
-    var ans = new r5js.Datum();
-    ans.type = type || 'identifier';
-    ans.payload = payload;
-    return ans;
-}
+
 
 /**
  * @return {boolean} True iff this Datum represents an empty list.
@@ -961,7 +949,7 @@ r5js.Datum.prototype.processQuasiquote = function(env, cpsName) {
              unquotation or unquotation with splicing. */
             continuation.lastResultName = node.type + (uniqueNodeCounter++);
             newCalls.appendContinuable(asContinuable);
-            return newIdOrLiteral(/** @type {string} */ (
+            return r5js.data.newIdOrLiteral(/** @type {string} */ (
                 continuation.lastResultName));
         });
 
@@ -1009,11 +997,11 @@ r5js.Datum.prototype.extractDefinition = function() {
         var newFormalsList = formalsList;
         newFormalsList.firstChild = newFormalsList.firstChild.nextSibling;
         if (newFormalsList.isImproperList() && !newFormalsList.firstChild.nextSibling) {
-            lambda.prependChild(newIdOrLiteral(newFormalsList.firstChild.payload));
+            lambda.prependChild(r5js.data.newIdOrLiteral(newFormalsList.firstChild.payload));
         } else {
             lambda.prependChild(newFormalsList);
         }
-        lambda.prependChild(newIdOrLiteral('lambda'));
+        lambda.prependChild(r5js.data.newIdOrLiteral('lambda'));
         list.prependChild(lambda);
     }
     list.prependChild(variable);
@@ -1074,7 +1062,7 @@ r5js.Datum.prototype.desugarMacroBlock = function(env, operatorName) {
     _let.appendSibling(letBindings.toList());
     _let.appendSibling(this.at('(').nextSibling);
 
-    return r5js.data.newProcCall(newIdOrLiteral(operatorName), _let.toSiblings(), new Continuation(newCpsName()));
+    return r5js.data.newProcCall(r5js.data.newIdOrLiteral(operatorName), _let.toSiblings(), new Continuation(newCpsName()));
 };
 
 /**
@@ -1189,6 +1177,21 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
  * Convenience functions for manipulating {@link r5js.Datum} objects.
  */
 r5js.data = {};
+
+
+/**
+ * @param {r5js.PayloadType} payload
+ * @param {string=} type The type of the Datum.
+ * If not given, defaults to 'identifier'.
+ * @return {!r5js.Datum} New Datum of given type with given payload.
+ */
+r5js.data.newIdOrLiteral = function(payload, type) {
+    // todo bl: we're sometimes creating these with undefined payloads! Investigate.
+    var ans = new r5js.Datum();
+    ans.type = type || 'identifier';
+    ans.payload = payload;
+    return ans;
+};
 
 
 /**
