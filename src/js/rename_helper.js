@@ -24,8 +24,9 @@ goog.provide('r5js.RenameHelper');
 r5js.RenameHelper = function(parent) {
     /**
      * @type {!Object.<string, string>}
+     * @private
      */
-    this.bindings = {};
+    this.bindings_ = {};
 
     /**
      * @type {?}
@@ -39,7 +40,7 @@ r5js.RenameHelper = function(parent) {
  */
 r5js.RenameHelper.prototype.addRenameBinding = function(from) {
     var to = newCpsName();
-    this.bindings[from] = to;
+    this.bindings_[from] = to;
     return to;
 };
 
@@ -50,7 +51,7 @@ r5js.RenameHelper.prototype.addRenameBinding = function(from) {
  * has no such binding.
  */
 r5js.RenameHelper.prototype.getRenameBinding = function(name) {
-    var maybe = this.bindings[name];
+    var maybe = this.bindings_[name];
     if (maybe) {
         return maybe;
     } else if (this.parent) {
@@ -65,7 +66,7 @@ r5js.RenameHelper.prototype.getRenameBinding = function(name) {
  * @return {boolean} True iff the helper was used.
  */
 r5js.RenameHelper.prototype.wasUsed = function() {
-    for (var name in this.bindings) {
+    for (var name in this.bindings_) {
         return true;
     }
     return false;
