@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.boot');
 
 
 goog.require('r5js.Environment');
+goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
 
 function bootstrap(syntaxLib, procLib) {
@@ -64,7 +65,7 @@ function bootstrap(syntaxLib, procLib) {
 function install(lib, env) {
     return trampoline(
         new Parser(
-            new Reader(
+            new r5js.Reader(
                 new Scanner(lib)
             ).read()
         ).parse(null)

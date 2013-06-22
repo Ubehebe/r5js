@@ -20,6 +20,7 @@ goog.provide('r5js.tmp.pipeline');
 
 goog.require('r5js.Environment');
 goog.require('r5js.ParseError');
+goog.require('r5js.Reader');
 
 /**
  * @implements {r5js.IPipeline}
@@ -40,7 +41,7 @@ Pipeline.prototype.scan = function(string) {
 
 /** @override */
 Pipeline.prototype.read = function(scanner) {
-    return new Reader(scanner).read();
+    return new r5js.Reader(scanner).read();
 };
 
 /** @override */

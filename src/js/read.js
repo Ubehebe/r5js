@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.read');
+goog.provide('r5js.Reader');
 
 
 goog.require('r5js.Datum');
@@ -22,17 +22,34 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
 
 /**
+ * @param {!Scanner} scanner The scanner.
  * @constructor
  */
-function Reader(scanner) {
+r5js.Reader = function(scanner) {
+    /**
+     * @type {!Scanner}
+     */
     this.scanner = scanner;
-    this.readyTokens = [];
-    this.nextTokenToReturn = 0;
-    this.errorToken = null;
-    this.errorMsg = '';
-}
 
-Reader.prototype.nextToken = function() {
+    /**
+     * @type {!Array} TODO bl narrow generic type.
+     */
+    this.readyTokens = [];
+
+    /**
+     * @type {number}
+     */
+    this.nextTokenToReturn = 0;
+
+    this.errorToken = null;
+
+    /**
+     * @type {string}
+     */
+    this.errorMsg = '';
+};
+
+r5js.Reader.prototype.nextToken = function() {
     while (this.nextTokenToReturn >= this.readyTokens.length) {
         var token = this.scanner.nextToken();
         if (!token)
@@ -42,7 +59,7 @@ Reader.prototype.nextToken = function() {
     return this.readyTokens[this.nextTokenToReturn++];
 };
 
-Reader.prototype.assertNextTokenType = function(type) {
+r5js.Reader.prototype.assertNextTokenType = function(type) {
     var token = this.nextToken();
     if (!token) {
         this.errorMsg = 'eof';
@@ -61,7 +78,7 @@ Reader.prototype.assertNextTokenType = function(type) {
  * @param {...*} var_args
  * @return {r5js.Datum} TODO bl
  */
-Reader.prototype.rhs = function(var_args) {
+r5js.Reader.prototype.rhs = function(var_args) {
     var ansDatum = new r5js.Datum();
     var parseFunction;
     var tokenStreamStart = this.nextTokenToReturn;
@@ -80,7 +97,7 @@ Reader.prototype.rhs = function(var_args) {
     return ansDatum;
 };
 
-Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
+r5js.Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
 
     // Handle * and +
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
@@ -123,7 +140,7 @@ Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
     }
 };
 
-Reader.prototype.onTerminal = function(ansDatum, element) {
+r5js.Reader.prototype.onTerminal = function(ansDatum, element) {
     var token = this.assertNextTokenType(element.type);
     if (token) {
         if (token.payload !== undefined) { // watch out for 0 and false!
@@ -138,7 +155,7 @@ Reader.prototype.onTerminal = function(ansDatum, element) {
  * @param {...*} var_args
  * TODO bl: narrow the signature.
  */
-Reader.prototype.alternation = function(var_args) {
+r5js.Reader.prototype.alternation = function(var_args) {
     var possibleRhs;
     // The most informative error is probably the failed parse
     // that got furthest through the input.
@@ -156,7 +173,9 @@ Reader.prototype.alternation = function(var_args) {
     }
 
     this.errorToken = mostInformativeErrorToken;
-    this.errorMsg = mostInformationErrorMsg;
+    if (mostInformationErrorMsg) {
+        this.errorMsg = mostInformationErrorMsg;
+    }
     return null;
 };
 
@@ -168,7 +187,7 @@ Reader.prototype.alternation = function(var_args) {
 // <vector> -> #(<datum>*)
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
-Reader.prototype['datum'] = function() {
+r5js.Reader.prototype['datum'] = function() {
     return this.alternation(
         [
             {type: 'identifier'}
@@ -220,11 +239,11 @@ Reader.prototype['datum'] = function() {
         ]);
 };
 
-Reader.prototype['datums'] = function() {
+r5js.Reader.prototype['datums'] = function() {
     return this.rhs({type: 'datum', name: 'datums', atLeast: 0});
 };
 
-Reader.prototype.read = function() {
+r5js.Reader.prototype.read = function() {
     var datums = this['datums']();
     if (datums.firstChild)
         datums.firstChild.lastSibling().parent = null;
@@ -232,7 +251,7 @@ Reader.prototype.read = function() {
 };
 
 /**
- * This is the inverse of {@link Reader.read}, which is why it's here.
+ * This is the inverse of {@link r5js.Reader.read}, which is why it's here.
  * @param {!r5js.OutputMode} outputMode Desired output mode.
  * @return {string} String representation for desired output mode.
  */
