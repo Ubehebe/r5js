@@ -13,26 +13,31 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.tmp.branch');
+goog.provide('r5js.Branch');
 
 
 goog.require('r5js.Continuable');
 goog.require('r5js.data');
-goog.require('r5js.ProcCall');
 
 
 function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
     return new r5js.Continuable(
-        new Branch(testIdOrLiteral, consequentContinuable, alternateContinuable),
+        new r5js.Branch(
+            testIdOrLiteral,
+            consequentContinuable,
+            alternateContinuable
+        ),
         continuation
     );
 }
 
-// For composition; should only be called from newBranch
+
 /**
  * @constructor
+ * @private
  */
-function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
+r5js.Branch = function(
+    testIdOrLiteral, consequentContinuable, alternateContinuable) {
     this.test = testIdOrLiteral;
     this.consequent = consequentContinuable;
     /* If there's no alternate given, we create a shim that will return
@@ -47,7 +52,7 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
         || newIdShim(r5js.data.newIdOrLiteral(null, 'number'), newCpsName());
     this.consequentLastContinuable = this.consequent.getLastContinuable();
     this.alternateLastContinuable = this.alternate.getLastContinuable();
-}
+};
 
 /**
  * @param {!r5js.Continuation} continuation
@@ -55,7 +60,8 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
  * @param {!EnvBuffer} envBuffer
  * @returns {*}
  */
-Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
+r5js.Branch.prototype.evalAndAdvance = function(
+    continuation, resultStruct, envBuffer) {
 
     /* Branches always use the old environment left by the previous action
     on the trampoline. */
@@ -66,25 +72,24 @@ Branch.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;
         /* We must clear the environment off the non-taken branch.
-         See comment at Continuation.prototype.rememberEnv. */
-        if (this.consequent.subtype instanceof r5js.ProcCall) {
-            this.consequent.subtype.clearEnv();
-        }
+         See comment at {@link r5js.Continuation.rememberEnv}.
+         TODO bl: clearEnv is defined only on {@link r5js.ProcCall},
+         yet all of the tests pass. This suggests either test coverage
+         is insufficient or that I don't understand the type of subtype. */
+        this.consequent.subtype.clearEnv();
     } else {
         this.consequentLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.consequent;
         /* We must clear the environment off the non-taken branch.
-         See comment at Continuation.prototype.rememberEnv. */
-        if (this.alternate.subtype instanceof r5js.ProcCall) {
-            this.alternate.subtype.clearEnv();
-        }
+         See comment at {@link r5js.Continuation.rememberEnv}, and above. */
+        this.alternate.subtype.clearEnv();
     }
 
     return resultStruct;
 };
 
 // Just for debugging
-Branch.prototype.debugString = function(continuation, indentLevel) {
+r5js.Branch.prototype.debugString = function(continuation, indentLevel) {
 
     /* Don't print the continuations at the end of the branches;
      these are probably old and will be overwritten on the next

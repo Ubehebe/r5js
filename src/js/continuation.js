@@ -17,6 +17,7 @@
 goog.provide('r5js.Continuation');
 
 
+goog.require('r5js.Branch');
 goog.require('r5js.InternalInterpreterError');
 
 
@@ -93,7 +94,7 @@ r5js.Continuation.prototype.debugString = function(indentLevel) {
  * @return {?}
  * TODO bl: previously, this did an instanceof check on
  * this.nextContinuable.subtype and returned null if it wasn't
- * a {@link r5js.ProcCall} (in particular, if it was a {@link Branch}).
+ * a {@link r5js.ProcCall} (in particular, if it was a {@link r5js.Branch}).
  * The instanceof check caused an indirect circular dependency between
  * {@link r5js.Continuation} and {@link r5js.ProcCall}. This method
  * was the easiest way to break the cycle, as it had only one caller:
@@ -127,7 +128,7 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
          it off the non-taken branch. I'll save this for the next time I refactor
          ProcCalls and Branches. (The explicit "subtypes" suggest my command of
          prototypal inheritance wasn't great when I wrote this code.) */
-        else if (next instanceof Branch) {
+        else if (next instanceof r5js.Branch) {
             if (next.consequent.subtype instanceof r5js.ProcCall) {
                 next.consequent.subtype.maybeSetEnv(env);
             }
