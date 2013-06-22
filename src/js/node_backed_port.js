@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.node_backed_port');
+goog.provide('r5js.NodeBackedPort');
 
 
 goog.require('r5js.IOError');
@@ -26,16 +26,16 @@ goog.require('r5js.IOError');
  * @constructor
  * TODO bl: remove the @suppress annotations when Node interop is better.
  */
-function NodeBackedPort(filename, mode) {
+r5js.NodeBackedPort = function(filename, mode) {
 
     /* We set this inside the constructor instead of the usual way
      so that a ReferenceError isn't thrown during parsing. */
-    if (!NodeBackedPort.prototype.fsModule) {
+    if (!r5js.NodeBackedPort.prototype.fsModule) {
         try {
             /* Of course, require might be defined but do something other
              than what we expect, which is to import the filesystem module.
              We don't check for that. */
-            NodeBackedPort.prototype.fsModule = require('fs');
+            r5js.NodeBackedPort.prototype.fsModule = require('fs');
         } catch (re) {
             if (re instanceof ReferenceError) {
                 throw new r5js.IOError("the JavaScript environment lacks filesystem access required for this IO procedure. "
@@ -47,7 +47,7 @@ function NodeBackedPort(filename, mode) {
     this.fd = this.fsModule.openSync(filename, mode);
     this.size = this.fsModule.statSync(filename).size;
     this.offset = 0;
-}
+};
 
 /* We name the functions with string literals, not properties, to
  prevent the Google Closure Compiler from renaming them. See comments
@@ -59,34 +59,34 @@ function NodeBackedPort(filename, mode) {
  * @suppress {missingProperties} For fsModule.closeSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
-NodeBackedPort.prototype.close = function() {
+r5js.NodeBackedPort.prototype.close = function() {
     this.fsModule.closeSync(this.fd);
 };
 goog.exportSymbol(
-    'NodeBackedPort.prototype.close',
-    NodeBackedPort.prototype.close
+    'r5js.NodeBackedPort.prototype.close',
+    r5js.NodeBackedPort.prototype.close
 );
 
 
 /**
  * @override
   */
-NodeBackedPort.prototype.isCharReady = function() {
+r5js.NodeBackedPort.prototype.isCharReady = function() {
     return true;
 };
 goog.exportSymbol(
-    'NodeBackedPort.prototype.isCharReady',
-    NodeBackedPort.prototype.isCharReady
+    'r5js.NodeBackedPort.prototype.isCharReady',
+    r5js.NodeBackedPort.prototype.isCharReady
 );
 
 
 /** @override */
-NodeBackedPort.prototype.isEof = function() {
+r5js.NodeBackedPort.prototype.isEof = function() {
     return this.offset >= this.size;
 };
 goog.exportSymbol(
-    'NodeBackedPort.prototype.isEof',
-    NodeBackedPort.prototype.isEof
+    'r5js.NodeBackedPort.prototype.isEof',
+    r5js.NodeBackedPort.prototype.isEof
 );
 
 
@@ -95,14 +95,14 @@ goog.exportSymbol(
  * @suppress {missingProperties} For this.fsModule.readSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
-NodeBackedPort.prototype.peekChar = function() {
+r5js.NodeBackedPort.prototype.peekChar = function() {
     return this.isEof()
         ? this
         : this.fsModule.readSync(this.fd, 1, this.offset)[0];
 };
 goog.exportSymbol(
-    'NodeBackedPort.prototype.peekChar',
-    NodeBackedPort.prototype.peekChar
+    'r5js.NodeBackedPort.prototype.peekChar',
+    r5js.NodeBackedPort.prototype.peekChar
 );
 
 
@@ -111,23 +111,23 @@ goog.exportSymbol(
  * @suppress {missingProperties} For this.fsModule.readSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
-NodeBackedPort.prototype.readChar = function() {
+r5js.NodeBackedPort.prototype.readChar = function() {
     return this.isEof()
         ? this
         : this.fsModule.readSync(this.fd, 1, this.offset++)[0];
 };
 goog.exportSymbol(
-    'NodeBackedPort.prototype.readChar',
-    NodeBackedPort.prototype.readChar
+    'r5js.NodeBackedPort.prototype.readChar',
+    r5js.NodeBackedPort.prototype.readChar
 );
 
 /** @override */
-NodeBackedPort.prototype.toString = function() {
+r5js.NodeBackedPort.prototype.toString = function() {
     return String(this.fd);
 };
 goog.exportSymbol(
-    'NodeBackedPort.prototype.toString',
-    NodeBackedPort.prototype.toString
+    'r5js.NodeBackedPort.prototype.toString',
+    r5js.NodeBackedPort.prototype.toString
 );
 
 /**
@@ -135,12 +135,12 @@ goog.exportSymbol(
  * @suppress {missingProperties} For this.fsModule.writeSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
-NodeBackedPort.prototype.write = function(str) {
+r5js.NodeBackedPort.prototype.write = function(str) {
     this.fsModule.writeSync(this.fd, str, null);
 };
 goog.exportSymbol(
-    'NodeBackedPort.prototype.write',
-    NodeBackedPort.prototype.write
+    'r5js.NodeBackedPort.prototype.write',
+    r5js.NodeBackedPort.prototype.write
 );
 
 /**
@@ -148,10 +148,10 @@ goog.exportSymbol(
  * @suppress {missingProperties} For this.fsModule.writeSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
-NodeBackedPort.prototype.writeChar = function(c) {
+r5js.NodeBackedPort.prototype.writeChar = function(c) {
     this.fsModule.writeSync(this.fd, c, null);
 };
 goog.exportSymbol(
-    'NodeBackedPort.prototype.writeChar',
-    NodeBackedPort.prototype.writeChar
+    'r5js.NodeBackedPort.prototype.writeChar',
+    r5js.NodeBackedPort.prototype.writeChar
 );

@@ -25,6 +25,7 @@ goog.require('r5js.Datum');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.NodeBackedPort');
 goog.require('r5js.OutputMode');
 goog.require('r5js.ParseError');
 goog.require('r5js.PrimitiveProcedureError');
@@ -1283,7 +1284,7 @@ R5JS_builtins['io'] = {
         argtypes: ['string'],
         proc: function(datum) {
             return r5js.data.newInputPortDatum(
-                new NodeBackedPort(datum.payload, 'r'));
+                new r5js.NodeBackedPort(datum.payload, 'r'));
         }
     },
     'open-output-file': {
@@ -1291,7 +1292,7 @@ R5JS_builtins['io'] = {
         argtypes: ['string'],
         proc: function(datum) {
             return r5js.data.newOutputPortDatum(
-                new NodeBackedPort(datum.payload, 'w'));
+                new r5js.NodeBackedPort(datum.payload, 'w'));
         }
     },
     'close-input-port': {

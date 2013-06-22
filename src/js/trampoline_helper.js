@@ -17,7 +17,7 @@
 goog.provide('r5js.TrampolineHelper');
 
 
-goog.require('r5js.tmp.callback_backed_port');
+goog.require('r5js.CallbackBackedPort');
 
 goog.require('r5js.data');
 
@@ -59,7 +59,7 @@ r5js.TrampolineHelper.prototype.clear = function() {
  */
 r5js.TrampolineHelper.prototype.discardInputPort_ = function() {
     return r5js.data.newInputPortDatum(
-        new CallbackBackedPort(
+        new r5js.CallbackBackedPort(
             function() {
             }));
 };
@@ -70,7 +70,7 @@ r5js.TrampolineHelper.prototype.discardInputPort_ = function() {
  */
 r5js.TrampolineHelper.prototype.discardOutputPort_ = function() {
     return r5js.data.newOutputPortDatum(
-        new CallbackBackedPort(
+        new r5js.CallbackBackedPort(
             function() {
             }));
 };

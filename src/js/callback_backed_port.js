@@ -18,7 +18,7 @@
  at Port. */
 
 
-goog.provide('r5js.tmp.callback_backed_port');
+goog.provide('r5js.CallbackBackedPort');
 
 
 goog.require('r5js.InternalInterpreterError');
@@ -29,86 +29,86 @@ goog.require('r5js.InternalInterpreterError');
  * @implements {r5js.Port}
  * @constructor
  */
-function CallbackBackedPort(onOutput) {
+r5js.CallbackBackedPort = function(onOutput) {
     /**
      * @type {Function}
      * @private
      */
     this.onOutput_ = onOutput;
-}
+};
 
 
 /** @override */
-CallbackBackedPort.prototype.close = function() {};
+r5js.CallbackBackedPort.prototype.close = function() {};
 goog.exportSymbol(
-    'CallbackBackedPort.prototype.close',
-    CallbackBackedPort.prototype.close
+    'r5js.CallbackBackedPort.prototype.close',
+    r5js.CallbackBackedPort.prototype.close
 );
 
 
 /** @override */
-CallbackBackedPort.prototype.peekChar = function() {
+r5js.CallbackBackedPort.prototype.peekChar = function() {
     return this; // = EOF
 };
 goog.exportSymbol(
-    'CallbackBackedPort.prototype.peekChar',
-    CallbackBackedPort.prototype.peekChar
+    'r5js.CallbackBackedPort.prototype.peekChar',
+    r5js.CallbackBackedPort.prototype.peekChar
 );
 
 /** @override */
-CallbackBackedPort.prototype.readChar = function () {
+r5js.CallbackBackedPort.prototype.readChar = function () {
     return this; // i.e. an EOF object
 };
 goog.exportSymbol(
-    'CallbackBackedPort.prototype.readChar',
-    CallbackBackedPort.prototype.readChar
+    'r5js.CallbackBackedPort.prototype.readChar',
+    r5js.CallbackBackedPort.prototype.readChar
 );
 
 
 /** @override */
-CallbackBackedPort.prototype.isEof = function() {
+r5js.CallbackBackedPort.prototype.isEof = function() {
     return true;
 };
 goog.exportSymbol(
-    'CallbackBackedPort.prototype.isEof',
-    CallbackBackedPort.prototype.isEof
+    'r5js.CallbackBackedPort.prototype.isEof',
+    r5js.CallbackBackedPort.prototype.isEof
 );
 
 
 /** @override */
-CallbackBackedPort.prototype.isCharReady = function() {
+r5js.CallbackBackedPort.prototype.isCharReady = function() {
     return true; // Because we're always at EOF
 };
 goog.exportSymbol(
-    'CallbackBackedPort.prototype.isCharReady',
-    CallbackBackedPort.prototype.isCharReady
+    'r5js.CallbackBackedPort.prototype.isCharReady',
+    r5js.CallbackBackedPort.prototype.isCharReady
 );
 
 
 /** @override */
-CallbackBackedPort.prototype.toString = function() {
+r5js.CallbackBackedPort.prototype.toString = function() {
     return '[javascript]';
 };
 goog.exportSymbol(
-    'CallbackBackedPort.prototype.toString',
-    CallbackBackedPort.prototype.toString
+    'r5js.CallbackBackedPort.prototype.toString',
+    r5js.CallbackBackedPort.prototype.toString
 );
 
 
 /** @override */
-CallbackBackedPort.prototype.writeChar = function(c) {
+r5js.CallbackBackedPort.prototype.writeChar = function(c) {
     this.onOutput_(c);
 };
 goog.exportSymbol(
-    'CallbackBackedPort.prototype.writeChar',
-    CallbackBackedPort.prototype.writeChar
+    'r5js.CallbackBackedPort.prototype.writeChar',
+    r5js.CallbackBackedPort.prototype.writeChar
 );
 
 
-CallbackBackedPort.prototype.write = function(str) {
+r5js.CallbackBackedPort.prototype.write = function(str) {
     this.onOutput_(str);
 };
 goog.exportSymbol(
-    'CallbackBackedPort.prototype.write',
-    CallbackBackedPort.prototype.write
+    'r5js.CallbackBackedPort.prototype.write',
+    r5js.CallbackBackedPort.prototype.write
 );
