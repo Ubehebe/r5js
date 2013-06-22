@@ -49,8 +49,17 @@ r5js.Datum.prototype.parent;
  */
 r5js.Datum.prototype.type;
 
+
 /**
- * @type {*} TODO bl
+ * TODO bl: this is out of control. Create an interface and have each
+ * type implement it (or wrap them, in the case of JavaScript primitives).
+ * @typedef {Array|boolean|Function|number|Object|r5js.Datum|SchemeMacro|SchemeProcedure|string}
+ */
+r5js.PayloadType;
+
+
+/**
+ * @type {r5js.PayloadType}
  */
 r5js.Datum.prototype.payload;
 
@@ -188,7 +197,7 @@ function newEmptyList() {
 }
 
 /**
- * @param {*} payload TODO bl narrow
+ * @param {!r5js.PayloadType} payload
  * @param {string=} type The type of the Datum.
  * If not given, defaults to 'identifier'.
  * @return {!r5js.Datum} New Datum of given type with given payload.
@@ -446,7 +455,7 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
 
 /**
  * @param {string} name Name of the procedure.
- * @param {*} procedure TODO bl.
+ * @param {Function|SchemeProcedure} procedure TODO bl.
  * @return {!r5js.Datum} New Datum representing the given procedure.
  */
 function newProcedureDatum(name, procedure) {
@@ -502,7 +511,7 @@ r5js.Datum.prototype.maybeDeref = function () {
 
 /**
  *
- * @param {*} macro TODO bl
+ * @param {!SchemeMacro} macro Macro object.
  * @return {!r5js.Datum} New Datum representing the given macro.
  */
 function newMacroDatum(macro) {
@@ -524,7 +533,7 @@ r5js.Datum.prototype.getMacro = function() {
 };
 
 /**
- * @param {*} array TODO bl
+ * @param {!Array} array TODO bl Narrow the generic type.
  * @return {!r5js.Datum} A new Datum representing the given array.
  */
 function newVectorDatum(array) {
@@ -613,7 +622,7 @@ r5js.Datum.prototype.sequence = function(env) {
 // switch their representations to ints instead of strings
 
 /**
- * @param {*} result TODO bl
+ * @param {!r5js.PayloadType} result
  * @param {string=} type TODO bl
  * @return {*} TODO bl
  */
@@ -1046,7 +1055,8 @@ r5js.Datum.prototype.processQuasiquote = function(env, cpsName) {
              unquotation or unquotation with splicing. */
             continuation.lastResultName = node.type + (uniqueNodeCounter++);
             newCalls.appendContinuable(asContinuable);
-            return newIdOrLiteral(continuation.lastResultName);
+            return newIdOrLiteral(/** @type {string} */ (
+                continuation.lastResultName));
         });
 
         this.type = "'";
@@ -1145,7 +1155,7 @@ r5js.Datum.prototype.desugarMacroBlock = function(env, operatorName) {
 
     for (var spec = this.at('(').firstChild; spec; spec = spec.nextSibling) {
         var kw = spec.at('keyword').clone();
-        var macro = spec.at('transformer-spec').desugar(env);
+        var macro = /** @type {!SchemeMacro} */ (spec.at('transformer-spec').desugar(env));
         var buf = new r5js.SiblingBuffer();
         /* We have to wrap the SchemeMacro object in a Datum to get it into
             the parse tree. */

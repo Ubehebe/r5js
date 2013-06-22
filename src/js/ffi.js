@@ -34,7 +34,7 @@ function FFIError() {
 }
 
 /**
- * @param {*} jsObj TODO bl
+ * @param {!Object} jsObj A JavaScript object.
  * @return {!r5js.Datum} A new datum representing the given JavaScript object.
  */
 function newFFIDatum(jsObj) {

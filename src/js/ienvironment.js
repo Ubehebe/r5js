@@ -108,7 +108,7 @@ r5js.IEnvironment.prototype.addClosure = function(name, proc) {};
 
 /**
  * @param {string} name Name of binding to get.
- * @return {*} Value of binding, if any.
+ * @return {!r5js.PayloadType} Value of binding, if any.
  * TODO bl: tighten the return type.
  */
 r5js.IEnvironment.prototype.get = function(name) {};
