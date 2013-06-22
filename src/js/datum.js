@@ -1183,25 +1183,25 @@ r5js.data.newProcedureDatum = function(name, procedure) {
 
 
 /**
- * @param {*} mustImplementPort TODO bl
+ * @param {!r5js.Port} port The port to use.
  * @return {!r5js.Datum} New Datum representing an input port.
  */
-r5js.data.newInputPortDatum = function(mustImplementPort) {
+r5js.data.newInputPortDatum = function(port) {
     var ans = new r5js.Datum();
     ans.type = 'input-port';
-    ans.payload = portImplCheck(mustImplementPort);
+    ans.payload = port;
     return ans;
 };
 
 
 /**
- * @param {*} mustImplementPort TODO bl
+ * @param {!r5js.Port} port The port to use.
  * @return {!r5js.Datum} New Datum representing an output port.
  */
-r5js.data.newOutputPortDatum = function(mustImplementPort) {
+r5js.data.newOutputPortDatum = function(port) {
     var ans = new r5js.Datum();
     ans.type = 'output-port';
-    ans.payload = portImplCheck(mustImplementPort);
+    ans.payload = port;
     return ans;
 };
 

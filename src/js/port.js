@@ -14,65 +14,53 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.port');
+goog.provide('r5js.Port');
 
 
-goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.IOError');
-
-/* This class is never instantiated; it's just used to double-check that
- objects that purport to provide Scheme-port-like-services do. Of course,
- the check occurs at runtime, so it's of limited helpfulness. But it is
- slightly more helpful than a null pointer exception would be a few
- frames further on in the stack.
-
- bl important: Port implementations must name these functions with
- string literals, not properties (PortImpl.prototype['close'] = ..., not
- PortImpl.prototype.close = ...), to prevent the Google Closure Compiler
- from renaming them and thus making them useless on the trampoline. */
 
 /**
- * @constructor
+ * bl important: Port implementations must name these functions
+ * with string literals, not properties (PortImpl.prototype['close'] = ..., not
+ * PortImpl.prototype.close = ...), to prevent the Google Closure Compiler
+ * from renaming them and thus making them useless on the trampoline.
+ *
+ * @interface
  */
-function Port() {
-    this.close
-        = this.isCharReady
-        = this.isEof
-        = this.peekChar
-        = this.readChar
-        = this.toString
-        = this.writeChar
-        = function () {
-        throw new r5js.InternalInterpreterError(
-            'this class should never be instantiated, '
-                + 'it\'s just here for documentation')
-    };
-}
+r5js.Port = function() {};
 
-function portImplCheck(portImplObj) {
-    if (!portImplObj)
-        throw new r5js.IOError(portImplObj + ' is null!');
 
-    var required = [
-        'close',
-        'isCharReady',
-        'isEof',
-        'peekChar',
-        'readChar',
-        'toString',
-        'writeChar'
-    ];
+r5js.Port.prototype.close = function() {};
 
-    var useConsole = Function('return "console" in this')();
 
-    for (var i=0; i< required.length; ++i) {
-        if (typeof portImplObj[required[i]] !== 'function') {
-            if (useConsole)
-                console.log(portImplObj);
-            throw new r5js.IOError(portImplObj
-                + "doesn't have required function "
-                + required[i]);
-        }
-    }
-    return portImplObj;
-}
+/**
+ * @return {boolean} True iff the port has a character ready.
+ */
+r5js.Port.prototype.isCharReady = function() {};
+
+
+/**
+ * @return {boolean} True iff the port is at end of file.
+ */
+r5js.Port.prototype.isEof = function() {};
+
+
+r5js.Port.prototype.peekChar = function() {};
+
+
+r5js.Port.prototype.readChar = function() {};
+
+
+/** @override */
+r5js.Port.prototype.toString = function() {};
+
+
+/**
+ * @param {string} str String to write.
+ */
+r5js.Port.prototype.write = function(str) {};
+
+
+/**
+ * @param {string} c Character to write.
+ */
+r5js.Port.prototype.writeChar = function(c) {};

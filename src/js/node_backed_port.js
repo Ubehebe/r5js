@@ -22,6 +22,7 @@ goog.require('r5js.IOError');
 /**
  * @suppress {missingProperties, undefinedVars} For this.fsModule.openSync,
  * this.fsModule.statSync, and require().
+ * @implements {r5js.Port}
  * @constructor
  * TODO bl: remove the @suppress annotations when Node interop is better.
  */
@@ -52,59 +53,105 @@ function NodeBackedPort(filename, mode) {
  prevent the Google Closure Compiler from renaming them. See comments
  at Port. */
 
-/** @suppress {missingProperties} For fsModule.closeSync.
- * TODO bl: remove @suppress once Node interop is better.
- */
-NodeBackedPort.prototype['close'] = function() {
-    this.fsModule.closeSync(this.fd);
-};
-
-NodeBackedPort.prototype['isCharReady'] = function() {
-    return true;
-};
-
-NodeBackedPort.prototype['isEof'] = function() {
-    return this.offset >= this.size;
-};
 
 /**
+ * @override
+ * @suppress {missingProperties} For fsModule.closeSync.
+ * TODO bl: remove @suppress once Node interop is better.
+ */
+NodeBackedPort.prototype.close = function() {
+    this.fsModule.closeSync(this.fd);
+};
+goog.exportSymbol(
+    'NodeBackedPort.prototype.close',
+    NodeBackedPort.prototype.close
+);
+
+
+/**
+ * @override
+  */
+NodeBackedPort.prototype.isCharReady = function() {
+    return true;
+};
+goog.exportSymbol(
+    'NodeBackedPort.prototype.isCharReady',
+    NodeBackedPort.prototype.isCharReady
+);
+
+
+/** @override */
+NodeBackedPort.prototype.isEof = function() {
+    return this.offset >= this.size;
+};
+goog.exportSymbol(
+    'NodeBackedPort.prototype.isEof',
+    NodeBackedPort.prototype.isEof
+);
+
+
+/**
+ * @override
  * @suppress {missingProperties} For this.fsModule.readSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
-NodeBackedPort.prototype['peekChar'] = function() {
+NodeBackedPort.prototype.peekChar = function() {
     return this.isEof()
         ? this
         : this.fsModule.readSync(this.fd, 1, this.offset)[0];
 };
+goog.exportSymbol(
+    'NodeBackedPort.prototype.peekChar',
+    NodeBackedPort.prototype.peekChar
+);
+
 
 /**
+ * @override
  * @suppress {missingProperties} For this.fsModule.readSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
-NodeBackedPort.prototype['readChar'] = function() {
+NodeBackedPort.prototype.readChar = function() {
     return this.isEof()
         ? this
         : this.fsModule.readSync(this.fd, 1, this.offset++)[0];
 };
+goog.exportSymbol(
+    'NodeBackedPort.prototype.readChar',
+    NodeBackedPort.prototype.readChar
+);
 
-NodeBackedPort.prototype['toString'] = function() {
+/** @override */
+NodeBackedPort.prototype.toString = function() {
     return String(this.fd);
 };
+goog.exportSymbol(
+    'NodeBackedPort.prototype.toString',
+    NodeBackedPort.prototype.toString
+);
 
 /**
+ * @override
  * @suppress {missingProperties} For this.fsModule.writeSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
-NodeBackedPort.prototype['write'] = function(str) {
+NodeBackedPort.prototype.write = function(str) {
     this.fsModule.writeSync(this.fd, str, null);
 };
+goog.exportSymbol(
+    'NodeBackedPort.prototype.write',
+    NodeBackedPort.prototype.write
+);
 
 /**
+ * @override
  * @suppress {missingProperties} For this.fsModule.writeSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
-NodeBackedPort.prototype['writeChar'] = function(c) {
+NodeBackedPort.prototype.writeChar = function(c) {
     this.fsModule.writeSync(this.fd, c, null);
 };
-
-
+goog.exportSymbol(
+    'NodeBackedPort.prototype.writeChar',
+    NodeBackedPort.prototype.writeChar
+);

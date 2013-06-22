@@ -25,7 +25,6 @@ goog.require('r5js.tmp.js_obj_or_method');
 goog.require('r5js.tmp.node_backed_port');
 goog.require('r5js.tmp.parse');
 goog.require('r5js.tmp.pipeline');
-goog.require('r5js.tmp.port');
 goog.require('r5js.tmp.scanner');
 goog.require('r5js.tmp.stdproc');
 goog.require('r5js.tmp.timer');
