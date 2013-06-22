@@ -48,7 +48,7 @@ function Branch(testIdOrLiteral, consequentContinuable, alternateContinuable) {
 }
 
 /**
- * @param {!Continuation} continuation
+ * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {!EnvBuffer} envBuffer
  * @returns {*}

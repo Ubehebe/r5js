@@ -19,6 +19,7 @@ goog.provide('r5js.tmp.stdproc');
 
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.CdrHelper');
+goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.ImmutableError');
@@ -165,7 +166,7 @@ R5JS_builtins['type'] = {
              and passes it as an argument to proc." Thus a Continuation
              must count as a procedure. */
             return (p instanceof r5js.Datum && p.isProcedure())
-                || p instanceof Continuation;
+                || p instanceof r5js.Continuation;
         }
     },
 
@@ -1068,7 +1069,7 @@ R5JS_builtins['control'] = {
              call-with-values." */
 
             var valuesName = newCpsName();
-            var producerContinuation = new Continuation(valuesName);
+            var producerContinuation = new r5js.Continuation(valuesName);
             var producerCall = r5js.data.newProcCall(
                 procCall.firstOperand,
                 null, // no arguments
@@ -1128,13 +1129,14 @@ R5JS_builtins['control'] = {
             var procCallBefore = r5js.data.newProcCall(
                 procCall.firstOperand,
                 null, // no arguments
-                new Continuation(before));
+                new r5js.Continuation(before)
+            );
 
 
             var procCallAfter = r5js.data.newProcCall(
                 procCall.firstOperand.nextSibling.nextSibling,
                 null, // no arguments
-                new Continuation(newCpsName())
+                new r5js.Continuation(newCpsName())
             );
 
             var result = newCpsName();
@@ -1144,7 +1146,7 @@ R5JS_builtins['control'] = {
             var procCallThunk = r5js.data.newProcCall(
                 procCall.firstOperand.nextSibling,
                 null, // no arguments
-                new Continuation(result)
+                new r5js.Continuation(result)
             );
 
             procCallThunk.appendContinuable(procCallAfter);
@@ -1159,7 +1161,7 @@ R5JS_builtins['control'] = {
             resultStruct.beforeThunk = r5js.data.newProcCall(
                 procCall.firstOperand,
                 null,
-                new Continuation(before));
+                new r5js.Continuation(before));
         }
     }
 };

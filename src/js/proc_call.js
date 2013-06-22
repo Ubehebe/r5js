@@ -17,6 +17,7 @@
 goog.provide('r5js.ProcCall');
 
 
+goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.Environment');
@@ -92,7 +93,7 @@ r5js.ProcCall.prototype.setEnv = function(env, override) {
  */
 r5js.ProcCall.prototype.maybeSetEnv = function(env) {
   if (!this.env ||
-      this.env.getProcedure(this.operatorName.payload) instanceof Continuation) {
+      this.env.getProcedure(this.operatorName.payload) instanceof r5js.Continuation) {
       this.env = env;
   }
 };
@@ -123,7 +124,7 @@ function newIdShim(payload, continuationName) {
     return r5js.data.newProcCall(
         r5js.ProcCall.prototype.specialOps._id,
         payload,
-        new Continuation(continuationName)
+        new r5js.Continuation(continuationName)
     );
 }
 
@@ -131,7 +132,7 @@ function newIdShim(payload, continuationName) {
 /**
  * @param {string} dstName
  * @param {string} srcName
- * @param {!Continuation} continuation
+ * @param {!r5js.Continuation} continuation
  * @return {!Continuable}
  */
 function newAssignment(dstName, srcName, continuation) {
@@ -149,7 +150,7 @@ function newAssignment(dstName, srcName, continuation) {
 
 /**
  * Just for debugging.
- * @param {!Continuation} continuation
+ * @param {!r5js.Continuation} continuation
  * @param {number} indentLevel
  * @param {boolean} suppressEnv
  * @return {string}
@@ -206,7 +207,7 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
 
 
 /**
- * @param {!Continuation} continuation
+ * @param {!r5js.Continuation} continuation
  * @param {?} resultStruct
  */
 r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
@@ -283,7 +284,7 @@ r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
  * get their arguments as unevaluated datums.)
  *
  * @param {Function} proc
- * @param {!Continuation} continuation
+ * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  */
 r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
@@ -331,7 +332,11 @@ r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
     }
 
     newCallChain.appendContinuable(
-        r5js.data.newProcCall(this.operatorName, finalArgs.toSiblings(), new Continuation(newCpsName()))
+        r5js.data.newProcCall(
+            this.operatorName,
+            finalArgs.toSiblings(),
+            new r5js.Continuation(newCpsName())
+        )
     );
 
     var ans = newCallChain.toContinuable();
@@ -351,7 +356,7 @@ r5js.ProcCall.prototype.isSpecialOperator = function() {
 };
 
 /**
- * @param {!Continuation} continuation
+ * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {!EnvBuffer} envBuffer
  * @returns {*}
@@ -376,7 +381,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, en
         this.tryNonPrimitiveProcedure.apply(this, args);
     } else if (proc instanceof r5js.Macro) {
         this.tryMacroUse.apply(this, args);
-    } else if (proc instanceof Continuation) {
+    } else if (proc instanceof r5js.Continuation) {
         this.tryContinuation.apply(this, args);
     } else if (proc instanceof JsObjOrMethod) {
         this.tryFFI.apply(this, args);
@@ -401,7 +406,7 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
     var name = continuation.lastResultName;
     var nextProcCall = continuation.getAdjacentProcCall();
 
-    if (nextProcCall) {
+    if (nextProcCall instanceof r5js.ProcCall) {
         var maybeEnv = nextProcCall.env;
         /* If the next procedure call already has an environment,
          bind the result there. Otherwise, bind it in the current
@@ -460,7 +465,7 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
  * result to the continuation's result name ("ans"), and advance
  * to the next continuable ("...").
  * @param {Function} proc
- * @param {!Continuation} continuation
+ * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  */
 r5js.ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultStruct) {
@@ -691,9 +696,9 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
 
     // todo bl too much logic
     for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
-        if (cur instanceof Continuation)
+        if (cur instanceof r5js.Continuation) {
             args.push(cur);
-        else if (cur.isIdentifier()) {
+        } else if (cur.isIdentifier()) {
             var toPush = wrapArgs
                 ? r5js.data.maybeWrapResult(this.env.get(cur.payload))
                 : this.env.get(cur.payload);

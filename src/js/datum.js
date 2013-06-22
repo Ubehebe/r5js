@@ -1022,48 +1022,7 @@ r5js.Datum.prototype.closestAncestorSibling = function() {
     }
 };
 
-/**
- * R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
- * but they bind syntactic keywords to macro transformers instead of binding
- * variables to locations that contain values."
- *
- * In this implementation, a macro is just another kind of object that can
- * be stored in an environment, so we reuse the existing let machinery.
- * For example:
- *
- * (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
- *
- * desugars as
- *
- * (let ((foo [SchemeMacro object])) ...)
- *
- * We just need to be sure that the SchemeMacro object inserted directly
- * into the parse tree plays well when the tree is transcribed and reparsed.
- *
- * @param {!r5js.IEnvironment} env TODO bl
- * @param {string} operatorName TODO bl
- */
-r5js.Datum.prototype.desugarMacroBlock = function(env, operatorName) {
 
-    var letBindings = new r5js.SiblingBuffer();
-
-    for (var spec = this.at('(').firstChild; spec; spec = spec.nextSibling) {
-        var kw = spec.at('keyword').clone();
-        var macro = /** @type {!r5js.Macro} */ (spec.at('transformer-spec').desugar(env));
-        var buf = new r5js.SiblingBuffer();
-        /* We have to wrap the SchemeMacro object in a Datum to get it into
-            the parse tree. */
-        buf.appendSibling(kw);
-        buf.appendSibling(r5js.data.newMacroDatum(macro));
-        letBindings.appendSibling(buf.toList());
-    }
-
-    var _let = new r5js.SiblingBuffer();
-    _let.appendSibling(letBindings.toList());
-    _let.appendSibling(this.at('(').nextSibling);
-
-    return r5js.data.newProcCall(r5js.data.newIdOrLiteral(operatorName), _let.toSiblings(), new Continuation(newCpsName()));
-};
 
 /**
  * See comments at the top of Parser.
@@ -1197,7 +1156,7 @@ r5js.data.newIdOrLiteral = function(payload, type) {
 /**
  * @param {?} operatorName
  * @param {?} firstOperand
- * @param {!Continuation} continuation A continuation.
+ * @param {!r5js.Continuation} continuation A continuation.
  * @return {!Continuable} The new procedure call.
  */
 r5js.data.newProcCall = function(operatorName, firstOperand, continuation) {
@@ -1277,7 +1236,7 @@ r5js.data.maybeWrapResult = function(result, type) {
 
     if (result === null
         || result instanceof r5js.Datum
-        || result instanceof Continuation
+        || result instanceof r5js.Continuation
         || result instanceof r5js.Macro
         || result instanceof JsObjOrMethod /* JS interop (experimental) */) {
         return result; // no-op, strictly for convenience

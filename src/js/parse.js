@@ -16,6 +16,7 @@
 
 goog.provide('r5js.tmp.parse');
 
+goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.EllipsisTransformer');
@@ -550,7 +551,11 @@ Parser.prototype['procedure-call'] = function() {
             var operands = node.at('operand'); // will be null if 0 operands
 
             if (operatorNode.isLiteral()) {
-                return r5js.data.newProcCall(operatorNode, operands, new Continuation(newCpsName()));
+                return r5js.data.newProcCall(
+                    operatorNode,
+                    operands,
+                    new r5js.Continuation(newCpsName())
+                );
             }
 
             // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
@@ -561,7 +566,8 @@ Parser.prototype['procedure-call'] = function() {
                 lastContinuation.nextContinuable = r5js.data.newProcCall(
                     r5js.data.newIdOrLiteral(opName),
                     operands,
-                    new Continuation(newCpsName()));
+                    new r5js.Continuation(newCpsName())
+                );
                 return desugaredOp;
             }
         }
@@ -705,8 +711,11 @@ Parser.prototype['definition'] = function() {
                 var lastContinuable = desugaredExpr.getLastContinuable();
                 var cpsName = lastContinuable.continuation.lastResultName;
                 lastContinuable.continuation.nextContinuable =
-                    newAssignment(variable.payload, cpsName, new Continuation(newCpsName()))
-                        .setTopLevelAssignment();
+                    newAssignment(
+                        variable.payload,
+                        cpsName,
+                        new r5js.Continuation(newCpsName())
+                    ).setTopLevelAssignment();
                 return desugaredExpr;
             }
             }
@@ -739,8 +748,11 @@ Parser.prototype['definition'] = function() {
                 env.addBinding(
                     anonymousName,
                     new r5js.Procedure(formals, false, formalRoot.nextSibling, env, name));
-                return newAssignment(name.payload, anonymousName, new Continuation(newCpsName()))
-                    .setTopLevelAssignment();
+                return newAssignment(
+                    name.payload,
+                    anonymousName,
+                    new r5js.Continuation(newCpsName())
+                ).setTopLevelAssignment();
             }
             }
         ],
@@ -775,8 +787,11 @@ Parser.prototype['definition'] = function() {
                 env.addBinding(
                     anonymousName,
                     new r5js.Procedure(formals, true, formalRoot.nextSibling, env, name));
-                return newAssignment(name.payload, anonymousName, new Continuation(newCpsName()))
-                    .setTopLevelAssignment();
+                return newAssignment(
+                    name.payload,
+                    anonymousName,
+                    new r5js.Continuation(newCpsName())
+                ).setTopLevelAssignment();
             }
             }
         ],
@@ -809,7 +824,11 @@ Parser.prototype['conditional'] = function() {
                 var testEndpoint = test.getLastContinuable();
 
                 var testName = r5js.data.newIdOrLiteral(testEndpoint.continuation.lastResultName);
-                var branch = newBranch(testName, consequent, alternate, new Continuation(newCpsName()));
+                var branch = newBranch(
+                    testName,
+                    consequent,
+                    alternate, new r5js.Continuation(newCpsName())
+                );
                 testEndpoint.continuation.nextContinuable = branch;
                 return test;
             }
@@ -828,7 +847,11 @@ Parser.prototype['conditional'] = function() {
                 var testEndpoint = test.getLastContinuable();
 
                 var testName = r5js.data.newIdOrLiteral(testEndpoint.continuation.lastResultName);
-                var branch = newBranch(testName, consequent, null, new Continuation(newCpsName()));
+                var branch = newBranch(
+                    testName,
+                    consequent,
+                    null,
+                    new r5js.Continuation(newCpsName()));
                 testEndpoint.continuation.nextContinuable = branch;
                 return test;
             }
@@ -868,7 +891,10 @@ Parser.prototype['assignment'] = function() {
             var lastContinuable = desugaredExpr.getLastContinuable();
             var cpsName = lastContinuable.continuation.lastResultName;
             lastContinuable.continuation.nextContinuable =
-                newAssignment(variable.payload, cpsName, new Continuation(newCpsName()));
+                newAssignment(
+                    variable.payload,
+                    cpsName,
+                    new r5js.Continuation(newCpsName()));
             return desugaredExpr;
         }
         }
@@ -1031,7 +1057,8 @@ Parser.prototype['macro-use'] = function() {
             return r5js.data.newProcCall(
                 node.at('keyword'),
                 node.at('datum'),
-                new Continuation(newCpsName()));
+                new r5js.Continuation(newCpsName())
+            );
         }
         });
 };
@@ -1058,7 +1085,7 @@ Parser.prototype['macro-block'] = function() {
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {desugar: function(node, env) {
-                return node.desugarMacroBlock(env, 'let');
+                return r5js.Continuation.desugarMacroBlock(node, env, 'let');
             }
             }
         ],
@@ -1072,7 +1099,7 @@ Parser.prototype['macro-block'] = function() {
             {type: 'expression', atLeast: 1},
             {type: ')'},
             {desugar: function(node, env) {
-                return node.desugarMacroBlock(env, 'letrec');
+                return r5js.Continuation.desugarMacroBlock(node, env, 'letrec');
             }
             }
         ]);
@@ -1418,9 +1445,13 @@ Parser.prototype['syntax-definition'] = function() {
                 throw new r5js.MacroError(kw, "all patterns must begin with " + kw);
             var anonymousName = newAnonymousLambdaName();
             env.addBinding(anonymousName, macro);
-            return newAssignment(kw, anonymousName, new Continuation(newCpsName()))
-                .setTopLevelAssignment()
-                .setSyntaxAssignment();
+            return newAssignment(
+                kw,
+                anonymousName,
+                new r5js.Continuation(newCpsName())
+            ).
+                setTopLevelAssignment().
+                setSyntaxAssignment();
         }
         }
     );

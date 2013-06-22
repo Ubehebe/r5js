@@ -17,6 +17,7 @@
 goog.provide('r5js.Procedure');
 
 
+goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
@@ -73,7 +74,11 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, name) {
             var letrec = newEmptyList();
             letrec.firstChild = letrecBindings.toSiblings();
             letrec.nextSibling = cur;
-            this.body = r5js.data.newProcCall(r5js.data.newIdOrLiteral('letrec'), letrec, new Continuation(newCpsName()));
+            this.body = r5js.data.newProcCall(
+                r5js.data.newIdOrLiteral('letrec'),
+                letrec,
+                new r5js.Continuation(newCpsName())
+            );
         }
 
         this.lastContinuable = this.body.getLastContinuable();
@@ -96,7 +101,7 @@ r5js.Procedure.prototype.cloneWithEnv = function(env) {
 
 
 /**
- * @param {!Continuation} c A continuation.
+ * @param {!r5js.Continuation} c A continuation.
  */
 r5js.Procedure.prototype.setContinuation = function(c) {
     /* This will be a vacuous write for a tail call. But that is
@@ -128,7 +133,7 @@ r5js.Procedure.prototype.setEnv = function(env) {
 
 
 /**
- * @param {!Continuation} c A continuation.
+ * @param {!r5js.Continuation} c A continuation.
  * @return {boolean} True iff this procedure is in tail position.
  * TODO bl are we sure this covers all forms of tail recursion in R5RS?
  */

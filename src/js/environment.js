@@ -17,6 +17,7 @@
 goog.provide('r5js.Environment');
 
 
+goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
@@ -184,7 +185,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
         } else if (typeof maybe === 'function'
             || maybe instanceof r5js.Procedure
             || maybe instanceof r5js.Macro
-            || maybe instanceof Continuation
+            || maybe instanceof r5js.Continuation
             || maybe instanceof JsObjOrMethod) {
             return maybe;
         } else throw new r5js.EvalError('expected procedure, given ' + name);
@@ -263,7 +264,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
             this.bindings_[name] = this.unspecifiedSentinel_;
         } else if (typeof val === 'function' /* primitive procedure */
             || val instanceof r5js.Procedure /* non-primitive procedure */
-            || val instanceof Continuation /* call-with-current-continuation etc. */
+            || val instanceof r5js.Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
             || val instanceof r5js.Macro /* macros */
             || val instanceof r5js.Environment /* Redirects for free ids in macro transcriptions */

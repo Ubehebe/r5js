@@ -14,37 +14,53 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.continuation');
+goog.provide('r5js.Continuation');
 
 
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.ProcCall');
+
 
 /**
+ * Example: (g (f x y) z) desugared is
+ *
+ * (f x y [f' (g f' z [g' ...])])
+ *
+ * The continuation c is [f' (g f' z [g' ...])]
+ *
+ * c.lastResultName is f'
+ * c.nextContinuable is (g f' z ...)
+ *
+ *
+ * @param {string} lastResultName Name to use for the last result.
  * @constructor
  */
-function Continuation(lastResultName) {
+r5js.Continuation = function(lastResultName) {
 
-    this.lastResultName = lastResultName;
-
-    /* Example: (g (f x y) z) desugared is
-     (f x y [f' (g f' z [g' ...])])
-     The continuation c is [f' (g f' z [g' ...])]
-     c.lastResultName is f'
-     c.nextContinuable is (g f' z ...)
+    /**
+     * @type {string}
      */
-}
+    this.lastResultName = lastResultName;
+};
 
-/* Just for call/ccs inside dynamic-winds.
- todo bl: document why we don't have to install the "after" thunk.
- (I'm pretty sure the reason is it's already in the continuable chain
- somewhere.) */
-Continuation.prototype.installBeforeThunk = function(before) {
+
+/**
+ * Just for call/ccs inside dynamic-winds.
+ * TODO bl: document why we don't have to install the "after" thunk.
+ * (I'm pretty sure the reason is it's already in the continuable chain
+ * somewhere.)
+ * @param {?} before
+ */
+r5js.Continuation.prototype.installBeforeThunk = function(before) {
     this.beforeThunk = before;
 };
 
-// Just for debugging
-Continuation.prototype.debugString = function(indentLevel) {
+
+/**
+ * Just for debugging.
+ * @param {number|null} indentLevel Indentation level for output.
+ * @return {string} A textual representation of the continuation.
+ */
+r5js.Continuation.prototype.debugString = function(indentLevel) {
 
     if (indentLevel == null) {
         /* If no indent level is given, this function is being used to
@@ -72,15 +88,27 @@ Continuation.prototype.debugString = function(indentLevel) {
     }
 };
 
-/* This returns null if the very next Continuable isn't a ProcCall
-(in particular, if it is a Branch). */
-Continuation.prototype.getAdjacentProcCall = function() {
-    return this.nextContinuable
-        && this.nextContinuable.subtype instanceof r5js.ProcCall
-        && this.nextContinuable.subtype;
+
+/**
+ * @return {?}
+ * TODO bl: previously, this did an instanceof check on
+ * this.nextContinuable.subtype and returned null if it wasn't
+ * a {@link r5js.ProcCall} (in particular, if it was a {@link Branch}).
+ * The instanceof check caused an indirect circular dependency between
+ * {@link r5js.Continuation} and {@link r5js.ProcCall}. This method
+ * was the easiest way to break the cycle, as it had only one caller:
+ * {@link r5js.ProcCall.bindResult}. So I moved the instanceof check
+ * to the call site.
+ */
+r5js.Continuation.prototype.getAdjacentProcCall = function() {
+    return this.nextContinuable && this.nextContinuable.subtype;
 };
 
-Continuation.prototype.rememberEnv = function(env) {
+
+/**
+ * @param {!r5js.IEnvironment} env Environment to remember.
+ */
+r5js.Continuation.prototype.rememberEnv = function(env) {
     /* In general, we need to remember to jump out of the newEnv at
      the end of the procedure body. See ProcCall.prototype.maybeSetEnv
      for detailed logic (and maybe bugs). */
@@ -108,4 +136,53 @@ Continuation.prototype.rememberEnv = function(env) {
             }
         } else throw new r5js.InternalInterpreterError('invariant incorrect');
     }
+};
+
+
+/**
+ * R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
+ * but they bind syntactic keywords to macro transformers instead of binding
+ * variables to locations that contain values."
+ *
+ * In this implementation, a macro is just another kind of object that can
+ * be stored in an environment, so we reuse the existing let machinery.
+ * For example:
+ *
+ * (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
+ *
+ * desugars as
+ *
+ * (let ((foo [SchemeMacro object])) ...)
+ *
+ * We just need to be sure that the SchemeMacro object inserted directly
+ * into the parse tree plays well when the tree is transcribed and reparsed.
+ *
+ * @param {!r5js.Datum} datum Datum to desugar.
+ * @param {!r5js.IEnvironment} env TODO bl
+ * @param {string} operatorName TODO bl
+ */
+r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
+
+    var letBindings = new r5js.SiblingBuffer();
+
+    for (var spec = datum.at('(').firstChild; spec; spec = spec.nextSibling) {
+        var kw = spec.at('keyword').clone();
+        var macro = /** @type {!r5js.Macro} */ (spec.at('transformer-spec').desugar(env));
+        var buf = new r5js.SiblingBuffer();
+        /* We have to wrap the SchemeMacro object in a Datum to get it into
+         the parse tree. */
+        buf.appendSibling(kw);
+        buf.appendSibling(r5js.data.newMacroDatum(macro));
+        letBindings.appendSibling(buf.toList());
+    }
+
+    var _let = new r5js.SiblingBuffer();
+    _let.appendSibling(letBindings.toList());
+    _let.appendSibling(datum.at('(').nextSibling);
+
+    return r5js.data.newProcCall(
+        r5js.data.newIdOrLiteral(operatorName),
+        _let.toSiblings(),
+        new r5js.Continuation(newCpsName())
+    );
 };

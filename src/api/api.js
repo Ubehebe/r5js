@@ -21,7 +21,6 @@ goog.require('r5js.tmp.branch');
 goog.require('r5js.tmp.callback_backed_port');
 goog.require('r5js.tmp.continuable');
 goog.require('r5js.tmp.continuable_helper');
-goog.require('r5js.tmp.continuation');
 goog.require('r5js.tmp.datum');
 goog.require('r5js.tmp.env_buffer');
 goog.require('r5js.tmp.errors');

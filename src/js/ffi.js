@@ -49,7 +49,7 @@ function newFFIDatum(jsObj) {
 /**
  * TODO bl: Why is this method not in proc_call.js?
  * @param {?} jsObjOrMethod
- * @param {!Continuation} continuation A continuation.
+ * @param {!r5js.Continuation} continuation A continuation.
  * @param {?} resultStruct
  */
 r5js.ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStruct) {
