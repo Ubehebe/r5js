@@ -2,14 +2,14 @@ version = `cat VERSION`
 output = build/gay-lisp-$(version).js
 unit_tests = build/unit_tests.scm
 
-# Closure Librar-related paths. DO NOT COMMIT AS-IS.
-closure_root = /home/brendan/closure-library
+# Closure Library-related paths.
+closure_root = closure-library
 closure_bin  = $(closure_root)/closure/bin/build
 builder      = $(closure_bin)/closurebuilder.py
 depswriter   = $(closure_bin)/depswriter.py
 
-# Closure Compiler-related paths. DO NOT COMMIT AS-IS.
-compiler_jar  = /home/brendan/closure-compiler/build/compiler.jar
+# Closure Compiler-related paths.
+compiler_jar  = closure-compiler/build/compiler.jar
 compiler      = java -client -XX:+TieredCompilation -jar $(compiler_jar)
 
 # Input-related paths.
