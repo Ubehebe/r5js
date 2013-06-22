@@ -23,10 +23,12 @@ goog.require('r5js.Environment');
 goog.require('r5js.EvalError');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.MacroError');
-goog.require('r5js.QuasiquoteError');
 goog.require('r5js.Macro');
+goog.require('r5js.MacroError');
+goog.require('r5js.Procedure');
+goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
+
 
 
 /**
@@ -100,15 +102,7 @@ r5js.ProcCall.prototype.clearEnv = function() {
 };
 
 
-/**
- * @param {?} operatorName
- * @param {?} firstOperand
- * @param {!Continuation} continuation A continuation.
- * @return {!Continuable} The new procedure call.
- */
-function newProcCall(operatorName, firstOperand, continuation) {
-    return new Continuable(new r5js.ProcCall(operatorName, firstOperand), continuation);
-}
+
 
 
 /**
@@ -378,7 +372,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, en
         this.specialOps.logic[args.shift()].apply(this, args);
     } else if (typeof proc === 'function') {
         this.tryPrimitiveProcedure.apply(this, args);
-    } else if (proc instanceof SchemeProcedure) {
+    } else if (proc instanceof r5js.Procedure) {
         this.tryNonPrimitiveProcedure.apply(this, args);
     } else if (proc instanceof r5js.Macro) {
         this.tryMacroUse.apply(this, args);

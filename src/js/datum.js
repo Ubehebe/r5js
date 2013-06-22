@@ -55,7 +55,7 @@ r5js.Datum.prototype.type;
 /**
  * TODO bl: this is out of control. Create an interface and have each
  * type implement it (or wrap them, in the case of JavaScript primitives).
- * @typedef {Array|boolean|Function|number|Object|r5js.Datum|r5js.Macro|SchemeProcedure|string}
+ * @typedef {Array|boolean|Function|number|Object|r5js.Datum|r5js.Macro|r5js.Procedure|string}
  */
 r5js.PayloadType;
 
@@ -1204,7 +1204,7 @@ r5js.data.newProcCall = function(operatorName, firstOperand, continuation) {
 
 /**
  * @param {string} name Name of the procedure.
- * @param {Function|!SchemeProcedure} procedure TODO bl.
+ * @param {Function|!r5js.Procedure} procedure TODO bl.
  * @return {!r5js.Datum} New Datum representing the given procedure.
  */
 r5js.data.newProcedureDatum = function(name, procedure) {
@@ -1214,6 +1214,7 @@ r5js.data.newProcedureDatum = function(name, procedure) {
     ans.name = name;
     return ans;
 };
+
 
 /**
  * @param {*} mustImplementPort TODO bl
@@ -1225,6 +1226,7 @@ r5js.data.newInputPortDatum = function(mustImplementPort) {
     ans.payload = portImplCheck(mustImplementPort);
     return ans;
 };
+
 
 /**
  * @param {*} mustImplementPort TODO bl
@@ -1294,7 +1296,7 @@ r5js.data.maybeWrapResult = function(result, type) {
                 ans.type = 'identifier';
                 break;
             case 'object':
-                if (result instanceof SchemeProcedure) {
+                if (result instanceof r5js.Procedure) {
                     ans.type = 'lambda';
                     break;
                 }

@@ -21,7 +21,9 @@ goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListLikeTransformer');
+goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
+goog.require('r5js.Procedure');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.Macro');
 goog.require('r5js.data');
@@ -590,7 +592,8 @@ Parser.prototype['lambda-expression'] = function() {
         {type: ')'},
         {desugar: function(node, env) {
             var formalRoot = node.at('formals');
-            var formals, treatAsDotted;
+            var formals;
+            var treatAsDotted = false;
 
             // (lambda (x y) ...)
             if (formalRoot.isList()) {
@@ -621,7 +624,7 @@ Parser.prototype['lambda-expression'] = function() {
             var name = newAnonymousLambdaName();
             env.addClosure(
                 name,
-                new SchemeProcedure(formals, treatAsDotted, formalRoot.nextSibling, env, name));
+                new r5js.Procedure(formals, treatAsDotted, formalRoot.nextSibling, env, name));
             return newIdShim(newIdOrLiteral(name), newCpsName());
         }
         }
@@ -735,7 +738,7 @@ Parser.prototype['definition'] = function() {
                 var anonymousName = newAnonymousLambdaName();
                 env.addBinding(
                     anonymousName,
-                    new SchemeProcedure(formals, false, formalRoot.nextSibling, env, name));
+                    new r5js.Procedure(formals, false, formalRoot.nextSibling, env, name));
                 return newAssignment(name.payload, anonymousName, new Continuation(newCpsName()))
                     .setTopLevelAssignment();
             }
@@ -771,7 +774,7 @@ Parser.prototype['definition'] = function() {
                 var anonymousName = newAnonymousLambdaName();
                 env.addBinding(
                     anonymousName,
-                    new SchemeProcedure(formals, true, formalRoot.nextSibling, env, name));
+                    new r5js.Procedure(formals, true, formalRoot.nextSibling, env, name));
                 return newAssignment(name.payload, anonymousName, new Continuation(newCpsName()))
                     .setTopLevelAssignment();
             }

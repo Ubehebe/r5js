@@ -21,8 +21,9 @@ goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.RootEnvironment');
 goog.require('r5js.Macro');
+goog.require('r5js.Procedure');
+goog.require('r5js.RootEnvironment');
 goog.require('r5js.UnboundVariable');
 
 
@@ -56,7 +57,7 @@ r5js.Environment = function(name, enclosingEnv) {
     this.bindings_ = {};
 
     /**
-     * @type {!Object.<string, !SchemeProcedure>}
+     * @type {!Object.<string, !r5js.Procedure>}
      * @private
      */
     this.closures_ = {};
@@ -148,7 +149,7 @@ r5js.Environment.prototype.get = function(name) {
          (getProcedure, which is intended just for evaluating the operator
          on the trampoline, will return the unwrapped procedures.) */
         else if (typeof maybe === 'function'
-            || maybe instanceof SchemeProcedure)
+            || maybe instanceof r5js.Procedure)
             return r5js.data.newProcedureDatum(name, maybe);
         else if (maybe === this.unspecifiedSentinel_)
             return maybe;
@@ -181,7 +182,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
         if (maybe instanceof r5js.Environment) {
             return maybe.getProcedure(name);
         } else if (typeof maybe === 'function'
-            || maybe instanceof SchemeProcedure
+            || maybe instanceof r5js.Procedure
             || maybe instanceof r5js.Macro
             || maybe instanceof Continuation
             || maybe instanceof JsObjOrMethod) {
@@ -218,7 +219,7 @@ r5js.Environment.prototype.addClosure = function(name, proc) {
             + name
             + ' in sealed environment '
             + this.name_);
-    } else if (!(proc instanceof SchemeProcedure)) {
+    } else if (!(proc instanceof r5js.Procedure)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     } else if (this.closures_[name]) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
@@ -261,7 +262,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              r5js.Environment.prototype.unspecifiedSentinel_. */
             this.bindings_[name] = this.unspecifiedSentinel_;
         } else if (typeof val === 'function' /* primitive procedure */
-            || val instanceof SchemeProcedure /* non-primitive procedure */
+            || val instanceof r5js.Procedure /* non-primitive procedure */
             || val instanceof Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
             || val instanceof r5js.Macro /* macros */

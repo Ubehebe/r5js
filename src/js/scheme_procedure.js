@@ -14,26 +14,44 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.scheme_procedure');
+goog.provide('r5js.Procedure');
 
 
-goog.require('r5js.Environment');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.ProcCall');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 
 /**
+ * @param {!Array.<string>} formalsArray The procedure's formal parameters,
+ *        in order.
+ * @param {boolean} isDotted True iff this is a dotted procedure, such as
+ *        (define (head x . y) x).
+ * @param {?} bodyStart
+ * @param {!r5js.IEnvironment} env An environment.
+ * @param {string} name The procedure's name. It has no semantic importance;
+ *        it's just used for pretty-printing debugs and messages to the user.
  * @constructor
  */
-function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
+r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, name) {
+    /**
+     * @type {boolean}
+     */
     this.isDotted = isDotted;
-    this.env = new r5js.Environment(name, env);
+
+    /**
+     * @type {!r5js.IEnvironment}
+     */
+    this.env = env.newChildEnv(name);
+
+    /**
+     * @type {!Array.<string>}
+     */
     this.formalsArray = formalsArray;
 
-    /* This name has no semantic importance. It's just used for
-    pretty-printing debugs and messages to the user. */
+    /**
+     * @type {string}
+     */
     this.name = name;
 
     if (bodyStart) {
@@ -54,40 +72,51 @@ function SchemeProcedure(formalsArray, isDotted, bodyStart, env, name) {
             var letrec = newEmptyList();
             letrec.firstChild = letrecBindings.toSiblings();
             letrec.nextSibling = cur;
-            this.body = newProcCall(newIdOrLiteral('letrec'), letrec, new Continuation(newCpsName()));
+            this.body = r5js.data.newProcCall(newIdOrLiteral('letrec'), letrec, new Continuation(newCpsName()));
         }
 
         this.lastContinuable = this.body.getLastContinuable();
     }
-}
+};
+
 
 /**
  * @param {!r5js.Environment} env Environment to clone with.
- * @return {!SchemeProcedure} A clone of this SchemeProcedure,
- * with the given environment.
+ * @return {!r5js.Procedure} A clone of this procedure, with the given
+ *         environment.
  */
-SchemeProcedure.prototype.cloneWithEnv = function(env) {
-    var ans = new SchemeProcedure(this.formalsArray, this.isDotted, null, env, this.name + "'-" + (uniqueNodeCounter++));
+r5js.Procedure.prototype.cloneWithEnv = function(env) {
+    var ans = new r5js.Procedure(this.formalsArray, this.isDotted, null, env, this.name + "'-" + (uniqueNodeCounter++));
     ans.env.setClosuresFrom(this.env); // non-cloning ok?
     ans.body = this.body;
     ans.lastContinuable = this.lastContinuable;
     return ans;
 };
 
-SchemeProcedure.prototype.setContinuation = function(c) {
+
+/**
+ * @param {!Continuation} c A continuation.
+ */
+r5js.Procedure.prototype.setContinuation = function(c) {
     /* This will be a vacuous write for a tail call. But that is
     probably still faster than checking if we are in tail position and,
     if so, explicitly doing nothing. */
-    if (this.lastContinuable)
+    if (this.lastContinuable) {
         this.lastContinuable.continuation = c;
+    }
 };
 
-SchemeProcedure.prototype.setEnv = function(env) {
+
+/**
+ * @param {!r5js.IEnvironment} env The environment to set.
+ */
+r5js.Procedure.prototype.setEnv = function(env) {
     /* todo bl is it possible to have a procedure body whose first
      continuable is a branch? hopefully not, and I can remove
      the second check. */
     if (this.body) {
-        if (this.body.subtype instanceof r5js.ProcCall) {
+//        if (this.body.subtype instanceof r5js.ProcCall) {
+          if (this.body.subtype.setEnv) {
             this.body.subtype.setEnv(env, true);
         } else {
             throw new r5js.InternalInterpreterError(
@@ -96,8 +125,13 @@ SchemeProcedure.prototype.setEnv = function(env) {
     }
 };
 
-// todo bl are we sure this covers all forms of tail recursion in R5RS?
-SchemeProcedure.prototype.isTailCall = function(c) {
+
+/**
+ * @param {!Continuation} c A continuation.
+ * @return {boolean} True iff this procedure is in tail position.
+ * TODO bl are we sure this covers all forms of tail recursion in R5RS?
+ */
+r5js.Procedure.prototype.isTailCall = function(c) {
   if (this.lastContinuable && this.lastContinuable.continuation === c) {
                // a good place to see if tail recursion is actually working :)
             // console.log('TAIL RECURSION!!!');
@@ -105,11 +139,18 @@ SchemeProcedure.prototype.isTailCall = function(c) {
   } else return false;
 };
 
-SchemeProcedure.prototype.toString = function() {
+
+/** @override */
+r5js.Procedure.prototype.toString = function() {
     return 'proc:' + this.name;
 };
 
-SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
+
+/**
+ * @param {number} numActuals The number of arguments passed to the procedure
+ *        during evaluation.
+ */
+r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
 
     if (!this.isDotted) {
         if (numActuals !== this.formalsArray.length)
@@ -121,7 +162,12 @@ SchemeProcedure.prototype.checkNumArgs = function(numActuals) {
     }
 };
 
-SchemeProcedure.prototype.bindArgs = function(args, env) {
+
+/**
+ * @param args
+ * @param {!r5js.IEnvironment} env
+ */
+r5js.Procedure.prototype.bindArgs = function(args, env) {
 
     var name, i;
 
