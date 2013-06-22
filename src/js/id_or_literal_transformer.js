@@ -17,6 +17,9 @@
 goog.provide('r5js.IdOrLiteralTransformer');
 
 
+goog.require('r5js.OutputMode');
+
+
 /**
  * @implements {r5js.ITransformer}
  * @constructor
