@@ -57,14 +57,14 @@ r5js.IPipeline.prototype.parse = function(root, lhs) {};
 /**
  * @param {!r5js.Datum} root The root to desugar.
  * @param {boolean} replMode If true, desugar in repl mode.
- * @return {!Continuable}
+ * @return {!r5js.Continuable}
  * TODO bl: figure out what repl mode is.
  */
 r5js.IPipeline.prototype.desugar = function(root, replMode) {};
 
 
 /**
- * @param {!Continuable} continuable The continuable to evaluate.
+ * @param {!r5js.Continuable} continuable The continuable to evaluate.
  * @param {function()} onOutput Output callback.
  * @return {*} TODO bl what does this return?
  * TODO bl: tighten the types of onOutput and the return param.

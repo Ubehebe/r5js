@@ -19,6 +19,7 @@ goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 
 
+goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.RenameHelper');
@@ -438,7 +439,7 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
         ans = this;
     }
 
-    if (forceContinuationWrapper && !(ans instanceof Continuable)) {
+    if (forceContinuationWrapper && !(ans instanceof r5js.Continuable)) {
         ans = newIdShim(ans, newCpsName());
     }
     return ans;
@@ -537,7 +538,7 @@ r5js.Datum.prototype.sequence = function(env) {
              (for example in Datum.sequenceOperands), but here we need to be
              able to connect the Continuable objects correctly, so we
              wrap them. */
-            if (!(tmp instanceof Continuable)) {
+            if (!(tmp instanceof r5js.Continuable)) {
                 tmp = newIdShim(tmp, newCpsName());
             }
 
@@ -1158,10 +1159,13 @@ r5js.data.newIdOrLiteral = function(payload, type) {
  * @param {?} operatorName
  * @param {?} firstOperand
  * @param {!r5js.Continuation} continuation A continuation.
- * @return {!Continuable} The new procedure call.
+ * @return {!r5js.Continuable} The new procedure call.
  */
 r5js.data.newProcCall = function(operatorName, firstOperand, continuation) {
-    return new Continuable(new r5js.ProcCall(operatorName, firstOperand), continuation);
+    return new r5js.Continuable(
+        new r5js.ProcCall(operatorName, firstOperand),
+        continuation
+    );
 };
 
 

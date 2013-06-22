@@ -16,14 +16,16 @@
 goog.provide('r5js.tmp.branch');
 
 
+goog.require('r5js.Continuable');
 goog.require('r5js.data');
 goog.require('r5js.ProcCall');
 
 
 function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
-    return new Continuable(
+    return new r5js.Continuable(
         new Branch(testIdOrLiteral, consequentContinuable, alternateContinuable),
-        continuation);
+        continuation
+    );
 }
 
 // For composition; should only be called from newBranch

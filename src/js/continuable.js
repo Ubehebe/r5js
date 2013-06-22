@@ -14,41 +14,48 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.continuable');
+goog.provide('r5js.Continuable');
 
 
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.ProcCall');
-
-/* todo bl: Continuable was originally envisioned as the parent
- type of objects on the trampoline. Originally we had three subtypes:
- ProcCall, Branch, and IdShim. But IdShim was turned into a subtype of
- ProcCall in order to take advantage of ProcCall's environment-handling
- logic. Subsequently other "procedure-call-like" entities (assignments,
- for example) have been written as ProcCalls. So it may no longer make
- sense to create both a Continuable and a ProcCall object for most
- things on the trampoline. */
+// TODO bl circular dependency -- see below goog.require('r5js.ProcCall');
 
 /**
+ * TODO bl: This constructor is only called twice, once with a
+ * {@link r5js.ProcCall} as subtype, the other time with a
+ * {@link Branch} as subtype. Thus this class should be turned into
+ * a base class or interface, with {@link r5js.ProcCall} and {@link Branch}
+ * extending or implementing it. This would break the circular dependency
+ * caused by the goog.require('r5js.ProcCall') commented out above.
+ *
+ * @param {?} subtype
+ * @param {!r5js.Continuation} continuation The continuation.
  * @constructor
  */
-function Continuable(subtype, continuation) {
+r5js.Continuable = function(subtype, continuation) {
     if (!subtype || !continuation) // todo bl take out after testing
         throw new r5js.InternalInterpreterError('invariant incorrect');
     this.subtype = subtype;
     this.continuation = continuation;
     //this.lastContinuable = this.getLastContinuable(); // todo bl caching problems
-}
+};
 
-Continuable.prototype.setStartingEnv = function(env) {
+/**
+ * @param {!r5js.IEnvironment} env The starting environment.
+ * @return {!r5js.Continuable} This object, for chaining.
+ */
+r5js.Continuable.prototype.setStartingEnv = function(env) {
     if (this.subtype instanceof r5js.ProcCall) {
         this.subtype.setEnv(env, true);
     }
-
     return this;
 };
 
-Continuable.prototype.setTopLevelAssignment = function() {
+
+/**
+ * @return {!r5js.Continuable} This object, for chaining.
+ */
+r5js.Continuable.prototype.setTopLevelAssignment = function() {
     if (!(this.subtype instanceof r5js.ProcCall &&
         this.subtype.operatorName === r5js.ProcCall.prototype.specialOps._set)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
@@ -57,7 +64,11 @@ Continuable.prototype.setTopLevelAssignment = function() {
     return this;
 };
 
-Continuable.prototype.setSyntaxAssignment = function() {
+
+/**
+ * @return {!r5js.Continuable} This object, for chaining.
+ */
+r5js.Continuable.prototype.setSyntaxAssignment = function() {
     if (!(this.subtype instanceof r5js.ProcCall &&
         this.subtype.operatorName === r5js.ProcCall.prototype.specialOps._set)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
@@ -66,23 +77,33 @@ Continuable.prototype.setSyntaxAssignment = function() {
     return this;
 };
 
-/* The last continuable of a continuable-continuation chain is the first
- continuable c such that c.continuation.nextContinuable is null. */
-Continuable.prototype.getLastContinuable = function() {
-    if (!this.continuation)
+/**
+ * The last continuable of a continuable-continuation chain is the first
+ * continuable c such that c.continuation.nextContinuable is null.
+ * @return {!r5js.Continuable}
+ */
+r5js.Continuable.prototype.getLastContinuable = function() {
+    if (!this.continuation) {
         throw new r5js.InternalInterpreterError('invariant violated');
+    }
     return this.continuation.nextContinuable
         ? this.continuation.nextContinuable.getLastContinuable()
         : this;
 };
 
-Continuable.prototype.appendContinuable = function(next) {
+/**
+ * @param {!r5js.Continuable} next The next continuable.
+ * @return {!r5js.Continuable} This object, for chaining.
+ */
+r5js.Continuable.prototype.appendContinuable = function(next) {
     this.getLastContinuable().continuation.nextContinuable = next;
     return this;
 };
 
-// delegate to subtype, passing in the continuation for debugging
-Continuable.prototype.debugString = function(indentLevel) {
+/**
+ * Delegates to subtype, passing in the continuation for debugging.
+ */
+r5js.Continuable.prototype.debugString = function(indentLevel) {
     return this.subtype.debugString(
         this.continuation,
         indentLevel || 0

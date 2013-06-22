@@ -17,6 +17,7 @@
 goog.provide('r5js.ProcCall');
 
 
+goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.data');
@@ -119,7 +120,7 @@ r5js.ProcCall.prototype.clearEnv = function() {
  *
  * @param {?} payload
  * @param {string} continuationName The name of the continuation.
- * @return {!Continuable} The new procedure call.
+ * @return {!r5js.Continuable} The new procedure call.
  */
 function newIdShim(payload, continuationName) {
     return r5js.data.newProcCall(
@@ -134,7 +135,7 @@ function newIdShim(payload, continuationName) {
  * @param {string} dstName
  * @param {string} srcName
  * @param {!r5js.Continuation} continuation
- * @return {!Continuable}
+ * @return {!r5js.Continuable}
  */
 function newAssignment(dstName, srcName, continuation) {
     var operands = new r5js.SiblingBuffer()
@@ -301,7 +302,7 @@ r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
         else if (arg.isQuasiquote()) {
             if ((maybeContinuable
                 = arg.processQuasiquote(this.env, continuation.lastResultName))
-                instanceof Continuable) {
+                instanceof r5js.Continuable) {
                 finalArgs.appendSibling(
                     r5js.data.newIdOrLiteral(maybeContinuable
                         .getLastContinuable()
@@ -322,7 +323,7 @@ r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
             finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.name));
         } else if (arg.isImproperList()) {
             throw new r5js.GeneralSyntaxError(arg);
-        } else if ((maybeContinuable = arg.desugar(this.env)) instanceof Continuable) {
+        } else if ((maybeContinuable = arg.desugar(this.env)) instanceof r5js.Continuable) {
             /* todo bl is it an invariant violation to be a list
              and not to desugar to a Continuable? */
             finalArgs.appendSibling(r5js.data.newIdOrLiteral(maybeContinuable.getLastContinuable().continuation.lastResultName));
@@ -341,7 +342,7 @@ r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
     );
 
     var ans = newCallChain.toContinuable();
-    ans.setStartingEnv(this.env);
+    ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
     var lastContinuable = ans.getLastContinuable();
     lastContinuable.continuation = continuation;
     resultStruct.nextContinuable = ans;

@@ -25,21 +25,21 @@ r5js.ContinuableHelper = function() {};
 
 
 /**
- * @type {Continuable}
+ * @type {r5js.Continuable}
  * @private
  */
 r5js.ContinuableHelper.prototype.firstContinuable_;
 
 
 /**
- * @type {Continuable}
+ * @type {r5js.Continuable}
  * @private
  */
 r5js.ContinuableHelper.prototype.lastContinuable_;
 
 
 /**
- * @param {!Continuable} continuable A continuable object.
+ * @param {!r5js.Continuable} continuable A continuable object.
  */
 r5js.ContinuableHelper.prototype.appendContinuable = function(continuable) {
 
@@ -53,7 +53,7 @@ r5js.ContinuableHelper.prototype.appendContinuable = function(continuable) {
 };
 
 /**
- * @return {Continuable}
+ * @return {r5js.Continuable}
  */
 r5js.ContinuableHelper.prototype.toContinuable = function() {
     return this.firstContinuable_;
