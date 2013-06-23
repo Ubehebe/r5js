@@ -26,6 +26,7 @@ goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.Procedure');
+goog.require('r5js.procs');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.Macro');
 
@@ -605,7 +606,7 @@ r5js.Parser.prototype['procedure-call'] = function() {
             var operands = node.at('operand'); // will be null if 0 operands
 
             if (operatorNode.isLiteral()) {
-                return r5js.data.newProcCall(
+                return r5js.procs.newProcCall(
                     operatorNode,
                     operands,
                     new r5js.Continuation(newCpsName())
@@ -617,7 +618,7 @@ r5js.Parser.prototype['procedure-call'] = function() {
                 var desugaredOp = operatorNode.desugar(env);
                 var lastContinuation = desugaredOp.getLastContinuable().continuation;
                 var opName = lastContinuation.lastResultName;
-                lastContinuation.nextContinuable = r5js.data.newProcCall(
+                lastContinuation.nextContinuable = r5js.procs.newProcCall(
                     r5js.data.newIdOrLiteral(opName),
                     operands,
                     new r5js.Continuation(newCpsName())
@@ -767,7 +768,7 @@ r5js.Parser.prototype['definition'] = function() {
                 var lastContinuable = desugaredExpr.getLastContinuable();
                 var cpsName = lastContinuable.continuation.lastResultName;
                 lastContinuable.continuation.nextContinuable =
-                    newAssignment(
+                    r5js.procs.newAssignment(
                         variable.payload,
                         cpsName,
                         new r5js.Continuation(newCpsName())
@@ -804,7 +805,7 @@ r5js.Parser.prototype['definition'] = function() {
                 env.addBinding(
                     anonymousName,
                     new r5js.Procedure(formals, false, formalRoot.nextSibling, env, name));
-                return newAssignment(
+                return r5js.procs.newAssignment(
                     name.payload,
                     anonymousName,
                     new r5js.Continuation(newCpsName())
@@ -843,7 +844,7 @@ r5js.Parser.prototype['definition'] = function() {
                 env.addBinding(
                     anonymousName,
                     new r5js.Procedure(formals, true, formalRoot.nextSibling, env, name));
-                return newAssignment(
+                return r5js.procs.newAssignment(
                     name.payload,
                     anonymousName,
                     new r5js.Continuation(newCpsName())
@@ -950,7 +951,7 @@ r5js.Parser.prototype['assignment'] = function() {
             var lastContinuable = desugaredExpr.getLastContinuable();
             var cpsName = lastContinuable.continuation.lastResultName;
             lastContinuable.continuation.nextContinuable =
-                newAssignment(
+                r5js.procs.newAssignment(
                     variable.payload,
                     cpsName,
                     new r5js.Continuation(newCpsName()));
@@ -1120,7 +1121,7 @@ r5js.Parser.prototype['macro-use'] = function() {
                 datums as-is for the macro pattern matching facility to use.
                 The trampoline knows what to do with raw datums in such a
                 context. */
-            return r5js.data.newProcCall(
+            return r5js.procs.newProcCall(
                 node.at('keyword'),
                 node.at('datum'),
                 new r5js.Continuation(newCpsName())
@@ -1523,7 +1524,7 @@ r5js.Parser.prototype['syntax-definition'] = function() {
                 throw new r5js.MacroError(kw, "all patterns must begin with " + kw);
             var anonymousName = newAnonymousLambdaName();
             env.addBinding(anonymousName, macro);
-            return newAssignment(
+            return r5js.procs.newAssignment(
                 kw,
                 anonymousName,
                 new r5js.Continuation(newCpsName())

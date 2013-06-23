@@ -29,6 +29,7 @@ goog.require('r5js.NodeBackedPort');
 goog.require('r5js.OutputMode');
 goog.require('r5js.ParseError');
 goog.require('r5js.PrimitiveProcedureError');
+goog.require('r5js.procs');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
@@ -967,7 +968,7 @@ R5JS_builtins['control'] = {
                 // todo bl document why we are quoting the arguments
                 for (var arg = mustBeList.firstChild; arg; arg = arg.nextSibling)
                     newArgs.appendSibling(arg.quote());
-                var actualProcCall = r5js.data.newProcCall(procName, newArgs.toSiblings(), continuation);
+                var actualProcCall = r5js.procs.newProcCall(procName, newArgs.toSiblings(), continuation);
                 actualProcCall.setStartingEnv(curProcCall.env);
                 resultStruct.nextContinuable = actualProcCall;
             }
@@ -980,7 +981,7 @@ R5JS_builtins['control'] = {
 
                 var newArgs = newEmptyList();
                 newArgs.appendChild(arguments[1]);
-                var actualProcCall = r5js.data.newProcCall(procName, newArgs.firstChild, continuation);
+                var actualProcCall = r5js.procs.newProcCall(procName, newArgs.firstChild, continuation);
                 resultStruct.nextContinuable = actualProcCall;
             }
         }
@@ -1015,7 +1016,7 @@ R5JS_builtins['control'] = {
                 continuation.installBeforeThunk(resultStruct.beforeThunk);
                 resultStruct.beforeThunk = null;
             }
-            var dummyProcCall = r5js.data.newProcCall(procCall.firstOperand, continuation, continuation);
+            var dummyProcCall = r5js.procs.newProcCall(procCall.firstOperand, continuation, continuation);
             dummyProcCall.setStartingEnv(procCall.env);
             resultStruct.nextContinuable = dummyProcCall;
         }
@@ -1072,12 +1073,12 @@ R5JS_builtins['control'] = {
 
             var valuesName = newCpsName();
             var producerContinuation = new r5js.Continuation(valuesName);
-            var producerCall = r5js.data.newProcCall(
+            var producerCall = r5js.procs.newProcCall(
                 procCall.firstOperand,
                 null, // no arguments
                 producerContinuation);
             producerCall.setStartingEnv(procCall.env);
-            var consumerCall = r5js.data.newProcCall(
+            var consumerCall = r5js.procs.newProcCall(
                 procCall.firstOperand.nextSibling,
                 r5js.data.newIdOrLiteral(valuesName),
                 continuation);
@@ -1128,14 +1129,14 @@ R5JS_builtins['control'] = {
 
             // todo bl use a ContinuableBuffer for efficiency
 
-            var procCallBefore = r5js.data.newProcCall(
+            var procCallBefore = r5js.procs.newProcCall(
                 procCall.firstOperand,
                 null, // no arguments
                 new r5js.Continuation(before)
             );
 
 
-            var procCallAfter = r5js.data.newProcCall(
+            var procCallAfter = r5js.procs.newProcCall(
                 procCall.firstOperand.nextSibling.nextSibling,
                 null, // no arguments
                 new r5js.Continuation(newCpsName())
@@ -1145,7 +1146,7 @@ R5JS_builtins['control'] = {
             procCallAfter.appendContinuable(newIdShim(r5js.data.newIdOrLiteral(result), newCpsName()));
             procCallAfter.getLastContinuable().continuation = continuation;
 
-            var procCallThunk = r5js.data.newProcCall(
+            var procCallThunk = r5js.procs.newProcCall(
                 procCall.firstOperand.nextSibling,
                 null, // no arguments
                 new r5js.Continuation(result)
@@ -1160,7 +1161,7 @@ R5JS_builtins['control'] = {
              who writes to it, and call/cc is the only one who reads it.
 
              todo bl document why we cannot reuse procCallBefore. */
-            resultStruct.beforeThunk = r5js.data.newProcCall(
+            resultStruct.beforeThunk = r5js.procs.newProcCall(
                 procCall.firstOperand,
                 null,
                 new r5js.Continuation(before));

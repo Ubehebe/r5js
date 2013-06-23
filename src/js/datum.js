@@ -1122,20 +1122,6 @@ r5js.data.newIdOrLiteral = function(payload, type) {
 
 
 /**
- * @param {?} operatorName
- * @param {?} firstOperand
- * @param {!r5js.Continuation} continuation A continuation.
- * @return {!r5js.Continuable} The new procedure call.
- */
-r5js.data.newProcCall = function(operatorName, firstOperand, continuation) {
-    return new r5js.Continuable(
-        new r5js.ProcCall(operatorName, firstOperand),
-        continuation
-    );
-};
-
-
-/**
  * @param {string} name Name of the procedure.
  * @param {Function|!r5js.Procedure} procedure TODO bl.
  * @return {!r5js.Datum} New Datum representing the given procedure.
