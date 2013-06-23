@@ -14,7 +14,9 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.ffi');
+goog.provide('r5js.ffi');
+goog.provide('r5js.ffiutil');
+
 
 goog.require('r5js.data');
 goog.require('r5js.Datum');
@@ -23,32 +25,15 @@ goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ProcCall');
 
 
-/* Warning: experimental. The intent is to allows things like
- (js-set! ((((window 'document) 'querySelector) "body") 'style) 'background-color "red")
- ((window 'alert) "Hello, world!")
- */
-
-
 /**
- * @param {!Object} jsObj A JavaScript object.
- * @return {!r5js.Datum} A new datum representing the given JavaScript object.
- */
-function newFFIDatum(jsObj) {
-    var ans = new r5js.Datum();
-    ans.type = 'ffi';
-    ans.payload = jsObj;
-    return ans;
-}
-
-/**
- * TODO bl: Why is this method not in proc_call.js?
- * @param {?} jsObjOrMethod
+ * @param {!r5js.JsObjOrMethod} jsObjOrMethod
  * @param {!r5js.Continuation} continuation A continuation.
- * @param {?} resultStruct
+ * @param {!r5js.TrampolineHelper} resultStruct
  */
-r5js.ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStruct) {
+r5js.ProcCall.prototype.tryFFI = function(
+    jsObjOrMethod, continuation, resultStruct) {
     if (!this.operandsInCpsStyle()) {
-        this.cpsify(jsObjOrMethod, continuation, resultStruct);
+        this.cpsify(null, continuation, resultStruct);
     } else {
 
         var property;
@@ -65,7 +50,7 @@ r5js.ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStr
 
         switch (typeof property) {
             case 'function':
-                ans = newFFIDatum(
+                ans = r5js.ffiutil.newFFIDatum(
                     new r5js.JsObjOrMethod(
                         jsObjOrMethod.getObject(),
                         property
@@ -73,7 +58,7 @@ r5js.ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStr
                 );
                 break;
             case 'object':
-                ans = newFFIDatum(new r5js.JsObjOrMethod(property));
+                ans = r5js.ffiutil.newFFIDatum(new r5js.JsObjOrMethod(property));
                 break;
             case 'undefined':
                 ans = null;
@@ -89,7 +74,32 @@ r5js.ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStr
     }
 };
 
-var FFI = {
+
+/**
+ * Convenience functions for working with the foreign-function interface.
+ */
+r5js.ffiutil = {};
+
+
+/**
+ * @param {!Object} jsObj A JavaScript object.
+ * @return {!r5js.Datum} A new datum representing the given JavaScript object.
+ */
+r5js.ffiutil.newFFIDatum = function(jsObj) {
+    var ans = new r5js.Datum();
+    ans.type = 'ffi';
+    ans.payload = jsObj;
+    return ans;
+};
+
+
+/**
+ * Warning: experimental. The intent is to allows things like
+ * (js-set! ((((window 'document) 'querySelector) "body") 'style) 'background-color "red")
+ * ((window 'alert) "Hello, world!")
+ * @type {!Object}
+ */
+r5js.ffi = {
     'js?': {
         argc: 1,
         proc: function(obj) {
@@ -107,8 +117,6 @@ var FFI = {
             return null; // I like Scheme's assignment semantics better than JavaScript's
         }
     }
-
-
 };
 
 
