@@ -198,7 +198,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
 };
 
 /**
- * @param {!r5js.Environment} other Environment to add closures from.
+ * @param {!r5js.IEnvironment} other Environment to add closures from.
  * See comment to {@link r5js.IEnvironment.addClosure}.
  */
 r5js.Environment.prototype.addClosuresFrom = function(other) {

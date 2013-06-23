@@ -58,10 +58,12 @@ r5js.Branch = function(
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {!r5js.EnvBuffer} envBuffer
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser ready to parse the given datum.
  * @returns {*}
  */
 r5js.Branch.prototype.evalAndAdvance = function(
-    continuation, resultStruct, envBuffer) {
+    continuation, resultStruct, envBuffer, parserProvider) {
 
     /* Branches always use the old environment left by the previous action
     on the trampoline. */
