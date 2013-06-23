@@ -16,12 +16,12 @@
 
 goog.provide('r5js.main');
 
-goog.require('r5js.tmp.globals');
 goog.require('r5js.tmp.stdproc');
 goog.require('r5js.tmp.timer');
 goog.require('r5js.tmp.unit_test');
 
 goog.require('r5js.boot');
+goog.require('r5js.globals');
 goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
@@ -43,7 +43,7 @@ var GayLisp = (function () {
          */
         function() {
             r5js.boot(syntax, procedures);
-            pipeline.setRootEnv(r5RSEnv);
+            pipeline.setRootEnv(r5js.globals.r5RSEnv);
         }
     );
     return new r5js.PublicApi(pipeline);

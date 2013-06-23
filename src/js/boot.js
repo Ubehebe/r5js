@@ -20,6 +20,7 @@ goog.provide('r5js.boot');
 goog.require('r5js.Environment');
 goog.require('r5js.ffi');
 goog.require('r5js.ffiutil');
+goog.require('r5js.globals');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
@@ -34,9 +35,9 @@ goog.require('r5js.trampoline');
  * @suppress {undefinedVars} for console.log
  */
 r5js.boot = function(syntaxLib, procLib) {
-    nullEnv = new r5js.Environment('null-environment-5', null);
-    install(syntaxLib, nullEnv);
-    nullEnv.seal();
+    r5js.globals.nullEnv = new r5js.Environment('null-environment-5', null);
+    install(syntaxLib, r5js.globals.nullEnv);
+    r5js.globals.nullEnv.seal();
     // Node and IE<9 compat
     var consoleAvail = Function('return "console" in this;')();
 
@@ -64,12 +65,14 @@ r5js.boot = function(syntaxLib, procLib) {
      (remembering to clone the macros and set their backlinks correctly).
      Ugh. */
 
-    r5RSEnv = new r5js.RootEnvironment(nullEnv.clone('scheme-report-environment-5'));
-    installBuiltins(r5RSEnv);
+    r5js.globals.r5RSEnv = new r5js.RootEnvironment(
+        r5js.globals.nullEnv.clone('scheme-report-environment-5')
+    );
+    installBuiltins(/** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv));
     consoleAvail && console.log('installed primitive procedures ok');
-    install(procLib, r5RSEnv);
+    install(procLib, /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv));
     consoleAvail && console.log('installed library procedures ok');
-    r5RSEnv.seal();
+    r5js.globals.r5RSEnv.seal();
     consoleAvail && console.log('interpreter is ready');
     consoleAvail && console.log('----------------------------------------------------------------------');
 };

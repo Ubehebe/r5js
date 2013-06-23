@@ -14,9 +14,38 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.globals');
+goog.provide('r5js.globals');
 
-var nullEnv; // this is (null-environment 5)
-var r5RSEnv; // this is (scheme-report-environment 5)
-var debug = Function('return "console" in this;')() && false; // setting this to true shows every bounce of the trampoline
-var uniqueNodeCounter = 0; // mostly for getting fresh temp variable names
+
+/**
+ * Global variables and state.
+ */
+r5js.globals = {};
+
+
+/**
+ * This is (null-environment 5).
+ * @type {r5js.IEnvironment}
+ */
+r5js.globals.nullEnv;
+
+
+/**
+ * This is (scheme-report-environment 5).
+ * @type {r5js.IEnvironment}
+ */
+r5js.globals.r5RSEnv;
+
+
+/**
+ *  Setting this to true shows every bounce of the trampoline.
+ * @type {boolean}
+ */
+r5js.globals.debug = Function('return "console" in this;')() && false;
+
+
+/**
+ * mostly for getting fresh temp variable names.
+ * @type {number}
+ */
+r5js.globals.uniqueNodeCounter = 0;

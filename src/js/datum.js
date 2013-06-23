@@ -20,6 +20,7 @@ goog.provide('r5js.Datum');
 
 goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
+goog.require('r5js.globals');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.RenameHelper');
@@ -914,14 +915,14 @@ r5js.Datum.prototype.getCdrHelper = function() {
  * @return {string}
  */
 function newCpsName() {
-    return cpsPrefix + (uniqueNodeCounter++);
+    return cpsPrefix + (r5js.globals.uniqueNodeCounter++);
 }
 
 /**
  * @return {string}
  */
 function newAnonymousLambdaName() {
-    return 'proc' + (uniqueNodeCounter++);
+    return 'proc' + (r5js.globals.uniqueNodeCounter++);
 }
 
 // Not a valid identifier prefix so we can easily tell these apart

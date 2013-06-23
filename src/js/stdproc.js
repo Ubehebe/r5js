@@ -22,6 +22,7 @@ goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
+goog.require('r5js.globals');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
@@ -1212,7 +1213,7 @@ R5JS_builtins['eval'] = {
                 if (!parsed)
                     throw new r5js.ParseError(expr);
                 var continuable = parsed.desugar(env).setStartingEnv(env);
-                return r5js.trampoline(continuable, null, null, debug);
+                return r5js.trampoline(continuable, null, null, r5js.globals.debug);
             }
         }
     },
@@ -1234,7 +1235,8 @@ R5JS_builtins['eval'] = {
         argtypes: ['number'],
         proc: function(num) {
             if (num === 5)
-                return newEnvironmentSpecifier(r5RSEnv);
+                return newEnvironmentSpecifier(
+                    /** @type {!r5js.IEnvironment} */(r5js.globals.r5RSEnv));
             else throw new r5js.InternalInterpreterError(
                 'unsupported scheme report environment ' + num);
         }
@@ -1244,7 +1246,8 @@ R5JS_builtins['eval'] = {
         argtypes: ['number'],
         proc: function(num) {
             if (num === 5)
-                return newEnvironmentSpecifier(nullEnv);
+                return newEnvironmentSpecifier(
+                    /** @type {!r5js.IEnvironment} */ (r5js.globals.nullEnv));
             else throw new r5js.InternalInterpreterError(
                 'unsupported null environment ' + num);
         }

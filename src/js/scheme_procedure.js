@@ -26,6 +26,7 @@ goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.FFIError');
+goog.require('r5js.globals');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
@@ -104,7 +105,12 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, name) {
  *         environment.
  */
 r5js.Procedure.prototype.cloneWithEnv = function(env) {
-    var ans = new r5js.Procedure(this.formalsArray, this.isDotted, null, env, this.name + "'-" + (uniqueNodeCounter++));
+    var ans = new r5js.Procedure(
+        this.formalsArray,
+        this.isDotted,
+        null,
+        env,
+        this.name + "'-" + (r5js.globals.uniqueNodeCounter++));
     ans.env.setClosuresFrom(this.env); // non-cloning ok?
     ans.body = this.body;
     ans.lastContinuable = this.lastContinuable;
@@ -806,7 +812,7 @@ r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
             : new r5js.Environment('tmp-'
             + proc.name
             + '-'
-            + (uniqueNodeCounter++), proc.env).addClosuresFrom(proc.env);
+            + (r5js.globals.uniqueNodeCounter++), proc.env).addClosuresFrom(proc.env);
 
         /* Remember to discard the new environment
          at the end of the procedure call. */
@@ -837,7 +843,7 @@ r5js.ProcCall.prototype.tryMacroUse = function(
     macro, continuation, resultStruct, parserProvider) {
 
     var newEnv = new r5js.Environment(
-        'macro-' + (uniqueNodeCounter++),
+        'macro-' + (r5js.globals.uniqueNodeCounter++),
         this.env
     );
     var newParseTree = macro.transcribe(
@@ -1049,7 +1055,8 @@ function processQuasiquote(datum, env, cpsName, parserProvider) {
             /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */
-            continuation.lastResultName = node.type + (uniqueNodeCounter++);
+            continuation.lastResultName = node.type +
+                (r5js.globals.uniqueNodeCounter++);
             newCalls.appendContinuable(asContinuable);
             return r5js.data.newIdOrLiteral(/** @type {string} */ (
                 continuation.lastResultName));

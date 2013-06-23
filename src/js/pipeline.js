@@ -20,6 +20,7 @@ goog.provide('r5js.Pipeline');
 
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.Environment');
+goog.require('r5js.globals');
 goog.require('r5js.ParseError');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
@@ -78,6 +79,6 @@ r5js.Pipeline.prototype.Eval = function(continuable, onOutput) {
         continuable,
         null,
         onOutput && new r5js.CallbackBackedPort(onOutput),
-        debug
+        r5js.globals.debug
     );
 };
