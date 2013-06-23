@@ -19,6 +19,7 @@ goog.provide('r5js.boot');
 
 goog.require('r5js.Environment');
 goog.require('r5js.JsObjOrMethod');
+goog.require('r5js.Parser');
 goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
 goog.require('r5js.trampoline');
@@ -78,7 +79,7 @@ r5js.boot = function(syntaxLib, procLib) {
  */
 function install(lib, env) {
     return r5js.trampoline(
-        new Parser(
+        new r5js.Parser(
             new r5js.Reader(
                 new Scanner(lib)
             ).read()

@@ -20,6 +20,7 @@ goog.provide('r5js.test.scanner');
 
 
 goog.require('r5js.Datum');
+goog.require('r5js.Parser');
 goog.require('r5js.Reader');
 
 /** @suppress {undefinedVars} for console */
@@ -305,7 +306,8 @@ r5js.test.parser = function() {
         var testsForType = tests[type];
         for (var toParse in testsForType) {
             var datumRoot = new r5js.Reader(new Scanner(toParse)).read();
-            var actualResult = (datumRoot instanceof r5js.Datum) && new Parser(datumRoot).rhs({type: type});
+            var actualResult = (datumRoot instanceof r5js.Datum) &&
+                new r5js.Parser(datumRoot).rhs({type: type});
             var expectedResult = testsForType[toParse];
 
             // Expected success...

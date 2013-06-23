@@ -29,6 +29,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
+goog.require('r5js.Parser');
 goog.require('r5js.Procedure');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
@@ -595,7 +596,7 @@ r5js.ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct
         this.reconstructDatum(),
         newEnv,
         function(datum) {
-            return new Parser(datum);
+            return new r5js.Parser(datum);
         }
     );
 
@@ -764,7 +765,7 @@ function processQuasiquote(datum, env, cpsName) {
             return node.isUnquote() && (node.qqLevel === qqLevel);
         },
         function(node) {
-            var asContinuable = new Parser(
+            var asContinuable = new r5js.Parser(
                 /** @type {!r5js.Datum} */(node.firstChild)).
                 parse('expression').
                 desugar(env, true);

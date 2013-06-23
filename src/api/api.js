@@ -18,7 +18,6 @@ goog.provide('r5js.main');
 
 goog.require('r5js.tmp.ffi');
 goog.require('r5js.tmp.globals');
-goog.require('r5js.tmp.parse');
 goog.require('r5js.tmp.scanner');
 goog.require('r5js.tmp.stdproc');
 goog.require('r5js.tmp.timer');

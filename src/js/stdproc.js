@@ -1207,7 +1207,7 @@ R5JS_builtins['eval'] = {
                 // don't accidentally evaluate the next expr!
                 expr.nextSibling = null;
 
-                var parsed = new Parser(expr).parse();
+                var parsed = new r5js.Parser(expr).parse();
                 if (!parsed)
                     throw new r5js.ParseError(expr);
                 var continuable = parsed.desugar(env).setStartingEnv(env);

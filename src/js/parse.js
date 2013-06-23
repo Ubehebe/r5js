@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.parse');
+goog.provide('r5js.Parser');
 
 goog.require('r5js.Continuation');
 goog.require('r5js.data');
@@ -103,52 +103,67 @@ goog.require('r5js.Macro');
  in R6RS. */
 
 /**
+ * @param {!r5js.Datum} root The root of the tree to parse.
  * @constructor
  */
-function Parser(root) {
-    /* The next datum to parse. When a parse of a node is successful,
-     the next pointer advanced to the node's next sibling. Thus, this.next
-     will only be null or undefined in two cases:
-
-     1. EOF
-     2. Advancing past the end of a nonempty list. (The empty-list corner case
-     is handled by emptyListSentinel below.)
+r5js.Parser = function(root) {
+    /**
+     * The next datum to parse. When a parse of a node is successful,
+     * the next pointer advanced to the node's next sibling. Thus, this.next
+     * will only be null or undefined in two cases:
+     *
+     * 1. EOF
+     * 2. Advancing past the end of a nonempty list. (The empty-list
+     * corner case is handled by emptyListSentinel below.)
+     *
+     * @type {r5js.Datum|Object}
      */
     this.next = root;
 
-    /* The last datum parsed. We only need this in order to figure out where
-     to go next after finishing parsing a list. this.prev is only updated
-     in two cases:
-
-     1. Moving from a parent (= this.prev) to its first child (= this.next)
-     2. Moving from a sibling (= this.prev) to its next sibling (= this.next)
-
-     Thus, this.prev is only null until the first successful move from
-     parent to first child or from sibling to next sibling, and is never
-     thereafter null. */
+    /**
+     * The last datum parsed. We only need this in order to figure out
+     * where to go next after finishing parsing a list.
+     * this.prev is only updated in two cases:
+     *
+     * 1. Moving from a parent (= this.prev) to its first child (= this.next)
+     * 2. Moving from a sibling (= this.prev) to its next sibling (= this.next)
+     *
+     * Thus, this.prev is only null until the first successful move
+     * from parent to first child or from sibling to next sibling,
+     * and is never thereafter null.
+     *
+     * @type {r5js.Datum|Object}
+     */
     this.prev = null;
 
-    /* We use a special sentinel object to handle the corner case of an empty
-     list. According to the tree constructed by the reader (the structure of
-     which the parser does not modify), an empty list is simply a datum
-     of type '(' whose firstSibling is null or undefined. This presents a
-     problem for the parser: when this.next is null, have we advanced past
-     the end of a list, or was the list empty to begin with? We must
-     distinguish these cases, because they affect what to parse next.
-     (See comments in onDatum().)
-
-     For a long time, I tried to distinguish them via some pointer trickery,
-     but this concealed some very subtle bugs. So I decided it was clearer
-     to compare against a dedicated sentinel object.
-
-     The sentinel is an immutable object with no state; we use it only
-     for direct identity comparisons. It is used only internally by the
-     parser; it never enters the parse tree.
+    /**
+     * We use a special sentinel object to handle the corner case of
+     * an empty list. According to the tree constructed by the reader
+     * (the structure of which the parser does not modify), an empty list
+     * is simply a datum of type '(' whose firstSibling is null or undefined.
+     * This presents a problem for the parser: when this.next is null,
+     * have we advanced past the end of a list, or was the list empty
+     * to begin with? We must distinguish these cases, because they affect
+     * what to parse next. (See comments in onDatum().)
+     *
+     * For a long time, I tried to distinguish them via some pointer trickery,
+     * but this concealed some very subtle bugs. So I decided it was clearer
+     * to compare against a dedicated sentinel object.
+     *
+     * The sentinel is an immutable object with no state; we use it only
+     * for direct identity comparisons. It is used only internally by the
+     * parser; it never enters the parse tree.
+     *
+     * @type {!Object}
      */
     this.emptyListSentinel = new Object();
 
-//    this.fixParserSensitiveIds = false;
-}
+
+    /**
+     * @type {boolean}
+     */
+    this.fixParserSensitiveIds = false;
+};
 
 
 /**
@@ -158,7 +173,7 @@ function Parser(root) {
  * @param {...*} var_args
  * TODO bl: narrow the signature.
  */
-Parser.prototype.rhs = function(var_args) {
+r5js.Parser.prototype.rhs = function(var_args) {
     var parseFunction;
 
     var root = this.next;
@@ -212,11 +227,12 @@ Parser.prototype.rhs = function(var_args) {
     return root;
 };
 
+
 /**
  * @param {...*} var_args
  * TODO bl: narrow the signature.
  */
-Parser.prototype.alternation = function(var_args) {
+r5js.Parser.prototype.alternation = function(var_args) {
     var possibleRhs;
     for (var i = 0; i < arguments.length; ++i) {
         if (possibleRhs = this.rhs.apply(this, arguments[i]))
@@ -225,7 +241,11 @@ Parser.prototype.alternation = function(var_args) {
     return null;
 };
 
-Parser.prototype.rewriteImproperList = function(rhsArgs) {
+
+/**
+ * @param {?} rhsArgs
+ */
+r5js.Parser.prototype.rewriteImproperList = function(rhsArgs) {
     // example: (define (x . y) 1) => (define .( x . ) 1)
     /* No RHS in the grammar has more than one dot.
      This will break if such a rule is added. */
@@ -255,7 +275,13 @@ Parser.prototype.rewriteImproperList = function(rhsArgs) {
     }
 };
 
-Parser.prototype.onNonterminal = function(element, parseFunction) {
+
+/**
+ * @param {?} element
+ * @param {?} parseFunction
+ * @return {?}
+ */
+r5js.Parser.prototype.onNonterminal = function(element, parseFunction) {
 
     var parsed;
 
@@ -302,27 +328,48 @@ Parser.prototype.onNonterminal = function(element, parseFunction) {
     }
 };
 
-Parser.prototype.advanceToChildIf = function(predicate) {
-    var ans = this.next && predicate(this.next);
-    if (ans) {
+
+/**
+ * @param {function(!r5js.Datum):boolean} predicate Predicate to apply
+ * to the next datum.
+ * @return {boolean} True iff the predicate applied and the parser advanced
+ * to the child datum.
+ */
+r5js.Parser.prototype.advanceToChildIf = function(predicate) {
+    if (this.next && predicate(/** @type {!r5js.Datum} */(this.next))) {
         this.prev = this.next;
         /* See comments in body of Parser() for explanation of
             emptyListSentinel. */
         this.next = this.next.firstChild || this.emptyListSentinel;
+        return true;
+    } else {
+        return false;
     }
-    return ans;
 };
 
-Parser.prototype.nextIf = function(predicate) {
-    var ans = this.next && predicate(this.next);
-    if (ans) {
+
+/**
+ * @param {function(!r5js.Datum):boolean} predicate Predicate to apply
+ * to the next datum.
+ * @return {boolean} True iff the predicate applied and the parser advanced
+ * to the next datum.
+ */
+r5js.Parser.prototype.nextIf = function(predicate) {
+    if (this.next && predicate(/** @type {!r5js.Datum} */ (this.next))) {
         this.prev = this.next;
         this.next = this.next.nextSibling;
+        return true;
+    } else {
+        return false;
     }
-    return ans;
 };
 
-Parser.prototype.onDatum = function(element) {
+
+/**
+ * @param {?} element
+ * @return {boolean} TODO bl what does the return value mean?
+ */
+r5js.Parser.prototype.onDatum = function(element) {
 
     if (typeof element.type === 'string') {
 
@@ -378,8 +425,10 @@ Parser.prototype.onDatum = function(element) {
     } else if (typeof element.type === 'function') {
         return this.nextIf(element.type);
     }
-};
 
+    // TODO bl implicit return of undefined here.
+    // Hope that no caller depends on it...
+};
 
 
 /* <expression> -> <variable>
@@ -392,7 +441,7 @@ Parser.prototype.onDatum = function(element) {
  | <macro use>
  | <macro block>
  */
-Parser.prototype['expression'] = function() {
+r5js.Parser.prototype['expression'] = function() {
     /* In order to support shadowing of syntactic keywords,
     the order of the following rules is important. Consider:
 
@@ -459,7 +508,7 @@ Parser.prototype['expression'] = function() {
 };
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
-Parser.prototype['variable'] = function() {
+r5js.Parser.prototype['variable'] = function() {
     var self = this;
     return this.rhs(
         {type: function(datum) {
@@ -471,8 +520,9 @@ Parser.prototype['variable'] = function() {
         }});
 };
 
+
 // <literal> -> <quotation> | <self-evaluating>
-Parser.prototype['literal'] = function() {
+r5js.Parser.prototype['literal'] = function() {
     return this.alternation(
         [
             {type: 'self-evaluating'}
@@ -482,8 +532,9 @@ Parser.prototype['literal'] = function() {
         ]);
 };
 
+
 // <quotation> -> '<datum> | (quote <datum>)
-Parser.prototype['quotation'] = function() {
+r5js.Parser.prototype['quotation'] = function() {
 
     return this.alternation(
         [
@@ -506,14 +557,16 @@ Parser.prototype['quotation'] = function() {
         ]);
 };
 
-Parser.prototype['datum'] = function() {
+
+r5js.Parser.prototype['datum'] = function() {
     return this.rhs({type: function(datum) {
             return true;
         }});
 };
 
+
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
-Parser.prototype['self-evaluating'] = function() {
+r5js.Parser.prototype['self-evaluating'] = function() {
 
     return this.rhs(
         {type: function(datum) {
@@ -535,10 +588,11 @@ Parser.prototype['self-evaluating'] = function() {
     );
 };
 
+
 // <procedure call> -> (<operator> <operand>*)
 // <operator> -> <expression>
 // <operand> -> <expression>
-Parser.prototype['procedure-call'] = function() {
+r5js.Parser.prototype['procedure-call'] = function() {
 
     return this.rhs(
         {type: '('},
@@ -575,11 +629,13 @@ Parser.prototype['procedure-call'] = function() {
     );
 };
 
-Parser.prototype['operator'] = function() {
+
+r5js.Parser.prototype['operator'] = function() {
     return this.rhs({type: 'expression'});
 };
 
-Parser.prototype['operand'] = function() {
+
+r5js.Parser.prototype['operand'] = function() {
     return this.rhs({type: 'expression'});
 };
 
@@ -587,7 +643,7 @@ Parser.prototype['operand'] = function() {
 // <body> -> <definition>* <sequence>
 // <sequence> -> <command>* <expression>
 // <command> -> <expression>
-Parser.prototype['lambda-expression'] = function() {
+r5js.Parser.prototype['lambda-expression'] = function() {
 
     return this.rhs(
         {type: '('},
@@ -663,7 +719,7 @@ Parser.prototype['lambda-expression'] = function() {
  */
 
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
-Parser.prototype['formals'] = function() {
+r5js.Parser.prototype['formals'] = function() {
 
     return this.alternation(
         [
@@ -689,7 +745,7 @@ Parser.prototype['formals'] = function() {
 | (begin <definition>*)
  <def formals> -> <variable>* | <variable>* . <variable>
  */
-Parser.prototype['definition'] = function() {
+r5js.Parser.prototype['definition'] = function() {
 
     return this.alternation(
         [
@@ -806,7 +862,7 @@ Parser.prototype['definition'] = function() {
 };
 
 // <conditional> -> (if <test> <consequent> <alternate>)
-Parser.prototype['conditional'] = function() {
+r5js.Parser.prototype['conditional'] = function() {
 
     return this.alternation(
         [
@@ -861,22 +917,25 @@ Parser.prototype['conditional'] = function() {
 };
 
 // <test> -> <expression>
-Parser.prototype['test'] = function() {
+r5js.Parser.prototype['test'] = function() {
     return this.rhs({type: 'expression'});
 };
+
 
 // <consequent> -> <expression>
-Parser.prototype['consequent'] = function() {
+r5js.Parser.prototype['consequent'] = function() {
     return this.rhs({type: 'expression'});
 };
+
 
 // <alternate> -> <expression> | <empty>
-Parser.prototype['alternate'] = function() {
+r5js.Parser.prototype['alternate'] = function() {
     return this.rhs({type: 'expression'});
 };
 
+
 // <assignment> -> (set! <variable> <expression>)
-Parser.prototype['assignment'] = function() {
+r5js.Parser.prototype['assignment'] = function() {
 
     return this.rhs(
         {type: '('},
@@ -901,9 +960,10 @@ Parser.prototype['assignment'] = function() {
     );
 };
 
+
 // <quasiquotation> -> <quasiquotation 1>
 // <quasiquotation D> -> `<qq template D> | (quasiquote <qq template D>)
-Parser.prototype['quasiquotation'] = function() {
+r5js.Parser.prototype['quasiquotation'] = function() {
     return this.alternation(
         [
             {type: '`'},
@@ -918,13 +978,14 @@ Parser.prototype['quasiquotation'] = function() {
     );
 };
 
+
 /* <qq template 0> -> <expression>
  <qq template D> -> <simple datum>
  | <list qq template D>
  | <vector qq template D>
  | <unquotation D>
  */
-Parser.prototype['qq-template'] = function() {
+r5js.Parser.prototype['qq-template'] = function() {
     return this.alternation(
        /* [ todo bl do we need this?
             {type: 'expression', ifQqLevel: 0}
@@ -956,12 +1017,13 @@ Parser.prototype['qq-template'] = function() {
     );
 };
 
+
 /*<list qq template D> -> (<qq template or splice D>*)
  | (<qq template or splice D>+ . <qq template D>)
  | '<qq template D>
  | <quasiquotation D+1>
  */
-Parser.prototype['list-qq-template'] = function() {
+r5js.Parser.prototype['list-qq-template'] = function() {
   return this.alternation(
     [
         {type: '('},
@@ -985,8 +1047,9 @@ Parser.prototype['list-qq-template'] = function() {
   );
 };
 
+
 // <vector qq template D> -> #(<qq template or splice D>*)
-Parser.prototype['vector-qq-template'] = function() {
+r5js.Parser.prototype['vector-qq-template'] = function() {
     return this.rhs(
         {type: '#('},
         {type: 'qq-template-or-splice', atLeast: 0},
@@ -994,8 +1057,9 @@ Parser.prototype['vector-qq-template'] = function() {
     );
 };
 
+
 // <unquotation D> -> ,<qq template D-1> | (unquote <qq template D-1>)
-Parser.prototype['unquotation'] = function() {
+r5js.Parser.prototype['unquotation'] = function() {
     return this.alternation(
         [
             {type: ','},
@@ -1010,8 +1074,9 @@ Parser.prototype['unquotation'] = function() {
     );
 };
 
+
 // <qq template or splice D> -> <qq template D> | <splicing unquotation D>
-Parser.prototype['qq-template-or-splice'] = function() {
+r5js.Parser.prototype['qq-template-or-splice'] = function() {
     return this.alternation(
         [
             {type: 'qq-template'}
@@ -1022,10 +1087,11 @@ Parser.prototype['qq-template-or-splice'] = function() {
     );
 };
 
+
 /* <splicing unquotation D> -> ,@<qq template D-1>
  | (unquote-splicing <qq template D-1>)
  */
-Parser.prototype['splicing-unquotation'] = function() {
+r5js.Parser.prototype['splicing-unquotation'] = function() {
     return this.alternation(
         [
             {type: ',@'},
@@ -1042,7 +1108,7 @@ Parser.prototype['splicing-unquotation'] = function() {
 
 
 // <macro use> -> (<keyword> <datum>*)
-Parser.prototype['macro-use'] = function() {
+r5js.Parser.prototype['macro-use'] = function() {
 
     return this.rhs(
         {type: '('},
@@ -1063,8 +1129,9 @@ Parser.prototype['macro-use'] = function() {
         });
 };
 
+
 // <keyword> -> <identifier>
-Parser.prototype['keyword'] = function() {
+r5js.Parser.prototype['keyword'] = function() {
     return this.rhs({type: function(datum) {
         return datum.type === 'identifier';
     }});
@@ -1073,7 +1140,7 @@ Parser.prototype['keyword'] = function() {
 
 /* <macro block> -> (let-syntax (<syntax spec>*) <body>)
  | (letrec-syntax (<syntax-spec>*) <body>) */
-Parser.prototype['macro-block'] = function() {
+r5js.Parser.prototype['macro-block'] = function() {
     return this.alternation(
         [
             {type: '('},
@@ -1105,8 +1172,9 @@ Parser.prototype['macro-block'] = function() {
         ]);
 };
 
+
 // <syntax spec> -> (<keyword> <transformer spec>)
-Parser.prototype['syntax-spec'] = function() {
+r5js.Parser.prototype['syntax-spec'] = function() {
     return this.rhs(
         {type: '('},
         {type: 'keyword'},
@@ -1115,8 +1183,9 @@ Parser.prototype['syntax-spec'] = function() {
     );
 };
 
+
 // <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
-Parser.prototype['transformer-spec'] = function() {
+r5js.Parser.prototype['transformer-spec'] = function() {
     return this.rhs(
         {type: '('},
         {type: 'syntax-rules'}, // a terminal
@@ -1139,8 +1208,9 @@ Parser.prototype['transformer-spec'] = function() {
     );
 };
 
+
 // <syntax rule> -> (<pattern> <template>)
-Parser.prototype['syntax-rule'] = function() {
+r5js.Parser.prototype['syntax-rule'] = function() {
     return this.rhs(
         {type: '('},
         {type: 'pattern'},
@@ -1148,6 +1218,7 @@ Parser.prototype['syntax-rule'] = function() {
         {type: ')'}
     );
 };
+
 
 /* <pattern> -> <pattern identifier>
  | (<pattern>*)
@@ -1157,7 +1228,7 @@ Parser.prototype['syntax-rule'] = function() {
  | #(<pattern>+ <ellipsis>)
  | <pattern datum>
  */
-Parser.prototype['pattern'] = function() {
+r5js.Parser.prototype['pattern'] = function() {
     return this.alternation(
         [
             {type: '('},
@@ -1247,8 +1318,9 @@ Parser.prototype['pattern'] = function() {
     );
 };
 
+
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
-Parser.prototype['pattern-datum'] = function() {
+r5js.Parser.prototype['pattern-datum'] = function() {
     return this.rhs(
         {type: function(datum) {
             switch (datum.type) {
@@ -1262,6 +1334,7 @@ Parser.prototype['pattern-datum'] = function() {
             }
         }});
 };
+
 
 /* <template> -> <pattern identifier>
  | (<template element>*)
@@ -1287,7 +1360,7 @@ Parser.prototype['pattern-datum'] = function() {
  Anyway, the rules for validating templates with ellipses in them are vague
  (4.3.2: "It is an error if the output cannot be built up [from the template]
  as specified") and I can do this during evaluation of a macro if necessary. */
-Parser.prototype['template'] = function() {
+r5js.Parser.prototype['template'] = function() {
     return this.alternation(
         [
             {type: 'pattern-identifier'},
@@ -1376,13 +1449,15 @@ Parser.prototype['template'] = function() {
     );
 };
 
+
 // <template datum> -> <pattern datum>
-Parser.prototype['template-datum'] = function() {
+r5js.Parser.prototype['template-datum'] = function() {
     return this.rhs({type: 'pattern-datum'});
 };
 
+
 // <pattern identifier> -> <any identifier except ...>
-Parser.prototype['pattern-identifier'] = function() {
+r5js.Parser.prototype['pattern-identifier'] = function() {
     return this.rhs(
         {type: function(datum) {
             return datum.type === 'identifier' && datum.payload !== '...';
@@ -1391,7 +1466,7 @@ Parser.prototype['pattern-identifier'] = function() {
 };
 
 // <program> -> <command or definition>*
-Parser.prototype['program'] = function() {
+r5js.Parser.prototype['program'] = function() {
     return this.rhs(
         {type: 'command-or-definition', atLeast: 0},
         {desugar: function(node, env) {
@@ -1401,12 +1476,13 @@ Parser.prototype['program'] = function() {
     );
 };
 
+
 /* <command or definition> -> <command>
  | <definition>
  | <syntax definition>
  | (begin <command or definition>*)
  */
-Parser.prototype['command-or-definition'] = function() {
+r5js.Parser.prototype['command-or-definition'] = function() {
     return this.alternation(
         [
             {type: 'definition'}
@@ -1425,13 +1501,15 @@ Parser.prototype['command-or-definition'] = function() {
         ]);
 };
 
+
 // <command> -> <expression>
-Parser.prototype['command'] = function() {
+r5js.Parser.prototype['command'] = function() {
     return this.rhs({type: 'expression'});
 };
 
+
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
-Parser.prototype['syntax-definition'] = function() {
+r5js.Parser.prototype['syntax-definition'] = function() {
     return this.rhs(
         {type: '('},
         {type: 'define-syntax'},
@@ -1457,11 +1535,12 @@ Parser.prototype['syntax-definition'] = function() {
     );
 };
 
+
 /**
  * @param {*=} lhs
  * TODO bl: narrow the type of the parameter.
  */
-Parser.prototype.parse = function(lhs) {
+r5js.Parser.prototype.parse = function(lhs) {
     var fun = this[lhs || 'program'];
     if (fun) {
         var ans = fun.apply(this);
@@ -1476,7 +1555,7 @@ Parser.prototype.parse = function(lhs) {
                      into fixParserSensitiveIds() */
                     for (var cur = ans; cur; cur = cur.nextSibling)
                         cur.unsetParse();
-                    return new Parser(ans).parse(lhs);
+                    return new r5js.Parser(ans).parse(lhs);
                 } else return ans;
             } else return ans;
         } else {
