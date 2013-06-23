@@ -17,6 +17,7 @@
 goog.provide('r5js.boot');
 
 
+goog.require('r5js.builtins');
 goog.require('r5js.Environment');
 goog.require('r5js.ffi');
 goog.require('r5js.ffiutil');
@@ -30,8 +31,8 @@ goog.require('r5js.trampoline');
 
 
 /**
- * @param {?} syntaxLib The R5RS syntax library.
- * @param {?} procLib The R5RS procedure library.
+ * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
+ * @param {string} procLib Scheme source code for the R5RS procedure library.
  * @suppress {undefinedVars} for console.log
  */
 r5js.boot = function(syntaxLib, procLib) {
@@ -79,8 +80,9 @@ r5js.boot = function(syntaxLib, procLib) {
 
 
 /**
- * @param {?} lib
- * @param {!r5js.IEnvironment} env
+ * @param {string} lib Scheme source code.
+ * @param {!r5js.IEnvironment} env Environment to install the source code's
+ * definitions into.
  * @return {?}
  */
 function install(lib, env) {
@@ -102,8 +104,8 @@ function install(lib, env) {
  * @param {!r5js.IEnvironment} env Environment to install the builtins into.
  */
 function installBuiltins(env) {
-    for (var category in R5JS_builtins) {
-        var procs = R5JS_builtins[category];
+    for (var category in r5js.builtins) {
+        var procs = r5js.builtins[category];
         for (var name in procs)
             registerBuiltin(name, procs[name], env);
     }

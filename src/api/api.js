@@ -16,7 +16,6 @@
 
 goog.provide('r5js.main');
 
-goog.require('r5js.tmp.stdproc');
 
 goog.require('r5js.boot');
 goog.require('r5js.globals');

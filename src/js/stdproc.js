@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.stdproc');
+goog.provide('r5js.builtins');
 
 
 goog.require('r5js.ArgumentTypeError');
@@ -37,12 +37,17 @@ goog.require('r5js.TooManyArgs');
 goog.require('r5js.trampoline');
 goog.require('r5js.UnimplementedOptionError');
 
-var R5JS_builtins = {};
 
-/* The names of the different categories of builtins are just for
- readability; they all get loaded into the same namespace. */
 
-R5JS_builtins['equiv'] = {
+/**
+ * The names of the different categories of builtins are just
+ * for readability; they all get loaded into the same namespace.
+ */
+r5js.builtins = {};
+
+
+
+r5js.builtins['equiv'] = {
 
     'eqv?': {
         argc: 2,
@@ -122,12 +127,12 @@ R5JS_builtins['equiv'] = {
         argc:2,
         proc: function(p, q) {
             // todo bl is there a faster and cleaner way to alias this?
-            return R5JS_builtins['equiv']['eqv?'].proc(p, q);
+            return r5js.builtins['equiv']['eqv?'].proc(p, q);
         }
     }
 };
 
-R5JS_builtins['type'] = {
+r5js.builtins['type'] = {
 
     'boolean?': {
         argc: 1,
@@ -227,7 +232,7 @@ R5JS_builtins['type'] = {
     }
 };
 
-R5JS_builtins['number'] = {
+r5js.builtins['number'] = {
 
     'complex?': {
         argc: 1,
@@ -623,7 +628,7 @@ R5JS_builtins['number'] = {
     }
 };
 
-R5JS_builtins['pair'] = {
+r5js.builtins['pair'] = {
 
     'cons': {
         argc: 2,
@@ -717,7 +722,7 @@ R5JS_builtins['pair'] = {
     }
 };
 
-R5JS_builtins['symbol'] = {
+r5js.builtins['symbol'] = {
 
     'symbol->string': {
         argc: 1,
@@ -736,7 +741,7 @@ R5JS_builtins['symbol'] = {
     }
 };
 
-R5JS_builtins['char'] = {
+r5js.builtins['char'] = {
 
     'char=?': {
         argc: 2,
@@ -803,7 +808,7 @@ R5JS_builtins['char'] = {
     }
 };
 
-R5JS_builtins['string'] = {
+r5js.builtins['string'] = {
 
     'make-string': {
         argc: {min: 1, max: 2},
@@ -858,7 +863,7 @@ R5JS_builtins['string'] = {
     }
 };
 
-R5JS_builtins['vector'] = {
+r5js.builtins['vector'] = {
 
     /* todo bl: the current vector implementation uses Datums, in other
      words, linked lists! Replace this by something that's actually
@@ -935,7 +940,7 @@ R5JS_builtins['vector'] = {
     }
 };
 
-R5JS_builtins['control'] = {
+r5js.builtins['control'] = {
 
     'apply': {
         argc: {min: 2},
@@ -1170,7 +1175,7 @@ R5JS_builtins['control'] = {
     }
 };
 
-R5JS_builtins['eval'] = {
+r5js.builtins['eval'] = {
     'eval': {
         argc: 2,
         proc: function(expr, envSpec) {
@@ -1223,7 +1228,7 @@ R5JS_builtins['eval'] = {
         argc: 2,
         proc: function(expr, envSpec) {
             try {
-                R5JS_builtins['eval']['eval'].proc(expr, envSpec);
+                r5js.builtins['eval']['eval'].proc(expr, envSpec);
                 return true;
             } catch (e) {
                 return false;
@@ -1254,7 +1259,7 @@ R5JS_builtins['eval'] = {
     }
 };
 
-R5JS_builtins['io'] = {
+r5js.builtins['io'] = {
 
     /* Important: several of the primitive IO procedures delegate actual
      work by calling methods on the payload of the input- or output-port
