@@ -16,7 +16,6 @@
 
 goog.provide('r5js.main');
 
-goog.require('r5js.tmp.boot');
 goog.require('r5js.tmp.ffi');
 goog.require('r5js.tmp.globals');
 goog.require('r5js.tmp.js_obj_or_method');
@@ -26,6 +25,7 @@ goog.require('r5js.tmp.stdproc');
 goog.require('r5js.tmp.timer');
 goog.require('r5js.tmp.unit_test');
 
+goog.require('r5js.boot');
 goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
@@ -46,7 +46,7 @@ var GayLisp = (function () {
          * TODO bl: remove @suppress when we have a better build procedure.
          */
         function() {
-            bootstrap(syntax, procedures);
+            r5js.boot(syntax, procedures);
             pipeline.setRootEnv(r5RSEnv);
         }
     );

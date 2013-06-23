@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.boot');
+goog.provide('r5js.boot');
 
 
 goog.require('r5js.Environment');
@@ -22,8 +22,13 @@ goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
 goog.require('r5js.trampoline');
 
-/** @suppress {undefinedVars} for console.log */
-function bootstrap(syntaxLib, procLib) {
+
+/**
+ * @param {?} syntaxLib The R5RS syntax library.
+ * @param {?} procLib The R5RS procedure library.
+ * @suppress {undefinedVars} for console.log
+ */
+r5js.boot = function(syntaxLib, procLib) {
     nullEnv = new r5js.Environment('null-environment-5', null);
     install(syntaxLib, nullEnv);
     nullEnv.seal();
@@ -62,8 +67,14 @@ function bootstrap(syntaxLib, procLib) {
     r5RSEnv.seal();
     consoleAvail && console.log('interpreter is ready');
     consoleAvail && console.log('----------------------------------------------------------------------');
-}
+};
 
+
+/**
+ * @param {?} lib
+ * @param {!r5js.IEnvironment} env
+ * @return {?}
+ */
 function install(lib, env) {
     return r5js.trampoline(
         new Parser(
@@ -76,8 +87,12 @@ function install(lib, env) {
         null,
         false
     );
-}
+};
 
+
+/**
+ * @param {!r5js.IEnvironment} env Environment to install the builtins into.
+ */
 function installBuiltins(env) {
     for (var category in R5JS_builtins) {
         var procs = R5JS_builtins[category];
