@@ -29,11 +29,13 @@ goog.require('r5js.ProcCall');
  * @param {!r5js.JsObjOrMethod} jsObjOrMethod
  * @param {!r5js.Continuation} continuation A continuation.
  * @param {!r5js.TrampolineHelper} resultStruct
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser for the given Datum.
  */
 r5js.ProcCall.prototype.tryFFI = function(
-    jsObjOrMethod, continuation, resultStruct) {
+    jsObjOrMethod, continuation, resultStruct, parserProvider) {
     if (!this.operandsInCpsStyle()) {
-        this.cpsify(null, continuation, resultStruct);
+        this.cpsify(continuation, resultStruct, parserProvider);
     } else {
 
         var property;

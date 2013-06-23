@@ -29,7 +29,6 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
-goog.require('r5js.Parser');
 goog.require('r5js.Procedure');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
@@ -211,10 +210,13 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
 
 
 /**
- * @param {!r5js.Continuation} continuation
- * @param {?} resultStruct
+ * @param {!r5js.Continuation} continuation A continuation.
+ * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser for the given Datum when called.
  */
-r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
+r5js.ProcCall.prototype.tryIdShim = function(
+    continuation, resultStruct, parserProvider) {
     var ans;
 
     var arg = this.firstOperand;
@@ -252,10 +254,11 @@ r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
     }
     else if (arg.isQuasiquote()) {
         resultStruct.nextContinuable = processQuasiquote(
-                arg,
-                /** @type {!r5js.IEnvironment} */ (this.env),
-                continuation.lastResultName)
-                .appendContinuable(continuation.nextContinuable);
+            arg,
+            /** @type {!r5js.IEnvironment} */ (this.env),
+            continuation.lastResultName,
+            parserProvider
+        ).appendContinuable(continuation.nextContinuable);
         return;
     } else if (arg.isImproperList()) {
         throw new r5js.GeneralSyntaxError(arg);
@@ -289,11 +292,12 @@ r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
  * (We do _not_ do this if the operator resolves as a macro. Macros
  * get their arguments as unevaluated datums.)
  *
- * @param {Function} proc
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser for the given Datum when called.
  */
-r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
+r5js.ProcCall.prototype.cpsify = function(continuation, resultStruct, parserProvider) {
 
     var newCallChain = new r5js.ContinuableHelper();
     var finalArgs = new r5js.SiblingBuffer();
@@ -308,7 +312,8 @@ r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
                 = processQuasiquote(
                 arg,
                 /** @type {!r5js.IEnvironment} */ (this.env),
-                continuation.lastResultName)) instanceof r5js.Continuable) {
+                continuation.lastResultName,
+            parserProvider)) instanceof r5js.Continuable) {
                 finalArgs.appendSibling(
                     r5js.data.newIdOrLiteral(maybeContinuable
                         .getLastContinuable()
@@ -368,9 +373,12 @@ r5js.ProcCall.prototype.isSpecialOperator = function() {
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {!r5js.EnvBuffer} envBuffer
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser for the given Datum when called.
  * @returns {*}
  */
-r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, envBuffer) {
+r5js.ProcCall.prototype.evalAndAdvance = function(
+    continuation, resultStruct, envBuffer, parserProvider) {
 
     /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
@@ -380,7 +388,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, en
 
     var specialOp = this.isSpecialOperator();
     var proc = specialOp ? this.operatorName : this.env.getProcedure(this.operatorName.payload);
-    var args = [proc, continuation, resultStruct];
+    var args = [proc, continuation, resultStruct, parserProvider];
 
     if (specialOp) {
         this.specialOps.logic[args.shift()].apply(this, args);
@@ -476,15 +484,18 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
  * @param {Function} proc
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser for the given Datum when called.
  */
-r5js.ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, resultStruct) {
+r5js.ProcCall.prototype.tryPrimitiveProcedure = function(
+    proc, continuation, resultStruct, parserProvider) {
 
     /* If the operands aren't simple, we'll have to take a detour to
     restructure them. Example:
 
     (+ (* 1 2) (/ 3 4)) => (* 1 2 [_0 (/ 3 4 [_1 (+ _0 _1 ...)])]) */
     if (!this.operandsInCpsStyle()) {
-        this.cpsify(proc, continuation, resultStruct);
+        this.cpsify(continuation, resultStruct, parserProvider);
     }
 
     else {
@@ -548,12 +559,13 @@ r5js.ProcCall.prototype.tryPrimitiveProcedure = function(proc, continuation, res
 
  (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
  */
-r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, resultStruct) {
+r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
+    proc, continuation, resultStruct, parserProvider) {
 
     /* If the operands aren't simple, we'll have to take a detour to
     restructure them. */
     if (!this.operandsInCpsStyle()) {
-        this.cpsify(proc, continuation, resultStruct);
+        this.cpsify(continuation, resultStruct, parserProvider);
     }
 
     else {
@@ -586,7 +598,16 @@ r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(proc, continuation, 
     }
 };
 
-r5js.ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct) {
+
+/**
+ * @param {!r5js.Macro} macro The macro.
+ * @param {!r5js.Continuation} continuation A continuation.
+ * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser for the given Datum when called.
+ */
+r5js.ProcCall.prototype.tryMacroUse = function(
+    macro, continuation, resultStruct, parserProvider) {
 
     var newEnv = new r5js.Environment(
         'macro-' + (uniqueNodeCounter++),
@@ -595,14 +616,14 @@ r5js.ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct
     var newParseTree = macro.transcribe(
         this.reconstructDatum(),
         newEnv,
-        function(datum) {
-            return new r5js.Parser(datum);
-        }
+        parserProvider
     );
 
     /* Just like with tryNonPrimitiveProcedures, we have to remember when
      to jump back to the old environment. */
-    continuation.rememberEnv(this.env);
+    if (this.env) {
+        continuation.rememberEnv(this.env);
+    }
 
 // useful for debugging
 // console.log('transcribed ' + this.reconstructDatum() + ' => ' + newDatumTree);
@@ -613,7 +634,16 @@ r5js.ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct
     resultStruct.nextContinuable = newContinuable;
 };
 
-r5js.ProcCall.prototype.tryContinuation = function(proc, continuation, resultStruct) {
+
+/**
+ * @param {!r5js.Continuation} proc The continuation.
+ * @param {!r5js.Continuation} continuation The following continuation.
+ * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser for the given Datum when called.
+ */
+r5js.ProcCall.prototype.tryContinuation = function(
+    proc, continuation, resultStruct, parserProvider) {
     var arg = this.evalArgs(false)[0]; // there will only be 1 arg
     this.env.addBinding(proc.lastResultName, arg);
     resultStruct.ans = arg;
@@ -752,9 +782,11 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
  * @param {!r5js.Datum} datum Datum to process.
  * @param {!r5js.IEnvironment} env TODO bl
  * @param {string} cpsName TODO bl
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser for the given Datum when called.
  * @return {*} TODO bl
  */
-function processQuasiquote(datum, env, cpsName) {
+function processQuasiquote(datum, env, cpsName, parserProvider) {
 
     var newCalls = new r5js.ContinuableHelper();
 
@@ -765,7 +797,7 @@ function processQuasiquote(datum, env, cpsName) {
             return node.isUnquote() && (node.qqLevel === qqLevel);
         },
         function(node) {
-            var asContinuable = new r5js.Parser(
+            var asContinuable = parserProvider(
                 /** @type {!r5js.Datum} */(node.firstChild)).
                 parse('expression').
                 desugar(env, true);

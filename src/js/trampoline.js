@@ -18,6 +18,7 @@ goog.provide('r5js.trampoline');
 
 
 goog.require('r5js.EnvBuffer');
+goog.require('r5js.Parser');
 goog.require('r5js.TrampolineHelper');
 
 /* This is the main evaluation function.
@@ -119,7 +120,12 @@ r5js.trampoline = function(continuable, inputPort, outputPort, debug) {
         while (cur) {
             // a good first step for debugging:
             console.log('boing: ' + cur);
-            resultStruct = cur.subtype.evalAndAdvance(cur.continuation, resultStruct, savedEnv);
+            resultStruct = cur.subtype.evalAndAdvance(
+                cur.continuation,
+                resultStruct,
+                savedEnv,
+                parserProvider
+            );
             ans = resultStruct.ans;
             cur = resultStruct.nextContinuable;
             resultStruct.clear();
@@ -127,7 +133,12 @@ r5js.trampoline = function(continuable, inputPort, outputPort, debug) {
 
     } else {
         while (cur) {
-            resultStruct = cur.subtype.evalAndAdvance(cur.continuation, resultStruct, savedEnv);
+            resultStruct = cur.subtype.evalAndAdvance(
+                cur.continuation,
+                resultStruct,
+                savedEnv,
+                parserProvider
+            );
             ans = resultStruct.ans;
             cur = resultStruct.nextContinuable;
             resultStruct.clear();
@@ -135,4 +146,12 @@ r5js.trampoline = function(continuable, inputPort, outputPort, debug) {
     }
 
     return ans;
+};
+
+/**
+ * @param {!r5js.Datum} datum Root of the parse tree.
+ * @return {!r5js.Parser} New parser that will parse the given datum.
+ */
+function parserProvider(datum) {
+    return new r5js.Parser(datum);
 }
