@@ -20,6 +20,7 @@ goog.provide('r5js.Macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.ParseError');
 goog.require('r5js.TemplateBindings');
+goog.require('r5js.Transformer');
 
 /**
  * @param {!r5js.Datum} literalIdentifiers
@@ -44,14 +45,14 @@ r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
     }
 
     /**
-     * @type {!Array.<Transformer>}
+     * @type {!Array.<!r5js.Transformer>}
      */
     this.transformers = [];
 
     for (var rule = rules; rule; rule = rule.nextSibling) {
         var pattern = rule.at('pattern').desugar(/* no env needed */);
         var template = rule.at('template').desugar(/* no env needed */);
-        var transformer = new Transformer(pattern, template);
+        var transformer = new r5js.Transformer(pattern, template);
         this.transformers.push(transformer);
     }
 };

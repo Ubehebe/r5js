@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.transformer');
+goog.provide('r5js.Transformer');
 
 
 goog.require('r5js.EllipsisTransformer');
@@ -24,9 +24,11 @@ goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.MacroError');
 
 /**
+ * @param {?} pattern
+ * @param {?} template
  * @constructor
  */
-function Transformer(pattern, template) {
+r5js.Transformer = function(pattern, template) {
     /* This is an InternalInterpreterError (= sanity check) instead of a
      MacroError because the grammar should make it impossible for
      a programmer to get here. */
@@ -37,19 +39,41 @@ function Transformer(pattern, template) {
                 + ' that is not a ListLikeTransformer');
     this.pattern = pattern;
     this.template = template;
+
+    /**
+     * @type {string}
+     */
     this.name = pattern.subtransformers[0].datum.payload;
     this.setupIds();
-}
+};
 
-Transformer.prototype.matchInput = function(inputDatum, literalIdentifiers, definitionEnv, useEnv, bindings) {
+
+/**
+ * @param {?} inputDatum
+ * @param {?} literalIdentifiers
+ * @param {?} definitionEnv
+ * @param {?} useEnv
+ * @param {?} bindings
+ * @return {?}
+ */
+r5js.Transformer.prototype.matchInput = function(
+    inputDatum, literalIdentifiers, definitionEnv, useEnv, bindings) {
     return this.pattern.matchInput(inputDatum, literalIdentifiers, definitionEnv, useEnv, bindings);
 };
 
-Transformer.prototype.getName = function() {
+
+/**
+ * @return {string} The name of this transformer.
+ */
+r5js.Transformer.prototype.getName = function() {
     return this.name;
 };
 
-Transformer.prototype.setupIds = function() {
+
+/**
+ * TODO bl this procedure is too long.
+ */
+r5js.Transformer.prototype.setupIds = function() {
     var patternIds = {}; // names to nesting levels
     var templateRenameCandidates = {};
     var pattern = this.pattern;
@@ -111,10 +135,12 @@ Transformer.prototype.setupIds = function() {
     return this;
 };
 
-Transformer.prototype.getPatternIds = function() {
+
+r5js.Transformer.prototype.getPatternIds = function() {
     return this.patternIds;
 };
 
-Transformer.prototype.getTemplateRenameCandidates = function() {
+
+r5js.Transformer.prototype.getTemplateRenameCandidates = function() {
     return this.templateRenameCandidates;
 };

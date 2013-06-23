@@ -25,7 +25,6 @@ goog.require('r5js.tmp.pipeline');
 goog.require('r5js.tmp.scanner');
 goog.require('r5js.tmp.stdproc');
 goog.require('r5js.tmp.timer');
-goog.require('r5js.tmp.transformer');
 goog.require('r5js.tmp.unit_test');
 
 goog.require('r5js.LazyBoot');
