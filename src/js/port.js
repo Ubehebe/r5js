@@ -44,9 +44,15 @@ r5js.Port.prototype.isCharReady = function() {};
 r5js.Port.prototype.isEof = function() {};
 
 
+/**
+ * @return {?} TODO bl
+ */
 r5js.Port.prototype.peekChar = function() {};
 
 
+/**
+ * @return {?} TODO bl
+ */
 r5js.Port.prototype.readChar = function() {};
 
 
