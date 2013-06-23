@@ -14,9 +14,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.output_modes');
-
 goog.provide('r5js.OutputMode');
+
 
 /**
  * R5RS 6.6.3:
