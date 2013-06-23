@@ -18,7 +18,7 @@ goog.provide('r5js.IPipeline');
 
 
 /**
- * Interface abstracted from {@link Pipeline}.
+ * Interface abstracted from {@link r5js.Pipeline}.
  * @interface
  */
 r5js.IPipeline = function() {};

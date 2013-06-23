@@ -16,10 +16,9 @@
 
 goog.provide('r5js.LazyBoot');
 
-goog.require('r5js.tmp.pipeline');
 
 /**
- * @param {!Pipeline} pipeline Pipeline delegate.
+ * @param {!r5js.Pipeline} pipeline Pipeline delegate.
  * @param {function()} onBoot Callback that will be called
  * when the interpreter has booted.
  * @implements {r5js.IPipeline}
@@ -27,7 +26,7 @@ goog.require('r5js.tmp.pipeline');
  */
 r5js.LazyBoot = function(pipeline, onBoot) {
     /**
-     * @type {!Pipeline}
+     * @type {!r5js.Pipeline}
      * @private
      */
     this.pipeline_ = pipeline;

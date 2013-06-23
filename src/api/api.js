@@ -21,13 +21,13 @@ goog.require('r5js.tmp.ffi');
 goog.require('r5js.tmp.globals');
 goog.require('r5js.tmp.js_obj_or_method');
 goog.require('r5js.tmp.parse');
-goog.require('r5js.tmp.pipeline');
 goog.require('r5js.tmp.scanner');
 goog.require('r5js.tmp.stdproc');
 goog.require('r5js.tmp.timer');
 goog.require('r5js.tmp.unit_test');
 
 goog.require('r5js.LazyBoot');
+goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
 goog.require('r5js.test.parser');
 goog.require('r5js.test.scanner');
@@ -40,7 +40,7 @@ var GayLisp = (function () {
      in this file). It also inserts src/scm/* here, embedded as JavaScript string
      literals and appropriately escaped. See the Makefile for details. */
 
-    var pipeline = new r5js.LazyBoot(new Pipeline(),
+    var pipeline = new r5js.LazyBoot(new r5js.Pipeline(),
         /**
          * @suppress {undefinedVars} For syntax and procedures
          * TODO bl: remove @suppress when we have a better build procedure.

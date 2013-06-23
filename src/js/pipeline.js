@@ -15,7 +15,7 @@
 
 
 
-goog.provide('r5js.tmp.pipeline');
+goog.provide('r5js.Pipeline');
 
 
 goog.require('r5js.CallbackBackedPort');
@@ -24,46 +24,54 @@ goog.require('r5js.ParseError');
 goog.require('r5js.Reader');
 goog.require('r5js.trampoline');
 
+
 /**
  * @implements {r5js.IPipeline}
  * @constructor
  */
-function Pipeline() {}
+r5js.Pipeline = function() {};
 
 /** @override */
-Pipeline.prototype.setRootEnv = function(rootEnv) {
+r5js.Pipeline.prototype.setRootEnv = function(rootEnv) {
     this.rootEnv = rootEnv;
     this.env = new r5js.Environment('global', rootEnv);
 };
 
+
 /** @override */
-Pipeline.prototype.scan = function(string) {
+r5js.Pipeline.prototype.scan = function(string) {
     return new Scanner(string);
 };
 
+
 /** @override */
-Pipeline.prototype.read = function(scanner) {
+r5js.Pipeline.prototype.read = function(scanner) {
     return new r5js.Reader(scanner).read();
 };
 
-/** @override */
-Pipeline.prototype.parse = function(root, lhs) {
-    var ans = new Parser(root).parse(lhs);
-    if (ans)
-        return ans;
-    else throw new r5js.ParseError(root);
-};
 
 /** @override */
-Pipeline.prototype.desugar = function(root, replMode) {
+r5js.Pipeline.prototype.parse = function(root, lhs) {
+    var ans = new Parser(root).parse(lhs);
+    if (ans) {
+        return ans;
+    } else {
+        throw new r5js.ParseError(root);
+    }
+};
+
+
+/** @override */
+r5js.Pipeline.prototype.desugar = function(root, replMode) {
     if (!replMode) {
         this.env = new r5js.Environment('global', this.rootEnv);
     }
     return root.desugar(this.env, false).setStartingEnv(this.env);
 };
 
+
 /** @override */
-Pipeline.prototype.Eval = function(continuable, onOutput) {
+r5js.Pipeline.prototype.Eval = function(continuable, onOutput) {
     return r5js.trampoline(
         continuable,
         null,
