@@ -124,11 +124,15 @@ r5js.Macro.prototype.allPatternsBeginWith = function(kw) {
 
 
 /**
- * @param {!r5js.Datum} datum
- * @param {!r5js.IEnvironment} useEnv
- * @returns {?} TODO bl
+ * @param {!r5js.Datum} datum Datum to transcribe.
+ * @param {!r5js.IEnvironment} useEnv Environment to use for the transcription.
+ * @param {function(!r5js.Datum):Parser} parserProvider Function
+ * that will return a new Parser for the given Datum. This is a hack to avoid
+ * instantiating a Parser directly in this file, which would cause
+ * a cyclic dependency between macro.js and parse.js.
+ * @return {?} TODO bl
  */
-r5js.Macro.prototype.transcribe = function(datum, useEnv) {
+r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
     var transformer, bindings, newDatumTree;
     for (var i = 0; i < this.transformers.length; ++i) {
         transformer = this.transformers[i];
@@ -138,7 +142,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv) {
             // this is a good place to see the TemplateBindings object
             // console.log(bindings.toString());
 
-            var newParseTree = new Parser(newDatumTree).parse();
+            var newParseTree = parserProvider(newDatumTree).parse();
 
             /* R5RS 4.3: "If a macro transformer inserts a binding for an identifier
              (variable or keyword), the identifier will in effect be renamed

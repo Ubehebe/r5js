@@ -591,7 +591,13 @@ r5js.ProcCall.prototype.tryMacroUse = function(macro, continuation, resultStruct
         'macro-' + (uniqueNodeCounter++),
         this.env
     );
-    var newParseTree = macro.transcribe(this.reconstructDatum(), newEnv);
+    var newParseTree = macro.transcribe(
+        this.reconstructDatum(),
+        newEnv,
+        function(datum) {
+            return new Parser(datum);
+        }
+    );
 
     /* Just like with tryNonPrimitiveProcedures, we have to remember when
      to jump back to the old environment. */
