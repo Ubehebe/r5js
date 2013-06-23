@@ -927,40 +927,6 @@ function newAnonymousLambdaName() {
 // Not a valid identifier prefix so we can easily tell these apart
 var cpsPrefix = '@';
 
-/**
- * Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
- * @param {!r5js.IEnvironment} env TODO bl
- * @param {string} cpsName TODO bl
- * @return {*} TODO bl
- */
-r5js.Datum.prototype.processQuasiquote = function(env, cpsName) {
-
-    var newCalls = new r5js.ContinuableHelper();
-
-    var qqLevel = this.qqLevel;
-
-    this.replaceChildren(
-        function(node) {
-            return node.isUnquote() && (node.qqLevel === qqLevel);
-        },
-        function(node) {
-            var asContinuable = new Parser(node.firstChild).parse('expression').desugar(env, true);
-            var continuation = asContinuable.getLastContinuable().continuation;
-            /* Throw out the last result name and replace it with another
-             identifier (also illegal in Scheme) that will let us know if it's
-             unquotation or unquotation with splicing. */
-            continuation.lastResultName = node.type + (uniqueNodeCounter++);
-            newCalls.appendContinuable(asContinuable);
-            return r5js.data.newIdOrLiteral(/** @type {string} */ (
-                continuation.lastResultName));
-        });
-
-        this.type = "'";
-
-    newCalls.appendContinuable(newIdShim(this, cpsName));
-    var ans = newCalls.toContinuable();
-    return ans && ans.setStartingEnv(env);
-};
 
 /**
  * @return {boolean} True iff this Datum is in a quasiquotation and should be

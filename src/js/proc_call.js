@@ -250,8 +250,10 @@ r5js.ProcCall.prototype.tryIdShim = function(continuation, resultStruct) {
         ans = ans.firstChild ? ans.firstChild : r5js.data.newIdOrLiteral('quote');
     }
     else if (arg.isQuasiquote()) {
-        resultStruct.nextContinuable =
-            arg.processQuasiquote(this.env, continuation.lastResultName)
+        resultStruct.nextContinuable = processQuasiquote(
+                arg,
+                /** @type {!r5js.IEnvironment} */ (this.env),
+                continuation.lastResultName)
                 .appendContinuable(continuation.nextContinuable);
         return;
     } else if (arg.isImproperList()) {
@@ -302,14 +304,17 @@ r5js.ProcCall.prototype.cpsify = function(proc, continuation, resultStruct) {
             finalArgs.appendSibling(arg.clone().normalizeInput());
         else if (arg.isQuasiquote()) {
             if ((maybeContinuable
-                = arg.processQuasiquote(this.env, continuation.lastResultName))
-                instanceof r5js.Continuable) {
+                = processQuasiquote(
+                arg,
+                /** @type {!r5js.IEnvironment} */ (this.env),
+                continuation.lastResultName)) instanceof r5js.Continuable) {
                 finalArgs.appendSibling(
                     r5js.data.newIdOrLiteral(maybeContinuable
                         .getLastContinuable()
                         .continuation
                         .lastResultName));
-                newCallChain.appendContinuable(maybeContinuable);
+                newCallChain.appendContinuable(
+                    /** @type {!r5js.Continuable} */(maybeContinuable));
             } else {
                 /* R5RS 4.2.6: "If no commas appear within the <qq template>,
                  the result of evaluating `<qq template> is equivalent to
@@ -729,3 +734,47 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
 
     return args;
 };
+
+
+/**
+ * Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
+ * Note: this was once an instance method on {@link r5js.Datum}, defined
+ * in datum.js. I moved it here (its only point of use) to break
+ * a cyclic dependency between Datum and the parser, and thought it was
+ * cleaner at that point to turn it into a regular function.
+ * @param {!r5js.Datum} datum Datum to process.
+ * @param {!r5js.IEnvironment} env TODO bl
+ * @param {string} cpsName TODO bl
+ * @return {*} TODO bl
+ */
+function processQuasiquote(datum, env, cpsName) {
+
+    var newCalls = new r5js.ContinuableHelper();
+
+    var qqLevel = datum.qqLevel;
+
+    datum.replaceChildren(
+        function(node) {
+            return node.isUnquote() && (node.qqLevel === qqLevel);
+        },
+        function(node) {
+            var asContinuable = new Parser(
+                /** @type {!r5js.Datum} */(node.firstChild)).
+                parse('expression').
+                desugar(env, true);
+            var continuation = asContinuable.getLastContinuable().continuation;
+            /* Throw out the last result name and replace it with another
+             identifier (also illegal in Scheme) that will let us know if it's
+             unquotation or unquotation with splicing. */
+            continuation.lastResultName = node.type + (uniqueNodeCounter++);
+            newCalls.appendContinuable(asContinuable);
+            return r5js.data.newIdOrLiteral(/** @type {string} */ (
+                continuation.lastResultName));
+        });
+
+    datum.type = "'";
+
+    newCalls.appendContinuable(newIdShim(datum, cpsName));
+    var ans = newCalls.toContinuable();
+    return ans && ans.setStartingEnv(env);
+}
