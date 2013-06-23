@@ -23,6 +23,7 @@ goog.require('r5js.Environment');
 goog.require('r5js.ParseError');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
+goog.require('r5js.Scanner');
 goog.require('r5js.trampoline');
 
 
@@ -41,7 +42,7 @@ r5js.Pipeline.prototype.setRootEnv = function(rootEnv) {
 
 /** @override */
 r5js.Pipeline.prototype.scan = function(string) {
-    return new Scanner(string);
+    return new r5js.Scanner(string);
 };
 
 

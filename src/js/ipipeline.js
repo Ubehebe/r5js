@@ -32,13 +32,13 @@ r5js.IPipeline.prototype.setRootEnv = function(rootEnv) {};
 
 /**
  * @param {string} string The string to scan.
- * @return {!Scanner} A new scanner to scan the given string.
+ * @return {!r5js.Scanner} A new scanner to scan the given string.
  */
 r5js.IPipeline.prototype.scan = function(string) {};
 
 
 /**
- * @param {!Scanner} scanner The scanner to read from.
+ * @param {!r5js.Scanner} scanner The scanner to read from.
  * @return {!r5js.Datum} Is this correct?
  * TODO bl: figure out the return type.
  */

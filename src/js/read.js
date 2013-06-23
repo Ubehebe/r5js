@@ -22,12 +22,12 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
 
 /**
- * @param {!Scanner} scanner The scanner.
+ * @param {!r5js.Scanner} scanner The scanner.
  * @constructor
  */
 r5js.Reader = function(scanner) {
     /**
-     * @type {!Scanner}
+     * @type {!r5js.Scanner}
      */
     this.scanner = scanner;
 

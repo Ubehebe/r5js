@@ -22,6 +22,7 @@ goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
+goog.require('r5js.Scanner');
 goog.require('r5js.trampoline');
 
 
@@ -81,7 +82,7 @@ function install(lib, env) {
     return r5js.trampoline(
         new r5js.Parser(
             new r5js.Reader(
-                new Scanner(lib)
+                new r5js.Scanner(lib)
             ).read()
         ).parse(null)
             .desugar(env).setStartingEnv(env),

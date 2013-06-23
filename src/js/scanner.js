@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.scanner');
+goog.provide('r5js.Scanner');
 
 
 goog.require('r5js.InternalInterpreterError');
@@ -119,27 +119,43 @@ Token.prototype.setPayload = function(payload) {
 };
 
 /**
+ * @param {string} text Program text to scan.
  * @constructor
  */
-function Scanner(text) {
+r5js.Scanner = function(text) {
 
+    /**
+     * @type {string}
+     */
     this.text = text;
 
+    /**
+     * @type {number}
+     */
     this.start = 0;
 
-    /* Since all scanners use the same RegExp objects, we have to
-     reset the RegExp's state. If concurrent scanners are ever needed,
-     each will need its own RegExps. */
+    /**
+     * Since all scanners use the same RegExp objects, we have to reset
+     * the RegExp's state. If concurrent scanners are ever needed,
+     * each will need its own RegExps.
+     * @type {number}
+     */
     this.token.lastIndex = 0;
 
-    /* R5RS 7.1.1: "Tokens which require implicit termination (identifiers,
-     numbers, characters, and dot) may be terminated by any
-     delimiter, but not necessarily by anything else." */
+    /**
+     * R5RS 7.1.1: "Tokens which require implicit termination
+     * (identifiers, numbers, characters, and dot) may be terminated
+     * by any delimiter, but not necessarily by anything else."
+     * @type {boolean}
+     */
     this.needDelimiter = false;
-}
+};
 
-// Just for debugging.
-Scanner.prototype.tokenize = function() {
+/**
+ * Just for debugging.
+ * @return {!Array.<!Token>}
+ */
+r5js.Scanner.prototype.tokenize = function() {
 
     var ans = [];
 
@@ -151,7 +167,12 @@ Scanner.prototype.tokenize = function() {
 
 };
 
-Scanner.prototype.shouldMatchAgain = function(matchArray) {
+
+/**
+ * @param matchArray
+ * @return {boolean} True iff
+ */
+r5js.Scanner.prototype.shouldMatchAgain = function(matchArray) {
     if (!matchArray) {
         return false; // eof
     } else if (this.token.lastIndex > this.start + matchArray[0].length) {
@@ -168,7 +189,11 @@ Scanner.prototype.shouldMatchAgain = function(matchArray) {
     }
 };
 
-Scanner.prototype.nextToken = function() {
+
+/**
+ * @return {?}
+ */
+r5js.Scanner.prototype.nextToken = function() {
 
     var match;
 
@@ -191,7 +216,12 @@ Scanner.prototype.nextToken = function() {
     }
 };
 
-Scanner.prototype.matchToToken = function(matchArray) {
+
+/**
+ * @param {!Array.<?>} matchArray
+ * @return {?}
+ */
+r5js.Scanner.prototype.matchToToken = function(matchArray) {
     /* See the return value of Scanner.prototype.token for the significance
      of the magic numbers here. */
     var payload = matchArray[0];
@@ -222,21 +252,25 @@ Scanner.prototype.matchToToken = function(matchArray) {
     } else throw new r5js.InternalInterpreterError('invariant incorrect');
 };
 
-Scanner.prototype.token = (function() {
 
-    /* This is basically the lexical grammar given in R5RS 7.1.1.
-     It's hard to read because we have to do double backslash-escaping,
-     one for string literals and one for RegExps. Example: the RegExp
-     literal for matching a backslash is
+/**
+ * This is basically the lexical grammar given in R5RS 7.1.1.
+ * It's hard to read because we have to do double backslash-escaping,
+ * one for string literals and one for RegExps. Example: the RegExp
+ * literal for matching a backslash is
+ *
+ * /\\/
+ *
+ * which is equivalent to
+ *
+ * new RegExp("/\\\\/").
+ *
+ * The order of the subgroups is quite important, because some tokens
+ * are prefixes of others (for example, "." and "...", "-2" vs. "-" "2".)
+ */
+ r5js.Scanner.prototype.token = (function() {
 
-     /\\/
 
-     which is equivalent to
-
-     new RegExp("/\\\\/").
-
-     The order of the subgroups is quite important, because some tokens
-     are prefixes of others (for example, "." and "...", "-2" vs. "-" "2".) */
 
     var letter = "[a-z]";
     var specialInitial = "[\\!\\$%&\\*\/\\:<\\=\\>\\?\\^_~]";

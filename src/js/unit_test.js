@@ -22,6 +22,7 @@ goog.provide('r5js.test.scanner');
 goog.require('r5js.Datum');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
+goog.require('r5js.Scanner');
 
 /** @suppress {undefinedVars} for console */
 r5js.test.scanner = function() {
@@ -30,7 +31,7 @@ r5js.test.scanner = function() {
             alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
 
     function assertValidToken(text, type) {
-        var tokens = new Scanner(text).tokenize();
+        var tokens = new r5js.Scanner(text).tokenize();
         if (tokens.length !== 1) {
             console.error('failed to scan token ' + text + ': expected 1 token, got ' + tokens.length);
             return false;
@@ -42,7 +43,7 @@ r5js.test.scanner = function() {
 
     function assertInvalidToken(text) {
         try {
-            new Scanner(text).tokenize();
+            new r5js.Scanner(text).tokenize();
             console.error('error: successfully scanned input ' + text + ', but it is supposed to be rejected');
             return false;
         } catch (e) {
@@ -305,7 +306,7 @@ r5js.test.parser = function() {
     for (var type in tests) {
         var testsForType = tests[type];
         for (var toParse in testsForType) {
-            var datumRoot = new r5js.Reader(new Scanner(toParse)).read();
+            var datumRoot = new r5js.Reader(new r5js.Scanner(toParse)).read();
             var actualResult = (datumRoot instanceof r5js.Datum) &&
                 new r5js.Parser(datumRoot).rhs({type: type});
             var expectedResult = testsForType[toParse];

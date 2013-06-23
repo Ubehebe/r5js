@@ -17,12 +17,12 @@
 goog.provide('r5js.PublicApi');
 
 
-goog.require('r5js.tmp.scanner'); // TODO bl fix
 goog.require('r5js.test.parser');
 goog.require('r5js.test.scanner');
 
 
 goog.require('r5js.OutputMode');
+goog.require('r5js.Scanner');
 
 /**
  *
@@ -56,7 +56,7 @@ r5js.PublicApi.prototype.test = function(unitTestUrl, sideEffectHandler) {
  * @param {string} string The string to tokenize.
  */
 r5js.PublicApi.prototype.tokenize = function(string) {
-    return new Scanner(string).tokenize();
+    return new r5js.Scanner(string).tokenize();
 };
 
 
