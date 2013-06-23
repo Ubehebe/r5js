@@ -26,6 +26,7 @@ goog.require('r5js.Environment');
 goog.require('r5js.EvalError');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.Procedure');
@@ -385,7 +386,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(continuation, resultStruct, en
         this.tryMacroUse.apply(this, args);
     } else if (proc instanceof r5js.Continuation) {
         this.tryContinuation.apply(this, args);
-    } else if (proc instanceof JsObjOrMethod) {
+    } else if (proc instanceof r5js.JsObjOrMethod) {
         this.tryFFI.apply(this, args);
     } else {
         throw new r5js.EvalError(

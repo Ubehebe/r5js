@@ -22,6 +22,7 @@ goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
 goog.require('r5js.Procedure');
 goog.require('r5js.RootEnvironment');
@@ -186,7 +187,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
             || maybe instanceof r5js.Procedure
             || maybe instanceof r5js.Macro
             || maybe instanceof r5js.Continuation
-            || maybe instanceof JsObjOrMethod) {
+            || maybe instanceof r5js.JsObjOrMethod) {
             return maybe;
         } else throw new r5js.EvalError('expected procedure, given ' + name);
     } else if (this.enclosingEnv_) {
@@ -268,7 +269,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
             || val instanceof Array /* values and call-with-values */
             || val instanceof r5js.Macro /* macros */
             || val instanceof r5js.Environment /* Redirects for free ids in macro transcriptions */
-            || val instanceof JsObjOrMethod /* JavaScript interop (experimental!) */) {
+            || val instanceof r5js.JsObjOrMethod /* JavaScript interop (experimental!) */) {
             this.bindings_[name] = val;
         } else if (val instanceof r5js.Datum) {
         // lots of stuff, including wrapped procedures

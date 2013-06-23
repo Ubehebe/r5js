@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.tmp.js_obj_or_method');
+goog.provide('r5js.JsObjOrMethod');
 
 
 goog.require('r5js.InternalInterpreterError');
@@ -29,7 +29,7 @@ goog.require('r5js.InternalInterpreterError');
  * @constructor
  * TODO bl: narrow the types of the parameters.
  */
-function JsObjOrMethod(receiver, msg) {
+r5js.JsObjOrMethod = function(receiver, msg) {
     /**
      * @type {*}
      */
@@ -39,26 +39,30 @@ function JsObjOrMethod(receiver, msg) {
      * @type {*}
      */
     this.msg = msg;
-}
+};
+
 
 /**
  * @return {boolean} True iff the object represents a bound method.
  */
-JsObjOrMethod.prototype.isBoundMethod = function() {
+r5js.JsObjOrMethod.prototype.isBoundMethod = function() {
     return !!this.msg;
 };
 
-JsObjOrMethod.prototype.getObject = function() {
-    if (this.isBoundMethod())
+
+r5js.JsObjOrMethod.prototype.getObject = function() {
+    if (this.isBoundMethod()) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
+    }
     return this.receiver;
 };
 
-JsObjOrMethod.prototype.callWith = function(args) {
+
+r5js.JsObjOrMethod.prototype.callWith = function(args) {
     return this.msg.apply(this.receiver, args);
 };
 
 /** @override */
-JsObjOrMethod.prototype.toString = function() {
+r5js.JsObjOrMethod.prototype.toString = function() {
     return this.receiver.toString();
 };

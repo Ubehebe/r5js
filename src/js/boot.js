@@ -18,6 +18,7 @@ goog.provide('r5js.boot');
 
 
 goog.require('r5js.Environment');
+goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
 goog.require('r5js.trampoline');
@@ -104,7 +105,7 @@ function installBuiltins(env) {
      I used to have if (this.window === this), which is cleverer but
      doesn't work for strict mode. (Thanks, Stack Overflow!) */
     if (Function('return this;')().window) {
-        env.addBinding('window', newFFIDatum(new JsObjOrMethod(window)));
+        env.addBinding('window', newFFIDatum(new r5js.JsObjOrMethod(window)));
         for (var name in FFI)
             registerBuiltin(name, FFI[name], env);
     }

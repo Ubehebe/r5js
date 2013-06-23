@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.ffi');
 
 goog.require('r5js.data');
 goog.require('r5js.Datum');
+goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ProcCall');
 
 
@@ -71,10 +72,15 @@ r5js.ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStr
 
         switch (typeof property) {
             case 'function':
-                ans = newFFIDatum(new JsObjOrMethod(jsObjOrMethod.getObject(), property));
+                ans = newFFIDatum(
+                    new r5js.JsObjOrMethod(
+                        jsObjOrMethod.getObject(),
+                        property
+                    )
+                );
                 break;
             case 'object':
-                ans = newFFIDatum(new JsObjOrMethod(property));
+                ans = newFFIDatum(new r5js.JsObjOrMethod(property));
                 break;
             case 'undefined':
                 ans = null;
@@ -94,7 +100,7 @@ var FFI = {
     'js?': {
         argc: 1,
         proc: function(obj) {
-            return obj instanceof JsObjOrMethod;
+            return obj instanceof r5js.JsObjOrMethod;
         }
     },
 

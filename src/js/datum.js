@@ -21,6 +21,7 @@ goog.provide('r5js.Datum');
 goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.Macro');
 goog.require('r5js.SiblingBuffer');
@@ -1242,7 +1243,7 @@ r5js.data.maybeWrapResult = function(result, type) {
         || result instanceof r5js.Datum
         || result instanceof r5js.Continuation
         || result instanceof r5js.Macro
-        || result instanceof JsObjOrMethod /* JS interop (experimental) */) {
+        || result instanceof r5js.JsObjOrMethod /* JS interop (experimental) */) {
         return result; // no-op, strictly for convenience
     }
 
