@@ -52,7 +52,7 @@ smslike-min:
 .PHONY: typecheck
 typecheck:
 typecheck:
-	find $(src) -name "*.js" \
+	@find $(src) -name "*.js" \
 	| xargs printf "--input %s " \
 	| xargs $(builder) --root=$(src) --root=$(closure_root) \
 	| xargs printf "--js %s " \
@@ -88,8 +88,8 @@ typecheck:
 interpreter-closurized: doctor-api-js
 interpreter-closurized:
 	@mkdir -p build/tmpdir
-	mv $(output) build/tmpdir/tmp.js
-	find $(src) -name "*.js" \
+	@mv $(output) build/tmpdir/tmp.js
+	@find $(src) -name "*.js" \
 	| xargs printf "--input %s " \
 	| xargs $(builder) --root=$(src) --root=$(closure_root) \
 	| xargs $(compiler) \
@@ -97,7 +97,7 @@ interpreter-closurized:
 		--js build/tmpdir/tmp.js \
 		--closure_entry_point=$(main_class) \
 		> $(output)
-	rm -rf build/tmpdir
+	@rm -rf build/tmpdir
 
 
 # Just make the JS library (no UI)
@@ -143,32 +143,32 @@ doctor-api-js: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e
 doctor-api-js: afterFirstBrace = `grep -m1 -A1 -n { src/api/api.js | tail -1 | sed -e 's/^\([0-9]*\).*/\1/'`
 doctor-api-js: banner_src = src/banner.txt
 doctor-api-js:
-	mkdir -p build
-	head -n$(firstBrace) src/api/api.js > $(output)
-	echo "\nvar syntax = \"\c" >> $(output)
-	# Remove Scheme comments, escape Scheme backslashes and quotes, compress whitespace
-	# (Note that we compress whitespace inside string literals, which is not really correct...)
-	sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < src/scm/r5rs-syntax.scm | tr -s '\n\t ' ' ' >> $(output)
-	echo "\";" >> $(output)
-	echo "var procedures = \"\c" >> $(output)
-	sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < src/scm/r5rs-procedures.scm | tr -s '\n\t ' ' ' >> $(output)
-	echo "\";" >> $(output)
+	@mkdir -p build
+	@head -n$(firstBrace) src/api/api.js > $(output)
+	@echo "\nvar syntax = \"\c" >> $(output)
+	@# Remove Scheme comments, escape Scheme backslashes and quotes, compress whitespace
+	@# (Note that we compress whitespace inside string literals, which is not really correct...)
+	@sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < src/scm/r5rs-syntax.scm | tr -s '\n\t ' ' ' >> $(output)
+	@echo "\";" >> $(output)
+	@echo "var procedures = \"\c" >> $(output)
+	@sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < src/scm/r5rs-procedures.scm | tr -s '\n\t ' ' ' >> $(output)
+	@echo "\";" >> $(output)
 
-	# Embed the banner
-	echo "\nvar banner = \"\c" >> $(output)
+	@# Embed the banner
+	@echo "\nvar banner = \"\c" >> $(output)
 
-	cp $(banner_src) build/tmp
-	echo "\n;; Version $(version) (source commit \c" >> build/tmp
-	cat .git/refs/heads/master | sed -e 's/\(.\{7\}\).*/\1)/' >> build/tmp
-	echo ";; Built on \c" >> build/tmp
-	echo `date` >> build/tmp
-	cat build/tmp | sed -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' | awk '{ printf "%s\\n", $$0}' >> $(output)
-	echo "\";" >> $(output)
-	rm build/tmp
+	@cp $(banner_src) build/tmp
+	@echo "\n;; Version $(version) (source commit \c" >> build/tmp
+	@cat .git/refs/heads/master | sed -e 's/\(.\{7\}\).*/\1)/' >> build/tmp
+	@echo ";; Built on \c" >> build/tmp
+	@echo `date` >> build/tmp
+	@cat build/tmp | sed -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' | awk '{ printf "%s\\n", $$0}' >> $(output)
+	@echo "\";" >> $(output)
+	@rm build/tmp
 
-	tail -n+$(afterFirstBrace) src/api/api.js >> $(output)
-	cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
-	cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
+	@tail -n+$(afterFirstBrace) src/api/api.js >> $(output)
+	@cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
+	@cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 
 # Requires Google Closure Compiler compiler.jar to be in pwd
 interpreter-min: interpreter
@@ -199,11 +199,11 @@ test:
 
 test-closurized: interpreter-closurized
 test-closurized:
-	echo "var tests = \"\c" >> $(output)
-	sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < $(unit_tests) | tr -s '\n\t ' ' ' >> $(output)
-	echo "\";" >> $(output)
-	cat src/node/node_exports.js >> $(output)
-	node -e "require('./build/gay-lisp-$(version)').test()"
+	@echo "var tests = \"\c" >> $(output)
+	@sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < $(unit_tests) | tr -s '\n\t ' ' ' >> $(output)
+	@echo "\";" >> $(output)
+	@cat src/node/node_exports.js >> $(output)
+	@node -e "require('./build/gay-lisp-$(version)').test()"
 
 clean:
 	rm -f build/*
