@@ -18,6 +18,7 @@ goog.provide('r5js.tmp.ffi');
 
 goog.require('r5js.data');
 goog.require('r5js.Datum');
+goog.require('r5js.FFIError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ProcCall');
 
@@ -27,14 +28,6 @@ goog.require('r5js.ProcCall');
  ((window 'alert) "Hello, world!")
  */
 
-/**
- * @constructor
- */
-function FFIError() {
-    this.toString = function() {
-        return 'JS interop is an experimental feature. Sorry!';
-    };
-}
 
 /**
  * @param {!Object} jsObj A JavaScript object.
@@ -66,7 +59,7 @@ r5js.ProcCall.prototype.tryFFI = function(jsObjOrMethod, continuation, resultStr
             && this.firstOperand.isQuote()
             && this.firstOperand.firstChild.isIdentifier()) {
             property = jsObjOrMethod.getObject()[this.firstOperand.firstChild.payload];
-        } else throw new FFIError();
+        } else throw new r5js.FFIError();
 
         var ans;
 
@@ -109,7 +102,7 @@ var FFI = {
         argtypes: ['js', 'symbol'],
         proc: function(jsObjOrMethod, property, value) {
             if (jsObjOrMethod.isBoundMethod())
-                throw new FFIError();
+                throw new r5js.FFIError();
             jsObjOrMethod.getObject()[property] = value;
             return null; // I like Scheme's assignment semantics better than JavaScript's
         }

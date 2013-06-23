@@ -31,6 +31,7 @@ goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
 goog.provide('r5js.UnimplementedOptionError');
+goog.provide('r5js.FFIError');
 
 
 /**
@@ -259,5 +260,14 @@ r5js.ImmutableError = function(what) {
 r5js.ScanError = function(what) {
     this.toString = function() {
         return 'scan error on ' + what;
+    };
+};
+
+/**
+ * @constructor
+ */
+r5js.FFIError = function() {
+    this.toString = function() {
+        return 'JS interop is an experimental feature. Sorry!';
     };
 };
