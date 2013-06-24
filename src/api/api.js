@@ -39,7 +39,7 @@ var GayLisp = (function () {
          * TODO bl: remove @suppress when we have a better build procedure.
          */
         function() {
-            r5js.boot(syntax, procedures);
+            r5js.boot(syntax, procedures, r5js.util.Logger.getLogger('r5js'));
             pipeline.setRootEnv(r5js.globals.r5RSEnv);
         }
     );

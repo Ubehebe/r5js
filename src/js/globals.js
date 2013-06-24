@@ -38,10 +38,10 @@ r5js.globals.r5RSEnv;
 
 
 /**
- *  Setting this to true shows every bounce of the trampoline.
+ * Setting this to true shows every bounce of the trampoline.
  * @type {boolean}
  */
-r5js.globals.debug = Function('return "console" in this;')() && false;
+r5js.globals.debug = false;
 
 
 /**

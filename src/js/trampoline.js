@@ -99,14 +99,13 @@ goog.require('r5js.TrampolineHelper');
  (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  */
 /**
- * @suppress {undefinedVars} For console.
- * TODO bl: remove the @suppress.
  * @param {!r5js.Continuable} continuable The continuable object to evaluate.
  * @param {r5js.Port} inputPort The input port, if any.
  * @param {r5js.Port} outputPort The output port, if any.
+ * @param {!r5js.util.Logger} logger Logger, for debugging messages.
  * @param {boolean} debug If true, enable debugging features.
  */
-r5js.trampoline = function(continuable, inputPort, outputPort, debug) {
+r5js.trampoline = function(continuable, inputPort, outputPort, logger, debug) {
 
     var cur = continuable;
     var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
@@ -119,7 +118,7 @@ r5js.trampoline = function(continuable, inputPort, outputPort, debug) {
 
         while (cur) {
             // a good first step for debugging:
-            console.log('boing: ' + cur);
+            logger.fine('boing: ' + cur);
             resultStruct = cur.subtype.evalAndAdvance(
                 cur.continuation,
                 resultStruct,

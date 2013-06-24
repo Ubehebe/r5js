@@ -36,6 +36,7 @@ goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.trampoline');
 goog.require('r5js.UnimplementedOptionError');
+goog.require('r5js.util.Logger');
 
 
 
@@ -1218,7 +1219,14 @@ r5js.builtins['eval'] = {
                 if (!parsed)
                     throw new r5js.ParseError(expr);
                 var continuable = parsed.desugar(env).setStartingEnv(env);
-                return r5js.trampoline(continuable, null, null, r5js.globals.debug);
+                return r5js.trampoline(
+                    continuable,
+                    null,
+                    null,
+                    r5js.util.Logger.getLogger('[embedded eval]'),
+                    r5js.globals.debug
+
+                );
             }
         }
     },
@@ -1473,7 +1481,17 @@ r5js.builtins['io'] = {
     }
 };
 
-function registerBuiltin(name, definition, targetEnv) {
+
+/**
+ * @param {string} name
+ * @param {?} definition
+ * @param {!r5js.IEnvironment} targetEnv Environment the builtin should be
+ *        registered in.
+ * @param {!r5js.util.Logger} logger Logger, for informational messages.
+ * @return {?}
+ * TODO bl this function is too long. Split apart.
+ */
+function registerBuiltin(name, definition, targetEnv, logger) {
 
     var argc = definition.argc;
     var argtypes = definition.argtypes;
@@ -1481,12 +1499,13 @@ function registerBuiltin(name, definition, targetEnv) {
     var proc = definition.proc;
 
     if (!proc) {
-        //console.log('warning, builtin ' + name + ' unspecified, skipping');
+        logger.warning('builtin ' + name + ' unspecified, skipping');
         return targetEnv;
     }
 
-    if (targetEnv.hasBinding(name))
-        Function('return "console" in this;')() && console.log('warning, redefining ' + name);
+    if (targetEnv.hasBinding(name)) {
+        logger.warning('redefining ' + name);
+    }
 
     if (argtypes)
         requirePresenceOf(name, argtypes, targetEnv);

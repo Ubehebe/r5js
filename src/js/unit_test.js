@@ -23,19 +23,31 @@ goog.require('r5js.Parser');
 goog.require('r5js.Reader');
 goog.require('r5js.Scanner');
 
-/** @suppress {undefinedVars} for console */
-r5js.test.scanner = function() {
 
-    if (!Function('return "console" in this;')())
-            alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
+/**
+ * @param {!r5js.util.Logger} logger Logger for test output.
+ */
+r5js.test.scanner = function(logger) {
 
     function assertValidToken(text, type) {
         var tokens = new r5js.Scanner(text).tokenize();
         if (tokens.length !== 1) {
-            console.error('failed to scan token ' + text + ': expected 1 token, got ' + tokens.length);
+            logger.severe(
+                'failed to scan token ' +
+                    text +
+                    ': expected 1 token, got ' +
+                    tokens.length
+            );
             return false;
         } else if (tokens[0].type !== type) {
-            console.error('failed to scan token ' + text + ': expected type ' + type + ', got ' + tokens[0].type);
+            logger.severe(
+                'failed to scan token ' +
+                    text +
+                    ': expected type ' +
+                    type +
+                    ', got ' +
+                    tokens[0].type
+            );
             return false;
         } else return true;
     }
@@ -43,7 +55,11 @@ r5js.test.scanner = function() {
     function assertInvalidToken(text) {
         try {
             new r5js.Scanner(text).tokenize();
-            console.error('error: successfully scanned input ' + text + ', but it is supposed to be rejected');
+            logger.severe(
+                'successfully scanned input ' +
+                    text +
+                    ', but it is supposed to be rejected'
+            );
             return false;
         } catch (e) {
             return true;
@@ -125,16 +141,16 @@ r5js.test.scanner = function() {
         });
     }
 
-    console.log('r5js.test.scanner: ' + numTests + ' tests, ' + numErrors + ' errors');
+    logger.info('r5js.test.scanner: ' + numTests + ' tests, ' + numErrors + ' errors');
 };
 
-r5js.test.parser = function() {
 
-    if (!Function('return "console" in this;')())
-            alert('The unit tests use the console for display, but your JavaScript environment doesn\'t have a console.');
-
-    // todo bl add lots of unit tests focusing on headless clauses (sequence, body)
-
+/**
+ * @param {!r5js.util.Logger} logger Logger for test output.
+ */
+r5js.test.parser = function(logger) {
+    // todo bl add lots of unit tests focusing on headless clauses
+    // (sequence, body)
 
     var tests = {};
 
@@ -317,8 +333,14 @@ r5js.test.parser = function() {
 
                     if (actualResult.peekParse() !== type) { // ...but it was an incorrect parse
                         ++numErrors;
-                        console.log('r5js.test.parser ' + type + ': ' + toParse + ': mis-parsed as');
-                        console.log(actualResult);
+                        logger.severe(
+                            'r5js.test.parser ' +
+                                type +
+                                ': ' +
+                                toParse +
+                                ': mis-parsed as' +
+                                actualResult
+                        );
                     }
 
                     else {} // ...got the correct parse, do nothing
@@ -326,7 +348,13 @@ r5js.test.parser = function() {
 
                 else { // ...but unexpectedly got failure
                     ++numErrors;
-                    console.log('r5js.test.parser ' + type + ': ' + toParse + ': expected success, got failure');
+                    logger.severe(
+                        'r5js.test.parser ' +
+                            type +
+                            ': ' +
+                            toParse +
+                            ': expected success, got failure'
+                    );
                 }
 
             }
@@ -337,12 +365,24 @@ r5js.test.parser = function() {
                     ; // ...and got failure, according to expectation
                 } else { // ...but unexpectedly got success
                     ++numErrors;
-                    console.log('r5js.test.parser ' + type + ': ' + toParse + ': expected failure, got');
-                    console.log(actualResult);
+                    logger.severe(
+                        'r5js.test.parser ' +
+                            type +
+                            ': ' +
+                            toParse +
+                            ': expected failure, got' +
+                            actualResult
+                    );
                 }
             }
             ++numTests;
         }
     }
-    console.log('r5js.test.parser: ' + numTests + ' tests, ' + numErrors + ' errors');
-}
+    logger.info(
+        'r5js.test.parser: ' +
+            numTests +
+            ' tests, ' +
+            numErrors +
+            ' errors'
+    );
+};

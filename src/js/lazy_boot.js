@@ -77,9 +77,9 @@ r5js.LazyBoot.prototype.desugar = function(root, replMode) {
 
 
 /** @override */
-r5js.LazyBoot.prototype.Eval = function(continuable, onOutput) {
+r5js.LazyBoot.prototype.Eval = function(continuable, onOutput, logger) {
     this.checkBooted_();
-    return this.pipeline_.Eval(continuable, onOutput);
+    return this.pipeline_.Eval(continuable, onOutput, logger);
 };
 
 

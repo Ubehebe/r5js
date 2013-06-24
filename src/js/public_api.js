@@ -17,12 +17,11 @@
 goog.provide('r5js.PublicApi');
 
 
-goog.require('r5js.test.parser');
-goog.require('r5js.test.scanner');
-
-
 goog.require('r5js.OutputMode');
 goog.require('r5js.Scanner');
+goog.require('r5js.test.parser');
+goog.require('r5js.test.scanner');
+goog.require('r5js.util.Logger');
 
 /**
  *
@@ -41,13 +40,19 @@ r5js.PublicApi = function(pipeline) {
 /**
  * @param {?string} unitTestUrl The URL for the unit tests.
  * @param {function()} sideEffectHandler A side effect handler.
+ * @param {r5js.util.Logger} logger Logger, for test output.
+ * The logger is nullable because this method is called from node_exports.js,
+ * which lives outside the JavaScript root managed by the Closure build system
+ * and cannot conveniently instantiate a logger.
  * TODO bl: tighten the type of sideEffectHandler.
  */
-r5js.PublicApi.prototype.test = function(unitTestUrl, sideEffectHandler) {
-    r5js.test.scanner();
-    r5js.test.parser();
+r5js.PublicApi.prototype.test = function(
+    unitTestUrl, sideEffectHandler, logger) {
+    logger = logger || r5js.util.Logger.getLogger('r5js');
+    r5js.test.scanner(logger);
+    r5js.test.parser(logger);
     if (unitTestUrl) {
-        this.evalUrl(unitTestUrl, sideEffectHandler);
+        this.evalUrl(unitTestUrl, sideEffectHandler, logger);
     }
 };
 
@@ -127,13 +132,15 @@ r5js.PublicApi.prototype.willParse = function(logicalLine) {
     }
 };
 
+
 /**
  * @param {string} string The source text to evaluate.
  * @param {function()} sideEffectHandler A side effect handler.
+ * @param {!r5js.util.Logger} logger Logger.
  * @return {string} A string representation of the value of the evaluation.
  * TODO bl: narrow the type of sideEffectHandler.
  */
-r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler) {
+r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler, logger) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
@@ -145,7 +152,8 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler) {
                 ),
                 false
             ),
-            sideEffectHandler
+            sideEffectHandler,
+            logger
         );
     return ans instanceof r5js.Datum ?
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
@@ -157,9 +165,10 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler) {
  * Just like {@link r5js.PublicApi.eval}, but reuses the old environment.
  * @param {string} string The source text to evaluate.
  * @param {*} sideEffectHandler A side effect handler.
+ * @param {!r5js.util.Logger} logger Logger.
  * TODO bl: tighten the type of sideEffectHandler.
  */
-r5js.PublicApi.prototype.repl = function (string, sideEffectHandler) {
+r5js.PublicApi.prototype.repl = function (string, sideEffectHandler, logger) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
@@ -171,7 +180,8 @@ r5js.PublicApi.prototype.repl = function (string, sideEffectHandler) {
                 ),
                 true
             ),
-            goog.nullFunction
+            goog.nullFunction,
+            logger
         );
     return ans instanceof r5js.Datum ?
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
@@ -183,15 +193,16 @@ r5js.PublicApi.prototype.repl = function (string, sideEffectHandler) {
 /**
  * @param {string} url URL to open.
  * @param {function()} sideEffectHandler A side effect handler.
+ * @param {!r5js.util.Logger} logger Logger.
  * TODO bl: narrow the type of sideEffectHandler.
  */
-r5js.PublicApi.prototype.evalUrl = function(url, sideEffectHandler) {
+r5js.PublicApi.prototype.evalUrl = function(url, sideEffectHandler, logger) {
     var req = new XMLHttpRequest();
     req.open('GET', url);
     var self = this;
     req.onreadystatechange = function() {
       if (req.readyState === 4 && req.status === 200) {
-          self.Eval(req.responseText, sideEffectHandler);
+          self.Eval(req.responseText, sideEffectHandler, logger);
       }
     };
     req.send();

@@ -33,16 +33,14 @@ goog.require('r5js.trampoline');
 /**
  * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
  * @param {string} procLib Scheme source code for the R5RS procedure library.
- * @suppress {undefinedVars} for console.log
+ * @param {!r5js.util.Logger} logger Logger for debug output.
  */
-r5js.boot = function(syntaxLib, procLib) {
+r5js.boot = function(syntaxLib, procLib, logger) {
     r5js.globals.nullEnv = new r5js.Environment('null-environment-5', null);
-    install(syntaxLib, r5js.globals.nullEnv);
+    install(syntaxLib, r5js.globals.nullEnv, logger);
     r5js.globals.nullEnv.seal();
-    // Node and IE<9 compat
-    var consoleAvail = Function('return "console" in this;')();
 
-    consoleAvail && console.log('installed syntax lib ok');
+    logger.info('installed syntax lib ok');
 
     /* r5RSEnv is the normal "root" environment. But we also have to
      support the "null environment", which is just the R5RS required syntax
@@ -69,13 +67,19 @@ r5js.boot = function(syntaxLib, procLib) {
     r5js.globals.r5RSEnv = new r5js.RootEnvironment(
         r5js.globals.nullEnv.clone('scheme-report-environment-5')
     );
-    installBuiltins(/** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv));
-    consoleAvail && console.log('installed primitive procedures ok');
-    install(procLib, /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv));
-    consoleAvail && console.log('installed library procedures ok');
+    installBuiltins(
+        /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv),
+        logger
+    );
+    logger.info('installed primitive procedures ok');
+    install(
+        procLib,
+        /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv),
+        logger
+    );
+    logger.info('installed library procedures ok');
     r5js.globals.r5RSEnv.seal();
-    consoleAvail && console.log('interpreter is ready');
-    consoleAvail && console.log('----------------------------------------------------------------------');
+    logger.info('interpreter is ready');
 };
 
 
@@ -83,9 +87,10 @@ r5js.boot = function(syntaxLib, procLib) {
  * @param {string} lib Scheme source code.
  * @param {!r5js.IEnvironment} env Environment to install the source code's
  * definitions into.
+ * @param {!r5js.util.Logger} logger Logger.
  * @return {?}
  */
-function install(lib, env) {
+function install(lib, env, logger) {
     return r5js.trampoline(
         new r5js.Parser(
             new r5js.Reader(
@@ -95,6 +100,7 @@ function install(lib, env) {
             .desugar(env).setStartingEnv(env),
         null,
         null,
+        logger,
         false
     );
 }
@@ -102,12 +108,13 @@ function install(lib, env) {
 
 /**
  * @param {!r5js.IEnvironment} env Environment to install the builtins into.
+ * @param {!r5js.util.Logger} logger Logger.
  */
-function installBuiltins(env) {
+function installBuiltins(env, logger) {
     for (var category in r5js.builtins) {
         var procs = r5js.builtins[category];
         for (var name in procs)
-            registerBuiltin(name, procs[name], env);
+            registerBuiltin(name, procs[name], env, logger);
     }
 
     /* Experimental Scheme->JS FFI is browser-only for now.
@@ -118,7 +125,7 @@ function installBuiltins(env) {
             'window',
             r5js.ffiutil.newFFIDatum(new r5js.JsObjOrMethod(window)));
         for (var name in r5js.ffi) {
-            registerBuiltin(name, r5js.ffi[name], env);
+            registerBuiltin(name, r5js.ffi[name], env, logger);
         }
     }
 }
