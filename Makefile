@@ -51,7 +51,6 @@ smslike-min:
 
 .PHONY: typecheck
 typecheck:
-typecheck:
 	@find $(src) -name "*.js" \
 	| xargs printf "--input %s " \
 	| xargs $(builder) --root=$(src) --root=$(closure_root) \
