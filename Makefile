@@ -17,6 +17,13 @@ src = src/js
 
 # Output-related paths.
 main_class = r5js.main
+outdir = build
+deps = $(outdir)/deps.js
+
+.PHONY: deps
+deps:
+	@mkdir -p $(outdir)
+	@$(depswriter) --root_with_prefix="$(src) ../../../$(src)" > $(deps)
 
 # JS library plus a simple HTML terminal emulator
 repl: interpreter
@@ -205,4 +212,4 @@ test-closurized:
 	@node -e "require('./build/gay-lisp-$(version)').test()"
 
 clean:
-	rm -f build/*
+	rm -rf $(outdir)
