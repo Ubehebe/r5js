@@ -20,6 +20,11 @@ main_class = r5js.main
 outdir = build
 deps = $(outdir)/deps.js
 
+# Test-related paths.
+test_main_class = r5js.test.main
+phantom_driver  = phantom_driver.js
+test_url = http://localhost:8080/static/src/js/test/test.html
+
 .PHONY: deps
 deps:
 	@mkdir -p $(outdir)
@@ -93,17 +98,17 @@ typecheck:
 
 interpreter-closurized: doctor-api-js
 interpreter-closurized:
-	@mkdir -p build/tmpdir
-	@mv $(output) build/tmpdir/tmp.js
+	@mkdir -p $(outdir)/tmpdir
+	@mv $(output) $(outdir)/tmpdir/tmp.js
 	@find $(src) -name "*.js" \
 	| xargs printf "--input %s " \
 	| xargs $(builder) --root=$(src) --root=$(closure_root) \
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
-		--js build/tmpdir/tmp.js \
+		--js $(outdir)/tmpdir/tmp.js \
 		--closure_entry_point=$(main_class) \
 		> $(output)
-	@rm -rf build/tmpdir
+	@rm -rf $(outdir)/tmpdir
 
 
 # Just make the JS library (no UI)
@@ -203,13 +208,11 @@ test:
 	hash node 2>&- || echo >&2 "testing requires node"; exit
 	node -e "require('./build/gay-lisp-$(version)').test()"
 
-test-closurized: interpreter-closurized
+test-closurized: deps interpreter-closurized
 test-closurized:
-	@echo "var tests = \"\c" >> $(output)
-	@sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < $(unit_tests) | tr -s '\n\t ' ' ' >> $(output)
-	@echo "\";" >> $(output)
-	@cat src/node/node_exports.js >> $(output)
-	@node -e "require('./build/gay-lisp-$(version)').test()"
+	@command -v phantomjs >/dev/null 2>&1 || \
+		{ echo >&2 "phantomjs is required for testing."; exit 1; }
+	@phantomjs $(phantom_driver) $(test_url)
 
 clean:
 	rm -rf $(outdir)
