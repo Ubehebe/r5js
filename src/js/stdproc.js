@@ -1130,7 +1130,9 @@ r5js.builtins['control'] = {
              of the lambda after the call/cc, for the call/cc to deliver the
              42 to). */
 
-            var before = newCpsName();
+            // TODO bl: the compiler thinks there's already a variable named
+	    // "before" in scope here. Figure out why.
+	    var before2 = newCpsName();
 
             // None of the three thunks have any arguments.
 
@@ -1139,7 +1141,7 @@ r5js.builtins['control'] = {
             var procCallBefore = r5js.procs.newProcCall(
                 procCall.firstOperand,
                 null, // no arguments
-                new r5js.Continuation(before)
+                new r5js.Continuation(before2)
             );
 
 
@@ -1171,7 +1173,7 @@ r5js.builtins['control'] = {
             resultStruct.beforeThunk = r5js.procs.newProcCall(
                 procCall.firstOperand,
                 null,
-                new r5js.Continuation(before));
+                new r5js.Continuation(before2));
         }
     }
 };
