@@ -133,7 +133,7 @@ doctor-api-js:
 	@cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 
 .PHONY: test
-test: deps interpreter
+test: deps
 test:
 	@command -v python > /dev/null 2>&1 || \
 		{ echo >&2 "python is required for testing."; exit 1; }
