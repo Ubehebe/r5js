@@ -5,6 +5,7 @@ goog.require('r5js.scan.TokenType');
 goog.require('r5js.Scanner');
 goog.require('r5js.test.fixtures');
 goog.require('tdd.SyncTestSuite');
+goog.require('tdd.TestType');
 
 
 /**
@@ -13,7 +14,7 @@ goog.require('tdd.SyncTestSuite');
  * @constructor
  */
 r5js.test.Scanner = function() {
-    goog.base(this, "r5js.test.Scanner");
+    goog.base(this, "r5js.test.Scanner", tdd.TestType.UNIT);
 };
 goog.inherits(r5js.test.Scanner, tdd.SyncTestSuite);
 

@@ -20,10 +20,17 @@ main_class = r5js.main
 outdir = build
 deps = $(outdir)/deps.js
 
+# Static server-related paths.
+static_port = 8888
+static_root = http://localhost:$(static_port)
+
 # Test-related paths.
 test_main_class = r5js.test.main
-phantom_driver  = phantom_driver.js
-test_url = http://localhost:8080/static/src/js/test/test.html
+phantom_driver  = src/js/tdd/phantom_driver.js
+test_url = $(static_root)/src/js/test/test.html
+# test_opts can be overridden from the command line. Example:
+# make test test_opts="--type=integration --verbose"
+test_opts = --type=unit
 
 .PHONY: deps
 deps:
@@ -215,9 +222,14 @@ test:
 
 test-closurized: deps interpreter-closurized
 test-closurized:
+	@command -v python > /dev/null 2>&1 || \
+		{ echo >&2 "python is required for testing."; exit 1; }
 	@command -v phantomjs >/dev/null 2>&1 || \
 		{ echo >&2 "phantomjs is required for testing."; exit 1; }
-	@phantomjs $(phantom_driver) $(test_url)
+	@python -m SimpleHTTPServer $(static_port) > /dev/null 2>&1 & echo "$$!" > python.pid
+	@phantomjs $(phantom_driver) $(test_url) $(test_main_class) $(test_opts)
+	@-cat python.pid | xargs kill
+	@rm python.pid
 
 clean:
 	rm -rf $(outdir)
