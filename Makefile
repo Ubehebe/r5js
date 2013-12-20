@@ -177,7 +177,12 @@ doctor-api-js:
 	@echo "\";" >> $(output)
 	@rm build/tmp
 
-	@tail -n+$(afterFirstBrace) src/api/api.js >> $(output)
+	@# TODO bl: tail -n+$(afterFirstBrace) used to start with the line after
+	@# the brace, but now, at least on OS X, it grabs the line including
+	@# the brace, leading to very malformed output. The tail -n+2 corrects
+	@# for this. This could be a version problem with one of the command-line
+	@# tools. Investigate.
+	@tail -n+$(afterFirstBrace) src/api/api.js | tail -n+2 >> $(output)
 	@cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 	@cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 
