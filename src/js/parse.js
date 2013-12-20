@@ -368,7 +368,7 @@ r5js.Parser.prototype.nextIf = function(predicate) {
 
 /**
  * @param {?} element
- * @return {boolean} TODO bl what does the return value mean?
+ * @return {boolean|undefined} TODO bl what does the return value mean?
  */
 r5js.Parser.prototype.onDatum = function(element) {
 
