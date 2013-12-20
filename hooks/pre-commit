@@ -17,7 +17,7 @@ if [ $ret_code != 0 ]; then
     exit $ret_code
 fi
 echo 'unit tests...'
-eval 'make test-closurized'
+eval 'make test'
 ret_code=$?
 if [ $ret_code != 0 ]; then
     echo 'failure(s) in uncompiled tests, aborting commit'

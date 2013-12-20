@@ -37,9 +37,9 @@ deps:
 	@mkdir -p $(outdir)
 	@$(depswriter) --root_with_prefix="$(src) ../../../$(src)" > $(deps)
 
-.PHONY: repl-closurized
-repl-closurized: interpreter-closurized
-repl-closurized:
+.PHONY: repl
+repl: interpreter
+repl:
 	cat ui/index.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
 	cp ui/main.js ui/repl.css build/
 	cp mockterm/mockterm.js mockterm/async_queue.js build/
@@ -80,9 +80,9 @@ typecheck:
 		--jscomp_error visibility \
 		> /dev/null
 
-.PHONY: interpreter-closurized
-interpreter-closurized: doctor-api-js
-interpreter-closurized:
+.PHONY: interpreter
+interpreter: doctor-api-js
+interpreter:
 	@mkdir -p $(outdir)/tmpdir
 	@mv $(output) $(outdir)/tmpdir/tmp.js
 	@find $(src) -name "*.js" \
@@ -132,9 +132,9 @@ doctor-api-js:
 	@cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 	@cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 
-.PHONY: test-closurized
-test-closurized: deps interpreter-closurized
-test-closurized:
+.PHONY: test
+test: deps interpreter
+test:
 	@command -v python > /dev/null 2>&1 || \
 		{ echo >&2 "python is required for testing."; exit 1; }
 	@command -v phantomjs >/dev/null 2>&1 || \
