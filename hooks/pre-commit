@@ -1,0 +1,25 @@
+#!/bin/sh
+# (ln -s this file to .git/hooks/pre-commit.)
+
+# Codebase isn't stable enough for linting yet.
+#echo 'linting...'
+#eval 'make lint'
+#ret_code=$?
+#if [ $ret_code != 0 ]; then
+#    echo 'lint errors, aborting commit'
+#    exit $ret_code
+#fi
+echo 'type-checking...'
+eval 'make typecheck'
+ret_code=$?
+if [ $ret_code != 0 ]; then
+    echo 'type errors, aborting commit'
+    exit $ret_code
+fi
+echo 'unit tests...'
+eval 'make test-closurized'
+ret_code=$?
+if [ $ret_code != 0 ]; then
+    echo 'failure(s) in uncompiled tests, aborting commit'
+    exit $ret_code
+fi
