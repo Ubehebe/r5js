@@ -64,9 +64,9 @@ smslike-min:
 .PHONY: typecheck
 typecheck:
 	@find $(src) -name "*.js" \
-	| xargs printf "--input %s " \
+	| xargs printf "\-\-input %s " \
 	| xargs $(builder) --root=$(src) --root=$(closure_root) \
-	| xargs printf "--js %s " \
+	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
 		--js src/api/api.js \
 		--js $(closure_root)/closure/goog/deps.js \
@@ -101,7 +101,7 @@ interpreter-closurized:
 	@mkdir -p $(outdir)/tmpdir
 	@mv $(output) $(outdir)/tmpdir/tmp.js
 	@find $(src) -name "*.js" \
-	| xargs printf "--input %s " \
+	| xargs printf "\-\-input %s " \
 	| xargs $(builder) --root=$(src) --root=$(closure_root) \
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
