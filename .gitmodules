@@ -9,4 +9,5 @@
 	url = https://code.google.com/p/closure-library/
 [submodule "src/js/tdd"]
 	path = src/js/tdd
-	url = /home/brendan/closure-tdd/
+	url = https://github.com/Ubehebe/closure-tdd
+
