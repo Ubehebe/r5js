@@ -20,7 +20,6 @@ goog.provide('r5js.PublicApi');
 goog.require('r5js.OutputMode');
 goog.require('r5js.Scanner');
 goog.require('r5js.test.parser');
-goog.require('r5js.test.scanner');
 goog.require('r5js.util.Logger');
 
 /**
@@ -49,7 +48,6 @@ r5js.PublicApi = function(pipeline) {
 r5js.PublicApi.prototype.test = function(
     unitTestUrl, sideEffectHandler, logger) {
     logger = logger || r5js.util.Logger.getLogger('r5js');
-    r5js.test.scanner(logger);
     r5js.test.parser(logger);
     if (unitTestUrl) {
         this.evalUrl(unitTestUrl, sideEffectHandler, logger);
