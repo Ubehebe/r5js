@@ -246,4 +246,4 @@ test-closurized:
 
 .PHONY: clean
 clean:
-	rm -rf $(outdir)
+	@rm -rf $(outdir)
