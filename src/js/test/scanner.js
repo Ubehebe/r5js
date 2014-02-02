@@ -1,29 +1,41 @@
 goog.provide('r5js.test.Scanner');
 
 
+goog.require('expect');
 goog.require('r5js.scan.TokenType');
 goog.require('r5js.Scanner');
 goog.require('r5js.test.fixtures');
-goog.require('tdd.SyncTestSuite');
 goog.require('tdd.TestType');
 
 
 /**
  * Scanning-related tests.
- * @extends {tdd.SyncTestSuite}
+ * @implements {tdd.TestSuite}
+ * @struct
  * @constructor
  */
-r5js.test.Scanner = function() {
-    goog.base(this, "r5js.test.Scanner", tdd.TestType.UNIT);
-};
-goog.inherits(r5js.test.Scanner, tdd.SyncTestSuite);
-
+r5js.test.Scanner = function() {};
 
 
 /** @override */
-r5js.test.Scanner.prototype.runTests = function() {
+r5js.test.Scanner.prototype.getType = function() {
+    return tdd.TestType.UNIT;
+};
+
+
+/** @override */
+r5js.test.Scanner.prototype.toString = function() {
+    return 'r5js.test.Scanner';
+};
+
+
+r5js.test.Scanner.prototype['testValidTokens'] = function() {
     r5js.scan.TokenType.ALL_TOKEN_TYPES.forEach(
         this.checkValidTokens_, this);
+};
+
+
+r5js.test.Scanner.prototype['testInvalidTokens'] = function() {
     r5js.scan.TokenType.ALL_TOKEN_TYPES.forEach(
         this.checkInvalidTokens_, this);
 };
@@ -61,15 +73,11 @@ r5js.test.Scanner.prototype.checkInvalidTokens_ = function(tokenType) {
  */
 r5js.test.Scanner.prototype.checkTokenOfType_ = function(
     tokenType, expectedValid, token) {
-    var desc = expectedValid ? ' is a valid ' : ' is an invalid ';
     var actualValid = true;
-    this.Do(
-        token + desc + r5js.scan.tokenTypeName(tokenType),
-        function() {
             try {
                 new r5js.Scanner(token).tokenize();
             } catch (e) {
                 actualValid = false;
             }
-        }).expecting(actualValid).toBe(expectedValid);
+    expect(actualValid).toBe(expectedValid);
 };

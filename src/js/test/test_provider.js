@@ -5,13 +5,13 @@ goog.require('r5js.test.Scanner');
 
 
 /**
- * @implements {tdd.TestSuiteProvider}
+ * @struct
  * @constructor
  */
 r5js.test.Provider = function() {};
 
 
-/** @override */
+/** @return {!Array.<!tdd.TestSuite>} */
 r5js.test.Provider.prototype.getTestSuites = function() {
     return [
         new r5js.test.Scanner()
