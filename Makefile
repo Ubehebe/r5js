@@ -140,7 +140,7 @@ test:
 	@command -v phantomjs >/dev/null 2>&1 || \
 		{ echo >&2 "phantomjs is required for testing."; exit 1; }
 	@python -m SimpleHTTPServer $(static_port) > /dev/null 2>&1 & echo "$$!" > python.pid
-	@phantomjs $(phantom_driver) $(test_url) $(test_main_class) $(test_opts)
+	@phantomjs $(phantom_driver) $(test_url) $(test_main_class) $(test_opts) 2>/dev/null
 	@-cat python.pid | xargs kill
 	@rm python.pid
 
