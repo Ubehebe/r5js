@@ -2,6 +2,7 @@ goog.provide('r5js.test.main');
 
 
 goog.require('goog.debug.Logger');
+goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
 goog.require('tdd.Runner');
 goog.require('tdd.RunnerConfig');
@@ -31,7 +32,8 @@ r5js.test.main = function(opt_argv) {
  */
 r5js.test.getTestSuites_ = function() {
   return [
-    new r5js.test.Scanner()
+    new r5js.test.Scanner(),
+      new r5js.test.Parser()
   ];
 };
 
