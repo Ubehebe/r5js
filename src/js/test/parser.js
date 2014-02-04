@@ -2,7 +2,8 @@ goog.provide('r5js.test.Parser');
 goog.setTestOnly('r5js.test.Parser');
 
 
-goog.require('Expect');
+goog.require('expect');
+goog.require('parseAs');
 goog.require('tdd.TestType');
 
 
@@ -33,13 +34,13 @@ r5js.test.Parser.prototype['testVariable'] = function() {
         '-',
         'x'
     ].forEach(function(text) {
-            Expect(text).toParseAs('variable');
+            expect(text).to(parseAs('variable'));
         });
 
     [
         '('
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('variable');
+            expect(text).not().to(parseAs('variable'));
         });
 };
 
@@ -51,14 +52,14 @@ r5js.test.Parser.prototype['testQuotation'] = function() {
         '(quote quote)',
         "'quote"
     ].forEach(function(text) {
-            Expect(text).toParseAs('quotation');
+            expect(text).to(parseAs('quotation'));
         });
 
     [
         'quote',
         "''"
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('quotation');
+            expect(text).not().to(parseAs('quotation'));
         });
 };
 
@@ -73,13 +74,13 @@ r5js.test.Parser.prototype['testSelfEvaluating'] = function() {
         '"hello, world"',
         '"(define foo x y)"'
     ].forEach(function(text) {
-            Expect(text).toParseAs('self-evaluating');
+            expect(text).to(parseAs('self-evaluating'));
         });
     [
         '(define foo (+ 1 2))',
         '+'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('self-evaluating');
+            expect(text).not().to(parseAs('self-evaluating'));
         });
 };
 
@@ -92,7 +93,7 @@ r5js.test.Parser.prototype['testProcedureCall'] = function() {
         '((define) foo)',
         '((lambda () +) 1 2)'
     ].forEach(function(text) {
-            Expect(text).toParseAs('procedure-call');
+            expect(text).to(parseAs('procedure-call'));
         });
 
     [
@@ -102,7 +103,7 @@ r5js.test.Parser.prototype['testProcedureCall'] = function() {
         '(foo x y . z)'
 // TODO bl parses as a macro use '((define) define)'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('procedure-call');
+            expect(text).not().to(parseAs('procedure-call'));
         });
 };
 
@@ -117,7 +118,7 @@ r5js.test.Parser.prototype['testLambdaExpression'] = function() {
       '(lambda () (define x 1) (define y 2) x)',
       '(lambda () (define x 1) (define y 2) x y)'
   ].forEach(function(text) {
-          Expect(text).toParseAs('lambda-expression');
+          expect(text).to(parseAs('lambda-expression'));
       });
 
     [
@@ -126,7 +127,7 @@ r5js.test.Parser.prototype['testLambdaExpression'] = function() {
         '(lambda lambda)',
         '(lambda () (define x 1) (define y 2))'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('lambda-expression');
+            expect(text).not().to(parseAs('lambda-expression'));
         });
 };
 
@@ -136,14 +137,14 @@ r5js.test.Parser.prototype['testFormals'] = function() {
       'x',
       '(x . z)'
   ].forEach(function(text) {
-          Expect(text).toParseAs('formals');
+          expect(text).to(parseAs('formals'));
       });
 
     [
         '( . x)',
         '(x . y . z)'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('formals');
+            expect(text).not().to(parseAs('formals'));
         });
 };
 
@@ -158,7 +159,7 @@ r5js.test.Parser.prototype['testDefinition'] = function() {
       '(define (x) (define y 1) x)',
       '(begin (define x 1) (define y 2))'
   ].forEach(function(text) {
-          Expect(text).toParseAs('definition');
+          expect(text).to(parseAs('definition'));
       });
 
     [
@@ -167,7 +168,7 @@ r5js.test.Parser.prototype['testDefinition'] = function() {
         '(begin 1)',
         '(begin ())'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('definition');
+            expect(text).not().to(parseAs('definition'));
         });
 };
 
@@ -177,14 +178,14 @@ r5js.test.Parser.prototype['testConditional'] = function() {
         '(if x y)',
         '(if x (define x 1))'
     ].forEach(function(text) {
-            Expect(text).toParseAs('conditional');
+            expect(text).to(parseAs('conditional'));
         });
 
     [
         '(if x)',
         '(if)'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('conditional');
+            expect(text).not().to(parseAs('conditional'));
         });
 };
 
@@ -193,7 +194,7 @@ r5js.test.Parser.prototype['testAssignment'] = function() {
   [
       '(set! let! met!)'
   ].forEach(function(text) {
-          Expect(text).toParseAs('assignment');
+          expect(text).to(parseAs('assignment'));
       });
 
     [
@@ -201,21 +202,21 @@ r5js.test.Parser.prototype['testAssignment'] = function() {
         '(set! set!)',
         '(set! x)'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('assignment');
+            expect(text).not().to(parseAs('assignment'));
         });
 };
 
 
 r5js.test.Parser.prototype['testTransformerSpec'] = function() {
-  Expect('(syntax-rules ())').toParseAs('transformer-spec');
-    Expect('(syntax-rules)').not().toParseAs('transformer-spec');
+  expect('(syntax-rules ())').to(parseAs('transformer-spec'));
+    expect('(syntax-rules)').not().to(parseAs('transformer-spec'));
 };
 
 
 r5js.test.Parser.prototype['testPatternIdentifier'] = function() {
-  Expect('define').toParseAs('pattern-identifier');
-    Expect('...').not().toParseAs('pattern-identifier');
-    Expect('x').toParseAs('pattern-identifier');
+  expect('define').to(parseAs('pattern-identifier'));
+    expect('...').not().to(parseAs('pattern-identifier'));
+    expect('x').to(parseAs('pattern-identifier'));
 };
 
 
@@ -228,21 +229,21 @@ r5js.test.Parser.prototype['testPattern'] = function() {
         '#()',
         '#(define ...)'
     ].forEach(function(text) {
-            Expect(text).toParseAs('pattern');
+            expect(text).to(parseAs('pattern'));
         });
     [
         '(define . ...)',
         '(...)'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('pattern');
+            expect(text).not().to(parseAs('pattern'));
         });
 };
 
 
 r5js.test.Parser.prototype['testPatternDatum'] = function() {
-    Expect('x').not().toParseAs('pattern-datum');
-    Expect('"x"').toParseAs('pattern-datum');
-    Expect("'x").not().toParseAs('pattern-datum');
+    expect('x').not().to(parseAs('pattern-datum'));
+    expect('"x"').to(parseAs('pattern-datum'));
+    expect("'x").not().to(parseAs('pattern-datum'));
 };
 
 
@@ -254,7 +255,7 @@ r5js.test.Parser.prototype['testTemplate'] = function() {
         '(x... . x)',
         '(x... y...)'
     ].forEach(function(text) {
-            Expect(text).toParseAs('template');
+            expect(text).to(parseAs('template'));
         });
 };
 
@@ -267,12 +268,12 @@ r5js.test.Parser.prototype['testQuasiquotation'] = function() {
       "`#(10 5 ,(sqrt 4) ,@(map sqrt '(16 9)) 8)",
       "`(a `(b ,(+ 1 2) ,(foo ,(+ 1 3) d) e) f)"
   ].forEach(function(text) {
-          Expect(text).toParseAs('quasiquotation');
+          expect(text).to(parseAs('quasiquotation'));
       });
 
-    Expect("(a ,(+ 1 2) ,@(map abs '(4 -5 6)) b)")
+    expect("(a ,(+ 1 2) ,@(map abs '(4 -5 6)) b)")
         .not()
-        .toParseAs('quasiquotation');
+        .to(parseAs('quasiquotation'));
 };
 
 
@@ -281,14 +282,14 @@ r5js.test.Parser.prototype['testSplicingUnquotation'] = function() {
         ",@(cdr '(c))",
         "(unquote-splicing (cdr '(c)))"
     ].forEach(function(text) {
-            Expect(text).toParseAs('splicing-unquotation');
+            expect(text).to(parseAs('splicing-unquotation'));
         });
 
     [
         ',@',
         'unquote-splicing'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('splicing-unquotation');
+            expect(text).not().to(parseAs('splicing-unquotation'));
         });
 };
 
@@ -301,14 +302,14 @@ r5js.test.Parser.prototype['testMacroBlock'] = function() {
         "(letrec-syntax ((foo (syntax-rules (x) ((foo x) 'x)))) (foo))",
         "(let-syntax ((foo (syntax-rules () ((foo) (+ 1 2 3))))) (define x 12) x)"
     ].forEach(function(text) {
-            Expect(text).toParseAs('macro-block');
+            expect(text).to(parseAs('macro-block'));
         });
 
     [
         '(let-syntax ())',
         '(letrec-syntax ())'
     ].forEach(function(text) {
-            Expect(text).not().toParseAs('macro-block');
+            expect(text).not().to(parseAs('macro-block'));
         });
 };
 

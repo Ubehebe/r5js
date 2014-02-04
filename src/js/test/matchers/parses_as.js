@@ -1,3 +1,5 @@
+goog.provide('parseAs');
+goog.setTestOnly('parseAs');
 goog.provide('r5js.test.matchers.ParsesAs');
 goog.setTestOnly('r5js.test.matchers.ParsesAs');
 
@@ -10,23 +12,28 @@ goog.require('r5js.Scanner');
 
 /**
  * @param {string} expectedType
- * @param {string} text
+ * @return {!tdd.matchers.Matcher}
+ */
+parseAs = function(expectedType) {
+    return new r5js.test.matchers.ParsesAs(expectedType);
+};
+
+
+/**
+ * @param {string} expectedType
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
  */
-r5js.test.matchers.ParsesAs = function(expectedType, text) {
+r5js.test.matchers.ParsesAs = function(expectedType) {
     /** @const @private {string} */
     this.expectedType_ = expectedType;
-
-    /** @const @private {string} */
-    this.text_ = text;
 };
 
 
 /** @override */
-r5js.test.matchers.ParsesAs.prototype.matches = function() {
-    var datumRoot = new r5js.Reader(new r5js.Scanner(this.text_)).read();
+r5js.test.matchers.ParsesAs.prototype.matches = function(value) {
+    var datumRoot = new r5js.Reader(new r5js.Scanner(/** @type {string} */ (value))).read();
     var actualResult = (datumRoot instanceof r5js.Datum) &&
         new r5js.Parser(datumRoot).rhs({type: this.expectedType_});
     return actualResult &&
@@ -36,12 +43,12 @@ r5js.test.matchers.ParsesAs.prototype.matches = function() {
 
 
 /** @override */
-r5js.test.matchers.ParsesAs.prototype.getSuccessMessage = function() {
-    return this.text_ + ' correctly parses as ' + this.expectedType_;
+r5js.test.matchers.ParsesAs.prototype.getSuccessMessage = function(value) {
+    return value + ' correctly parses as ' + this.expectedType_;
 };
 
 
 /** @override */
-r5js.test.matchers.ParsesAs.prototype.getFailureMessage = function() {
-    return 'expected ' + this.text_ + ' to parse as ' + this.expectedType_;
+r5js.test.matchers.ParsesAs.prototype.getFailureMessage = function(value) {
+    return 'expected ' + value + ' to parse as ' + this.expectedType_;
 };
