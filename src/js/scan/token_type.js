@@ -15,6 +15,7 @@
 
 
 goog.provide('r5js.scan.TokenType');
+goog.provide('r5js.scan.tokenTypeName');
 
 
 goog.require('r5js.InternalInterpreterError');
@@ -24,11 +25,11 @@ goog.require('r5js.InternalInterpreterError');
  * @enum {number}
  */
 r5js.scan.TokenType = {
-    BOOLEAN: 0,
-    CHARACTER: 1,
-    IDENTIFIER: 2,
-    NUMBER: 3,
-    STRING: 4
+  BOOLEAN: 0,
+  CHARACTER: 1,
+  IDENTIFIER: 2,
+  NUMBER: 3,
+  STRING: 4
 };
 
 
@@ -38,18 +39,18 @@ r5js.scan.TokenType = {
  */
 r5js.scan.tokenTypeName = function(tokenType) {
   switch (tokenType) {
-      case r5js.scan.TokenType.BOOLEAN:
-          return 'boolean';
-      case r5js.scan.TokenType.CHARACTER:
-          return 'character';
-      case r5js.scan.TokenType.IDENTIFIER:
-          return 'identifier';
-      case r5js.scan.TokenType.NUMBER:
-          return 'number';
-      case r5js.scan.TokenType.STRING:
-          return 'string';
-      default:
-          throw new r5js.InternalInterpreterError('enum changed');
+    case r5js.scan.TokenType.BOOLEAN:
+      return 'boolean';
+    case r5js.scan.TokenType.CHARACTER:
+      return 'character';
+    case r5js.scan.TokenType.IDENTIFIER:
+      return 'identifier';
+    case r5js.scan.TokenType.NUMBER:
+      return 'number';
+    case r5js.scan.TokenType.STRING:
+      return 'string';
+    default:
+      throw new r5js.InternalInterpreterError('enum changed');
   }
 };
 
@@ -58,9 +59,9 @@ r5js.scan.tokenTypeName = function(tokenType) {
   * @type {!Array.<!r5js.scan.TokenType>}
  */
 r5js.scan.TokenType.ALL_TOKEN_TYPES = [
-    r5js.scan.TokenType.BOOLEAN,
-    r5js.scan.TokenType.CHARACTER,
-    r5js.scan.TokenType.IDENTIFIER,
-    r5js.scan.TokenType.NUMBER,
-    r5js.scan.TokenType.STRING
+  r5js.scan.TokenType.BOOLEAN,
+  r5js.scan.TokenType.CHARACTER,
+  r5js.scan.TokenType.IDENTIFIER,
+  r5js.scan.TokenType.NUMBER,
+  r5js.scan.TokenType.STRING
 ];

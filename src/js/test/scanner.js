@@ -2,10 +2,12 @@ goog.provide('r5js.test.Scanner');
 
 
 goog.require('expect');
-goog.require('r5js.scan.TokenType');
 goog.require('r5js.Scanner');
+goog.require('r5js.scan.TokenType');
+goog.require('r5js.scan.tokenTypeName');
 goog.require('r5js.test.fixtures');
 goog.require('tdd.TestType');
+
 
 
 /**
@@ -19,25 +21,25 @@ r5js.test.Scanner = function() {};
 
 /** @override */
 r5js.test.Scanner.prototype.getType = function() {
-    return tdd.TestType.UNIT;
+  return tdd.TestType.UNIT;
 };
 
 
 /** @override */
 r5js.test.Scanner.prototype.toString = function() {
-    return 'r5js.test.Scanner';
+  return 'r5js.test.Scanner';
 };
 
 
 r5js.test.Scanner.prototype['testValidTokens'] = function() {
-    r5js.scan.TokenType.ALL_TOKEN_TYPES.forEach(
-        this.checkValidTokens_, this);
+  r5js.scan.TokenType.ALL_TOKEN_TYPES.forEach(
+      this.checkValidTokens_, this);
 };
 
 
 r5js.test.Scanner.prototype['testInvalidTokens'] = function() {
-    r5js.scan.TokenType.ALL_TOKEN_TYPES.forEach(
-        this.checkInvalidTokens_, this);
+  r5js.scan.TokenType.ALL_TOKEN_TYPES.forEach(
+      this.checkInvalidTokens_, this);
 };
 
 
@@ -46,10 +48,10 @@ r5js.test.Scanner.prototype['testInvalidTokens'] = function() {
  * @private
  */
 r5js.test.Scanner.prototype.checkValidTokens_ = function(tokenType) {
-    r5js.test.fixtures.validTokensForType(tokenType).forEach(
-        // PhantomJS doesn't have Function.prototype.bind yet.
-        goog.bind(this.checkTokenOfType_, this, tokenType, true)
-    );
+  r5js.test.fixtures.validTokensForType(tokenType).forEach(
+      // PhantomJS doesn't have Function.prototype.bind yet.
+      goog.bind(this.checkTokenOfType_, this, tokenType, true)
+  );
 };
 
 
@@ -58,10 +60,10 @@ r5js.test.Scanner.prototype.checkValidTokens_ = function(tokenType) {
  * @private
  */
 r5js.test.Scanner.prototype.checkInvalidTokens_ = function(tokenType) {
-    r5js.test.fixtures.invalidTokensForType(tokenType).forEach(
-        // PhantomJS doesn't have Function.prototype.bind yet.
-        goog.bind(this.checkTokenOfType_, this, tokenType, false)
-    );
+  r5js.test.fixtures.invalidTokensForType(tokenType).forEach(
+      // PhantomJS doesn't have Function.prototype.bind yet.
+      goog.bind(this.checkTokenOfType_, this, tokenType, false)
+  );
 };
 
 
@@ -73,11 +75,17 @@ r5js.test.Scanner.prototype.checkInvalidTokens_ = function(tokenType) {
  */
 r5js.test.Scanner.prototype.checkTokenOfType_ = function(
     tokenType, expectedValid, token) {
-    var actualValid = true;
-            try {
-                new r5js.Scanner(token).tokenize();
-            } catch (e) {
-                actualValid = false;
-            }
-    expect(actualValid).toBe(expectedValid);
+  var scans = true;
+  var tokens = [];
+  try {
+    tokens = new r5js.Scanner(token).tokenize();
+  } catch (e) {
+    // Exceptions are expected for invalid tokens
+  }
+  if (expectedValid) {
+    expect(tokens.length).toBe(1);
+    expect(tokens[0].type).toBe(r5js.scan.tokenTypeName(tokenType));
+  } else {
+    expect(tokens.length).toBe(0);
+  }
 };
