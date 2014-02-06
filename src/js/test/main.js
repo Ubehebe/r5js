@@ -26,16 +26,20 @@ r5js.test.main = function(opt_argv) {
         tdd.RunnerConfig.DEFAULT;
     var logger = goog.debug.Logger.getLogger('r5js.test.main');
     var runner = new tdd.Runner(testConfig, logger);
-    goog.labs.net.xhr.get(r5js.test.SYNTAX_URL_).then(function(syntaxLib) {
-        goog.labs.net.xhr.get(r5js.test.PROCEDURES_URL_).then(function(procedureLib) {
+    goog.labs.net.xhr.get(r5js.test.urls_.SYNTAX).then(function(syntaxLib) {
+        goog.labs.net.xhr.get(r5js.test.urls_.PROCEDURES).then(function(procedureLib) {
+            goog.labs.net.xhr.get(r5js.test.urls_.TEST_FRAMEWORK).then(function(testFramework) {
+                goog.labs.net.xhr.get(r5js.test.urls_.R5RS_TESTS).then(function(r5RSTests) {
             var publicApi = r5js.test.setupApi_(syntaxLib, procedureLib);
-                r5js.test.getTestSuites_(publicApi).forEach(function(testSuite) {
+                r5js.test.getTestSuites_(publicApi, testFramework, r5RSTests).forEach(function(testSuite) {
                     runner.add(testSuite);
                 });
             runner.run().then(function(result) {
                window.console.log(result.toString());
             });
         });
+    });
+    });
     });
 };
 
@@ -59,22 +63,32 @@ r5js.test.setupApi_ = function(syntaxLib, procedureLib) {
 
 /**
  * @param {!r5js.PublicApi} publicApi
+ * @param {string} testFramework
+ * @param {string} r5RSTests
  * @return {!Array.<!tdd.TestSuite>}
  * @private
  */
-r5js.test.getTestSuites_ = function(publicApi) {
+r5js.test.getTestSuites_ = function(publicApi, testFramework, r5RSTests) {
   return [
     new r5js.test.Scanner(),
       new r5js.test.Parser(),
-      new r5js.test.Interpreter(publicApi)
+      new r5js.test.Interpreter(publicApi, testFramework, r5RSTests)
   ];
 };
 
 
-/** @const @private {string} */
-r5js.test.SYNTAX_URL_ = '/src/scm/r5rs-syntax.scm';
+/**
+ * @enum {string}
+ * @private
+ */
+    r5js.test.urls_ = {
+        SYNTAX: '/src/scm/r5rs-syntax.scm',
+        PROCEDURES: '/src/scm/r5rs-procedures.scm',
+        TEST_FRAMEWORK: '/test/framework/unit-test.scm',
+        R5RS_TESTS: '/test/r5rs-tests.scm'
+    };
 
-/** @const @private {string} */
-r5js.test.PROCEDURES_URL_ = '/src/scm/r5rs-procedures.scm';
+
+
 
 goog.exportSymbol('r5js.test.main', r5js.test.main);

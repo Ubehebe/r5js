@@ -8,13 +8,21 @@ goog.require('expect');
 
 /**
  * @param {!r5js.PublicApi} publicApi
+ * @param {string} testFramework
+ * @param {string} r5RSTests
  * @implements {tdd.TestSuite}
  * @struct
  * @constructor
  */
-r5js.test.Interpreter = function(publicApi) {
+r5js.test.Interpreter = function(publicApi, testFramework, r5RSTests) {
     /** @const @private {!r5js.PublicApi} */
     this.publicApi_ = publicApi;
+
+    /** @const @private {string} */
+    this.testFramework_ = testFramework;
+
+    /** @const @private {string} */
+    this.r5RSTests_ = r5RSTests;
 
     /** @const @private {!r5js.util.Logger} */
     this.logger_ = r5js.util.Logger.getLogger('r5js.test.Interpreter');
@@ -33,17 +41,7 @@ r5js.test.Interpreter.prototype.toString = function() {
 };
 
 
-r5js.test.Interpreter.prototype['testTrivial'] = function() {
-    expect(this.publicApi_.Eval(
-        "(+ 1 1)",
-        goog.nullFunction /* sideEffectHandler */,
-        this.logger_)).toBe("2");
-};
-
-
-r5js.test.Interpreter.prototype['testTrivial2'] = function() {
-    expect(this.publicApi_.Eval(
-        "(+ 2 2)",
-        goog.nullFunction /* sideEffectHandler */,
-        this.logger_)).toBe("4");
+r5js.test.Interpreter.prototype['testSchemeUnitTests'] = function() {
+    this.publicApi_.Eval(this.testFramework_ + this.r5RSTests_,
+        goog.bind(window.console.log, window.console), this.logger_);
 };
