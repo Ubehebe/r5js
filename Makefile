@@ -37,6 +37,25 @@ deps:
 	@mkdir -p $(outdir)
 	@$(depswriter) --root_with_prefix="$(src) ../../../$(src)" > $(deps)
 
+
+# The codebase has been developed without a lint check. Suddenly turning on
+# a global lint would be too noisy, so just lint the files to be committed.
+.PHONY: lint
+lint:
+	@command -v gjslint > /dev/null 2>&1 || \
+		{ echo >&2 "gjslint is required for linting."; exit 1; }
+	@git diff --name-only --cached \
+	| grep "\.js" \
+	| xargs gjslint --strict
+
+.PHONY: fix
+fix:
+	@command -v fixjsstyle > /dev/null 2>&1 || \
+		{ echo >&2 "fixjsstyle is required to run the fix target."; exit 1; }
+	@git diff --name-only --cached \
+	| grep "\.js" \
+	| xargs fixjsstyle --strict
+
 .PHONY: repl
 repl: interpreter
 repl:
