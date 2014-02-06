@@ -26,35 +26,28 @@ r5js.test.main = function(opt_argv) {
         tdd.RunnerConfig.DEFAULT;
     var logger = goog.debug.Logger.getLogger('r5js.test.main');
     var runner = new tdd.Runner(testConfig, logger);
-    goog.labs.net.xhr.get(r5js.test.urls_.SYNTAX).then(function(syntaxLib) {
-        goog.labs.net.xhr.get(r5js.test.urls_.PROCEDURES).then(function(procedureLib) {
-            goog.labs.net.xhr.get(r5js.test.urls_.TEST_FRAMEWORK).then(function(testFramework) {
-                goog.labs.net.xhr.get(r5js.test.urls_.R5RS_TESTS).then(function(r5RSTests) {
-            var publicApi = r5js.test.setupApi_(syntaxLib, procedureLib);
-                r5js.test.getTestSuites_(publicApi, testFramework, r5RSTests).forEach(function(testSuite) {
+    r5js.test.getSchemeSources().then(function(sources) {
+            var publicApi = r5js.test.setupApi_(sources);
+                r5js.test.getTestSuites_(publicApi, sources).forEach(function(testSuite) {
                     runner.add(testSuite);
                 });
             runner.run().then(function(result) {
                window.console.log(result.toString());
             });
-        });
-    });
-    });
     });
 };
 
 
 /**
- * @param {string} syntaxLib
- * @param {string} procedureLib
+ * @param {!r5js.test.SchemeSources} sources
  * @return {!r5js.PublicApi}
  * @private
  */
-r5js.test.setupApi_ = function(syntaxLib, procedureLib) {
+r5js.test.setupApi_ = function(sources) {
     var pipeline = new r5js.LazyBoot(
         new r5js.Pipeline(),
         function() {
-            r5js.boot(syntaxLib, procedureLib, r5js.util.Logger.getLogger('r5js'));
+            r5js.boot(sources.syntax, sources.procedures, r5js.util.Logger.getLogger('r5js'));
             pipeline.setRootEnv(/** @type {!r5js.RootEnvironment} */ (
                 r5js.globals.r5RSEnv));
         });
@@ -63,17 +56,56 @@ r5js.test.setupApi_ = function(syntaxLib, procedureLib) {
 
 /**
  * @param {!r5js.PublicApi} publicApi
- * @param {string} testFramework
- * @param {string} r5RSTests
+ * @param {!r5js.test.SchemeSources} sources
  * @return {!Array.<!tdd.TestSuite>}
  * @private
  */
-r5js.test.getTestSuites_ = function(publicApi, testFramework, r5RSTests) {
+r5js.test.getTestSuites_ = function(publicApi, sources) {
   return [
     new r5js.test.Scanner(),
       new r5js.test.Parser(),
-      new r5js.test.Interpreter(publicApi, testFramework, r5RSTests)
+      new r5js.test.Interpreter(publicApi, sources)
   ];
+};
+
+
+/**
+ * @param {string} syntax
+ * @param {string} procedures
+ * @param {string} testFramework
+ * @param {string} r5RSTests
+ * @struct
+ * @constructor
+ */
+r5js.test.SchemeSources = function(syntax, procedures, testFramework, r5RSTests) {
+    /** @const {string} */
+    this.syntax = syntax;
+
+    /** @const {string} */
+    this.procedures = procedures;
+
+    /** @const {string} */
+    this.testFramework = testFramework;
+
+    /** @const {string} */
+    this.r5RSTests = r5RSTests;
+};
+
+
+/** @return {!goog.labs.Promise.<!r5js.test.SchemeSources>} */
+r5js.test.getSchemeSources = function() {
+    return goog.labs.Promise.all([
+        goog.labs.net.xhr.get(r5js.test.urls_.SYNTAX),
+        goog.labs.net.xhr.get(r5js.test.urls_.PROCEDURES),
+        goog.labs.net.xhr.get(r5js.test.urls_.TEST_FRAMEWORK),
+        goog.labs.net.xhr.get(r5js.test.urls_.R5RS_TESTS)
+    ]).then(function(sources) {
+            return new r5js.test.SchemeSources(
+                sources[0],
+                sources[1],
+                sources[2],
+                sources[3]);
+        });
 };
 
 
@@ -81,12 +113,12 @@ r5js.test.getTestSuites_ = function(publicApi, testFramework, r5RSTests) {
  * @enum {string}
  * @private
  */
-    r5js.test.urls_ = {
-        SYNTAX: '/src/scm/r5rs-syntax.scm',
-        PROCEDURES: '/src/scm/r5rs-procedures.scm',
-        TEST_FRAMEWORK: '/test/framework/unit-test.scm',
-        R5RS_TESTS: '/test/r5rs-tests.scm'
-    };
+r5js.test.urls_ = {
+SYNTAX: '/src/scm/r5rs-syntax.scm',
+    PROCEDURES: '/src/scm/r5rs-procedures.scm',
+TEST_FRAMEWORK: '/test/framework/unit-test.scm',
+    R5RS_TESTS:  '/test/r5rs-tests.scm'
+};
 
 
 
