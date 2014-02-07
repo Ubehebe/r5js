@@ -7,7 +7,6 @@ goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
 goog.require('r5js.boot');
-goog.require('r5js.globals');
 goog.require('r5js.test.Interpreter');
 goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
@@ -48,12 +47,11 @@ r5js.test.setupApi_ = function(sources) {
   var pipeline = new r5js.LazyBoot(
       new r5js.Pipeline(),
       function() {
-        r5js.boot(
+        var r5RSEnv = r5js.boot(
             sources.syntax,
             sources.procedures,
             r5js.util.Logger.getLogger('r5js'));
-        pipeline.setRootEnv(/** @type {!r5js.RootEnvironment} */ (
-            r5js.globals.r5RSEnv));
+        pipeline.setRootEnv(r5RSEnv);
       });
   return new r5js.PublicApi(pipeline);
 };

@@ -17,29 +17,32 @@
 goog.provide('r5js.main');
 
 
-goog.require('r5js.boot');
-goog.require('r5js.globals');
 goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
+goog.require('r5js.boot');
+goog.require('r5js.globals');
 
 
 
-var GayLisp = (function () {
+var GayLisp = (function() {
 
-    /* The build process inserts src/js/* here (after the first opening brace
-     in this file). It also inserts src/scm/* here, embedded as JavaScript string
-     literals and appropriately escaped. See the Makefile for details. */
+  /* The build process inserts src/js/* here (after the first opening brace
+     in this file). It also inserts src/scm/* here, embedded as JavaScript
+     string literals and appropriately escaped. See the Makefile for details. */
 
-    var pipeline = new r5js.LazyBoot(new r5js.Pipeline(),
-        /**
+  var pipeline = new r5js.LazyBoot(new r5js.Pipeline(),
+      /**
          * @suppress {undefinedVars} For syntax and procedures
-         * TODO bl: remove @suppress when we have a better build procedure.
+         * TODO bl: remove the suppression when we have a better build
+         * procedure.
          */
-        function() {
-            r5js.boot(syntax, procedures, r5js.util.Logger.getLogger('r5js'));
-            pipeline.setRootEnv(r5js.globals.r5RSEnv);
-        }
-    );
-    return new r5js.PublicApi(pipeline);
+      function() {
+            var r5RSEnv = r5js.boot(
+                syntax,
+                procedures,
+                r5js.util.Logger.getLogger('r5js'));
+            pipeline.setRootEnv(r5RSEnv);
+      });
+  return new r5js.PublicApi(pipeline);
 })();

@@ -1250,7 +1250,7 @@ r5js.builtins['eval'] = {
         proc: function(num) {
             if (num === 5)
                 return newEnvironmentSpecifier(
-                    /** @type {!r5js.IEnvironment} */(r5js.globals.r5RSEnv));
+                    /** @type {!r5js.IEnvironment} */(r5js.PrimitiveProcedures.r5RSEnv_));
             else throw new r5js.InternalInterpreterError(
                 'unsupported scheme report environment ' + num);
         }
@@ -1261,7 +1261,7 @@ r5js.builtins['eval'] = {
         proc: function(num) {
             if (num === 5)
                 return newEnvironmentSpecifier(
-                    /** @type {!r5js.IEnvironment} */ (r5js.globals.nullEnv));
+                    /** @type {!r5js.IEnvironment} */ (r5js.PrimitiveProcedures.nullEnv_));
             else throw new r5js.InternalInterpreterError(
                 'unsupported null environment ' + num);
         }
@@ -1482,26 +1482,40 @@ r5js.builtins['io'] = {
     }
 };
 
+
+/** @private {r5js.IEnvironment} */
+r5js.PrimitiveProcedures.nullEnv_;
+
+/** @private {r5js.IEnvironment} */
+r5js.PrimitiveProcedures.r5RSEnv_;
+
+
 /**
- * @param {!r5js.IEnvironment} env Environment to install the builtins into.
+ * @param {!r5js.IEnvironment} nullEnv The null environment, needed by
+ *     the eval primitive procedure.
+ * @param {!r5js.IEnvironment} r5RSEnv The R5RS environment, needed by
+ *     the eval primitive procedure.
  * @param {!r5js.util.Logger} logger Logger.
  */
-r5js.PrimitiveProcedures.install = function(env, logger) {
+r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv, logger) {
+    r5js.PrimitiveProcedures.nullEnv_ = nullEnv;
+    r5js.PrimitiveProcedures.r5RSEnv_ = r5RSEnv;
+
   for (var category in r5js.builtins) {
     var procs = r5js.builtins[category];
     for (var name in procs)
-      r5js.PrimitiveProcedures.install_(name, procs[name], env, logger);
+      r5js.PrimitiveProcedures.install_(name, procs[name], r5RSEnv, logger);
   }
 
   /* Experimental Scheme->JS FFI is browser-only for now.
      I used to have if (this.window === this), which is cleverer but
      doesn't work for strict mode. (Thanks, Stack Overflow!) */
   if (Function('return this;')().window) {
-    env.addBinding(
+    r5RSEnv.addBinding(
         'window',
         r5js.ffiutil.newFFIDatum(new r5js.JsObjOrMethod(window)));
     for (var name in r5js.ffi) {
-      r5js.PrimitiveProcedures.install_(name, r5js.ffi[name], env, logger);
+      r5js.PrimitiveProcedures.install_(name, r5js.ffi[name], r5RSEnv, logger);
     }
   }
 };

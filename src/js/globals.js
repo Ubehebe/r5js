@@ -24,20 +24,6 @@ r5js.globals = {};
 
 
 /**
- * This is (null-environment 5).
- * @type {r5js.IEnvironment}
- */
-r5js.globals.nullEnv;
-
-
-/**
- * This is (scheme-report-environment 5).
- * @type {r5js.IEnvironment}
- */
-r5js.globals.r5RSEnv;
-
-
-/**
  * Setting this to true shows every bounce of the trampoline.
  * @type {boolean}
  */

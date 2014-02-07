@@ -26,7 +26,6 @@ goog.require('r5js.RootEnvironment');
 goog.require('r5js.Scanner');
 goog.require('r5js.ffi');
 goog.require('r5js.ffiutil');
-goog.require('r5js.globals');
 goog.require('r5js.trampoline');
 
 
@@ -34,11 +33,12 @@ goog.require('r5js.trampoline');
  * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
  * @param {string} procLib Scheme source code for the R5RS procedure library.
  * @param {!r5js.util.Logger} logger Logger for debug output.
+ * @return {!r5js.IEnvironment} The R5RS environment.
  */
 r5js.boot = function(syntaxLib, procLib, logger) {
-  r5js.globals.nullEnv = new r5js.Environment('null-environment-5', null);
-  install(syntaxLib, r5js.globals.nullEnv, logger);
-  r5js.globals.nullEnv.seal();
+  var nullEnv = new r5js.Environment('null-environment-5', null);
+  install(syntaxLib, nullEnv, logger);
+  nullEnv.seal();
 
   logger.info('installed syntax lib ok');
 
@@ -64,19 +64,15 @@ r5js.boot = function(syntaxLib, procLib, logger) {
      (remembering to clone the macros and set their backlinks correctly).
      Ugh. */
 
-  r5js.globals.r5RSEnv = new r5js.RootEnvironment(
-      r5js.globals.nullEnv.clone('scheme-report-environment-5')
-      );
-  r5js.PrimitiveProcedures.install(
-      /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv),
-      logger);
+  var r5RSEnv = new r5js.RootEnvironment(
+      nullEnv.clone('scheme-report-environment-5'));
+  r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, logger);
   logger.info('installed primitive procedures ok');
-  install(procLib,
-      /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv),
-      logger);
+  install(procLib, r5RSEnv, logger);
   logger.info('installed library procedures ok');
-  r5js.globals.r5RSEnv.seal();
+  r5RSEnv.seal();
   logger.info('interpreter is ready');
+  return r5RSEnv;
 };
 
 
