@@ -17,16 +17,16 @@
 goog.provide('r5js.boot');
 
 
-goog.require('r5js.builtins');
 goog.require('r5js.Environment');
-goog.require('r5js.ffi');
-goog.require('r5js.ffiutil');
-goog.require('r5js.globals');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Parser');
+goog.require('r5js.PrimitiveProcedures');
 goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
 goog.require('r5js.Scanner');
+goog.require('r5js.ffi');
+goog.require('r5js.ffiutil');
+goog.require('r5js.globals');
 goog.require('r5js.trampoline');
 
 
@@ -36,13 +36,13 @@ goog.require('r5js.trampoline');
  * @param {!r5js.util.Logger} logger Logger for debug output.
  */
 r5js.boot = function(syntaxLib, procLib, logger) {
-    r5js.globals.nullEnv = new r5js.Environment('null-environment-5', null);
-    install(syntaxLib, r5js.globals.nullEnv, logger);
-    r5js.globals.nullEnv.seal();
+  r5js.globals.nullEnv = new r5js.Environment('null-environment-5', null);
+  install(syntaxLib, r5js.globals.nullEnv, logger);
+  r5js.globals.nullEnv.seal();
 
-    logger.info('installed syntax lib ok');
+  logger.info('installed syntax lib ok');
 
-    /* r5RSEnv is the normal "root" environment. But we also have to
+  /* r5RSEnv is the normal "root" environment. But we also have to
      support the "null environment", which is just the R5RS required syntax
      (no procedures). Example:
 
@@ -64,22 +64,19 @@ r5js.boot = function(syntaxLib, procLib, logger) {
      (remembering to clone the macros and set their backlinks correctly).
      Ugh. */
 
-    r5js.globals.r5RSEnv = new r5js.RootEnvironment(
-        r5js.globals.nullEnv.clone('scheme-report-environment-5')
-    );
-    installBuiltins(
-        /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv),
-        logger
-    );
-    logger.info('installed primitive procedures ok');
-    install(
-        procLib,
-        /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv),
-        logger
-    );
-    logger.info('installed library procedures ok');
-    r5js.globals.r5RSEnv.seal();
-    logger.info('interpreter is ready');
+  r5js.globals.r5RSEnv = new r5js.RootEnvironment(
+      r5js.globals.nullEnv.clone('scheme-report-environment-5')
+      );
+  r5js.PrimitiveProcedures.install(
+      /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv),
+      logger);
+  logger.info('installed primitive procedures ok');
+  install(procLib,
+      /** @type {!r5js.IEnvironment} */ (r5js.globals.r5RSEnv),
+      logger);
+  logger.info('installed library procedures ok');
+  r5js.globals.r5RSEnv.seal();
+  logger.info('interpreter is ready');
 };
 
 
@@ -91,41 +88,16 @@ r5js.boot = function(syntaxLib, procLib, logger) {
  * @return {?}
  */
 function install(lib, env, logger) {
-    return r5js.trampoline(
-        new r5js.Parser(
-            new r5js.Reader(
-                new r5js.Scanner(lib)
-            ).read()
-        ).parse(null)
+  return r5js.trampoline(
+      new r5js.Parser(
+      new r5js.Reader(
+      new r5js.Scanner(lib)
+      ).read()
+      ).parse(null)
             .desugar(env).setStartingEnv(env),
-        null,
-        null,
-        logger,
-        false
-    );
-}
-
-
-/**
- * @param {!r5js.IEnvironment} env Environment to install the builtins into.
- * @param {!r5js.util.Logger} logger Logger.
- */
-function installBuiltins(env, logger) {
-    for (var category in r5js.builtins) {
-        var procs = r5js.builtins[category];
-        for (var name in procs)
-            registerBuiltin(name, procs[name], env, logger);
-    }
-
-    /* Experimental Scheme->JS FFI is browser-only for now.
-     I used to have if (this.window === this), which is cleverer but
-     doesn't work for strict mode. (Thanks, Stack Overflow!) */
-    if (Function('return this;')().window) {
-        env.addBinding(
-            'window',
-            r5js.ffiutil.newFFIDatum(new r5js.JsObjOrMethod(window)));
-        for (var name in r5js.ffi) {
-            registerBuiltin(name, r5js.ffi[name], env, logger);
-        }
-    }
+      null,
+      null,
+      logger,
+      false
+  );
 }
