@@ -2,10 +2,8 @@ goog.provide('r5js.test.Scanner');
 
 
 goog.require('expect');
-goog.require('r5js.Scanner');
 goog.require('r5js.scan.TokenType');
-goog.require('r5js.scan.tokenTypeName');
-goog.require('r5js.test.fixtures');
+goog.require('scanAs');
 goog.require('tdd.TestType');
 
 
@@ -31,61 +29,107 @@ r5js.test.Scanner.prototype.toString = function() {
 };
 
 
-r5js.test.Scanner.prototype['testValidTokens'] = function() {
-  r5js.scan.TokenType.ALL_TOKEN_TYPES.forEach(
-      this.checkValidTokens_, this);
+r5js.test.Scanner.prototype['testBooleans'] = function() {
+  ['#t', '#f', '#T', '#F'].forEach(function(text) {
+    expect(text).to(scanAs(r5js.scan.TokenType.BOOLEAN));
+  });
+  ['##f', '#', '#'].forEach(function(text) {
+    expect(text).not().to(scanAs(r5js.scan.TokenType.BOOLEAN));
+  });
 };
 
 
-r5js.test.Scanner.prototype['testInvalidTokens'] = function() {
-  r5js.scan.TokenType.ALL_TOKEN_TYPES.forEach(
-      this.checkInvalidTokens_, this);
+r5js.test.Scanner.prototype['testCharacters'] = function() {
+  ['#\\c', '#\\space', '#\\newline', '#\\\\'].forEach(function(text) {
+    expect(text).to(scanAs(r5js.scan.TokenType.CHARACTER));
+  });
+};
+
+
+r5js.test.Scanner.prototype['testIdentifiers'] = function() {
+  ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>',
+   '?', '~', '_', '^', '&+', 'h+...@@@-.'].forEach(function(text) {
+    expect(text).to(scanAs(r5js.scan.TokenType.IDENTIFIER));
+  });
+  ['|', '[', ']', '{', '}'].forEach(function(text) {
+    expect(text).not().to(scanAs(r5js.scan.TokenType.IDENTIFIER));
+  });
+};
+
+
+r5js.test.Scanner.prototype['testNumbers'] = function() {
+  r5js.test.Scanner.getValidNumberTokens_().forEach(function(text) {
+    expect(text).to(scanAs(r5js.scan.TokenType.NUMBER));
+  });
+  ['1+2'].forEach(function(text) {
+    expect(text).not().to(scanAs(r5js.scan.TokenType.NUMBER));
+  });
+};
+
+
+r5js.test.Scanner.prototype['testStrings'] = function() {
+  ['""', '"hello, world"', '" \\" "', '"\\\\"'].forEach(function(text) {
+    expect(text).to(scanAs(r5js.scan.TokenType.STRING));
+  });
+  ['"', '\\'].forEach(function(text) {
+    expect(text).not().to(scanAs(r5js.scan.TokenType.STRING));
+  });
 };
 
 
 /**
- * @param {!r5js.scan.TokenType} tokenType The token type.
+ * @return {!Array.<string>}
  * @private
  */
-r5js.test.Scanner.prototype.checkValidTokens_ = function(tokenType) {
-  r5js.test.fixtures.validTokensForType(tokenType).forEach(
-      // PhantomJS doesn't have Function.prototype.bind yet.
-      goog.bind(this.checkTokenOfType_, this, tokenType, true)
-  );
-};
-
-
-/**
- * @param {!r5js.scan.TokenType} tokenType The token type.
- * @private
- */
-r5js.test.Scanner.prototype.checkInvalidTokens_ = function(tokenType) {
-  r5js.test.fixtures.invalidTokensForType(tokenType).forEach(
-      // PhantomJS doesn't have Function.prototype.bind yet.
-      goog.bind(this.checkTokenOfType_, this, tokenType, false)
-  );
-};
-
-
-/**
- * @param {!r5js.scan.TokenType} tokenType
- * @param {boolean} expectedValid True iff the token is expected to be valid.
- * @param {string} token
- * @private
- */
-r5js.test.Scanner.prototype.checkTokenOfType_ = function(
-    tokenType, expectedValid, token) {
-  var scans = true;
-  var tokens = [];
-  try {
-    tokens = new r5js.Scanner(token).tokenize();
-  } catch (e) {
-    // Exceptions are expected for invalid tokens
+r5js.test.Scanner.getValidNumberTokens_ = function() {
+  /* TODO bl: adding in these prefixes creates a huge number of test cases
+     (more than 30,000) with about half of them failing.
+    var prefixes = r5js.test.Scanner.getValidNumberPrefixes_(); */
+  var suffixes = r5js.test.Scanner.getValidNumberSuffixes_();
+  var validDecimals = ['8762', '-3', '4987566###', '.765', '.549867#', '0.',
+    '37.###', '565.54', '3765.4499##', '4##.', '56#.', '587##.#'];
+  var validNumberTokens = [];
+  for (var i = 0; i < validDecimals.length; ++i) {
+    for (var j = 0; j < suffixes.length; ++j) {
+      validNumberTokens.push(validDecimals[i] + suffixes[j]);
+    }
   }
-  if (expectedValid) {
-    expect(tokens.length).toBe(1);
-    expect(tokens[0].type).toBe(r5js.scan.tokenTypeName(tokenType));
-  } else {
-    expect(tokens.length).toBe(0);
+  return validNumberTokens;
+};
+
+
+/**
+ * @return {!Array.<string>}
+ * @private
+ */
+r5js.test.Scanner.getValidNumberPrefixes_ = function() {
+  var bases = ['', '#b', '#B', '#o', '#O', '#d', '#D', '#x', '#X'];
+  var exactnesses = ['', '#e', '#E', '#i', '#I'];
+  var prefixes = [];
+  var i, j;
+  for (i = 0; i < bases.length; ++i) {
+    for (j = 0; j < exactnesses.length; ++j) {
+      prefixes.push(bases[i] + exactnesses[j]);
+      prefixes.push(exactnesses[j] + bases[i]);
+    }
   }
+  return prefixes;
+};
+
+
+/**
+ * @return {!Array.<string>}
+ * @private
+ */
+r5js.test.Scanner.getValidNumberSuffixes_ = function() {
+  var exponentMarkers = ['e', 's', 'f', 'd', 'l', 'E', 'S', 'F', 'D', 'L'];
+  var signs = ['', '+', '-'];
+  var suffixes = [''];
+
+  for (var i = 0; i < exponentMarkers.length; ++i) {
+    for (var j = 0; j < signs.length; ++j) {
+      suffixes.push(exponentMarkers[i] + signs[j] + '2387');
+    }
+  }
+  return suffixes;
 };
