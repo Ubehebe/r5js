@@ -24,13 +24,6 @@ r5js.globals = {};
 
 
 /**
- * Setting this to true shows every bounce of the trampoline.
- * @type {boolean}
- */
-r5js.globals.debug = false;
-
-
-/**
  * mostly for getting fresh temp variable names.
  * @type {number}
  */

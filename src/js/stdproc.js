@@ -1224,10 +1224,7 @@ r5js.builtins['eval'] = {
                     continuable,
                     null,
                     null,
-                    r5js.util.Logger.getLogger('[embedded eval]'),
-                    r5js.globals.debug
-
-                );
+                    r5js.util.Logger.getLogger('[embedded eval]'));
             }
         }
     },

@@ -93,7 +93,5 @@ function install(lib, env, logger) {
             .desugar(env).setStartingEnv(env),
       null,
       null,
-      logger,
-      false
-  );
+      logger);
 }

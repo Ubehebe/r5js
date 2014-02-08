@@ -20,12 +20,12 @@ goog.provide('r5js.Pipeline');
 
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.Environment');
-goog.require('r5js.globals');
 goog.require('r5js.ParseError');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
 goog.require('r5js.Scanner');
 goog.require('r5js.trampoline');
+
 
 
 /**
@@ -34,52 +34,51 @@ goog.require('r5js.trampoline');
  */
 r5js.Pipeline = function() {};
 
+
 /** @override */
 r5js.Pipeline.prototype.setRootEnv = function(rootEnv) {
-    this.rootEnv = rootEnv;
-    this.env = new r5js.Environment('global', rootEnv);
+  this.rootEnv = rootEnv;
+  this.env = new r5js.Environment('global', rootEnv);
 };
 
 
 /** @override */
 r5js.Pipeline.prototype.scan = function(string) {
-    return new r5js.Scanner(string);
+  return new r5js.Scanner(string);
 };
 
 
 /** @override */
 r5js.Pipeline.prototype.read = function(scanner) {
-    return new r5js.Reader(scanner).read();
+  return new r5js.Reader(scanner).read();
 };
 
 
 /** @override */
 r5js.Pipeline.prototype.parse = function(root, lhs) {
-    var ans = new r5js.Parser(root).parse(lhs);
-    if (ans) {
-        return ans;
-    } else {
-        throw new r5js.ParseError(root);
-    }
+  var ans = new r5js.Parser(root).parse(lhs);
+  if (ans) {
+    return ans;
+  } else {
+    throw new r5js.ParseError(root);
+  }
 };
 
 
 /** @override */
 r5js.Pipeline.prototype.desugar = function(root, replMode) {
-    if (!replMode) {
-        this.env = new r5js.Environment('global', this.rootEnv);
-    }
-    return root.desugar(this.env, false).setStartingEnv(this.env);
+  if (!replMode) {
+    this.env = new r5js.Environment('global', this.rootEnv);
+  }
+  return root.desugar(this.env, false).setStartingEnv(this.env);
 };
 
 
 /** @override */
 r5js.Pipeline.prototype.Eval = function(continuable, onOutput, logger) {
-    return r5js.trampoline(
-        continuable,
-        null,
-        onOutput && new r5js.CallbackBackedPort(onOutput),
-        logger,
-        r5js.globals.debug
-    );
+  return r5js.trampoline(
+      continuable,
+      null,
+      onOutput && new r5js.CallbackBackedPort(onOutput),
+      logger);
 };

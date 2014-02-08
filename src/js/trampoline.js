@@ -23,10 +23,11 @@ goog.require('r5js.TrampolineHelper');
 
 /* This is the main evaluation function.
 
-    The subtlest part is probably the question "what is the current environment?"
-    In general, a Continuable object should have an attached Environment
-    object that tells it where to look up identifiers. The code that attaches
-    Environments to Continuables is scattered about and may be buggy.
+    The subtlest part is probably the question "what is the current
+    environment?" In general, a Continuable object should have an attached
+    Environment object that tells it where to look up identifiers.
+    The code that attaches Environments to Continuables is scattered about
+    and may be buggy.
 
  Here is a worked example. Pen and paper is recommended!
 
@@ -96,6 +97,7 @@ goog.require('r5js.TrampolineHelper');
  (*{env B} n _4 [_2
     (*{env A} n _2 [_0 ...])]) ; bind _2 = 2 in env A
 
+
  (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  */
 /**
@@ -103,54 +105,56 @@ goog.require('r5js.TrampolineHelper');
  * @param {r5js.Port} inputPort The input port, if any.
  * @param {r5js.Port} outputPort The output port, if any.
  * @param {!r5js.util.Logger} logger Logger, for debugging messages.
- * @param {boolean} debug If true, enable debugging features.
+ * @return {?} TODO bl what does this return?
+ * @suppress {uselessCode} for the currently-disabled debugging branch.
  */
-r5js.trampoline = function(continuable, inputPort, outputPort, logger, debug) {
+r5js.trampoline = function(continuable, inputPort, outputPort, logger) {
 
-    var cur = continuable;
-    var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
-    var savedEnv = new r5js.EnvBuffer();
-    var ans;
+  var cur = continuable;
+  var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
+  var savedEnv = new r5js.EnvBuffer();
+  var ans;
 
-    /* The debug check is hoisted out of the while loop because this
+  /* The debug check is hoisted out of the while loop because this
      is expected to be hot code. */
-    if (debug) {
+  if (false /* TODO bl: replace with goog.DEBUG */) {
 
-        while (cur) {
-            // a good first step for debugging:
-            logger.fine('boing: ' + cur);
-            resultStruct = cur.subtype.evalAndAdvance(
-                cur.continuation,
-                resultStruct,
-                savedEnv,
-                parserProvider
-            );
-            ans = resultStruct.ans;
-            cur = resultStruct.nextContinuable;
-            resultStruct.clear();
-        }
-
-    } else {
-        while (cur) {
-            resultStruct = cur.subtype.evalAndAdvance(
-                cur.continuation,
-                resultStruct,
-                savedEnv,
-                parserProvider
-            );
-            ans = resultStruct.ans;
-            cur = resultStruct.nextContinuable;
-            resultStruct.clear();
-        }
+    while (cur) {
+      // a good first step for debugging:
+      logger.fine('boing: ' + cur);
+      resultStruct = cur.subtype.evalAndAdvance(
+          cur.continuation,
+          resultStruct,
+          savedEnv,
+          parserProvider
+          );
+      ans = resultStruct.ans;
+      cur = resultStruct.nextContinuable;
+      resultStruct.clear();
     }
 
-    return ans;
+  } else {
+    while (cur) {
+      resultStruct = cur.subtype.evalAndAdvance(
+          cur.continuation,
+          resultStruct,
+          savedEnv,
+          parserProvider
+          );
+      ans = resultStruct.ans;
+      cur = resultStruct.nextContinuable;
+      resultStruct.clear();
+    }
+  }
+
+  return ans;
 };
+
 
 /**
  * @param {!r5js.Datum} datum Root of the parse tree.
  * @return {!r5js.Parser} New parser that will parse the given datum.
  */
 function parserProvider(datum) {
-    return new r5js.Parser(datum);
+  return new r5js.Parser(datum);
 }
