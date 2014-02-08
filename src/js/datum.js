@@ -919,11 +919,12 @@ function newCpsName() {
     return r5js.Datum.CPS_PREFIX_ + goog.getUid(new Object());
 }
 
-/**
- * @return {string}
- */
+/** @return {string} */
 function newAnonymousLambdaName() {
-    return 'proc' + (r5js.globals.uniqueNodeCounter++);
+    /* TODO bl: goog.getUid requires an object parameter, so this method
+    creates a throwaway object. Requiring this function to take an object
+    parameter could reduce garbage. */
+    return r5js.Datum.PROC_PREFIX_ + goog.getUid(new Object());
 }
 
 /**
@@ -932,6 +933,10 @@ function newAnonymousLambdaName() {
  * @private
  */
 r5js.Datum.CPS_PREFIX_ = '@';
+
+
+/** @const @private {string} */
+r5js.Datum.PROC_PREFIX_ = 'proc';
 
 
 /**
