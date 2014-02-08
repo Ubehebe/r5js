@@ -18,6 +18,7 @@ goog.provide('r5js.Reader');
 
 
 goog.require('r5js.Datum');
+goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
 
@@ -190,19 +191,19 @@ r5js.Reader.prototype.alternation = function(var_args) {
 r5js.Reader.prototype['datum'] = function() {
     return this.alternation(
         [
-            {type: 'identifier'}
+            {type: r5js.DatumType.IDENTIFIER}
         ],
         [
-            {type: 'boolean'}
+            {type: r5js.DatumType.BOOLEAN}
         ],
         [
-            {type: 'number'}
+            {type: r5js.DatumType.NUMBER}
         ],
         [
-            {type: 'character'}
+            {type: r5js.DatumType.CHARACTER}
         ],
         [
-            {type: 'string'}
+            {type: r5js.DatumType.STRING}
         ],
         [
             {type: '('},
@@ -261,36 +262,36 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
     var endDelimiter = "";
 
     switch (this.type) {
-        case 'ffi': // JavaScript object
+        case r5js.DatumType.FFI: // JavaScript object
             return this.payload.toString();
-        case 'input-port':
+        case r5js.DatumType.INPUT_PORT:
             if (this.payload['isEof']())
                 return 'EOF';
             // otherwise fallthrough
-        case 'output-port':
+        case r5js.DatumType.OUTPUT_PORT:
                 return this.type + ':' + this.payload.toString();
         case null:
             // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
             return 'undefined';
-        case 'ref':
+        case r5js.DatumType.REF:
             return this.payload.stringForOutputMode(outputMode);
-        case 'environment-specifier': // R5RS 6.5
+        case r5js.DatumType.ENVIRONMENT_SPECIFIER: // R5RS 6.5
             return this.payload === 5
                 ? 'scheme-report-environment-5'
                 : 'null-environment-5';
-        case 'lambda':
+        case r5js.DatumType.LAMBDA:
             return typeof this.payload === 'function'
                 ? this.name
                 : 'proc:' + this.payload.name;
-        case 'macro':
+        case r5js.DatumType.MACRO:
             return '[macro]';
-        case 'identifier':
+        case r5js.DatumType.IDENTIFIER:
             return /** @type {string} */ (this.payload);
-        case 'boolean':
+        case r5js.DatumType.BOOLEAN:
             return this.payload ? '#t' : '#f';
-        case 'number':
+        case r5js.DatumType.NUMBER:
             return this.payload + '';
-        case 'character':
+        case r5js.DatumType.CHARACTER:
             switch (outputMode) {
                 case r5js.OutputMode.WRITE:
                     if (this.payload === ' ')
@@ -304,7 +305,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                     return /** @type {string} */(this.payload);
             }
             break;
-        case 'string':
+        case r5js.DatumType.STRING:
             switch (outputMode) {
                 case r5js.OutputMode.WRITE:
                     ans = this.payload;
@@ -314,7 +315,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                     return /** @type {string} */ (this.payload);
             }
             break;
-        case '#(':
+        case r5js.DatumType.VECTOR:
                     if (this.isArrayBacked()) {
                         ans = '#(';
                         if (this.payload.length > 0) {
@@ -325,13 +326,13 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                         return ans + ')';
                     }
                 // fallthrough for non-array-backed vectors
-                case '(':
+                case r5js.DatumType.LIST:
                     endDelimiter = ')';
                 // fallthrough
-                case "'":
-                case '`':
-                case ',':
-                case ',@':
+                case r5js.DatumType.QUOTE:
+                case r5js.DatumType.QUASIQUOTE:
+                case r5js.DatumType.UNQUOTE:
+                case r5js.DatumType.UNQUOTE_SPLICING:
                     /* Note: this will be an infinite loop for cyclical data
                      structures created by the programmer through set-cdr!, etc.
                      Some implementations do nice things, like print "holes" where
@@ -357,7 +358,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                     return ans
                         + (child ? child.stringForOutputMode(outputMode) : '')
                         + endDelimiter;
-                case '.(':
+                case r5js.DatumType.DOTTED_LIST:
                     ans = '(';
                     for (child = this.firstChild;
                          child && child.nextSibling && child.nextSibling.nextSibling;

@@ -691,7 +691,7 @@ r5js.builtins['pair'] = {
                     helper.setCar(car);
 
                 return null; // unspecified return value
-            } else throw new r5js.ArgumentTypeError(p, 0, 'set-car!', 'pair');
+            } else throw new r5js.ArgumentTypeError(p, 0, 'set-car!', r5js.DatumType.LIST);
         }
     },
 
@@ -717,7 +717,7 @@ r5js.builtins['pair'] = {
                 }
 
                 return null; // unspecified return value
-            } else throw new r5js.ArgumentTypeError(p, 0, 'set-cdr!', 'pair');
+            } else throw new r5js.ArgumentTypeError(p, 0, 'set-cdr!', r5js.DatumType.LIST);
         }
     }
 };
@@ -843,11 +843,11 @@ r5js.builtins['string'] = {
         proc: function stringSet(str, k, c) {
 
             if (!str.isString())
-                throw new r5js.ArgumentTypeError(str, 0, 'string-set!', 'string');
+                throw new r5js.ArgumentTypeError(str, 0, 'string-set!', r5js.DatumType.STRING);
             if (!k.isNumber())
-                throw new r5js.ArgumentTypeError(k, 1, 'string-set!', 'number');
+                throw new r5js.ArgumentTypeError(k, 1, 'string-set!', r5js.DatumType.NUMBER);
             if (!c.isCharacter())
-                throw new r5js.ArgumentTypeError(c, 2, 'string-set!', 'character');
+                throw new r5js.ArgumentTypeError(c, 2, 'string-set!', r5js.DatumType.CHARACTER);
 
             if (str.isImmutable())
                 throw new r5js.ImmutableError(str.payload);
@@ -882,7 +882,7 @@ r5js.builtins['vector'] = {
              C'est la vie. */
             n = n.unwrap();
             if (typeof n !== 'number')
-                throw new r5js.ArgumentTypeError(n, 0, 'make-vector', 'number');
+                throw new r5js.ArgumentTypeError(n, 0, 'make-vector', r5js.DatumType.NUMBER);
             /* R5RS 6.3.6: "If a second argument is given, then each
              element is initialized to fill. Otherwise the initial
              contents of each element is unspecified."
@@ -921,9 +921,9 @@ r5js.builtins['vector'] = {
             k = k.unwrap();
 
             if (!v.isVector())
-                throw new r5js.ArgumentTypeError(v, 0, 'vector-set!', 'vector');
+                throw new r5js.ArgumentTypeError(v, 0, 'vector-set!', r5js.DatumType.VECTOR);
             else if (typeof k !== 'number')
-                throw new r5js.ArgumentTypeError(k, 1, 'vector-set!', 'number');
+                throw new r5js.ArgumentTypeError(k, 1, 'vector-set!', r5js.DatumType.NUMBER);
 
             if (v.isImmutable())
                 throw new r5js.ImmutableError(v.toString());
@@ -954,7 +954,7 @@ r5js.builtins['control'] = {
 
             var mustBeProc = arguments[0];
             if (!mustBeProc.isProcedure())
-                throw new r5js.ArgumentTypeError(mustBeProc, 0, 'apply', 'procedure');
+                throw new r5js.ArgumentTypeError(mustBeProc, 0, 'apply', r5js.DatumType.LAMBDA);
 
             var curProcCall = arguments[arguments.length - 3];
             /* todo bl: very little idea what's going on here, but we seem to
@@ -966,7 +966,7 @@ r5js.builtins['control'] = {
             var lastRealArgIndex = arguments.length - 4;
             var mustBeList = arguments[lastRealArgIndex];
             if (!mustBeList.isList())
-                throw new r5js.ArgumentTypeError(mustBeList, lastRealArgIndex, 'apply', 'list');
+                throw new r5js.ArgumentTypeError(mustBeList, lastRealArgIndex, 'apply', r5js.DatumType.LIST);
 
             // (apply foo '(x y z))
             if (lastRealArgIndex === 1) {
@@ -1181,9 +1181,9 @@ r5js.builtins['eval'] = {
         argc: 2,
         proc: function(expr, envSpec) {
             if (!(expr instanceof r5js.Datum))
-                throw new r5js.ArgumentTypeError(expr, 0, 'eval', 'datum');
+                throw new r5js.ArgumentTypeError(expr, 0, 'eval', r5js.DatumType.REF /* TODO bl is this right? */);
             if (!(envSpec instanceof r5js.Datum) || !envSpec.isEnvironmentSpecifier())
-                throw new r5js.ArgumentTypeError(envSpec, 1, 'eval', 'environment-specifier');
+                throw new r5js.ArgumentTypeError(envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER);
 
             /* An interesting special case. If we're about to evaluate a wrapped
              procedure (primitive JavaScript or SchemeProcedure), return its name
@@ -1335,7 +1335,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length - 2]
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
-                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
+                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
                 } else if (inputPort.payload['isEof']()) {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
@@ -1353,7 +1353,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length - 2]
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
-                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
+                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
                 } else if (inputPort.payload['isEof']()) {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
@@ -1379,7 +1379,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length-2]
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
-                    throw new r5js.ArgumentTypeError(inputPort, 0, 'char-ready?', 'input-port');
+                    throw new r5js.ArgumentTypeError(inputPort, 0, 'char-ready?', r5js.DatumType.INPUT_PORT);
                 } else if (inputPort.payload['isEof']()) {
                     /* R5RS 6.6.2: "If the port is at end of file then
                      char-ready? returns true." (Because the next call to
@@ -1401,7 +1401,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length - 1]
                     : arguments[1];
                 if (!outputPort.isOutputPort())
-                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write', 'output-port');
+                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write', r5js.DatumType.OUTPUT_PORT);
                 var toWrite = x instanceof r5js.Datum
                     ? x.stringForOutputMode(r5js.OutputMode.WRITE)
                     : String(x);
@@ -1429,12 +1429,12 @@ r5js.builtins['io'] = {
             } else if (numUserArgs === 1 || numUserArgs === 2) {
                 var c = arguments[0];
                 if (!c.isCharacter())
-                    throw new r5js.ArgumentTypeError(c, 0, 'write-char', 'character');
+                    throw new r5js.ArgumentTypeError(c, 0, 'write-char', r5js.DatumType.CHARACTER);
                 var outputPort = (numUserArgs === 1)
                     ? arguments[arguments.length - 1]
                     : arguments[1];
                 if (!outputPort.isOutputPort())
-                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write-char', 'output-port');
+                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
 
                 outputPort.payload['writeChar'](c.payload);
             } else throw new r5js.TooManyArgs('write-char', 2, numUserArgs);
@@ -1459,7 +1459,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length - 1]
                     : arguments[1];
                 if (!outputPort.isOutputPort())
-                    throw new r5js.ArgumentTypeError(outputPort, 1, 'display', 'output-port');
+                    throw new r5js.ArgumentTypeError(outputPort, 1, 'display', r5js.DatumType.OUTPUT_PORT);
                 var toWrite = x instanceof r5js.Datum
                     ? x.stringForOutputMode(r5js.OutputMode.DISPLAY)
                     : String(x);
@@ -1589,7 +1589,11 @@ r5js.PrimitiveProcedures.install_ = function(name, definition, targetEnv, logger
           if (classifier(arguments[i]).unwrap())
             maybeUnwrappedArgs.push(arguments[i] instanceof r5js.Datum ? arguments[i].unwrap() : arguments[i]);
           else
-            throw new r5js.ArgumentTypeError(arguments[i], i, name, argtypes);
+            throw new r5js.ArgumentTypeError(
+                arguments[i],
+                i,
+                name,
+            /** @type {!r5js.DatumType} */ (argtypes)); // TODO probably wrong
         }
       }
 

@@ -135,7 +135,7 @@ r5js.PrimitiveProcedureError = function(message) {
  * (zero-indexed).
  * @param {string} procName The procedure that the interpreter was invoking
  * when this error occurred.
- * @param {string} expectedType The type of the argument that the interpreter
+ * @param {!r5js.DatumType} expectedType The type of the argument that the interpreter
  * expected.
  * @constructor
  */

@@ -572,11 +572,11 @@ r5js.Parser.prototype['self-evaluating'] = function() {
     return this.rhs(
         {type: function(datum) {
             switch (datum.type) {
-                case 'boolean':
-                case 'number':
-                case 'character':
+                case r5js.DatumType.BOOLEAN:
+                case r5js.DatumType.NUMBER:
+                case r5js.DatumType.CHARACTER:
                     return true;
-                case 'string':
+                case r5js.DatumType.STRING:
                     /* String literals could have escaped backslashes
                      and double quotes, but we want to store them unescaped. */
                     datum.unescapeStringLiteral().setImmutable(); // to defeat string-set! on a literal
@@ -992,11 +992,11 @@ r5js.Parser.prototype['qq-template'] = function() {
         [
             {type: function(datum) {
                 switch (datum.type) {
-                    case 'boolean':
-                    case 'number':
-                    case 'character':
-                    case 'string':
-                    case 'identifier':
+                    case r5js.DatumType.BOOLEAN:
+                    case r5js.DatumType.NUMBER:
+                    case r5js.DatumType.CHARACTER:
+                    case r5js.DatumType.STRING:
+                    case r5js.DatumType.IDENTIFIER:
                         return true;
                     default:
                         return false;
@@ -1131,7 +1131,10 @@ r5js.Parser.prototype['macro-use'] = function() {
 // <keyword> -> <identifier>
 r5js.Parser.prototype['keyword'] = function() {
     return this.rhs({type: function(datum) {
-        return datum.type === 'identifier';
+        /* TODO bl: Tests fail when I replace this type switch by
+        datum.isIdentifier(), suggesting that this argument is not always
+        a Datum. Investigate. */
+        return datum.type === r5js.DatumType.IDENTIFIER;
     }});
 };
 
@@ -1322,10 +1325,10 @@ r5js.Parser.prototype['pattern-datum'] = function() {
     return this.rhs(
         {type: function(datum) {
             switch (datum.type) {
-                case 'boolean':
-                case 'number':
-                case 'character':
-                case 'string':
+                case r5js.DatumType.BOOLEAN:
+                case r5js.DatumType.NUMBER:
+                case r5js.DatumType.CHARACTER:
+                case r5js.DatumType.STRING:
                     return true;
                 default:
                     return false;
@@ -1458,7 +1461,11 @@ r5js.Parser.prototype['template-datum'] = function() {
 r5js.Parser.prototype['pattern-identifier'] = function() {
     return this.rhs(
         {type: function(datum) {
-            return datum.type === 'identifier' && datum.payload !== '...';
+	     /* TODO bl: Tests fail when I replace this type switch by
+	        datum.isIdentifier(), suggesting that this argument is not
+	        always a Datum. Investigate. */
+            return datum.type === r5js.DatumType.IDENTIFIER &&
+                datum.payload !== '...';
         }}
     );
 };
