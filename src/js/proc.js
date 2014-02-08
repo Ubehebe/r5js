@@ -1007,23 +1007,6 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
 
 
 /**
- * This is my attempt at a JavaScript enum idiom. Is there a better way
- * to get guaranteed constant-time lookup given an ordinal?
- */
-r5js.ProcCall.prototype.specialOps = {
-
-    _id: 0,
-    _set: 1,
-
-    names: ['id', 'set!'],
-    logic: [
-        r5js.ProcCall.prototype.tryIdShim,
-        r5js.ProcCall.prototype.tryAssignment
-    ]
-};
-
-
-/**
  * Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
  * Note: this was once an instance method on {@link r5js.Datum}, defined
  * in datum.js. I moved it here (its only point of use) to break
