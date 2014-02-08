@@ -33,7 +33,6 @@ goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.data');
-goog.require('r5js.globals');
 goog.require('r5js.procs');
 goog.require('r5js.trampoline');
 goog.require('r5js.util.Logger');

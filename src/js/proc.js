@@ -35,7 +35,6 @@ goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.data');
-goog.require('r5js.globals');
 
 
 

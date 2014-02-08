@@ -20,7 +20,6 @@ goog.provide('r5js.Datum');
 
 goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
-goog.require('r5js.globals');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.RenameHelper');
