@@ -30,17 +30,15 @@ goog.require('r5js.UnboundVariable');
 
 
 /**
- * @param {string} name The environment's name. Just for pretty-printing.
+ * @param {string|null} name The environment's name. Just for pretty-printing.
+ *     If null, one is created.
  * @param {r5js.IEnvironment} enclosingEnv The enclosing environment, if any.
  * @constructor
  * @implements {r5js.IEnvironment}
  */
 r5js.Environment = function(name, enclosingEnv) {
-    /**
-     * @type {string}
-     * @private
-     */
-    this.name_ = name;
+    /** @const @private {string} */
+    this.name_ = goog.isNull(name) ? ('' + goog.getUid(this)) : name;
 
     if (enclosingEnv) {
         this.enclosingEnv_ = enclosingEnv;

@@ -46,30 +46,29 @@ goog.require('r5js.globals');
  *        (define (head x . y) x).
  * @param {?} bodyStart
  * @param {!r5js.IEnvironment} env An environment.
- * @param {string} name The procedure's name. It has no semantic importance;
- *        it's just used for pretty-printing debugs and messages to the user.
+ * @param {string=} opt_name The procedure's name. It has no semantic
+ *     importance; it's just used for pretty-printing debugs and messages
+ *     to the user. If not given, one will be created.
  * @constructor
  */
-r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, name) {
+r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
   /**
      * @type {boolean}
      */
   this.isDotted = isDotted;
 
+    /** @const {string} */
+    this.name = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
+
   /**
      * @type {!r5js.IEnvironment}
      */
-  this.env = env.newChildEnv(name);
+  this.env = env.newChildEnv(this.name);
 
   /**
      * @type {!Array.<string>}
      */
   this.formalsArray = formalsArray;
-
-  /**
-     * @type {string}
-     */
-  this.name = name;
 
   if (bodyStart) {
 
@@ -108,12 +107,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, name) {
  *         environment.
  */
 r5js.Procedure.prototype.cloneWithEnv = function(env) {
-  var ans = new r5js.Procedure(
-      this.formalsArray,
-      this.isDotted,
-      null,
-      env,
-      this.name + "'-" + (r5js.globals.uniqueNodeCounter++));
+  var ans = new r5js.Procedure(this.formalsArray, this.isDotted, null, env);
   ans.env.setClosuresFrom(this.env); // non-cloning ok?
   ans.body = this.body;
   ans.lastContinuable = this.lastContinuable;
@@ -838,10 +832,7 @@ r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
          Otherwise create a new environment pointing back to the current one. */
     var newEnv = proc.isTailCall(continuation) ?
         this.env.allowRedefs() :
-        new r5js.Environment('tmp-' +
-            proc.name +
-            '-' +
-            (r5js.globals.uniqueNodeCounter++), proc.env).
+        new r5js.Environment(null /* name */, proc.env).
             addClosuresFrom(proc.env);
 
     /* Remember to discard the new environment
@@ -872,10 +863,7 @@ r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
 r5js.ProcCall.prototype.tryMacroUse = function(
     macro, continuation, resultStruct, parserProvider) {
 
-  var newEnv = new r5js.Environment(
-      'macro-' + (r5js.globals.uniqueNodeCounter++),
-      this.env
-      );
+  var newEnv = new r5js.Environment(null /* name */, this.env);
   var newParseTree = macro.transcribe(
       this.reconstructDatum(),
       newEnv,
@@ -1074,8 +1062,7 @@ function processQuasiquote(datum, env, cpsName, parserProvider) {
         /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */
-        continuation.lastResultName = node.type +
-                (r5js.globals.uniqueNodeCounter++);
+        continuation.lastResultName = node.type + goog.getUid(new Object());
         newCalls.appendContinuable(asContinuable);
         return r5js.data.newIdOrLiteral(/** @type {string} */ (
             continuation.lastResultName));
