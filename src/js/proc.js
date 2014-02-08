@@ -872,11 +872,9 @@ r5js.ProcCall.prototype.tryMacroUse = function(
  * @param {!r5js.Continuation} proc The continuation.
  * @param {!r5js.Continuation} continuation The following continuation.
  * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
- * that will return a new Parser for the given Datum when called.
  */
 r5js.ProcCall.prototype.tryContinuation = function(
-    proc, continuation, resultStruct, parserProvider) {
+    proc, continuation, resultStruct) {
     var arg = this.evalArgs(false)[0]; // there will only be 1 arg
     this.env.addBinding(proc.lastResultName, arg);
     resultStruct.ans = arg;
