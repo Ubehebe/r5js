@@ -20,6 +20,7 @@ goog.provide('r5js.Datum');
 
 goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
+goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.RenameHelper');
@@ -47,12 +48,8 @@ r5js.Datum.prototype.nextSibling;
  */
 r5js.Datum.prototype.parent;
 
-/**
- * @type {string|null}
- * TODO bl make into an enum and eliminate the null.
- */
+/** @type {r5js.DatumType|null} TODO bl eliminate the null. */
 r5js.Datum.prototype.type;
-
 
 /**
  * TODO bl: this is out of control. Create an interface and have each
@@ -196,7 +193,7 @@ r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
 
 function newEmptyList() {
     var ans = new r5js.Datum();
-    ans.type = '(';
+    ans.type = r5js.DatumType.LIST;
     return ans;
 }
 
@@ -475,7 +472,7 @@ r5js.Datum.prototype.getMacro = function() {
  */
 function newVectorDatum(array) {
     var ans = new r5js.Datum();
-    ans.type = '#(';
+    ans.type = r5js.DatumType.VECTOR;
     ans.payload = array;
     return ans;
 }
@@ -555,23 +552,19 @@ r5js.Datum.prototype.sequence = function(env) {
     return first; // can be undefined
 };
 
-// todo bl once we have hidden these types behind functions, we can
-// switch their representations to ints instead of strings
-
-
 
 /**
  * @return {boolean} True iff this datum represents a list.
  */
 r5js.Datum.prototype.isList = function() {
-    return this.type === '(';
+    return this.type === r5js.DatumType.LIST;
 };
 
 /**
  * @return {boolean} True iff this datum represents a vector.
  */
 r5js.Datum.prototype.isVector = function() {
-    return this.type === '#(';
+    return this.type === r5js.DatumType.VECTOR;
 };
 
 /**
@@ -603,39 +596,29 @@ r5js.Datum.prototype.convertVectorToArrayBacked = function () {
     return this;
 };
 
-/**
- * @return {boolean} True iff this datum represents a boolean.
- */
+/** @return {boolean} True iff this datum represents a boolean. */
 r5js.Datum.prototype.isBoolean = function() {
-    return this.type === 'boolean';
+    return this.type === r5js.DatumType.BOOLEAN;
 };
 
-/**
- * @return {boolean} True iff this datum represents an identifier.
- */
+/** @return {boolean} True iff this datum represents an identifier. */
 r5js.Datum.prototype.isIdentifier = function() {
-    return this.type === 'identifier';
+    return this.type === r5js.DatumType.IDENTIFIER;
 };
 
-/**
- * @return {boolean} True iff this datum represents a character.
- */
+/** @return {boolean} True iff this datum represents a character. */
 r5js.Datum.prototype.isCharacter = function() {
-    return this.type === 'character';
+    return this.type === r5js.DatumType.CHARACTER;
 };
 
-/**
- * @return {boolean} True iff this datum represents a number.
- */
+/** @return {boolean} True iff this datum represents a number. */
 r5js.Datum.prototype.isNumber = function() {
-    return this.type === 'number';
+    return this.type === r5js.DatumType.NUMBER;
 };
 
-/**
- * @return {boolean} True iff this datum represents a string.
- */
+/** @return {boolean} True iff this datum represents a string. */
 r5js.Datum.prototype.isString = function() {
-    return this.type === 'string';
+    return this.type === r5js.DatumType.STRING;
 };
 
 /**
@@ -645,13 +628,13 @@ r5js.Datum.prototype.isString = function() {
  */
 r5js.Datum.prototype.isLiteral = function() {
     switch (this.type) {
-        case 'boolean':
-        case 'identifier':
-        case 'character':
-        case 'number':
-        case 'string':
-        case 'lambda':
-        case "'":
+        case r5js.DatumType.BOOLEAN:
+        case r5js.DatumType.IDENTIFIER:
+        case r5js.DatumType.CHARACTER:
+        case r5js.DatumType.NUMBER:
+        case r5js.DatumType.STRING:
+        case r5js.DatumType.LAMBDA:
+        case r5js.DatumType.QUOTE:
             return true;
         default:
         return false;
@@ -662,16 +645,14 @@ r5js.Datum.prototype.isLiteral = function() {
  * @return {boolean} True iff this datum represents a quotation (quote or ').
  */
 r5js.Datum.prototype.isQuote = function() {
-    return this.type === "'" ||
+    return this.type === r5js.DatumType.QUOTE ||
         (this.isList() && !!this.firstChild && this.firstChild.payload === 'quote');
     // todo bl should datums know about this?
 };
 
-/**
- * @return {boolean} True iff this datum represents a quasiquotation (`).
- */
+/** @return {boolean} True iff this datum represents a quasiquotation (`). */
 r5js.Datum.prototype.isQuasiquote = function() {
-    return this.type === '`';
+    return this.type === r5js.DatumType.QUASIQUOTE;
 };
 
 /**
@@ -689,14 +670,8 @@ r5js.Datum.prototype.isUndefined = function() {
  * or an unquote-splicing.
  */
 r5js.Datum.prototype.isUnquote = function() {
-    return this.type === ',' || this.type === ',@';
-};
-
-/**
- * @return {boolean} True iff this datum represents an unquote-splicing.
- */
-r5js.Datum.prototype.isUnquoteSplicing = function() {
-    return this.type === ',@';
+    return this.type === r5js.DatumType.UNQUOTE ||
+        this.type === r5js.DatumType.UNQUOTE_SPLICING;
 };
 
 /**
@@ -729,7 +704,7 @@ r5js.Datum.prototype.isEqual = function(other) {
  */
 r5js.Datum.prototype.quote = function() {
     var ans = new r5js.Datum();
-    ans.type = "'";
+    ans.type = r5js.DatumType.QUOTE;
     ans.firstChild = this;
     return ans;
 };
@@ -792,19 +767,19 @@ r5js.Datum.prototype.normalizeInput = function() {
     if (this.firstChild) {
         switch (this.firstChild.payload) {
             case 'quote':
-                this.type = "'";
+                this.type = r5js.DatumType.QUOTE;
                 this.firstChild = this.firstChild.nextSibling;
                 break;
             case 'quasiquote':
-                this.type = "`";
+                this.type = r5js.DatumType.QUASIQUOTE;
                 this.firstChild = this.firstChild.nextSibling;
                 break;
             case 'unquote':
-                this.type = ',';
+                this.type = r5js.DatumType.UNQUOTE;
                 this.firstChild = this.firstChild.nextSibling;
                 break;
             case 'unquote-splicing':
-                this.type = ',@';
+                this.type = r5js.DatumType.UNQUOTE_SPLICING;
                 this.firstChild = this.firstChild.nextSibling;
                 break;
         }
@@ -819,7 +794,7 @@ r5js.Datum.prototype.normalizeInput = function() {
             if (maybeEmptyList.isList() && !maybeEmptyList.firstChild) {
                 child.parent = child.nextSibling.parent;
                 child.nextSibling = null;
-                this.type = '(';
+                this.type = r5js.DatumType.LIST;
             }
         }
     }
@@ -889,7 +864,7 @@ r5js.Datum.prototype.decorateQuasiquote = function(qqLevel) {
  */
 r5js.Datum.prototype.siblingsToList = function(dotted) {
     var ans = new r5js.Datum();
-    ans.type = dotted ? '.(' : '(';
+    ans.type = dotted ? r5js.DatumType.DOTTED_LIST : r5js.DatumType.LIST;
     ans.firstChild = this;
     return ans;
 };
@@ -1118,14 +1093,14 @@ r5js.data = {};
 
 /**
  * @param {r5js.PayloadType} payload
- * @param {string=} type The type of the Datum.
- * If not given, defaults to 'identifier'.
+ * @param {!r5js.DatumType=} opt_type The type of the Datum.
+ * If not given, defaults to {@link r5js.DatumType.IDENTIFIER}.
  * @return {!r5js.Datum} New Datum of given type with given payload.
  */
-r5js.data.newIdOrLiteral = function(payload, type) {
+r5js.data.newIdOrLiteral = function(payload, opt_type) {
     // todo bl: we're sometimes creating these with undefined payloads! Investigate.
     var ans = new r5js.Datum();
-    ans.type = type || 'identifier';
+    ans.type = opt_type || r5js.DatumType.IDENTIFIER;
     ans.payload = payload;
     return ans;
 };
@@ -1138,7 +1113,7 @@ r5js.data.newIdOrLiteral = function(payload, type) {
  */
 r5js.data.newProcedureDatum = function(name, procedure) {
     var ans = new r5js.Datum();
-    ans.type = 'lambda';
+    ans.type = r5js.DatumType.LAMBDA;
     ans.payload = procedure;
     ans.name = name;
     return ans;
@@ -1151,7 +1126,7 @@ r5js.data.newProcedureDatum = function(name, procedure) {
  */
 r5js.data.newInputPortDatum = function(port) {
     var ans = new r5js.Datum();
-    ans.type = 'input-port';
+    ans.type = r5js.DatumType.INPUT_PORT;
     ans.payload = port;
     return ans;
 };
@@ -1163,7 +1138,7 @@ r5js.data.newInputPortDatum = function(port) {
  */
 r5js.data.newOutputPortDatum = function(port) {
     var ans = new r5js.Datum();
-    ans.type = 'output-port';
+    ans.type = r5js.DatumType.OUTPUT_PORT;
     ans.payload = port;
     return ans;
 };
@@ -1174,7 +1149,7 @@ r5js.data.newOutputPortDatum = function(port) {
  */
 r5js.data.newDatumRef = function(deref) {
     var ans = new r5js.Datum();
-    ans.type = 'ref';
+    ans.type = r5js.DatumType.REF;
     ans.payload = deref;
     return ans;
 };
@@ -1187,7 +1162,7 @@ r5js.data.newDatumRef = function(deref) {
  */
 r5js.data.newMacroDatum = function(macro) {
     var ans = new r5js.Datum();
-    ans.type = 'macro';
+    ans.type = r5js.DatumType.MACRO;
     ans.payload = macro;
     return ans;
 };
@@ -1195,11 +1170,11 @@ r5js.data.newMacroDatum = function(macro) {
 
 /**
  * @param {!r5js.PayloadType} result The result to potentially wrap.
- * @param {string=} type TODO bl
+ * @param {!r5js.DatumType=} opt_type TODO bl
  * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
  *         if necessary.
  */
-r5js.data.maybeWrapResult = function(result, type) {
+r5js.data.maybeWrapResult = function(result, opt_type) {
 
     if (result === null
         || result instanceof r5js.Datum
@@ -1211,22 +1186,23 @@ r5js.data.maybeWrapResult = function(result, type) {
 
     var ans = new r5js.Datum();
     ans.payload = result;
-    if (type)
-        ans.type = type;
-    // If no type was supplied, we can deduce it in most (not all) cases
-    else {
-        var inferredType = typeof result;
-        switch (inferredType) {
+    if (goog.isDef(opt_type)) {
+        ans.type = opt_type;
+    } else {
+        // If no type was supplied, we can deduce it in most (not all) cases
+        switch (typeof result) {
             case 'boolean':
+                ans.type = r5js.DatumType.BOOLEAN;
+                break;
             case 'number':
-                ans.type = inferredType;
+                ans.type = r5js.DatumType.NUMBER;
                 break;
             case 'string':
-                ans.type = 'identifier';
+                ans.type = r5js.DatumType.IDENTIFIER;
                 break;
             case 'object':
                 if (result instanceof r5js.Procedure) {
-                    ans.type = 'lambda';
+                    ans.type = r5js.DatumType.LAMBDA;
                     break;
                 }
             default:

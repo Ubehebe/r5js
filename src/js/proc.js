@@ -23,6 +23,7 @@ goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
+goog.require('r5js.DatumType');
 goog.require('r5js.EvalError');
 goog.require('r5js.FFIError');
 goog.require('r5js.IllegalEmptyApplication');
@@ -1067,7 +1068,7 @@ function processQuasiquote(datum, env, cpsName, parserProvider) {
             continuation.lastResultName));
       });
 
-  datum.type = "'";
+  datum.type = r5js.DatumType.QUOTE;
 
   newCalls.appendContinuable(newIdShim(datum, cpsName));
   var ans = newCalls.toContinuable();

@@ -20,6 +20,7 @@ goog.provide('r5js.Environment');
 goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
+goog.require('r5js.DatumType');
 goog.require('r5js.EvalError');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
@@ -360,5 +361,7 @@ r5js.RootEnvironment.prototype.newChildEnv = function(name) {
  * @return {!r5js.Datum} A new datum representing the given environment.
  */
 function newEnvironmentSpecifier(version) {
-    return r5js.data.newIdOrLiteral(new r5js.Environment('', version), 'environment-specifier');
+    return r5js.data.newIdOrLiteral(
+        new r5js.Environment('', version),
+        r5js.DatumType.ENVIRONMENT_SPECIFIER);
 }

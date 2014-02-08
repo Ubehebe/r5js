@@ -18,6 +18,7 @@ goog.provide('r5js.Branch');
 
 goog.require('r5js.Continuable');
 goog.require('r5js.data');
+goog.require('r5js.DatumType');
 
 
 function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
@@ -49,7 +50,7 @@ r5js.Branch = function(
      would activate the default type, identifier, which would change the
      semantics. */
     this.alternate = alternateContinuable
-        || newIdShim(r5js.data.newIdOrLiteral(null, 'number'));
+        || newIdShim(r5js.data.newIdOrLiteral(null, r5js.DatumType.NUMBER));
     this.consequentLastContinuable = this.consequent.getLastContinuable();
     this.alternateLastContinuable = this.alternate.getLastContinuable();
 };

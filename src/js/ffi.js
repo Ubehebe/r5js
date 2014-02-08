@@ -20,6 +20,7 @@ goog.provide('r5js.ffiutil');
 
 goog.require('r5js.data');
 goog.require('r5js.Datum');
+goog.require('r5js.DatumType');
 goog.require('r5js.FFIError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ProcCall');
@@ -65,8 +66,14 @@ r5js.ProcCall.prototype.tryFFI = function(
             case 'undefined':
                 ans = null;
                 break;
-            default:
-                ans = r5js.data.maybeWrapResult(property, typeof property);
+            case 'string':
+                ans = r5js.data.maybeWrapResult(property, r5js.DatumType.STRING);
+                break;
+            case 'number':
+                ans = r5js.data.maybeWrapResult(property, r5js.DatumType.NUMBER);
+                break;
+            case 'boolean':
+                ans = r5js.data.maybeWrapResult(property, r5js.DatumType.BOOLEAN);
                 break;
         }
 
@@ -89,7 +96,7 @@ r5js.ffiutil = {};
  */
 r5js.ffiutil.newFFIDatum = function(jsObj) {
     var ans = new r5js.Datum();
-    ans.type = 'ffi';
+    ans.type = r5js.DatumType.FFI;
     ans.payload = jsObj;
     return ans;
 };

@@ -21,6 +21,7 @@ goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
+goog.require('r5js.DatumType');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
@@ -615,7 +616,7 @@ r5js.builtins['number'] = {
         argc: 1,
         argtypes: 'number',
         proc: function(x) {
-            return r5js.data.newIdOrLiteral(x + '', 'string');
+            return r5js.data.newIdOrLiteral(x + '', r5js.DatumType.STRING);
         }
     },
     'string->number': {
@@ -641,7 +642,7 @@ r5js.builtins['pair'] = {
                 return realCdr;
             } else {
                 var ans = new r5js.Datum();
-                ans.type = '.(';
+                ans.type = r5js.DatumType.DOTTED_LIST;
                 ans.appendChild(realCar);
                 ans.appendChild(realCdr);
                 // todo bl hmm the parent field isn't getting set...is that ok?
@@ -727,7 +728,7 @@ r5js.builtins['symbol'] = {
         argc: 1,
         argtypes: ['symbol'],
         proc: function(sym) {
-            return r5js.data.newIdOrLiteral(sym, 'string').setImmutable();
+            return r5js.data.newIdOrLiteral(sym, r5js.DatumType.STRING).setImmutable();
         }
     },
 
@@ -735,7 +736,7 @@ r5js.builtins['symbol'] = {
         argc: 1,
         argtypes: ['string'],
         proc: function(node) {
-            return r5js.data.newIdOrLiteral(node.payload, 'identifier');
+            return r5js.data.newIdOrLiteral(node.payload, r5js.DatumType.IDENTIFIER);
         }
     }
 };
@@ -788,21 +789,21 @@ r5js.builtins['char'] = {
         argc: 1,
         argtypes: ['number'],
         proc: function(i) {
-            return r5js.data.newIdOrLiteral(String.fromCharCode(i), 'character');
+            return r5js.data.newIdOrLiteral(String.fromCharCode(i), r5js.DatumType.CHARACTER);
         }
     },
     'char-upcase': {
         argc: 1,
         argtypes: ['char'],
         proc: function(node) {
-            return r5js.data.newIdOrLiteral(node.payload.toUpperCase(), 'character');
+            return r5js.data.newIdOrLiteral(node.payload.toUpperCase(), r5js.DatumType.CHARACTER);
         }
     },
     'char-downcase': {
         argc: 1,
         argtypes: ['char'],
         proc: function(node) {
-            return r5js.data.newIdOrLiteral(node.payload.toLowerCase(), 'character');
+            return r5js.data.newIdOrLiteral(node.payload.toLowerCase(), r5js.DatumType.CHARACTER);
         }
     }
 };
@@ -820,7 +821,7 @@ r5js.builtins['string'] = {
             var s = '';
             for (var i = 0; i < n; ++i)
                 s += c;
-            return r5js.data.newIdOrLiteral(s, 'string');
+            return r5js.data.newIdOrLiteral(s, r5js.DatumType.STRING);
         }
     },
     'string-length': {
@@ -834,7 +835,7 @@ r5js.builtins['string'] = {
         argc: 2,
         argtypes: ['string', 'number'],
         proc: function(node, i) {
-            return r5js.data.newIdOrLiteral(node.payload.charAt(i), 'character');
+            return r5js.data.newIdOrLiteral(node.payload.charAt(i), r5js.DatumType.CHARACTER);
         }
     },
     'string-set!': {
@@ -887,7 +888,7 @@ r5js.builtins['vector'] = {
              contents of each element is unspecified."
 
              False seems like a good default. */
-            fill = fill || r5js.data.newIdOrLiteral(false, 'boolean');
+            fill = fill || r5js.data.newIdOrLiteral(false, r5js.DatumType.BOOLEAN);
             var buf = [];
             for (var i = 0; i < n; ++i)
                 buf.push(fill.clone());
@@ -1339,7 +1340,7 @@ r5js.builtins['io'] = {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
                     return inputPort;
-                } else return r5js.data.newIdOrLiteral(inputPort.payload['readChar'](), 'character');
+                } else return r5js.data.newIdOrLiteral(inputPort.payload['readChar'](), r5js.DatumType.CHARACTER);
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
     },
@@ -1357,7 +1358,7 @@ r5js.builtins['io'] = {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
                     return inputPort;
-                } else return r5js.data.newIdOrLiteral(inputPort.payload['peekChar'](), 'character');
+                } else return r5js.data.newIdOrLiteral(inputPort.payload['peekChar'](), r5js.DatumType.CHARACTER);
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
     },
