@@ -350,15 +350,14 @@ r5js.ProcCall.prototype.clearEnv = function() {
  * and whose firstOperand is the payload.
  *
  * @param {?} payload
- * @param {string} continuationName The name of the continuation.
+ * @param {string=} opt_continuationName Optional name of the continuation.
  * @return {!r5js.Continuable} The new procedure call.
  */
-function newIdShim(payload, continuationName) {
+function newIdShim(payload, opt_continuationName) {
   return r5js.procs.newProcCall(
       r5js.ProcCall.prototype.specialOps._id,
       payload,
-      new r5js.Continuation(continuationName)
-  );
+      new r5js.Continuation(opt_continuationName));
 }
 
 

@@ -441,7 +441,7 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     }
 
     if (forceContinuationWrapper && !(ans instanceof r5js.Continuable)) {
-        ans = newIdShim(ans, newCpsName());
+        ans = newIdShim(ans);
     }
     return ans;
 };
@@ -540,7 +540,7 @@ r5js.Datum.prototype.sequence = function(env) {
              able to connect the Continuable objects correctly, so we
              wrap them. */
             if (!(tmp instanceof r5js.Continuable)) {
-                tmp = newIdShim(tmp, newCpsName());
+                tmp = newIdShim(tmp);
             }
 
             if (!first) {

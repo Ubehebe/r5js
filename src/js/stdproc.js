@@ -1150,7 +1150,7 @@ r5js.builtins['control'] = {
                 new r5js.Continuation());
 
             var result = newCpsName();
-            procCallAfter.appendContinuable(newIdShim(r5js.data.newIdOrLiteral(result), newCpsName()));
+            procCallAfter.appendContinuable(newIdShim(r5js.data.newIdOrLiteral(result)));
             procCallAfter.getLastContinuable().continuation = continuation;
 
             var procCallThunk = r5js.procs.newProcCall(

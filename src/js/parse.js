@@ -686,7 +686,7 @@ r5js.Parser.prototype['lambda-expression'] = function() {
             env.addClosure(
                 name,
                 new r5js.Procedure(formals, treatAsDotted, formalRoot.nextSibling, env, name));
-            return newIdShim(r5js.data.newIdOrLiteral(name), newCpsName());
+            return newIdShim(r5js.data.newIdOrLiteral(name));
         }
         }
     );
