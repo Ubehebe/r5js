@@ -911,11 +911,12 @@ r5js.Datum.prototype.getCdrHelper = function() {
     return this.cdrHelper;
 };
 
-/**
- * @return {string}
- */
+/** @return {string} */
 function newCpsName() {
-    return cpsPrefix + (r5js.globals.uniqueNodeCounter++);
+    /* TODO bl: goog.getUid requires an object parameter, so this method
+       creates a throwaway object. Requiring this function to take an object
+       parameter could reduce garbage. */
+    return r5js.Datum.CPS_PREFIX_ + goog.getUid(new Object());
 }
 
 /**
@@ -925,8 +926,12 @@ function newAnonymousLambdaName() {
     return 'proc' + (r5js.globals.uniqueNodeCounter++);
 }
 
-// Not a valid identifier prefix so we can easily tell these apart
-var cpsPrefix = '@';
+/**
+ * Not a valid identifier prefix so we can easily tell these apart.
+ * @const {string}
+ * @private
+ */
+r5js.Datum.CPS_PREFIX_ = '@';
 
 
 /**
