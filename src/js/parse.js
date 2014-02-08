@@ -609,8 +609,7 @@ r5js.Parser.prototype['procedure-call'] = function() {
                 return r5js.procs.newProcCall(
                     operatorNode,
                     operands,
-                    new r5js.Continuation(newCpsName())
-                );
+                    new r5js.Continuation());
             }
 
             // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
@@ -621,8 +620,7 @@ r5js.Parser.prototype['procedure-call'] = function() {
                 lastContinuation.nextContinuable = r5js.procs.newProcCall(
                     r5js.data.newIdOrLiteral(opName),
                     operands,
-                    new r5js.Continuation(newCpsName())
-                );
+                    new r5js.Continuation());
                 return desugaredOp;
             }
         }
@@ -771,8 +769,8 @@ r5js.Parser.prototype['definition'] = function() {
                     r5js.procs.newAssignment(
                         variable.payload,
                         cpsName,
-                        new r5js.Continuation(newCpsName())
-                    ).setTopLevelAssignment();
+                        new r5js.Continuation()).
+                        setTopLevelAssignment();
                 return desugaredExpr;
             }
             }
@@ -808,8 +806,8 @@ r5js.Parser.prototype['definition'] = function() {
                 return r5js.procs.newAssignment(
                     name.payload,
                     anonymousName,
-                    new r5js.Continuation(newCpsName())
-                ).setTopLevelAssignment();
+                    new r5js.Continuation()).
+                    setTopLevelAssignment();
             }
             }
         ],
@@ -847,8 +845,8 @@ r5js.Parser.prototype['definition'] = function() {
                 return r5js.procs.newAssignment(
                     name.payload,
                     anonymousName,
-                    new r5js.Continuation(newCpsName())
-                ).setTopLevelAssignment();
+                    new r5js.Continuation()).
+                    setTopLevelAssignment();
             }
             }
         ],
@@ -884,8 +882,8 @@ r5js.Parser.prototype['conditional'] = function() {
                 var branch = newBranch(
                     testName,
                     consequent,
-                    alternate, new r5js.Continuation(newCpsName())
-                );
+                    alternate,
+                    new r5js.Continuation());
                 testEndpoint.continuation.nextContinuable = branch;
                 return test;
             }
@@ -908,7 +906,7 @@ r5js.Parser.prototype['conditional'] = function() {
                     testName,
                     consequent,
                     null,
-                    new r5js.Continuation(newCpsName()));
+                    new r5js.Continuation());
                 testEndpoint.continuation.nextContinuable = branch;
                 return test;
             }
@@ -954,7 +952,7 @@ r5js.Parser.prototype['assignment'] = function() {
                 r5js.procs.newAssignment(
                     variable.payload,
                     cpsName,
-                    new r5js.Continuation(newCpsName()));
+                    new r5js.Continuation());
             return desugaredExpr;
         }
         }
@@ -1124,8 +1122,7 @@ r5js.Parser.prototype['macro-use'] = function() {
             return r5js.procs.newProcCall(
                 node.at('keyword'),
                 node.at('datum'),
-                new r5js.Continuation(newCpsName())
-            );
+                new r5js.Continuation());
         }
         });
 };
@@ -1527,8 +1524,7 @@ r5js.Parser.prototype['syntax-definition'] = function() {
             return r5js.procs.newAssignment(
                 kw,
                 anonymousName,
-                new r5js.Continuation(newCpsName())
-            ).
+                new r5js.Continuation()).
                 setTopLevelAssignment().
                 setSyntaxAssignment();
         }

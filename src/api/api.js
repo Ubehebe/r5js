@@ -21,7 +21,6 @@ goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
 goog.require('r5js.boot');
-goog.require('r5js.globals');
 
 
 

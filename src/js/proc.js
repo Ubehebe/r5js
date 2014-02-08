@@ -22,11 +22,9 @@ goog.provide('r5js.procs');
 goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
-goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.FFIError');
-goog.require('r5js.globals');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
@@ -36,6 +34,10 @@ goog.require('r5js.MacroError');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
+goog.require('r5js.data');
+goog.require('r5js.globals');
+
+
 
 /**
  * @param {!Array.<string>} formalsArray The procedure's formal parameters,
@@ -49,53 +51,54 @@ goog.require('r5js.TooFewArgs');
  * @constructor
  */
 r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, name) {
-    /**
+  /**
      * @type {boolean}
      */
-    this.isDotted = isDotted;
+  this.isDotted = isDotted;
 
-    /**
+  /**
      * @type {!r5js.IEnvironment}
      */
-    this.env = env.newChildEnv(name);
+  this.env = env.newChildEnv(name);
 
-    /**
+  /**
      * @type {!Array.<string>}
      */
-    this.formalsArray = formalsArray;
+  this.formalsArray = formalsArray;
 
-    /**
+  /**
      * @type {string}
      */
-    this.name = name;
+  this.name = name;
 
-    if (bodyStart) {
+  if (bodyStart) {
 
-        /* R5RS 5.2.2: "A <body> containing internal definitions can always
+    /* R5RS 5.2.2: "A <body> containing internal definitions can always
         be converted into a completely equivalent letrec expression." */
-        var letrecBindings = new r5js.SiblingBuffer();
-        for (var cur = bodyStart; cur && cur.peekParse() === 'definition'; cur = cur.nextSibling) {
-                cur.forEach(function(node) {
-                    if (node.firstChild && node.firstChild.payload === 'define')
-                        letrecBindings.appendSibling(node.extractDefinition());
-                });
-        }
-
-        if (letrecBindings.isEmpty()) {
-            this.body = cur.sequence(this.env);
-        } else {
-            var letrec = newEmptyList();
-            letrec.firstChild = letrecBindings.toSiblings();
-            letrec.nextSibling = cur;
-            this.body = r5js.procs.newProcCall(
-                r5js.data.newIdOrLiteral('letrec'),
-                letrec,
-                new r5js.Continuation(newCpsName())
-            );
-        }
-
-        this.lastContinuable = this.body.getLastContinuable();
+    var letrecBindings = new r5js.SiblingBuffer();
+    for (var cur = bodyStart;
+         cur && cur.peekParse() === 'definition';
+         cur = cur.nextSibling) {
+      cur.forEach(function(node) {
+        if (node.firstChild && node.firstChild.payload === 'define')
+          letrecBindings.appendSibling(node.extractDefinition());
+      });
     }
+
+    if (letrecBindings.isEmpty()) {
+      this.body = cur.sequence(this.env);
+    } else {
+      var letrec = newEmptyList();
+      letrec.firstChild = letrecBindings.toSiblings();
+      letrec.nextSibling = cur;
+      this.body = r5js.procs.newProcCall(
+          r5js.data.newIdOrLiteral('letrec'),
+          letrec,
+          new r5js.Continuation());
+    }
+
+    this.lastContinuable = this.body.getLastContinuable();
+  }
 };
 
 
@@ -105,16 +108,16 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, name) {
  *         environment.
  */
 r5js.Procedure.prototype.cloneWithEnv = function(env) {
-    var ans = new r5js.Procedure(
-        this.formalsArray,
-        this.isDotted,
-        null,
-        env,
-        this.name + "'-" + (r5js.globals.uniqueNodeCounter++));
-    ans.env.setClosuresFrom(this.env); // non-cloning ok?
-    ans.body = this.body;
-    ans.lastContinuable = this.lastContinuable;
-    return ans;
+  var ans = new r5js.Procedure(
+      this.formalsArray,
+      this.isDotted,
+      null,
+      env,
+      this.name + "'-" + (r5js.globals.uniqueNodeCounter++));
+  ans.env.setClosuresFrom(this.env); // non-cloning ok?
+  ans.body = this.body;
+  ans.lastContinuable = this.lastContinuable;
+  return ans;
 };
 
 
@@ -122,12 +125,12 @@ r5js.Procedure.prototype.cloneWithEnv = function(env) {
  * @param {!r5js.Continuation} c A continuation.
  */
 r5js.Procedure.prototype.setContinuation = function(c) {
-    /* This will be a vacuous write for a tail call. But that is
+  /* This will be a vacuous write for a tail call. But that is
     probably still faster than checking if we are in tail position and,
     if so, explicitly doing nothing. */
-    if (this.lastContinuable) {
-        this.lastContinuable.continuation = c;
-    }
+  if (this.lastContinuable) {
+    this.lastContinuable.continuation = c;
+  }
 };
 
 
@@ -135,18 +138,18 @@ r5js.Procedure.prototype.setContinuation = function(c) {
  * @param {!r5js.IEnvironment} env The environment to set.
  */
 r5js.Procedure.prototype.setEnv = function(env) {
-    /* todo bl is it possible to have a procedure body whose first
+  /* todo bl is it possible to have a procedure body whose first
      continuable is a branch? hopefully not, and I can remove
      the second check. */
-    if (this.body) {
-//        if (this.body.subtype instanceof r5js.ProcCall) {
-          if (this.body.subtype.setEnv) {
-            this.body.subtype.setEnv(env, true);
-        } else {
-            throw new r5js.InternalInterpreterError(
-                'invariant incorrect -- procedure does not begin with proc call');
-        }
+  if (this.body) {
+    //        if (this.body.subtype instanceof r5js.ProcCall) {
+    if (this.body.subtype.setEnv) {
+      this.body.subtype.setEnv(env, true);
+    } else {
+      throw new r5js.InternalInterpreterError(
+          'invariant incorrect -- procedure does not begin with proc call');
     }
+  }
 };
 
 
@@ -157,16 +160,16 @@ r5js.Procedure.prototype.setEnv = function(env) {
  */
 r5js.Procedure.prototype.isTailCall = function(c) {
   if (this.lastContinuable && this.lastContinuable.continuation === c) {
-               // a good place to see if tail recursion is actually working :)
-            // console.log('TAIL RECURSION!!!');
-      return true;
+    // a good place to see if tail recursion is actually working :)
+    // console.log('TAIL RECURSION!!!');
+    return true;
   } else return false;
 };
 
 
 /** @override */
 r5js.Procedure.prototype.toString = function() {
-    return 'proc:' + this.name;
+  return 'proc:' + this.name;
 };
 
 
@@ -176,44 +179,45 @@ r5js.Procedure.prototype.toString = function() {
  */
 r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
 
-    if (!this.isDotted) {
-        if (numActuals !== this.formalsArray.length)
-            throw new r5js.IncorrectNumArgs(this.toString(), this.formalsArray.length, numActuals);
-    } else {
-        var minNumArgs = this.formalsArray.length - 1;
-        if (numActuals < minNumArgs)
-            throw new r5js.TooFewArgs(this.toString(), minNumArgs, numActuals);
-    }
+  if (!this.isDotted) {
+    if (numActuals !== this.formalsArray.length)
+      throw new r5js.IncorrectNumArgs(
+          this.toString(), this.formalsArray.length, numActuals);
+  } else {
+    var minNumArgs = this.formalsArray.length - 1;
+    if (numActuals < minNumArgs)
+      throw new r5js.TooFewArgs(this.toString(), minNumArgs, numActuals);
+  }
 };
 
 
 /**
- * @param args
+ * @param {!Array.<*>} args TODO bl narrow.
  * @param {!r5js.IEnvironment} env
  */
 r5js.Procedure.prototype.bindArgs = function(args, env) {
 
-    var name, i;
+  var name, i;
 
-    for (i = 0; i < this.formalsArray.length - 1; ++i) {
-        name = this.formalsArray[i];
-        env.addBinding(name, args[i]);
+  for (i = 0; i < this.formalsArray.length - 1; ++i) {
+    name = this.formalsArray[i];
+    env.addBinding(name, args[i]);
+  }
+
+  if (this.formalsArray.length > 0) {
+
+    name = this.formalsArray[i];
+    if (!this.isDotted) {
+      env.addBinding(name, args[i]);
+    } else {
+      // Roll up the remaining arguments into a list
+      var list = newEmptyList();
+      // Go backwards and do prepends to avoid quadratic performance
+      for (var j = args.length - 1; j >= this.formalsArray.length - 1; --j)
+        list.prependChild(args[j]);
+      env.addBinding(name, list);
     }
-
-    if (this.formalsArray.length > 0) {
-
-        name = this.formalsArray[i];
-        if (!this.isDotted) {
-            env.addBinding(name, args[i]);
-        } else {
-            // Roll up the remaining arguments into a list
-            var list = newEmptyList();
-            // Go backwards and do prepends to avoid quadratic performance
-            for (var j = args.length - 1; j >= this.formalsArray.length - 1; --j)
-                list.prependChild(args[j]);
-            env.addBinding(name, list);
-        }
-    }
+  }
 };
 
 
@@ -222,6 +226,7 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
  */
 r5js.procs = {};
 
+
 /**
  * @param {string} dstName
  * @param {string} srcName
@@ -229,17 +234,18 @@ r5js.procs = {};
  * @return {!r5js.Continuable}
  */
 r5js.procs.newAssignment = function(dstName, srcName, continuation) {
-    var operands = new r5js.SiblingBuffer()
+  var operands = new r5js.SiblingBuffer()
         .appendSibling(r5js.data.newIdOrLiteral(dstName))
         .appendSibling(r5js.data.newIdOrLiteral(srcName))
         .toSiblings();
 
-    return r5js.procs.newProcCall(
-        r5js.ProcCall.prototype.specialOps._set,
-        operands,
-        continuation
-    );
+  return r5js.procs.newProcCall(
+      r5js.ProcCall.prototype.specialOps._set,
+      operands,
+      continuation
+  );
 };
+
 
 /**
  * @param {?} operatorName
@@ -248,10 +254,10 @@ r5js.procs.newAssignment = function(dstName, srcName, continuation) {
  * @return {!r5js.Continuable} The new procedure call.
  */
 r5js.procs.newProcCall = function(operatorName, firstOperand, continuation) {
-    return new r5js.Continuable(
-        new r5js.ProcCall(operatorName, firstOperand),
-        continuation
-    );
+  return new r5js.Continuable(
+      new r5js.ProcCall(operatorName, firstOperand),
+      continuation
+  );
 };
 
 
@@ -265,34 +271,37 @@ r5js.procs.newProcCall = function(operatorName, firstOperand, continuation) {
  */
 r5js.ProcCall = function(operatorName, firstOperand) {
 
-    /**
+  /**
      * An identifier.
      * @type {?} TODO bl
      */
-    this.operatorName = operatorName;
+  this.operatorName = operatorName;
 
-    /**
+  /**
      * Identifiers or self-evaluating forms.
      * @type {?}
      */
-    this.firstOperand = firstOperand;
+  this.firstOperand = firstOperand;
 };
+
 
 /**
  * @type {r5js.IEnvironment}
  */
 r5js.ProcCall.prototype.env;
 
+
 /**
  * @param {!r5js.IEnvironment} env An environment to use.
- * @param {boolean=} override True iff the ProcCall's own environment
+ * @param {boolean=} opt_override True iff the ProcCall's own environment
  * should be overridden.
  */
-r5js.ProcCall.prototype.setEnv = function(env, override) {
-    if (this.env && !override)
-        throw new r5js.InternalInterpreterError('invariant incorrect');
-    this.env = env;
+r5js.ProcCall.prototype.setEnv = function(env, opt_override) {
+  if (this.env && !opt_override)
+    throw new r5js.InternalInterpreterError('invariant incorrect');
+  this.env = env;
 };
+
 
 /**
  * If the ProcCall already has an environment, don't overwrite it.
@@ -316,18 +325,18 @@ r5js.ProcCall.prototype.setEnv = function(env, override) {
  * @param {!r5js.IEnvironment} env An environment.
  */
 r5js.ProcCall.prototype.maybeSetEnv = function(env) {
-    if (!this.env ||
-        this.env.getProcedure(this.operatorName.payload) instanceof r5js.Continuation) {
-        this.env = env;
-    }
+  if (!this.env ||
+      this.env.getProcedure(this.operatorName.payload) instanceof
+          r5js.Continuation) {
+    this.env = env;
+  }
 };
 
+
+/** TODO bl document */
 r5js.ProcCall.prototype.clearEnv = function() {
-    this.env = null;
+  this.env = null;
 };
-
-
-
 
 
 /**
@@ -345,11 +354,11 @@ r5js.ProcCall.prototype.clearEnv = function() {
  * @return {!r5js.Continuable} The new procedure call.
  */
 function newIdShim(payload, continuationName) {
-    return r5js.procs.newProcCall(
-        r5js.ProcCall.prototype.specialOps._id,
-        payload,
-        new r5js.Continuation(continuationName)
-    );
+  return r5js.procs.newProcCall(
+      r5js.ProcCall.prototype.specialOps._id,
+      payload,
+      new r5js.Continuation(continuationName)
+  );
 }
 
 
@@ -360,16 +369,16 @@ function newIdShim(payload, continuationName) {
  * @return {!r5js.Continuable}
  */
 function newAssignment(dstName, srcName, continuation) {
-    var operands = new r5js.SiblingBuffer()
+  var operands = new r5js.SiblingBuffer()
         .appendSibling(r5js.data.newIdOrLiteral(dstName))
         .appendSibling(r5js.data.newIdOrLiteral(srcName))
         .toSiblings();
 
-    return r5js.procs.newProcCall(
-        r5js.ProcCall.prototype.specialOps._set,
-        operands,
-        continuation
-    );
+  return r5js.procs.newProcCall(
+      r5js.ProcCall.prototype.specialOps._set,
+      operands,
+      continuation
+  );
 }
 
 
@@ -382,23 +391,23 @@ function newAssignment(dstName, srcName, continuation) {
  */
 r5js.ProcCall.prototype.debugString = function(
     continuation, indentLevel, suppressEnv) {
-    var ans = '\n';
-    for (var i = 0; i < indentLevel; ++i)
-        ans += '\t';
-    ans += '(' + (this.operatorName instanceof r5js.Datum
-        ? this.operatorName.payload
-        : this.specialOps.names[this.operatorName]);
-    if (this.env && !suppressEnv)
-        ans += '|' + this.env;
-    if (this.operatorName) {
-        for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
-            ans += ' ' + cur.toString();
-    } else {
-        ans += ' ' + this.firstOperand;
-    }
-    if (continuation)
-        ans += ' ' + continuation.debugString(indentLevel+1);
-    return ans + ')';
+  var ans = '\n';
+  for (var i = 0; i < indentLevel; ++i)
+    ans += '\t';
+  ans += '(' + (this.operatorName instanceof r5js.Datum ?
+      this.operatorName.payload :
+      this.specialOps.names[this.operatorName]);
+  if (this.env && !suppressEnv)
+    ans += '|' + this.env;
+  if (this.operatorName) {
+    for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
+      ans += ' ' + cur.toString();
+  } else {
+    ans += ' ' + this.firstOperand;
+  }
+  if (continuation)
+    ans += ' ' + continuation.debugString(indentLevel + 1);
+  return ans + ')';
 };
 
 
@@ -406,11 +415,11 @@ r5js.ProcCall.prototype.debugString = function(
  * @return {!r5js.Datum}
  */
 r5js.ProcCall.prototype.reconstructDatum = function() {
-    var op = r5js.data.newIdOrLiteral(this.operatorName.payload);
-    op.nextSibling = this.firstOperand;
-    var ans = newEmptyList();
-    ans.appendChild(op);
-    return ans;
+  var op = r5js.data.newIdOrLiteral(this.operatorName.payload);
+  op.nextSibling = this.firstOperand;
+  var ans = newEmptyList();
+  ans.appendChild(op);
+  return ans;
 };
 
 
@@ -418,16 +427,16 @@ r5js.ProcCall.prototype.reconstructDatum = function() {
  * @return {boolean} True iff the operands are in continuation-passing style.
  */
 r5js.ProcCall.prototype.operandsInCpsStyle = function() {
-    for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
-        if (cur instanceof r5js.Datum) {
-            if (cur.isEmptyList()) {
-                throw new r5js.IllegalEmptyApplication(this.operatorName.payload);
-            } else if (!cur.isLiteral()) {
-                return false;
-            }
-        }
+  for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
+    if (cur instanceof r5js.Datum) {
+      if (cur.isEmptyList()) {
+        throw new r5js.IllegalEmptyApplication(this.operatorName.payload);
+      } else if (!cur.isLiteral()) {
+        return false;
+      }
     }
-    return true;
+  }
+  return true;
 };
 
 
@@ -439,68 +448,70 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
  */
 r5js.ProcCall.prototype.tryIdShim = function(
     continuation, resultStruct, parserProvider) {
-    var ans;
+  var ans;
 
-    var arg = this.firstOperand;
+  var arg = this.firstOperand;
 
-    /* todo bl: id shims have become quite popular for passing through
+  /* todo bl: id shims have become quite popular for passing through
      disparate objects on the trampoline. The logic could be made clearer. */
-    if (arg instanceof r5js.Macro)
-        ans = arg;
-    else if (typeof arg === 'function' || arg.isProcedure())
-        ans = arg;
-    else if (arg.isIdentifier())
-        ans = this.env.get(arg.payload);
-    else if (arg.isQuote()) {
-        var env = this.env;
-        // Do the appropriate substitutions.
-        ans = arg.replaceChildren(
-            function(node) {
-                return node.shouldUnquote();
-            },
-            function(node) {
-                var ans = r5js.data.maybeWrapResult(env.get(node.payload)).maybeDeref();
-                if (node.shouldUnquoteSplice()) {
-                    if (ans.isList()) {
-                        if (ans.firstChild) // `(1 ,@(list 2 3) 4) => (1 2 3 4)
-                            ans = ans.firstChild;
-                        else // `(1 ,@(list) 2) => (1 2)
-                            ans = null;
-                    } else throw new r5js.QuasiquoteError(ans + ' is not a list');
-                }
-                return ans;
-            });
-        // Now strip away the quote mark.
-        // the newIdOrLiteral part is for (quote quote)
-        ans = ans.firstChild ? ans.firstChild : r5js.data.newIdOrLiteral('quote');
-    }
-    else if (arg.isQuasiquote()) {
-        resultStruct.nextContinuable = processQuasiquote(
-            arg,
-            /** @type {!r5js.IEnvironment} */ (this.env),
-            continuation.lastResultName,
-            parserProvider
+  if (arg instanceof r5js.Macro)
+    ans = arg;
+  else if (typeof arg === 'function' || arg.isProcedure())
+    ans = arg;
+  else if (arg.isIdentifier())
+    ans = this.env.get(arg.payload);
+  else if (arg.isQuote()) {
+    var env = this.env;
+    // Do the appropriate substitutions.
+    ans = arg.replaceChildren(
+        function(node) {
+          return node.shouldUnquote();
+        },
+        function(node) {
+          var ans = r5js.data.maybeWrapResult(env.get(node.payload)).
+              maybeDeref();
+          if (node.shouldUnquoteSplice()) {
+            if (ans.isList()) {
+              if (ans.firstChild) // `(1 ,@(list 2 3) 4) => (1 2 3 4)
+                ans = ans.firstChild;
+              else // `(1 ,@(list) 2) => (1 2)
+                ans = null;
+            } else throw new r5js.QuasiquoteError(ans + ' is not a list');
+          }
+          return ans;
+        });
+    // Now strip away the quote mark.
+    // the newIdOrLiteral part is for (quote quote)
+    ans = ans.firstChild ? ans.firstChild : r5js.data.newIdOrLiteral('quote');
+  }
+  else if (arg.isQuasiquote()) {
+    resultStruct.nextContinuable = processQuasiquote(
+        arg,
+        /** @type {!r5js.IEnvironment} */ (this.env),
+        continuation.lastResultName,
+        parserProvider
         ).appendContinuable(continuation.nextContinuable);
-        return;
-    } else if (arg.isImproperList()) {
-        throw new r5js.GeneralSyntaxError(arg);
-    } else {
-        ans = r5js.data.maybeWrapResult(arg.payload, arg.type);
-        if (arg.isImmutable())
-            ans.setImmutable();
-    }
+    return;
+  } else if (arg.isImproperList()) {
+    throw new r5js.GeneralSyntaxError(arg);
+  } else {
+    ans = r5js.data.maybeWrapResult(arg.payload, arg.type);
+    if (arg.isImmutable())
+      ans.setImmutable();
+  }
 
-    this.bindResult(continuation, ans);
+  this.bindResult(continuation, ans);
 
-    /* If we're at the end of the continuable-continuation chain and we're
+  /* If we're at the end of the continuable-continuation chain and we're
      trying to return a macro object off the trampoline, that's an error.
      The input was a bare macro name. */
-    if (!continuation.nextContinuable && ans instanceof r5js.Macro)
-        throw new r5js.MacroError(this.firstOperand, 'bad macro syntax');
+  if (!continuation.nextContinuable && ans instanceof r5js.Macro)
+    throw new r5js.MacroError(this.firstOperand, 'bad macro syntax');
 
-    resultStruct.ans = ans;
-    resultStruct.nextContinuable = continuation.nextContinuable;
+  resultStruct.ans = ans;
+  resultStruct.nextContinuable = continuation.nextContinuable;
 };
+
 
 /**
  * If the operator resolves as a primitive or non-primitive procedure,
@@ -522,75 +533,80 @@ r5js.ProcCall.prototype.tryIdShim = function(
 r5js.ProcCall.prototype.cpsify = function(
     continuation, resultStruct, parserProvider) {
 
-    var newCallChain = new r5js.ContinuableHelper();
-    var finalArgs = new r5js.SiblingBuffer();
-    var maybeContinuable;
+  var newCallChain = new r5js.ContinuableHelper();
+  var finalArgs = new r5js.SiblingBuffer();
+  var maybeContinuable;
 
-    for (var arg = this.firstOperand; arg; arg = arg.nextSibling) {
-        arg.resetDesugars();
-        if (arg.isQuote())
-            finalArgs.appendSibling(arg.clone().normalizeInput());
-        else if (arg.isQuasiquote()) {
-            if ((maybeContinuable
-                = processQuasiquote(
-                arg,
-                /** @type {!r5js.IEnvironment} */ (this.env),
-                continuation.lastResultName,
-                parserProvider)) instanceof r5js.Continuable) {
-                finalArgs.appendSibling(
-                    r5js.data.newIdOrLiteral(maybeContinuable
+  for (var arg = this.firstOperand; arg; arg = arg.nextSibling) {
+    arg.resetDesugars();
+    if (arg.isQuote())
+      finalArgs.appendSibling(arg.clone().normalizeInput());
+    else if (arg.isQuasiquote()) {
+      if ((maybeContinuable =
+          processQuasiquote(
+          arg,
+          /** @type {!r5js.IEnvironment} */ (this.env),
+          continuation.lastResultName,
+          parserProvider)) instanceof r5js.Continuable) {
+        finalArgs.appendSibling(
+            r5js.data.newIdOrLiteral(maybeContinuable
                         .getLastContinuable()
                         .continuation
                         .lastResultName));
-                newCallChain.appendContinuable(
-                    /** @type {!r5js.Continuable} */(maybeContinuable));
-            } else {
-                /* R5RS 4.2.6: "If no commas appear within the <qq template>,
+        newCallChain.appendContinuable(
+            /** @type {!r5js.Continuable} */(maybeContinuable));
+      } else {
+        /* R5RS 4.2.6: "If no commas appear within the <qq template>,
                  the result of evaluating `<qq template> is equivalent to
                  the result of evaluating '<qq template>." We implement this
                  merely by switching the type of the datum from quasiquote (`)
                  to quote ('). evalArgs will see the quote and evaluate it
                  accordingly. */
-                arg.type = "'";
-                finalArgs.appendSibling(arg);
-            }
-        } else if (arg.isProcedure()) {
-            finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.name));
-        } else if (arg.isImproperList()) {
-            throw new r5js.GeneralSyntaxError(arg);
-        } else if ((maybeContinuable = arg.desugar(this.env)) instanceof r5js.Continuable) {
-            /* todo bl is it an invariant violation to be a list
+        arg.type = "'";
+        finalArgs.appendSibling(arg);
+      }
+    } else if (arg.isProcedure()) {
+      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.name));
+    } else if (arg.isImproperList()) {
+      throw new r5js.GeneralSyntaxError(arg);
+    } else if ((maybeContinuable = arg.desugar(this.env)) instanceof
+        r5js.Continuable) {
+      /* todo bl is it an invariant violation to be a list
              and not to desugar to a Continuable? */
-            finalArgs.appendSibling(r5js.data.newIdOrLiteral(maybeContinuable.getLastContinuable().continuation.lastResultName));
-            newCallChain.appendContinuable(maybeContinuable);
-        } else {
-            finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.payload, arg.type));
-        }
+      finalArgs.appendSibling(
+          r5js.data.newIdOrLiteral(
+              maybeContinuable.
+                  getLastContinuable().continuation.lastResultName));
+      newCallChain.appendContinuable(maybeContinuable);
+    } else {
+      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.payload, arg.type));
     }
+  }
 
-    newCallChain.appendContinuable(
-        r5js.procs.newProcCall(
-            this.operatorName,
-            finalArgs.toSiblings(),
-            new r5js.Continuation(newCpsName())
-        )
-    );
+  newCallChain.appendContinuable(
+      r5js.procs.newProcCall(
+      this.operatorName,
+      finalArgs.toSiblings(),
+      new r5js.Continuation()));
 
-    var ans = newCallChain.toContinuable();
-    ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
-    var lastContinuable = ans.getLastContinuable();
-    lastContinuable.continuation = continuation;
-    resultStruct.nextContinuable = ans;
+  var ans = newCallChain.toContinuable();
+  ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
+  var lastContinuable = ans.getLastContinuable();
+  lastContinuable.continuation = continuation;
+  resultStruct.nextContinuable = ans;
 };
+
 
 /**
  * Things like set! are represented as ProcCalls whose operators are
  * the small integers in {@link r5js.ProcCall.specialOps}
  * rather than Datum objects.
+ * @return {boolean}
  */
 r5js.ProcCall.prototype.isSpecialOperator = function() {
-    return !(this.operatorName instanceof r5js.Datum);
+  return !(this.operatorName instanceof r5js.Datum);
 };
+
 
 /**
  * @param {!r5js.Continuation} continuation
@@ -598,76 +614,88 @@ r5js.ProcCall.prototype.isSpecialOperator = function() {
  * @param {!r5js.EnvBuffer} envBuffer
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
- * @returns {*}
+ * @return {*}
  */
 r5js.ProcCall.prototype.evalAndAdvance = function(
     continuation, resultStruct, envBuffer, parserProvider) {
 
-    /* If the procedure call has no attached environment, we use
+  /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
-    if (!this.env) {
-        this.setEnv(/** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()));
-    }
+  if (!this.env) {
+    this.setEnv(/** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()));
+  }
 
-    var specialOp = this.isSpecialOperator();
-    var proc = specialOp ? this.operatorName : this.env.getProcedure(this.operatorName.payload);
-    var args = [proc, continuation, resultStruct, parserProvider];
+  var specialOp = this.isSpecialOperator();
+  var proc = specialOp ?
+      this.operatorName :
+      this.env.getProcedure(this.operatorName.payload);
+  var args = [proc, continuation, resultStruct, parserProvider];
 
-    if (specialOp) {
-        this.specialOps.logic[args.shift()].apply(this, args);
-    } else if (typeof proc === 'function') {
-        this.tryPrimitiveProcedure.apply(this, args);
-    } else if (proc instanceof r5js.Procedure) {
-        this.tryNonPrimitiveProcedure.apply(this, args);
-    } else if (proc instanceof r5js.Macro) {
-        this.tryMacroUse.apply(this, args);
-    } else if (proc instanceof r5js.Continuation) {
-        this.tryContinuation.apply(this, args);
-    } else if (proc instanceof r5js.JsObjOrMethod) {
-        this.tryFFI.apply(this, args);
-    } else {
-        throw new r5js.EvalError(
-            'procedure application: expected procedure, given '
-                + this.operatorName);
-    }
+  if (specialOp) {
+    this.specialOps.logic[args.shift()].apply(this, args);
+  } else if (typeof proc === 'function') {
+    this.tryPrimitiveProcedure.apply(this, args);
+  } else if (proc instanceof r5js.Procedure) {
+    this.tryNonPrimitiveProcedure.apply(this, args);
+  } else if (proc instanceof r5js.Macro) {
+    this.tryMacroUse.apply(this, args);
+  } else if (proc instanceof r5js.Continuation) {
+    this.tryContinuation.apply(this, args);
+  } else if (proc instanceof r5js.JsObjOrMethod) {
+    this.tryFFI.apply(this, args);
+  } else {
+    throw new r5js.EvalError(
+        'procedure application: expected procedure, given ' +
+            this.operatorName);
+  }
 
-    /* Save the environment we used in case the next action on the trampoline
+  /* Save the environment we used in case the next action on the trampoline
      needs it (for example branches, which have no environment of their own). */
-    envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.env));
+  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.env));
 
-    // We shouldn't leave the environment pointer hanging around.
-    this.clearEnv();
+  // We shouldn't leave the environment pointer hanging around.
+  this.clearEnv();
 
-    return resultStruct;
+  return resultStruct;
 };
 
+
+/**
+ * @param {!r5js.Continuation} continuation
+ * @param {*} val TODO bl.
+ */
 r5js.ProcCall.prototype.bindResult = function(continuation, val) {
 
-    var name = continuation.lastResultName;
-    var nextProcCall = continuation.getAdjacentProcCall();
+  var name = continuation.lastResultName;
+  var nextProcCall = continuation.getAdjacentProcCall();
 
-    if (nextProcCall instanceof r5js.ProcCall) {
-        var maybeEnv = nextProcCall.env;
-        /* If the next procedure call already has an environment,
+  if (nextProcCall instanceof r5js.ProcCall) {
+    var maybeEnv = nextProcCall.env;
+    /* If the next procedure call already has an environment,
          bind the result there. Otherwise, bind it in the current
          environment; it will be carried forward by the EnvBuffer. */
-        if (maybeEnv) {
-            maybeEnv.addBinding(name, val);
-        } else {
-            this.env.addBinding(name, val);
-        }
+    if (maybeEnv) {
+      maybeEnv.addBinding(name, val);
+    } else {
+      this.env.addBinding(name, val);
     }
+  }
 
-    /* If the next thing is not a procedure call, it will reuse this procedure
+/* If the next thing is not a procedure call, it will reuse this procedure
      call's environment, so just bind the result here. */
-    else {
-        this.env.addBinding(name, val);
-    }
+  else {
+    this.env.addBinding(name, val);
+  }
 };
 
+
+/**
+ * @param {!r5js.Continuation} continuation
+ * @param {!r5js.TrampolineHelper} resultStruct
+ */
 r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
-    var src = this.env.get(this.firstOperand.nextSibling.payload);
-    /* In Scheme, macros can be bound to identifiers but they are not really
+  var src = this.env.get(this.firstOperand.nextSibling.payload);
+  /* In Scheme, macros can be bound to identifiers but they are not really
      first-class citizens; you cannot say
 
      (define x let)
@@ -688,16 +716,18 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
      we as the implementer do exactly what we forbid the programmer to do.
      We tell the difference between the two parties via the isLetOrLetrecSyntax
      flag on the SchemeMacro object, which only the implementation can set. */
-    if (src instanceof r5js.Macro
-        && !src.isLetOrLetrecSyntax
-        && !this.isSyntaxAssignment)
-        throw new r5js.GeneralSyntaxError(this);
-    this.env.mutate(this.firstOperand.payload, src, this.isTopLevelAssignment);
-    /* The return value of an assignment is unspecified,
+  if (src instanceof r5js.Macro &&
+      !src.isLetOrLetrecSyntax &&
+      !this.isSyntaxAssignment) {
+    throw new r5js.GeneralSyntaxError(this);
+  }
+  this.env.mutate(this.firstOperand.payload, src, this.isTopLevelAssignment);
+  /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
-    this.bindResult(continuation, null);
-    resultStruct.nextContinuable = continuation.nextContinuable;
+  this.bindResult(continuation, null);
+  resultStruct.nextContinuable = continuation.nextContinuable;
 };
+
 
 /**
  * Primitive procedure, represented by JavaScript function:
@@ -713,48 +743,48 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
 r5js.ProcCall.prototype.tryPrimitiveProcedure = function(
     proc, continuation, resultStruct, parserProvider) {
 
-    /* If the operands aren't simple, we'll have to take a detour to
+  /* If the operands aren't simple, we'll have to take a detour to
      restructure them. Example:
 
      (+ (* 1 2) (/ 3 4)) => (* 1 2 [_0 (/ 3 4 [_1 (+ _0 _1 ...)])]) */
-    if (!this.operandsInCpsStyle()) {
-        this.cpsify(continuation, resultStruct, parserProvider);
+  if (!this.operandsInCpsStyle()) {
+    this.cpsify(continuation, resultStruct, parserProvider);
+  }
+
+  else {
+
+    var args = this.evalArgs(true);
+
+    // todo bl document why we're doing this...
+    for (var i = 0; i < args.length; ++i) {
+      if (args[i] instanceof r5js.Datum)
+        args[i] = args[i].maybeDeref();
     }
 
-    else {
-
-        var args = this.evalArgs(true);
-
-        // todo bl document why we're doing this...
-        for (var i =0; i< args.length; ++i) {
-            if (args[i] instanceof r5js.Datum)
-                args[i] = args[i].maybeDeref();
-        }
-
-        /* For call/cc etc: push the current ProcCall, the continuation,
+    /* For call/cc etc: push the current ProcCall, the continuation,
          and the result struct. todo bl: pushing the ProcCall invites trouble
          because it contains the _unevaluated_ arguments. When I'm done
          implementing all the 'magical' functions like apply and call/cc,
          review what support they really need. */
-        if (proc.hasSpecialEvalLogic) {
-            args.push(this);
-            args.push(continuation);
-            args.push(resultStruct);
-            proc.apply(null, args);
-        } else {
-            /* For display, etc., push the current input and output ports.
+    if (proc.hasSpecialEvalLogic) {
+      args.push(this);
+      args.push(continuation);
+      args.push(resultStruct);
+      proc.apply(null, args);
+    } else {
+      /* For display, etc., push the current input and output ports.
              We'll have to change this logic if any primitive procedure ever
              has both hasSpecialEvalLogic and needsCurrentPorts. */
-            if (proc.needsCurrentPorts) {
-                args.push(resultStruct.getInputPort());
-                args.push(resultStruct.getOutputPort());
-            }
-            var ans = proc.apply(null, args);
-            this.bindResult(continuation, ans);
-            resultStruct.ans = ans;
-            resultStruct.nextContinuable = continuation.nextContinuable;
-        }
+      if (proc.needsCurrentPorts) {
+        args.push(resultStruct.getInputPort());
+        args.push(resultStruct.getOutputPort());
+      }
+      var ans = proc.apply(null, args);
+      this.bindResult(continuation, ans);
+      resultStruct.ans = ans;
+      resultStruct.nextContinuable = continuation.nextContinuable;
     }
+  }
 };
 
 
@@ -793,42 +823,43 @@ r5js.ProcCall.prototype.tryPrimitiveProcedure = function(
 r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
     proc, continuation, resultStruct, parserProvider) {
 
-    /* If the operands aren't simple, we'll have to take a detour to
+  /* If the operands aren't simple, we'll have to take a detour to
      restructure them. */
-    if (!this.operandsInCpsStyle()) {
-        this.cpsify(continuation, resultStruct, parserProvider);
-    }
+  if (!this.operandsInCpsStyle()) {
+    this.cpsify(continuation, resultStruct, parserProvider);
+  }
 
-    else {
+  else {
 
-        // todo bl we should be able to pass false as the last parameter.
-        // need to resolve some bugs.
-        var args = this.evalArgs(true);
+    // todo bl we should be able to pass false as the last parameter.
+    // need to resolve some bugs.
+    var args = this.evalArgs(true);
 
-        /* If we're at a tail call we can reuse the existing environment.
+    /* If we're at a tail call we can reuse the existing environment.
          Otherwise create a new environment pointing back to the current one. */
-        var newEnv = proc.isTailCall(continuation)
-            ? this.env.allowRedefs()
-            : new r5js.Environment('tmp-'
-            + proc.name
-            + '-'
-            + (r5js.globals.uniqueNodeCounter++), proc.env).addClosuresFrom(proc.env);
+    var newEnv = proc.isTailCall(continuation) ?
+        this.env.allowRedefs() :
+        new r5js.Environment('tmp-' +
+            proc.name +
+            '-' +
+            (r5js.globals.uniqueNodeCounter++), proc.env).
+            addClosuresFrom(proc.env);
 
-        /* Remember to discard the new environment
+    /* Remember to discard the new environment
          at the end of the procedure call. */
-        if (this.env) {
-            continuation.rememberEnv(this.env);
-        }
-
-        // Do some bookkeepping to prepare for jumping into the procedure
-        proc.setContinuation(continuation);
-        proc.checkNumArgs(args.length);
-        proc.bindArgs(args, newEnv);
-        proc.setEnv(newEnv);
-
-        // And away we go
-        resultStruct.nextContinuable = proc.body;
+    if (this.env) {
+      continuation.rememberEnv(this.env);
     }
+
+    // Do some bookkeepping to prepare for jumping into the procedure
+    proc.setContinuation(continuation);
+    proc.checkNumArgs(args.length);
+    proc.bindArgs(args, newEnv);
+    proc.setEnv(newEnv);
+
+    // And away we go
+    resultStruct.nextContinuable = proc.body;
+  }
 };
 
 
@@ -842,29 +873,32 @@ r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
 r5js.ProcCall.prototype.tryMacroUse = function(
     macro, continuation, resultStruct, parserProvider) {
 
-    var newEnv = new r5js.Environment(
-        'macro-' + (r5js.globals.uniqueNodeCounter++),
-        this.env
-    );
-    var newParseTree = macro.transcribe(
-        this.reconstructDatum(),
-        newEnv,
-        parserProvider
-    );
+  var newEnv = new r5js.Environment(
+      'macro-' + (r5js.globals.uniqueNodeCounter++),
+      this.env
+      );
+  var newParseTree = macro.transcribe(
+      this.reconstructDatum(),
+      newEnv,
+      parserProvider
+      );
 
-    /* Just like with tryNonPrimitiveProcedures, we have to remember when
+  /* Just like with tryNonPrimitiveProcedures, we have to remember when
      to jump back to the old environment. */
-    if (this.env) {
-        continuation.rememberEnv(this.env);
-    }
+  if (this.env) {
+    continuation.rememberEnv(this.env);
+  }
 
-// useful for debugging
-// console.log('transcribed ' + this.reconstructDatum() + ' => ' + newDatumTree);
+  // useful for debugging
+  // console.log('transcribed ' +
+  // this.reconstructDatum() +
+  // ' => ' + newDatumTree);
 
-    var newContinuable = newParseTree.desugar(newEnv, true).setStartingEnv(newEnv);
+  var newContinuable = newParseTree.desugar(newEnv, true).
+      setStartingEnv(newEnv);
 
-    newContinuable.getLastContinuable().continuation = continuation;
-    resultStruct.nextContinuable = newContinuable;
+  newContinuable.getLastContinuable().continuation = continuation;
+  resultStruct.nextContinuable = newContinuable;
 };
 
 
@@ -875,20 +909,20 @@ r5js.ProcCall.prototype.tryMacroUse = function(
  */
 r5js.ProcCall.prototype.tryContinuation = function(
     proc, continuation, resultStruct) {
-    var arg = this.evalArgs(false)[0]; // there will only be 1 arg
-    this.env.addBinding(proc.lastResultName, arg);
-    resultStruct.ans = arg;
-    resultStruct.nextContinuable = proc.nextContinuable;
+  var arg = this.evalArgs(false)[0]; // there will only be 1 arg
+  this.env.addBinding(proc.lastResultName, arg);
+  resultStruct.ans = arg;
+  resultStruct.nextContinuable = proc.nextContinuable;
 
-    if (proc.beforeThunk) {
-        var before = proc.beforeThunk;
-        var cur = proc.nextContinuable;
-        before.appendContinuable(cur);
-        resultStruct.nextContinuable = before;
-        // todo bl is it safe to leave proc.beforeThunk defined?
-    }
+  if (proc.beforeThunk) {
+    var before = proc.beforeThunk;
+    var cur = proc.nextContinuable;
+    before.appendContinuable(cur);
+    resultStruct.nextContinuable = before;
+    // todo bl is it safe to leave proc.beforeThunk defined?
+  }
 
-    /* Cut out the current proc call from the continuation chain to
+  /* Cut out the current proc call from the continuation chain to
      avoid an infinite loop. Example:
 
      (define cont #f)
@@ -911,18 +945,19 @@ r5js.ProcCall.prototype.tryContinuation = function(
 
      We clearly have to cut out the first part of this chain to avoid an
      infinite loop. */
-    for (var tmp = resultStruct.nextContinuable, prev;
-         tmp;
-         prev = tmp,tmp = tmp.continuation.nextContinuable) {
-        if (tmp.subtype === this) {
-            if (prev)
-                prev.continuation.nextContinuable = tmp.continuation.nextContinuable;
-            else
-                resultStruct.nextContinuable = tmp.continuation.nextContinuable;
-            break;
-        }
+  for (var tmp = resultStruct.nextContinuable, prev;
+      tmp;
+      prev = tmp, tmp = tmp.continuation.nextContinuable) {
+    if (tmp.subtype === this) {
+      if (prev)
+        prev.continuation.nextContinuable = tmp.continuation.nextContinuable;
+      else
+        resultStruct.nextContinuable = tmp.continuation.nextContinuable;
+      break;
     }
+  }
 };
+
 
 /**
  * This is my attempt at a JavaScript enum idiom. Is there a better way
@@ -930,26 +965,26 @@ r5js.ProcCall.prototype.tryContinuation = function(
  */
 r5js.ProcCall.prototype.specialOps = {
 
-    _id: 0,
-    _set: 1,
+  _id: 0,
+  _set: 1,
 
-    names: ['id', 'set!'],
-    logic: [
-        r5js.ProcCall.prototype.tryIdShim,
-        r5js.ProcCall.prototype.tryAssignment
-    ]
+  names: ['id', 'set!'],
+  logic: [
+    r5js.ProcCall.prototype.tryIdShim,
+    r5js.ProcCall.prototype.tryAssignment
+  ]
 };
 
 
 /**
- * @param wrapArgs
+ * @param {boolean} wrapArgs
  * @return {?}
  * TODO bl: this method is too long.
  */
 r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
-    var args = [];
+  var args = [];
 
-    /* Special logic for values and call-with-values. Example:
+  /* Special logic for values and call-with-values. Example:
 
      (call-with-values (lambda () (values 1 2 3)) +)
 
@@ -961,46 +996,50 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
      In this implementation, this will bind the JavaScript array [1, 2, 3]
      to _0. Later on the trampoline, we reach (+ _0). We have to know that
      _0 refers to an array of values, not a single value. */
-    if (this.firstOperand instanceof r5js.Datum
-        && !this.firstOperand.nextSibling
-        && this.firstOperand.isIdentifier()) {
-        var maybeArray = this.env.get(/** @type {string} */ (this.firstOperand.payload));
-        if (maybeArray instanceof Array)
-            return maybeArray;
-        // Otherwise, fall through to normal logic.
-    }
+  if (this.firstOperand instanceof r5js.Datum &&
+      !this.firstOperand.nextSibling &&
+      this.firstOperand.isIdentifier()) {
+    var maybeArray = this.env.get(
+        /** @type {string} */ (this.firstOperand.payload));
+    if (maybeArray instanceof Array)
+      return maybeArray;
+    // Otherwise, fall through to normal logic.
+  }
 
-    // todo bl too much logic
-    for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
-        if (cur instanceof r5js.Continuation) {
-            args.push(cur);
-        } else if (cur.isIdentifier()) {
-            var toPush = wrapArgs
-                ? r5js.data.maybeWrapResult(this.env.get(cur.payload))
-                : this.env.get(cur.payload);
-            /* Macros are not first-class citizens in Scheme; they cannot
+  // todo bl too much logic
+  for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
+    if (cur instanceof r5js.Continuation) {
+      args.push(cur);
+    } else if (cur.isIdentifier()) {
+      var toPush = wrapArgs ?
+          r5js.data.maybeWrapResult(this.env.get(cur.payload)) :
+          this.env.get(cur.payload);
+      /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
              for convenience. The isLetOrLetrecSyntax flag discriminates
              between the programmer and the implementation. */
-            if (toPush instanceof r5js.Macro
-                && !toPush.isLetOrLetrecSyntax)
-                throw new r5js.MacroError(cur.payload, 'bad syntax');
-            args.push(toPush);
-        }
-        else if (cur.isQuote()) {
-            cur.normalizeInput();
-            // the newIdOrLiteral part is for (quote quote)
-            args.push(cur.firstChild ? cur.firstChild : r5js.data.newIdOrLiteral('quote'));
-        }
-        else if (cur.isProcedure()) {
-            args.push(cur);
-        } else if (cur.payload !== undefined) {
-            args.push(r5js.data.maybeWrapResult(cur.payload, cur.type));
-        }
-        else throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
+      if (toPush instanceof r5js.Macro &&
+          !toPush.isLetOrLetrecSyntax) {
+        throw new r5js.MacroError(cur.payload, 'bad syntax');
+      }
+      args.push(toPush);
     }
+    else if (cur.isQuote()) {
+      cur.normalizeInput();
+      // the newIdOrLiteral part is for (quote quote)
+      args.push(cur.firstChild ?
+          cur.firstChild :
+          r5js.data.newIdOrLiteral('quote'));
+    }
+    else if (cur.isProcedure()) {
+      args.push(cur);
+    } else if (cur.payload !== undefined) {
+      args.push(r5js.data.maybeWrapResult(cur.payload, cur.type));
+    }
+    else throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
+  }
 
-    return args;
+  return args;
 };
 
 
@@ -1011,42 +1050,42 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
  * a cyclic dependency between Datum and the parser, and thought it was
  * cleaner at that point to turn it into a regular function.
  * @param {!r5js.Datum} datum Datum to process.
- * @param {!r5js.IEnvironment} env TODO bl
- * @param {string} cpsName TODO bl
+ * @param {!r5js.IEnvironment} env TODO bl.
+ * @param {string} cpsName TODO bl.
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
- * @return {*} TODO bl
+ * @return {*} TODO bl.
  */
 function processQuasiquote(datum, env, cpsName, parserProvider) {
 
-    var newCalls = new r5js.ContinuableHelper();
+  var newCalls = new r5js.ContinuableHelper();
 
-    var qqLevel = datum.qqLevel;
+  var qqLevel = datum.qqLevel;
 
-    datum.replaceChildren(
-        function(node) {
-            return node.isUnquote() && (node.qqLevel === qqLevel);
-        },
-        function(node) {
-            var asContinuable = parserProvider(
-                /** @type {!r5js.Datum} */(node.firstChild)).
+  datum.replaceChildren(
+      function(node) {
+        return node.isUnquote() && (node.qqLevel === qqLevel);
+      },
+      function(node) {
+        var asContinuable = parserProvider(
+            /** @type {!r5js.Datum} */(node.firstChild)).
                 parse('expression').
                 desugar(env, true);
-            var continuation = asContinuable.getLastContinuable().continuation;
-            /* Throw out the last result name and replace it with another
+        var continuation = asContinuable.getLastContinuable().continuation;
+        /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */
-            continuation.lastResultName = node.type +
+        continuation.lastResultName = node.type +
                 (r5js.globals.uniqueNodeCounter++);
-            newCalls.appendContinuable(asContinuable);
-            return r5js.data.newIdOrLiteral(/** @type {string} */ (
-                continuation.lastResultName));
-        });
+        newCalls.appendContinuable(asContinuable);
+        return r5js.data.newIdOrLiteral(/** @type {string} */ (
+            continuation.lastResultName));
+      });
 
-    datum.type = "'";
+  datum.type = "'";
 
-    newCalls.appendContinuable(newIdShim(datum, cpsName));
-    var ans = newCalls.toContinuable();
-    return ans && ans.setStartingEnv(env);
+  newCalls.appendContinuable(newIdShim(datum, cpsName));
+  var ans = newCalls.toContinuable();
+  return ans && ans.setStartingEnv(env);
 }
 

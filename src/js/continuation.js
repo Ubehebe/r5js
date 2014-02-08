@@ -18,9 +18,10 @@ goog.provide('r5js.Continuation');
 
 
 goog.require('r5js.Branch');
-goog.require('r5js.data');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.data');
 // TODO bl cyclic dependency goog.require('r5js.procs');
+
 
 
 /**
@@ -34,15 +35,15 @@ goog.require('r5js.InternalInterpreterError');
  * c.nextContinuable is (g f' z ...)
  *
  *
- * @param {string} lastResultName Name to use for the last result.
+ * @param {string=} opt_lastResultName Optional name to use for the last result.
+ *     If not given, a unique name will be created.
  * @constructor
  */
-r5js.Continuation = function(lastResultName) {
-
-    /**
-     * @type {string}
-     */
-    this.lastResultName = lastResultName;
+r5js.Continuation = function(opt_lastResultName) {
+  /** @const {string} */
+  this.lastResultName = goog.isDef(opt_lastResultName) ?
+      opt_lastResultName :
+      ('@' /* TODO bl document */ + goog.getUid(this));
 };
 
 
@@ -54,19 +55,19 @@ r5js.Continuation = function(lastResultName) {
  * @param {?} before
  */
 r5js.Continuation.prototype.installBeforeThunk = function(before) {
-    this.beforeThunk = before;
+  this.beforeThunk = before;
 };
 
 
 /**
  * Just for debugging.
- * @param {number|null} indentLevel Indentation level for output.
+ * @param {?number} indentLevel Indentation level for output.
  * @return {string} A textual representation of the continuation.
  */
 r5js.Continuation.prototype.debugString = function(indentLevel) {
 
-    if (indentLevel == null) {
-        /* If no indent level is given, this function is being used to
+  if (indentLevel == null) {
+    /* If no indent level is given, this function is being used to
          construct an external representation, so we should hide all the
          implementation details. It's legal to return continuations directly,
          as in
@@ -75,20 +76,20 @@ r5js.Continuation.prototype.debugString = function(indentLevel) {
          (call-with-current-continuation (lambda (c) (set! x c)))
          x
          */
-        return '[continuation]';
-    } else {
+    return '[continuation]';
+  } else {
 
-        // Otherwise this is being used for debugging, show all the things.
+    // Otherwise this is being used for debugging, show all the things.
 
-        var ans = '[' + this.lastResultName;
+    var ans = '[' + this.lastResultName;
 
-        if (this.nextContinuable) {
-            for (var i = 0; i < indentLevel; ++i)
-                ans += '\t';
-            ans += ' ' + this.nextContinuable.debugString(indentLevel + 1);
-        }
-        return ans + ']';
+    if (this.nextContinuable) {
+      for (var i = 0; i < indentLevel; ++i)
+        ans += '\t';
+      ans += ' ' + this.nextContinuable.debugString(indentLevel + 1);
     }
+    return ans + ']';
+  }
 };
 
 
@@ -104,7 +105,7 @@ r5js.Continuation.prototype.debugString = function(indentLevel) {
  * to the call site.
  */
 r5js.Continuation.prototype.getAdjacentProcCall = function() {
-    return this.nextContinuable && this.nextContinuable.subtype;
+  return this.nextContinuable && this.nextContinuable.subtype;
 };
 
 
@@ -112,14 +113,14 @@ r5js.Continuation.prototype.getAdjacentProcCall = function() {
  * @param {!r5js.IEnvironment} env Environment to remember.
  */
 r5js.Continuation.prototype.rememberEnv = function(env) {
-    /* In general, we need to remember to jump out of the newEnv at
+  /* In general, we need to remember to jump out of the newEnv at
      the end of the procedure body. See ProcCall.prototype.maybeSetEnv
      for detailed logic (and maybe bugs). */
-    if (this.nextContinuable) {
-        var next = this.nextContinuable.subtype;
-        if (next instanceof r5js.ProcCall)
-            next.maybeSetEnv(env);
-        /* Somewhat tricky. We can't know in advance which branch we'll take,
+  if (this.nextContinuable) {
+    var next = this.nextContinuable.subtype;
+    if (next instanceof r5js.ProcCall)
+      next.maybeSetEnv(env);
+  /* Somewhat tricky. We can't know in advance which branch we'll take,
          so we set the environment on both branches. Later, when we actually
          decide which branch to take, we must clear the environment on the
          non-taken branch to prevent old environments from hanging around.
@@ -127,18 +128,19 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
          todo bl: it would probably be better to remember the environment on
          the Branch directly. Then Branch.prototype.evalAndAdvance can set the
          environment on the taken branch without having to remember to clear
-         it off the non-taken branch. I'll save this for the next time I refactor
-         ProcCalls and Branches. (The explicit "subtypes" suggest my command of
-         prototypal inheritance wasn't great when I wrote this code.) */
-        else if (next instanceof r5js.Branch) {
-            if (next.consequent.subtype instanceof r5js.ProcCall) {
-                next.consequent.subtype.maybeSetEnv(env);
-            }
-            if (next.alternate.subtype instanceof r5js.ProcCall) {
-                next.alternate.subtype.maybeSetEnv(env);
-            }
-        } else throw new r5js.InternalInterpreterError('invariant incorrect');
-    }
+         it off the non-taken branch. I'll save this for the next time
+         I refactor ProcCalls and Branches. (The explicit "subtypes" suggest
+         my command of prototypal inheritance wasn't great when I wrote
+         this code.) */
+    else if (next instanceof r5js.Branch) {
+      if (next.consequent.subtype instanceof r5js.ProcCall) {
+        next.consequent.subtype.maybeSetEnv(env);
+      }
+      if (next.alternate.subtype instanceof r5js.ProcCall) {
+        next.alternate.subtype.maybeSetEnv(env);
+      }
+    } else throw new r5js.InternalInterpreterError('invariant incorrect');
+  }
 };
 
 
@@ -161,31 +163,32 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
  * into the parse tree plays well when the tree is transcribed and reparsed.
  *
  * @param {!r5js.Datum} datum Datum to desugar.
- * @param {!r5js.IEnvironment} env TODO bl
- * @param {string} operatorName TODO bl
+ * @param {!r5js.IEnvironment} env TODO bl.
+ * @param {string} operatorName TODO bl.
+ * @return {!r5js.Continuable}
  */
 r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
 
-    var letBindings = new r5js.SiblingBuffer();
+  var letBindings = new r5js.SiblingBuffer();
 
-    for (var spec = datum.at('(').firstChild; spec; spec = spec.nextSibling) {
-        var kw = spec.at('keyword').clone();
-        var macro = /** @type {!r5js.Macro} */ (spec.at('transformer-spec').desugar(env));
-        var buf = new r5js.SiblingBuffer();
-        /* We have to wrap the SchemeMacro object in a Datum to get it into
+  for (var spec = datum.at('(').firstChild; spec; spec = spec.nextSibling) {
+    var kw = spec.at('keyword').clone();
+    var macro = /** @type {!r5js.Macro} */ (
+        spec.at('transformer-spec').desugar(env));
+    var buf = new r5js.SiblingBuffer();
+    /* We have to wrap the SchemeMacro object in a Datum to get it into
          the parse tree. */
-        buf.appendSibling(kw);
-        buf.appendSibling(r5js.data.newMacroDatum(macro));
-        letBindings.appendSibling(buf.toList());
-    }
+    buf.appendSibling(kw);
+    buf.appendSibling(r5js.data.newMacroDatum(macro));
+    letBindings.appendSibling(buf.toList());
+  }
 
-    var _let = new r5js.SiblingBuffer();
-    _let.appendSibling(letBindings.toList());
-    _let.appendSibling(datum.at('(').nextSibling);
+  var _let = new r5js.SiblingBuffer();
+  _let.appendSibling(letBindings.toList());
+  _let.appendSibling(datum.at('(').nextSibling);
 
-    return r5js.procs.newProcCall(
-        r5js.data.newIdOrLiteral(operatorName),
-        _let.toSiblings(),
-        new r5js.Continuation(newCpsName())
-    );
+  return r5js.procs.newProcCall(
+      r5js.data.newIdOrLiteral(operatorName),
+      _let.toSiblings(),
+      new r5js.Continuation());
 };
