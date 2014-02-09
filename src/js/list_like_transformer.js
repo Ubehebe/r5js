@@ -23,11 +23,12 @@ goog.require('r5js.SiblingBuffer');
 
 
 /**
- * @param {string} type The type of this transformer.
+ * @param {!r5js.DatumType} type The type of this transformer.
  * @implements {r5js.ITransformer}
  * @constructor
  */
 r5js.ListLikeTransformer = function(type) {
+    /** @const {!r5js.DatumType} */
     this.type = type;
     this.subtransformers = [];
 };

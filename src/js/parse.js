@@ -1237,7 +1237,7 @@ r5js.Parser.prototype['pattern'] = function() {
             {type: '...'},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new r5js.ListLikeTransformer('(');
+                var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
@@ -1256,7 +1256,7 @@ r5js.Parser.prototype['pattern'] = function() {
             {type: '...'},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new r5js.ListLikeTransformer('#(');
+                var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
@@ -1280,7 +1280,7 @@ r5js.Parser.prototype['pattern'] = function() {
             {type: 'pattern', atLeast: 0},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new r5js.ListLikeTransformer('(');
+                var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling)
                     ans.addSubtransformer(cur.desugar());
                 return ans;
@@ -1293,7 +1293,7 @@ r5js.Parser.prototype['pattern'] = function() {
             {type: 'pattern'},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new r5js.ListLikeTransformer('.(');
+                var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling)
                     ans.addSubtransformer(cur.desugar());
                 return ans;
@@ -1304,7 +1304,7 @@ r5js.Parser.prototype['pattern'] = function() {
             {type: 'pattern', atLeast: 0},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new r5js.ListLikeTransformer('#(');
+                var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
                 for (var cur = node.at('pattern'); cur; cur = cur.nextSibling)
                     ans.addSubtransformer(cur.desugar());
                 return ans;
@@ -1388,7 +1388,7 @@ r5js.Parser.prototype['template'] = function() {
             {type: 'template'},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new r5js.ListLikeTransformer('.(');
+                var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
                 for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
@@ -1407,7 +1407,7 @@ r5js.Parser.prototype['template'] = function() {
             {type: 'template', atLeast: 0},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new r5js.ListLikeTransformer('(');
+                var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
                 for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
@@ -1425,7 +1425,7 @@ r5js.Parser.prototype['template'] = function() {
             {type: 'template', atLeast: 0},
             {type: ')'},
             {desugar: function(node) {
-                var ans = new r5js.ListLikeTransformer('#(');
+                var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
                 for (var cur = node.at('template'); cur; cur = cur.nextSibling) {
                     if (cur.nextSibling && cur.nextSibling.payload === '...') {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
@@ -1442,7 +1442,7 @@ r5js.Parser.prototype['template'] = function() {
             {type: "'"},
             {type: 'template'},
             {desugar: function(node) {
-                var ans = new r5js.ListLikeTransformer("'");
+                var ans = new r5js.ListLikeTransformer(r5js.DatumType.QUOTE);
                 ans.addSubtransformer(node.at('template').desugar());
                 return ans;
             }}
