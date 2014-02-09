@@ -135,7 +135,7 @@ r5js.PrimitiveProcedureError = function(message) {
  * (zero-indexed).
  * @param {string} procName The procedure that the interpreter was invoking
  * when this error occurred.
- * @param {!r5js.DatumType} expectedType The type of the argument that the interpreter
+ * @param {!r5js.Type} expectedType The type of the argument that the interpreter
  * expected.
  * @constructor
  */
@@ -148,7 +148,7 @@ r5js.ArgumentTypeError = function(argument, which, procName, expectedType) {
             + ' to '
             + procName
             + ', is not of the correct type '
-            + expectedType;
+            + expectedType.toString();
     };
 };
 

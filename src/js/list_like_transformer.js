@@ -24,12 +24,12 @@ goog.require('r5js.SiblingBuffer');
 
 
 /**
- * @param {!r5js.DatumType} type The type of this transformer.
+ * @param {!r5js.Type} type The type of this transformer.
  * @implements {r5js.ITransformer}
  * @constructor
  */
 r5js.ListLikeTransformer = function(type) {
-    /** @const {!r5js.DatumType} */
+    /** @const {!r5js.Type} */
     this.type = type;
     this.subtransformers = [];
 };
@@ -43,9 +43,10 @@ r5js.ListLikeTransformer.prototype.addSubtransformer = function(subtransformer) 
 r5js.ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
     /* This is a no-op mainly so we don't accidentally rename identifiers
      inside quotes in Transformer.prototype.setupIds. */
-    if (this.type !== "'") {
-        for (var i = 0; i < this.subtransformers.length; ++i)
+    if (this.type !== r5js.DatumType.QUOTE) {
+        for (var i = 0; i < this.subtransformers.length; ++i) {
             callback(this.subtransformers[i], args);
+        }
     }
 };
 
@@ -93,19 +94,19 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
          subinput;
          subinput = subinput.nextSibling, ++i) {
 
-        // If there's an ellipsis in the pattern, break out to deal with it.
-        if (i === len - 1 && (maybeEllipsis || this.type === '.('))
+        if (i === len - 1 &&
+            (maybeEllipsis || this.type === r5js.DatumType.DOTTED_LIST)) {
+            // If there's an ellipsis in the pattern, break out to deal with it.
             break;
-
-        /* If there's no ellipsis in the pattern and the input is longer
-         than the pattern, this is a failure. */
-        else if (i >= len)
+        } else if (i >= len) {
+            /* If there's no ellipsis in the pattern and the input is longer
+             than the pattern, this is a failure. */
             return false;
-
-        /* If pattern matching on the subinput and subpattern fails, this is
-         a failure. */
-        else if (!this.subtransformers[i].matchInput(subinput, literalIds, definitionEnv, useEnv, bindings))
+        } else if (!this.subtransformers[i].matchInput(subinput, literalIds, definitionEnv, useEnv, bindings)) {
+            /* If pattern matching on the subinput and subpattern fails, this is
+             a failure. */
             return false;
+        }
     }
 
     if (maybeEllipsis) {
@@ -117,7 +118,7 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
     }
 
     // Dotted-list patterns cannot end in ellipses.
-    else if (this.type === '.(') {
+    else if (this.type === r5js.DatumType.DOTTED_LIST) {
         var toMatchAgainst;
 
         if (inputDatum.isList()) {

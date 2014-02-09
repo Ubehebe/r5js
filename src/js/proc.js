@@ -1064,8 +1064,7 @@ function processQuasiquote(datum, env, cpsName, parserProvider) {
              unquotation or unquotation with splicing. */
         continuation.lastResultName = node.type + goog.getUid(new Object());
         newCalls.appendContinuable(asContinuable);
-        return r5js.data.newIdOrLiteral(/** @type {string} */ (
-            continuation.lastResultName));
+        return r5js.data.newIdOrLiteral(continuation.lastResultName);
       });
 
   datum.type = r5js.DatumType.QUOTE;

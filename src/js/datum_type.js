@@ -1,7 +1,12 @@
 goog.provide('r5js.DatumType');
 
 
-/** @enum {string} */
+/** @typedef {string} */
+r5js.Type;
+
+
+
+/** @enum {!r5js.Type} */
 r5js.DatumType = {
   BOOLEAN: 'boolean',
   CHARACTER: 'character',

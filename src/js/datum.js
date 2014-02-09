@@ -48,7 +48,7 @@ r5js.Datum.prototype.nextSibling;
  */
 r5js.Datum.prototype.parent;
 
-/** @type {r5js.DatumType|null} TODO bl eliminate the null. */
+/** @type {r5js.Type|null} TODO bl eliminate the null. */
 r5js.Datum.prototype.type;
 
 /**
@@ -117,9 +117,9 @@ r5js.Datum.prototype.setImmutable = function() {
 r5js.Datum.prototype.setImmutableOnQuote = function() {
     if (this.firstChild) {
         switch (this.firstChild.type) {
-            case '(':
-            case '.(':
-            case '#(':
+            case r5js.DatumType.LIST:
+            case r5js.DatumType.DOTTED_LIST:
+            case r5js.DatumType.VECTOR:
                 this.firstChild.setImmutable();
         }
     }
@@ -399,11 +399,9 @@ r5js.Datum.prototype.mapChildren = function(f) {
     return ans;
 };
 
-/**
- * @return {boolean} True if this datum represents an improper list.
- */
+/** @return {boolean} True if this datum represents an improper list. */
 r5js.Datum.prototype.isImproperList = function() {
-    return this.type === '.(';
+    return this.type === r5js.DatumType.DOTTED_LIST;
 };
 
 /**
@@ -448,9 +446,9 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
  * returns this Datum.
  */
 r5js.Datum.prototype.maybeDeref = function () {
-    return this.type === 'ref'
-        ? /** @type {!r5js.Datum} */ (this.payload)
-        : this;
+    return this.type === r5js.DatumType.REF ?
+    /** @type {!r5js.Datum} */ (this.payload) :
+        this;
 };
 
 
@@ -477,39 +475,29 @@ function newVectorDatum(array) {
     return ans;
 }
 
-/**
- * @return {boolean} True iff this datum represents a lambda.
- */
+/** @return {boolean} True iff this datum represents a lambda. */
 r5js.Datum.prototype.isProcedure = function() {
-  return this.type === 'lambda';
+  return this.type === r5js.DatumType.LAMBDA;
 };
 
-/**
- * @return {boolean} True iff this datum represents an input or output port.
- */
+/** @return {boolean} True iff this datum represents an input or output port. */
 r5js.Datum.prototype.isPort = function() {
     return this.isInputPort() || this.isOutputPort();
 };
 
-/**
- * @return {boolean} True iff this datum represents an input port.
- */
+/** @return {boolean} True iff this datum represents an input port. */
 r5js.Datum.prototype.isInputPort = function() {
-    return this.type === 'input-port';
+    return this.type === r5js.DatumType.INPUT_PORT;
 };
 
-/**
- * @return {boolean} True iff this datum represents an output port.
- */
+/** @return {boolean} True iff this datum represents an output port. */
 r5js.Datum.prototype.isOutputPort = function() {
-    return this.type === 'output-port';
+    return this.type === r5js.DatumType.OUTPUT_PORT;
 };
 
-/**
- * @return {boolean} True iff this datum represents a macro.
- */
+/** @return {boolean} True iff this datum represents a macro. */
 r5js.Datum.prototype.isMacro = function() {
-    return this.type === 'macro';
+    return this.type === r5js.DatumType.MACRO;
 };
 
 
@@ -517,7 +505,7 @@ r5js.Datum.prototype.isMacro = function() {
  * @return {boolean} True iff this datum represents an environment specifier.
  */
 r5js.Datum.prototype.isEnvironmentSpecifier = function() {
-    return this.type === 'environment-specifier';
+    return this.type === r5js.DatumType.ENVIRONMENT_SPECIFIER;
 };
 
 /**
@@ -1093,7 +1081,7 @@ r5js.data = {};
 
 /**
  * @param {r5js.PayloadType} payload
- * @param {!r5js.DatumType=} opt_type The type of the Datum.
+ * @param {!r5js.Type=} opt_type The type of the Datum.
  * If not given, defaults to {@link r5js.DatumType.IDENTIFIER}.
  * @return {!r5js.Datum} New Datum of given type with given payload.
  */
@@ -1170,7 +1158,7 @@ r5js.data.newMacroDatum = function(macro) {
 
 /**
  * @param {!r5js.PayloadType} result The result to potentially wrap.
- * @param {!r5js.DatumType=} opt_type TODO bl
+ * @param {!r5js.Type=} opt_type TODO bl
  * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
  *         if necessary.
  */
