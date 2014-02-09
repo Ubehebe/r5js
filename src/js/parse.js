@@ -19,6 +19,7 @@ goog.provide('r5js.Parser');
 goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
+goog.require('r5js.DatumType');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.InternalInterpreterError');
@@ -377,13 +378,13 @@ r5js.Parser.prototype.onDatum = function(element) {
         switch (element.type) {
             case '.': // vacuous; we already rewrote ( ... . as .( ...
                 return true;
-            case '(': // the reader's notation for proper list
-            case '.(': // the reader's notation for improper (dotted) list
-            case '#(': // the reader's notation for vector
-            case "'": // various other reader types
-            case '`':
-            case ',':
-            case ',@':
+            case r5js.DatumType.LIST:
+            case r5js.DatumType.DOTTED_LIST:
+            case r5js.DatumType.VECTOR:
+            case r5js.DatumType.QUOTE:
+            case r5js.DatumType.QUASIQUOTE:
+            case r5js.DatumType.UNQUOTE:
+            case r5js.DatumType.UNQUOTE_SPLICING:
                 return this.advanceToChildIf(function(datum) {
                     return datum.type === element.type;
                 });

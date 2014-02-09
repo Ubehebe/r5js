@@ -218,24 +218,24 @@ r5js.Reader.prototype['datum'] = function() {
             {type: ')'}
         ],
         [
-            {type: '#('},
+            {type: r5js.DatumType.VECTOR},
             {type: 'datum', atLeast: 0, name: '#('},
             {type: ')'}
         ],
         [
-            {type: "'"},
+            {type: r5js.DatumType.QUOTE},
             {type: 'datum', name: "'"}
         ],
         [
-            {type: '`'},
+            {type: r5js.DatumType.QUASIQUOTE},
             {type: 'datum', name: '`'}
         ],
         [
-            {type: ','},
+            {type: r5js.DatumType.UNQUOTE},
             {type: 'datum', name: ','}
         ],
         [
-            {type: ',@'},
+            {type: r5js.DatumType.UNQUOTE_SPLICING},
             {type: 'datum', name: ',@'}
         ]);
 };

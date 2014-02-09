@@ -17,6 +17,7 @@
 goog.provide('r5js.ListLikeTransformer');
 
 
+goog.require('r5js.DatumType');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.SiblingBuffer');
@@ -50,13 +51,13 @@ r5js.ListLikeTransformer.prototype.forEachSubtransformer = function(callback, ar
 
 r5js.ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
     switch (this.type) {
-        case '(':
+        case r5js.DatumType.LIST:
             // Proper list patterns can match only proper list inputs
             return inputDatum.isList();
-        case '.(':
+        case r5js.DatumType.DOTTED_LIST:
             // Dotted list patterns can match proper or dotted list inputs
             return inputDatum.isList() || inputDatum.isImproperList();
-        case '#(':
+        case r5js.DatumType.VECTOR:
             // Vector patterns match only vector inputs
             return inputDatum.isVector();
         default:
@@ -157,14 +158,17 @@ r5js.ListLikeTransformer.prototype.toDatum = function (bindings) {
 };
 
 r5js.ListLikeTransformer.prototype.toString = function () {
-    var ans = this.type === '#(' ? this.type : '(';
+    var ans = this.type === r5js.DatumType.VECTOR ?
+        this.type :
+        r5js.DatumType.LIST;
     if (this.subtransformers.length === 0) {
         return ans + ')';
     } else {
         for (var i = 0; i < this.subtransformers.length - 1; ++i)
             ans += this.subtransformers[i].toString() + ' ';
-        if (this.type === '.(')
+        if (this.type === r5js.DatumType.DOTTED_LIST) {
             ans += '. ';
+        }
         return ans + this.subtransformers[i].toString() + ')';
     }
 };
