@@ -207,36 +207,36 @@ r5js.Reader.prototype['datum'] = function() {
         ],
         [
             {type: '('},
-            {type: 'datum', atLeast: 0, name: '('},
+            {type: 'datum', atLeast: 0, name: r5js.DatumType.LIST},
             {type: ')'}
         ],
         [
             {type: '('},
-            {type: 'datum', atLeast: 1, name: '.('},
+            {type: 'datum', atLeast: 1, name: r5js.DatumType.DOTTED_LIST},
             {type: '.'},
-            {type: 'datum', name: '.('},
+            {type: 'datum', name: r5js.DatumType.DOTTED_LIST},
             {type: ')'}
         ],
         [
             {type: r5js.DatumType.VECTOR},
-            {type: 'datum', atLeast: 0, name: '#('},
+            {type: 'datum', atLeast: 0, name: r5js.DatumType.VECTOR},
             {type: ')'}
         ],
         [
             {type: r5js.DatumType.QUOTE},
-            {type: 'datum', name: "'"}
+            {type: 'datum', name: r5js.DatumType.QUOTE}
         ],
         [
             {type: r5js.DatumType.QUASIQUOTE},
-            {type: 'datum', name: '`'}
+            {type: 'datum', name: r5js.DatumType.QUASIQUOTE}
         ],
         [
             {type: r5js.DatumType.UNQUOTE},
-            {type: 'datum', name: ','}
+            {type: 'datum', name: r5js.DatumType.UNQUOTE}
         ],
         [
             {type: r5js.DatumType.UNQUOTE_SPLICING},
-            {type: 'datum', name: ',@'}
+            {type: 'datum', name: r5js.DatumType.UNQUOTE_SPLICING}
         ]);
 };
 

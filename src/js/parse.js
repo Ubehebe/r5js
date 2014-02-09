@@ -1062,7 +1062,7 @@ r5js.Parser.prototype['vector-qq-template'] = function() {
 r5js.Parser.prototype['unquotation'] = function() {
     return this.alternation(
         [
-            {type: ','},
+            {type: r5js.DatumType.UNQUOTE},
             {type: 'qq-template'}
         ],
         [
@@ -1094,7 +1094,7 @@ r5js.Parser.prototype['qq-template-or-splice'] = function() {
 r5js.Parser.prototype['splicing-unquotation'] = function() {
     return this.alternation(
         [
-            {type: ',@'},
+            {type: r5js.DatumType.UNQUOTE_SPLICING},
             {type: 'qq-template'}
         ],
         [
