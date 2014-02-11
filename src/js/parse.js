@@ -30,6 +30,7 @@ goog.require('r5js.Procedure');
 goog.require('r5js.procs');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.parse.Nonterminals');
+goog.require('r5js.parse.Terminals');
 goog.require('r5js.Macro');
 
 
@@ -444,7 +445,7 @@ r5js.Parser.prototype.onDatum = function(element) {
  | <macro use>
  | <macro block>
  */
-r5js.Parser.prototype['expression'] = function() {
+r5js.Parser.prototype[r5js.parse.Nonterminals.EXPRESSION] = function() {
     /* In order to support shadowing of syntactic keywords,
     the order of the following rules is important. Consider:
 
@@ -494,10 +495,10 @@ r5js.Parser.prototype['expression'] = function() {
             }
         ],
         [
-            {type: '('},
-            {type: 'begin'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.BEGIN},
             {type: r5js.parse.Nonterminals.EXPRESSION, atLeast: 1},
-            {type: ')'}
+            {type: r5js.parse.Terminals.RPAREN}
         ],
         [
             {type: r5js.parse.Nonterminals.MACRO_BLOCK}
@@ -541,18 +542,18 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QUOTATION] = function() {
 
     return this.alternation(
         [
-            {type: "'"},
-            {type: 'datum'},
+            {type: r5js.parse.Terminals.TICK},
+            {type: r5js.parse.Nonterminals.DATUM},
             {desugar: function(node, env) {
                 return node.normalizeInput();
             }
             }
         ],
         [
-            {type: '('},
-            {type: 'quote'},
-            {type: 'datum'},
-            {type: ')'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.QUOTE},
+            {type: r5js.parse.Nonterminals.DATUM},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node, env) {
                 return node.normalizeInput();
             }
@@ -561,7 +562,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QUOTATION] = function() {
 };
 
 
-r5js.Parser.prototype['datum'] = function() {
+r5js.Parser.prototype[r5js.parse.Nonterminals.DATUM] = function() {
     return this.rhs({type: function(datum) {
             return true;
         }});
@@ -598,10 +599,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SELF_EVALUATING] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.PROCEDURE_CALL] = function() {
 
     return this.rhs(
-        {type: '('},
+        {type: r5js.parse.Terminals.LPAREN},
         {type: r5js.parse.Nonterminals.OPERATOR},
         {type: r5js.parse.Nonterminals.OPERAND, atLeast: 0},
-        {type: ')'},
+        {type: r5js.parse.Terminals.RPAREN},
         {desugar: function(node, env) {
 
             var operatorNode = node.at(r5js.parse.Nonterminals.OPERATOR);
@@ -647,12 +648,12 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.OPERAND] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.LAMBDA_EXPRESSION] = function() {
 
     return this.rhs(
-        {type: '('},
-        {type: 'lambda'},
+        {type: r5js.parse.Terminals.LPAREN},
+        {type: r5js.parse.Terminals.LAMBDA},
         {type: r5js.parse.Nonterminals.FORMALS},
         {type: r5js.parse.Nonterminals.DEFINITION, atLeast: 0},
         {type: r5js.parse.Nonterminals.EXPRESSION, atLeast: 1},
-        {type: ')'},
+        {type: r5js.parse.Terminals.RPAREN},
         {desugar: function(node, env) {
             var formalRoot = node.at(r5js.parse.Nonterminals.FORMALS);
             var formals;
@@ -724,19 +725,19 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.FORMALS] = function() {
 
     return this.alternation(
         [
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.VARIABLE, atLeast: 0},
-            {type: ')'}
+            {type: r5js.parse.Terminals.RPAREN}
         ],
         [
             {type: r5js.parse.Nonterminals.VARIABLE}
         ],
         [
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.VARIABLE, atLeast: 1},
-            {type: '.'},
+            {type: r5js.parse.Terminals.DOT},
             {type: r5js.parse.Nonterminals.VARIABLE},
-            {type: ')'}
+            {type: r5js.parse.Terminals.RPAREN}
         ]);
 };
 
@@ -750,11 +751,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
 
     return this.alternation(
         [
-            {type: '('},
-            {type: 'define'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.DEFINE},
             {type: r5js.parse.Nonterminals.VARIABLE},
             {type: r5js.parse.Nonterminals.EXPRESSION},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node, env) {
                 /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
@@ -778,14 +779,14 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
             }
         ],
         [
-            {type: '('},
-            {type: 'define'},
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.DEFINE},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.VARIABLE, atLeast: 1},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {type: r5js.parse.Nonterminals.DEFINITION, atLeast: 0},
             {type: r5js.parse.Nonterminals.EXPRESSION, atLeast: 1},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node, env) {
                 /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
@@ -814,16 +815,16 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
             }
         ],
         [
-            {type: '('},
-            {type: 'define'},
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.DEFINE},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.VARIABLE, atLeast: 1},
-            {type: '.'},
+            {type: r5js.parse.Terminals.DOT},
             {type: r5js.parse.Nonterminals.VARIABLE},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {type: r5js.parse.Nonterminals.DEFINITION, atLeast: 0},
             {type: r5js.parse.Nonterminals.EXPRESSION, atLeast: 1},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node, env) {
                 /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
@@ -853,10 +854,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
             }
         ],
         [
-            {type: '('},
-            {type: 'begin'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.BEGIN},
             {type: r5js.parse.Nonterminals.DEFINITION, atLeast: 0},
-            {type: ')'}
+            {type: r5js.parse.Terminals.RPAREN}
             // will be recursively desugared automatically by sequence()
         ]);
 
@@ -867,12 +868,12 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.CONDITIONAL] = function() {
 
     return this.alternation(
         [
-            {type: '('},
-            {type: 'if'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.IF},
             {type: r5js.parse.Nonterminals.TEST},
             {type: r5js.parse.Nonterminals.CONSEQUENT},
             {type: r5js.parse.Nonterminals.ALTERNATE},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node, env) {
                 var test = node.at(r5js.parse.Nonterminals.TEST).desugar(env, true);
                 var consequent = node.at(r5js.parse.Nonterminals.CONSEQUENT).desugar(env, true);
@@ -892,13 +893,13 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.CONDITIONAL] = function() {
             }
         ],
         [
-            {type: '('},
-            {type: 'if'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.IF},
             {type: r5js.parse.Nonterminals.TEST},
             {type: r5js.parse.Nonterminals.CONSEQUENT},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node, env) {
-                var test = node.at('test').desugar(env, true);
+                var test = node.at(r5js.parse.Nonterminals.TEST).desugar(env, true);
                 var consequent = node.at(r5js.parse.Nonterminals.CONSEQUENT).desugar(env, true);
 
                 var testEndpoint = test.getLastContinuable();
@@ -939,11 +940,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.ALTERNATE] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.ASSIGNMENT] = function() {
 
     return this.rhs(
-        {type: '('},
-        {type: 'set!'},
+        {type: r5js.parse.Terminals.LPAREN},
+        {type: r5js.parse.Terminals.SET},
         {type: r5js.parse.Nonterminals.VARIABLE},
         {type: r5js.parse.Nonterminals.EXPRESSION},
-        {type: ')'},
+        {type: r5js.parse.Terminals.RPAREN},
         {desugar: function(node, env) {
             // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
             var variable = node.at(r5js.parse.Nonterminals.VARIABLE);
@@ -967,14 +968,14 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.ASSIGNMENT] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.QUASIQUOTATION] = function() {
     return this.alternation(
         [
-            {type: '`'},
+            {type: r5js.parse.Terminals.BACKTICK},
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
         ],
         [
-            {type: '('},
-            {type: 'quasiquote'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.QUASIQUOTE},
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE},
-            {type: ')'}
+            {type: r5js.parse.Terminals.RPAREN}
         ]
     );
 };
@@ -1027,19 +1028,19 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.LIST_QQ_TEMPLATE] = function() {
   return this.alternation(
     [
-        {type: '('},
+        {type: r5js.parse.Terminals.LPAREN},
         {type: r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE, atLeast: 0},
-        {type: ')'}
+        {type: r5js.parse.Terminals.RPAREN}
     ],
       [
-          {type: '('},
+          {type: r5js.parse.Terminals.LPAREN},
           {type: r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE, atLeast: 1},
-          {type: '.'},
+          {type: r5js.parse.Terminals.DOT},
           {type: r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE},
-          {type: ')'}
+          {type: r5js.parse.Terminals.RPAREN}
       ],
       [
-          {type: "'"},
+          {type: r5js.parse.Terminals.TICK},
           {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
       ],
       [
@@ -1052,9 +1053,9 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.LIST_QQ_TEMPLATE] = function() {
 // <vector qq template D> -> #(<qq template or splice D>*)
 r5js.Parser.prototype[r5js.parse.Nonterminals.VECTOR_QQ_TEMPLATE] = function() {
     return this.rhs(
-        {type: '#('},
+        {type: r5js.parse.Terminals.LPAREN_VECTOR},
         {type: r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE, atLeast: 0},
-        {type: ')'}
+        {type: r5js.parse.Terminals.RPAREN}
     );
 };
 
@@ -1067,10 +1068,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.UNQUOTATION] = function() {
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
         ],
         [
-            {type: '('},
-            {type: 'unquote'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.UNQUOTE},
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE},
-            {type: ')'}
+            {type: r5js.parse.Terminals.RPAREN}
         ]
     );
 };
@@ -1099,10 +1100,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SPLICING_UNQUOTATION] = function()
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
         ],
         [
-            {type: '('},
-            {type: 'unquote-splicing'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.UNQUOTE_SPLICING},
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE},
-            {type: ')'}
+            {type: r5js.parse.Terminals.RPAREN}
         ]
     );
 };
@@ -1112,10 +1113,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SPLICING_UNQUOTATION] = function()
 r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_USE] = function() {
 
     return this.rhs(
-        {type: '('},
+        {type: r5js.parse.Terminals.LPAREN},
         {type: r5js.parse.Nonterminals.KEYWORD},
-        {type: 'datum', atLeast: 0},
-        {type: ')'},
+        {type: r5js.parse.Nonterminals.DATUM, atLeast: 0},
+        {type: r5js.parse.Terminals.RPAREN},
         {desugar: function(node, env) {
             /* Desugaring of a macro use is trivial. We must leave the "argument"
                 datums as-is for the macro pattern matching facility to use.
@@ -1123,7 +1124,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_USE] = function() {
                 context. */
             return r5js.procs.newProcCall(
                 node.at(r5js.parse.Nonterminals.KEYWORD),
-                node.at('datum'),
+                node.at(r5js.parse.Nonterminals.DATUM),
                 new r5js.Continuation());
         }
         });
@@ -1146,28 +1147,28 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.KEYWORD] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_BLOCK] = function() {
     return this.alternation(
         [
-            {type: '('},
-            {type: 'let-syntax'},
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.LET_SYNTAX},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.SYNTAX_SPEC, atLeast: 0},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {type: r5js.parse.Nonterminals.DEFINITION, atLeast: 0},
             {type: r5js.parse.Nonterminals.EXPRESSION, atLeast: 1},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node, env) {
                 return r5js.Continuation.desugarMacroBlock(node, env, 'let');
             }
             }
         ],
         [
-            {type: '('},
-            {type: 'letrec-syntax'},
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.LETREC_SYNTAX},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.SYNTAX_SPEC, atLeast: 0},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {type: r5js.parse.Nonterminals.DEFINITION, atLeast: 0},
             {type: r5js.parse.Nonterminals.EXPRESSION, atLeast: 1},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node, env) {
                 return r5js.Continuation.desugarMacroBlock(node, env, 'letrec');
             }
@@ -1179,10 +1180,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_BLOCK] = function() {
 // <syntax spec> -> (<keyword> <transformer spec>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_SPEC] = function() {
     return this.rhs(
-        {type: '('},
+        {type: r5js.parse.Terminals.LPAREN},
         {type: r5js.parse.Nonterminals.KEYWORD},
         {type: r5js.parse.Nonterminals.TRANSFORMER_SPEC},
-        {type: ')'}
+        {type: r5js.parse.Terminals.RPAREN}
     );
 };
 
@@ -1190,18 +1191,18 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_SPEC] = function() {
 // <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
 r5js.Parser.prototype[r5js.parse.Nonterminals.TRANSFORMER_SPEC] = function() {
     return this.rhs(
-        {type: '('},
-        {type: 'syntax-rules'}, // a terminal
-        {type: '('},
+        {type: r5js.parse.Terminals.LPAREN},
+        {type: r5js.parse.Terminals.SYNTAX_RULES},
+        {type: r5js.parse.Terminals.LPAREN},
         {type: r5js.parse.Nonterminals.PATTERN_IDENTIFIER, atLeast: 0},
-        {type: ')'},
+        {type: r5js.parse.Terminals.RPAREN},
         {type: r5js.parse.Nonterminals.SYNTAX_RULE, atLeast: 0}, // a nonterminal
-        {type: ')'},
+        {type: r5js.parse.Terminals.RPAREN},
         {desugar: function(node, env) {
             /*4.3.2: It is an error for ... to appear in <literals>.
                 So we can reuse the pattern-identifier nonterminal
                 to check this in the parser. Win! */
-            var ids = node.at('(').at(r5js.parse.Nonterminals.PATTERN_IDENTIFIER);
+            var ids = node.at(r5js.parse.Terminals.LPAREN).at(r5js.parse.Nonterminals.PATTERN_IDENTIFIER);
             var rules = node.at(r5js.parse.Nonterminals.SYNTAX_RULE);
             // todo bl implement: It is an error for the same pattern
             // variable to appear more than once in a <pattern>.
@@ -1215,10 +1216,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TRANSFORMER_SPEC] = function() {
 // <syntax rule> -> (<pattern> <template>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_RULE] = function() {
     return this.rhs(
-        {type: '('},
+        {type: r5js.parse.Terminals.LPAREN},
         {type: r5js.parse.Nonterminals.PATTERN},
         {type: r5js.parse.Nonterminals.TEMPLATE},
-        {type: ')'}
+        {type: r5js.parse.Terminals.RPAREN}
     );
 };
 
@@ -1234,14 +1235,14 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_RULE] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN] = function() {
     return this.alternation(
         [
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.PATTERN, atLeast: 1},
-            {type: '...'},
-            {type: ')'},
+            {type: r5js.parse.Terminals.ELLIPSIS},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
                 for (var cur = node.at(r5js.parse.Nonterminals.PATTERN); cur; cur = cur.nextSibling) {
-                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                    if (cur.nextSibling && cur.nextSibling.payload === r5js.parse.Terminals.ELLIPSIS) {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         break;
                     } else {
@@ -1253,14 +1254,14 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN] = function() {
             }
         ],
         [
-            {type: '#('},
+            {type: r5js.parse.Terminals.LPAREN_VECTOR},
             {type: r5js.parse.Nonterminals.PATTERN, atLeast: 1},
-            {type: '...'},
-            {type: ')'},
+            {type: r5js.parse.Terminals.ELLIPSIS},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
                 for (var cur = node.at(r5js.parse.Nonterminals.PATTERN); cur; cur = cur.nextSibling) {
-                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                    if (cur.nextSibling && cur.nextSibling.payload === r5js.parse.Terminals.ELLIPSIS) {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         break;
                     } else {
@@ -1278,9 +1279,9 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN] = function() {
             }
         ],
         [
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.PATTERN, atLeast: 0},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
                 for (var cur = node.at(r5js.parse.Nonterminals.PATTERN); cur; cur = cur.nextSibling)
@@ -1289,11 +1290,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN] = function() {
             }}
         ],
         [
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.PATTERN, atLeast: 1},
-            {type: '.'},
+            {type: r5js.parse.Terminals.DOT},
             {type: r5js.parse.Nonterminals.PATTERN},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
                 for (var cur = node.at(r5js.parse.Nonterminals.PATTERN); cur; cur = cur.nextSibling)
@@ -1302,9 +1303,9 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN] = function() {
             }}
         ],
         [
-            {type: '#('},
+            {type: r5js.parse.Terminals.LPAREN_VECTOR},
             {type: r5js.parse.Nonterminals.PATTERN, atLeast: 0},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
                 for (var cur = node.at(r5js.parse.Nonterminals.PATTERN); cur; cur = cur.nextSibling)
@@ -1373,7 +1374,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE] = function() {
             }
         ],
         [
-            {type: '...'}
+            {type: r5js.parse.Terminals.ELLIPSIS}
         ],
         [
             {type: r5js.parse.Nonterminals.TEMPLATE_DATUM},
@@ -1384,15 +1385,15 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE] = function() {
 
         ],
         [
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.TEMPLATE, atLeast: 1},
-            {type: '.'},
+            {type: r5js.parse.Terminals.DOT},
             {type: r5js.parse.Nonterminals.TEMPLATE},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
                 for (var cur = node.at(r5js.parse.Nonterminals.TEMPLATE); cur; cur = cur.nextSibling) {
-                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                    if (cur.nextSibling && cur.nextSibling.payload === r5js.parse.Terminals.ELLIPSIS) {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         cur = cur.nextSibling;
                     } else {
@@ -1405,13 +1406,13 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE] = function() {
             }
         ],
         [
-            {type: '('},
+            {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.TEMPLATE, atLeast: 0},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
                 for (var cur = node.at(r5js.parse.Nonterminals.TEMPLATE); cur; cur = cur.nextSibling) {
-                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                    if (cur.nextSibling && cur.nextSibling.payload === r5js.parse.Terminals.ELLIPSIS) {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         cur = cur.nextSibling;
                     } else {
@@ -1423,13 +1424,13 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE] = function() {
             }
         ],
         [
-            {type: '#('},
+            {type: r5js.parse.Terminals.LPAREN_VECTOR},
             {type: r5js.parse.Nonterminals.TEMPLATE, atLeast: 0},
-            {type: ')'},
+            {type: r5js.parse.Terminals.RPAREN},
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
                 for (var cur = node.at(r5js.parse.Nonterminals.TEMPLATE); cur; cur = cur.nextSibling) {
-                    if (cur.nextSibling && cur.nextSibling.payload === '...') {
+                    if (cur.nextSibling && cur.nextSibling.payload === r5js.parse.Terminals.ELLIPSIS) {
                         ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
                         cur = cur.nextSibling;
                     } else {
@@ -1441,7 +1442,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE] = function() {
             }
         ],
         [
-            {type: "'"},
+            {type: r5js.parse.Terminals.TICK},
             {type: r5js.parse.Nonterminals.TEMPLATE},
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.QUOTE);
@@ -1467,7 +1468,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN_IDENTIFIER] = function() {
 	        datum.isIdentifier(), suggesting that this argument is not
 	        always a Datum. Investigate. */
             return datum.type === r5js.DatumType.IDENTIFIER &&
-                datum.payload !== '...';
+                datum.payload !== r5js.parse.Terminals.ELLIPSIS;
         }}
     );
 };
@@ -1498,10 +1499,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.COMMAND_OR_DEFINITION] = function(
             {type: r5js.parse.Nonterminals.SYNTAX_DEFINITION}
         ],
         [
-            {type: '('},
-            {type: 'begin'},
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Terminals.BEGIN},
             {type: r5js.parse.Nonterminals.COMMAND_OR_DEFINITION, atLeast: 0},
-            {type: ')'}
+            {type: r5js.parse.Terminals.RPAREN}
         ],
         [
             {type: r5js.parse.Nonterminals.COMMAND}
@@ -1518,11 +1519,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.COMMAND] = function() {
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_DEFINITION] = function() {
     return this.rhs(
-        {type: '('},
-        {type: 'define-syntax'},
+        {type: r5js.parse.Terminals.LPAREN},
+        {type: r5js.parse.Terminals.DEFINE_SYNTAX},
         {type: r5js.parse.Nonterminals.KEYWORD},
         {type: r5js.parse.Nonterminals.TRANSFORMER_SPEC},
-        {type: ')'},
+        {type: r5js.parse.Terminals.RPAREN},
         {desugar: function(node, env) {
             var kw = node.at(r5js.parse.Nonterminals.KEYWORD).payload;
             var macro = node.at(r5js.parse.Nonterminals.TRANSFORMER_SPEC).desugar(env);

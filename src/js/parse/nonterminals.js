@@ -13,6 +13,7 @@ r5js.parse.Nonterminals = {
   COMMAND_OR_DEFINITION: 'command-or-definition',
   CONDITIONAL: 'conditional',
   CONSEQUENT: 'consequent',
+  DATUM: 'datum',
   DEFINITION: 'definition',
   EXPRESSION: 'expression',
   FORMALS: 'formals',
