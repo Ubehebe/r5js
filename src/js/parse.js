@@ -127,18 +127,18 @@ r5js.Parser = function(root) {
     /**
      * The last datum parsed. We only need this in order to figure out
      * where to go next after finishing parsing a list.
-     * this.prev is only updated in two cases:
+     * this.prev_ is only updated in two cases:
      *
-     * 1. Moving from a parent (= this.prev) to its first child (= this.next_)
-     * 2. Moving from a sibling (= this.prev) to its next sibling (= this.next_)
+     * 1. Moving from a parent (= this.prev_) to its first child (= this.next_)
+     * 2. Moving from a sibling (= this.prev_) to its next sibling (= this.next_)
      *
-     * Thus, this.prev is only null until the first successful move
+     * Thus, this.prev_ is only null until the first successful move
      * from parent to first child or from sibling to next sibling,
      * and is never thereafter null.
      *
-     * @type {r5js.Datum|Object}
+     * @private {r5js.Datum|Object}
      */
-    this.prev = null;
+    this.prev_ = null;
 
     /** @private {boolean} */
     this.fixParserSensitiveIds_ = false;
@@ -306,7 +306,7 @@ r5js.Parser.prototype.onNonterminal = function(element, parseFunction) {
          factor the parser into parser logic and a grammar that the parser
          reads. */
         if (!this.next_) {
-            this.next_ = this.prev.closestAncestorSibling();
+            this.next_ = this.prev_.closestAncestorSibling();
         }
 
         while (this.next_ // We haven't fallen off the end of the list
@@ -340,7 +340,7 @@ r5js.Parser.prototype.onNonterminal = function(element, parseFunction) {
  */
 r5js.Parser.prototype.advanceToChildIf = function(predicate) {
     if (this.next_ && predicate(/** @type {!r5js.Datum} */(this.next_))) {
-        this.prev = this.next_;
+        this.prev_ = this.next_;
         /* See comments in body of Parser() for explanation of
             emptyListSentinel. */
         this.next_ = this.next_.firstChild || r5js.Parser.EMPTY_LIST_SENTINEL_;
@@ -359,7 +359,7 @@ r5js.Parser.prototype.advanceToChildIf = function(predicate) {
  */
 r5js.Parser.prototype.nextIf = function(predicate) {
     if (this.next_ && predicate(/** @type {!r5js.Datum} */ (this.next_))) {
-        this.prev = this.next_;
+        this.prev_ = this.next_;
         this.next_ = this.next_.nextSibling;
         return true;
     } else {
@@ -399,7 +399,7 @@ r5js.Parser.prototype.onDatum = function(element) {
                     prev.parent is (c d), and prev.parent.nextSibling is e,
                     which is where we want to go next. */
                 if (!this.next_) {
-                    this.next_ = this.prev.parent && this.prev.parent.nextSibling;
+                    this.next_ = this.prev_.parent && this.prev_.parent.nextSibling;
                     return true;
                 }
 
@@ -412,7 +412,7 @@ r5js.Parser.prototype.onDatum = function(element) {
                     prev is (), and prev.nextSibling is e, which is where we
                     want to go next. */
                 else if (this.next_ === r5js.Parser.EMPTY_LIST_SENTINEL_) {
-                    this.next_ = this.prev.nextSibling;
+                    this.next_ = this.prev_.nextSibling;
                     return true;
                 }
 
