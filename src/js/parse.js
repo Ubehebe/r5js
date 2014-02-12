@@ -118,7 +118,7 @@ r5js.Parser = function(root) {
      *
      * 1. EOF
      * 2. Advancing past the end of a nonempty list. (The empty-list
-     * corner case is handled by emptyListSentinel below.)
+     * corner case is handled by {@link r5js.Parser.EMPTY_LIST_SENTINEL_}.)
      *
      * @type {r5js.Datum|Object}
      */
@@ -140,27 +140,6 @@ r5js.Parser = function(root) {
      */
     this.prev = null;
 
-    /**
-     * We use a special sentinel object to handle the corner case of
-     * an empty list. According to the tree constructed by the reader
-     * (the structure of which the parser does not modify), an empty list
-     * is simply a datum of type '(' whose firstSibling is null or undefined.
-     * This presents a problem for the parser: when this.next is null,
-     * have we advanced past the end of a list, or was the list empty
-     * to begin with? We must distinguish these cases, because they affect
-     * what to parse next. (See comments in onDatum().)
-     *
-     * For a long time, I tried to distinguish them via some pointer trickery,
-     * but this concealed some very subtle bugs. So I decided it was clearer
-     * to compare against a dedicated sentinel object.
-     *
-     * The sentinel is an immutable object with no state; we use it only
-     * for direct identity comparisons. It is used only internally by the
-     * parser; it never enters the parse tree.
-     *
-     * @type {!Object}
-     */
-    this.emptyListSentinel = new Object();
 
 
     /**
@@ -168,6 +147,27 @@ r5js.Parser = function(root) {
      */
     this.fixParserSensitiveIds = false;
 };
+/**
+ * We use a special sentinel object to handle the corner case of
+ * an empty list. According to the tree constructed by the reader
+ * (the structure of which the parser does not modify), an empty list
+ * is simply a datum of type '(' whose firstSibling is null or undefined.
+ * This presents a problem for the parser: when this.next is null,
+ * have we advanced past the end of a list, or was the list empty
+ * to begin with? We must distinguish these cases, because they affect
+ * what to parse next. (See comments in onDatum().)
+ *
+ * For a long time, I tried to distinguish them via some pointer trickery,
+ * but this concealed some very subtle bugs. So I decided it was clearer
+ * to compare against a dedicated sentinel object.
+ *
+ * The sentinel is an immutable object with no state; we use it only
+ * for direct identity comparisons. It is used only internally by the
+ * parser; it never enters the parse tree.
+ *
+ * @const @private {!Object}
+ */
+r5js.Parser.EMPTY_LIST_SENTINEL_ = new Object();
 
 
 /**
@@ -311,7 +311,7 @@ r5js.Parser.prototype.onNonterminal = function(element, parseFunction) {
             this.next = this.prev.closestAncestorSibling();
 
         while (this.next // We haven't fallen off the end of the list
-            && this.next !== this.emptyListSentinel // And we're not at an empty list
+            && this.next !== r5js.Parser.EMPTY_LIST_SENTINEL_ // And we're not at an empty list
             && (parsed = parseFunction.apply(this))) { // And the parse succeeds
             // this.next has already been advanced by the success of parseFunction
             parsed.setParse(element.type);
@@ -344,7 +344,7 @@ r5js.Parser.prototype.advanceToChildIf = function(predicate) {
         this.prev = this.next;
         /* See comments in body of Parser() for explanation of
             emptyListSentinel. */
-        this.next = this.next.firstChild || this.emptyListSentinel;
+        this.next = this.next.firstChild || r5js.Parser.EMPTY_LIST_SENTINEL_;
         return true;
     } else {
         return false;
@@ -412,7 +412,7 @@ r5js.Parser.prototype.onDatum = function(element) {
                     we have just finished parsing (). next is emptyListSentinel,
                     prev is (), and prev.nextSibling is e, which is where we
                     want to go next. */
-                else if (this.next === this.emptyListSentinel) {
+                else if (this.next === r5js.Parser.EMPTY_LIST_SENTINEL_) {
                     this.next = this.prev.nextSibling;
                     return true;
                 }
