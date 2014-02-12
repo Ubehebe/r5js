@@ -27,50 +27,44 @@ goog.require('r5js.OutputMode');
  * @constructor
  */
 r5js.Reader = function(scanner) {
-    /**
-     * @type {!r5js.Scanner}
-     */
-    this.scanner = scanner;
+    /** @const @private {!r5js.Scanner} */
+    this.scanner_ = scanner;
 
-    /**
-     * @type {!Array} TODO bl narrow generic type.
-     */
-    this.readyTokens = [];
+    /** @const @private {!Array.<!r5js.Token>} */
+    this.readyTokens_ = [];
 
-    /**
-     * @type {number}
-     */
-    this.nextTokenToReturn = 0;
+    /** @private {number} */
+    this.nextTokenToReturn_ = 0;
 
-    this.errorToken = null;
+    /** @private {r5js.Token} */
+    this.errorToken_ = null;
 
-    /**
-     * @type {string}
-     */
-    this.errorMsg = '';
+    /** @private {string} */
+    this.errorMsg_ = '';
 };
 
+/** @return {r5js.Token} */
 r5js.Reader.prototype.nextToken = function() {
-    while (this.nextTokenToReturn >= this.readyTokens.length) {
-        var token = this.scanner.nextToken();
+    while (this.nextTokenToReturn_ >= this.readyTokens_.length) {
+        var token = this.scanner_.nextToken();
         if (!token)
             return null;
-        this.readyTokens.push(token);
+        this.readyTokens_.push(token);
     }
-    return this.readyTokens[this.nextTokenToReturn++];
+    return this.readyTokens_[this.nextTokenToReturn_++];
 };
 
 r5js.Reader.prototype.assertNextTokenType = function(type) {
     var token = this.nextToken();
     if (!token) {
-        this.errorMsg = 'eof';
+        this.errorMsg_ = 'eof';
         return null;
     }
     if (token.type === type) {
         return token;
     } else {
-        this.errorToken = token;
-        this.errorMsg = 'expected ' + type;
+        this.errorToken_ = token;
+        this.errorMsg_ = 'expected ' + type;
         return null;
     }
 };
@@ -82,7 +76,7 @@ r5js.Reader.prototype.assertNextTokenType = function(type) {
 r5js.Reader.prototype.rhs = function(var_args) {
     var ansDatum = new r5js.Datum();
     var parseFunction;
-    var tokenStreamStart = this.nextTokenToReturn;
+    var tokenStreamStart = this.nextTokenToReturn_;
 
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
@@ -90,7 +84,7 @@ r5js.Reader.prototype.rhs = function(var_args) {
             ? this.onNonterminal(ansDatum, element, parseFunction)
             : this.onTerminal(ansDatum, element);
         if (!cur) {
-            this.nextTokenToReturn = tokenStreamStart;
+            this.nextTokenToReturn_ = tokenStreamStart;
             return null;
         }
     }
@@ -120,8 +114,8 @@ r5js.Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction)
                 prev.parent = ansDatum;
             return ansDatum;
         } else {
-            this.nextTokenToReturn -= num;
-            this.errorMsg = 'expected at least '
+            this.nextTokenToReturn_ -= num;
+            this.errorMsg_ = 'expected at least '
                 + element.atLeast + ' ' + element.nodeName + ', got ' + num;
             return null;
         }
@@ -167,14 +161,14 @@ r5js.Reader.prototype.alternation = function(var_args) {
         if (possibleRhs)
             return possibleRhs;
         else if (!mostInformativeErrorToken) {
-            mostInformativeErrorToken = this.errorToken;
-            mostInformationErrorMsg = this.errorMsg;
+            mostInformativeErrorToken = this.errorToken_;
+            mostInformationErrorMsg = this.errorMsg_;
         }
     }
 
-    this.errorToken = mostInformativeErrorToken;
+    this.errorToken_ = mostInformativeErrorToken;
     if (mostInformationErrorMsg) {
-        this.errorMsg = mostInformationErrorMsg;
+        this.errorMsg_ = mostInformationErrorMsg;
     }
     return null;
 };
