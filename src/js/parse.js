@@ -140,13 +140,11 @@ r5js.Parser = function(root) {
      */
     this.prev = null;
 
-
-
-    /**
-     * @type {boolean}
-     */
-    this.fixParserSensitiveIds = false;
+    /** @private {boolean} */
+    this.fixParserSensitiveIds_ = false;
 };
+
+
 /**
  * We use a special sentinel object to handle the corner case of
  * an empty list. According to the tree constructed by the reader
@@ -520,7 +518,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.VARIABLE] = function() {
             var ans = datum instanceof r5js.Datum // because it may be emptyListSentinel
                 && datum.isIdentifier();
             if (ans && isParserSensitiveId(datum.payload))
-                self.fixParserSensitiveIds = true;
+                self.fixParserSensitiveIds_ = true;
             return ans;
         }});
 };
@@ -1555,7 +1553,7 @@ r5js.Parser.prototype.parse = function(lhs) {
 
         if (ans && ans.nonterminals) {
             // See comments at top of Parser.
-            if (this.fixParserSensitiveIds) {
+            if (this.fixParserSensitiveIds_) {
                 var helper = new r5js.RenameHelper(null);
                 ans.fixParserSensitiveIds(helper);
                 if (helper.wasUsed()) {
