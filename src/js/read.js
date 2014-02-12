@@ -166,8 +166,7 @@ r5js.Reader.prototype.alternation = function(var_args) {
         possibleRhs = this.rhs.apply(this, arguments[i]);
         if (possibleRhs)
             return possibleRhs;
-        else if (!mostInformativeErrorToken
-            || (this.errorToken && this.errorToken.stop > mostInformativeErrorToken.stop)) {
+        else if (!mostInformativeErrorToken) {
             mostInformativeErrorToken = this.errorToken;
             mostInformationErrorMsg = this.errorMsg;
         }
