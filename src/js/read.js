@@ -21,6 +21,7 @@ goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
+goog.require('r5js.parse.Nonterminals');
 
 /**
  * @param {!r5js.Scanner} scanner The scanner.
@@ -75,20 +76,22 @@ r5js.Reader.prototype.assertNextTokenType = function(type) {
  */
 r5js.Reader.prototype.rhs = function(var_args) {
     var ansDatum = new r5js.Datum();
-    var parseFunction;
     var tokenStreamStart = this.nextTokenToReturn_;
-
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
-        var cur = (parseFunction = this[element.type])
-            ? this.onNonterminal(ansDatum, element, parseFunction)
-            : this.onTerminal(ansDatum, element);
+        var cur;
+        if (element.type === r5js.parse.Nonterminals.DATUM) {
+            cur = this.onNonterminal(ansDatum, element, this.parseDatum_);
+        } else if (element.type === r5js.parse.Nonterminals.DATUMS) {
+            cur = this.onNonterminal(ansDatum, element, this.parseDatums_);
+        } else {
+            cur = this.onTerminal(ansDatum, element);
+        }
         if (!cur) {
             this.nextTokenToReturn_ = tokenStreamStart;
             return null;
         }
     }
-
     return ansDatum;
 };
 
@@ -181,7 +184,7 @@ r5js.Reader.prototype.alternation = function(var_args) {
 // <vector> -> #(<datum>*)
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
-r5js.Reader.prototype['datum'] = function() {
+r5js.Reader.prototype.parseDatum_ = function() {
     return this.alternation(
         [
             {type: r5js.DatumType.IDENTIFIER}
@@ -233,12 +236,12 @@ r5js.Reader.prototype['datum'] = function() {
         ]);
 };
 
-r5js.Reader.prototype['datums'] = function() {
+r5js.Reader.prototype.parseDatums_ = function() {
     return this.rhs({type: 'datum', name: 'datums', atLeast: 0});
 };
 
 r5js.Reader.prototype.read = function() {
-    var datums = this['datums']();
+    var datums = this.parseDatums_();
     if (datums.firstChild)
         datums.firstChild.lastSibling().parent = null;
     return datums.firstChild;

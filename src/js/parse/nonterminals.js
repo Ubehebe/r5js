@@ -14,6 +14,7 @@ r5js.parse.Nonterminals = {
   CONDITIONAL: 'conditional',
   CONSEQUENT: 'consequent',
   DATUM: 'datum',
+  DATUMS: 'datums',
   DEFINITION: 'definition',
   EXPRESSION: 'expression',
   FORMALS: 'formals',
