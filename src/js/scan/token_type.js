@@ -53,15 +53,3 @@ r5js.scan.tokenTypeName = function(tokenType) {
       throw new r5js.InternalInterpreterError('enum changed');
   }
 };
-
-
-/**
-  * @type {!Array.<!r5js.scan.TokenType>}
- */
-r5js.scan.TokenType.ALL_TOKEN_TYPES = [
-  r5js.scan.TokenType.BOOLEAN,
-  r5js.scan.TokenType.CHARACTER,
-  r5js.scan.TokenType.IDENTIFIER,
-  r5js.scan.TokenType.NUMBER,
-  r5js.scan.TokenType.STRING
-];
