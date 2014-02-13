@@ -81,11 +81,11 @@ r5js.Reader.prototype.rhs = function(var_args) {
         var element = arguments[i];
         var cur;
         if (element.type === r5js.parse.Nonterminals.DATUM) {
-            cur = this.onNonterminal(ansDatum, element, this.parseDatum_);
+            cur = this.onDatumOrDatums_(ansDatum, element, this.parseDatum_);
         } else if (element.type === r5js.parse.Nonterminals.DATUMS) {
-            cur = this.onNonterminal(ansDatum, element, this.parseDatums_);
+            cur = this.onDatumOrDatums_(ansDatum, element, this.parseDatums_);
         } else {
-            cur = this.onTerminal(ansDatum, element);
+            cur = this.onNonDatum_(ansDatum, element);
         }
         if (!cur) {
             this.nextTokenToReturn_ = tokenStreamStart;
@@ -95,7 +95,15 @@ r5js.Reader.prototype.rhs = function(var_args) {
     return ansDatum;
 };
 
-r5js.Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction) {
+
+/**
+ * @param {!r5js.Datum} ansDatum
+ * @param {?} element TODO bl
+ * @param {function(): !r5js.Datum} parseFunction
+ * @return {r5js.Datum}
+ * @private
+ */
+r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFunction) {
 
     // Handle * and +
     if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
@@ -112,7 +120,8 @@ r5js.Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction)
 
         if (num >= element.atLeast) {
             ansDatum.type = element.name || element.type;
-            ansDatum.appendChild(firstChild);
+            // TODO bl is this cast needed, or does it indicate a bug?
+            ansDatum.appendChild(/** @type {!r5js.Datum} */ (firstChild));
             if (prev)
                 prev.parent = ansDatum;
             return ansDatum;
@@ -138,7 +147,14 @@ r5js.Reader.prototype.onNonterminal = function(ansDatum, element, parseFunction)
     }
 };
 
-r5js.Reader.prototype.onTerminal = function(ansDatum, element) {
+
+/**
+ * @param {!r5js.Datum} ansDatum
+ * @param {?} element TODO bl
+ * @return {r5js.Datum}
+ * @private
+ */
+r5js.Reader.prototype.onNonDatum_ = function(ansDatum, element) {
     var token = this.assertNextTokenType(element.type);
     if (token) {
         if (token.payload !== undefined) { // watch out for 0 and false!
