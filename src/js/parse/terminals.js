@@ -9,6 +9,8 @@ r5js.parse.Terminal;
 r5js.parse.Terminals = {
   BACKTICK: '`',
   BEGIN: 'begin',
+  COMMA: ',',
+  COMMA_AT: ',@',
   DEFINE: 'define',
   DEFINE_SYNTAX: 'define-syntax',
   DOT: '.',

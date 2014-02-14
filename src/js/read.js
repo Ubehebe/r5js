@@ -22,6 +22,7 @@ goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
 goog.require('r5js.parse.Nonterminals');
+goog.require('r5js.parse.Terminals');
 
 /**
  * @param {!r5js.Scanner} scanner The scanner.
@@ -218,42 +219,42 @@ r5js.Reader.prototype.parseDatum_ = function() {
             {type: r5js.DatumType.STRING}
         ],
         [
-            {type: '('},
-            {type: 'datum', atLeast: 0, name: r5js.DatumType.LIST},
-            {type: ')'}
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Nonterminals.DATUM, atLeast: 0, name: r5js.DatumType.LIST},
+            {type: r5js.parse.Terminals.RPAREN}
         ],
         [
-            {type: '('},
-            {type: 'datum', atLeast: 1, name: r5js.DatumType.DOTTED_LIST},
-            {type: '.'},
-            {type: 'datum', name: r5js.DatumType.DOTTED_LIST},
-            {type: ')'}
+            {type: r5js.parse.Terminals.LPAREN},
+            {type: r5js.parse.Nonterminals.DATUM, atLeast: 1, name: r5js.DatumType.DOTTED_LIST},
+            {type: r5js.parse.Terminals.DOT},
+            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.DOTTED_LIST},
+            {type: r5js.parse.Terminals.RPAREN}
         ],
         [
-            {type: r5js.DatumType.VECTOR},
-            {type: 'datum', atLeast: 0, name: r5js.DatumType.VECTOR},
-            {type: ')'}
+            {type: r5js.parse.Terminals.LPAREN_VECTOR},
+            {type: r5js.parse.Nonterminals.DATUM, atLeast: 0, name: r5js.DatumType.VECTOR},
+            {type: r5js.parse.Terminals.RPAREN}
         ],
         [
-            {type: r5js.DatumType.QUOTE},
-            {type: 'datum', name: r5js.DatumType.QUOTE}
+            {type: r5js.parse.Terminals.TICK},
+            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.QUOTE}
         ],
         [
-            {type: r5js.DatumType.QUASIQUOTE},
-            {type: 'datum', name: r5js.DatumType.QUASIQUOTE}
+            {type: r5js.parse.Terminals.BACKTICK},
+            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.QUASIQUOTE}
         ],
         [
-            {type: r5js.DatumType.UNQUOTE},
-            {type: 'datum', name: r5js.DatumType.UNQUOTE}
+            {type: r5js.parse.Terminals.COMMA},
+            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.UNQUOTE}
         ],
         [
-            {type: r5js.DatumType.UNQUOTE_SPLICING},
-            {type: 'datum', name: r5js.DatumType.UNQUOTE_SPLICING}
+            {type: r5js.parse.Terminals.COMMA_AT},
+            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.UNQUOTE_SPLICING}
         ]);
 };
 
 r5js.Reader.prototype.parseDatums_ = function() {
-    return this.rhs({type: 'datum', name: 'datums', atLeast: 0});
+    return this.rhs({type: r5js.parse.Nonterminals.DATUM, name: 'datums', atLeast: 0});
 };
 
 r5js.Reader.prototype.read = function() {
