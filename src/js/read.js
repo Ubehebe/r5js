@@ -57,7 +57,12 @@ r5js.Reader.prototype.nextToken = function() {
     return this.readyTokens_[this.nextTokenToReturn_++];
 };
 
-r5js.Reader.prototype.assertNextTokenType = function(type) {
+/**
+ * @param {string} type
+ * @return {r5js.Token}
+ * @private
+ */
+r5js.Reader.prototype.assertNextTokenType_ = function(type) {
     var token = this.nextToken();
     if (!token) {
         this.errorMsg_ = 'eof';
@@ -157,10 +162,11 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFuncti
  * @private
  */
 r5js.Reader.prototype.onNonDatum_ = function(ansDatum, element) {
-    var token = this.assertNextTokenType(element.type);
+    var token = this.assertNextTokenType_(element.type);
     if (token) {
-        if (token.payload !== undefined) { // watch out for 0 and false!
-            ansDatum.payload = token.payload;
+        var payload = token.getPayload();
+        if (goog.isDef(payload)) { // watch out for 0 and false!
+            ansDatum.payload = payload;
             ansDatum.type = token.type;
         }
         return ansDatum;

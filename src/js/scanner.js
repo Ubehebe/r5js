@@ -21,16 +21,29 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
 
 /**
+ * @param {string} type
+ * @implements {r5js.Token}
+ * @struct
  * @constructor
+ * @private
  */
-function Token(type) {
+function Token_(type) {
+    /** @const {string} */
     this.type = type;
+
+    /** @private {?} */
+    this.payload_ = undefined;
 }
 
-Token.prototype.numberFunnyBusiness = /[esfdli#\/]/i;
-Token.prototype.numberForbidden = /[i@]/i;
+/** @override */
+Token_.prototype.getPayload = function() {
+    return this.payload_;
+};
 
-Token.prototype.convertNumber = function (payload) {
+Token_.prototype.numberFunnyBusiness = /[esfdli#\/]/i;
+Token_.prototype.numberForbidden = /[i@]/i;
+
+Token_.prototype.convertNumber = function (payload) {
 
     /* Get rid of all exactness annotations. Because we're
      using JavaScript math, all numbers are inexact, so the
@@ -71,7 +84,7 @@ Token.prototype.convertNumber = function (payload) {
         : parseInt(payload, base);
 };
 
-Token.prototype.setPayload = function(payload) {
+Token_.prototype.setPayload = function(payload) {
     switch (this.type) {
         case 'identifier':
             /* Converting Scheme identifiers to a canonical case makes
@@ -87,30 +100,30 @@ Token.prototype.setPayload = function(payload) {
              I see little downside to making Scheme case-sensitive
              (and R6RS might require it, I haven't looked), so I went ahead
              and did it, commenting out the few test cases that thereby failed. */
-            this.payload = payload/*.toLowerCase()*/;
+            this.payload_ = payload/*.toLowerCase()*/;
             break;
         case 'boolean':
-            this.payload = payload === '#t' || payload === '#T';
+            this.payload_ = payload === '#t' || payload === '#T';
             break;
         case 'number':
-            this.payload = this.numberFunnyBusiness.test(payload)
+            this.payload_ = this.numberFunnyBusiness.test(payload)
                 ? this.convertNumber(payload)
                 : parseFloat(payload);
             break;
         case 'character':
             var afterSlash = payload.substr(2);
             if (afterSlash.length === 1)
-                this.payload = afterSlash;
+                this.payload_ = afterSlash;
             /* R5RS 6.3.4: "Case is significant in #\<character>, but not in
              #\<character name>.*/
             else if (afterSlash.toLowerCase() === 'space')
-                this.payload = ' ';
+                this.payload_ = ' ';
             else if (afterSlash.toLowerCase() === 'newline')
-                this.payload = '\n';
+                this.payload_ = '\n';
             else throw new r5js.InternalInterpreterError('invalid character payload ' + payload);
             break;
         case 'string':
-            this.payload = payload.substr(1, payload.length - 2);
+            this.payload_ = payload.substr(1, payload.length - 2);
             break;
         default:
             throw new r5js.InternalInterpreterError('invalid token type ' + this.type);
@@ -154,7 +167,7 @@ r5js.Scanner = function(text) {
 
 /**
  * Just for debugging.
- * @return {!Array.<!Token>}
+ * @return {!Array.<!r5js.Token>}
  */
 r5js.Scanner.prototype.tokenize = function() {
 
@@ -211,16 +224,17 @@ r5js.Scanner.prototype.nextToken = function() {
             throw new r5js.ScanError(this.text.substr(this.start));
         return match;
     } else {
-        return this.matchToToken(match);
+        return this.matchToToken_(match);
     }
 };
 
 
 /**
- * @param {!Array.<?>} matchArray
- * @return {?}
+ * @param {!Array.<string>} matchArray
+ * @return {r5js.Token}
+ * @private
  */
-r5js.Scanner.prototype.matchToToken = function(matchArray) {
+r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
     /* See the return value of Scanner.prototype.token for the significance
      of the magic numbers here. */
     var payload = matchArray[0];
@@ -232,22 +246,22 @@ r5js.Scanner.prototype.matchToToken = function(matchArray) {
         throw new r5js.ScanError(this.text.substr(this.token.lastIndex));
     } else if (matchArray[6]) {
         this.needDelimiter = false;
-        return new Token(payload);
+        return new Token_(payload);
     } else if (matchArray[5]) {
         this.needDelimiter = true;
-        return new Token('identifier').setPayload(payload);
+        return new Token_('identifier').setPayload(payload);
     } else if (matchArray[2]) {
         this.needDelimiter = false;
-        return new Token('boolean').setPayload(payload);
+        return new Token_('boolean').setPayload(payload);
     } else if (matchArray[3]) {
         this.needDelimiter = true;
-        return new Token('character').setPayload(payload);
+        return new Token_('character').setPayload(payload);
     } else if (matchArray[4]) {
         this.needDelimiter = false;
-        return new Token('string').setPayload(payload);
+        return new Token_('string').setPayload(payload);
     } else if (matchArray[1]) {
         this.needDelimiter = true;
-        return new Token('number').setPayload(payload);
+        return new Token_('number').setPayload(payload);
     } else throw new r5js.InternalInterpreterError('invariant incorrect');
 };
 
