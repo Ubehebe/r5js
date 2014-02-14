@@ -26,10 +26,11 @@ goog.require('r5js.parse.Terminals');
 
 /**
  * @param {!r5js.Scanner} scanner The scanner.
+ * @implements {r5js.IReader}
  * @constructor
  */
 r5js.Reader = function(scanner) {
-    /** @const @private {!r5js.Scanner} */
+    /** @const @private {!r5js.IScanner} */
     this.scanner_ = scanner;
 
     /** @const @private {!Array.<!r5js.Token>} */
@@ -257,6 +258,7 @@ r5js.Reader.prototype.parseDatums_ = function() {
     return this.rhs({type: r5js.parse.Nonterminals.DATUM, name: 'datums', atLeast: 0});
 };
 
+/** @override */
 r5js.Reader.prototype.read = function() {
     var datums = this.parseDatums_();
     if (datums.firstChild)

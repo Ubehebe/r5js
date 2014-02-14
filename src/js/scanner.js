@@ -120,6 +120,7 @@ Token.prototype.setPayload = function(payload) {
 
 /**
  * @param {string} text Program text to scan.
+ * @implements {r5js.IScanner}
  * @constructor
  */
 r5js.Scanner = function(text) {
@@ -190,9 +191,7 @@ r5js.Scanner.prototype.shouldMatchAgain = function(matchArray) {
 };
 
 
-/**
- * @return {?}
- */
+/** @override */
 r5js.Scanner.prototype.nextToken = function() {
 
     var match;
