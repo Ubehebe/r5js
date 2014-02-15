@@ -30,8 +30,8 @@ goog.require('r5js.scan.tokenTypeName');
  * @private
  */
 function Token_(type) {
-    /** @const {string} */
-    this.type = type;
+    /** @const @private {string} */
+    this.type_ = type;
 
     /** @private {?} */
     this.payload_ = undefined;
@@ -45,7 +45,7 @@ Token_.prototype.getPayload = function() {
 
 /** @override */
 Token_.prototype.matchesType = function(type) {
-    return this.type === r5js.scan.tokenTypeName(type);
+    return this.type_ === r5js.scan.tokenTypeName(type);
 };
 
 Token_.prototype.numberFunnyBusiness = /[esfdli#\/]/i;
@@ -93,7 +93,7 @@ Token_.prototype.convertNumber = function (payload) {
 };
 
 Token_.prototype.setPayload = function(payload) {
-    switch (this.type) {
+    switch (this.type_) {
         case 'identifier':
             /* Converting Scheme identifiers to a canonical case makes
              interoperability with JavaScript awkward. For example:
@@ -134,7 +134,7 @@ Token_.prototype.setPayload = function(payload) {
             this.payload_ = payload.substr(1, payload.length - 2);
             break;
         default:
-            throw new r5js.InternalInterpreterError('invalid token type ' + this.type);
+            throw new r5js.InternalInterpreterError('invalid token type ' + this.type_);
     }
     return this;
 };
@@ -254,7 +254,9 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
         throw new r5js.ScanError(this.text.substr(this.token.lastIndex));
     } else if (matchArray[6]) {
         this.needDelimiter = false;
-        return new Token_(payload);
+        var token = new Token_(payload);
+        token.payload_ = payload;
+        return token;
     } else if (matchArray[5]) {
         this.needDelimiter = true;
         return new Token_('identifier').setPayload(payload);

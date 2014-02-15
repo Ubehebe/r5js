@@ -151,7 +151,7 @@ r5js.Reader.prototype.onTerminal_ = function(terminal) {
         this.errorMsg_ = 'eof';
         return false;
     }
-    if (token.type !== terminal) {
+    if (token.getPayload() !== terminal) {
         this.errorToken_ = token;
         this.errorMsg_ = 'expected ' + terminal;
         return false;
@@ -172,13 +172,14 @@ r5js.Reader.prototype.onPrimitiveType_ = function(ansDatum, type) {
         this.errorMsg_ = 'eof';
         return null;
     }
-    if (token.type !== type) {
+    if (!token.matchesType(/** @type {!r5js.scan.TokenType} */ (
+        r5js.scan.tokenTypeForDatumType(type)))) {
         this.errorToken_ = token;
         this.errorMsg_ = 'expected ' + type;
         return null;
     }
     ansDatum.payload = token.getPayload();
-    ansDatum.type = token.type;
+    ansDatum.type = type;
     return ansDatum;
 };
 
