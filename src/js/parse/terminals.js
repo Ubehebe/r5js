@@ -1,4 +1,5 @@
 goog.provide('r5js.parse.Terminals');
+goog.provide('r5js.parse.isTerminal');
 
 
 /** @typedef {string} */
@@ -29,4 +30,19 @@ r5js.parse.Terminals = {
   TICK: "'",
   UNQUOTE: 'unquote',
   UNQUOTE_SPLICING: 'unquote-splicing'
+};
+
+
+/**
+ * @param {string} str
+ * @return {boolean}
+ * TODO bl: remove.
+ */
+r5js.parse.isTerminal = function(str) {
+    for (var key in r5js.parse.Terminals) {
+        if (str === r5js.parse.Terminals[key]) {
+            return true;
+        }
+    }
+    return false;
 };

@@ -23,6 +23,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.parse.isTerminal');
 
 /**
  * @param {!r5js.Scanner} scanner The scanner.
@@ -57,25 +58,6 @@ r5js.Reader.prototype.nextToken = function() {
     return this.readyTokens_[this.nextTokenToReturn_++];
 };
 
-/**
- * @param {string} type
- * @return {r5js.Token}
- * @private
- */
-r5js.Reader.prototype.assertNextTokenType_ = function(type) {
-    var token = this.nextToken();
-    if (!token) {
-        this.errorMsg_ = 'eof';
-        return null;
-    }
-    if (token.type === type) {
-        return token;
-    } else {
-        this.errorToken_ = token;
-        this.errorMsg_ = 'expected ' + type;
-        return null;
-    }
-};
 
 /**
  * @param {...*} var_args
@@ -91,8 +73,10 @@ r5js.Reader.prototype.rhs = function(var_args) {
             cur = this.onDatumOrDatums_(ansDatum, element, this.parseDatum_);
         } else if (element.type === r5js.parse.Nonterminals.DATUMS) {
             cur = this.onDatumOrDatums_(ansDatum, element, this.parseDatums_);
+        } else if (r5js.parse.isTerminal(element.type)) {
+            cur = this.onTerminal_(ansDatum, element.type);
         } else {
-            cur = this.onNonDatum_(ansDatum, element);
+            cur = this.onPrimitiveType_(ansDatum, element.type);
         }
         if (!cur) {
             this.nextTokenToReturn_ = tokenStreamStart;
@@ -157,20 +141,45 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFuncti
 
 /**
  * @param {!r5js.Datum} ansDatum
- * @param {?} element TODO bl
+ * @param {!r5js.parse.Terminal} terminal
  * @return {r5js.Datum}
  * @private
  */
-r5js.Reader.prototype.onNonDatum_ = function(ansDatum, element) {
-    var token = this.assertNextTokenType_(element.type);
-    if (token) {
-        var payload = token.getPayload();
-        if (goog.isDef(payload)) { // watch out for 0 and false!
-            ansDatum.payload = payload;
-            ansDatum.type = token.type;
-        }
-        return ansDatum;
-    } else return null;
+r5js.Reader.prototype.onTerminal_ = function(ansDatum, terminal) {
+    var token = this.nextToken();
+    if (!token) {
+        this.errorMsg_ = 'eof';
+        return null;
+    }
+    if (token.type !== terminal) {
+        this.errorToken_ = token;
+        this.errorMsg_ = 'expected ' + terminal;
+        return null;
+    }
+    return ansDatum;
+};
+
+
+/**
+ * @param {!r5js.Datum} ansDatum
+ * @param {!r5js.DatumType} type
+ * @return {r5js.Datum}
+ * @private
+ */
+r5js.Reader.prototype.onPrimitiveType_ = function(ansDatum, type) {
+    var token = this.nextToken();
+    if (!token) {
+        this.errorMsg_ = 'eof';
+        return null;
+    }
+    if (token.type !== type) {
+        this.errorToken_ = token;
+        this.errorMsg_ = 'expected ' + type;
+        return null;
+    }
+    ansDatum.payload = token.getPayload();
+    ansDatum.type = token.type;
+    return ansDatum;
 };
 
 /**
