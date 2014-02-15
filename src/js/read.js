@@ -73,17 +73,17 @@ r5js.Reader.prototype.rhs_ = function(var_args) {
     var tokenStreamStart = this.nextTokenToReturn_;
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
-        var cur;
+        var ok;
         if (element.type === r5js.parse.Nonterminals.DATUM) {
-            cur = this.onDatumOrDatums_(ansDatum, element, this.parseDatum_);
+            ok = this.onDatumOrDatums_(ansDatum, element, this.parseDatum_);
         } else if (element.type === r5js.parse.Nonterminals.DATUMS) {
-            cur = this.onDatumOrDatums_(ansDatum, element, this.parseDatums_);
+            ok = this.onDatumOrDatums_(ansDatum, element, this.parseDatums_);
         } else if (r5js.parse.isTerminal(element.type)) {
-            cur = this.onTerminal_(element.type);
+            ok = this.onTerminal_(element.type);
         } else {
-            cur = this.onPrimitiveType_(ansDatum, element.type);
+            ok = this.onPrimitiveType_(ansDatum, element.type);
         }
-        if (!cur) {
+        if (!ok) {
             this.nextTokenToReturn_ = tokenStreamStart;
             return null;
         }
@@ -96,7 +96,7 @@ r5js.Reader.prototype.rhs_ = function(var_args) {
  * @param {!r5js.Datum} ansDatum
  * @param {?} element TODO bl
  * @param {function(): !r5js.Datum} parseFunction
- * @return {r5js.Datum}
+ * @return {boolean}
  * @private
  */
 r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFunction) {
@@ -120,25 +120,25 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFuncti
             ansDatum.appendChild(/** @type {!r5js.Datum} */ (firstChild));
             if (prev)
                 prev.parent = ansDatum;
-            return ansDatum;
+            return true;
         } else {
             this.nextTokenToReturn_ -= num;
             this.errorMsg_ = 'expected at least '
                 + element.atLeast + ' ' + element.nodeName + ', got ' + num;
-            return null;
+            return false;
         }
     }
 
     // The normal case is exactly one of element.
     else {
         var parsed = parseFunction.apply(this);
-        if (!parsed)
-            return parsed;
-        else {
+        if (!parsed) {
+            return false;
+        } else {
             ansDatum.type = element.name || element.type;
             ansDatum.appendChild(parsed);
             parsed.parent = ansDatum;
-            return ansDatum;
+            return true;
         }
     }
 };
@@ -167,24 +167,24 @@ r5js.Reader.prototype.onTerminal_ = function(terminal) {
 /**
  * @param {!r5js.Datum} ansDatum
  * @param {!r5js.DatumType} type
- * @return {r5js.Datum}
+ * @return {boolean}
  * @private
  */
 r5js.Reader.prototype.onPrimitiveType_ = function(ansDatum, type) {
     var token = this.nextToken_();
     if (!token) {
         this.errorMsg_ = 'eof';
-        return null;
+        return false;
     }
     if (!token.matchesType(/** @type {!r5js.scan.TokenType} */ (
         r5js.scan.tokenTypeForDatumType(type)))) {
         this.errorToken_ = token;
         this.errorMsg_ = 'expected ' + type;
-        return null;
+        return false;
     }
     ansDatum.payload = token.getPayload();
     ansDatum.type = type;
-    return ansDatum;
+    return true;
 };
 
 /**
