@@ -62,8 +62,9 @@ r5js.Reader.prototype.nextToken = function() {
 /**
  * @param {...*} var_args
  * @return {r5js.Datum} TODO bl
+ * @private
  */
-r5js.Reader.prototype.rhs = function(var_args) {
+r5js.Reader.prototype.rhs_ = function(var_args) {
     var ansDatum = new r5js.Datum();
     var tokenStreamStart = this.nextTokenToReturn_;
     for (var i = 0; i < arguments.length; ++i) {
@@ -74,7 +75,7 @@ r5js.Reader.prototype.rhs = function(var_args) {
         } else if (element.type === r5js.parse.Nonterminals.DATUMS) {
             cur = this.onDatumOrDatums_(ansDatum, element, this.parseDatums_);
         } else if (r5js.parse.isTerminal(element.type)) {
-            cur = this.onTerminal_(ansDatum, element.type);
+            cur = this.onTerminal_(element.type);
         } else {
             cur = this.onPrimitiveType_(ansDatum, element.type);
         }
@@ -140,23 +141,22 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFuncti
 
 
 /**
- * @param {!r5js.Datum} ansDatum
  * @param {!r5js.parse.Terminal} terminal
- * @return {r5js.Datum}
+ * @return {boolean}
  * @private
  */
-r5js.Reader.prototype.onTerminal_ = function(ansDatum, terminal) {
+r5js.Reader.prototype.onTerminal_ = function(terminal) {
     var token = this.nextToken();
     if (!token) {
         this.errorMsg_ = 'eof';
-        return null;
+        return false;
     }
     if (token.type !== terminal) {
         this.errorToken_ = token;
         this.errorMsg_ = 'expected ' + terminal;
-        return null;
+        return false;
     }
-    return ansDatum;
+    return true;
 };
 
 
@@ -193,7 +193,7 @@ r5js.Reader.prototype.alternation = function(var_args) {
     var mostInformativeErrorToken = null;
     var mostInformationErrorMsg = null;
     for (var i = 0; i < arguments.length; ++i) {
-        possibleRhs = this.rhs.apply(this, arguments[i]);
+        possibleRhs = this.rhs_.apply(this, arguments[i]);
         if (possibleRhs)
             return possibleRhs;
         else if (!mostInformativeErrorToken) {
@@ -270,7 +270,7 @@ r5js.Reader.prototype.parseDatum_ = function() {
 };
 
 r5js.Reader.prototype.parseDatums_ = function() {
-    return this.rhs({type: r5js.parse.Nonterminals.DATUM, name: 'datums', atLeast: 0});
+    return this.rhs_({type: r5js.parse.Nonterminals.DATUM, name: 'datums', atLeast: 0});
 };
 
 /** @override */
