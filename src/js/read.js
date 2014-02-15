@@ -47,8 +47,12 @@ r5js.Reader = function(scanner) {
     this.errorMsg_ = '';
 };
 
-/** @return {r5js.Token} */
-r5js.Reader.prototype.nextToken = function() {
+/**
+ * @return {r5js.Token}
+ * @private
+ * TODO bl: this belongs in some kind of buffered scanner.
+ */
+r5js.Reader.prototype.nextToken_ = function() {
     while (this.nextTokenToReturn_ >= this.readyTokens_.length) {
         var token = this.scanner_.nextToken();
         if (!token)
@@ -146,7 +150,7 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFuncti
  * @private
  */
 r5js.Reader.prototype.onTerminal_ = function(terminal) {
-    var token = this.nextToken();
+    var token = this.nextToken_();
     if (!token) {
         this.errorMsg_ = 'eof';
         return false;
@@ -167,7 +171,7 @@ r5js.Reader.prototype.onTerminal_ = function(terminal) {
  * @private
  */
 r5js.Reader.prototype.onPrimitiveType_ = function(ansDatum, type) {
-    var token = this.nextToken();
+    var token = this.nextToken_();
     if (!token) {
         this.errorMsg_ = 'eof';
         return null;
@@ -186,8 +190,9 @@ r5js.Reader.prototype.onPrimitiveType_ = function(ansDatum, type) {
 /**
  * @param {...*} var_args
  * TODO bl: narrow the signature.
+ * @private
  */
-r5js.Reader.prototype.alternation = function(var_args) {
+r5js.Reader.prototype.alternation_ = function(var_args) {
     var possibleRhs;
     // The most informative error is probably the failed parse
     // that got furthest through the input.
@@ -219,7 +224,7 @@ r5js.Reader.prototype.alternation = function(var_args) {
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
 r5js.Reader.prototype.parseDatum_ = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.DatumType.IDENTIFIER}
         ],
