@@ -19,6 +19,8 @@ goog.provide('r5js.Scanner');
 
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
+goog.require('r5js.scan.tokenTypeName');
+
 
 /**
  * @param {string} type
@@ -38,6 +40,12 @@ function Token_(type) {
 /** @override */
 Token_.prototype.getPayload = function() {
     return this.payload_;
+};
+
+
+/** @override */
+Token_.prototype.matchesType = function(type) {
+    return this.type === r5js.scan.tokenTypeName(type);
 };
 
 Token_.prototype.numberFunnyBusiness = /[esfdli#\/]/i;

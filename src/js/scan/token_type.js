@@ -15,9 +15,11 @@
 
 
 goog.provide('r5js.scan.TokenType');
+goog.provide('r5js.scan.tokenTypeForDatumType');
 goog.provide('r5js.scan.tokenTypeName');
 
 
+goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 
 
@@ -52,4 +54,27 @@ r5js.scan.tokenTypeName = function(tokenType) {
     default:
       throw new r5js.InternalInterpreterError('enum changed');
   }
+};
+
+
+/**
+ * @param {!r5js.DatumType} datumType
+ * @return {r5js.scan.TokenType|null}
+ * TODO bl: temporary shim. Remove.
+ */
+r5js.scan.tokenTypeForDatumType = function(datumType) {
+    switch (datumType) {
+        case r5js.DatumType.BOOLEAN:
+            return r5js.scan.TokenType.BOOLEAN;
+        case r5js.DatumType.CHARACTER:
+            return r5js.scan.TokenType.CHARACTER;
+        case r5js.DatumType.IDENTIFIER:
+            return r5js.scan.TokenType.IDENTIFIER;
+        case r5js.DatumType.NUMBER:
+            return r5js.scan.TokenType.NUMBER;
+        case r5js.DatumType.STRING:
+            return r5js.scan.TokenType.STRING;
+        default:
+            return null;
+    }
 };
