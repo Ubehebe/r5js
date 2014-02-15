@@ -17,6 +17,7 @@
 goog.provide('r5js.Reader');
 
 
+goog.require('r5js.bnf');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
@@ -64,45 +65,43 @@ r5js.Reader.prototype.nextToken_ = function() {
 
 
 /**
- * @param {...*} var_args
+ * @param {!r5js.bnf.Rule} rule
  * @return {r5js.Datum} TODO bl
  * @private
  */
-r5js.Reader.prototype.rhs_ = function(var_args) {
+r5js.Reader.prototype.rhs_ = function(rule) {
     var ansDatum = new r5js.Datum();
     var tokenStreamStart = this.nextTokenToReturn_;
-    for (var i = 0; i < arguments.length; ++i) {
-        var element = arguments[i];
+    var type = rule.getType();
         var ok;
-        if (element.type === r5js.parse.Nonterminals.DATUM) {
-            ok = this.onDatumOrDatums_(ansDatum, element, this.parseDatum_);
-        } else if (element.type === r5js.parse.Nonterminals.DATUMS) {
-            ok = this.onDatumOrDatums_(ansDatum, element, this.parseDatums_);
-        } else if (r5js.parse.isTerminal(element.type)) {
-            ok = this.onTerminal_(element.type);
+        if (type === r5js.parse.Nonterminals.DATUM) {
+            ok = this.onDatumOrDatums_(ansDatum, rule, this.parseDatum_);
+        } else if (type === r5js.parse.Nonterminals.DATUMS) {
+            ok = this.onDatumOrDatums_(ansDatum, rule, this.parseDatums_);
+        } else if (r5js.parse.isTerminal(type)) {
+            ok = this.onTerminal_(type);
         } else {
-            ok = this.onPrimitiveType_(ansDatum, element.type);
+            ok = this.onPrimitiveType_(ansDatum, /** @type {!r5js.DatumType} */ (type));
         }
         if (!ok) {
             this.nextTokenToReturn_ = tokenStreamStart;
             return null;
         }
-    }
     return ansDatum;
 };
 
 
 /**
  * @param {!r5js.Datum} ansDatum
- * @param {?} element TODO bl
+ * @param {!r5js.bnf.Rule} rule
  * @param {function(): !r5js.Datum} parseFunction
  * @return {boolean}
  * @private
  */
-r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFunction) {
+r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, rule, parseFunction) {
 
     // Handle * and +
-    if (element.atLeast !== undefined) { // explicit undefined since atLeast 0 should be valid
+    if (rule.hasRepetition()) {
         var prev, cur, firstChild;
         var num = 0;
         while (cur = parseFunction.apply(this)) {
@@ -114,8 +113,8 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFuncti
             prev = cur;
         }
 
-        if (num >= element.atLeast) {
-            ansDatum.type = element.name || element.type;
+        if (num >= rule.getRepetition()) {
+            ansDatum.type = rule.getName() || rule.getType();
             // TODO bl is this cast needed, or does it indicate a bug?
             ansDatum.appendChild(/** @type {!r5js.Datum} */ (firstChild));
             if (prev)
@@ -124,7 +123,7 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFuncti
         } else {
             this.nextTokenToReturn_ -= num;
             this.errorMsg_ = 'expected at least '
-                + element.atLeast + ' ' + element.nodeName + ', got ' + num;
+                + rule.getRepetition() + ' ' + rule.getName() + ', got ' + num;
             return false;
         }
     }
@@ -135,7 +134,7 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, element, parseFuncti
         if (!parsed) {
             return false;
         } else {
-            ansDatum.type = element.name || element.type;
+            ansDatum.type = rule.getName() || rule.getType();
             ansDatum.appendChild(parsed);
             parsed.parent = ansDatum;
             return true;
@@ -187,9 +186,38 @@ r5js.Reader.prototype.onPrimitiveType_ = function(ansDatum, type) {
     return true;
 };
 
+
 /**
- * @param {...*} var_args
- * TODO bl: narrow the signature.
+ * @param {!Array.<!r5js.bnf.Rule>} rules
+ * @return {r5js.Datum} TODO bl
+ * @private
+ */
+r5js.Reader.prototype.sequence_ = function(rules) {
+    var ansDatum = new r5js.Datum();
+    var tokenStreamStart = this.nextTokenToReturn_;
+    for (var i = 0; i < rules.length; ++i) {
+        var rule = rules[i];
+        var type = rule.getType();
+        var ok;
+        if (type === r5js.parse.Nonterminals.DATUM) {
+            ok = this.onDatumOrDatums_(ansDatum, rule, this.parseDatum_);
+        } else if (type === r5js.parse.Nonterminals.DATUMS) {
+            ok = this.onDatumOrDatums_(ansDatum, rule, this.parseDatums_);
+        } else if (r5js.parse.isTerminal(type)) {
+            ok = this.onTerminal_(type);
+        } else {
+            ok = this.onPrimitiveType_(ansDatum, /** @type {!r5js.DatumType} */(type));
+        }
+        if (!ok) {
+            this.nextTokenToReturn_ = tokenStreamStart;
+            return null;
+        }
+    }
+    return ansDatum;
+};
+
+/**
+ * @param {...(!r5js.bnf.Rule|!Array.<!r5js.bnf.Rule>)} var_args
  * @private
  */
 r5js.Reader.prototype.alternation_ = function(var_args) {
@@ -199,10 +227,13 @@ r5js.Reader.prototype.alternation_ = function(var_args) {
     var mostInformativeErrorToken = null;
     var mostInformationErrorMsg = null;
     for (var i = 0; i < arguments.length; ++i) {
-        possibleRhs = this.rhs_.apply(this, arguments[i]);
-        if (possibleRhs)
+        var ruleOrArray = arguments[i];
+        possibleRhs = goog.isArray(ruleOrArray) ?
+            this.sequence_(ruleOrArray) :
+            this.rhs_(ruleOrArray);
+        if (possibleRhs) {
             return possibleRhs;
-        else if (!mostInformativeErrorToken) {
+        } else if (!mostInformativeErrorToken) {
             mostInformativeErrorToken = this.errorToken_;
             mostInformationErrorMsg = this.errorMsg_;
         }
@@ -225,58 +256,48 @@ r5js.Reader.prototype.alternation_ = function(var_args) {
 // <abbrev prefix> -> ' | ` | , | ,@
 r5js.Reader.prototype.parseDatum_ = function() {
     return this.alternation_(
+        r5js.bnf.one(r5js.DatumType.IDENTIFIER),
+        r5js.bnf.one(r5js.DatumType.BOOLEAN),
+        r5js.bnf.one(r5js.DatumType.NUMBER),
+        r5js.bnf.one(r5js.DatumType.CHARACTER),
+        r5js.bnf.one(r5js.DatumType.STRING),
         [
-            {type: r5js.DatumType.IDENTIFIER}
+            r5js.bnf.one(r5js.parse.Terminals.LPAREN),
+            r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.LIST),
+            r5js.bnf.one(r5js.parse.Terminals.RPAREN)
         ],
         [
-            {type: r5js.DatumType.BOOLEAN}
+            r5js.bnf.one(r5js.parse.Terminals.LPAREN),
+            r5js.bnf.oneOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.DOTTED_LIST),
+            r5js.bnf.one(r5js.parse.Terminals.DOT),
+            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.DOTTED_LIST),
+            r5js.bnf.one(r5js.parse.Terminals.RPAREN)
         ],
         [
-            {type: r5js.DatumType.NUMBER}
+            r5js.bnf.one(r5js.parse.Terminals.LPAREN_VECTOR),
+            r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.VECTOR),
+            r5js.bnf.one(r5js.parse.Terminals.RPAREN)
         ],
         [
-            {type: r5js.DatumType.CHARACTER}
+            r5js.bnf.one(r5js.parse.Terminals.TICK),
+            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.QUOTE)
         ],
         [
-            {type: r5js.DatumType.STRING}
+            r5js.bnf.one(r5js.parse.Terminals.BACKTICK),
+            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.QUASIQUOTE)
         ],
         [
-            {type: r5js.parse.Terminals.LPAREN},
-            {type: r5js.parse.Nonterminals.DATUM, atLeast: 0, name: r5js.DatumType.LIST},
-            {type: r5js.parse.Terminals.RPAREN}
+            r5js.bnf.one(r5js.parse.Terminals.COMMA),
+            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE)
         ],
         [
-            {type: r5js.parse.Terminals.LPAREN},
-            {type: r5js.parse.Nonterminals.DATUM, atLeast: 1, name: r5js.DatumType.DOTTED_LIST},
-            {type: r5js.parse.Terminals.DOT},
-            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.DOTTED_LIST},
-            {type: r5js.parse.Terminals.RPAREN}
-        ],
-        [
-            {type: r5js.parse.Terminals.LPAREN_VECTOR},
-            {type: r5js.parse.Nonterminals.DATUM, atLeast: 0, name: r5js.DatumType.VECTOR},
-            {type: r5js.parse.Terminals.RPAREN}
-        ],
-        [
-            {type: r5js.parse.Terminals.TICK},
-            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.QUOTE}
-        ],
-        [
-            {type: r5js.parse.Terminals.BACKTICK},
-            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.QUASIQUOTE}
-        ],
-        [
-            {type: r5js.parse.Terminals.COMMA},
-            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.UNQUOTE}
-        ],
-        [
-            {type: r5js.parse.Terminals.COMMA_AT},
-            {type: r5js.parse.Nonterminals.DATUM, name: r5js.DatumType.UNQUOTE_SPLICING}
+            r5js.bnf.one(r5js.parse.Terminals.COMMA_AT),
+            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE_SPLICING)
         ]);
 };
 
 r5js.Reader.prototype.parseDatums_ = function() {
-    return this.rhs_({type: r5js.parse.Nonterminals.DATUM, name: 'datums', atLeast: 0});
+    return this.rhs_(r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.parse.Nonterminals.DATUMS));
 };
 
 /** @override */
