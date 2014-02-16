@@ -27,40 +27,19 @@ goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.isTerminal');
 
 /**
- * @param {!r5js.Scanner} scanner The scanner.
+ * @param {!r5js.scan.TokenStream} tokenStream
  * @implements {r5js.IReader}
  * @constructor
  */
-r5js.Reader = function(scanner) {
-    /** @const @private {!r5js.IScanner} */
-    this.scanner_ = scanner;
-
-    /** @const @private {!Array.<!r5js.Token>} */
-    this.readyTokens_ = [];
-
-    /** @private {number} */
-    this.nextTokenToReturn_ = 0;
+r5js.Reader = function(tokenStream) {
+    /** @const @private {!r5js.scan.TokenStream} */
+    this.tokenStream_ = tokenStream;
 
     /** @private {r5js.Token} */
     this.errorToken_ = null;
 
     /** @private {string} */
     this.errorMsg_ = '';
-};
-
-/**
- * @return {r5js.Token}
- * @private
- * TODO bl: this belongs in some kind of buffered scanner.
- */
-r5js.Reader.prototype.nextToken_ = function() {
-    while (this.nextTokenToReturn_ >= this.readyTokens_.length) {
-        var token = this.scanner_.nextToken();
-        if (!token)
-            return null;
-        this.readyTokens_.push(token);
-    }
-    return this.readyTokens_[this.nextTokenToReturn_++];
 };
 
 
@@ -71,7 +50,7 @@ r5js.Reader.prototype.nextToken_ = function() {
  */
 r5js.Reader.prototype.rhs_ = function(rule) {
     var ansDatum = new r5js.Datum();
-    var tokenStreamStart = this.nextTokenToReturn_;
+    var checkpoint = this.tokenStream_.checkpoint();
     var type = rule.getType();
         var ok;
         if (type === r5js.parse.Nonterminals.DATUM) {
@@ -84,7 +63,7 @@ r5js.Reader.prototype.rhs_ = function(rule) {
             ok = this.onPrimitiveType_(ansDatum, /** @type {!r5js.DatumType} */ (type));
         }
         if (!ok) {
-            this.nextTokenToReturn_ = tokenStreamStart;
+            this.tokenStream_.restore(checkpoint);
             return null;
         }
     return ansDatum;
@@ -102,6 +81,7 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, rule, parseFunction)
 
     // Handle * and +
     if (rule.hasRepetition()) {
+        var checkpoint = this.tokenStream_.checkpoint();
         var prev, cur, firstChild;
         var num = 0;
         while (cur = parseFunction.apply(this)) {
@@ -121,7 +101,7 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, rule, parseFunction)
                 prev.parent = ansDatum;
             return true;
         } else {
-            this.nextTokenToReturn_ -= num;
+            this.tokenStream_.restore(checkpoint);
             this.errorMsg_ = 'expected at least '
                 + rule.getRepetition() + ' ' + rule.getName() + ', got ' + num;
             return false;
@@ -149,7 +129,7 @@ r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, rule, parseFunction)
  * @private
  */
 r5js.Reader.prototype.onTerminal_ = function(terminal) {
-    var token = this.nextToken_();
+    var token = this.tokenStream_.nextToken();
     if (!token) {
         this.errorMsg_ = 'eof';
         return false;
@@ -170,7 +150,7 @@ r5js.Reader.prototype.onTerminal_ = function(terminal) {
  * @private
  */
 r5js.Reader.prototype.onPrimitiveType_ = function(ansDatum, type) {
-    var token = this.nextToken_();
+    var token = this.tokenStream_.nextToken();
     if (!token) {
         this.errorMsg_ = 'eof';
         return false;
@@ -194,7 +174,7 @@ r5js.Reader.prototype.onPrimitiveType_ = function(ansDatum, type) {
  */
 r5js.Reader.prototype.sequence_ = function(rules) {
     var ansDatum = new r5js.Datum();
-    var tokenStreamStart = this.nextTokenToReturn_;
+    var checkpoint = this.tokenStream_.checkpoint();
     for (var i = 0; i < rules.length; ++i) {
         var rule = rules[i];
         var type = rule.getType();
@@ -209,7 +189,7 @@ r5js.Reader.prototype.sequence_ = function(rules) {
             ok = this.onPrimitiveType_(ansDatum, /** @type {!r5js.DatumType} */(type));
         }
         if (!ok) {
-            this.nextTokenToReturn_ = tokenStreamStart;
+            this.tokenStream_.restore(checkpoint);
             return null;
         }
     }
