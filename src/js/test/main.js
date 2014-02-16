@@ -1,4 +1,7 @@
+goog.provide('r5js.test.evalSandbox');
 goog.provide('r5js.test.main');
+goog.setTestOnly('r5js.test.main');
+goog.setTestOnly('r5js.test.evalSandbox');
 
 
 goog.require('goog.debug.Logger');
@@ -27,7 +30,7 @@ r5js.test.main = function(opt_argv) {
   var logger = goog.debug.Logger.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
   r5js.test.SchemeSources.get().then(function(sources) {
-    var publicApi = r5js.test.setupApi_(sources);
+    var publicApi = r5js.test.getApi_(sources);
     r5js.test.getTestSuites_(publicApi, sources).forEach(function(testSuite) {
       runner.add(testSuite);
     });
@@ -38,22 +41,40 @@ r5js.test.main = function(opt_argv) {
 };
 
 
+/** @param {string} text Text to eval. */
+r5js.test.evalSandbox = function(text) {
+  r5js.test.SchemeSources.get().then(function(sources) {
+    var publicApi = r5js.test.getApi_(sources);
+    publicApi.Eval(text,
+        goog.bind(window.console.log, window.console),
+        r5js.util.Logger.getLogger('r5js.test.evalSandbox'));
+  });
+};
+
+
+/** @private {r5js.PublicApi} */
+r5js.test.api_ = null;
+
+
 /**
  * @param {!r5js.test.SchemeSources} sources
  * @return {!r5js.PublicApi}
  * @private
  */
-r5js.test.setupApi_ = function(sources) {
-  var pipeline = new r5js.LazyBoot(
-      new r5js.Pipeline(),
-      function() {
-        var r5RSEnv = r5js.boot(
-            sources.syntax,
-            sources.procedures,
-            r5js.util.Logger.getLogger('r5js'));
-        pipeline.setRootEnv(r5RSEnv);
-      });
-  return new r5js.PublicApi(pipeline);
+r5js.test.getApi_ = function(sources) {
+  if (!r5js.test.api_) {
+    var pipeline = new r5js.LazyBoot(
+        new r5js.Pipeline(),
+        function() {
+          var r5RSEnv = r5js.boot(
+              sources.syntax,
+              sources.procedures,
+              r5js.util.Logger.getLogger('r5js'));
+          pipeline.setRootEnv(r5RSEnv);
+        });
+    r5js.test.api_ = new r5js.PublicApi(pipeline);
+  }
+  return r5js.test.api_;
 };
 
 

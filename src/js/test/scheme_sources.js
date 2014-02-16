@@ -27,24 +27,35 @@ r5js.test.SchemeSources = function(
 };
 
 
+/** @private {r5js.test.SchemeSources} */
+r5js.test.SchemeSources.sources_ = null;
+
+
 /** @return {!goog.labs.Promise.<!r5js.test.SchemeSources>} */
 r5js.test.SchemeSources.get = function() {
-  return goog.labs.Promise.all([
-    r5js.test.SchemeSources.urls_.SYNTAX,
-    r5js.test.SchemeSources.urls_.PROCEDURES,
-    r5js.test.SchemeSources.urls_.TEST_FRAMEWORK,
-    r5js.test.SchemeSources.urls_.R5RS_TESTS,
-    r5js.test.SchemeSources.urls_.OTHER_TESTS
-  ].map(function(url) {
-    return goog.labs.net.xhr.get(url);
-  })).then(function(sources) {
-    return new r5js.test.SchemeSources(
-        sources[0],
-        sources[1],
-        sources[2],
-        sources[3],
-        sources[4]);
-  });
+  if (r5js.test.SchemeSources.sources_) {
+    return goog.labs.Promise.resolve(r5js.test.SchemeSources.sources_);
+  } else {
+    return goog.labs.Promise.all([
+      r5js.test.SchemeSources.urls_.SYNTAX,
+      r5js.test.SchemeSources.urls_.PROCEDURES,
+      r5js.test.SchemeSources.urls_.TEST_FRAMEWORK,
+      r5js.test.SchemeSources.urls_.R5RS_TESTS,
+      r5js.test.SchemeSources.urls_.OTHER_TESTS
+    ].map(function(url) {
+      return goog.labs.net.xhr.get(url);
+    })).then(function(sources) {
+      if (!r5js.test.SchemeSources.sources_) {
+        r5js.test.SchemeSources.sources_ = new r5js.test.SchemeSources(
+            sources[0],
+            sources[1],
+            sources[2],
+            sources[3],
+            sources[4]);
+      }
+      return r5js.test.SchemeSources.sources_;
+    });
+  }
 };
 
 
