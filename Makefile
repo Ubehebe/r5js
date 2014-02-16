@@ -163,6 +163,12 @@ test:
 	@-cat python.pid | xargs kill
 	@rm python.pid
 
+.PHONY: test-server
+test-server: deps
+	@command -v python > /dev/null 2>&1 || \
+		{ echo >&2 "python is required for running the test server."; exit 1; }
+	@python -m SimpleHTTPServer $(static_port)
+
 .PHONY: clean
 clean:
 	@rm -rf $(outdir)
