@@ -58,7 +58,7 @@ r5js.Reader.prototype.rhs_ = function(rule) {
         } else if (type === r5js.parse.Nonterminals.DATUMS) {
             ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatums_, this));
         } else if (r5js.parse.isTerminal(type)) {
-            ok = this.onTerminal_(type);
+            ok = rule.match(ansDatum, this.tokenStream_, /** @type {function():r5js.Datum} */ (goog.nullFunction));
         } else {
             ok = this.onPrimitiveType_(ansDatum, /** @type {!r5js.DatumType} */ (type));
         }
@@ -131,7 +131,7 @@ r5js.Reader.prototype.sequence_ = function(rules) {
         } else if (type === r5js.parse.Nonterminals.DATUMS) {
             ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatums_, this));
         } else if (r5js.parse.isTerminal(type)) {
-            ok = this.onTerminal_(type);
+            ok = rule.match(ansDatum, this.tokenStream_, /** @type {function():r5js.Datum} */ (goog.nullFunction));
         } else {
             ok = this.onPrimitiveType_(ansDatum, /** @type {!r5js.DatumType} */(type));
         }
@@ -189,36 +189,36 @@ r5js.Reader.prototype.parseDatum_ = function() {
         r5js.bnf.one(r5js.DatumType.CHARACTER),
         r5js.bnf.one(r5js.DatumType.STRING),
         [
-            r5js.bnf.one(r5js.parse.Terminals.LPAREN),
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
             r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.LIST),
-            r5js.bnf.one(r5js.parse.Terminals.RPAREN)
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)
         ],
         [
-            r5js.bnf.one(r5js.parse.Terminals.LPAREN),
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
             r5js.bnf.oneOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.DOTTED_LIST),
-            r5js.bnf.one(r5js.parse.Terminals.DOT),
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.DOT),
             r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.DOTTED_LIST),
-            r5js.bnf.one(r5js.parse.Terminals.RPAREN)
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)
         ],
         [
-            r5js.bnf.one(r5js.parse.Terminals.LPAREN_VECTOR),
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_VECTOR),
             r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.VECTOR),
-            r5js.bnf.one(r5js.parse.Terminals.RPAREN)
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)
         ],
         [
-            r5js.bnf.one(r5js.parse.Terminals.TICK),
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.TICK),
             r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.QUOTE)
         ],
         [
-            r5js.bnf.one(r5js.parse.Terminals.BACKTICK),
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.BACKTICK),
             r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.QUASIQUOTE)
         ],
         [
-            r5js.bnf.one(r5js.parse.Terminals.COMMA),
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.COMMA),
             r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE)
         ],
         [
-            r5js.bnf.one(r5js.parse.Terminals.COMMA_AT),
+            r5js.bnf.oneTerminal(r5js.parse.Terminals.COMMA_AT),
             r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE_SPLICING)
         ]);
 };

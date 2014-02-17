@@ -165,3 +165,52 @@ r5js.bnf.zeroOrMore = function(nonterminal) {
 r5js.bnf.oneOrMore = function(nonterminal) {
   return new r5js.bnf.Rule_(nonterminal, 1);
 };
+
+
+
+/**
+ * @param {!r5js.parse.Terminal} terminal
+ * @implements {r5js.bnf.Rule}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.bnf.OneTerminal_ = function(terminal) {
+  /** @const @private {!r5js.parse.Terminal} */
+  this.terminal_ = terminal;
+};
+
+
+/** @override */
+r5js.bnf.OneTerminal_.prototype.getName = function() {
+  return 'oops!';
+};
+
+
+/** @override */
+r5js.bnf.OneTerminal_.prototype.getType = function() {
+  return this.terminal_;
+};
+
+
+/** @override */
+r5js.bnf.OneTerminal_.prototype.named = function() {
+  return this;
+};
+
+
+/** @override */
+r5js.bnf.OneTerminal_.prototype.match = function(
+    ansDatum, tokenStream, parseFunction) {
+  var token = tokenStream.nextToken();
+  return !!token && token.getPayload() === this.terminal_;
+};
+
+
+/**
+ * @param {!r5js.parse.Terminal} terminal
+ * @return {!r5js.bnf.Rule}
+ */
+r5js.bnf.oneTerminal = function(terminal) {
+  return new r5js.bnf.OneTerminal_(terminal);
+};
