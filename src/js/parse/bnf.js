@@ -1,6 +1,7 @@
 goog.provide('r5js.bnf');
 
 
+goog.require('r5js.Datum');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.scan.tokenTypeForDatumType');
 
@@ -254,4 +255,56 @@ r5js.bnf.OnePrimitive_.prototype.match = function(ansDatum, tokenStream) {
  */
 r5js.bnf.onePrimitive = function(type) {
   return new r5js.bnf.OnePrimitive_(type);
+};
+
+
+
+/**
+ * @param {!Array.<!r5js.bnf.Rule>} rules
+ * @implements {r5js.bnf.Rule}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.bnf.Seq_ = function(rules) {
+  /** @const @private {!Array.<!r5js.bnf.Rule>} */
+  this.rules_ = rules;
+};
+
+
+/** @override */
+r5js.bnf.Seq_.prototype.named = function() {
+  return this;
+};
+
+
+/** @override */
+r5js.bnf.Seq_.prototype.getName = function() {
+  return 'whoops';
+};
+
+
+/** @override */
+r5js.bnf.Seq_.prototype.match = function(
+    ansDatum, tokenStream, parseDatum, parseDatums) {
+  var checkpoint = tokenStream.checkpoint();
+  for (var i = 0; i < this.rules_.length; ++i) {
+    if (!this.rules_[i].match(
+        ansDatum, tokenStream, parseDatum, parseDatums)) {
+      tokenStream.restore(checkpoint);
+      return null;
+    }
+  }
+  return ansDatum;
+};
+
+
+/**
+ * @param {...!r5js.bnf.Rule} var_args
+ * @return {!r5js.bnf.Rule}
+ * @suppress {checkTypes} for the varargs. TODO bl: is there a safer way
+ * that still makes the BNF DSL nice?
+ */
+r5js.bnf.seq = function(var_args) {
+  return new r5js.bnf.Seq_(arguments);
 };
