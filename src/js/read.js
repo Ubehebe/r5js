@@ -71,29 +71,6 @@ r5js.Reader.prototype.rhs_ = function(rule) {
 
 
 /**
- * @param {!Array.<!r5js.bnf.Rule>} rules
- * @return {r5js.Datum} TODO bl
- * @private
- */
-r5js.Reader.prototype.sequence_ = function(rules) {
-    var ansDatum = new r5js.Datum();
-    var checkpoint = this.tokenStream_.checkpoint();
-    for (var i = 0; i < rules.length; ++i) {
-        var rule = rules[i];
-        var ok = rule.match(
-                ansDatum,
-                this.tokenStream_,
-                this.parseDatumBound_,
-                this.parseDatumsBound_);
-        if (!ok) {
-            this.tokenStream_.restore(checkpoint);
-            return null;
-        }
-    }
-    return ansDatum;
-};
-
-/**
  * @param {...(!r5js.bnf.Rule|!Array.<!r5js.bnf.Rule>)} var_args
  * @private
  */
@@ -104,10 +81,8 @@ r5js.Reader.prototype.alternation_ = function(var_args) {
     var mostInformativeErrorToken = null;
     var mostInformationErrorMsg = null;
     for (var i = 0; i < arguments.length; ++i) {
-        var ruleOrArray = arguments[i];
-        possibleRhs = goog.isArray(ruleOrArray) ?
-            this.sequence_(ruleOrArray) :
-            this.rhs_(ruleOrArray);
+        var rule = arguments[i];
+        possibleRhs = this.rhs_(rule);
         if (possibleRhs) {
             return possibleRhs;
         } else if (!mostInformativeErrorToken) {
