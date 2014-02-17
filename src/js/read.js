@@ -20,6 +20,7 @@ goog.provide('r5js.Reader');
 goog.require('r5js.bnf');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
+goog.require('r5js.grammar');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
 goog.require('r5js.parse.Nonterminals');
@@ -52,49 +53,15 @@ r5js.Reader = function(tokenStream) {
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
 r5js.Reader.prototype.parseDatum_ = function() {
-    return r5js.bnf.choice(
-        r5js.bnf.onePrimitive(r5js.DatumType.IDENTIFIER),
-        r5js.bnf.onePrimitive(r5js.DatumType.BOOLEAN),
-        r5js.bnf.onePrimitive(r5js.DatumType.NUMBER),
-        r5js.bnf.onePrimitive(r5js.DatumType.CHARACTER),
-        r5js.bnf.onePrimitive(r5js.DatumType.STRING),
-        r5js.bnf.seq(
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
-            r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.LIST),
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)),
-        r5js.bnf.seq(
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
-            r5js.bnf.oneOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.DOTTED_LIST),
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.DOT),
-            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.DOTTED_LIST),
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)),
-        r5js.bnf.seq(
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_VECTOR),
-            r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.VECTOR),
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)),
-        r5js.bnf.seq(
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.TICK),
-            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.QUOTE)),
-        r5js.bnf.seq(
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.BACKTICK),
-            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.QUASIQUOTE)),
-        r5js.bnf.seq(
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.COMMA),
-            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE)),
-        r5js.bnf.seq(
-            r5js.bnf.oneTerminal(r5js.parse.Terminals.COMMA_AT),
-            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE_SPLICING))).
-        match(new r5js.Datum(), this.tokenStream_, this.parseDatumBound_, this.parseDatumsBound_);
+    return r5js.grammar[r5js.parse.Nonterminals.DATUM].match(
+        new r5js.Datum(), this.tokenStream_,
+        this.parseDatumBound_, this.parseDatumsBound_);
 };
 
 r5js.Reader.prototype.parseDatums_ = function() {
-    return r5js.bnf.choice(
-        r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).
-            named(r5js.parse.Nonterminals.DATUMS)).
-        match(new r5js.Datum(),
-            this.tokenStream_,
-            this.parseDatumBound_,
-            this.parseDatumsBound_);
+    return r5js.grammar[r5js.parse.Nonterminals.DATUMS].match(
+        new r5js.Datum(), this.tokenStream_,
+        this.parseDatumBound_, this.parseDatumsBound_);
 };
 
 /** @override */
