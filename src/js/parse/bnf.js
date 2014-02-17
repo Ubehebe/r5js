@@ -15,7 +15,7 @@ r5js.bnf.Rule = function() {};
  * @param {!r5js.scan.TokenStream} tokenStream
  * @param {function():r5js.Datum} parseDatum
  * @param {function():r5js.Datum} parseDatums
- * @return {boolean}
+ * @return {r5js.Datum}
  */
 r5js.bnf.Rule.prototype.match = function(
     ansDatum, tokenStream, parseDatum, parseDatums) {};
@@ -71,19 +71,19 @@ r5js.bnf.Rule_.prototype.match = function(
 /**
  * @param {!r5js.Datum} ansDatum
  * @param {function(): r5js.Datum} parseFunction
- * @return {boolean}
+ * @return {r5js.Datum}
  * @private
  */
 r5js.bnf.Rule_.prototype.matchNoRepetition_ = function(
     ansDatum, parseFunction) {
   var parsed = parseFunction();
   if (!parsed) {
-    return false;
+    return null;
   }
   ansDatum.type = this.name_ || this.type_;
   ansDatum.appendChild(parsed);
   parsed.parent = ansDatum;
-  return true;
+  return ansDatum;
 };
 
 
@@ -91,7 +91,7 @@ r5js.bnf.Rule_.prototype.matchNoRepetition_ = function(
  * @param {!r5js.Datum} ansDatum
  * @param {!r5js.scan.TokenStream} tokenStream
  * @param {function():r5js.Datum} parseFunction
- * @return {boolean}
+ * @return {r5js.Datum}
  * @private
  */
 r5js.bnf.Rule_.prototype.matchRepetition_ = function(
@@ -114,10 +114,10 @@ r5js.bnf.Rule_.prototype.matchRepetition_ = function(
     ansDatum.appendChild(/** @type {!r5js.Datum} */ (firstChild));
     if (prev)
       prev.parent = ansDatum;
-    return true;
+    return ansDatum;
   } else {
     tokenStream.restore(checkpoint);
-    return false;
+    return null;
   }
 };
 
@@ -189,10 +189,11 @@ r5js.bnf.OneTerminal_.prototype.named = function() {
 
 
 /** @override */
-r5js.bnf.OneTerminal_.prototype.match = function(
-    ansDatum, tokenStream) {
+r5js.bnf.OneTerminal_.prototype.match = function(ansDatum, tokenStream) {
   var token = tokenStream.nextToken();
-  return !!token && token.getPayload() === this.terminal_;
+  return (token && token.getPayload() === this.terminal_) ?
+      ansDatum :
+      null;
 };
 
 
@@ -232,19 +233,18 @@ r5js.bnf.OnePrimitive_.prototype.named = function() {
 
 
 /** @override */
-r5js.bnf.OnePrimitive_.prototype.match = function(
-    ansDatum, tokenStream, parseFunction) {
+r5js.bnf.OnePrimitive_.prototype.match = function(ansDatum, tokenStream) {
   var token = tokenStream.nextToken();
   if (!token) {
-    return false;
+    return null;
   }
   if (!token.matchesType(/** @type {!r5js.scan.TokenType} */ (
       r5js.scan.tokenTypeForDatumType(this.type_)))) {
-    return false;
+    return null;
   }
   ansDatum.payload = token.getPayload();
   ansDatum.type = this.type_;
-  return true;
+  return ansDatum;
 };
 
 
