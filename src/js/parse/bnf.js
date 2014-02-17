@@ -1,6 +1,7 @@
 goog.provide('r5js.bnf');
 
 
+goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.scan.tokenTypeForDatumType');
 
 
@@ -12,22 +13,16 @@ r5js.bnf.Rule = function() {};
 /**
  * @param {!r5js.Datum} ansDatum
  * @param {!r5js.scan.TokenStream} tokenStream
- * @param {function():r5js.Datum} parseFunction
+ * @param {function():r5js.Datum} parseDatum
+ * @param {function():r5js.Datum} parseDatums
  * @return {boolean}
  */
 r5js.bnf.Rule.prototype.match = function(
-    ansDatum, tokenStream, parseFunction) {};
+    ansDatum, tokenStream, parseDatum, parseDatums) {};
 
 
 /** @return {?r5js.parse.Nonterminal} */
 r5js.bnf.Rule.prototype.getName = function() {};
-
-
-/**
- * @return {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal}
- * TODO bl: temporary shim. remove.
- */
-r5js.bnf.Rule.prototype.getType = function() {};
 
 
 /**
@@ -63,7 +58,10 @@ r5js.bnf.Rule_ = function(type, opt_repetition) {
 
 /** @override */
 r5js.bnf.Rule_.prototype.match = function(
-    ansDatum, tokenStream, parseFunction) {
+    ansDatum, tokenStream, parseDatum, parseDatums) {
+  var parseFunction = this.type_ === r5js.parse.Nonterminals.DATUM ?
+      parseDatum :
+      parseDatums;
   return this.repetition_ === -1 ?
       this.matchNoRepetition_(ansDatum, parseFunction) :
       this.matchRepetition_(ansDatum, tokenStream, parseFunction);
@@ -137,12 +135,6 @@ r5js.bnf.Rule_.prototype.getName = function() {
 };
 
 
-/** @override */
-r5js.bnf.Rule_.prototype.getType = function() {
-  return this.type_;
-};
-
-
 /**
  * @param {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
  * @return {!r5js.bnf.Rule}
@@ -191,12 +183,6 @@ r5js.bnf.OneTerminal_.prototype.getName = function() {
 
 
 /** @override */
-r5js.bnf.OneTerminal_.prototype.getType = function() {
-  return this.terminal_;
-};
-
-
-/** @override */
 r5js.bnf.OneTerminal_.prototype.named = function() {
   return this;
 };
@@ -204,7 +190,7 @@ r5js.bnf.OneTerminal_.prototype.named = function() {
 
 /** @override */
 r5js.bnf.OneTerminal_.prototype.match = function(
-    ansDatum, tokenStream, parseFunction) {
+    ansDatum, tokenStream) {
   var token = tokenStream.nextToken();
   return !!token && token.getPayload() === this.terminal_;
 };
@@ -236,12 +222,6 @@ r5js.bnf.OnePrimitive_ = function(type) {
 /** @override */
 r5js.bnf.OnePrimitive_.prototype.getName = function() {
   return 'sorry';
-};
-
-
-/** @override */
-r5js.bnf.OnePrimitive_.prototype.getType = function() {
-  return 'oops';
 };
 
 

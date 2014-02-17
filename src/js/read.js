@@ -40,6 +40,12 @@ r5js.Reader = function(tokenStream) {
 
     /** @private {string} */
     this.errorMsg_ = '';
+
+    /** @const @private {function():r5js.Datum} */
+    this.parseDatumBound_ = goog.bind(this.parseDatum_, this);
+
+    /** @const @private {function():r5js.Datum} */
+    this.parseDatumsBound_ = goog.bind(this.parseDatums_, this);
 };
 
 
@@ -51,15 +57,11 @@ r5js.Reader = function(tokenStream) {
 r5js.Reader.prototype.rhs_ = function(rule) {
     var ansDatum = new r5js.Datum();
     var checkpoint = this.tokenStream_.checkpoint();
-    var type = rule.getType();
-        var ok;
-        if (type === r5js.parse.Nonterminals.DATUM) {
-            ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatum_, this));
-        } else if (type === r5js.parse.Nonterminals.DATUMS) {
-            ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatums_, this));
-        } else {
-            ok = rule.match(ansDatum, this.tokenStream_, /** @type {function():r5js.Datum} */ (goog.nullFunction));
-        }
+        var ok = rule.match(
+                ansDatum,
+                this.tokenStream_,
+                this.parseDatumBound_,
+                this.parseDatumsBound_);
         if (!ok) {
             this.tokenStream_.restore(checkpoint);
             return null;
@@ -98,15 +100,11 @@ r5js.Reader.prototype.sequence_ = function(rules) {
     var checkpoint = this.tokenStream_.checkpoint();
     for (var i = 0; i < rules.length; ++i) {
         var rule = rules[i];
-        var type = rule.getType();
-        var ok;
-        if (type === r5js.parse.Nonterminals.DATUM) {
-            ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatum_, this));
-        } else if (type === r5js.parse.Nonterminals.DATUMS) {
-            ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatums_, this));
-        } else {
-            ok = rule.match(ansDatum, this.tokenStream_, /** @type {function():r5js.Datum} */ (goog.nullFunction));
-        }
+        var ok = rule.match(
+                ansDatum,
+                this.tokenStream_,
+                this.parseDatumBound_,
+                this.parseDatumsBound_);
         if (!ok) {
             this.tokenStream_.restore(checkpoint);
             return null;
