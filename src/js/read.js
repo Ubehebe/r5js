@@ -35,38 +35,13 @@ goog.require('r5js.parse.isTerminal');
 r5js.Reader = function(tokenStream) {
     /** @const @private {!r5js.scan.TokenStream} */
     this.tokenStream_ = tokenStream;
-
-    /** @const @private {function():r5js.Datum} */
-    this.parseDatumBound_ = goog.bind(this.parseDatum_, this);
-
-    /** @const @private {function():r5js.Datum} */
-    this.parseDatumsBound_ = goog.bind(this.parseDatums_, this);
 };
 
-
-// <datum> -> <simple datum> | <compound datum>
-// <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
-// <compound datum> -> <list> | <vector>
-// <symbol> -> <identifier>
-// <list> -> (<datum>*) | (<datum>+ . <datum>) | <abbreviation>
-// <vector> -> #(<datum>*)
-// <abbreviation> -> <abbrev prefix> <datum>
-// <abbrev prefix> -> ' | ` | , | ,@
-r5js.Reader.prototype.parseDatum_ = function() {
-    return r5js.grammar[r5js.parse.Nonterminals.DATUM].match(
-        new r5js.Datum(), this.tokenStream_,
-        this.parseDatumBound_, this.parseDatumsBound_);
-};
-
-r5js.Reader.prototype.parseDatums_ = function() {
-    return r5js.grammar[r5js.parse.Nonterminals.DATUMS].match(
-        new r5js.Datum(), this.tokenStream_,
-        this.parseDatumBound_, this.parseDatumsBound_);
-};
 
 /** @override */
 r5js.Reader.prototype.read = function() {
-    var datums = this.parseDatums_();
+    var datums = r5js.grammar[r5js.parse.Nonterminals.DATUMS].match(
+        new r5js.Datum(), this.tokenStream_);
     if (datums.firstChild)
         datums.firstChild.lastSibling().parent = null;
     return datums.firstChild;

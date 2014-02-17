@@ -16,6 +16,14 @@ var _ = r5js.bnf;
 r5js.grammar = {};
 
 
+// <datum> -> <simple datum> | <compound datum>
+// <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
+// <compound datum> -> <list> | <vector>
+// <symbol> -> <identifier>
+// <list> -> (<datum>*) | (<datum>+ . <datum>) | <abbreviation>
+// <vector> -> #(<datum>*)
+// <abbreviation> -> <abbrev prefix> <datum>
+// <abbrev prefix> -> ' | ` | , | ,@
 r5js.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
     _.onePrimitive(r5js.DatumType.IDENTIFIER),
     _.onePrimitive(r5js.DatumType.BOOLEAN),

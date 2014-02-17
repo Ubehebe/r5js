@@ -2,6 +2,7 @@ goog.provide('r5js.bnf');
 
 
 goog.require('r5js.Datum');
+//goog.require('r5js.grammar');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.scan.tokenTypeForDatumType');
 
@@ -14,12 +15,9 @@ r5js.bnf.Rule = function() {};
 /**
  * @param {!r5js.Datum} ansDatum
  * @param {!r5js.scan.TokenStream} tokenStream
- * @param {function():r5js.Datum} parseDatum
- * @param {function():r5js.Datum} parseDatums
  * @return {r5js.Datum}
  */
-r5js.bnf.Rule.prototype.match = function(
-    ansDatum, tokenStream, parseDatum, parseDatums) {};
+r5js.bnf.Rule.prototype.match = function(ansDatum, tokenStream) {};
 
 
 /** @return {?r5js.parse.Nonterminal} */
@@ -58,26 +56,24 @@ r5js.bnf.Rule_ = function(type, opt_repetition) {
 
 
 /** @override */
-r5js.bnf.Rule_.prototype.match = function(
-    ansDatum, tokenStream, parseDatum, parseDatums) {
-  var parseFunction = this.type_ === r5js.parse.Nonterminals.DATUM ?
-      parseDatum :
-      parseDatums;
+r5js.bnf.Rule_.prototype.match = function(ansDatum, tokenStream) {
+  var rule = r5js.grammar[this.type_];
   return this.repetition_ === -1 ?
-      this.matchNoRepetition_(ansDatum, parseFunction) :
-      this.matchRepetition_(ansDatum, tokenStream, parseFunction);
+      this.matchNoRepetition_(ansDatum, tokenStream, rule) :
+      this.matchRepetition_(ansDatum, tokenStream, rule);
 };
 
 
 /**
  * @param {!r5js.Datum} ansDatum
- * @param {function(): r5js.Datum} parseFunction
+ * @param {!r5js.scan.TokenStream} tokenStream
+ * @param {!r5js.bnf.Rule} rule
  * @return {r5js.Datum}
  * @private
  */
 r5js.bnf.Rule_.prototype.matchNoRepetition_ = function(
-    ansDatum, parseFunction) {
-  var parsed = parseFunction();
+    ansDatum, tokenStream, rule) {
+  var parsed = rule.match(new r5js.Datum(), tokenStream);
   if (!parsed) {
     return null;
   }
@@ -91,16 +87,16 @@ r5js.bnf.Rule_.prototype.matchNoRepetition_ = function(
 /**
  * @param {!r5js.Datum} ansDatum
  * @param {!r5js.scan.TokenStream} tokenStream
- * @param {function():r5js.Datum} parseFunction
+ * @param {!r5js.bnf.Rule} rule
  * @return {r5js.Datum}
  * @private
  */
 r5js.bnf.Rule_.prototype.matchRepetition_ = function(
-    ansDatum, tokenStream, parseFunction) {
+    ansDatum, tokenStream, rule) {
   var checkpoint = tokenStream.checkpoint();
   var prev, cur, firstChild;
   var num = 0;
-  while (cur = parseFunction()) {
+  while (cur = rule.match(new r5js.Datum(), tokenStream)) {
     ++num;
     if (!firstChild)
       firstChild = cur;
@@ -285,12 +281,10 @@ r5js.bnf.Seq_.prototype.getName = function() {
 
 
 /** @override */
-r5js.bnf.Seq_.prototype.match = function(
-    ansDatum, tokenStream, parseDatum, parseDatums) {
+r5js.bnf.Seq_.prototype.match = function(ansDatum, tokenStream) {
   var checkpoint = tokenStream.checkpoint();
   for (var i = 0; i < this.rules_.length; ++i) {
-    if (!this.rules_[i].match(
-        ansDatum, tokenStream, parseDatum, parseDatums)) {
+    if (!this.rules_[i].match(ansDatum, tokenStream)) {
       tokenStream.restore(checkpoint);
       return null;
     }
@@ -325,12 +319,11 @@ r5js.bnf.Choice_ = function(rules) {
 
 
 /** @override */
-r5js.bnf.Choice_.prototype.match = function(
-    ansDatum, tokenStream, parseDatum, parseDatums) {
+r5js.bnf.Choice_.prototype.match = function(ansDatum, tokenStream) {
   for (var i = 0; i < this.rules_.length; ++i) {
     var checkpoint = tokenStream.checkpoint();
     var newDatum = new r5js.Datum();
-    if (this.rules_[i].match(newDatum, tokenStream, parseDatum, parseDatums)) {
+    if (this.rules_[i].match(newDatum, tokenStream)) {
       return newDatum;
     } else {
       tokenStream.restore(checkpoint);
