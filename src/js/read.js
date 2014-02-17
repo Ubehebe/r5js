@@ -35,38 +35,11 @@ r5js.Reader = function(tokenStream) {
     /** @const @private {!r5js.scan.TokenStream} */
     this.tokenStream_ = tokenStream;
 
-    /** @private {r5js.Token} */
-    this.errorToken_ = null;
-
-    /** @private {string} */
-    this.errorMsg_ = '';
-
     /** @const @private {function():r5js.Datum} */
     this.parseDatumBound_ = goog.bind(this.parseDatum_, this);
 
     /** @const @private {function():r5js.Datum} */
     this.parseDatumsBound_ = goog.bind(this.parseDatums_, this);
-};
-
-
-/**
- * @param {!r5js.bnf.Rule} rule
- * @return {r5js.Datum} TODO bl
- * @private
- */
-r5js.Reader.prototype.rhs_ = function(rule) {
-    var ansDatum = new r5js.Datum();
-    var checkpoint = this.tokenStream_.checkpoint();
-        var ok = rule.match(
-                ansDatum,
-                this.tokenStream_,
-                this.parseDatumBound_,
-                this.parseDatumsBound_);
-        if (!ok) {
-            this.tokenStream_.restore(checkpoint);
-            return null;
-        }
-    return ansDatum;
 };
 
 
@@ -115,7 +88,13 @@ r5js.Reader.prototype.parseDatum_ = function() {
 };
 
 r5js.Reader.prototype.parseDatums_ = function() {
-    return this.rhs_(r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.parse.Nonterminals.DATUMS));
+    return r5js.bnf.choice(
+        r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).
+            named(r5js.parse.Nonterminals.DATUMS)).
+        match(new r5js.Datum(),
+            this.tokenStream_,
+            this.parseDatumBound_,
+            this.parseDatumsBound_);
 };
 
 /** @override */
