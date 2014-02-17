@@ -20,17 +20,25 @@ r5js.bnf.Rule = function() {};
 r5js.bnf.Rule.prototype.match = function(ansDatum, tokenStream) {};
 
 
+
+/**
+ * @interface
+ * @extends {r5js.bnf.Rule}
+ */
+r5js.bnf.NamedRule = function() {};
+
+
 /**
  * @param {!r5js.parse.Nonterminal} nonterminal
- * @return {!r5js.bnf.Rule} This rule, for chaining.
+ * @return {!r5js.bnf.NamedRule} This rule, for chaining.
  */
-r5js.bnf.Rule.prototype.named = function(nonterminal) {};
+r5js.bnf.NamedRule.prototype.named = function(nonterminal) {};
 
 
 
 /**
  * @param {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
- * @implements {r5js.bnf.Rule}
+ * @implements {r5js.bnf.NamedRule}
  * @struct
  * @constructor
  * @private
@@ -56,6 +64,7 @@ r5js.bnf.One_.prototype.named = function(name) {
 
 /** @override */
 r5js.bnf.One_.prototype.match = function(ansDatum, tokenStream) {
+  // The rule will be found in the grammar iff it is a nonterminal.
   var rule = r5js.grammar[this.type_];
   return rule ?
       this.matchNonterminal_(ansDatum, tokenStream, rule) :
@@ -101,7 +110,7 @@ r5js.bnf.One_.prototype.matchTerminal_ = function(ansDatum, tokenStream) {
 /**
  * @param {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
  * @param {number} minRepetitions
- * @implements {r5js.bnf.Rule}
+ * @implements {r5js.bnf.NamedRule}
  * @struct
  * @constructor
  * @private
@@ -159,7 +168,7 @@ r5js.bnf.AtLeast_.prototype.named = function(nonterminal) {
 
 /**
  * @param {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
- * @return {!r5js.bnf.Rule}
+ * @return {!r5js.bnf.NamedRule}
  */
 r5js.bnf.one = function(type) {
   return new r5js.bnf.One_(type);
@@ -168,7 +177,7 @@ r5js.bnf.one = function(type) {
 
 /**
  * @param {!r5js.parse.Nonterminal} nonterminal
- * @return {!r5js.bnf.Rule}
+ * @return {!r5js.bnf.NamedRule}
  */
 r5js.bnf.zeroOrMore = function(nonterminal) {
   return new r5js.bnf.AtLeast_(nonterminal, 0);
@@ -195,12 +204,6 @@ r5js.bnf.oneOrMore = function(nonterminal) {
 r5js.bnf.OnePrimitive_ = function(type) {
   /** @const @private {!r5js.DatumType} */
   this.type_ = type;
-};
-
-
-/** @override */
-r5js.bnf.OnePrimitive_.prototype.named = function() {
-  return this;
 };
 
 
@@ -240,12 +243,6 @@ r5js.bnf.onePrimitive = function(type) {
 r5js.bnf.Seq_ = function(rules) {
   /** @const @private {!Array.<!r5js.bnf.Rule>} */
   this.rules_ = rules;
-};
-
-
-/** @override */
-r5js.bnf.Seq_.prototype.named = function() {
-  return this;
 };
 
 
@@ -299,12 +296,6 @@ r5js.bnf.Choice_.prototype.match = function(ansDatum, tokenStream) {
     }
   }
   return null;
-};
-
-
-/** @override */
-r5js.bnf.Choice_.prototype.named = function() {
-  return this;
 };
 
 
