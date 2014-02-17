@@ -308,3 +308,55 @@ r5js.bnf.Seq_.prototype.match = function(
 r5js.bnf.seq = function(var_args) {
   return new r5js.bnf.Seq_(arguments);
 };
+
+
+
+/**
+ * @param {!Array.<!r5js.bnf.Rule>} rules
+ * @implements {r5js.bnf.Rule}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.bnf.Choice_ = function(rules) {
+  /** @const @private {!Array.<!r5js.bnf.Rule>} */
+  this.rules_ = rules;
+};
+
+
+/** @override */
+r5js.bnf.Choice_.prototype.match = function(
+    ansDatum, tokenStream, parseDatum, parseDatums) {
+  for (var i = 0; i < this.rules_.length; ++i) {
+    var checkpoint = tokenStream.checkpoint();
+    var newDatum = new r5js.Datum();
+    if (this.rules_[i].match(newDatum, tokenStream, parseDatum, parseDatums)) {
+      return newDatum;
+    } else {
+      tokenStream.restore(checkpoint);
+    }
+  }
+  return null;
+};
+
+
+/** @override */
+r5js.bnf.Choice_.prototype.named = function() {
+  return this;
+};
+
+
+/** @override */
+r5js.bnf.Choice_.prototype.getName = function() {
+  return 'xyzzy';
+};
+
+
+/**
+ * @param {...!r5js.bnf.Rule} var_args
+ * @return {!r5js.bnf.Rule}
+ * @suppress {checkTypes}
+ */
+r5js.bnf.choice = function(var_args) {
+  return new r5js.bnf.Choice_(arguments);
+};

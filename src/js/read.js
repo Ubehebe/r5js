@@ -70,34 +70,6 @@ r5js.Reader.prototype.rhs_ = function(rule) {
 };
 
 
-/**
- * @param {...(!r5js.bnf.Rule|!Array.<!r5js.bnf.Rule>)} var_args
- * @private
- */
-r5js.Reader.prototype.alternation_ = function(var_args) {
-    var possibleRhs;
-    // The most informative error is probably the failed parse
-    // that got furthest through the input.
-    var mostInformativeErrorToken = null;
-    var mostInformationErrorMsg = null;
-    for (var i = 0; i < arguments.length; ++i) {
-        var rule = arguments[i];
-        possibleRhs = this.rhs_(rule);
-        if (possibleRhs) {
-            return possibleRhs;
-        } else if (!mostInformativeErrorToken) {
-            mostInformativeErrorToken = this.errorToken_;
-            mostInformationErrorMsg = this.errorMsg_;
-        }
-    }
-
-    this.errorToken_ = mostInformativeErrorToken;
-    if (mostInformationErrorMsg) {
-        this.errorMsg_ = mostInformationErrorMsg;
-    }
-    return null;
-};
-
 // <datum> -> <simple datum> | <compound datum>
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
 // <compound datum> -> <list> | <vector>
@@ -107,7 +79,7 @@ r5js.Reader.prototype.alternation_ = function(var_args) {
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
 r5js.Reader.prototype.parseDatum_ = function() {
-    return this.alternation_(
+    return r5js.bnf.choice(
         r5js.bnf.onePrimitive(r5js.DatumType.IDENTIFIER),
         r5js.bnf.onePrimitive(r5js.DatumType.BOOLEAN),
         r5js.bnf.onePrimitive(r5js.DatumType.NUMBER),
@@ -138,7 +110,8 @@ r5js.Reader.prototype.parseDatum_ = function() {
             r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE)),
         r5js.bnf.seq(
             r5js.bnf.oneTerminal(r5js.parse.Terminals.COMMA_AT),
-            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE_SPLICING)));
+            r5js.bnf.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE_SPLICING))).
+        match(new r5js.Datum(), this.tokenStream_, this.parseDatumBound_, this.parseDatumsBound_);
 };
 
 r5js.Reader.prototype.parseDatums_ = function() {
