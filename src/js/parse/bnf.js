@@ -1,6 +1,9 @@
 goog.provide('r5js.bnf');
 
 
+goog.require('r5js.scan.tokenTypeForDatumType');
+
+
 
 /** @interface */
 r5js.bnf.Rule = function() {};
@@ -213,4 +216,62 @@ r5js.bnf.OneTerminal_.prototype.match = function(
  */
 r5js.bnf.oneTerminal = function(terminal) {
   return new r5js.bnf.OneTerminal_(terminal);
+};
+
+
+
+/**
+ * @param {!r5js.DatumType} type
+ * @implements {r5js.bnf.Rule}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.bnf.OnePrimitive_ = function(type) {
+  /** @const @private {!r5js.DatumType} */
+  this.type_ = type;
+};
+
+
+/** @override */
+r5js.bnf.OnePrimitive_.prototype.getName = function() {
+  return 'sorry';
+};
+
+
+/** @override */
+r5js.bnf.OnePrimitive_.prototype.getType = function() {
+  return 'oops';
+};
+
+
+/** @override */
+r5js.bnf.OnePrimitive_.prototype.named = function() {
+  return this;
+};
+
+
+/** @override */
+r5js.bnf.OnePrimitive_.prototype.match = function(
+    ansDatum, tokenStream, parseFunction) {
+  var token = tokenStream.nextToken();
+  if (!token) {
+    return false;
+  }
+  if (!token.matchesType(/** @type {!r5js.scan.TokenType} */ (
+      r5js.scan.tokenTypeForDatumType(this.type_)))) {
+    return false;
+  }
+  ansDatum.payload = token.getPayload();
+  ansDatum.type = this.type_;
+  return true;
+};
+
+
+/**
+ * @param {!r5js.DatumType} type
+ * @return {!r5js.bnf.Rule}
+ */
+r5js.bnf.onePrimitive = function(type) {
+  return new r5js.bnf.OnePrimitive_(type);
 };

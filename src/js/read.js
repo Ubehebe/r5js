@@ -57,10 +57,8 @@ r5js.Reader.prototype.rhs_ = function(rule) {
             ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatum_, this));
         } else if (type === r5js.parse.Nonterminals.DATUMS) {
             ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatums_, this));
-        } else if (r5js.parse.isTerminal(type)) {
-            ok = rule.match(ansDatum, this.tokenStream_, /** @type {function():r5js.Datum} */ (goog.nullFunction));
         } else {
-            ok = this.onPrimitiveType_(ansDatum, /** @type {!r5js.DatumType} */ (type));
+            ok = rule.match(ansDatum, this.tokenStream_, /** @type {function():r5js.Datum} */ (goog.nullFunction));
         }
         if (!ok) {
             this.tokenStream_.restore(checkpoint);
@@ -91,30 +89,6 @@ r5js.Reader.prototype.onTerminal_ = function(terminal) {
 
 
 /**
- * @param {!r5js.Datum} ansDatum
- * @param {!r5js.DatumType} type
- * @return {boolean}
- * @private
- */
-r5js.Reader.prototype.onPrimitiveType_ = function(ansDatum, type) {
-    var token = this.tokenStream_.nextToken();
-    if (!token) {
-        this.errorMsg_ = 'eof';
-        return false;
-    }
-    if (!token.matchesType(/** @type {!r5js.scan.TokenType} */ (
-        r5js.scan.tokenTypeForDatumType(type)))) {
-        this.errorToken_ = token;
-        this.errorMsg_ = 'expected ' + type;
-        return false;
-    }
-    ansDatum.payload = token.getPayload();
-    ansDatum.type = type;
-    return true;
-};
-
-
-/**
  * @param {!Array.<!r5js.bnf.Rule>} rules
  * @return {r5js.Datum} TODO bl
  * @private
@@ -130,10 +104,8 @@ r5js.Reader.prototype.sequence_ = function(rules) {
             ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatum_, this));
         } else if (type === r5js.parse.Nonterminals.DATUMS) {
             ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatums_, this));
-        } else if (r5js.parse.isTerminal(type)) {
-            ok = rule.match(ansDatum, this.tokenStream_, /** @type {function():r5js.Datum} */ (goog.nullFunction));
         } else {
-            ok = this.onPrimitiveType_(ansDatum, /** @type {!r5js.DatumType} */(type));
+            ok = rule.match(ansDatum, this.tokenStream_, /** @type {function():r5js.Datum} */ (goog.nullFunction));
         }
         if (!ok) {
             this.tokenStream_.restore(checkpoint);
@@ -183,11 +155,11 @@ r5js.Reader.prototype.alternation_ = function(var_args) {
 // <abbrev prefix> -> ' | ` | , | ,@
 r5js.Reader.prototype.parseDatum_ = function() {
     return this.alternation_(
-        r5js.bnf.one(r5js.DatumType.IDENTIFIER),
-        r5js.bnf.one(r5js.DatumType.BOOLEAN),
-        r5js.bnf.one(r5js.DatumType.NUMBER),
-        r5js.bnf.one(r5js.DatumType.CHARACTER),
-        r5js.bnf.one(r5js.DatumType.STRING),
+        r5js.bnf.onePrimitive(r5js.DatumType.IDENTIFIER),
+        r5js.bnf.onePrimitive(r5js.DatumType.BOOLEAN),
+        r5js.bnf.onePrimitive(r5js.DatumType.NUMBER),
+        r5js.bnf.onePrimitive(r5js.DatumType.CHARACTER),
+        r5js.bnf.onePrimitive(r5js.DatumType.STRING),
         [
             r5js.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
             r5js.bnf.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.LIST),
