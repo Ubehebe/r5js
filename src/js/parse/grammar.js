@@ -31,32 +31,32 @@ r5js.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
     _.onePrimitive(r5js.DatumType.CHARACTER),
     _.onePrimitive(r5js.DatumType.STRING),
     _.seq(
-        _.oneTerminal(r5js.parse.Terminals.LPAREN),
+        _.one(r5js.parse.Terminals.LPAREN),
         _.zeroOrMore(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.LIST),
-        _.oneTerminal(r5js.parse.Terminals.RPAREN)),
+        _.one(r5js.parse.Terminals.RPAREN)),
     _.seq(
-        _.oneTerminal(r5js.parse.Terminals.LPAREN),
+        _.one(r5js.parse.Terminals.LPAREN),
         _.oneOrMore(r5js.parse.Nonterminals.DATUM).
             named(r5js.DatumType.DOTTED_LIST),
-        _.oneTerminal(r5js.parse.Terminals.DOT),
+        _.one(r5js.parse.Terminals.DOT),
         _.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.DOTTED_LIST),
-        _.oneTerminal(r5js.parse.Terminals.RPAREN)),
+        _.one(r5js.parse.Terminals.RPAREN)),
     _.seq(
-        _.oneTerminal(r5js.parse.Terminals.LPAREN_VECTOR),
+        _.one(r5js.parse.Terminals.LPAREN_VECTOR),
         _.zeroOrMore(r5js.parse.Nonterminals.DATUM).
             named(r5js.DatumType.VECTOR),
-        _.oneTerminal(r5js.parse.Terminals.RPAREN)),
+        _.one(r5js.parse.Terminals.RPAREN)),
     _.seq(
-        _.oneTerminal(r5js.parse.Terminals.TICK),
+        _.one(r5js.parse.Terminals.TICK),
         _.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.QUOTE)),
     _.seq(
-        _.oneTerminal(r5js.parse.Terminals.BACKTICK),
+        _.one(r5js.parse.Terminals.BACKTICK),
         _.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.QUASIQUOTE)),
     _.seq(
-        _.oneTerminal(r5js.parse.Terminals.COMMA),
+        _.one(r5js.parse.Terminals.COMMA),
         _.one(r5js.parse.Nonterminals.DATUM).named(r5js.DatumType.UNQUOTE)),
     _.seq(
-        _.oneTerminal(r5js.parse.Terminals.COMMA_AT),
+        _.one(r5js.parse.Terminals.COMMA_AT),
         _.one(r5js.parse.Nonterminals.DATUM).
             named(r5js.DatumType.UNQUOTE_SPLICING)));
 

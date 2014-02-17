@@ -57,6 +57,21 @@ r5js.bnf.One_.prototype.named = function(name) {
 /** @override */
 r5js.bnf.One_.prototype.match = function(ansDatum, tokenStream) {
   var rule = r5js.grammar[this.type_];
+  return rule ?
+      this.matchNonterminal_(ansDatum, tokenStream, rule) :
+      this.matchTerminal_(ansDatum, tokenStream);
+};
+
+
+/**
+ * @param {!r5js.Datum} ansDatum
+ * @param {!r5js.scan.TokenStream} tokenStream
+ * @param {!r5js.bnf.Rule} rule
+ * @return {r5js.Datum}
+ * @private
+ */
+r5js.bnf.One_.prototype.matchNonterminal_ = function(
+    ansDatum, tokenStream, rule) {
   var parsed = rule.match(new r5js.Datum(), tokenStream);
   if (!parsed) {
     return null;
@@ -65,6 +80,20 @@ r5js.bnf.One_.prototype.match = function(ansDatum, tokenStream) {
   ansDatum.appendChild(parsed);
   parsed.parent = ansDatum;
   return ansDatum;
+};
+
+
+/**
+ * @param {!r5js.Datum} ansDatum
+ * @param {!r5js.scan.TokenStream} tokenStream
+ * @return {r5js.Datum}
+ * @private
+ */
+r5js.bnf.One_.prototype.matchTerminal_ = function(ansDatum, tokenStream) {
+  var token = tokenStream.nextToken();
+  return (token && token.getPayload() === this.type_) ?
+      ansDatum :
+      null;
 };
 
 
@@ -152,44 +181,6 @@ r5js.bnf.zeroOrMore = function(nonterminal) {
  */
 r5js.bnf.oneOrMore = function(nonterminal) {
   return new r5js.bnf.AtLeast_(nonterminal, 1);
-};
-
-
-
-/**
- * @param {!r5js.parse.Terminal} terminal
- * @implements {r5js.bnf.Rule}
- * @struct
- * @constructor
- * @private
- */
-r5js.bnf.OneTerminal_ = function(terminal) {
-  /** @const @private {!r5js.parse.Terminal} */
-  this.terminal_ = terminal;
-};
-
-
-/** @override */
-r5js.bnf.OneTerminal_.prototype.named = function() {
-  return this;
-};
-
-
-/** @override */
-r5js.bnf.OneTerminal_.prototype.match = function(ansDatum, tokenStream) {
-  var token = tokenStream.nextToken();
-  return (token && token.getPayload() === this.terminal_) ?
-      ansDatum :
-      null;
-};
-
-
-/**
- * @param {!r5js.parse.Terminal} terminal
- * @return {!r5js.bnf.Rule}
- */
-r5js.bnf.oneTerminal = function(terminal) {
-  return new r5js.bnf.OneTerminal_(terminal);
 };
 
 
