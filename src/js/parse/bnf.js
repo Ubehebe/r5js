@@ -6,12 +6,14 @@ goog.provide('r5js.bnf');
 r5js.bnf.Rule = function() {};
 
 
-/** @return {boolean} */
-r5js.bnf.Rule.prototype.hasRepetition = function() {};
-
-
-/** @return {number} */
-r5js.bnf.Rule.prototype.getRepetition = function() {};
+/**
+ * @param {!r5js.Datum} ansDatum
+ * @param {!r5js.scan.TokenStream} tokenStream
+ * @param {function():r5js.Datum} parseFunction
+ * @return {boolean}
+ */
+r5js.bnf.Rule.prototype.match = function(
+    ansDatum, tokenStream, parseFunction) {};
 
 
 /** @return {?r5js.parse.Nonterminal} */
@@ -57,6 +59,69 @@ r5js.bnf.Rule_ = function(type, opt_repetition) {
 
 
 /** @override */
+r5js.bnf.Rule_.prototype.match = function(
+    ansDatum, tokenStream, parseFunction) {
+  return this.repetition_ === -1 ?
+      this.matchNoRepetition_(ansDatum, parseFunction) :
+      this.matchRepetition_(ansDatum, tokenStream, parseFunction);
+};
+
+
+/**
+ * @param {!r5js.Datum} ansDatum
+ * @param {function(): r5js.Datum} parseFunction
+ * @return {boolean}
+ * @private
+ */
+r5js.bnf.Rule_.prototype.matchNoRepetition_ = function(
+    ansDatum, parseFunction) {
+  var parsed = parseFunction();
+  if (!parsed) {
+    return false;
+  }
+  ansDatum.type = this.name_ || this.type_;
+  ansDatum.appendChild(parsed);
+  parsed.parent = ansDatum;
+  return true;
+};
+
+
+/**
+ * @param {!r5js.Datum} ansDatum
+ * @param {!r5js.scan.TokenStream} tokenStream
+ * @param {function():r5js.Datum} parseFunction
+ * @return {boolean}
+ * @private
+ */
+r5js.bnf.Rule_.prototype.matchRepetition_ = function(
+    ansDatum, tokenStream, parseFunction) {
+  var checkpoint = tokenStream.checkpoint();
+  var prev, cur, firstChild;
+  var num = 0;
+  while (cur = parseFunction()) {
+    ++num;
+    if (!firstChild)
+      firstChild = cur;
+    if (prev)
+      prev.nextSibling = cur;
+    prev = cur;
+  }
+
+  if (num >= this.repetition_) {
+    ansDatum.type = this.name_ || this.type_;
+    // TODO bl is this cast needed, or does it indicate a bug?
+    ansDatum.appendChild(/** @type {!r5js.Datum} */ (firstChild));
+    if (prev)
+      prev.parent = ansDatum;
+    return true;
+  } else {
+    tokenStream.restore(checkpoint);
+    return false;
+  }
+};
+
+
+/** @override */
 r5js.bnf.Rule_.prototype.named = function(nonterminal) {
   this.name_ = nonterminal;
   return this;
@@ -72,18 +137,6 @@ r5js.bnf.Rule_.prototype.getName = function() {
 /** @override */
 r5js.bnf.Rule_.prototype.getType = function() {
   return this.type_;
-};
-
-
-/** @override */
-r5js.bnf.Rule_.prototype.hasRepetition = function() {
-  return this.repetition_ !== -1;
-};
-
-
-/** @override */
-r5js.bnf.Rule_.prototype.getRepetition = function() {
-  return this.repetition_;
 };
 
 

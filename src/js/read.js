@@ -54,9 +54,9 @@ r5js.Reader.prototype.rhs_ = function(rule) {
     var type = rule.getType();
         var ok;
         if (type === r5js.parse.Nonterminals.DATUM) {
-            ok = this.onDatumOrDatums_(ansDatum, rule, this.parseDatum_);
+            ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatum_, this));
         } else if (type === r5js.parse.Nonterminals.DATUMS) {
-            ok = this.onDatumOrDatums_(ansDatum, rule, this.parseDatums_);
+            ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatums_, this));
         } else if (r5js.parse.isTerminal(type)) {
             ok = this.onTerminal_(type);
         } else {
@@ -67,59 +67,6 @@ r5js.Reader.prototype.rhs_ = function(rule) {
             return null;
         }
     return ansDatum;
-};
-
-
-/**
- * @param {!r5js.Datum} ansDatum
- * @param {!r5js.bnf.Rule} rule
- * @param {function(): !r5js.Datum} parseFunction
- * @return {boolean}
- * @private
- */
-r5js.Reader.prototype.onDatumOrDatums_ = function(ansDatum, rule, parseFunction) {
-
-    // Handle * and +
-    if (rule.hasRepetition()) {
-        var checkpoint = this.tokenStream_.checkpoint();
-        var prev, cur, firstChild;
-        var num = 0;
-        while (cur = parseFunction.apply(this)) {
-            ++num;
-            if (!firstChild)
-                firstChild = cur;
-            if (prev)
-                prev.nextSibling = cur;
-            prev = cur;
-        }
-
-        if (num >= rule.getRepetition()) {
-            ansDatum.type = rule.getName() || rule.getType();
-            // TODO bl is this cast needed, or does it indicate a bug?
-            ansDatum.appendChild(/** @type {!r5js.Datum} */ (firstChild));
-            if (prev)
-                prev.parent = ansDatum;
-            return true;
-        } else {
-            this.tokenStream_.restore(checkpoint);
-            this.errorMsg_ = 'expected at least '
-                + rule.getRepetition() + ' ' + rule.getName() + ', got ' + num;
-            return false;
-        }
-    }
-
-    // The normal case is exactly one of element.
-    else {
-        var parsed = parseFunction.apply(this);
-        if (!parsed) {
-            return false;
-        } else {
-            ansDatum.type = rule.getName() || rule.getType();
-            ansDatum.appendChild(parsed);
-            parsed.parent = ansDatum;
-            return true;
-        }
-    }
 };
 
 
@@ -180,9 +127,9 @@ r5js.Reader.prototype.sequence_ = function(rules) {
         var type = rule.getType();
         var ok;
         if (type === r5js.parse.Nonterminals.DATUM) {
-            ok = this.onDatumOrDatums_(ansDatum, rule, this.parseDatum_);
+            ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatum_, this));
         } else if (type === r5js.parse.Nonterminals.DATUMS) {
-            ok = this.onDatumOrDatums_(ansDatum, rule, this.parseDatums_);
+            ok = rule.match(ansDatum, this.tokenStream_, goog.bind(this.parseDatums_, this));
         } else if (r5js.parse.isTerminal(type)) {
             ok = this.onTerminal_(type);
         } else {
