@@ -20,124 +20,13 @@ goog.provide('r5js.Scanner');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
 goog.require('r5js.scan.tokenTypeName');
+goog.require('r5js.token.Boolean');
+goog.require('r5js.token.Character');
+goog.require('r5js.token.Identifier');
+goog.require('r5js.token.Number');
+goog.require('r5js.token.String');
+goog.require('r5js.token.Terminal');
 
-
-/**
- * @param {string} type
- * @implements {r5js.Token}
- * @struct
- * @constructor
- * @private
- */
-function Token_(type) {
-    /** @const @private {string} */
-    this.type_ = type;
-
-    /** @private {?} */
-    this.payload_ = undefined;
-}
-
-/** @override */
-Token_.prototype.getPayload = function() {
-    return this.payload_;
-};
-
-
-/** @override */
-Token_.prototype.matchesType = function(type) {
-    return this.type_ === r5js.scan.tokenTypeName(type);
-};
-
-Token_.prototype.numberFunnyBusiness = /[esfdli#\/]/i;
-Token_.prototype.numberForbidden = /[i@]/i;
-
-Token_.prototype.convertNumber = function (payload) {
-
-    /* Get rid of all exactness annotations. Because we're
-     using JavaScript math, all numbers are inexact, so the
-     exactness annotations have no semantic significance. */
-    payload = payload.replace(/#i|#e/i, '');
-
-    var originalLength = payload.length;
-
-    if (this.numberForbidden.test(payload))
-        throw new r5js.ScanError('unsupported number literal: ' + payload);
-
-    var base = 10;
-    if ((payload = payload.replace(/#x/i, '')).length < originalLength) {
-        base = 16;
-    } else if ((payload = payload.replace(/#d/i, '')).length < originalLength) {
-        ;
-    } else if ((payload = payload.replace(/#o/i, '')).length < originalLength) {
-        base = 8;
-    } else if ((payload = payload.replace(/#b/i, '')).length < originalLength) {
-        base = 2;
-    }
-
-    /* Get rid of all lone hashes. The lone hashes appear in the <decimal 10>
-     rule, but don't appear to have any semantic significance. */
-    payload = payload.replace('#', '');
-
-    var maybeRational = payload.split('/');
-    if (maybeRational.length === 2)
-        return parseInt(maybeRational[0], base) / parseInt(maybeRational[1], base);
-
-    /* If the base is 10, it could have additional features like an exponent
-     or a decimal point. ([sfdl] are precision annotations for exponents, which
-     we ignore.) If the base is not 10, it can't have any features
-     other than a base annotation (like "#x") and a division sign, both of
-     which have already been taken care of. */
-    else return base === 10
-        ? parseFloat(payload.replace(/[sfdl]/i, 'e'))
-        : parseInt(payload, base);
-};
-
-Token_.prototype.setPayload = function(payload) {
-    switch (this.type_) {
-        case 'identifier':
-            /* Converting Scheme identifiers to a canonical case makes
-             interoperability with JavaScript awkward. For example:
-
-             (((window 'document) 'querySelector) "body")
-
-             If querySelector is lowercased to queryselector, we might
-             have to search the receiver case-insensitively, which would
-             compromise correctness. Alternatively (but more syntactically rude)
-             we could require JS method names to be string literals.
-
-             I see little downside to making Scheme case-sensitive
-             (and R6RS might require it, I haven't looked), so I went ahead
-             and did it, commenting out the few test cases that thereby failed. */
-            this.payload_ = payload/*.toLowerCase()*/;
-            break;
-        case 'boolean':
-            this.payload_ = payload === '#t' || payload === '#T';
-            break;
-        case 'number':
-            this.payload_ = this.numberFunnyBusiness.test(payload)
-                ? this.convertNumber(payload)
-                : parseFloat(payload);
-            break;
-        case 'character':
-            var afterSlash = payload.substr(2);
-            if (afterSlash.length === 1)
-                this.payload_ = afterSlash;
-            /* R5RS 6.3.4: "Case is significant in #\<character>, but not in
-             #\<character name>.*/
-            else if (afterSlash.toLowerCase() === 'space')
-                this.payload_ = ' ';
-            else if (afterSlash.toLowerCase() === 'newline')
-                this.payload_ = '\n';
-            else throw new r5js.InternalInterpreterError('invalid character payload ' + payload);
-            break;
-        case 'string':
-            this.payload_ = payload.substr(1, payload.length - 2);
-            break;
-        default:
-            throw new r5js.InternalInterpreterError('invalid token type ' + this.type_);
-    }
-    return this;
-};
 
 /**
  * @param {string} text Program text to scan.
@@ -254,24 +143,22 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
         throw new r5js.ScanError(this.text.substr(this.token.lastIndex));
     } else if (matchArray[6]) {
         this.needDelimiter = false;
-        var token = new Token_(payload);
-        token.payload_ = payload;
-        return token;
+        return new r5js.token.Terminal(payload);
     } else if (matchArray[5]) {
         this.needDelimiter = true;
-        return new Token_('identifier').setPayload(payload);
+        return new r5js.token.Identifier(payload);
     } else if (matchArray[2]) {
         this.needDelimiter = false;
-        return new Token_('boolean').setPayload(payload);
+        return new r5js.token.Boolean(payload);
     } else if (matchArray[3]) {
         this.needDelimiter = true;
-        return new Token_('character').setPayload(payload);
+        return new r5js.token.Character(payload);
     } else if (matchArray[4]) {
         this.needDelimiter = false;
-        return new Token_('string').setPayload(payload);
+        return new r5js.token.String(payload);
     } else if (matchArray[1]) {
         this.needDelimiter = true;
-        return new Token_('number').setPayload(payload);
+        return new r5js.token.Number(payload);
     } else throw new r5js.InternalInterpreterError('invariant incorrect');
 };
 
