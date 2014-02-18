@@ -4,7 +4,6 @@ goog.provide('r5js.bnf');
 goog.require('r5js.Datum');
 // TODO bl circular dependency goog.require('r5js.grammar');
 goog.require('r5js.parse.Nonterminals');
-goog.require('r5js.scan.tokenTypeForDatumType');
 
 
 

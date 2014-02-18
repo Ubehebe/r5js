@@ -2,31 +2,29 @@ goog.provide('scanAs');
 goog.setTestOnly('scanAs');
 
 
-goog.require('r5js.scan.tokenTypeForDatumType');
-goog.require('r5js.scan.tokenTypeName');
 goog.require('r5js.Scanner');
 
 
 /**
- * @param {r5js.scan.TokenType} expectedTokenType
+ * @param {!r5js.DatumType} expectedType
  * @return {!tdd.matchers.Matcher}
  */
-scanAs = function(expectedTokenType) {
-  return new r5js.test.matchers.ScansAs_(expectedTokenType);
+scanAs = function(expectedType) {
+  return new r5js.test.matchers.ScansAs_(expectedType);
 };
 
 
 
 /**
- * @param {!r5js.scan.TokenType} expectedTokenType
+ * @param {!r5js.DatumType} expectedType
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
  * @private
  */
-r5js.test.matchers.ScansAs_ = function(expectedTokenType) {
-  /** @const @private {!r5js.scan.TokenType} */
-  this.expectedTokenType_ = expectedTokenType;
+r5js.test.matchers.ScansAs_ = function(expectedType) {
+  /** @const @private {!r5js.DatumType} */
+  this.expectedType_ = expectedType;
 };
 
 
@@ -42,9 +40,7 @@ r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
       return false;
     }
     var asDatum = token.formatDatum(new r5js.Datum());
-    return r5js.scan.tokenTypeForDatumType(
-        /** @type {!r5js.DatumType} */ (asDatum.type)) ===
-        this.expectedTokenType_;
+    return asDatum.type === this.expectedType_;
   } catch (e) {
     return false; // some tests purposely cause scan errors
   }
@@ -53,16 +49,11 @@ r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
 
 /** @override */
 r5js.test.matchers.ScansAs_.prototype.getSuccessMessage = function(value) {
-  return value +
-      ' correctly scans as ' +
-      r5js.scan.tokenTypeName(this.expectedTokenType_);
+  return value + ' correctly scans as ' + this.expectedType_;
 };
 
 
 /** @override */
 r5js.test.matchers.ScansAs_.prototype.getFailureMessage = function(value) {
-  return 'expected ' +
-      value +
-      ' to scan as ' +
-      r5js.scan.tokenTypeName(this.expectedTokenType_);
+  return 'expected ' + value + ' to scan as ' + this.expectedType_;
 };

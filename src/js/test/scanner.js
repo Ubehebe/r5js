@@ -2,7 +2,7 @@ goog.provide('r5js.test.Scanner');
 
 
 goog.require('expect');
-goog.require('r5js.scan.TokenType');
+goog.require('r5js.DatumType');
 goog.require('scanAs');
 goog.require('tdd.TestType');
 
@@ -31,17 +31,17 @@ r5js.test.Scanner.prototype.toString = function() {
 
 r5js.test.Scanner.prototype['testBooleans'] = function() {
   ['#t', '#f', '#T', '#F'].forEach(function(text) {
-    expect(text).to(scanAs(r5js.scan.TokenType.BOOLEAN));
+    expect(text).to(scanAs(r5js.DatumType.BOOLEAN));
   });
   ['##f', '#', '#'].forEach(function(text) {
-    expect(text).not().to(scanAs(r5js.scan.TokenType.BOOLEAN));
+    expect(text).not().to(scanAs(r5js.DatumType.BOOLEAN));
   });
 };
 
 
 r5js.test.Scanner.prototype['testCharacters'] = function() {
   ['#\\c', '#\\space', '#\\newline', '#\\\\'].forEach(function(text) {
-    expect(text).to(scanAs(r5js.scan.TokenType.CHARACTER));
+    expect(text).to(scanAs(r5js.DatumType.CHARACTER));
   });
 };
 
@@ -49,30 +49,30 @@ r5js.test.Scanner.prototype['testCharacters'] = function() {
 r5js.test.Scanner.prototype['testIdentifiers'] = function() {
   ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>',
    '?', '~', '_', '^', '&+', 'h+...@@@-.'].forEach(function(text) {
-    expect(text).to(scanAs(r5js.scan.TokenType.IDENTIFIER));
+    expect(text).to(scanAs(r5js.DatumType.IDENTIFIER));
   });
   ['|', '[', ']', '{', '}'].forEach(function(text) {
-    expect(text).not().to(scanAs(r5js.scan.TokenType.IDENTIFIER));
+    expect(text).not().to(scanAs(r5js.DatumType.IDENTIFIER));
   });
 };
 
 
 r5js.test.Scanner.prototype['testNumbers'] = function() {
   r5js.test.Scanner.getValidNumberTokens_().forEach(function(text) {
-    expect(text).to(scanAs(r5js.scan.TokenType.NUMBER));
+    expect(text).to(scanAs(r5js.DatumType.NUMBER));
   });
   ['1+2'].forEach(function(text) {
-    expect(text).not().to(scanAs(r5js.scan.TokenType.NUMBER));
+    expect(text).not().to(scanAs(r5js.DatumType.NUMBER));
   });
 };
 
 
 r5js.test.Scanner.prototype['testStrings'] = function() {
   ['""', '"hello, world"', '" \\" "', '"\\\\"'].forEach(function(text) {
-    expect(text).to(scanAs(r5js.scan.TokenType.STRING));
+    expect(text).to(scanAs(r5js.DatumType.STRING));
   });
   ['"', '\\'].forEach(function(text) {
-    expect(text).not().to(scanAs(r5js.scan.TokenType.STRING));
+    expect(text).not().to(scanAs(r5js.DatumType.STRING));
   });
 };
 

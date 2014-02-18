@@ -19,7 +19,6 @@ goog.provide('r5js.Scanner');
 
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
-goog.require('r5js.scan.tokenTypeName');
 goog.require('r5js.token.Boolean');
 goog.require('r5js.token.Character');
 goog.require('r5js.token.Identifier');

@@ -9,7 +9,6 @@ goog.provide('r5js.token.Terminal');
 goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
-goog.require('r5js.scan.TokenType');
 
 
 
