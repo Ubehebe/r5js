@@ -14,11 +14,10 @@ r5js.Token.prototype.getPayload = function() {};
 
 
 /**
- * @param {!r5js.scan.TokenType} type
- * @return {boolean}
- * TODO bl: temporary shim. Remove.
+  * @param {!r5js.Datum} datum
+ * @return {!r5js.Datum}
  */
-r5js.Token.prototype.matchesType = function(type) {};
+r5js.Token.prototype.formatDatum = function(datum) {};
 
 
 

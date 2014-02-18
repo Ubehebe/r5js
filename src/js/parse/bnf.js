@@ -213,13 +213,8 @@ r5js.bnf.OnePrimitive_.prototype.match = function(ansDatum, tokenStream) {
   if (!token) {
     return null;
   }
-  if (!token.matchesType(/** @type {!r5js.scan.TokenType} */ (
-      r5js.scan.tokenTypeForDatumType(this.type_)))) {
-    return null;
-  }
-  ansDatum.payload = token.getPayload();
-  ansDatum.type = this.type_;
-  return ansDatum;
+  token.formatDatum(ansDatum);
+  return ansDatum.type === this.type_ ? ansDatum : null;
 };
 
 

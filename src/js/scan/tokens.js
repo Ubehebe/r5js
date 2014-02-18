@@ -6,6 +6,7 @@ goog.provide('r5js.token.String');
 goog.provide('r5js.token.Terminal');
 
 
+goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
 goog.require('r5js.scan.TokenType');
@@ -14,7 +15,7 @@ goog.require('r5js.scan.TokenType');
 
 /**
  * @param {T} payload
- * @param {!r5js.scan.TokenType} type
+ * @param {!r5js.DatumType} type
  * @implements {r5js.Token}
  * @struct
  * @constructor
@@ -25,7 +26,7 @@ r5js.token.Base_ = function(payload, type) {
   /** @const @private {T} */
   this.payload_ = payload;
 
-  /** @const @private {!r5js.scan.TokenType} */
+  /** @const @private {!r5js.DatumType} */
   this.type_ = type;
 };
 
@@ -37,8 +38,10 @@ r5js.token.Base_.prototype.getPayload = function() {
 
 
 /** @override */
-r5js.token.Base_.prototype.matchesType = function(tokenType) {
-  return tokenType === this.type_;
+r5js.token.Base_.prototype.formatDatum = function(datum) {
+  datum.payload = this.payload_;
+  datum.type = this.type_;
+  return datum;
 };
 
 
@@ -63,7 +66,7 @@ r5js.token.Identifier = function(name) {
      I see little downside to making Scheme case-sensitive
      (and R6RS might require it, I haven't looked), so I went ahead
      and did it, commenting out the few test cases that thereby failed. */
-  goog.base(this, name/*.toLowerCase()*/, r5js.scan.TokenType.IDENTIFIER);
+  goog.base(this, name/*.toLowerCase()*/, r5js.DatumType.IDENTIFIER);
 };
 goog.inherits(r5js.token.Identifier, r5js.token.Base_);
 
@@ -77,7 +80,7 @@ goog.inherits(r5js.token.Identifier, r5js.token.Base_);
 */
 r5js.token.Boolean = function(payload) {
   var actualPayload = payload === '#t' || payload === '#T';
-  goog.base(this, actualPayload, r5js.scan.TokenType.BOOLEAN);
+  goog.base(this, actualPayload, r5js.DatumType.BOOLEAN);
 };
 goog.inherits(r5js.token.Boolean, r5js.token.Base_);
 
@@ -91,7 +94,7 @@ goog.inherits(r5js.token.Boolean, r5js.token.Base_);
 */
 r5js.token.Character = function(name) {
   goog.base(this,
-      r5js.token.Character.normalize_(name), r5js.scan.TokenType.CHARACTER);
+      r5js.token.Character.normalize_(name), r5js.DatumType.CHARACTER);
 };
 goog.inherits(r5js.token.Character, r5js.token.Base_);
 
@@ -129,7 +132,7 @@ r5js.token.Number = function(rawPayload) {
   var numericPayload = r5js.token.Number.FUNNY_BUSINESS_.test(rawPayload) ?
       r5js.token.Number.convert_(rawPayload) :
       parseFloat(rawPayload);
-  goog.base(this, numericPayload, r5js.scan.TokenType.NUMBER);
+  goog.base(this, numericPayload, r5js.DatumType.NUMBER);
 };
 goog.inherits(r5js.token.Number, r5js.token.Base_);
 
@@ -198,7 +201,7 @@ r5js.token.Number.convert_ = function(payload) {
  */
 r5js.token.String = function(payload) {
   var actualPayload = payload.substr(1, payload.length - 2);
-  goog.base(this, actualPayload, r5js.scan.TokenType.STRING);
+  goog.base(this, actualPayload, r5js.DatumType.STRING);
 };
 goog.inherits(r5js.token.String, r5js.token.Base_);
 
