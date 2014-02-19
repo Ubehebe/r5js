@@ -24,44 +24,23 @@ goog.require('r5js.util.Logger');
 /**
  *
  * @param {!r5js.IPipeline} pipeline A pipeline object.
+ * @struct
  * @constructor
  */
 r5js.PublicApi = function(pipeline) {
-
-    /**
-     * @type {!r5js.IPipeline}
-     * @private
-     */
+    /** @const @private {!r5js.IPipeline} */
     this.pipeline_ = pipeline;
 };
 
-/**
- * @param {?string} unitTestUrl The URL for the unit tests.
- * @param {function()} sideEffectHandler A side effect handler.
- * @param {r5js.util.Logger} logger Logger, for test output.
- * The logger is nullable because this method is called from node_exports.js,
- * which lives outside the JavaScript root managed by the Closure build system
- * and cannot conveniently instantiate a logger.
- * TODO bl: tighten the type of sideEffectHandler.
- */
-r5js.PublicApi.prototype.test = function(
-    unitTestUrl, sideEffectHandler, logger) {
-    logger = logger || r5js.util.Logger.getLogger('r5js');
-    if (unitTestUrl) {
-        this.evalUrl(unitTestUrl, sideEffectHandler, logger);
-    }
-};
 
-
-/**
- * @param {string} string The string to read.
- */
+/** @param {string} string The string to read. */
 r5js.PublicApi.prototype.read = function(string) {
     return this.pipeline_.read(
-        this.pipeline_.scan(string)
-    );
+        this.pipeline_.scan(string));
 };
 
+
+/** @param {string} string The string to parse. */
 r5js.PublicApi.prototype.parse = function(string) {
     return this.pipeline_.parse(
         this.pipeline_.read(
@@ -168,25 +147,6 @@ r5js.PublicApi.prototype.repl = function (string, sideEffectHandler, logger) {
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :
         (ans ? ans.toString() : '');
-};
-
-
-/**
- * @param {string} url URL to open.
- * @param {function()} sideEffectHandler A side effect handler.
- * @param {!r5js.util.Logger} logger Logger.
- * TODO bl: narrow the type of sideEffectHandler.
- */
-r5js.PublicApi.prototype.evalUrl = function(url, sideEffectHandler, logger) {
-    var req = new XMLHttpRequest();
-    req.open('GET', url);
-    var self = this;
-    req.onreadystatechange = function() {
-      if (req.readyState === 4 && req.status === 200) {
-          self.Eval(req.responseText, sideEffectHandler, logger);
-      }
-    };
-    req.send();
 };
 
 
