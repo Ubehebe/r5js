@@ -30,6 +30,7 @@ goog.require('r5js.parse.isTerminal');
 /**
  * @param {!r5js.TokenStream} scanner
  * @implements {r5js.IReader}
+ * @struct
  * @constructor
  */
 r5js.Reader = function(scanner) {
