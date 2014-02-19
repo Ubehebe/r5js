@@ -40,14 +40,14 @@ r5js.Scanner = function(text) {
 
     /** @private {number} */
     this.start_ = 0;
-
+    
     /**
-     * Since all scanners use the same RegExp objects, we have to reset
-     * the RegExp's state. If concurrent scanners are ever needed,
-     * each will need its own RegExps.
-     * @type {number}
+     * This cannot be static because JavaScript regular expressions
+     * are stateful, storing the indices of the last successful match.
+     * @const
+     * @private {!RegExp}
      */
-    this.token.lastIndex = 0;
+    this.tokenRegex_ = r5js.Scanner.newTokenRegex_();
 
     /**
      * R5RS 7.1.1: "Tokens which require implicit termination
@@ -66,11 +66,11 @@ r5js.Scanner = function(text) {
 r5js.Scanner.prototype.shouldMatchAgain = function(matchArray) {
     if (!matchArray) {
         return false; // eof
-    } else if (this.token.lastIndex > this.start_ + matchArray[0].length) {
-        throw new r5js.ScanError(this.text_.substr(this.start_, this.token.lastIndex - this.start_));
+    } else if (this.tokenRegex_.lastIndex > this.start_ + matchArray[0].length) {
+        throw new r5js.ScanError(this.text_.substr(this.start_, this.tokenRegex_.lastIndex - this.start_));
     } else {
         var indexOfWhitespace = 7;
-        this.start_ = this.token.lastIndex;
+        this.start_ = this.tokenRegex_.lastIndex;
         var ans = !!matchArray[indexOfWhitespace];
         /* Whitespace counts as a delimiter, so if the previous token needed
          a delimiter, we just found one. */
@@ -87,7 +87,7 @@ r5js.Scanner.prototype.nextToken = function() {
     var match;
 
     do {
-        match = this.token.exec(this.text_);
+        match = this.tokenRegex_.exec(this.text_);
     } while (this.shouldMatchAgain(match));
 
     if (!match) {
@@ -96,7 +96,7 @@ r5js.Scanner.prototype.nextToken = function() {
          Since we want the scanner to stay at the end of input, we
          manually set token.lastIndex. */
         if (this.start_ === this.text_.length)
-            this.token.lastIndex = this.text_.length;
+            this.tokenRegex_.lastIndex = this.text_.length;
         else
             throw new r5js.ScanError(this.text_.substr(this.start_));
         return match;
@@ -120,7 +120,7 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
         /* If the previous token required a delimiter but we didn't get
          one, that's a scan error. Example: 1+2 scans as two numbers
          (1 and +2), but there has to be a delimiter between them. */
-        throw new r5js.ScanError(this.text_.substr(this.token.lastIndex));
+        throw new r5js.ScanError(this.text_.substr(this.tokenRegex_.lastIndex));
     } else if (matchArray[6]) {
         this.needDelimiter_ = false;
         return r5js.token.forSpecialTerminal(payload);
@@ -157,10 +157,10 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
  *
  * The order of the subgroups is quite important, because some tokens
  * are prefixes of others (for example, "." and "...", "-2" vs. "-" "2".)
+ * @return {!RegExp}
+ * @private
  */
- r5js.Scanner.prototype.token = (function() {
-
-
+ r5js.Scanner.newTokenRegex_ = function() {
 
     var letter = "[a-z]";
     var specialInitial = "[\\!\\$%&\\*\/\\:<\\=\\>\\?\\^_~]";
@@ -243,4 +243,4 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
             + "|" + specialTokens // index 6 in exec array
             + "|" + intertokenSpace, // index 7 in exec array
         "gi");
-})();
+ };
