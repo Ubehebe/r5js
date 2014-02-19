@@ -62,10 +62,15 @@ r5js.LazyBoot.prototype.read = function(scanner) {
 };
 
 
-/** @override */
-r5js.LazyBoot.prototype.parse = function(root, lhs) {
+/**
+ * @param {!r5js.Datum} root
+ * @param {!r5js.parse.Nonterminal=} opt_nonterminal
+ * @return {!r5js.Datum}
+ * TODO bl: why does the compiler not accept an @override here?
+ */
+r5js.LazyBoot.prototype.parse = function(root, opt_nonterminal) {
     this.checkBooted_();
-    return this.pipeline_.parse(root, lhs);
+    return this.pipeline_.parse(root, opt_nonterminal);
 };
 
 

@@ -89,7 +89,7 @@ function install(lib, env, logger) {
       /** @type {!r5js.Datum} */ (new r5js.Reader(
       new r5js.Scanner(lib)
       ).read())
-      ).parse(null)
+      ).parse()
             .desugar(env).setStartingEnv(env),
       null,
       null,

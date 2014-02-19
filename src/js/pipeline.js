@@ -54,14 +54,21 @@ r5js.Pipeline.prototype.read = function(scanner) {
 };
 
 
-/** @override */
-r5js.Pipeline.prototype.parse = function(root, lhs) {
-  var ans = new r5js.Parser(root).parse(lhs);
-  if (ans) {
-    return ans;
-  } else {
-    throw new r5js.ParseError(root);
+/**
+ * @param {!r5js.Datum} root
+ * @param {!r5js.parse.Nonterminal=} opt_nonterminal
+ * @return {!r5js.Datum}
+ * TODO bl: why does the compiler not accept an @override here?
+ */
+r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
+  var parser = new r5js.Parser(root);
+  var ans = goog.isDef(opt_nonterminal) ?
+      parser.parse(opt_nonterminal) :
+      parser.parse();
+  if (!ans) {
+      throw new r5js.ParseError(root);
   }
+  return ans;
 };
 
 

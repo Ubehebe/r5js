@@ -46,12 +46,12 @@ r5js.IPipeline.prototype.read = function(scanner) {};
 
 
 /**
- * @param {!r5js.Datum} root The root to desugar.
- * @param {*} lhs Not sure what the type of this is.
- * @return {!r5js.Datum} Don't know this either.
- * TODO bl: figure out the signature.
+ * @param {!r5js.Datum} root The root to parse.
+ * @param {!r5js.parse.Nonterminal=} opt_nonterminal The nonterminal
+ * that should be the root of the parse tree.
+ * @return {!r5js.Datum}
  */
-r5js.IPipeline.prototype.parse = function(root, lhs) {};
+r5js.IPipeline.prototype.parse = function(root, opt_nonterminal) {};
 
 
 /**

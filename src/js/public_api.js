@@ -65,10 +65,7 @@ r5js.PublicApi.prototype.read = function(string) {
 r5js.PublicApi.prototype.parse = function(string) {
     return this.pipeline_.parse(
         this.pipeline_.read(
-            this.pipeline_.scan(string)
-        ),
-        null
-    );
+            this.pipeline_.scan(string)));
 };
 
 
@@ -135,9 +132,7 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler, logger) {
                 this.pipeline_.parse(
                     this.pipeline_.read(
                         this.pipeline_.scan(string)
-                    ),
-                    null
-                ),
+                    )),
                 false
             ),
             sideEffectHandler,
@@ -160,12 +155,10 @@ r5js.PublicApi.prototype.repl = function (string, sideEffectHandler, logger) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
-                this.pipeline_.parse(
+                    this.pipeline_.parse(
                     this.pipeline_.read(
                         this.pipeline_.scan(string)
-                    ),
-                    null
-                ),
+                    )),
                 true
             ),
             goog.nullFunction,

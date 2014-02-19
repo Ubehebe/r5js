@@ -108,6 +108,7 @@ goog.require('r5js.Macro');
 
 /**
  * @param {!r5js.Datum} root The root of the tree to parse.
+ * @implements {r5js.IParser}
  * @constructor
  */
 r5js.Parser = function(root) {
@@ -1541,13 +1542,13 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_DEFINITION] = function() {
     );
 };
 
-
 /**
- * @param {*=} lhs
- * TODO bl: narrow the type of the parameter.
+ * @param {!r5js.parse.Nonterminal=} opt_nonterminal
+ * @return {r5js.Datum}
+ * TODO bl: why does the compiler not accept an @override here?
  */
-r5js.Parser.prototype.parse = function(lhs) {
-    var fun = this[lhs || r5js.parse.Nonterminals.PROGRAM];
+r5js.Parser.prototype.parse = function(opt_nonterminal) {
+    var fun = this[opt_nonterminal || r5js.parse.Nonterminals.PROGRAM];
     if (fun) {
         var ans = fun.apply(this);
 
@@ -1561,7 +1562,7 @@ r5js.Parser.prototype.parse = function(lhs) {
                      into fixParserSensitiveIds() */
                     for (var cur = ans; cur; cur = cur.nextSibling)
                         cur.unsetParse();
-                    return new r5js.Parser(ans).parse(lhs);
+                    return new r5js.Parser(ans).parse(opt_nonterminal);
                 } else return ans;
             } else return ans;
         } else {
@@ -1569,9 +1570,9 @@ r5js.Parser.prototype.parse = function(lhs) {
              this means parsing failed. Exception: if an lhs was passed in,
              this was for debugging, and we want to present whatever we
              finished with. */
-            return lhs ? ans : null;
+            return goog.isDef(opt_nonterminal) ? ans : null;
         }
     }
     else
-        throw new r5js.InternalInterpreterError('unknown lhs: ' + lhs);
+        throw new r5js.InternalInterpreterError('unknown lhs: ' + opt_nonterminal);
 };

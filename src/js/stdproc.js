@@ -1211,7 +1211,7 @@ r5js.builtins['eval'] = {
                  Reasoning about this copy/pasted code is simpler than
                  reasoning about the build process. */
 
-                var env = envSpec.payload;
+                var env = /** @type {!r5js.IEnvironment} */ (envSpec.payload);
                 // don't accidentally evaluate the next expr!
                 expr.nextSibling = null;
 
