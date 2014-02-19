@@ -1042,6 +1042,8 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  * @return {*} TODO bl.
+ * @suppress {const} for the assignment to continuation.lastResultName,
+ * which may indicate a bug. TODO bl investigate.
  */
 function processQuasiquote(datum, env, cpsName, parserProvider) {
 
@@ -1054,15 +1056,15 @@ function processQuasiquote(datum, env, cpsName, parserProvider) {
         return node.isUnquote() && (node.qqLevel === qqLevel);
       },
       function(node) {
-        var asContinuable = parserProvider(
+        var asContinuable = /** @type {!r5js.Continuable} */ (parserProvider(
             /** @type {!r5js.Datum} */(node.firstChild)).
                 parse('expression').
-                desugar(env, true);
+                desugar(env, true));
         var continuation = asContinuable.getLastContinuable().continuation;
         /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */
-        continuation.lastResultName = node.type + goog.getUid(new Object());
+        continuation.lastResultName = node.type + '' + goog.getUid(new Object());
         newCalls.appendContinuable(asContinuable);
         return r5js.data.newIdOrLiteral(continuation.lastResultName);
       });
