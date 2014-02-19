@@ -18,7 +18,7 @@ goog.provide('r5js.PublicApi');
 
 
 goog.require('r5js.OutputMode');
-goog.require('r5js.Scanner');
+goog.require('r5js.ScannerImpl');
 goog.require('r5js.util.Logger');
 
 /**

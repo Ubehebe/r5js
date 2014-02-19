@@ -8,7 +8,7 @@ goog.require('r5js.Datum');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
 goog.require('r5js.scan.TokenStreamImpl');
-goog.require('r5js.Scanner');
+goog.require('r5js.ScannerImpl');
 
 
 /**
@@ -37,7 +37,7 @@ r5js.test.matchers.ParsesAs = function(expectedType) {
 r5js.test.matchers.ParsesAs.prototype.matches = function(value) {
   var datumRoot = new r5js.Reader(
       new r5js.scan.TokenStreamImpl(
-          new r5js.Scanner(/** @type {string} */ (value)))).read();
+          new r5js.ScannerImpl(/** @type {string} */ (value)))).read();
   var actualResult = (datumRoot instanceof r5js.Datum) &&
       new r5js.Parser(datumRoot).rhs({type: this.expectedType_});
   return actualResult &&

@@ -2,7 +2,7 @@ goog.provide('scanAs');
 goog.setTestOnly('scanAs');
 
 
-goog.require('r5js.Scanner');
+goog.require('r5js.ScannerImpl');
 
 
 /**
@@ -31,7 +31,7 @@ r5js.test.matchers.ScansAs_ = function(expectedType) {
 /** @override */
 r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
   try {
-    var scanner = new r5js.Scanner(/** @type {string} */ (value));
+    var scanner = new r5js.ScannerImpl(/** @type {string} */ (value));
     var token = scanner.nextToken();
     // There should be exactly one token in the input.
     // (For example, 1+2 should fail to scan as one number token,

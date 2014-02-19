@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.Scanner');
+goog.provide('r5js.ScannerImpl');
 
 
 goog.require('r5js.InternalInterpreterError');
@@ -34,7 +34,7 @@ goog.require('r5js.token.forSpecialTerminal');
  * @struct
  * @constructor
  */
-r5js.Scanner = function(text) {
+r5js.ScannerImpl = function(text) {
 
   /** @const @private {string} */
   this.text_ = text;
@@ -48,7 +48,7 @@ r5js.Scanner = function(text) {
    * @const
    * @private {!RegExp}
    */
-  this.tokenRegex_ = r5js.Scanner.newTokenRegex_();
+  this.tokenRegex_ = r5js.ScannerImpl.newTokenRegex_();
 
   /**
    * R5RS 7.1.1: "Tokens which require implicit termination
@@ -65,7 +65,7 @@ r5js.Scanner = function(text) {
  * @return {boolean} TODO bl.
  * @private
  */
-r5js.Scanner.prototype.shouldMatchAgain_ = function(matchArray) {
+r5js.ScannerImpl.prototype.shouldMatchAgain_ = function(matchArray) {
   if (!matchArray) {
     return false; // eof
   } else if (this.tokenRegex_.lastIndex > this.start_ + matchArray[0].length) {
@@ -86,7 +86,7 @@ r5js.Scanner.prototype.shouldMatchAgain_ = function(matchArray) {
 
 
 /** @override */
-r5js.Scanner.prototype.nextToken = function() {
+r5js.ScannerImpl.prototype.nextToken = function() {
 
   var match;
 
@@ -116,7 +116,7 @@ r5js.Scanner.prototype.nextToken = function() {
  * @return {r5js.Token}
  * @private
  */
-r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
+r5js.ScannerImpl.prototype.matchToToken_ = function(matchArray) {
   /* See the return value of Scanner.prototype.token for the significance
      of the magic numbers here. */
   var payload = matchArray[0];
@@ -165,7 +165,7 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
  * @return {!RegExp}
  * @private
  */
-r5js.Scanner.newTokenRegex_ = function() {
+r5js.ScannerImpl.newTokenRegex_ = function() {
 
   var letter = '[a-z]';
   var specialInitial = '[\\!\\$%&\\*\/\\:<\\=\\>\\?\\^_~]';
