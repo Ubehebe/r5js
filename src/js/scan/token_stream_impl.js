@@ -3,13 +3,13 @@ goog.provide('r5js.scan.TokenStreamImpl');
 
 
 /**
- * @param {!r5js.IScanner} scanner
+ * @param {!r5js.Scanner} scanner
  * @implements {r5js.scan.TokenStream}
  * @struct
  * @constructor
  */
 r5js.scan.TokenStreamImpl = function(scanner) {
-  /** @const @private {!r5js.IScanner} */
+  /** @const @private {!r5js.Scanner} */
   this.tokenStream_ = scanner;
 
   /** @const @private {!Array.<!r5js.Token>} */

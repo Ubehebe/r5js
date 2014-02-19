@@ -30,7 +30,7 @@ goog.require('r5js.token.forSpecialTerminal');
 
 /**
  * @param {string} text Program text to scan.
- * @implements {r5js.IScanner}
+ * @implements {r5js.Scanner}
  * @struct
  * @constructor
  */
