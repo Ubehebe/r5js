@@ -61,22 +61,6 @@ r5js.Scanner = function(text) {
     this.needDelimiter = false;
 };
 
-/**
- * Just for debugging.
- * @return {!Array.<!r5js.Token>}
- */
-r5js.Scanner.prototype.tokenize = function() {
-
-    var ans = [];
-
-    var token;
-    while (token = this.nextToken())
-        ans.push(token);
-
-    return ans;
-
-};
-
 
 /**
  * @param matchArray

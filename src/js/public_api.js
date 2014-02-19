@@ -54,14 +54,6 @@ r5js.PublicApi.prototype.test = function(
 
 
 /**
- * @param {string} string The string to tokenize.
- */
-r5js.PublicApi.prototype.tokenize = function(string) {
-    return new r5js.Scanner(string).tokenize();
-};
-
-
-/**
  * @param {string} string The string to read.
  */
 r5js.PublicApi.prototype.read = function(string) {
