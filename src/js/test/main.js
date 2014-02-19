@@ -10,9 +10,8 @@ goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
 goog.require('r5js.Reader');
-goog.require('r5js.ScannerImpl');
+goog.require('r5js.Scanner');
 goog.require('r5js.boot');
-goog.require('r5js.scan.TokenStreamImpl');
 goog.require('r5js.test.Interpreter');
 goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
@@ -46,9 +45,7 @@ r5js.test.main = function(opt_argv) {
 
 /** @param {string} text Text to read. */
 r5js.test.readSandbox = function(text) {
-  new r5js.Reader(
-      new r5js.scan.TokenStreamImpl(
-      new r5js.ScannerImpl(text))).read();
+  new r5js.Reader(new r5js.Scanner(text)).read();
 };
 
 

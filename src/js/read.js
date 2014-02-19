@@ -28,20 +28,20 @@ goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.isTerminal');
 
 /**
- * @param {!r5js.scan.TokenStream} tokenStream
+ * @param {!r5js.TokenStream} scanner
  * @implements {r5js.IReader}
  * @constructor
  */
-r5js.Reader = function(tokenStream) {
-    /** @const @private {!r5js.scan.TokenStream} */
-    this.tokenStream_ = tokenStream;
+r5js.Reader = function(scanner) {
+    /** @const @private {!r5js.TokenStream} */
+    this.scanner_ = scanner;
 };
 
 
 /** @override */
 r5js.Reader.prototype.read = function() {
     var datums = r5js.grammar[r5js.parse.Nonterminals.DATUMS].match(
-        new r5js.Datum(), this.tokenStream_);
+        new r5js.Datum(), this.scanner_);
     if (datums.firstChild)
         datums.firstChild.lastSibling().parent = null;
     return datums.firstChild;

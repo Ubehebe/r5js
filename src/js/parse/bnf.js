@@ -13,7 +13,7 @@ r5js.bnf.Rule = function() {};
 
 /**
  * @param {!r5js.Datum} ansDatum
- * @param {!r5js.scan.TokenStream} tokenStream
+ * @param {!r5js.TokenStream} tokenStream
  * @return {r5js.Datum}
  */
 r5js.bnf.Rule.prototype.match = function(ansDatum, tokenStream) {};
@@ -73,7 +73,7 @@ r5js.bnf.One_.prototype.match = function(ansDatum, tokenStream) {
 
 /**
  * @param {!r5js.Datum} ansDatum
- * @param {!r5js.scan.TokenStream} tokenStream
+ * @param {!r5js.TokenStream} tokenStream
  * @param {!r5js.bnf.Rule} rule
  * @return {r5js.Datum}
  * @private
@@ -93,7 +93,7 @@ r5js.bnf.One_.prototype.matchNonterminal_ = function(
 
 /**
  * @param {!r5js.Datum} ansDatum
- * @param {!r5js.scan.TokenStream} tokenStream
+ * @param {!r5js.TokenStream} tokenStream
  * @return {r5js.Datum}
  * @private
  */

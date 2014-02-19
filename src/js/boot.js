@@ -23,8 +23,7 @@ goog.require('r5js.Parser');
 goog.require('r5js.PrimitiveProcedures');
 goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
-goog.require('r5js.scan.TokenStreamImpl');
-goog.require('r5js.ScannerImpl');
+goog.require('r5js.Scanner');
 goog.require('r5js.ffi');
 goog.require('r5js.ffiutil');
 goog.require('r5js.trampoline');
@@ -88,7 +87,7 @@ function install(lib, env, logger) {
   return r5js.trampoline(
       new r5js.Parser(
       /** @type {!r5js.Datum} */ (new r5js.Reader(
-      new r5js.scan.TokenStreamImpl(new r5js.ScannerImpl(lib))
+      new r5js.Scanner(lib)
       ).read())
       ).parse(null)
             .desugar(env).setStartingEnv(env),
