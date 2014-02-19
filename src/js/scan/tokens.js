@@ -3,12 +3,13 @@ goog.provide('r5js.token.Character');
 goog.provide('r5js.token.Identifier');
 goog.provide('r5js.token.Number');
 goog.provide('r5js.token.String');
-goog.provide('r5js.token.Terminal');
+goog.provide('r5js.token.forSpecialTerminal');
 
 
 goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
+goog.require('r5js.parse.Terminals');
 
 
 
@@ -212,8 +213,46 @@ goog.inherits(r5js.token.String, r5js.token.Base_);
  * @struct
  * @constructor
  * @suppress {checkTypes} TODO bl
+ * @private
  */
-r5js.token.Terminal = function(payload) {
+r5js.token.Terminal_ = function(payload) {
   goog.base(this, payload, 'sefkj');
 };
-goog.inherits(r5js.token.Terminal, r5js.token.Base_);
+goog.inherits(r5js.token.Terminal_, r5js.token.Base_);
+
+
+/** @private {!Object.<!r5js.parse.Terminal, !r5js.Token>} */
+r5js.token.SPECIAL_TERMINALS_ = {};
+
+r5js.token.SPECIAL_TERMINALS_[r5js.parse.Terminals.LPAREN] =
+    new r5js.token.Terminal_(r5js.parse.Terminals.LPAREN);
+
+r5js.token.SPECIAL_TERMINALS_[r5js.parse.Terminals.RPAREN] =
+    new r5js.token.Terminal_(r5js.parse.Terminals.RPAREN);
+
+r5js.token.SPECIAL_TERMINALS_[r5js.parse.Terminals.TICK] =
+    new r5js.token.Terminal_(r5js.parse.Terminals.TICK);
+
+r5js.token.SPECIAL_TERMINALS_[r5js.parse.Terminals.BACKTICK] =
+    new r5js.token.Terminal_(r5js.parse.Terminals.BACKTICK);
+
+r5js.token.SPECIAL_TERMINALS_[r5js.parse.Terminals.LPAREN_VECTOR] =
+    new r5js.token.Terminal_(r5js.parse.Terminals.LPAREN_VECTOR);
+
+r5js.token.SPECIAL_TERMINALS_[r5js.parse.Terminals.COMMA] =
+    new r5js.token.Terminal_(r5js.parse.Terminals.COMMA);
+
+r5js.token.SPECIAL_TERMINALS_[r5js.parse.Terminals.COMMA_AT] =
+    new r5js.token.Terminal_(r5js.parse.Terminals.COMMA_AT);
+
+r5js.token.SPECIAL_TERMINALS_[r5js.parse.Terminals.DOT] =
+    new r5js.token.Terminal_(r5js.parse.Terminals.DOT);
+
+
+/**
+ * @param {string} text
+ * @return {!r5js.Token}
+ */
+r5js.token.forSpecialTerminal = function(text) {
+  return r5js.token.SPECIAL_TERMINALS_[text];
+};

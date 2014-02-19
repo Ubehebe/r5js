@@ -24,7 +24,7 @@ goog.require('r5js.token.Character');
 goog.require('r5js.token.Identifier');
 goog.require('r5js.token.Number');
 goog.require('r5js.token.String');
-goog.require('r5js.token.Terminal');
+goog.require('r5js.token.forSpecialTerminal');
 
 
 /**
@@ -142,7 +142,7 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
         throw new r5js.ScanError(this.text.substr(this.token.lastIndex));
     } else if (matchArray[6]) {
         this.needDelimiter = false;
-        return new r5js.token.Terminal(payload);
+        return r5js.token.forSpecialTerminal(payload);
     } else if (matchArray[5]) {
         this.needDelimiter = true;
         return new r5js.token.Identifier(payload);
