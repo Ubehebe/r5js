@@ -30,19 +30,16 @@ goog.require('r5js.token.forSpecialTerminal');
 /**
  * @param {string} text Program text to scan.
  * @implements {r5js.IScanner}
+ * @struct
  * @constructor
  */
 r5js.Scanner = function(text) {
 
-    /**
-     * @type {string}
-     */
-    this.text = text;
+    /** @const @private {string} */
+    this.text_ = text;
 
-    /**
-     * @type {number}
-     */
-    this.start = 0;
+    /** @private {number} */
+    this.start_ = 0;
 
     /**
      * Since all scanners use the same RegExp objects, we have to reset
@@ -56,9 +53,9 @@ r5js.Scanner = function(text) {
      * R5RS 7.1.1: "Tokens which require implicit termination
      * (identifiers, numbers, characters, and dot) may be terminated
      * by any delimiter, but not necessarily by anything else."
-     * @type {boolean}
+     * @private {boolean}
      */
-    this.needDelimiter = false;
+    this.needDelimiter_ = false;
 };
 
 
@@ -69,16 +66,16 @@ r5js.Scanner = function(text) {
 r5js.Scanner.prototype.shouldMatchAgain = function(matchArray) {
     if (!matchArray) {
         return false; // eof
-    } else if (this.token.lastIndex > this.start + matchArray[0].length) {
-        throw new r5js.ScanError(this.text.substr(this.start, this.token.lastIndex - this.start));
+    } else if (this.token.lastIndex > this.start_ + matchArray[0].length) {
+        throw new r5js.ScanError(this.text_.substr(this.start_, this.token.lastIndex - this.start_));
     } else {
         var indexOfWhitespace = 7;
-        this.start = this.token.lastIndex;
+        this.start_ = this.token.lastIndex;
         var ans = !!matchArray[indexOfWhitespace];
         /* Whitespace counts as a delimiter, so if the previous token needed
          a delimiter, we just found one. */
         if (ans)
-            this.needDelimiter = false;
+            this.needDelimiter_ = false;
         return ans;
     }
 };
@@ -90,7 +87,7 @@ r5js.Scanner.prototype.nextToken = function() {
     var match;
 
     do {
-        match = this.token.exec(this.text);
+        match = this.token.exec(this.text_);
     } while (this.shouldMatchAgain(match));
 
     if (!match) {
@@ -98,10 +95,10 @@ r5js.Scanner.prototype.nextToken = function() {
          The only way exec can currently fail is at the end of input.
          Since we want the scanner to stay at the end of input, we
          manually set token.lastIndex. */
-        if (this.start === this.text.length)
-            this.token.lastIndex = this.text.length;
+        if (this.start_ === this.text_.length)
+            this.token.lastIndex = this.text_.length;
         else
-            throw new r5js.ScanError(this.text.substr(this.start));
+            throw new r5js.ScanError(this.text_.substr(this.start_));
         return match;
     } else {
         return this.matchToToken_(match);
@@ -119,28 +116,28 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
      of the magic numbers here. */
     var payload = matchArray[0];
 
-    if (this.needDelimiter && !matchArray[6]) {
+    if (this.needDelimiter_ && !matchArray[6]) {
         /* If the previous token required a delimiter but we didn't get
          one, that's a scan error. Example: 1+2 scans as two numbers
          (1 and +2), but there has to be a delimiter between them. */
-        throw new r5js.ScanError(this.text.substr(this.token.lastIndex));
+        throw new r5js.ScanError(this.text_.substr(this.token.lastIndex));
     } else if (matchArray[6]) {
-        this.needDelimiter = false;
+        this.needDelimiter_ = false;
         return r5js.token.forSpecialTerminal(payload);
     } else if (matchArray[5]) {
-        this.needDelimiter = true;
+        this.needDelimiter_ = true;
         return new r5js.token.Identifier(payload);
     } else if (matchArray[2]) {
-        this.needDelimiter = false;
+        this.needDelimiter_ = false;
         return new r5js.token.Boolean(payload);
     } else if (matchArray[3]) {
-        this.needDelimiter = true;
+        this.needDelimiter_ = true;
         return new r5js.token.Character(payload);
     } else if (matchArray[4]) {
-        this.needDelimiter = false;
+        this.needDelimiter_ = false;
         return new r5js.token.String(payload);
     } else if (matchArray[1]) {
-        this.needDelimiter = true;
+        this.needDelimiter_ = true;
         return new r5js.token.Number(payload);
     } else throw new r5js.InternalInterpreterError('invariant incorrect');
 };
