@@ -154,7 +154,7 @@ r5js.Parser = function(root) {
  * This presents a problem for the parser: when this.next_ is null,
  * have we advanced past the end of a list, or was the list empty
  * to begin with? We must distinguish these cases, because they affect
- * what to parse next. (See comments in onDatum().)
+ * what to parse next. (See comments in onDatum_().)
  *
  * For a long time, I tried to distinguish them via some pointer trickery,
  * but this concealed some very subtle bugs. So I decided it was clearer
@@ -187,7 +187,7 @@ r5js.Parser.prototype.rhs = function(var_args) {
      Proper and improper lists are both represented as first-child-next-sibling
      linked lists; the only difference is the type ('(' vs. '.('). So we rewrite the
      parse rules to conform to the reader's knowledge. */
-    this.rewriteImproperList(arguments);
+    this.rewriteImproperList_(arguments);
 
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
@@ -195,8 +195,8 @@ r5js.Parser.prototype.rhs = function(var_args) {
         // Process parsing actions
         if (element.type) {
             var parsed = (parseFunction = this[element.type])
-                ? this.onNonterminal(element, parseFunction)
-                : this.onDatum(element);
+                ? this.onNonterminal_(element, parseFunction)
+                : this.onDatum_(element);
             if (!parsed) {
                 /* This check is necessary because root may be the special
                  sentinel object for empty lists. */
@@ -233,9 +233,10 @@ r5js.Parser.prototype.rhs = function(var_args) {
 
 /**
  * @param {...*} var_args
+ * @private
  * TODO bl: narrow the signature.
  */
-r5js.Parser.prototype.alternation = function(var_args) {
+r5js.Parser.prototype.alternation_ = function(var_args) {
     var possibleRhs;
     for (var i = 0; i < arguments.length; ++i) {
         if (possibleRhs = this.rhs.apply(this, arguments[i]))
@@ -247,8 +248,9 @@ r5js.Parser.prototype.alternation = function(var_args) {
 
 /**
  * @param {?} rhsArgs
+ * @private
  */
-r5js.Parser.prototype.rewriteImproperList = function(rhsArgs) {
+r5js.Parser.prototype.rewriteImproperList_ = function(rhsArgs) {
     // example: (define (x . y) 1) => (define .( x . ) 1)
     /* No RHS in the grammar has more than one dot.
      This will break if such a rule is added. */
@@ -283,8 +285,9 @@ r5js.Parser.prototype.rewriteImproperList = function(rhsArgs) {
  * @param {?} element
  * @param {?} parseFunction
  * @return {?}
+ * @private
  */
-r5js.Parser.prototype.onNonterminal = function(element, parseFunction) {
+r5js.Parser.prototype.onNonterminal_ = function(element, parseFunction) {
 
     var parsed;
 
@@ -338,8 +341,9 @@ r5js.Parser.prototype.onNonterminal = function(element, parseFunction) {
  * to the next datum.
  * @return {boolean} True iff the predicate applied and the parser advanced
  * to the child datum.
+ * @private
  */
-r5js.Parser.prototype.advanceToChildIf = function(predicate) {
+r5js.Parser.prototype.advanceToChildIf_ = function(predicate) {
     if (this.next_ && predicate(/** @type {!r5js.Datum} */(this.next_))) {
         this.prev_ = this.next_;
         /* See comments in body of Parser() for explanation of
@@ -357,8 +361,9 @@ r5js.Parser.prototype.advanceToChildIf = function(predicate) {
  * to the next datum.
  * @return {boolean} True iff the predicate applied and the parser advanced
  * to the next datum.
+ * @private
  */
-r5js.Parser.prototype.nextIf = function(predicate) {
+r5js.Parser.prototype.nextIf_ = function(predicate) {
     if (this.next_ && predicate(/** @type {!r5js.Datum} */ (this.next_))) {
         this.prev_ = this.next_;
         this.next_ = this.next_.nextSibling;
@@ -372,8 +377,9 @@ r5js.Parser.prototype.nextIf = function(predicate) {
 /**
  * @param {?} element
  * @return {boolean|undefined} TODO bl what does the return value mean?
+ * @private
  */
-r5js.Parser.prototype.onDatum = function(element) {
+r5js.Parser.prototype.onDatum_ = function(element) {
 
     if (typeof element.type === 'string') {
 
@@ -387,7 +393,7 @@ r5js.Parser.prototype.onDatum = function(element) {
             case r5js.DatumType.QUASIQUOTE:
             case r5js.DatumType.UNQUOTE:
             case r5js.DatumType.UNQUOTE_SPLICING:
-                return this.advanceToChildIf(function(datum) {
+                return this.advanceToChildIf_(function(datum) {
                     return datum.type === element.type;
                 });
             case ')':
@@ -421,13 +427,13 @@ r5js.Parser.prototype.onDatum = function(element) {
                 else return false;
             default:
                 // Convenience for things like rhs({type: 'define'})
-                return this.nextIf(function(datum) {
+                return this.nextIf_(function(datum) {
                     return datum.payload === element.type;
                 });
         }
 
     } else if (typeof element.type === 'function') {
-        return this.nextIf(element.type);
+        return this.nextIf_(element.type);
     }
 
     // TODO bl implicit return of undefined here.
@@ -471,7 +477,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.EXPRESSION] = function() {
      install a "super-macro" for lambda that contains custom logic in
      JavaScript. That way, the syntactic keyword could be shadowed
      appropriately. */
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Nonterminals.VARIABLE}
         ],
@@ -527,7 +533,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.VARIABLE] = function() {
 
 // <literal> -> <quotation> | <self-evaluating>
 r5js.Parser.prototype[r5js.parse.Nonterminals.LITERAL] = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Nonterminals.SELF_EVALUATING}
         ],
@@ -540,7 +546,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.LITERAL] = function() {
 // <quotation> -> '<datum> | (quote <datum>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.QUOTATION] = function() {
 
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Terminals.TICK},
             {type: r5js.parse.Nonterminals.DATUM},
@@ -723,7 +729,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.LAMBDA_EXPRESSION] = function() {
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.FORMALS] = function() {
 
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.VARIABLE, atLeast: 0},
@@ -749,7 +755,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.FORMALS] = function() {
  */
 r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
 
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Terminals.DEFINE},
@@ -866,7 +872,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
 // <conditional> -> (if <test> <consequent> <alternate>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.CONDITIONAL] = function() {
 
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Terminals.IF},
@@ -966,7 +972,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.ASSIGNMENT] = function() {
 // <quasiquotation> -> <quasiquotation 1>
 // <quasiquotation D> -> `<qq template D> | (quasiquote <qq template D>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.QUASIQUOTATION] = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Terminals.BACKTICK},
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
@@ -988,7 +994,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QUASIQUOTATION] = function() {
  | <unquotation D>
  */
 r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE] = function() {
-    return this.alternation(
+    return this.alternation_(
        /* [ todo bl do we need this?
             {type: 'expression', ifQqLevel: 0}
         ],*/
@@ -1026,7 +1032,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE] = function() {
  | <quasiquotation D+1>
  */
 r5js.Parser.prototype[r5js.parse.Nonterminals.LIST_QQ_TEMPLATE] = function() {
-  return this.alternation(
+  return this.alternation_(
     [
         {type: r5js.parse.Terminals.LPAREN},
         {type: r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE, atLeast: 0},
@@ -1062,7 +1068,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.VECTOR_QQ_TEMPLATE] = function() {
 
 // <unquotation D> -> ,<qq template D-1> | (unquote <qq template D-1>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.UNQUOTATION] = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.DatumType.UNQUOTE},
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
@@ -1079,7 +1085,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.UNQUOTATION] = function() {
 
 // <qq template or splice D> -> <qq template D> | <splicing unquotation D>
 r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE] = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
         ],
@@ -1094,7 +1100,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE] = function(
  | (unquote-splicing <qq template D-1>)
  */
 r5js.Parser.prototype[r5js.parse.Nonterminals.SPLICING_UNQUOTATION] = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.DatumType.UNQUOTE_SPLICING},
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
@@ -1145,7 +1151,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.KEYWORD] = function() {
 /* <macro block> -> (let-syntax (<syntax spec>*) <body>)
  | (letrec-syntax (<syntax-spec>*) <body>) */
 r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_BLOCK] = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Terminals.LET_SYNTAX},
@@ -1233,7 +1239,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_RULE] = function() {
  | <pattern datum>
  */
 r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN] = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Terminals.LPAREN},
             {type: r5js.parse.Nonterminals.PATTERN, atLeast: 1},
@@ -1365,7 +1371,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN_DATUM] = function() {
  (4.3.2: "It is an error if the output cannot be built up [from the template]
  as specified") and I can do this during evaluation of a macro if necessary. */
 r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE] = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Nonterminals.PATTERN_IDENTIFIER},
             {desugar: function(node) {
@@ -1491,7 +1497,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PROGRAM] = function() {
  | (begin <command or definition>*)
  */
 r5js.Parser.prototype[r5js.parse.Nonterminals.COMMAND_OR_DEFINITION] = function() {
-    return this.alternation(
+    return this.alternation_(
         [
             {type: r5js.parse.Nonterminals.DEFINITION}
         ],
