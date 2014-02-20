@@ -195,9 +195,14 @@ r5js.Parser.prototype.rhs = function(var_args) {
 
         // Process parsing actions
         if (element.type) {
-            var parsed = (parseFunction = this[element.type])
-                ? this.onNonterminal_(element, parseFunction)
-                : this.onDatum_(element);
+            var parsed = null;
+            if (goog.isFunction(element.type)) {
+                parsed = this.nextIf_(element.type);
+            } else {
+                parsed = (parseFunction = this[element.type])
+                    ? this.onNonterminal_(element, parseFunction)
+                    : this.onDatum_(element);
+            }
             if (!parsed) {
                 /* This check is necessary because root may be the special
                  sentinel object for empty lists. */
@@ -377,13 +382,10 @@ r5js.Parser.prototype.nextIf_ = function(predicate) {
 
 /**
  * @param {?} element
- * @return {boolean|undefined} TODO bl what does the return value mean?
+ * @return {boolean} TODO bl what does the return value mean?
  * @private
  */
 r5js.Parser.prototype.onDatum_ = function(element) {
-
-    if (typeof element.type === 'string') {
-
         switch (element.type) {
             case '.': // vacuous; we already rewrote ( ... . as .( ...
                 return true;
@@ -432,13 +434,6 @@ r5js.Parser.prototype.onDatum_ = function(element) {
                     return datum.payload === element.type;
                 });
         }
-
-    } else if (typeof element.type === 'function') {
-        return this.nextIf_(element.type);
-    }
-
-    // TODO bl implicit return of undefined here.
-    // Hope that no caller depends on it...
 };
 
 
