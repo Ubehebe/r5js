@@ -1071,7 +1071,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.VECTOR_QQ_TEMPLATE] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.UNQUOTATION] = function() {
     return this.alternation_(
         [
-            {type: r5js.DatumType.UNQUOTE},
+            {type: r5js.parse.Terminals.COMMA},
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
         ],
         [
@@ -1103,7 +1103,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE] = function(
 r5js.Parser.prototype[r5js.parse.Nonterminals.SPLICING_UNQUOTATION] = function() {
     return this.alternation_(
         [
-            {type: r5js.DatumType.UNQUOTE_SPLICING},
+            {type: r5js.parse.Terminals.COMMA_AT},
             {type: r5js.parse.Nonterminals.QQ_TEMPLATE}
         ],
         [
