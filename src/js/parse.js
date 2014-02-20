@@ -319,9 +319,7 @@ r5js.Parser.prototype.onNonterminal_ = function(element, parseFunction) {
             this.next_ = this.prev_.closestAncestorSibling();
         }
 
-        while (this.next_ // We haven't fallen off the end of the list
-            && this.next_ !== r5js.Parser.EMPTY_LIST_SENTINEL_ // And we're not at an empty list
-            && (parsed = parseFunction.apply(this))) { // And the parse succeeds
+        while (parsed = parseFunction.apply(this)) {
             // this.next_ has already been advanced by the success of parseFunction
             parsed.setParse(element.type);
             ++numParsed;
