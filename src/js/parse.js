@@ -154,7 +154,7 @@ r5js.Parser = function(root) {
  * This presents a problem for the parser: when this.next_ is null,
  * have we advanced past the end of a list, or was the list empty
  * to begin with? We must distinguish these cases, because they affect
- * what to parse next. (See comments in onDatum_().)
+ * what to parse next. (See comments in {@link #onDatum_}.)
  *
  * For a long time, I tried to distinguish them via some pointer trickery,
  * but this concealed some very subtle bugs. So I decided it was clearer
@@ -174,12 +174,13 @@ r5js.Parser.EMPTY_LIST_SENTINEL_ = new Object();
  * is advanced to the next node to parse. When a parse of n fails,
  * null is returned and this.next_ still points to n.
  * @param {...*} var_args
+ * @return {r5js.Datum} The root of the parse tree, or null if parsing failed.
  * TODO bl: narrow the signature.
  */
 r5js.Parser.prototype.rhs = function(var_args) {
     var parseFunction;
 
-    var root = this.next_;
+    var root = /** @type {r5js.Datum} */ (this.next_);
 
     /* This is a convenience function: we want to specify parse rules like
      (<variable>+ . <variable>) as if we don't know ahead of time whether
@@ -187,7 +188,7 @@ r5js.Parser.prototype.rhs = function(var_args) {
      Proper and improper lists are both represented as first-child-next-sibling
      linked lists; the only difference is the type ('(' vs. '.('). So we rewrite the
      parse rules to conform to the reader's knowledge. */
-    this.rewriteImproperList_(arguments);
+    r5js.Parser.rewriteImproperList_(arguments);
 
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
@@ -250,7 +251,7 @@ r5js.Parser.prototype.alternation_ = function(var_args) {
  * @param {?} rhsArgs
  * @private
  */
-r5js.Parser.prototype.rewriteImproperList_ = function(rhsArgs) {
+r5js.Parser.rewriteImproperList_ = function(rhsArgs) {
     // example: (define (x . y) 1) => (define .( x . ) 1)
     /* No RHS in the grammar has more than one dot.
      This will break if such a rule is added. */
