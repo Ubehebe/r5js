@@ -49,6 +49,15 @@ r5js.test.readSandbox = function(text) {
 };
 
 
+/** @param {string} text Text to parse. */
+r5js.test.parseSandbox = function(text) {
+  var datumRoot = new r5js.Reader(new r5js.Scanner(text)).read();
+  if (datumRoot) {
+    new r5js.Parser(datumRoot).parse();
+  }
+};
+
+
 /** @private {r5js.PublicApi} */
 r5js.test.api_ = null;
 
