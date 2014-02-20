@@ -154,7 +154,7 @@ r5js.Parser = function(root) {
  * This presents a problem for the parser: when this.next_ is null,
  * have we advanced past the end of a list, or was the list empty
  * to begin with? We must distinguish these cases, because they affect
- * what to parse next. (See comments in {@link #onDatum_}.)
+ * what to parse next. (See comments in {@link #onTerminal_}.)
  *
  * For a long time, I tried to distinguish them via some pointer trickery,
  * but this concealed some very subtle bugs. So I decided it was clearer
@@ -201,7 +201,7 @@ r5js.Parser.prototype.rhs = function(var_args) {
             } else {
                 parsed = (parseFunction = this[element.type])
                     ? this.onNonterminal_(element, parseFunction)
-                    : this.onDatum_(element);
+                    : this.onTerminal_(element.type);
             }
             if (!parsed) {
                 /* This check is necessary because root may be the special
@@ -381,25 +381,25 @@ r5js.Parser.prototype.nextIf_ = function(predicate) {
 
 
 /**
- * @param {?} element
+ * @param {!r5js.parse.Terminal} terminal
  * @return {boolean} TODO bl what does the return value mean?
  * @private
  */
-r5js.Parser.prototype.onDatum_ = function(element) {
-        switch (element.type) {
-            case '.': // vacuous; we already rewrote ( ... . as .( ...
+r5js.Parser.prototype.onTerminal_ = function(terminal) {
+        switch (terminal) {
+            case r5js.parse.Terminals.DOT: // vacuous; we already rewrote ( ... . as .( ...
                 return true;
-            case r5js.DatumType.LIST:
-            case r5js.DatumType.DOTTED_LIST:
-            case r5js.DatumType.VECTOR:
-            case r5js.DatumType.QUOTE:
-            case r5js.DatumType.QUASIQUOTE:
-            case r5js.DatumType.UNQUOTE:
-            case r5js.DatumType.UNQUOTE_SPLICING:
+            case r5js.parse.Terminals.LPAREN:
+            case r5js.DatumType.DOTTED_LIST: // TODO bl where is from?
+            case r5js.parse.Terminals.LPAREN_VECTOR:
+            case r5js.parse.Terminals.TICK:
+            case r5js.parse.Terminals.BACKTICK:
+            case r5js.parse.Terminals.COMMA:
+            case r5js.parse.Terminals.COMMA_AT:
                 return this.advanceToChildIf_(function(datum) {
-                    return datum.type === element.type;
+                    return datum.type === terminal;
                 });
-            case ')':
+            case r5js.parse.Terminals.RPAREN:
                 /* We have fallen off the end of a non-empty list.
                     For example, in
 
@@ -428,10 +428,10 @@ r5js.Parser.prototype.onDatum_ = function(element) {
 
                 // If we're not at the end of a list, this parse must fail.
                 else return false;
-            default:
+            default: // TODO bl where is this from?
                 // Convenience for things like rhs({type: 'define'})
                 return this.nextIf_(function(datum) {
-                    return datum.payload === element.type;
+                    return datum.payload === terminal;
                 });
         }
 };
