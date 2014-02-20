@@ -17,10 +17,10 @@
 goog.provide('r5js.Reader');
 
 
-goog.require('r5js.bnf');
+goog.require('r5js.read.bnf');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
-goog.require('r5js.grammar');
+goog.require('r5js.read.grammar');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputMode');
 goog.require('r5js.parse.Nonterminals');
@@ -41,7 +41,7 @@ r5js.Reader = function(scanner) {
 
 /** @override */
 r5js.Reader.prototype.read = function() {
-    var datums = r5js.grammar[r5js.parse.Nonterminals.DATUMS].match(
+    var datums = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS].match(
         new r5js.Datum(), this.scanner_);
     if (datums.firstChild)
         datums.firstChild.lastSibling().parent = null;
