@@ -19,6 +19,7 @@ goog.provide('r5js.Parser');
 goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
+goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DatumType');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdOrLiteralTransformer');
@@ -109,131 +110,15 @@ goog.require('r5js.Macro');
 /**
  * @param {!r5js.Datum} root The root of the tree to parse.
  * @implements {r5js.IParser}
- * @implements {r5js.DatumStream}
  * @constructor
  */
 r5js.Parser = function(root) {
-    /**
-     * The next datum to parse. When a parse of a node is successful,
-     * the next pointer advanced to the node's next sibling. Thus, this.next
-     * will only be null or undefined in two cases:
-     *
-     * 1. EOF
-     * 2. Advancing past the end of a nonempty list. (The empty-list
-     * corner case is handled by {@link r5js.Parser.EMPTY_LIST_SENTINEL_}.)
-     *
-     * @private {r5js.Datum|Object}
-     */
-    this.next_ = root;
 
-    /**
-     * The last datum parsed. We only need this in order to figure out
-     * where to go next after finishing parsing a list.
-     * this.prev_ is only updated in two cases:
-     *
-     * 1. Moving from a parent (= this.prev_) to its first child (= this.next_)
-     * 2. Moving from a sibling (= this.prev_) to its next sibling (= this.next_)
-     *
-     * Thus, this.prev_ is only null until the first successful move
-     * from parent to first child or from sibling to next sibling,
-     * and is never thereafter null.
-     *
-     * @private {r5js.Datum|Object}
-     */
-    this.prev_ = null;
+    /** @const @private {!r5js.DatumStream} */
+    this.datumStream_ = new r5js.DatumStreamImpl(root);
 
     /** @private {boolean} */
     this.fixParserSensitiveIds_ = false;
-};
-
-
-/**
- * We use a special sentinel object to handle the corner case of
- * an empty list. According to the tree constructed by the reader
- * (the structure of which the parser does not modify), an empty list
- * is simply a datum of type '(' whose firstSibling is null or undefined.
- * This presents a problem for the parser: when this.next_ is null,
- * have we advanced past the end of a list, or was the list empty
- * to begin with? We must distinguish these cases, because they affect
- * what to parse next. (See comments in {@link #onTerminal_}.)
- *
- * For a long time, I tried to distinguish them via some pointer trickery,
- * but this concealed some very subtle bugs. So I decided it was clearer
- * to compare against a dedicated sentinel object.
- *
- * The sentinel is an immutable object with no state; we use it only
- * for direct identity comparisons. It is used only internally by the
- * parser; it never enters the parse tree.
- *
- * @const @private {!Object}
- */
-r5js.Parser.EMPTY_LIST_SENTINEL_ = new Object();
-
-
-/** @override */
-r5js.Parser.prototype.getNextDatum = function() {
-    return this.next_;
-};
-
-/** @override */
-r5js.Parser.prototype.advanceTo = function(next) {
-    this.next_ = next;
-};
-
-
-/** @override */
-r5js.Parser.prototype.advanceToChild = function() {
-    this.prev_ = this.next_;
-    /* See comments in body of Parser() for explanation of
-     emptyListSentinel. */
-    this.next_ = this.next_.firstChild || r5js.Parser.EMPTY_LIST_SENTINEL_;
-};
-
-
-/** @override */
-r5js.Parser.prototype.advanceToNextSibling = function() {
-    this.prev_ = this.next_;
-    this.next_ = this.next_.nextSibling;
-};
-
-
-/** @override */
-r5js.Parser.prototype.maybeAdvanceToNextSiblingOfParent = function() {
-    if (!this.next_) {
-        /* We have fallen off the end of a non-empty list.
-         For example, in
-
-         (a b (c d) e)
-
-         we have just finished parsing d. next is null, prev is d,
-         prev.parent is (c d), and prev.parent.nextSibling is e,
-         which is where we want to go next. */
-
-        this.next_ = this.prev_.parent && this.prev_.parent.nextSibling;
-        return true;
-    } else if (this.next_ === r5js.Parser.EMPTY_LIST_SENTINEL_) {
-        /*
-         We have fallen off the "end" of an empty list. For example, in
-
-         (a b () e)
-
-         we have just finished parsing (). next is emptyListSentinel,
-         prev is (), and prev.nextSibling is e, which is where we
-         want to go next. */
-        this.next_ = this.prev_.nextSibling;
-        return true;
-    } else {
-        // If we're not at the end of a list, this parse must fail.
-        return false;
-    }
-};
-
-
-/** @override */
-r5js.Parser.prototype.maybeRecoverAfterDeeplyNestedList = function() {
-    if (!this.next_) {
-        this.next_ = this.prev_.closestAncestorSibling();
-    }
 };
 
 
@@ -247,7 +132,7 @@ r5js.Parser.prototype.maybeRecoverAfterDeeplyNestedList = function() {
  */
 r5js.Parser.prototype.rhs = function(var_args) {
     var parseFunction;
-    var root = this.getNextDatum();
+    var root = this.datumStream_.getNextDatum();
 
     /* This is a convenience function: we want to specify parse rules like
      (<variable>+ . <variable>) as if we don't know ahead of time whether
@@ -275,7 +160,7 @@ r5js.Parser.prototype.rhs = function(var_args) {
                  sentinel object for empty lists. */
                 if (root instanceof r5js.Datum)
                     root.unsetParse();
-                this.advanceTo(root);
+                this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
                 return null;
             }
         }
@@ -299,7 +184,8 @@ r5js.Parser.prototype.rhs = function(var_args) {
 
     }
 
-    this.advanceTo(root /* just in case of an empty program */ && root.nextSibling);
+    var nextSibling = /** just in case of an empty program */ root && root.nextSibling;
+    this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
     return root;
 };
 
@@ -382,7 +268,7 @@ r5js.Parser.prototype.onNonterminal_ = function(element, parseFunction) {
          functions are descriptions of the grammar. I probably need to
          factor the parser into parser logic and a grammar that the parser
          reads. */
-        this.maybeRecoverAfterDeeplyNestedList();
+        this.datumStream_.maybeRecoverAfterDeeplyNestedList();
 
         while (parsed = parseFunction.apply(this)) {
             // this.next_ has already been advanced by the success of parseFunction
@@ -398,7 +284,7 @@ r5js.Parser.prototype.onNonterminal_ = function(element, parseFunction) {
         parsed = parseFunction.apply(this);
         if (parsed) {
             parsed.setParse(element.type);
-            this.advanceTo(parsed.nextSibling);
+            this.datumStream_.advanceTo(parsed.nextSibling);
         }
         return parsed;
     }
@@ -413,9 +299,9 @@ r5js.Parser.prototype.onNonterminal_ = function(element, parseFunction) {
  * @private
  */
 r5js.Parser.prototype.advanceToChildIf_ = function(predicate) {
-    var next = this.getNextDatum();
+    var next = this.datumStream_.getNextDatum();
     if (next && predicate(next)) {
-        this.advanceToChild();
+        this.datumStream_.advanceToChild();
         return true;
     } else {
         return false;
@@ -431,9 +317,9 @@ r5js.Parser.prototype.advanceToChildIf_ = function(predicate) {
  * @private
  */
 r5js.Parser.prototype.nextIf_ = function(predicate) {
-    var next = this.getNextDatum();
+    var next = this.datumStream_.getNextDatum();
     if (next && predicate(next)) {
-        this.advanceToNextSibling();
+        this.datumStream_.advanceToNextSibling();
         return true;
     } else {
         return false;
@@ -461,7 +347,7 @@ r5js.Parser.prototype.onTerminal_ = function(terminal) {
                     return datum.type === terminal;
                 });
             case r5js.parse.Terminals.RPAREN:
-                return this.maybeAdvanceToNextSiblingOfParent();
+                return this.datumStream_.maybeAdvanceToNextSiblingOfParent();
             default: // TODO bl where is this from?
                 // Convenience for things like rhs({type: 'define'})
                 return this.nextIf_(function(datum) {
