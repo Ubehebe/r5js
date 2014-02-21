@@ -157,14 +157,9 @@ r5js.Parser.prototype.rhs = function(var_args) {
                 return null;
             }
         } else if (element.type) {
-            var parsed = null;
-            if (goog.isFunction(element.type)) {
-                parsed = this.nextIf_(element.type);
-            } else {
-                parsed = (parseFunction = this[element.type])
-                    ? this.onNonterminal_(element, parseFunction)
-                    : this.onTerminal_(element.type);
-            }
+            var parsed = goog.isFunction(element.type) ?
+                this.nextIf_(element.type) :
+                this.onNonterminal_(element, this[element.type]);
             if (!parsed) {
                 /* This check is necessary because root may be the special
                  sentinel object for empty lists. */
@@ -334,36 +329,6 @@ r5js.Parser.prototype.nextIf_ = function(predicate) {
     } else {
         return false;
     }
-};
-
-
-/**
- * @param {!r5js.parse.Terminal} terminal
- * @return {boolean} TODO bl what does the return value mean?
- * @private
- */
-r5js.Parser.prototype.onTerminal_ = function(terminal) {
-        switch (terminal) {
-            case r5js.parse.Terminals.DOT: // vacuous; we already rewrote ( ... . as .( ...
-                return true;
-            case r5js.parse.Terminals.LPAREN:
-            case r5js.parse.Terminals.LPAREN_DOT:
-            case r5js.parse.Terminals.LPAREN_VECTOR:
-            case r5js.parse.Terminals.TICK:
-            case r5js.parse.Terminals.BACKTICK:
-            case r5js.parse.Terminals.COMMA:
-            case r5js.parse.Terminals.COMMA_AT:
-                return this.advanceToChildIf_(function(datum) {
-                    return datum.type === terminal;
-                });
-            case r5js.parse.Terminals.RPAREN:
-                return this.datumStream_.maybeAdvanceToNextSiblingOfParent();
-            default: // TODO bl where is this from?
-                // Convenience for things like rhs({type: 'define'})
-                return this.nextIf_(function(datum) {
-                    return datum.payload === terminal;
-                });
-        }
 };
 
 
