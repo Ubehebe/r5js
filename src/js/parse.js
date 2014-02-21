@@ -533,7 +533,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PROCEDURE_CALL] = function() {
         r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Nonterminals.OPERATOR},
         {type: r5js.parse.Nonterminals.OPERAND, atLeast: 0},
-        {type: r5js.parse.Terminals.RPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
         {desugar: function(node, env) {
 
             var operatorNode = node.at(r5js.parse.Nonterminals.OPERATOR);
@@ -579,12 +579,12 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.OPERAND] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.LAMBDA_EXPRESSION] = function() {
 
     return this.rhs(
-        {type: r5js.parse.Terminals.LPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Terminals.LAMBDA},
         {type: r5js.parse.Nonterminals.FORMALS},
         {type: r5js.parse.Nonterminals.DEFINITION, atLeast: 0},
         {type: r5js.parse.Nonterminals.EXPRESSION, atLeast: 1},
-        {type: r5js.parse.Terminals.RPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
         {desugar: function(node, env) {
             var formalRoot = node.at(r5js.parse.Nonterminals.FORMALS);
             var formals;
@@ -871,11 +871,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.ALTERNATE] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.ASSIGNMENT] = function() {
 
     return this.rhs(
-        {type: r5js.parse.Terminals.LPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Terminals.SET},
         {type: r5js.parse.Nonterminals.VARIABLE},
         {type: r5js.parse.Nonterminals.EXPRESSION},
-        {type: r5js.parse.Terminals.RPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
         {desugar: function(node, env) {
             // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
             var variable = node.at(r5js.parse.Nonterminals.VARIABLE);
@@ -986,8 +986,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.VECTOR_QQ_TEMPLATE] = function() {
     return this.rhs(
         {type: r5js.parse.Terminals.LPAREN_VECTOR},
         {type: r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE, atLeast: 0},
-        {type: r5js.parse.Terminals.RPAREN}
-    );
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN));
 };
 
 
@@ -1044,10 +1043,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SPLICING_UNQUOTATION] = function()
 r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_USE] = function() {
 
     return this.rhs(
-        {type: r5js.parse.Terminals.LPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Nonterminals.KEYWORD},
         {type: r5js.parse.Nonterminals.DATUM, atLeast: 0},
-        {type: r5js.parse.Terminals.RPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
         {desugar: function(node, env) {
             /* Desugaring of a macro use is trivial. We must leave the "argument"
                 datums as-is for the macro pattern matching facility to use.
@@ -1111,24 +1110,23 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_BLOCK] = function() {
 // <syntax spec> -> (<keyword> <transformer spec>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_SPEC] = function() {
     return this.rhs(
-        {type: r5js.parse.Terminals.LPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Nonterminals.KEYWORD},
         {type: r5js.parse.Nonterminals.TRANSFORMER_SPEC},
-        {type: r5js.parse.Terminals.RPAREN}
-    );
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN));
 };
 
 
 // <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
 r5js.Parser.prototype[r5js.parse.Nonterminals.TRANSFORMER_SPEC] = function() {
     return this.rhs(
-        {type: r5js.parse.Terminals.LPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Terminals.SYNTAX_RULES},
-        {type: r5js.parse.Terminals.LPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Nonterminals.PATTERN_IDENTIFIER, atLeast: 0},
-        {type: r5js.parse.Terminals.RPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
         {type: r5js.parse.Nonterminals.SYNTAX_RULE, atLeast: 0}, // a nonterminal
-        {type: r5js.parse.Terminals.RPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
         {desugar: function(node, env) {
             /*4.3.2: It is an error for ... to appear in <literals>.
                 So we can reuse the pattern-identifier nonterminal
@@ -1147,11 +1145,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TRANSFORMER_SPEC] = function() {
 // <syntax rule> -> (<pattern> <template>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_RULE] = function() {
     return this.rhs(
-        {type: r5js.parse.Terminals.LPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Nonterminals.PATTERN},
         {type: r5js.parse.Nonterminals.TEMPLATE},
-        {type: r5js.parse.Terminals.RPAREN}
-    );
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN));
 };
 
 
@@ -1450,11 +1447,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.COMMAND] = function() {
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_DEFINITION] = function() {
     return this.rhs(
-        {type: r5js.parse.Terminals.LPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Terminals.DEFINE_SYNTAX},
         {type: r5js.parse.Nonterminals.KEYWORD},
         {type: r5js.parse.Nonterminals.TRANSFORMER_SPEC},
-        {type: r5js.parse.Terminals.RPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
         {desugar: function(node, env) {
             var kw = node.at(r5js.parse.Nonterminals.KEYWORD).payload;
             var macro = node.at(r5js.parse.Nonterminals.TRANSFORMER_SPEC).desugar(env);
