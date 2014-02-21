@@ -347,7 +347,7 @@ r5js.Parser.prototype.onTerminal_ = function(terminal) {
             case r5js.parse.Terminals.DOT: // vacuous; we already rewrote ( ... . as .( ...
                 return true;
             case r5js.parse.Terminals.LPAREN:
-            case r5js.DatumType.DOTTED_LIST: // TODO bl where is from?
+            case r5js.parse.Terminals.LPAREN_DOT:
             case r5js.parse.Terminals.LPAREN_VECTOR:
             case r5js.parse.Terminals.TICK:
             case r5js.parse.Terminals.BACKTICK:
@@ -665,11 +665,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.FORMALS] = function() {
             {type: r5js.parse.Nonterminals.VARIABLE}
         ],
         [
-            {type: r5js.parse.Terminals.LPAREN},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
             {type: r5js.parse.Nonterminals.VARIABLE, atLeast: 1},
-            {type: r5js.parse.Terminals.DOT},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DOT),
             {type: r5js.parse.Nonterminals.VARIABLE},
-            {type: r5js.parse.Terminals.RPAREN}
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)
         ]);
 };
 
@@ -747,16 +747,16 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
             }
         ],
         [
-            {type: r5js.parse.Terminals.LPAREN},
-            {type: r5js.parse.Terminals.DEFINE},
-            {type: r5js.parse.Terminals.LPAREN},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DEFINE),
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
             {type: r5js.parse.Nonterminals.VARIABLE, atLeast: 1},
-            {type: r5js.parse.Terminals.DOT},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DOT),
             {type: r5js.parse.Nonterminals.VARIABLE},
-            {type: r5js.parse.Terminals.RPAREN},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
             {type: r5js.parse.Nonterminals.DEFINITION, atLeast: 0},
             {type: r5js.parse.Nonterminals.EXPRESSION, atLeast: 1},
-            {type: r5js.parse.Terminals.RPAREN},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
             {desugar: function(node, env) {
                 /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
@@ -873,7 +873,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.ASSIGNMENT] = function() {
 
     return this.rhs(
         r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
-        {type: r5js.parse.Terminals.SET},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.SET),
         {type: r5js.parse.Nonterminals.VARIABLE},
         {type: r5js.parse.Nonterminals.EXPRESSION},
         r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
@@ -965,11 +965,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.LIST_QQ_TEMPLATE] = function() {
         r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)
     ],
       [
-          {type: r5js.parse.Terminals.LPAREN},
+          r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
           {type: r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE, atLeast: 1},
-          {type: r5js.parse.Terminals.DOT},
+          r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DOT),
           {type: r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE},
-          {type: r5js.parse.Terminals.RPAREN}
+          r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)
       ],
       [
           r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.TICK),
@@ -1219,11 +1219,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN] = function() {
             }}
         ],
         [
-            {type: r5js.parse.Terminals.LPAREN},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
             {type: r5js.parse.Nonterminals.PATTERN, atLeast: 1},
-            {type: r5js.parse.Terminals.DOT},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DOT),
             {type: r5js.parse.Nonterminals.PATTERN},
-            {type: r5js.parse.Terminals.RPAREN},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
                 for (var cur = node.at(r5js.parse.Nonterminals.PATTERN); cur; cur = cur.nextSibling)
@@ -1314,11 +1314,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE] = function() {
 
         ],
         [
-            {type: r5js.parse.Terminals.LPAREN},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
             {type: r5js.parse.Nonterminals.TEMPLATE, atLeast: 1},
-            {type: r5js.parse.Terminals.DOT},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DOT),
             {type: r5js.parse.Nonterminals.TEMPLATE},
-            {type: r5js.parse.Terminals.RPAREN},
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN),
             {desugar: function(node) {
                 var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
                 for (var cur = node.at(r5js.parse.Nonterminals.TEMPLATE); cur; cur = cur.nextSibling) {
