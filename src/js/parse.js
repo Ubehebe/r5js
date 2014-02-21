@@ -27,6 +27,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
+goog.require('r5js.parse.bnf');
 goog.require('r5js.Procedure');
 goog.require('r5js.procs');
 goog.require('r5js.RenameHelper');
@@ -113,7 +114,6 @@ goog.require('r5js.Macro');
  * @constructor
  */
 r5js.Parser = function(root) {
-
     /** @const @private {!r5js.DatumStream} */
     this.datumStream_ = new r5js.DatumStreamImpl(root);
 
@@ -146,7 +146,16 @@ r5js.Parser.prototype.rhs = function(var_args) {
         var element = arguments[i];
 
         // Process parsing actions
-        if (element.type) {
+        if (r5js.parse.bnf.Rule.isImplementedBy(element)) {
+            if (!(/** @type {!r5js.parse.bnf.Rule} */ (element)).match(this.datumStream_)) {
+                /* This check is necessary because root may be the special
+                 sentinel object for empty lists. */
+                if (root instanceof r5js.Datum)
+                    root.unsetParse();
+                this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
+                return null;
+            }
+        } else if (element.type) {
             var parsed = null;
             if (goog.isFunction(element.type)) {
                 parsed = this.nextIf_(element.type);
@@ -521,7 +530,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SELF_EVALUATING] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.PROCEDURE_CALL] = function() {
 
     return this.rhs(
-        {type: r5js.parse.Terminals.LPAREN},
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         {type: r5js.parse.Nonterminals.OPERATOR},
         {type: r5js.parse.Nonterminals.OPERAND, atLeast: 0},
         {type: r5js.parse.Terminals.RPAREN},
