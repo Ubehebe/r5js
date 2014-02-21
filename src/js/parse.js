@@ -16,6 +16,7 @@
 
 goog.provide('r5js.Parser');
 
+goog.require('goog.array');
 goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
@@ -215,38 +216,35 @@ r5js.Parser.prototype.alternation_ = function(var_args) {
 
 
 /**
- * @param {?} rhsArgs
+ * @param {!goog.array.ArrayLike} rhsArgs
  * @private
- * TODO bl: this is not compatible with {@link r5js.parse.bnf.Rule},
- * so any RHS that contains a dot cannot be converted to use Rules
- * until this function works correctly.
  */
 r5js.Parser.rewriteImproperList_ = function(rhsArgs) {
     // example: (define (x . y) 1) => (define .( x . ) 1)
     /* No RHS in the grammar has more than one dot.
      This will break if such a rule is added. */
+    var indexOfDot = goog.array.findIndex(rhsArgs, function(arg) {
+        return arg.type === r5js.parse.Terminals.DOT ||
+            r5js.parse.bnf.Rule.isDot(arg);
+    });
 
-    var indexOfDot = -1;
-    for (var i = 0; i < rhsArgs.length; ++i) {
-        if (rhsArgs[i].type === '.') {
-            indexOfDot = i;
-            break;
-        }
+    if (indexOfDot === -1) {
+        return;
     }
 
-    if (indexOfDot !== -1) {
-        /* Change the datum following the dot to be vacuous -- it has already
-         been read as part of the list preceding the dot.
-         todo bl: this will cause problems with exactly one part of the grammar:
-         <template> -> (<template element>+ . <template>)
-         I think it's easier to check for this in the evaluator. */
-        rhsArgs[i + 1].type = '.';
-        // Find the closest opening paren to the left of the dot and rewrite it as .(
-        for (var i = indexOfDot - 1; i >= 0; --i) {
-            if (rhsArgs[i].type === '(') {
-                rhsArgs[i].type = '.(';
-                return;
-            }
+    /* Change the datum following the dot to be vacuous -- it has already
+     been read as part of the list preceding the dot.
+     todo bl: this will cause problems with exactly one part of the grammar:
+     <template> -> (<template element>+ . <template>)
+     I think it's easier to check for this in the evaluator. */
+    rhsArgs[indexOfDot + 1] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DOT);
+    // Find the closest opening paren to the left of the dot and rewrite it as .(
+    for (var i = indexOfDot - 1; i >= 0; --i) {
+        var arg = rhsArgs[i];
+        if (r5js.parse.bnf.Rule.isLparen(arg) ||
+            rhsArgs[i].type === r5js.parse.Terminals.LPAREN) {
+            rhsArgs[i] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_DOT);
+            return;
         }
     }
 };

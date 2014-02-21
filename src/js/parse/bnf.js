@@ -20,6 +20,28 @@ r5js.parse.bnf.Rule.isImplementedBy = function(obj) {
 
 
 /**
+ * @param {?} obj
+ * @return {boolean}
+ * TODO bl remove; only used in {@link r5js.Parser#rewriteImproperList_}.
+ */
+r5js.parse.bnf.Rule.isDot = function(obj) {
+  return obj instanceof r5js.parse.bnf.OneTerminal_ &&
+      obj.terminal_ === r5js.parse.Terminals.DOT;
+};
+
+
+/**
+ * @param {?} obj
+ * @return {boolean}
+ * TODO bl remove; only used in {@link r5js.Parser#rewriteImproperList_}.
+ */
+r5js.parse.bnf.Rule.isLparen = function(obj) {
+  return obj instanceof r5js.parse.bnf.OneTerminal_ &&
+      obj.terminal_ === r5js.parse.Terminals.LPAREN;
+};
+
+
+/**
  * @param {!r5js.DatumStream} datumStream
  * @return {boolean} True iff the parse succeeded.
  */
@@ -35,7 +57,7 @@ r5js.parse.bnf.Rule.prototype.match = function(datumStream) {};
  * @private
  */
 r5js.parse.bnf.OneTerminal_ = function(terminal) {
-  /** @const @private {!r5js.parse.Nonterminal} */
+  /** @const @private {!r5js.parse.Terminal} */
   this.terminal_ = terminal;
 };
 

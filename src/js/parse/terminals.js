@@ -21,6 +21,7 @@ r5js.parse.Terminals = {
   LET_SYNTAX: 'let-syntax',
   LETREC_SYNTAX: 'letrec-syntax',
   LPAREN: '(',
+  LPAREN_DOT: '.(' /* TODO bl remove, not a real terminal! */,
   LPAREN_VECTOR: '#(',
   QUASIQUOTE: 'quasiquote',
   QUOTE: 'quote',
@@ -39,10 +40,10 @@ r5js.parse.Terminals = {
  * TODO bl: remove.
  */
 r5js.parse.isTerminal = function(str) {
-    for (var key in r5js.parse.Terminals) {
-        if (str === r5js.parse.Terminals[key]) {
-            return true;
-        }
+  for (var key in r5js.parse.Terminals) {
+    if (str === r5js.parse.Terminals[key]) {
+      return true;
     }
-    return false;
+  }
+  return false;
 };
