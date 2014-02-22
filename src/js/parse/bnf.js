@@ -55,10 +55,6 @@ r5js.parse.bnf.Rule.prototype.match = function(
     datumStream, parser) {};
 
 
-/** @return {!r5js.parse.Nonterminal|null} TODO bl remove. */
-r5js.parse.bnf.Rule.prototype.getNonterminalType = function() {};
-
-
 
 /**
  * @param {!r5js.parse.Terminal} terminal
@@ -109,12 +105,6 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
 };
 
 
-/** @override */
-r5js.parse.bnf.OneTerminal_.prototype.getNonterminalType = function() {
-  return null;
-};
-
-
 /**
  * @param {!r5js.parse.Terminal} terminal
  * @return {!r5js.parse.bnf.Rule}
@@ -148,12 +138,6 @@ r5js.parse.bnf.OneNonterminal_.prototype.match = function(
     datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.nextSibling));
   }
   return !!parsed;
-};
-
-
-/** @override */
-r5js.parse.bnf.OneNonterminal_.prototype.getNonterminalType = function() {
-  return this.nonterminal_;
 };
 
 
@@ -215,12 +199,6 @@ r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream, parser) {
 };
 
 
-/** @override */
-r5js.parse.bnf.AtLeast_.prototype.getNonterminalType = function() {
-  return this.nonterminal_;
-};
-
-
 /**
  * @param {!r5js.parse.Nonterminal} nonterminal
  * @return {!r5js.parse.bnf.Rule}
@@ -262,12 +240,6 @@ r5js.parse.bnf.MatchDatum_.prototype.match = function(datumStream) {
   } else {
     return false;
   }
-};
-
-
-/** @override */
-r5js.parse.bnf.MatchDatum_.prototype.getNonterminalType = function() {
-  return null;
 };
 
 
