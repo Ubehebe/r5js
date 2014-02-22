@@ -232,23 +232,6 @@ r5js.Parser.rewriteImproperList_ = function(rhsArgs) {
 };
 
 
-/**
- * @param {function(!r5js.Datum):boolean} predicate Predicate to apply
- * to the next datum.
- * @return {boolean} True iff the predicate applied and the parser advanced
- * to the next datum.
- * @private
- */
-r5js.Parser.prototype.nextIf_ = function(predicate) {
-    var next = this.datumStream_.getNextDatum();
-    if (next && predicate(next)) {
-        this.datumStream_.advanceToNextSibling();
-        return true;
-    } else {
-        return false;
-    }
-};
-
 
 /* <expression> -> <variable>
  | <literal>
@@ -343,13 +326,10 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.VARIABLE] = function() {
 
 // <literal> -> <quotation> | <self-evaluating>
 r5js.Parser.prototype[r5js.parse.Nonterminals.LITERAL] = function() {
-    return this.alternation_(
-        [
-            r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.SELF_EVALUATING)
-        ],
-        [
-            r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.QUOTATION)
-        ]);
+    return r5js.parse.bnf.choice(
+        r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.SELF_EVALUATING),
+        r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.QUOTATION)).
+        match(this.datumStream_, this);
 };
 
 
@@ -801,9 +781,8 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QUASIQUOTATION] = function() {
  | <unquotation D>
  */
 r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE] = function() {
-    return this.alternation_(
-        [
-            r5js.parse.bnf.matchDatum(function(datum) {
+    return r5js.parse.bnf.choice(
+        r5js.parse.bnf.matchDatum(function(datum) {
                 switch (datum.type) {
                     case r5js.DatumType.BOOLEAN:
                     case r5js.DatumType.NUMBER:
@@ -814,18 +793,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE] = function() {
                     default:
                         return false;
                 }
-            })
-        ],
-        [
-            r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.LIST_QQ_TEMPLATE)
-        ],
-        [
-            r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.VECTOR_QQ_TEMPLATE)
-        ],
-        [
-            r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.UNQUOTATION)
-        ]
-    );
+            }),
+            r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.LIST_QQ_TEMPLATE),
+            r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.VECTOR_QQ_TEMPLATE),
+            r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.UNQUOTATION)).
+        match(this.datumStream_, this);
 };
 
 
