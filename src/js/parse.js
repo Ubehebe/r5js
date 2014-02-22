@@ -315,7 +315,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.EXPRESSION] = function() {
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 r5js.Parser.prototype[r5js.parse.Nonterminals.VARIABLE] = function() {
     var self = this;
-    return this.rhs(
+    return r5js.parse.bnf.seq(
         r5js.parse.bnf.matchDatum(function(datum) {
             var ans = datum instanceof r5js.Datum // because it may be emptyListSentinel
                 && datum.isIdentifier();
@@ -323,7 +323,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.VARIABLE] = function() {
                 self.fixParserSensitiveIds_ = true;
             }
             return ans;
-        }));
+        })).match(this.datumStream_, this);
 };
 
 
@@ -362,15 +362,15 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QUOTATION] = function() {
 
 
 r5js.Parser.prototype[r5js.parse.Nonterminals.DATUM] = function() {
-    return this.rhs(r5js.parse.bnf.matchDatum(function(datum) {
+    return r5js.parse.bnf.seq(r5js.parse.bnf.matchDatum(function(datum) {
         return true;
-    }));
+    })).match(this.datumStream_, this);
 };
 
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 r5js.Parser.prototype[r5js.parse.Nonterminals.SELF_EVALUATING] = function() {
-    return this.rhs(
+    return r5js.parse.bnf.seq(
         r5js.parse.bnf.matchDatum(function(datum) {
             switch (datum.type) {
                 case r5js.DatumType.BOOLEAN:
@@ -385,7 +385,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SELF_EVALUATING] = function() {
                 default:
                     return false;
             }
-        }));
+        })).match(this.datumStream_, this);
 };
 
 
@@ -429,12 +429,14 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PROCEDURE_CALL] = function() {
 
 
 r5js.Parser.prototype[r5js.parse.Nonterminals.OPERATOR] = function() {
-    return this.rhs(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION));
+    return r5js.parse.bnf.seq(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION)).
+        match(this.datumStream_, this);
 };
 
 
 r5js.Parser.prototype[r5js.parse.Nonterminals.OPERAND] = function() {
-    return this.rhs(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION));
+    return r5js.parse.bnf.seq(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION)).
+        match(this.datumStream_, this);
 };
 
 // <lambda expression> -> (lambda <formals> <body>)
@@ -710,19 +712,22 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.CONDITIONAL] = function() {
 
 // <test> -> <expression>
 r5js.Parser.prototype[r5js.parse.Nonterminals.TEST] = function() {
-    return this.rhs(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION));
+    return r5js.parse.bnf.seq(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION)).
+        match(this.datumStream_, this);
 };
 
 
 // <consequent> -> <expression>
 r5js.Parser.prototype[r5js.parse.Nonterminals.CONSEQUENT] = function() {
-    return this.rhs(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION));
+    return r5js.parse.bnf.seq(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION)).
+        match(this.datumStream_, this);
 };
 
 
 // <alternate> -> <expression> | <empty>
 r5js.Parser.prototype[r5js.parse.Nonterminals.ALTERNATE] = function() {
-    return this.rhs(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION));
+    return r5js.parse.bnf.seq(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION)).
+        match(this.datumStream_, this);
 };
 
 
@@ -822,10 +827,11 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.LIST_QQ_TEMPLATE] = function() {
 
 // <vector qq template D> -> #(<qq template or splice D>*)
 r5js.Parser.prototype[r5js.parse.Nonterminals.VECTOR_QQ_TEMPLATE] = function() {
-    return this.rhs(
+    return r5js.parse.bnf.seq(
         r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_VECTOR),
         r5js.parse.bnf.zeroOrMore(r5js.parse.Nonterminals.QQ_TEMPLATE_OR_SPLICE),
-        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN));
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)).
+        match(this.datumStream_, this);
 };
 
 
@@ -893,12 +899,12 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_USE] = function() {
 
 // <keyword> -> <identifier>
 r5js.Parser.prototype[r5js.parse.Nonterminals.KEYWORD] = function() {
-    return this.rhs(r5js.parse.bnf.matchDatum(function(datum) {
+    return r5js.parse.bnf.seq(r5js.parse.bnf.matchDatum(function(datum) {
         /* TODO bl: Tests fail when I replace this type switch by
         datum.isIdentifier(), suggesting that this argument is not always
         a Datum. Investigate. */
         return datum.type === r5js.DatumType.IDENTIFIER;
-    }));
+    })).match(this.datumStream_, this);
 };
 
 
@@ -939,11 +945,12 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_BLOCK] = function() {
 
 // <syntax spec> -> (<keyword> <transformer spec>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_SPEC] = function() {
-    return this.rhs(
+    return r5js.parse.bnf.seq(
         r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.KEYWORD),
         r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.TRANSFORMER_SPEC),
-        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN));
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)).
+        match(this.datumStream_, this);
 };
 
 
@@ -974,11 +981,12 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TRANSFORMER_SPEC] = function() {
 
 // <syntax rule> -> (<pattern> <template>)
 r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_RULE] = function() {
-    return this.rhs(
+    return r5js.parse.bnf.seq(
         r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
         r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.PATTERN),
         r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.TEMPLATE),
-        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN));
+        r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)).match(
+            this.datumStream_, this);
 };
 
 
@@ -1083,7 +1091,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN] = function() {
 
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
 r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN_DATUM] = function() {
-    return this.rhs(
+    return r5js.parse.bnf.seq(
         r5js.parse.bnf.matchDatum(function(datum) {
             switch (datum.type) {
                 case r5js.DatumType.BOOLEAN:
@@ -1094,7 +1102,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN_DATUM] = function() {
                 default:
                     return false;
             }
-        }));
+        })).match(this.datumStream_, this);
 };
 
 
@@ -1212,20 +1220,22 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE] = function() {
 
 // <template datum> -> <pattern datum>
 r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE_DATUM] = function() {
-    return this.rhs(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.PATTERN_DATUM));
+    return r5js.parse.bnf.seq(
+            r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.PATTERN_DATUM)).
+        match(this.datumStream_, this);
 };
 
 
 // <pattern identifier> -> <any identifier except ...>
 r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN_IDENTIFIER] = function() {
-    return this.rhs(
+    return r5js.parse.bnf.seq(
         r5js.parse.bnf.matchDatum(function(datum) {
 	     /* TODO bl: Tests fail when I replace this type switch by
 	        datum.isIdentifier(), suggesting that this argument is not
 	        always a Datum. Investigate. */
             return datum.type === r5js.DatumType.IDENTIFIER &&
                 datum.payload !== r5js.parse.Terminals.ELLIPSIS;
-        }));
+        })).match(this.datumStream_, this);
 };
 
 // <program> -> <command or definition>*
@@ -1263,7 +1273,8 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.COMMAND_OR_DEFINITION] = function(
 
 // <command> -> <expression>
 r5js.Parser.prototype[r5js.parse.Nonterminals.COMMAND] = function() {
-    return this.rhs(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION));
+    return r5js.parse.bnf.seq(r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION)).
+        match(this.datumStream_, this);
 };
 
 
