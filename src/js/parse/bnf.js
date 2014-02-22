@@ -13,9 +13,11 @@ r5js.parse.bnf.Rule = function() {};
 /**
  * @param {?} obj
  * @return {boolean}
+ * TODO bl remove.
  */
 r5js.parse.bnf.Rule.isImplementedBy = function(obj) {
-  return obj instanceof r5js.parse.bnf.OneTerminal_; // TODO bl
+  return obj instanceof r5js.parse.bnf.OneTerminal_ ||
+      obj instanceof r5js.parse.bnf.OneNonterminal_;
 };
 
 
@@ -43,9 +45,15 @@ r5js.parse.bnf.Rule.isLparen = function(obj) {
 
 /**
  * @param {!r5js.DatumStream} datumStream
+ * @param {function():r5js.Datum=} opt_parseFunction
  * @return {boolean} True iff the parse succeeded.
  */
-r5js.parse.bnf.Rule.prototype.match = function(datumStream) {};
+r5js.parse.bnf.Rule.prototype.match = function(
+    datumStream, opt_parseFunction) {};
+
+
+/** @return {!r5js.parse.Nonterminal|null} TODO bl remove. */
+r5js.parse.bnf.Rule.prototype.getNonterminalType = function() {};
 
 
 
@@ -98,10 +106,57 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
 };
 
 
+/** @override */
+r5js.parse.bnf.OneTerminal_.prototype.getNonterminalType = function() {
+  return null;
+};
+
+
 /**
  * @param {!r5js.parse.Terminal} terminal
  * @return {!r5js.parse.bnf.Rule}
  */
 r5js.parse.bnf.oneTerminal = function(terminal) {
   return new r5js.parse.bnf.OneTerminal_(terminal);
+};
+
+
+
+/**
+ * @param {!r5js.parse.Nonterminal} nonterminal
+ * @implements {r5js.parse.bnf.Rule}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.parse.bnf.OneNonterminal_ = function(nonterminal) {
+  /** @const @private {!r5js.parse.Nonterminal} */
+  this.nonterminal_ = nonterminal;
+};
+
+
+/** @override */
+r5js.parse.bnf.OneNonterminal_.prototype.match = function(
+    datumStream, parseFunction) {
+  var parsed = parseFunction();
+  if (parsed) {
+    parsed.setParse(this.nonterminal_);
+    datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.nextSibling));
+  }
+  return !!parsed;
+};
+
+
+/** @override */
+r5js.parse.bnf.OneNonterminal_.prototype.getNonterminalType = function() {
+  return this.nonterminal_;
+};
+
+
+/**
+ * @param {!r5js.parse.Nonterminal} nonterminal
+ * @return {r5js.parse.bnf.Rule}
+ */
+r5js.parse.bnf.oneNonterminal = function(nonterminal) {
+  return new r5js.parse.bnf.OneNonterminal_(nonterminal);
 };
