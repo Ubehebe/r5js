@@ -158,10 +158,7 @@ r5js.Parser.prototype.rhs = function(var_args) {
                 return null;
             }
         } else if (element.type) {
-            var parsed = goog.isFunction(element.type) ?
-                this.nextIf_(element.type) :
-                this.onRepeatedNonterminal_(element, this[element.type]);
-            if (!parsed) {
+            if (!this.nextIf_(element.type)) {
                 /* This check is necessary because root may be the special
                  sentinel object for empty lists. */
                 if (root instanceof r5js.Datum)
@@ -243,43 +240,6 @@ r5js.Parser.rewriteImproperList_ = function(rhsArgs) {
             return;
         }
     }
-};
-
-
-/**
- * @param {?} element
- * @param {?} parseFunction
- * @return {?}
- * @private
- * @suppress {checkTypes} This method will be removed soon anyway.
- */
-r5js.Parser.prototype.onRepeatedNonterminal_ = function(element, parseFunction) {
-    var numParsed = 0;
-
-    /* todo bl too hard to understand. Has to do with recovering the
-     next pointer after falling off the end of a deeply-nested list. However,
-     it only seems to be needed for the let-syntax and letrec-syntax
-     nonterminals. This is an indication that I don't understand how the
-     parser really works.
-
-     The parser would be much simpler if each parsing action returned
-     the datum it parsed on success and null on failure, rather than
-     tinkering with the state pointers prev and next. I haven't done this
-     so far because it would seem to require passing an additional
-     node parameter around. Currently, all the parameters in the parsing
-     functions are descriptions of the grammar. I probably need to
-     factor the parser into parser logic and a grammar that the parser
-     reads. */
-    this.datumStream_.maybeRecoverAfterDeeplyNestedList();
-
-    var parsed;
-    while (parsed = parseFunction.apply(this)) {
-        // this.next_ has already been advanced by the success of parseFunction
-        parsed.setParse(element.type);
-        ++numParsed;
-    }
-
-    return numParsed >= element.atLeast;
 };
 
 
