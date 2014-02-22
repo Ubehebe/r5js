@@ -50,6 +50,18 @@ r5js.parse.bnf.Rule.isLparen = function(obj) {
 
 
 /**
+ * @param {!r5js.parse.bnf.Rule} rule
+ * @param {!r5js.Datum} datum
+ * TODO bl remove.
+ */
+r5js.parse.bnf.Rule.maybeDesugar = function(rule, datum) {
+  if (rule instanceof r5js.parse.bnf.Seq_ && rule.desugarFunc_) {
+    datum.setDesugar(rule.desugarFunc_);
+  }
+};
+
+
+/**
  * @param {!r5js.DatumStream} datumStream
  * @param {!r5js.Parser} parser
  * @return {boolean|!r5js.Datum} True iff the parse succeeded.
@@ -302,6 +314,9 @@ r5js.parse.bnf.choice = function(var_args) {
 r5js.parse.bnf.Seq_ = function(rules) {
   /** @const @private {!Array.<!r5js.parse.bnf.Rule>} */
   this.rules_ = rules;
+
+  /** @private {function(!r5js.Datum, !r5js.IEnvironment)|null} */
+  this.desugarFunc_ = null;
 };
 
 
@@ -340,8 +355,18 @@ r5js.parse.bnf.Seq_.prototype.match = function(datumStream, parser) {
 
 
 /**
- * @param {...!r5js.parse.bnf.Rule} var_args
+ * @param {function(!r5js.Datum, !r5js.IEnvironment)} desugarFunc
  * @return {!r5js.parse.bnf.Rule}
+ */
+r5js.parse.bnf.Seq_.prototype.desugar = function(desugarFunc) {
+  this.desugarFunc_ = desugarFunc;
+  return this;
+};
+
+
+/**
+ * @param {...!r5js.parse.bnf.Rule} var_args
+ * @return {!r5js.parse.bnf.Seq_}
  * @suppress {checkTypes}
  */
 r5js.parse.bnf.seq = function(var_args) {
