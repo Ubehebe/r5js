@@ -285,7 +285,11 @@ r5js.parse.bnf.Choice_ = function(rules) {
 r5js.parse.bnf.Choice_.prototype.match = function(datumStream, parser) {
   var parsed;
   for (var i = 0; i < this.rules_.length; ++i) {
-    if (parsed = this.rules_[i].match(datumStream, parser)) {
+    var rule = this.rules_[i];
+    if (parsed = rule.match(datumStream, parser)) {
+      if (parsed instanceof r5js.Datum) {
+        r5js.parse.bnf.Rule.maybeDesugar(rule, parsed);
+      }
       return parsed;
     }
   }
