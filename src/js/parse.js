@@ -157,15 +157,6 @@ r5js.Parser.prototype.rhs = function(var_args) {
                 this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
                 return null;
             }
-        } else if (element.type) {
-            if (!this.nextIf_(element.type)) {
-                /* This check is necessary because root may be the special
-                 sentinel object for empty lists. */
-                if (root instanceof r5js.Datum)
-                    root.unsetParse();
-                this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
-                return null;
-            }
         }
 
         if (element.desugar) {
@@ -341,13 +332,14 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.EXPRESSION] = function() {
 r5js.Parser.prototype[r5js.parse.Nonterminals.VARIABLE] = function() {
     var self = this;
     return this.rhs(
-        {type: function(datum) {
+        r5js.parse.bnf.matchDatum(function(datum) {
             var ans = datum instanceof r5js.Datum // because it may be emptyListSentinel
                 && datum.isIdentifier();
-            if (ans && isParserSensitiveId(datum.payload))
+            if (ans && isParserSensitiveId(/** @type {string} */ (datum.payload))) {
                 self.fixParserSensitiveIds_ = true;
+            }
             return ans;
-        }});
+        }));
 };
 
 
@@ -389,17 +381,16 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QUOTATION] = function() {
 
 
 r5js.Parser.prototype[r5js.parse.Nonterminals.DATUM] = function() {
-    return this.rhs({type: function(datum) {
-            return true;
-        }});
+    return this.rhs(r5js.parse.bnf.matchDatum(function(datum) {
+        return true;
+    }));
 };
 
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 r5js.Parser.prototype[r5js.parse.Nonterminals.SELF_EVALUATING] = function() {
-
     return this.rhs(
-        {type: function(datum) {
+        r5js.parse.bnf.matchDatum(function(datum) {
             switch (datum.type) {
                 case r5js.DatumType.BOOLEAN:
                 case r5js.DatumType.NUMBER:
@@ -413,9 +404,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SELF_EVALUATING] = function() {
                 default:
                     return false;
             }
-        }
-        }
-    );
+        }));
 };
 
 
@@ -815,11 +804,8 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QUASIQUOTATION] = function() {
  */
 r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE] = function() {
     return this.alternation_(
-       /* [ todo bl do we need this?
-            {type: 'expression', ifQqLevel: 0}
-        ],*/
         [
-            {type: function(datum) {
+            r5js.parse.bnf.matchDatum(function(datum) {
                 switch (datum.type) {
                     case r5js.DatumType.BOOLEAN:
                     case r5js.DatumType.NUMBER:
@@ -830,8 +816,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.QQ_TEMPLATE] = function() {
                     default:
                         return false;
                 }
-            }
-            }
+            })
         ],
         [
             r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.LIST_QQ_TEMPLATE)
@@ -958,12 +943,12 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.MACRO_USE] = function() {
 
 // <keyword> -> <identifier>
 r5js.Parser.prototype[r5js.parse.Nonterminals.KEYWORD] = function() {
-    return this.rhs({type: function(datum) {
+    return this.rhs(r5js.parse.bnf.matchDatum(function(datum) {
         /* TODO bl: Tests fail when I replace this type switch by
         datum.isIdentifier(), suggesting that this argument is not always
         a Datum. Investigate. */
         return datum.type === r5js.DatumType.IDENTIFIER;
-    }});
+    }));
 };
 
 
@@ -1149,7 +1134,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN] = function() {
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
 r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN_DATUM] = function() {
     return this.rhs(
-        {type: function(datum) {
+        r5js.parse.bnf.matchDatum(function(datum) {
             switch (datum.type) {
                 case r5js.DatumType.BOOLEAN:
                 case r5js.DatumType.NUMBER:
@@ -1159,7 +1144,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN_DATUM] = function() {
                 default:
                     return false;
             }
-        }});
+        }));
 };
 
 
@@ -1286,14 +1271,13 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.TEMPLATE_DATUM] = function() {
 // <pattern identifier> -> <any identifier except ...>
 r5js.Parser.prototype[r5js.parse.Nonterminals.PATTERN_IDENTIFIER] = function() {
     return this.rhs(
-        {type: function(datum) {
+        r5js.parse.bnf.matchDatum(function(datum) {
 	     /* TODO bl: Tests fail when I replace this type switch by
 	        datum.isIdentifier(), suggesting that this argument is not
 	        always a Datum. Investigate. */
             return datum.type === r5js.DatumType.IDENTIFIER &&
                 datum.payload !== r5js.parse.Terminals.ELLIPSIS;
-        }}
-    );
+        }));
 };
 
 // <program> -> <command or definition>*

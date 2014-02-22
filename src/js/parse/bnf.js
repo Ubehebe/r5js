@@ -18,7 +18,8 @@ r5js.parse.bnf.Rule = function() {};
 r5js.parse.bnf.Rule.isImplementedBy = function(obj) {
   return obj instanceof r5js.parse.bnf.OneTerminal_ ||
       obj instanceof r5js.parse.bnf.OneNonterminal_ ||
-      obj instanceof r5js.parse.bnf.AtLeast_;
+      obj instanceof r5js.parse.bnf.AtLeast_ ||
+      obj instanceof r5js.parse.bnf.MatchDatum_;
 };
 
 
@@ -233,5 +234,46 @@ r5js.parse.bnf.zeroOrMore = function(nonterminal) {
  */
 r5js.parse.bnf.oneOrMore = function(nonterminal) {
   return new r5js.parse.bnf.AtLeast_(nonterminal, 1);
+};
+
+
+
+/**
+ * @param {function(!r5js.Datum):boolean} predicate
+ * @implements {r5js.parse.bnf.Rule}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.parse.bnf.MatchDatum_ = function(predicate) {
+  /** @const @private {function(!r5js.Datum):boolean} */
+  this.predicate_ = predicate;
+};
+
+
+/** @override */
+r5js.parse.bnf.MatchDatum_.prototype.match = function(datumStream) {
+  var next = datumStream.getNextDatum();
+  if (next && this.predicate_(next)) {
+    datumStream.advanceToNextSibling();
+    return true;
+  } else {
+    return false;
+  }
+};
+
+
+/** @override */
+r5js.parse.bnf.MatchDatum_.prototype.getNonterminalType = function() {
+  return null;
+};
+
+
+/**
+ * @param {function(!r5js.Datum):boolean} predicate
+ * @return {!r5js.parse.bnf.Rule}
+ */
+r5js.parse.bnf.matchDatum = function(predicate) {
+  return new r5js.parse.bnf.MatchDatum_(predicate);
 };
 
