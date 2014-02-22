@@ -22,14 +22,15 @@ r5js.parse.bnf.Rule.isImplementedBy = function(obj) {
       obj instanceof r5js.parse.bnf.OneNonterminal_ ||
       obj instanceof r5js.parse.bnf.AtLeast_ ||
       obj instanceof r5js.parse.bnf.MatchDatum_ ||
-      obj instanceof r5js.parse.bnf.Choice_;
+      obj instanceof r5js.parse.bnf.Choice_ ||
+      obj instanceof r5js.parse.bnf.Seq_;
 };
 
 
 /**
  * @param {?} obj
  * @return {boolean}
- * TODO bl remove; only used in {@link r5js.Parser#rewriteImproperList_}.
+ * TODO bl remove; only used in {@link r5js.Parser#rewriteImproperList}.
  */
 r5js.parse.bnf.Rule.isDot = function(obj) {
   return obj instanceof r5js.parse.bnf.OneTerminal_ &&
@@ -40,7 +41,7 @@ r5js.parse.bnf.Rule.isDot = function(obj) {
 /**
  * @param {?} obj
  * @return {boolean}
- * TODO bl remove; only used in {@link r5js.Parser#rewriteImproperList_}.
+ * TODO bl remove; only used in {@link r5js.Parser#rewriteImproperList}.
  */
 r5js.parse.bnf.Rule.isLparen = function(obj) {
   return obj instanceof r5js.parse.bnf.OneTerminal_ &&
@@ -287,4 +288,62 @@ r5js.parse.bnf.Choice_.prototype.match = function(datumStream, parser) {
  */
 r5js.parse.bnf.choice = function(var_args) {
   return new r5js.parse.bnf.Choice_(arguments);
+};
+
+
+
+/**
+ * @param {!Array.<!r5js.parse.bnf.Rule>} rules
+ * @implements {r5js.parse.bnf.Rule}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.parse.bnf.Seq_ = function(rules) {
+  /** @const @private {!Array.<!r5js.parse.bnf.Rule>} */
+  this.rules_ = rules;
+};
+
+
+/** @override */
+r5js.parse.bnf.Seq_.prototype.match = function(datumStream, parser) {
+  var root = datumStream.getNextDatum();
+
+  /* This is a convenience function: we want to specify parse rules like
+     (<variable>+ . <variable>) as if we don't know ahead of time whether
+     the list is going to be dotted or not, but the reader already knows.
+     Proper and improper lists are both represented as first-child-next-sibling
+     linked lists; the only difference is the type ('(' vs. '.('). So we rewrite
+     the parse rules to conform to the reader's knowledge. */
+  r5js.Parser.rewriteImproperList(this.rules_);
+
+  for (var i = 0; i < this.rules_.length; ++i) {
+    var rule = this.rules_[i];
+
+    // Process parsing actions
+    if (!rule.match(datumStream, parser)) {
+      /* This check is necessary because root may be the special
+                 sentinel object for empty lists. */
+      if (root instanceof r5js.Datum) {
+        root.unsetParse();
+      }
+      datumStream.advanceTo(/** @type {!r5js.Datum} */ (root));
+      return false;
+    }
+  }
+
+  var nextSibling = /** just in case of an empty program */ root &&
+      root.nextSibling;
+  datumStream.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
+  return root || false;
+};
+
+
+/**
+ * @param {...!r5js.parse.bnf.Rule} var_args
+ * @return {!r5js.parse.bnf.Rule}
+ * @suppress {checkTypes}
+ */
+r5js.parse.bnf.seq = function(var_args) {
+  return new r5js.parse.bnf.Seq_(arguments);
 };

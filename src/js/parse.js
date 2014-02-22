@@ -140,7 +140,7 @@ r5js.Parser.prototype.rhs = function(var_args) {
      Proper and improper lists are both represented as first-child-next-sibling
      linked lists; the only difference is the type ('(' vs. '.('). So we rewrite the
      parse rules to conform to the reader's knowledge. */
-    r5js.Parser.rewriteImproperList_(arguments);
+    r5js.Parser.rewriteImproperList(arguments);
 
     for (var i = 0; i < arguments.length; ++i) {
         var element = arguments[i];
@@ -190,18 +190,21 @@ r5js.Parser.prototype.rhs = function(var_args) {
 r5js.Parser.prototype.alternation_ = function(var_args) {
     var possibleRhs;
     for (var i = 0; i < arguments.length; ++i) {
-        if (possibleRhs = this.rhs.apply(this, arguments[i]))
+        var arg = arguments[i];
+        if (r5js.parse.bnf.Rule.isImplementedBy(arg)) {
+            if (possibleRhs = arg.match(this.datumStream_, this)) {
+                return possibleRhs;
+            }
+        } else if (possibleRhs = this.rhs.apply(this, arg)) {
             return possibleRhs;
+        }
     }
     return null;
 };
 
 
-/**
- * @param {!goog.array.ArrayLike} rhsArgs
- * @private
- */
-r5js.Parser.rewriteImproperList_ = function(rhsArgs) {
+/** @param {!goog.array.ArrayLike} rhsArgs */
+r5js.Parser.rewriteImproperList = function(rhsArgs) {
     // example: (define (x . y) 1) => (define .( x . ) 1)
     /* No RHS in the grammar has more than one dot.
      This will break if such a rule is added. */
