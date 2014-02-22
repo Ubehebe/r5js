@@ -1,6 +1,7 @@
 goog.provide('r5js.parse.bnf');
 
 
+goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.parse.Terminals');
 // TODO bl circular dependency goog.require('r5js.Parser');
@@ -20,7 +21,8 @@ r5js.parse.bnf.Rule.isImplementedBy = function(obj) {
   return obj instanceof r5js.parse.bnf.OneTerminal_ ||
       obj instanceof r5js.parse.bnf.OneNonterminal_ ||
       obj instanceof r5js.parse.bnf.AtLeast_ ||
-      obj instanceof r5js.parse.bnf.MatchDatum_;
+      obj instanceof r5js.parse.bnf.MatchDatum_ ||
+      obj instanceof r5js.parse.bnf.Choice_;
 };
 
 
@@ -49,7 +51,7 @@ r5js.parse.bnf.Rule.isLparen = function(obj) {
 /**
  * @param {!r5js.DatumStream} datumStream
  * @param {!r5js.Parser} parser
- * @return {boolean} True iff the parse succeeded.
+ * @return {boolean|!r5js.Datum} True iff the parse succeeded.
  */
 r5js.parse.bnf.Rule.prototype.match = function(
     datumStream, parser) {};
@@ -133,7 +135,7 @@ r5js.parse.bnf.OneNonterminal_.prototype.match = function(
     datumStream, parser) {
 
   var parsed = r5js.Parser.prototype[this.nonterminal_].call(parser);
-  if (parsed) {
+  if (parsed instanceof r5js.Datum) {
     parsed.setParse(this.nonterminal_);
     datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.nextSibling));
   }
@@ -143,7 +145,7 @@ r5js.parse.bnf.OneNonterminal_.prototype.match = function(
 
 /**
  * @param {!r5js.parse.Nonterminal} nonterminal
- * @return {r5js.parse.bnf.Rule}
+ * @return {!r5js.parse.bnf.Rule}
  */
 r5js.parse.bnf.oneNonterminal = function(nonterminal) {
   return new r5js.parse.bnf.OneNonterminal_(nonterminal);
@@ -251,3 +253,38 @@ r5js.parse.bnf.matchDatum = function(predicate) {
   return new r5js.parse.bnf.MatchDatum_(predicate);
 };
 
+
+
+/**
+ * @param {!Array.<!r5js.parse.bnf.Rule>} rules
+ * @implements {r5js.parse.bnf.Rule}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.parse.bnf.Choice_ = function(rules) {
+  /** @const @private {!Array.<!r5js.parse.bnf.Rule>} */
+  this.rules_ = rules;
+};
+
+
+/** @override */
+r5js.parse.bnf.Choice_.prototype.match = function(datumStream, parser) {
+  var parsed;
+  for (var i = 0; i < this.rules_.length; ++i) {
+    if (parsed = this.rules_[i].match(datumStream, parser)) {
+      return parsed;
+    }
+  }
+  return false;
+};
+
+
+/**
+ * @param {...!r5js.parse.bnf.Rule} var_args
+ * @return {!r5js.parse.bnf.Rule}
+ * @suppress {checkTypes}
+ */
+r5js.parse.bnf.choice = function(var_args) {
+  return new r5js.parse.bnf.Choice_(arguments);
+};
