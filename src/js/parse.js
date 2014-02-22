@@ -147,9 +147,7 @@ r5js.Parser.prototype.rhs = function(var_args) {
 
         // Process parsing actions
         if (r5js.parse.bnf.Rule.isImplementedBy(element)) {
-            var parseFunction = this[element.getNonterminalType()];
-            parseFunction = parseFunction && goog.bind(parseFunction, this);
-            if (!(/** @type {!r5js.parse.bnf.Rule} */ (element)).match(this.datumStream_, parseFunction)) {
+            if (!(/** @type {!r5js.parse.bnf.Rule} */ (element)).match(this.datumStream_, this)) {
                 /* This check is necessary because root may be the special
                  sentinel object for empty lists. */
                 if (root instanceof r5js.Datum)

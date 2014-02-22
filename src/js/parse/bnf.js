@@ -3,6 +3,7 @@ goog.provide('r5js.parse.bnf');
 
 goog.require('r5js.DatumType');
 goog.require('r5js.parse.Terminals');
+// TODO bl circular dependency goog.require('r5js.Parser');
 
 
 
@@ -47,11 +48,11 @@ r5js.parse.bnf.Rule.isLparen = function(obj) {
 
 /**
  * @param {!r5js.DatumStream} datumStream
- * @param {function():r5js.Datum=} opt_parseFunction
+ * @param {!r5js.Parser} parser
  * @return {boolean} True iff the parse succeeded.
  */
 r5js.parse.bnf.Rule.prototype.match = function(
-    datumStream, opt_parseFunction) {};
+    datumStream, parser) {};
 
 
 /** @return {!r5js.parse.Nonterminal|null} TODO bl remove. */
@@ -139,8 +140,9 @@ r5js.parse.bnf.OneNonterminal_ = function(nonterminal) {
 
 /** @override */
 r5js.parse.bnf.OneNonterminal_.prototype.match = function(
-    datumStream, parseFunction) {
-  var parsed = parseFunction();
+    datumStream, parser) {
+
+  var parsed = r5js.Parser.prototype[this.nonterminal_].call(parser);
   if (parsed) {
     parsed.setParse(this.nonterminal_);
     datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.nextSibling));
@@ -183,7 +185,7 @@ r5js.parse.bnf.AtLeast_ = function(nonterminal, minRepetitions) {
 
 
 /** @override */
-r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream, parseFunction) {
+r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream, parser) {
   var numParsed = 0;
 
   /* todo bl too hard to understand. Has to do with recovering the
@@ -203,7 +205,7 @@ r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream, parseFunction) {
   datumStream.maybeRecoverAfterDeeplyNestedList();
 
   var parsed;
-  while (parsed = parseFunction()) {
+  while (parsed = r5js.Parser.prototype[this.nonterminal_].call(parser)) {
     // this.next_ has already been advanced by the success of parseFunction
     parsed.setParse(this.nonterminal_);
     ++numParsed;
