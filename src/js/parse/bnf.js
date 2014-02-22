@@ -348,12 +348,19 @@ r5js.parse.bnf.Seq_.prototype.match = function(datumStream, parser) {
       }
       datumStream.advanceTo(/** @type {!r5js.Datum} */ (root));
       return false;
+    } else if (root instanceof r5js.Datum) {
+      r5js.parse.bnf.Rule.maybeDesugar(rule, root);
     }
   }
 
   var nextSibling = /** just in case of an empty program */ root &&
       root.nextSibling;
   datumStream.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
+
+  if (root instanceof r5js.Datum && this.desugarFunc_) {
+    root.setDesugar(this.desugarFunc_);
+  }
+
   return root || false;
 };
 
