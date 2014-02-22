@@ -17,7 +17,8 @@ r5js.parse.bnf.Rule = function() {};
  */
 r5js.parse.bnf.Rule.isImplementedBy = function(obj) {
   return obj instanceof r5js.parse.bnf.OneTerminal_ ||
-      obj instanceof r5js.parse.bnf.OneNonterminal_;
+      obj instanceof r5js.parse.bnf.OneNonterminal_ ||
+      obj instanceof r5js.parse.bnf.AtLeast_;
 };
 
 
@@ -160,3 +161,77 @@ r5js.parse.bnf.OneNonterminal_.prototype.getNonterminalType = function() {
 r5js.parse.bnf.oneNonterminal = function(nonterminal) {
   return new r5js.parse.bnf.OneNonterminal_(nonterminal);
 };
+
+
+
+/**
+ * @param {!r5js.parse.Nonterminal} nonterminal
+ * @param {number} minRepetitions
+ * @implements {r5js.parse.bnf.Rule}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.parse.bnf.AtLeast_ = function(nonterminal, minRepetitions) {
+  /** @const @private {!r5js.parse.Nonterminal} */
+  this.nonterminal_ = nonterminal;
+
+  /** @const @private {number} */
+  this.minRepetitions_ = minRepetitions;
+};
+
+
+/** @override */
+r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream, parseFunction) {
+  var numParsed = 0;
+
+  /* todo bl too hard to understand. Has to do with recovering the
+     next pointer after falling off the end of a deeply-nested list. However,
+     it only seems to be needed for the let-syntax and letrec-syntax
+     nonterminals. This is an indication that I don't understand how the
+     parser really works.
+
+     The parser would be much simpler if each parsing action returned
+     the datum it parsed on success and null on failure, rather than
+     tinkering with the state pointers prev and next. I haven't done this
+     so far because it would seem to require passing an additional
+     node parameter around. Currently, all the parameters in the parsing
+     functions are descriptions of the grammar. I probably need to
+     factor the parser into parser logic and a grammar that the parser
+     reads. */
+  datumStream.maybeRecoverAfterDeeplyNestedList();
+
+  var parsed;
+  while (parsed = parseFunction()) {
+    // this.next_ has already been advanced by the success of parseFunction
+    parsed.setParse(this.nonterminal_);
+    ++numParsed;
+  }
+
+  return numParsed >= this.minRepetitions_;
+};
+
+
+/** @override */
+r5js.parse.bnf.AtLeast_.prototype.getNonterminalType = function() {
+  return this.nonterminal_;
+};
+
+
+/**
+ * @param {!r5js.parse.Nonterminal} nonterminal
+ * @return {!r5js.parse.bnf.Rule}
+ */
+r5js.parse.bnf.zeroOrMore = function(nonterminal) {
+  return new r5js.parse.bnf.AtLeast_(nonterminal, 0);
+};
+
+
+/**
+ * @param {!r5js.parse.Nonterminal} nonterminal
+ * @return {!r5js.parse.bnf.Rule}
+ */
+r5js.parse.bnf.oneOrMore = function(nonterminal) {
+  return new r5js.parse.bnf.AtLeast_(nonterminal, 1);
+};
+
