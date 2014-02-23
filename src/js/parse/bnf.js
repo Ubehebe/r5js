@@ -124,13 +124,28 @@ r5js.parse.bnf.OneNonterminal_ = function(nonterminal) {
 /** @override */
 r5js.parse.bnf.OneNonterminal_.prototype.match = function(
     datumStream, parser) {
-
-  var parsed = r5js.Parser.prototype[this.nonterminal_].call(parser);
+  var parsed = r5js.parse.bnf.parseNonterminal_(
+      this.nonterminal_, datumStream, parser);
   if (parsed instanceof r5js.Datum) {
     parsed.setParse(this.nonterminal_);
     datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.nextSibling));
   }
   return !!parsed;
+};
+
+
+/**
+ * @param {!r5js.parse.Nonterminal} nonterminal
+ * @param {!r5js.DatumStream} datumStream
+ * @param {!r5js.Parser} parser
+ * @return {!r5js.Datum|boolean}
+ * @private
+ * TODO bl remove, temporary shim.
+ */
+r5js.parse.bnf.parseNonterminal_ = function(nonterminal, datumStream, parser) {
+  return (nonterminal in r5js.Parser.grammar) ?
+      r5js.Parser.grammar[nonterminal].match(datumStream, parser) :
+      r5js.Parser.prototype[nonterminal].call(parser);
 };
 
 
@@ -182,7 +197,8 @@ r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream, parser) {
   datumStream.maybeRecoverAfterDeeplyNestedList();
 
   var parsed;
-  while (parsed = r5js.Parser.prototype[this.nonterminal_].call(parser)) {
+  while (parsed = r5js.parse.bnf.parseNonterminal_(
+      this.nonterminal_, datumStream, parser)) {
     // this.next_ has already been advanced by the success of parseFunction
     parsed.setParse(this.nonterminal_);
     ++numParsed;
