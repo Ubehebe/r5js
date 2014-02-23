@@ -123,65 +123,6 @@ r5js.Parser = function(root) {
 };
 
 
-/**
- * When a parse of a node n succeeds, n is returned and this.next_
- * is advanced to the next node to parse. When a parse of n fails,
- * null is returned and this.next_ still points to n.
- * @param {...*} var_args
- * @return {r5js.Datum} The root of the parse tree, or null if parsing failed.
- * TODO bl: narrow the signature.
- */
-r5js.Parser.prototype.rhs = function(var_args) {
-    var root = this.datumStream_.getNextDatum();
-
-    /* This is a convenience function: we want to specify parse rules like
-     (<variable>+ . <variable>) as if we don't know ahead of time whether
-     the list is going to be dotted or not, but the reader already knows.
-     Proper and improper lists are both represented as first-child-next-sibling
-     linked lists; the only difference is the type ('(' vs. '.('). So we rewrite the
-     parse rules to conform to the reader's knowledge. */
-    r5js.Parser.rewriteImproperList(arguments);
-
-    for (var i = 0; i < arguments.length; ++i) {
-        var element = arguments[i];
-
-        // Process parsing actions
-        if (r5js.parse.bnf.Rule.isImplementedBy(element)) {
-            if (!(/** @type {!r5js.parse.bnf.Rule} */ (element)).match(this.datumStream_, this)) {
-                /* This check is necessary because root may be the special
-                 sentinel object for empty lists. */
-                if (root instanceof r5js.Datum)
-                    root.unsetParse();
-                this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
-                return null;
-            } else if (root instanceof r5js.Datum) {
-                r5js.parse.bnf.Rule.maybeDesugar(element, root);
-            }
-        } else if (element.desugar) {
-            /* todo bl this is an error in the text of the grammar, and
-                should be caught at startup time, not parsing time. It would be
-                nice to add a preprocessing step to the interpreter to verify
-                the integrity of all its data structures before it starts
-                accepting input from the user. */
-            if (i !== arguments.length - 1)
-                throw new r5js.InternalInterpreterError('desugaring actions '
-                + 'are only allowed as the last element in the right-hand '
-                + 'side of a grammar rule.');
-            /* If we are here, root must be an instance of Datum. The only
-                other possibility is the emptyListSentinel, but that always
-                causes parsing to fail, so we could not be here. */
-            if (root)
-                root.setDesugar(element.desugar);
-        }
-
-    }
-
-    var nextSibling = /** just in case of an empty program */ root && root.nextSibling;
-    this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
-    return root;
-};
-
-
 /** @param {!goog.array.ArrayLike} rhsArgs */
 r5js.Parser.rewriteImproperList = function(rhsArgs) {
     // example: (define (x . y) 1) => (define .( x . ) 1)
@@ -1226,10 +1167,22 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.SYNTAX_DEFINITION] = function() {
  * TODO bl: why does the compiler not accept an @override here?
  */
 r5js.Parser.prototype.parse = function(opt_nonterminal) {
-    var fun = this[opt_nonterminal || r5js.parse.Nonterminals.PROGRAM];
-    if (fun) {
-        var ans = fun.apply(this);
-
+    // TODO bl: unify these two cases.
+    if (goog.isDef(opt_nonterminal)) {
+        var root = this.datumStream_.getNextDatum();
+        if (!r5js.parse.bnf.oneNonterminal(opt_nonterminal).match(this.datumStream_, this)) {
+            /* This check is necessary because root may be the special
+             sentinel object for empty lists. */
+            if (root instanceof r5js.Datum)
+                root.unsetParse();
+            this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
+            return null;
+        }
+        var nextSibling = /** just in case of an empty program */ root && root.nextSibling;
+        this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
+        return root;
+    } else {
+    var ans = this[r5js.parse.Nonterminals.PROGRAM].apply(this)
         if (ans && ans.nonterminals) {
             // See comments at top of Parser.
             if (this.fixParserSensitiveIds_) {
@@ -1251,6 +1204,4 @@ r5js.Parser.prototype.parse = function(opt_nonterminal) {
             return goog.isDef(opt_nonterminal) ? ans : null;
         }
     }
-    else
-        throw new r5js.InternalInterpreterError('unknown lhs: ' + opt_nonterminal);
 };

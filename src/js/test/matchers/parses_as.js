@@ -38,8 +38,7 @@ r5js.test.matchers.ParsesAs.prototype.matches = function(value) {
   var datumRoot = new r5js.Reader(
       new r5js.Scanner(/** @type {string} */ (value))).read();
   var actualResult = (datumRoot instanceof r5js.Datum) &&
-      new r5js.Parser(datumRoot).rhs(
-          r5js.parse.bnf.oneNonterminal(this.expectedType_));
+      new r5js.Parser(datumRoot).parse(this.expectedType_);
   return !!actualResult &&
       actualResult.peekParse &&
       actualResult.peekParse() === this.expectedType_;
