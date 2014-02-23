@@ -405,10 +405,14 @@ r5js.parse.bnf.rewriteImproperList_ = function(rules) {
   // Find the closest opening paren to the left of the dot and rewrite it as .(
   for (var i = indexOfDot - 1; i >= 0; --i) {
     var rule = rules[i];
-    if (rule instanceof r5js.parse.bnf.OneTerminal_ &&
-            rule.terminal_ === r5js.parse.Terminals.LPAREN) {
-      rules[i] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_DOT);
-      return;
+    if (rule instanceof r5js.parse.bnf.OneTerminal_) {
+      if (rule.terminal_ === r5js.parse.Terminals.LPAREN_DOT) {
+        // The terminal has already been corrected.
+        return;
+      } else if (rule.terminal_ === r5js.parse.Terminals.LPAREN) {
+        rules[i] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_DOT);
+        return;
+      }
     }
   }
 };
