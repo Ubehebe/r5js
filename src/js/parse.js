@@ -393,17 +393,15 @@ r5js.Parser.grammar[r5js.parse.Nonterminals.FORMALS] = r5js.parse.bnf.choice(
  * | (define (<variable> <def formals>) <body>)
  * | (begin <definition>*)
  * | <def formals> -> <variable>* | <variable>* . <variable>
- * @suppress {checkTypes} TODO bl: type errors in the desugar functions
  */
-r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
-    return r5js.parse.bnf.choice(
+r5js.Parser.grammar[r5js.parse.Nonterminals.DEFINITION] = r5js.parse.bnf.choice(
         r5js.parse.bnf.seq(
             r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
             r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DEFINE),
             r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.VARIABLE),
             r5js.parse.bnf.oneNonterminal(r5js.parse.Nonterminals.EXPRESSION),
             r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)).
-            desugar(function(node, env) {
+            desugar(/** @suppress {checkTypes} */ function(node, env) {
                 /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
                 to a procedure are intercepted in the SchemeProcedure
@@ -432,7 +430,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
             r5js.parse.bnf.zeroOrMore(r5js.parse.Nonterminals.DEFINITION),
             r5js.parse.bnf.oneOrMore(r5js.parse.Nonterminals.EXPRESSION),
             r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)).
-            desugar(function(node, env) {
+            desugar(/** @suppress {checkTypes} */function(node, env) {
                 /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
                 to a procedure are intercepted in the SchemeProcedure
@@ -468,7 +466,7 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
             r5js.parse.bnf.zeroOrMore(r5js.parse.Nonterminals.DEFINITION),
             r5js.parse.bnf.oneOrMore(r5js.parse.Nonterminals.EXPRESSION),
             r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)).
-            desugar(function(node, env) {
+            desugar(/** @suppress {checkTypes} */function(node, env) {
                 /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
                 to a procedure are intercepted in the SchemeProcedure
@@ -498,9 +496,8 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.DEFINITION] = function() {
             r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN),
             r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.BEGIN),
             r5js.parse.bnf.zeroOrMore(r5js.parse.Nonterminals.DEFINITION),
-            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN))).
-        match(this.datumStream_, this);
-};
+            r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.RPAREN)));
+
 
 // <conditional> -> (if <test> <consequent> <alternate>)
 r5js.Parser.grammar[r5js.parse.Nonterminals.CONDITIONAL] = r5js.parse.bnf.choice(
@@ -1061,7 +1058,7 @@ r5js.Parser.prototype.parse = function(opt_nonterminal) {
     // TODO bl: unify these two cases.
     if (goog.isDef(opt_nonterminal)) {
         var root = this.datumStream_.getNextDatum();
-        if (!r5js.parse.bnf.oneNonterminal(opt_nonterminal).match(this.datumStream_, this)) {
+        if (!r5js.parse.bnf.oneNonterminal(opt_nonterminal).match(this.datumStream_)) {
             /* This check is necessary because root may be the special
              sentinel object for empty lists. */
             if (root instanceof r5js.Datum)
@@ -1073,7 +1070,7 @@ r5js.Parser.prototype.parse = function(opt_nonterminal) {
         this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
         return root;
     } else {
-    var ans = r5js.Parser.grammar[r5js.parse.Nonterminals.PROGRAM].match(this.datumStream_, this);
+    var ans = r5js.Parser.grammar[r5js.parse.Nonterminals.PROGRAM].match(this.datumStream_);
         if (ans instanceof r5js.Datum && ans.nonterminals) {
             // See comments at top of Parser.
             if (r5js.Parser.fixParserSensitiveIds_) {

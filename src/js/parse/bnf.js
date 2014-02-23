@@ -41,11 +41,9 @@ r5js.parse.bnf.Rule.maybeDesugar = function(rule, datum) {
 
 /**
  * @param {!r5js.DatumStream} datumStream
- * @param {!r5js.Parser} parser
  * @return {boolean|!r5js.Datum} True iff the parse succeeded.
  */
-r5js.parse.bnf.Rule.prototype.match = function(
-    datumStream, parser) {};
+r5js.parse.bnf.Rule.prototype.match = function(datumStream) {};
 
 
 
@@ -122,30 +120,13 @@ r5js.parse.bnf.OneNonterminal_ = function(nonterminal) {
 
 
 /** @override */
-r5js.parse.bnf.OneNonterminal_.prototype.match = function(
-    datumStream, parser) {
-  var parsed = r5js.parse.bnf.parseNonterminal_(
-      this.nonterminal_, datumStream, parser);
+r5js.parse.bnf.OneNonterminal_.prototype.match = function(datumStream) {
+  var parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream);
   if (parsed instanceof r5js.Datum) {
     parsed.setParse(this.nonterminal_);
     datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.nextSibling));
   }
   return !!parsed;
-};
-
-
-/**
- * @param {!r5js.parse.Nonterminal} nonterminal
- * @param {!r5js.DatumStream} datumStream
- * @param {!r5js.Parser} parser
- * @return {!r5js.Datum|boolean}
- * @private
- * TODO bl remove, temporary shim.
- */
-r5js.parse.bnf.parseNonterminal_ = function(nonterminal, datumStream, parser) {
-  return (nonterminal in r5js.Parser.grammar) ?
-      r5js.Parser.grammar[nonterminal].match(datumStream, parser) :
-      r5js.Parser.prototype[nonterminal].call(parser);
 };
 
 
@@ -177,7 +158,7 @@ r5js.parse.bnf.AtLeast_ = function(nonterminal, minRepetitions) {
 
 
 /** @override */
-r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream, parser) {
+r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream) {
   var numParsed = 0;
 
   /* todo bl too hard to understand. Has to do with recovering the
@@ -197,8 +178,7 @@ r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream, parser) {
   datumStream.maybeRecoverAfterDeeplyNestedList();
 
   var parsed;
-  while (parsed = r5js.parse.bnf.parseNonterminal_(
-      this.nonterminal_, datumStream, parser)) {
+  while (parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream)) {
     // this.next_ has already been advanced by the success of parseFunction
     parsed.setParse(this.nonterminal_);
     ++numParsed;
@@ -276,11 +256,11 @@ r5js.parse.bnf.Choice_ = function(rules) {
 
 
 /** @override */
-r5js.parse.bnf.Choice_.prototype.match = function(datumStream, parser) {
+r5js.parse.bnf.Choice_.prototype.match = function(datumStream) {
   var parsed;
   for (var i = 0; i < this.rules_.length; ++i) {
     var rule = this.rules_[i];
-    if (parsed = rule.match(datumStream, parser)) {
+    if (parsed = rule.match(datumStream)) {
       if (parsed instanceof r5js.Datum) {
         r5js.parse.bnf.Rule.maybeDesugar(rule, parsed);
       }
@@ -319,7 +299,7 @@ r5js.parse.bnf.Seq_ = function(rules) {
 
 
 /** @override */
-r5js.parse.bnf.Seq_.prototype.match = function(datumStream, parser) {
+r5js.parse.bnf.Seq_.prototype.match = function(datumStream) {
   var root = datumStream.getNextDatum();
 
   /* This is a convenience function: we want to specify parse rules like
@@ -334,7 +314,7 @@ r5js.parse.bnf.Seq_.prototype.match = function(datumStream, parser) {
     var rule = this.rules_[i];
 
     // Process parsing actions
-    if (!rule.match(datumStream, parser)) {
+    if (!rule.match(datumStream)) {
       /* This check is necessary because root may be the special
                  sentinel object for empty lists. */
       if (root instanceof r5js.Datum) {
