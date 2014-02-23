@@ -123,36 +123,6 @@ r5js.Parser = function(root) {
 };
 
 
-/** @param {!goog.array.ArrayLike} rhsArgs */
-r5js.Parser.rewriteImproperList = function(rhsArgs) {
-    // example: (define (x . y) 1) => (define .( x . ) 1)
-    /* No RHS in the grammar has more than one dot.
-     This will break if such a rule is added. */
-    var indexOfDot = goog.array.findIndex(rhsArgs, function(arg) {
-        return arg.type === r5js.parse.Terminals.DOT ||
-            r5js.parse.bnf.Rule.isDot(arg);
-    });
-
-    if (indexOfDot === -1) {
-        return;
-    }
-
-    /* Change the datum following the dot to be vacuous -- it has already
-     been read as part of the list preceding the dot.
-     todo bl: this will cause problems with exactly one part of the grammar:
-     <template> -> (<template element>+ . <template>)
-     I think it's easier to check for this in the evaluator. */
-    rhsArgs[indexOfDot + 1] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DOT);
-    // Find the closest opening paren to the left of the dot and rewrite it as .(
-    for (var i = indexOfDot - 1; i >= 0; --i) {
-        var arg = rhsArgs[i];
-        if (r5js.parse.bnf.Rule.isLparen(arg) ||
-            rhsArgs[i].type === r5js.parse.Terminals.LPAREN) {
-            rhsArgs[i] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_DOT);
-            return;
-        }
-    }
-};
 
 
 

@@ -28,28 +28,6 @@ r5js.parse.bnf.Rule.isImplementedBy = function(obj) {
 
 
 /**
- * @param {?} obj
- * @return {boolean}
- * TODO bl remove; only used in {@link r5js.Parser#rewriteImproperList}.
- */
-r5js.parse.bnf.Rule.isDot = function(obj) {
-  return obj instanceof r5js.parse.bnf.OneTerminal_ &&
-      obj.terminal_ === r5js.parse.Terminals.DOT;
-};
-
-
-/**
- * @param {?} obj
- * @return {boolean}
- * TODO bl remove; only used in {@link r5js.Parser#rewriteImproperList}.
- */
-r5js.parse.bnf.Rule.isLparen = function(obj) {
-  return obj instanceof r5js.parse.bnf.OneTerminal_ &&
-      obj.terminal_ === r5js.parse.Terminals.LPAREN;
-};
-
-
-/**
  * @param {!r5js.parse.bnf.Rule} rule
  * @param {!r5js.Datum} datum
  * TODO bl remove.
@@ -334,7 +312,7 @@ r5js.parse.bnf.Seq_.prototype.match = function(datumStream, parser) {
      Proper and improper lists are both represented as first-child-next-sibling
      linked lists; the only difference is the type ('(' vs. '.('). So we rewrite
      the parse rules to conform to the reader's knowledge. */
-  r5js.Parser.rewriteImproperList(this.rules_);
+  r5js.parse.bnf.rewriteImproperList_(this.rules_);
 
   for (var i = 0; i < this.rules_.length; ++i) {
     var rule = this.rules_[i];
@@ -383,3 +361,39 @@ r5js.parse.bnf.Seq_.prototype.desugar = function(desugarFunc) {
 r5js.parse.bnf.seq = function(var_args) {
   return new r5js.parse.bnf.Seq_(arguments);
 };
+
+
+/**
+ * @param {!Array.<!r5js.parse.bnf.Rule>} rules
+ * @private
+ */
+r5js.parse.bnf.rewriteImproperList_ = function(rules) {
+  // example: (define (x . y) 1) => (define .( x . ) 1)
+  /* No RHS in the grammar has more than one dot.
+     This will break if such a rule is added. */
+  var indexOfDot = goog.array.findIndex(rules, function(rule) {
+    return rule instanceof r5js.parse.bnf.OneTerminal_ &&
+        rule.terminal_ === r5js.parse.Terminals.DOT;
+  });
+
+  if (indexOfDot === -1) {
+    return;
+  }
+
+  /* Change the datum following the dot to be vacuous -- it has already
+     been read as part of the list preceding the dot.
+     todo bl: this will cause problems with exactly one part of the grammar:
+     <template> -> (<template element>+ . <template>)
+     I think it's easier to check for this in the evaluator. */
+  rules[indexOfDot + 1] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DOT);
+  // Find the closest opening paren to the left of the dot and rewrite it as .(
+  for (var i = indexOfDot - 1; i >= 0; --i) {
+    var rule = rules[i];
+    if (rule instanceof r5js.parse.bnf.OneTerminal_ &&
+            rule.terminal_ === r5js.parse.Terminals.LPAREN) {
+      rules[i] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_DOT);
+      return;
+    }
+  }
+};
+
