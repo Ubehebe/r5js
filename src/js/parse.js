@@ -998,13 +998,11 @@ r5js.Parser.grammar[r5js.parse.Nonterminals.PATTERN_IDENTIFIER] = r5js.parse.bnf
 
 
 // <program> -> <command or definition>*
-r5js.Parser.prototype[r5js.parse.Nonterminals.PROGRAM] = function() {
-    return r5js.parse.bnf.seq(
+r5js.Parser.grammar[r5js.parse.Nonterminals.PROGRAM] = r5js.parse.bnf.seq(
         r5js.parse.bnf.zeroOrMore(r5js.parse.Nonterminals.COMMAND_OR_DEFINITION)).
         desugar(function(node, env) {
             return node.sequence(env);
-        }).match(this.datumStream_, this);
-};
+    });
 
 
 /* <command or definition> -> <command>
@@ -1075,8 +1073,8 @@ r5js.Parser.prototype.parse = function(opt_nonterminal) {
         this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
         return root;
     } else {
-    var ans = this[r5js.parse.Nonterminals.PROGRAM].apply(this)
-        if (ans && ans.nonterminals) {
+    var ans = r5js.Parser.grammar[r5js.parse.Nonterminals.PROGRAM].match(this.datumStream_, this);
+        if (ans instanceof r5js.Datum && ans.nonterminals) {
             // See comments at top of Parser.
             if (r5js.Parser.fixParserSensitiveIds_) {
                 r5js.Parser.fixParserSensitiveIds_ = false;
@@ -1095,7 +1093,7 @@ r5js.Parser.prototype.parse = function(opt_nonterminal) {
              this means parsing failed. Exception: if an lhs was passed in,
              this was for debugging, and we want to present whatever we
              finished with. */
-            return goog.isDef(opt_nonterminal) ? ans : null;
+            return goog.isDef(opt_nonterminal) ? /** @type {r5js.Datum} */(ans) : null;
         }
     }
 };
