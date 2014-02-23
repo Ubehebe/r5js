@@ -117,10 +117,11 @@ goog.require('r5js.Macro');
 r5js.Parser = function(root) {
     /** @const @private {!r5js.DatumStream} */
     this.datumStream_ = new r5js.DatumStreamImpl(root);
-
-    /** @private {boolean} */
-    this.fixParserSensitiveIds_ = false;
 };
+
+
+/** @private {boolean} */
+r5js.Parser.fixParserSensitiveIds_;
 
 
 
@@ -194,13 +195,12 @@ r5js.Parser.prototype[r5js.parse.Nonterminals.EXPRESSION] = function() {
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 r5js.Parser.prototype[r5js.parse.Nonterminals.VARIABLE] = function() {
-    var self = this;
     return r5js.parse.bnf.seq(
         r5js.parse.bnf.matchDatum(function(datum) {
             var ans = datum instanceof r5js.Datum // because it may be emptyListSentinel
                 && datum.isIdentifier();
             if (ans && isParserSensitiveId(/** @type {string} */ (datum.payload))) {
-                self.fixParserSensitiveIds_ = true;
+                r5js.Parser.fixParserSensitiveIds_ = true;
             }
             return ans;
         })).match(this.datumStream_, this);
@@ -1155,7 +1155,8 @@ r5js.Parser.prototype.parse = function(opt_nonterminal) {
     var ans = this[r5js.parse.Nonterminals.PROGRAM].apply(this)
         if (ans && ans.nonterminals) {
             // See comments at top of Parser.
-            if (this.fixParserSensitiveIds_) {
+            if (r5js.Parser.fixParserSensitiveIds_) {
+                r5js.Parser.fixParserSensitiveIds_ = false;
                 var helper = new r5js.RenameHelper(null);
                 ans.fixParserSensitiveIds(helper);
                 if (helper.wasUsed()) {
