@@ -13,21 +13,6 @@ r5js.parse.bnf.Rule = function() {};
 
 
 /**
- * @param {?} obj
- * @return {boolean}
- * TODO bl remove.
- */
-r5js.parse.bnf.Rule.isImplementedBy = function(obj) {
-  return obj instanceof r5js.parse.bnf.OneTerminal_ ||
-      obj instanceof r5js.parse.bnf.OneNonterminal_ ||
-      obj instanceof r5js.parse.bnf.AtLeast_ ||
-      obj instanceof r5js.parse.bnf.MatchDatum_ ||
-      obj instanceof r5js.parse.bnf.Choice_ ||
-      obj instanceof r5js.parse.bnf.Seq_;
-};
-
-
-/**
  * @param {!r5js.parse.bnf.Rule} rule
  * @param {!r5js.Datum} datum
  * TODO bl remove.
