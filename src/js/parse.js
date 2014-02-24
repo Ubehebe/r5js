@@ -126,43 +126,40 @@ r5js.Parser = function(root) {
  * @return {r5js.Datum}
  */
 r5js.Parser.prototype.parse = function(opt_nonterminal) {
-  // TODO bl: unify these two cases.
-  if (goog.isDef(opt_nonterminal)) {
-    var root = this.datumStream_.getNextDatum();
-    if (!r5js.parse.bnf.one(opt_nonterminal).match(this.datumStream_)) {
-      this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
-      return null;
-    }
-    var nextSibling = /** just in case of an empty program */ root &&
-        root.nextSibling;
-    this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
+  var nonterminal = opt_nonterminal ||
+      r5js.parse.Nonterminals.PROGRAM;
+  var parsedRoot = /** @type {!r5js.Datum} */ (
+      r5js.Parser.grammar[nonterminal].match(this.datumStream_));
+  if (parsedRoot) {
+    parsedRoot.setParse(nonterminal);
+  }
+  return (nonterminal === r5js.parse.Nonterminals.PROGRAM) ?
+      r5js.Parser.maybeFixParserSensitiveIds_(parsedRoot) :
+      parsedRoot;
+};
+
+
+/**
+ * @param {r5js.Datum} root
+ * @return {r5js.Datum}
+ * @private
+ */
+r5js.Parser.maybeFixParserSensitiveIds_ = function(root) {
+  if (!root || !root.nonterminals || !r5js.Parser.fixParserSensitiveIds_) {
     return root;
-  } else {
-    var ans = r5js.Parser.grammar[r5js.parse.Nonterminals.PROGRAM].
-        match(this.datumStream_);
-    if (ans instanceof r5js.Datum && ans.nonterminals) {
-      // See comments at top of Parser.
-      if (r5js.Parser.fixParserSensitiveIds_) {
-        r5js.Parser.fixParserSensitiveIds_ = false;
-        var helper = new r5js.RenameHelper(null);
-        ans.fixParserSensitiveIds(helper);
-        if (helper.wasUsed()) {
-          /* todo bl inefficient, but i've had errors fusing this
+  }
+  r5js.Parser.fixParserSensitiveIds_ = false;
+  var helper = new r5js.RenameHelper(null);
+  root.fixParserSensitiveIds(helper);
+  if (helper.wasUsed()) {
+    /* todo bl inefficient, but i've had errors fusing this
                      into fixParserSensitiveIds() */
-          for (var cur = ans; cur; cur = cur.nextSibling)
-            cur.unsetParse();
-          return new r5js.Parser(ans).parse(opt_nonterminal);
-        } else return ans;
-      } else return ans;
-    } else {
-      /* Do not return a node if its nonterminals haven't been set;
-             this means parsing failed. Exception: if an lhs was passed in,
-             this was for debugging, and we want to present whatever we
-             finished with. */
-      return goog.isDef(opt_nonterminal) ?
-          /** @type {r5js.Datum} */(ans) :
-          null;
+    for (var cur = root; cur; cur = cur.nextSibling) {
+      cur.unsetParse();
     }
+    return new r5js.Parser(root).parse();
+  } else {
+    return root;
   }
 };
 
