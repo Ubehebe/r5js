@@ -81,15 +81,6 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
 };
 
 
-/**
- * @param {!r5js.parse.Terminal} terminal
- * @return {!r5js.parse.bnf.Rule}
- */
-r5js.parse.bnf.oneTerminal = function(terminal) {
-  return new r5js.parse.bnf.OneTerminal_(terminal);
-};
-
-
 
 /**
  * @param {!r5js.parse.Nonterminal} nonterminal
@@ -116,11 +107,16 @@ r5js.parse.bnf.OneNonterminal_.prototype.match = function(datumStream) {
 
 
 /**
- * @param {!r5js.parse.Nonterminal} nonterminal
+ * @param {!r5js.parse.Terminal|!r5js.parse.Nonterminal} symbol
  * @return {!r5js.parse.bnf.Rule}
  */
-r5js.parse.bnf.oneNonterminal = function(nonterminal) {
-  return new r5js.parse.bnf.OneNonterminal_(nonterminal);
+r5js.parse.bnf.one = function(symbol) {
+  // TODO bl: the symbol is a nonterminal iff it is in r5js.Parser.grammar.
+  // However, this function can't check that, because r5js.Parser is
+  // forward-defined.
+  return r5js.parse.isTerminal(symbol) ?
+      new r5js.parse.bnf.OneTerminal_(symbol) :
+      new r5js.parse.bnf.OneNonterminal_(symbol);
 };
 
 
@@ -365,13 +361,13 @@ r5js.parse.bnf.Seq_.rewriteImproperList_ = function(rules) {
      todo bl: this will cause problems with exactly one part of the grammar:
      <template> -> (<template element>+ . <template>)
      I think it's easier to check for this in the evaluator. */
-  rules[indexOfDot + 1] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.DOT);
+  rules[indexOfDot + 1] = r5js.parse.bnf.one(r5js.parse.Terminals.DOT);
   // Find the closest opening paren to the left of the dot and rewrite it as .(
   for (var i = indexOfDot - 1; i >= 0; --i) {
     var rule = rules[i];
     if (rule instanceof r5js.parse.bnf.OneTerminal_ &&
         rule.terminal_ === r5js.parse.Terminals.LPAREN) {
-      rules[i] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_DOT);
+      rules[i] = r5js.parse.bnf.one(r5js.parse.Terminals.LPAREN_DOT);
       break;
     }
   }
