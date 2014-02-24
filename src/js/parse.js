@@ -129,12 +129,7 @@ r5js.Parser.prototype.parse = function(opt_nonterminal) {
   // TODO bl: unify these two cases.
   if (goog.isDef(opt_nonterminal)) {
     var root = this.datumStream_.getNextDatum();
-    if (!r5js.parse.bnf.one(opt_nonterminal).
-        match(this.datumStream_)) {
-      /* This check is necessary because root may be the special
-             sentinel object for empty lists. */
-      if (root instanceof r5js.Datum)
-        root.unsetParse();
+    if (!r5js.parse.bnf.one(opt_nonterminal).match(this.datumStream_)) {
       this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
       return null;
     }
@@ -253,12 +248,12 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 r5js.Parser.grammar[Nonterminals.VARIABLE] = _.seq(
     _.matchDatum(function(datum) {
-      // because it may be emptyListSentinel
-      var ans = datum instanceof r5js.Datum && datum.isIdentifier();
-      if (ans && isParserSensitiveId(/** @type {string} */ (datum.payload))) {
+      var isIdentifier = datum.isIdentifier();
+      if (isIdentifier &&
+          isParserSensitiveId(/** @type {string} */ (datum.payload))) {
         r5js.Parser.fixParserSensitiveIds_ = true;
       }
-      return ans;
+      return isIdentifier;
     }));
 
 // <literal> -> <quotation> | <self-evaluating>

@@ -288,11 +288,6 @@ r5js.parse.bnf.Seq_.prototype.match = function(datumStream) {
 
     // Process parsing actions
     if (!rule.match(datumStream)) {
-      /* This check is necessary because root may be the special
-                 sentinel object for empty lists. */
-      if (root instanceof r5js.Datum) {
-        root.unsetParse();
-      }
       datumStream.advanceTo(/** @type {!r5js.Datum} */ (root));
       return false;
     } else if (root instanceof r5js.Datum) {
