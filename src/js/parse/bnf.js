@@ -291,7 +291,7 @@ r5js.parse.bnf.choice = function(var_args) {
  */
 r5js.parse.bnf.Seq_ = function(rules) {
   /** @const @private {!Array.<!r5js.parse.bnf.Rule>} */
-  this.rules_ = rules;
+  this.rules_ = r5js.parse.bnf.Seq_.rewriteImproperList_(rules);
 
   /** @private {function(!r5js.Datum, !r5js.IEnvironment)|null} */
   this.desugarFunc_ = null;
@@ -301,14 +301,6 @@ r5js.parse.bnf.Seq_ = function(rules) {
 /** @override */
 r5js.parse.bnf.Seq_.prototype.match = function(datumStream) {
   var root = datumStream.getNextDatum();
-
-  /* This is a convenience function: we want to specify parse rules like
-     (<variable>+ . <variable>) as if we don't know ahead of time whether
-     the list is going to be dotted or not, but the reader already knows.
-     Proper and improper lists are both represented as first-child-next-sibling
-     linked lists; the only difference is the type ('(' vs. '.('). So we rewrite
-     the parse rules to conform to the reader's knowledge. */
-  r5js.parse.bnf.rewriteImproperList_(this.rules_);
 
   for (var i = 0; i < this.rules_.length; ++i) {
     var rule = this.rules_[i];
@@ -360,10 +352,17 @@ r5js.parse.bnf.seq = function(var_args) {
 
 
 /**
+ * This is a convenience function: we want to specify parse rules like
+ * (<variable>+ . <variable>) as if we don't know ahead of time whether
+ * the list is going to be dotted or not, but the reader already knows.
+ * Proper and improper lists are both represented as first-child-next-sibling
+ * linked lists; the only difference is the type ('(' vs. '.('). So we rewrite
+ * the parse rules to conform to the reader's knowledge.
  * @param {!Array.<!r5js.parse.bnf.Rule>} rules
+ * @return {!Array.<!r5js.parse.bnf.Rule>} The modified rules array.
  * @private
  */
-r5js.parse.bnf.rewriteImproperList_ = function(rules) {
+r5js.parse.bnf.Seq_.rewriteImproperList_ = function(rules) {
   // example: (define (x . y) 1) => (define .( x . ) 1)
   /* No RHS in the grammar has more than one dot.
      This will break if such a rule is added. */
@@ -373,7 +372,7 @@ r5js.parse.bnf.rewriteImproperList_ = function(rules) {
   });
 
   if (indexOfDot === -1) {
-    return;
+    return rules;
   }
 
   /* Change the datum following the dot to be vacuous -- it has already
@@ -385,15 +384,12 @@ r5js.parse.bnf.rewriteImproperList_ = function(rules) {
   // Find the closest opening paren to the left of the dot and rewrite it as .(
   for (var i = indexOfDot - 1; i >= 0; --i) {
     var rule = rules[i];
-    if (rule instanceof r5js.parse.bnf.OneTerminal_) {
-      if (rule.terminal_ === r5js.parse.Terminals.LPAREN_DOT) {
-        // The terminal has already been corrected.
-        return;
-      } else if (rule.terminal_ === r5js.parse.Terminals.LPAREN) {
-        rules[i] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_DOT);
-        return;
-      }
+    if (rule instanceof r5js.parse.bnf.OneTerminal_ &&
+        rule.terminal_ === r5js.parse.Terminals.LPAREN) {
+      rules[i] = r5js.parse.bnf.oneTerminal(r5js.parse.Terminals.LPAREN_DOT);
+      break;
     }
   }
+  return rules;
 };
 
