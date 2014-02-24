@@ -120,15 +120,59 @@ r5js.Parser = function(root) {
 };
 
 
+/**
+ * @param {!r5js.parse.Nonterminal=} opt_nonterminal
+ * @return {r5js.Datum}
+ * TODO bl: why does the compiler not accept an @override here?
+ */
+r5js.Parser.prototype.parse = function(opt_nonterminal) {
+    // TODO bl: unify these two cases.
+    if (goog.isDef(opt_nonterminal)) {
+        var root = this.datumStream_.getNextDatum();
+        if (!r5js.parse.bnf.oneNonterminal(opt_nonterminal).match(this.datumStream_)) {
+            /* This check is necessary because root may be the special
+             sentinel object for empty lists. */
+            if (root instanceof r5js.Datum)
+                root.unsetParse();
+            this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
+            return null;
+        }
+        var nextSibling = /** just in case of an empty program */ root && root.nextSibling;
+        this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
+        return root;
+    } else {
+        var ans = r5js.Parser.grammar[r5js.parse.Nonterminals.PROGRAM].match(this.datumStream_);
+        if (ans instanceof r5js.Datum && ans.nonterminals) {
+            // See comments at top of Parser.
+            if (r5js.Parser.fixParserSensitiveIds_) {
+                r5js.Parser.fixParserSensitiveIds_ = false;
+                var helper = new r5js.RenameHelper(null);
+                ans.fixParserSensitiveIds(helper);
+                if (helper.wasUsed()) {
+                    /* todo bl inefficient, but i've had errors fusing this
+                     into fixParserSensitiveIds() */
+                    for (var cur = ans; cur; cur = cur.nextSibling)
+                        cur.unsetParse();
+                    return new r5js.Parser(ans).parse(opt_nonterminal);
+                } else return ans;
+            } else return ans;
+        } else {
+            /* Do not return a node if its nonterminals haven't been set;
+             this means parsing failed. Exception: if an lhs was passed in,
+             this was for debugging, and we want to present whatever we
+             finished with. */
+            return goog.isDef(opt_nonterminal) ? /** @type {r5js.Datum} */(ans) : null;
+        }
+    }
+};
+
+
 /** @private {boolean} */
 r5js.Parser.fixParserSensitiveIds_;
 
 
 /** @const {!Object.<!r5js.parse.Nonterminal, !r5js.parse.bnf.Rule>} */
 r5js.Parser.grammar = {};
-
-
-
 
 
 /* <expression> -> <variable>
@@ -1047,50 +1091,3 @@ r5js.Parser.grammar[r5js.parse.Nonterminals.SYNTAX_DEFINITION] = r5js.parse.bnf.
                 setTopLevelAssignment().
                 setSyntaxAssignment();
     });
-
-
-/**
- * @param {!r5js.parse.Nonterminal=} opt_nonterminal
- * @return {r5js.Datum}
- * TODO bl: why does the compiler not accept an @override here?
- */
-r5js.Parser.prototype.parse = function(opt_nonterminal) {
-    // TODO bl: unify these two cases.
-    if (goog.isDef(opt_nonterminal)) {
-        var root = this.datumStream_.getNextDatum();
-        if (!r5js.parse.bnf.oneNonterminal(opt_nonterminal).match(this.datumStream_)) {
-            /* This check is necessary because root may be the special
-             sentinel object for empty lists. */
-            if (root instanceof r5js.Datum)
-                root.unsetParse();
-            this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (root));
-            return null;
-        }
-        var nextSibling = /** just in case of an empty program */ root && root.nextSibling;
-        this.datumStream_.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
-        return root;
-    } else {
-    var ans = r5js.Parser.grammar[r5js.parse.Nonterminals.PROGRAM].match(this.datumStream_);
-        if (ans instanceof r5js.Datum && ans.nonterminals) {
-            // See comments at top of Parser.
-            if (r5js.Parser.fixParserSensitiveIds_) {
-                r5js.Parser.fixParserSensitiveIds_ = false;
-                var helper = new r5js.RenameHelper(null);
-                ans.fixParserSensitiveIds(helper);
-                if (helper.wasUsed()) {
-                    /* todo bl inefficient, but i've had errors fusing this
-                     into fixParserSensitiveIds() */
-                    for (var cur = ans; cur; cur = cur.nextSibling)
-                        cur.unsetParse();
-                    return new r5js.Parser(ans).parse(opt_nonterminal);
-                } else return ans;
-            } else return ans;
-        } else {
-            /* Do not return a node if its nonterminals haven't been set;
-             this means parsing failed. Exception: if an lhs was passed in,
-             this was for debugging, and we want to present whatever we
-             finished with. */
-            return goog.isDef(opt_nonterminal) ? /** @type {r5js.Datum} */(ans) : null;
-        }
-    }
-};
