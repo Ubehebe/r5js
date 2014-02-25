@@ -1202,7 +1202,7 @@ r5js.builtins['eval'] = {
              escape into the parser? */
 
             if (expr && expr.isProcedure())
-                return r5js.data.newIdOrLiteral(expr.name);
+                return r5js.data.newIdOrLiteral(/** @type {string} */ (expr.name));
 
             else {
                 /* Call the parse/desugar/eval portions of the interpreter

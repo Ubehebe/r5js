@@ -28,30 +28,6 @@ goog.require('r5js.Macro');
 goog.require('r5js.SiblingBuffer');
 
 /**
- * @constructor
- */
-r5js.Datum = function() {};
-
-/**
- * @type {r5js.Datum}
- */
-r5js.Datum.prototype.firstChild;
-
-/**
- * @type {r5js.Datum}
- */
-r5js.Datum.prototype.nextSibling;
-
-/**
- * Only for last children.
- * @type {r5js.Datum}
- */
-r5js.Datum.prototype.parent;
-
-/** @type {r5js.Type|null} TODO bl eliminate the null. */
-r5js.Datum.prototype.type;
-
-/**
  * TODO bl: this is out of control. Create an interface and have each
  * type implement it (or wrap them, in the case of JavaScript primitives).
  * @typedef {Array|boolean|Function|number|Object|r5js.Datum|r5js.Macro|r5js.Procedure|string}
@@ -60,30 +36,63 @@ r5js.PayloadType;
 
 
 /**
- * @type {r5js.PayloadType}
+ * @struct
+ * @constructor
  */
-r5js.Datum.prototype.payload;
+r5js.Datum = function() {
+    /** @type {r5js.Datum} */
+    this.firstChild = null;
 
-/**
- * @type {Array.<*>} TODO bl
- */
-r5js.Datum.prototype.nonterminals;
+    /** @type {r5js.Datum} */
+    this.nextSibling = null;
 
-/**
- * @type {*} TODO bl
- */
-r5js.Datum.prototype.desugars;
+    /**
+     * Only for last children.
+     * @type {r5js.Datum}
+     */
+    this.parent = null;
 
-/**
- * @type {number}
- */
-r5js.Datum.prototype.nextDesugar;
+    /**
+     * @type {r5js.Type|null}
+     * TODO bl make non-nullable.
+     */
+    this.type;
 
-/**
- * Only for procedures.
- * @type {string}
- */
-r5js.Datum.prototype.name;
+    /** @type {r5js.PayloadType} */
+    this.payload;
+
+    /**
+     * @type {Array.<*>}
+     * TODO bl: narrow the * to !r5js.parse.Nonterminal
+     */
+    this.nonterminals;
+
+    /**
+     * @type {*}
+     * TODO bl: The type should be
+     * !Array.<function(!r5js.Datum, !r5js.IEnvironment)>
+     */
+    this.desugars;
+
+    /** @type {number|undefined} */
+    this.nextDesugar;
+
+    /**
+     * Only for procedures.
+     * @type {string|undefined}
+     */
+    this.name;
+
+    /** @type {boolean} */
+    this.immutable = false;
+
+    /** @type {number|undefined} */
+    this.qqLevel;
+
+    /** @type {r5js.CdrHelper} */
+    this.cdrHelper;
+};
+
 
 
 /**
