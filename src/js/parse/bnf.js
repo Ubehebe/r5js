@@ -100,6 +100,7 @@ r5js.parse.bnf.OneNonterminal_.prototype.match = function(datumStream) {
   var parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream);
   if (parsed instanceof r5js.Datum) {
     parsed.setParse(this.nonterminal_);
+    datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.nextSibling));
   }
   return parsed;
 };

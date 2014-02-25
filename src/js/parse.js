@@ -215,16 +215,11 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
      JavaScript. That way, the syntactic keyword could be shadowed
      appropriately. */
     _.choice(
-        _.seq(
-            _.one(Nonterminals.VARIABLE)),
-        _.seq(
-            _.one(Nonterminals.LITERAL)),
-        _.seq(
-            _.one(Nonterminals.LAMBDA_EXPRESSION)),
-        _.seq(
-            _.one(Nonterminals.CONDITIONAL)),
-        _.seq(
-            _.one(Nonterminals.ASSIGNMENT)),
+    _.one(Nonterminals.VARIABLE),
+    _.one(Nonterminals.LITERAL),
+    _.one(Nonterminals.LAMBDA_EXPRESSION),
+    _.one(Nonterminals.CONDITIONAL),
+    _.one(Nonterminals.ASSIGNMENT),
         _.seq(
             _.one(Nonterminals.QUASIQUOTATION)).
             desugar(function(node, env) {
@@ -235,12 +230,9 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
             _.one(Terminals.BEGIN),
             _.oneOrMore(Nonterminals.EXPRESSION),
             _.one(Terminals.RPAREN)),
-        _.seq(
-            _.one(Nonterminals.MACRO_BLOCK)),
-        _.seq(
-            _.one(Nonterminals.PROCEDURE_CALL)),
-        _.seq(
-            _.one(Nonterminals.MACRO_USE)));
+    _.one(Nonterminals.MACRO_BLOCK),
+    _.one(Nonterminals.PROCEDURE_CALL),
+    _.one(Nonterminals.MACRO_USE));
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 r5js.Parser.grammar[Nonterminals.VARIABLE] = _.seq(
@@ -338,12 +330,12 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.seq(
         });
 
 
-r5js.Parser.grammar[Nonterminals.OPERATOR] = _.seq(
-    _.one(Nonterminals.EXPRESSION));
+r5js.Parser.grammar[Nonterminals.OPERATOR] = _.one(
+    Nonterminals.EXPRESSION);
 
 
-r5js.Parser.grammar[Nonterminals.OPERAND] = _.seq(
-    _.one(Nonterminals.EXPRESSION));
+r5js.Parser.grammar[Nonterminals.OPERAND] = _.one(
+    Nonterminals.EXPRESSION);
 
 
 // <lambda expression> -> (lambda <formals> <body>)
@@ -428,8 +420,7 @@ r5js.Parser.grammar[Nonterminals.FORMALS] = _.choice(
         _.one(Terminals.LPAREN),
         _.zeroOrMore(Nonterminals.VARIABLE),
         _.one(Terminals.RPAREN)),
-    _.seq(
-        _.one(Nonterminals.VARIABLE)),
+    _.one(Nonterminals.VARIABLE),
     _.seq(
         _.one(Terminals.LPAREN),
         _.oneOrMore(Nonterminals.VARIABLE),
@@ -646,7 +637,7 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.seq(
 r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.choice(
     _.seq(
         _.one(Terminals.BACKTICK),
-    _.one(Nonterminals.QQ_TEMPLATE)),
+        _.one(Nonterminals.QQ_TEMPLATE)),
     _.seq(
         _.one(Terminals.LPAREN),
         _.one(Terminals.QUASIQUOTE),
@@ -697,8 +688,7 @@ r5js.Parser.grammar[Nonterminals.LIST_QQ_TEMPLATE] = _.choice(
     _.seq(
         _.one(Terminals.TICK),
         _.one(Nonterminals.QQ_TEMPLATE)),
-    _.seq(
-        _.one(Nonterminals.QUASIQUOTATION)));
+    _.one(Nonterminals.QUASIQUOTATION));
 
 
 // <vector qq template D> -> #(<qq template or splice D>*)
@@ -1064,8 +1054,8 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
 
 
 // <template datum> -> <pattern datum>
-r5js.Parser.grammar[Nonterminals.TEMPLATE_DATUM] = _.seq(
-    _.one(Nonterminals.PATTERN_DATUM));
+r5js.Parser.grammar[Nonterminals.TEMPLATE_DATUM] = _.one(
+    Nonterminals.PATTERN_DATUM);
 
 
 // <pattern identifier> -> <any identifier except ...>
@@ -1093,22 +1083,21 @@ r5js.Parser.grammar[Nonterminals.PROGRAM] = _.seq(
  | (begin <command or definition>*)
  */
 r5js.Parser.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
-    _.seq(
-        _.one(Nonterminals.DEFINITION)),
-    _.seq(
-        _.one(Nonterminals.SYNTAX_DEFINITION)),
+    _.one(Nonterminals.DEFINITION),
+    _.one(Nonterminals.SYNTAX_DEFINITION),
+    _.one(Nonterminals.DEFINITION),
+    _.one(Nonterminals.SYNTAX_DEFINITION),
     _.seq(
         _.one(Terminals.LPAREN),
         _.one(Terminals.BEGIN),
         _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION),
         _.one(Terminals.RPAREN)),
-    _.seq(
-        _.one(Nonterminals.COMMAND)));
+    _.one(Nonterminals.COMMAND));
 
 
 // <command> -> <expression>
-r5js.Parser.grammar[Nonterminals.COMMAND] = _.seq(
-    _.one(Nonterminals.EXPRESSION));
+r5js.Parser.grammar[Nonterminals.COMMAND] = _.one(
+    Nonterminals.EXPRESSION);
 
 
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
