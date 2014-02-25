@@ -15,9 +15,10 @@ r5js.parse.bnf.Rule = function() {};
 /**
  * @param {!r5js.parse.bnf.Rule} rule
  * @param {!r5js.Datum} datum
+ * @private
  * TODO bl remove.
  */
-r5js.parse.bnf.Rule.maybeDesugar = function(rule, datum) {
+r5js.parse.bnf.Rule.maybeDesugar_ = function(rule, datum) {
   if (rule instanceof r5js.parse.bnf.Seq_ && rule.desugarFunc_) {
     datum.setDesugar(rule.desugarFunc_);
   }
@@ -243,7 +244,7 @@ r5js.parse.bnf.Choice_.prototype.match = function(datumStream) {
     var rule = this.rules_[i];
     if (parsed = rule.match(datumStream)) {
       if (parsed instanceof r5js.Datum) {
-        r5js.parse.bnf.Rule.maybeDesugar(rule, parsed);
+        r5js.parse.bnf.Rule.maybeDesugar_(rule, parsed);
       }
       return parsed;
     }
@@ -291,7 +292,7 @@ r5js.parse.bnf.Seq_.prototype.match = function(datumStream) {
       datumStream.advanceTo(/** @type {!r5js.Datum} */ (root));
       return false;
     } else if (root instanceof r5js.Datum) {
-      r5js.parse.bnf.Rule.maybeDesugar(rule, root);
+      r5js.parse.bnf.Rule.maybeDesugar_(rule, root);
     }
   }
 
