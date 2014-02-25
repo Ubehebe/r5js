@@ -50,9 +50,6 @@ r5js.parse.bnf.OneTerminal_ = function(terminal) {
 r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
   var next;
   switch (this.terminal_) {
-    case r5js.parse.Terminals.DOT:
-      // vacuous; we already rewrote ( ... . as .( ...
-      return true;
     case r5js.parse.Terminals.LPAREN:
     case r5js.DatumType.DOTTED_LIST: // TODO bl where is from?
     case r5js.parse.Terminals.LPAREN_VECTOR:
@@ -321,10 +318,15 @@ r5js.parse.bnf.Seq_.prototype.desugar = function(desugarFunc) {
 /**
  * @param {...!r5js.parse.bnf.Rule} var_args
  * @return {!r5js.parse.bnf.Seq_}
- * @suppress {checkTypes}
  */
 r5js.parse.bnf.seq = function(var_args) {
-  return new r5js.parse.bnf.Seq_(arguments);
+  // Copy the arguments into a real array so that rewriteImproperList_
+  // can use Array.prototype.splice.
+  var rules = [];
+  for (var i = 0; i < arguments.length; ++i) {
+    rules.push(arguments[i]);
+  }
+  return new r5js.parse.bnf.Seq_(rules);
 };
 
 
@@ -352,12 +354,6 @@ r5js.parse.bnf.Seq_.rewriteImproperList_ = function(rules) {
     return rules;
   }
 
-  /* Change the datum following the dot to be vacuous -- it has already
-     been read as part of the list preceding the dot.
-     todo bl: this will cause problems with exactly one part of the grammar:
-     <template> -> (<template element>+ . <template>)
-     I think it's easier to check for this in the evaluator. */
-  rules[indexOfDot + 1] = r5js.parse.bnf.one(r5js.parse.Terminals.DOT);
   // Find the closest opening paren to the left of the dot and rewrite it as .(
   for (var i = indexOfDot - 1; i >= 0; --i) {
     var rule = rules[i];
@@ -367,6 +363,12 @@ r5js.parse.bnf.Seq_.rewriteImproperList_ = function(rules) {
       break;
     }
   }
+  /* Splice out the dot and the datum following the dot -- it has already
+     been read as part of the list preceding the dot.
+     todo bl: this will cause problems with exactly one part of the grammar:
+     <template> -> (<template element>+ . <template>)
+     I think it's easier to check for this in the evaluator. */
+  rules.splice(indexOfDot, 2);
   return rules;
 };
 
