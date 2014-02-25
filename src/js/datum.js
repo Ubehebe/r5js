@@ -62,10 +62,10 @@ r5js.Datum = function() {
     this.payload;
 
     /**
-     * @type {Array.<*>}
+     * @private {Array.<*>}
      * TODO bl: narrow the * to !r5js.parse.Nonterminal
      */
-    this.nonterminals;
+    this.nonterminals_;
 
     /**
      * @type {*}
@@ -110,6 +110,12 @@ r5js.Datum.prototype.forEach = function(callback) {
             cur.forEach(callback);
         }
     }
+};
+
+
+/** @return {boolean} */
+r5js.Datum.prototype.hasNonterminals = function() {
+    return !!this.nonterminals_;
 };
 
 /**
@@ -276,10 +282,10 @@ r5js.Datum.prototype.unescapeStringLiteral = function() {
  * @param {string} type
  */
 r5js.Datum.prototype.setParse = function(type) {
-    if (!this.nonterminals) {
-        this.nonterminals = [];
+    if (!this.nonterminals_) {
+        this.nonterminals_ = [];
     }
-    this.nonterminals.push(type);
+    this.nonterminals_.push(type);
 };
 
 /**
@@ -298,7 +304,7 @@ r5js.Datum.prototype.setDesugar = function(desugarFunc) {
  * TODO bl: document what this method does.
  */
 r5js.Datum.prototype.unsetParse = function() {
-    this.nonterminals = null;
+    this.nonterminals_ = null;
     for (var child = this.firstChild; child; child = child.nextSibling) {
         child.unsetParse();
     }
@@ -308,10 +314,10 @@ r5js.Datum.prototype.unsetParse = function() {
  * @return {*} TODO bl
  */
 r5js.Datum.prototype.peekParse = function() {
-    if (this.nonterminals) {
-        var len = this.nonterminals.length;
+    if (this.nonterminals_) {
+        var len = this.nonterminals_.length;
         if (len > 0) {
-            return this.nonterminals[len - 1];
+            return this.nonterminals_[len - 1];
         }
     }
     return null;
@@ -322,10 +328,10 @@ r5js.Datum.prototype.peekParse = function() {
  * @return {boolean} True iff this Datum parses as the given nonterminal.
  */
 r5js.Datum.prototype.hasParse = function(nonterminal) {
-    if (this.nonterminals) {
-        var len = this.nonterminals.length;
+    if (this.nonterminals_) {
+        var len = this.nonterminals_.length;
         for (var i = 0; i < len; ++i) {
-            if (this.nonterminals[i] === nonterminal) {
+            if (this.nonterminals_[i] === nonterminal) {
                 return true;
             }
         }
