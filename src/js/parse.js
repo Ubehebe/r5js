@@ -262,16 +262,16 @@ r5js.Parser.grammar[Nonterminals.LITERAL] = _.choice(
 // <quotation> -> '<datum> | (quote <datum>)
 r5js.Parser.grammar[Nonterminals.QUOTATION] = _.choice(
     _.seq(
-    _.one(Terminals.TICK),
-    _.one(Nonterminals.DATUM)).
+        _.one(Terminals.TICK),
+        _.one(Nonterminals.DATUM)).
     desugar(function(node, env) {
       return node.normalizeInput();
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.QUOTE),
-    _.one(Nonterminals.DATUM),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.QUOTE),
+        _.one(Nonterminals.DATUM),
+        _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
       return node.normalizeInput();
     }));
@@ -425,17 +425,17 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.seq(
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
 r5js.Parser.grammar[Nonterminals.FORMALS] = _.choice(
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.zeroOrMore(Nonterminals.VARIABLE),
-    _.one(Terminals.RPAREN)),
+        _.one(Terminals.LPAREN),
+        _.zeroOrMore(Nonterminals.VARIABLE),
+        _.one(Terminals.RPAREN)),
     _.seq(
-    _.one(Nonterminals.VARIABLE)),
+        _.one(Nonterminals.VARIABLE)),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.oneOrMore(Nonterminals.VARIABLE),
-    _.one(Terminals.DOT),
-    _.one(Nonterminals.VARIABLE),
-    _.one(Terminals.RPAREN)));
+        _.one(Terminals.LPAREN),
+        _.oneOrMore(Nonterminals.VARIABLE),
+        _.one(Terminals.DOT),
+        _.one(Nonterminals.VARIABLE),
+        _.one(Terminals.RPAREN)));
 
 
 /**
@@ -446,11 +446,11 @@ r5js.Parser.grammar[Nonterminals.FORMALS] = _.choice(
  */
 r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.DEFINE),
-    _.one(Nonterminals.VARIABLE),
-    _.one(Nonterminals.EXPRESSION),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.DEFINE),
+        _.one(Nonterminals.VARIABLE),
+        _.one(Nonterminals.EXPRESSION),
+        _.one(Terminals.RPAREN)).
     desugar(/** @suppress {checkTypes} */ function(node, env) {
       /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
@@ -472,14 +472,14 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       return desugaredExpr;
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.DEFINE),
-    _.one(Terminals.LPAREN),
-    _.oneOrMore(Nonterminals.VARIABLE),
-    _.one(Terminals.RPAREN),
-    _.zeroOrMore(Nonterminals.DEFINITION),
-    _.oneOrMore(Nonterminals.EXPRESSION),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.DEFINE),
+        _.one(Terminals.LPAREN),
+        _.oneOrMore(Nonterminals.VARIABLE),
+        _.one(Terminals.RPAREN),
+        _.zeroOrMore(Nonterminals.DEFINITION),
+        _.oneOrMore(Nonterminals.EXPRESSION),
+        _.one(Terminals.RPAREN)).
     desugar(/** @suppress {checkTypes} */function(node, env) {
       /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
@@ -507,16 +507,16 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
           setTopLevelAssignment();
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.DEFINE),
-    _.one(Terminals.LPAREN),
-    _.oneOrMore(Nonterminals.VARIABLE),
-    _.one(Terminals.DOT),
-    _.one(Nonterminals.VARIABLE),
-    _.one(Terminals.RPAREN),
-    _.zeroOrMore(Nonterminals.DEFINITION),
-    _.oneOrMore(Nonterminals.EXPRESSION),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.DEFINE),
+        _.one(Terminals.LPAREN),
+        _.oneOrMore(Nonterminals.VARIABLE),
+        _.one(Terminals.DOT),
+        _.one(Nonterminals.VARIABLE),
+        _.one(Terminals.RPAREN),
+        _.zeroOrMore(Nonterminals.DEFINITION),
+        _.oneOrMore(Nonterminals.EXPRESSION),
+        _.one(Terminals.RPAREN)).
     desugar(/** @suppress {checkTypes} */function(node, env) {
       /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
@@ -545,21 +545,21 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
           setTopLevelAssignment();
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.BEGIN),
-    _.zeroOrMore(Nonterminals.DEFINITION),
-    _.one(Terminals.RPAREN)));
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.BEGIN),
+        _.zeroOrMore(Nonterminals.DEFINITION),
+        _.one(Terminals.RPAREN)));
 
 
 // <conditional> -> (if <test> <consequent> <alternate>)
 r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.IF),
-    _.one(Nonterminals.TEST),
-    _.one(Nonterminals.CONSEQUENT),
-    _.one(Nonterminals.ALTERNATE),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.IF),
+        _.one(Nonterminals.TEST),
+        _.one(Nonterminals.CONSEQUENT),
+        _.one(Nonterminals.ALTERNATE),
+        _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
       var test = node.at(Nonterminals.TEST).desugar(env, true);
       var consequent = node.at(Nonterminals.CONSEQUENT).
@@ -580,11 +580,11 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
       return test;
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.IF),
-    _.one(Nonterminals.TEST),
-    _.one(Nonterminals.CONSEQUENT),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.IF),
+        _.one(Nonterminals.TEST),
+        _.one(Nonterminals.CONSEQUENT),
+        _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
       var test = node.at(Nonterminals.TEST).desugar(env, true);
       var consequent = node.at(Nonterminals.CONSEQUENT).
@@ -645,13 +645,13 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.seq(
 // <quasiquotation D> -> `<qq template D> | (quasiquote <qq template D>)
 r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.choice(
     _.seq(
-    _.one(Terminals.BACKTICK),
+        _.one(Terminals.BACKTICK),
     _.one(Nonterminals.QQ_TEMPLATE)),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.QUASIQUOTE),
-    _.one(Nonterminals.QQ_TEMPLATE),
-    _.one(Terminals.RPAREN)));
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.QUASIQUOTE),
+        _.one(Nonterminals.QQ_TEMPLATE),
+        _.one(Terminals.RPAREN)));
 
 
 /* <qq template 0> -> <expression>
@@ -689,63 +689,58 @@ r5js.Parser.grammar[Nonterminals.LIST_QQ_TEMPLATE] = _.choice(
         _.zeroOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE),
         _.one(Terminals.RPAREN)),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.oneOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE),
-    _.one(Terminals.DOT),
-    _.one(
-        Nonterminals.QQ_TEMPLATE_OR_SPLICE),
-    _.one(Terminals.RPAREN)),
+        _.one(Terminals.LPAREN),
+        _.oneOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE),
+        _.one(Terminals.DOT),
+        _.one(Nonterminals.QQ_TEMPLATE_OR_SPLICE),
+        _.one(Terminals.RPAREN)),
     _.seq(
-    _.one(Terminals.TICK),
-    _.one(Nonterminals.QQ_TEMPLATE)),
+        _.one(Terminals.TICK),
+        _.one(Nonterminals.QQ_TEMPLATE)),
     _.seq(
-    _.one(Nonterminals.QUASIQUOTATION)));
+        _.one(Nonterminals.QUASIQUOTATION)));
 
 
 // <vector qq template D> -> #(<qq template or splice D>*)
 r5js.Parser.grammar[Nonterminals.VECTOR_QQ_TEMPLATE] =
     _.seq(
-    _.one(Terminals.LPAREN_VECTOR),
-    _.zeroOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE),
-    _.one(Terminals.RPAREN));
+        _.one(Terminals.LPAREN_VECTOR),
+        _.zeroOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE),
+        _.one(Terminals.RPAREN));
 
 
 // <unquotation D> -> ,<qq template D-1> | (unquote <qq template D-1>)
-r5js.Parser.grammar[Nonterminals.UNQUOTATION] =
-    _.choice(
+r5js.Parser.grammar[Nonterminals.UNQUOTATION] = _.choice(
     _.seq(
-    _.one(Terminals.COMMA),
-    _.one(Nonterminals.QQ_TEMPLATE)),
+        _.one(Terminals.COMMA),
+        _.one(Nonterminals.QQ_TEMPLATE)),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.UNQUOTE),
-    _.one(Nonterminals.QQ_TEMPLATE),
-    _.one(Terminals.RPAREN)));
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.UNQUOTE),
+        _.one(Nonterminals.QQ_TEMPLATE),
+        _.one(Terminals.RPAREN)));
 
 
 // <qq template or splice D> -> <qq template D> | <splicing unquotation D>
-r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] =
-    _.choice(
+r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
     _.seq(
-    _.one(Nonterminals.QQ_TEMPLATE)),
+        _.one(Nonterminals.QQ_TEMPLATE)),
     _.seq(
-    _.one(
-        Nonterminals.SPLICING_UNQUOTATION)));
+        _.one(Nonterminals.SPLICING_UNQUOTATION)));
 
 
 /* <splicing unquotation D> -> ,@<qq template D-1>
  | (unquote-splicing <qq template D-1>)
  */
-r5js.Parser.grammar[Nonterminals.SPLICING_UNQUOTATION] =
-    _.choice(
+r5js.Parser.grammar[Nonterminals.SPLICING_UNQUOTATION] = _.choice(
     _.seq(
-    _.one(Terminals.COMMA_AT),
-    _.one(Nonterminals.QQ_TEMPLATE)),
+        _.one(Terminals.COMMA_AT),
+        _.one(Nonterminals.QQ_TEMPLATE)),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.UNQUOTE_SPLICING),
-    _.one(Nonterminals.QQ_TEMPLATE),
-    _.one(Terminals.RPAREN)));
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.UNQUOTE_SPLICING),
+        _.one(Nonterminals.QQ_TEMPLATE),
+        _.one(Terminals.RPAREN)));
 
 
 // <macro use> -> (<keyword> <datum>*)
@@ -778,29 +773,28 @@ r5js.Parser.grammar[Nonterminals.KEYWORD] = _.seq(
 
 /* <macro block> -> (let-syntax (<syntax spec>*) <body>)
  | (letrec-syntax (<syntax-spec>*) <body>) */
-r5js.Parser.grammar[Nonterminals.MACRO_BLOCK] =
-    _.choice(
+r5js.Parser.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.LET_SYNTAX),
-    _.one(Terminals.LPAREN),
-    _.zeroOrMore(Nonterminals.SYNTAX_SPEC),
-    _.one(Terminals.RPAREN),
-    _.zeroOrMore(Nonterminals.DEFINITION),
-    _.oneOrMore(Nonterminals.EXPRESSION),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.LET_SYNTAX),
+        _.one(Terminals.LPAREN),
+        _.zeroOrMore(Nonterminals.SYNTAX_SPEC),
+        _.one(Terminals.RPAREN),
+        _.zeroOrMore(Nonterminals.DEFINITION),
+        _.oneOrMore(Nonterminals.EXPRESSION),
+        _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
       return r5js.Continuation.desugarMacroBlock(node, env, 'let');
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.LETREC_SYNTAX),
-    _.one(Terminals.LPAREN),
-    _.zeroOrMore(Nonterminals.SYNTAX_SPEC),
-    _.one(Terminals.RPAREN),
-    _.zeroOrMore(Nonterminals.DEFINITION),
-    _.oneOrMore(Nonterminals.EXPRESSION),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.LETREC_SYNTAX),
+        _.one(Terminals.LPAREN),
+        _.zeroOrMore(Nonterminals.SYNTAX_SPEC),
+        _.one(Terminals.RPAREN),
+        _.zeroOrMore(Nonterminals.DEFINITION),
+        _.oneOrMore(Nonterminals.EXPRESSION),
+        _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
       return r5js.Continuation.desugarMacroBlock(node, env, 'letrec');
     }));
@@ -815,8 +809,7 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_SPEC] = _.seq(
 
 
 // <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
-r5js.Parser.grammar[Nonterminals.TRANSFORMER_SPEC] =
-    _.seq(
+r5js.Parser.grammar[Nonterminals.TRANSFORMER_SPEC] = _.seq(
     _.one(Terminals.LPAREN),
     _.one(Terminals.SYNTAX_RULES),
     _.one(Terminals.LPAREN),
@@ -855,10 +848,10 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_RULE] = _.seq(
  */
 r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.oneOrMore(Nonterminals.PATTERN),
-    _.one(Terminals.ELLIPSIS),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.oneOrMore(Nonterminals.PATTERN),
+        _.one(Terminals.ELLIPSIS),
+        _.one(Terminals.RPAREN)).
     desugar(function(node) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
       for (var cur = node.at(Nonterminals.PATTERN);
@@ -875,10 +868,10 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       return ans;
     }),
     _.seq(
-    _.one(Terminals.LPAREN_VECTOR),
-    _.oneOrMore(Nonterminals.PATTERN),
-    _.one(Terminals.ELLIPSIS),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN_VECTOR),
+        _.oneOrMore(Nonterminals.PATTERN),
+        _.one(Terminals.ELLIPSIS),
+        _.one(Terminals.RPAREN)).
     desugar(function(node) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
       for (var cur = node.at(Nonterminals.PATTERN);
@@ -895,14 +888,14 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       return ans;
     }),
     _.seq(
-    _.one(Nonterminals.PATTERN_IDENTIFIER)).
+        _.one(Nonterminals.PATTERN_IDENTIFIER)).
     desugar(function(node) {
       return new r5js.IdOrLiteralTransformer(node);
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.zeroOrMore(Nonterminals.PATTERN),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.zeroOrMore(Nonterminals.PATTERN),
+        _.one(Terminals.RPAREN)).
     desugar(function(node) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
       for (var cur = node.at(Nonterminals.PATTERN);
@@ -913,11 +906,11 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       return ans;
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.oneOrMore(Nonterminals.PATTERN),
-    _.one(Terminals.DOT),
-    _.one(Nonterminals.PATTERN),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.oneOrMore(Nonterminals.PATTERN),
+        _.one(Terminals.DOT),
+        _.one(Nonterminals.PATTERN),
+        _.one(Terminals.RPAREN)).
     desugar(function(node) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
       for (var cur = node.at(Nonterminals.PATTERN);
@@ -928,9 +921,9 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       return ans;
     }),
     _.seq(
-    _.one(Terminals.LPAREN_VECTOR),
-    _.zeroOrMore(Nonterminals.PATTERN),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN_VECTOR),
+        _.zeroOrMore(Nonterminals.PATTERN),
+        _.one(Terminals.RPAREN)).
     desugar(function(node) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
       for (var cur = node.at(Nonterminals.PATTERN);
@@ -941,7 +934,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       return ans;
     }),
     _.seq(
-    _.one(Nonterminals.PATTERN_DATUM)).
+        _.one(Nonterminals.PATTERN_DATUM)).
     desugar(function(node) {
       return new r5js.IdOrLiteralTransformer(node);
     }));
@@ -988,23 +981,23 @@ r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
  as specified") and I can do this during evaluation of a macro if necessary. */
 r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
     _.seq(
-    _.one(Nonterminals.PATTERN_IDENTIFIER)).
+        _.one(Nonterminals.PATTERN_IDENTIFIER)).
     desugar(function(node) {
       return new r5js.IdOrLiteralTransformer(node);
     }),
     _.seq(
         _.one(Terminals.ELLIPSIS)),
     _.seq(
-    _.one(Nonterminals.TEMPLATE_DATUM)).
+        _.one(Nonterminals.TEMPLATE_DATUM)).
     desugar(function(node) {
       return new r5js.IdOrLiteralTransformer(node);
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.oneOrMore(Nonterminals.TEMPLATE),
-    _.one(Terminals.DOT),
-    _.one(Nonterminals.TEMPLATE),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.oneOrMore(Nonterminals.TEMPLATE),
+        _.one(Terminals.DOT),
+        _.one(Nonterminals.TEMPLATE),
+        _.one(Terminals.RPAREN)).
     desugar(function(node) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
       for (var cur = node.at(Nonterminals.TEMPLATE);
@@ -1022,9 +1015,9 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
       return ans;
     }),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.zeroOrMore(Nonterminals.TEMPLATE),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN),
+        _.zeroOrMore(Nonterminals.TEMPLATE),
+        _.one(Terminals.RPAREN)).
     desugar(function(node) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
       for (var cur = node.at(Nonterminals.TEMPLATE);
@@ -1041,9 +1034,9 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
       return ans;
     }),
     _.seq(
-    _.one(Terminals.LPAREN_VECTOR),
-    _.zeroOrMore(Nonterminals.TEMPLATE),
-    _.one(Terminals.RPAREN)).
+        _.one(Terminals.LPAREN_VECTOR),
+        _.zeroOrMore(Nonterminals.TEMPLATE),
+        _.one(Terminals.RPAREN)).
     desugar(function(node) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
       for (var cur = node.at(Nonterminals.TEMPLATE);
@@ -1060,8 +1053,8 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
       return ans;
     }),
     _.seq(
-    _.one(Terminals.TICK),
-    _.one(Nonterminals.TEMPLATE)).
+        _.one(Terminals.TICK),
+        _.one(Nonterminals.TEMPLATE)).
     desugar(function(node) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.QUOTE);
       ans.addSubtransformer(node.at(Nonterminals.TEMPLATE).
@@ -1101,16 +1094,16 @@ r5js.Parser.grammar[Nonterminals.PROGRAM] = _.seq(
  */
 r5js.Parser.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
     _.seq(
-    _.one(Nonterminals.DEFINITION)),
+        _.one(Nonterminals.DEFINITION)),
     _.seq(
-    _.one(Nonterminals.SYNTAX_DEFINITION)),
+        _.one(Nonterminals.SYNTAX_DEFINITION)),
     _.seq(
-    _.one(Terminals.LPAREN),
-    _.one(Terminals.BEGIN),
-    _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION),
-    _.one(Terminals.RPAREN)),
+        _.one(Terminals.LPAREN),
+        _.one(Terminals.BEGIN),
+        _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION),
+        _.one(Terminals.RPAREN)),
     _.seq(
-    _.one(Nonterminals.COMMAND)));
+        _.one(Nonterminals.COMMAND)));
 
 
 // <command> -> <expression>
