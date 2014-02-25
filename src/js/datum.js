@@ -74,8 +74,8 @@ r5js.Datum = function() {
      */
     this.desugars;
 
-    /** @type {number|undefined} */
-    this.nextDesugar;
+    /** @private {number|undefined} */
+    this.nextDesugar_;
 
     /**
      * Only for procedures.
@@ -294,10 +294,10 @@ r5js.Datum.prototype.setParse = function(type) {
 r5js.Datum.prototype.setDesugar = function(desugarFunc) {
     if (!this.desugars) {
         this.desugars = [];
-        this.nextDesugar = -1;
+        this.nextDesugar_ = -1;
     }
     this.desugars.push(desugarFunc);
-    ++this.nextDesugar;
+    ++this.nextDesugar_;
 };
 
 /**
@@ -423,8 +423,8 @@ r5js.Datum.prototype.isImproperList = function() {
  * TODO bl: document why you would call this method.
  */
 r5js.Datum.prototype.resetDesugars = function() {
-    if (this.nextDesugar === -1) {
-        this.nextDesugar += this.desugars.length;
+    if (this.nextDesugar_ === -1) {
+        this.nextDesugar_ += this.desugars.length;
     }
     for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
         cur.resetDesugars();
@@ -438,8 +438,8 @@ r5js.Datum.prototype.resetDesugars = function() {
  */
 r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     var desugarFn = this.desugars
-        && this.nextDesugar >= 0
-        && this.desugars[this.nextDesugar--];
+        && this.nextDesugar_ >= 0
+        && this.desugars[this.nextDesugar_--];
     var ans;
     if (desugarFn) {
         ans = desugarFn(this, env);
