@@ -14,17 +14,11 @@ goog.require('expect');
  * @constructor
  */
 r5js.test.Interpreter = function(publicApi, sources) {
-  /** @const @private {!r5js.PublicApi} */
+  /** @const @private */
   this.publicApi_ = publicApi;
 
-  /** @const @private {string} */
-  this.testFramework_ = sources.testFramework;
-
-  /** @const @private {string} */
-  this.r5RSTests_ = sources.r5RSTests;
-
-  /** @const @private {string} */
-  this.otherTests_ = sources.otherTests;
+  /** @const @private */
+  this.sources_ = sources;
 
   /** @const @private {!r5js.util.Logger} */
   this.logger_ = r5js.util.Logger.getLogger('r5js.test.Interpreter');
@@ -44,12 +38,19 @@ r5js.test.Interpreter.prototype.toString = function() {
 
 
 r5js.test.Interpreter.prototype['testR5RSTests'] = function() {
-  this.publicApi_.Eval(this.testFramework_ + this.r5RSTests_,
+  this.publicApi_.Eval(this.sources_.testFramework + this.sources_.r5RSTests,
+      goog.bind(window.console.log, window.console), this.logger_);
+};
+
+
+r5js.test.Interpreter.prototype['testNegativeTests'] = function() {
+  this.publicApi_.Eval(
+      this.sources_.negativeTestFramework + this.sources_.negativeTests,
       goog.bind(window.console.log, window.console), this.logger_);
 };
 
 
 r5js.test.Interpreter.prototype['testOtherTests'] = function() {
-  this.publicApi_.Eval(this.testFramework_ + this.otherTests_,
+  this.publicApi_.Eval(this.sources_.testFramework + this.sources_.otherTests,
       goog.bind(window.console.log, window.console), this.logger_);
 };
