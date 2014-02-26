@@ -68,11 +68,11 @@ r5js.Datum = function() {
     this.nonterminals_;
 
     /**
-     * @type {*}
+     * @private {*}
      * TODO bl: The type should be
      * !Array.<function(!r5js.Datum, !r5js.IEnvironment)>
      */
-    this.desugars;
+    this.desugars_;
 
     /** @private {number|undefined} */
     this.nextDesugar_;
@@ -292,11 +292,11 @@ r5js.Datum.prototype.setParse = function(type) {
  * @param {*} desugarFunc TODO bl
  */
 r5js.Datum.prototype.setDesugar = function(desugarFunc) {
-    if (!this.desugars) {
-        this.desugars = [];
+    if (!this.desugars_) {
+        this.desugars_ = [];
         this.nextDesugar_ = -1;
     }
-    this.desugars.push(desugarFunc);
+    this.desugars_.push(desugarFunc);
     ++this.nextDesugar_;
 };
 
@@ -424,7 +424,7 @@ r5js.Datum.prototype.isImproperList = function() {
  */
 r5js.Datum.prototype.resetDesugars = function() {
     if (this.nextDesugar_ === -1) {
-        this.nextDesugar_ += this.desugars.length;
+        this.nextDesugar_ += this.desugars_.length;
     }
     for (var cur = this.firstChild; cur; cur = cur.nextSibling) {
         cur.resetDesugars();
@@ -437,9 +437,9 @@ r5js.Datum.prototype.resetDesugars = function() {
  * @return {*} TODO bl
  */
 r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
-    var desugarFn = this.desugars
+    var desugarFn = this.desugars_
         && this.nextDesugar_ >= 0
-        && this.desugars[this.nextDesugar_--];
+        && this.desugars_[this.nextDesugar_--];
     var ans;
     if (desugarFn) {
         ans = desugarFn(this, env);
