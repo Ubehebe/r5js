@@ -560,7 +560,7 @@ r5js.ProcCall.prototype.cpsify = function(
         finalArgs.appendSibling(arg);
       }
     } else if (arg.isProcedure()) {
-      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.name));
+      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.getName()));
     } else if (arg.isImproperList()) {
       throw new r5js.GeneralSyntaxError(arg);
     } else if ((maybeContinuable = arg.desugar(this.env)) instanceof

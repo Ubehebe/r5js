@@ -76,7 +76,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                 : 'null-environment-5';
         case r5js.DatumType.LAMBDA:
             return typeof this.payload === 'function'
-                ? /** @type {string} */ (this.name)
+                ? /** @type {string} */ (this.getName())
                 : 'proc:' + this.payload.name;
         case r5js.DatumType.MACRO:
             return '[macro]';

@@ -79,9 +79,9 @@ r5js.Datum = function() {
 
     /**
      * Only for procedures.
-     * @type {string|undefined}
+     * @private {string|undefined}
      */
-    this.name;
+    this.name_;
 
     /** @type {boolean} */
     this.immutable_ = false;
@@ -154,6 +154,12 @@ r5js.Datum.prototype.setNextSibling = function(nextSibling) {
 /** @return {number|undefined} */
 r5js.Datum.prototype.getQQLevel = function() {
     return this.qqLevel_;
+};
+
+
+/** @return {string|undefined} */
+r5js.Datum.prototype.getName = function() {
+    return this.name_;
 };
 
 /**
@@ -289,8 +295,8 @@ r5js.Datum.prototype.clone = function(parent) {
     if (!this.nextSibling_) {
         ans.parent_ = parent;
     }
-    if (this.name) {
-        ans.name = this.name;
+    if (this.name_) {
+        ans.name_ = this.name_;
     }
     if (this.immutable_) {
         ans.immutable_ = true;
@@ -1148,7 +1154,7 @@ r5js.data.newProcedureDatum = function(name, procedure) {
     var ans = new r5js.Datum();
     ans.type = r5js.DatumType.LAMBDA;
     ans.payload = procedure;
-    ans.name = name;
+    ans.name_ = name;
     return ans;
 };
 

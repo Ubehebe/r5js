@@ -959,7 +959,8 @@ r5js.builtins['control'] = {
             var curProcCall = arguments[arguments.length - 3];
             /* todo bl: very little idea what's going on here, but we seem to
              use both sources of procName. */
-            var procName = r5js.data.newIdOrLiteral(curProcCall.firstOperand.payload || mustBeProc.name);
+            var procName = r5js.data.newIdOrLiteral(
+                curProcCall.firstOperand.payload || mustBeProc.getName());
             var continuation = arguments[arguments.length - 2];
             var resultStruct = arguments[arguments.length - 1];
 
@@ -1202,7 +1203,7 @@ r5js.builtins['eval'] = {
              escape into the parser? */
 
             if (expr && expr.isProcedure())
-                return r5js.data.newIdOrLiteral(/** @type {string} */ (expr.name));
+                return r5js.data.newIdOrLiteral(/** @type {string} */ (expr.getName()));
 
             else {
                 /* Call the parse/desugar/eval portions of the interpreter
