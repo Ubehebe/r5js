@@ -89,8 +89,8 @@ r5js.Datum = function() {
     /** @private {number|undefined} */
     this.qqLevel_;
 
-    /** @type {r5js.CdrHelper} */
-    this.cdrHelper;
+    /** @private {r5js.CdrHelper} */
+    this.cdrHelper_;
 };
 
 
@@ -883,7 +883,7 @@ r5js.Datum.prototype.siblingsToList = function(dotted) {
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.setCdrHelper = function(cdrHelper) {
-    this.cdrHelper = cdrHelper;
+    this.cdrHelper_ = cdrHelper;
     return this;
 };
 
@@ -891,7 +891,7 @@ r5js.Datum.prototype.setCdrHelper = function(cdrHelper) {
  * @return {r5js.CdrHelper} The CdrHelper for this Datum, if one exists.
  */
 r5js.Datum.prototype.getCdrHelper = function() {
-    return this.cdrHelper;
+    return this.cdrHelper_;
 };
 
 /** @return {string} */
