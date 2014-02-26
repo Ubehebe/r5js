@@ -86,7 +86,7 @@ r5js.read.bnf.One_.prototype.matchNonterminal_ = function(
   }
   ansDatum.type = this.name_ || this.type_;
   ansDatum.appendChild(parsed);
-  parsed.parent = ansDatum;
+  parsed.setParent(ansDatum);
   return ansDatum;
 };
 
@@ -148,8 +148,9 @@ r5js.read.bnf.AtLeast_.prototype.match = function(ansDatum, tokenStream) {
     ansDatum.type = this.name_ || this.type_;
     // TODO bl is this cast needed, or does it indicate a bug?
     ansDatum.appendChild(/** @type {!r5js.Datum} */ (firstChild));
-    if (prev)
-      prev.parent = ansDatum;
+    if (prev) {
+      prev.setParent(ansDatum);
+    }
     return ansDatum;
   } else {
     tokenStream.restore(checkpoint);

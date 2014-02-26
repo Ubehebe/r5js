@@ -43,8 +43,6 @@ r5js.Reader = function(scanner) {
 r5js.Reader.prototype.read = function() {
     var datums = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS].match(
         new r5js.Datum(), this.scanner_);
-    if (datums.firstChild)
-        datums.firstChild.lastSibling().parent = null;
     return datums.firstChild;
 };
 

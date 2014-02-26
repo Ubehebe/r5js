@@ -48,9 +48,9 @@ r5js.Datum = function() {
 
     /**
      * Only for last children.
-     * @type {r5js.Datum}
+     * @private {r5js.Datum}
      */
-    this.parent = null;
+    this.parent_ = null;
 
     /**
      * @type {r5js.Type|null}
@@ -124,6 +124,18 @@ r5js.Datum.prototype.hasNonterminals = function() {
 r5js.Datum.prototype.setImmutable = function() {
     this.immutable_ = true;
     return this;
+};
+
+
+/** @return {r5js.Datum} */
+r5js.Datum.prototype.getParent = function() {
+    return this.parent_;
+};
+
+
+/** @param {!r5js.Datum} parent */
+r5js.Datum.prototype.setParent = function(parent) {
+    this.parent_ = parent;
 };
 
 
@@ -251,8 +263,8 @@ r5js.Datum.prototype.clone = function(parent) {
     ans.type = this.type;
     ans.payload = this.payload;
 
-    if (this.parent) {
-        ans.parent = this.parent;
+    if (this.parent_) {
+        ans.parent_ = this.parent_;
     }
     if (this.firstChild) {
         var buf = new r5js.SiblingBuffer();
@@ -261,9 +273,9 @@ r5js.Datum.prototype.clone = function(parent) {
         }
         ans.firstChild = buf.toSiblings();
     }
-    // We only need the parent pointer on the last sibling.
+    // We only need the parent_ pointer on the last sibling.
     if (!this.nextSibling) {
-        ans.parent = parent;
+        ans.parent_ = parent;
     }
     if (this.name) {
         ans.name = this.name;
@@ -365,11 +377,11 @@ r5js.Datum.prototype.at = function(type) {
  */
 r5js.Datum.prototype.appendSibling = function(sibling) {
     if (!this.nextSibling) {
-        if (this.parent) {
-            // Propagate the parent field
-            sibling.parent = this.parent;
-            // Only the last sibling needs a link back to the parent
-            this.parent = null;
+        if (this.parent_) {
+            // Propagate the parent_ field
+            sibling.parent_ = this.parent_;
+            // Only the last sibling needs a link back to the parent_
+            this.parent_ = null;
         }
         this.nextSibling = sibling;
     } else {
@@ -801,7 +813,7 @@ r5js.Datum.prototype.normalizeInput = function() {
         if (isImproperList && child.nextSibling && !child.nextSibling.nextSibling) {
             var maybeEmptyList = child.nextSibling;
             if (maybeEmptyList.isList() && !maybeEmptyList.firstChild) {
-                child.parent = child.nextSibling.parent;
+                child.parent_ = child.nextSibling.parent_;
                 child.nextSibling = null;
                 this.type = r5js.DatumType.LIST;
             }
@@ -977,10 +989,10 @@ r5js.Datum.prototype.extractDefinition = function() {
 r5js.Datum.prototype.closestAncestorSibling = function() {
     if (this.nextSibling) {
         return this.nextSibling;
-    } else if (!this.parent) {
+    } else if (!this.parent_) {
         return null;
     } else {
-        return this.parent.closestAncestorSibling();
+        return this.parent_.closestAncestorSibling();
     }
 };
 

@@ -103,10 +103,10 @@ r5js.DatumStreamImpl.prototype.maybeAdvanceToNextSiblingOfParent = function() {
          (a b (c d) e)
 
          we have just finished parsing d. next is null, prev is d,
-         prev.parent is (c d), and prev.parent.nextSibling is e,
+         prev.parent_ is (c d), and prev.parent_.nextSibling is e,
          which is where we want to go next. */
 
-    this.next_ = this.prev_.parent && this.prev_.parent.nextSibling;
+    this.next_ = this.prev_.getParent() && this.prev_.getParent().nextSibling;
     return true;
   } else if (this.next_ === r5js.DatumStreamImpl.EMPTY_LIST_SENTINEL_) {
     /*
