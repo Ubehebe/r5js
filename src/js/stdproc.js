@@ -185,7 +185,7 @@ r5js.builtins['type'] = {
             return (node.isList()
                 || node.isImproperList()
                 || node.isQuote())
-                && !!node.firstChild; // 3.2: (pair? '()) => #f
+                && !!node.getFirstChild(); // 3.2: (pair? '()) => #f
         }
     },
 
@@ -655,7 +655,7 @@ r5js.builtins['pair'] = {
         argc: 1,
         argtypes: ['pair'],
         proc: function(p) {
-            return p.firstChild;
+            return p.getFirstChild();
         }
     },
 
@@ -663,7 +663,7 @@ r5js.builtins['pair'] = {
         argc: 1,
         argtypes: ['pair'],
         proc: function(p) {
-            var startOfCdr = p.firstChild.getNextSibling();
+            var startOfCdr = p.getFirstChild().getNextSibling();
             var ans;
             if (startOfCdr) {
                 ans = (startOfCdr.getNextSibling() || p.isList())
@@ -682,8 +682,8 @@ r5js.builtins['pair'] = {
                 if (p.isImmutable())
                     throw new r5js.ImmutableError(p.toString());
 
-                car.setNextSibling(p.firstChild.getNextSibling());
-                p.firstChild = car;
+                car.setNextSibling(p.getFirstChild().getNextSibling());
+                p.setFirstChild(car);
 
                 for (var helper = p.getCdrHelper();
                      helper;
@@ -704,10 +704,10 @@ r5js.builtins['pair'] = {
                     throw new r5js.ImmutableError(p.toString());
 
                 if (cdr.isList()) {
-                    p.firstChild.setNextSibling(cdr.firstChild);
+                    p.getFirstChild().setNextSibling(cdr.getFirstChild());
                     p.type = '(';
                 } else {
-                    p.firstChild.setNextSibling(cdr);
+                    p.getFirstChild().setNextSibling(cdr);
                     p.type = '.(';
                 }
 
@@ -973,7 +973,7 @@ r5js.builtins['control'] = {
             if (lastRealArgIndex === 1) {
                 var newArgs = new r5js.SiblingBuffer();
                 // todo bl document why we are quoting the arguments
-                for (var arg = mustBeList.firstChild; arg; arg = arg.getNextSibling())
+                for (var arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling())
                     newArgs.appendSibling(arg.quote());
                 var actualProcCall = r5js.procs.newProcCall(procName, newArgs.toSiblings(), continuation);
                 actualProcCall.setStartingEnv(curProcCall.env);
@@ -984,11 +984,11 @@ r5js.builtins['control'] = {
             else {
                 for (var i = 1; i < lastRealArgIndex - 1; ++i)
                     arguments[i].setNextSibling(arguments[i + 1]);
-                arguments[lastRealArgIndex - 1].setNextSibling(mustBeList.firstChild);
+                arguments[lastRealArgIndex - 1].setNextSibling(mustBeList.getFirstChild());
 
                 var newArgs = newEmptyList();
                 newArgs.appendChild(arguments[1]);
-                var actualProcCall = r5js.procs.newProcCall(procName, newArgs.firstChild, continuation);
+                var actualProcCall = r5js.procs.newProcCall(procName, newArgs.getFirstChild(), continuation);
                 resultStruct.nextContinuable = actualProcCall;
             }
         }

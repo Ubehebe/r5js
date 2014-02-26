@@ -79,7 +79,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
          cur && cur.peekParse() === 'definition';
          cur = cur.getNextSibling()) {
       cur.forEach(function(node) {
-        if (node.firstChild && node.firstChild.getPayload() === 'define')
+        if (node.getFirstChild() && node.getFirstChild().getPayload() === 'define')
           letrecBindings.appendSibling(node.extractDefinition());
       });
     }
@@ -88,7 +88,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
       this.body = cur.sequence(this.env);
     } else {
       var letrec = newEmptyList();
-      letrec.firstChild = letrecBindings.toSiblings();
+      letrec.setFirstChild(letrecBindings.toSiblings());
       letrec.setNextSibling(cur);
       this.body = r5js.procs.newProcCall(
           r5js.data.newIdOrLiteral('letrec'),
@@ -464,17 +464,18 @@ r5js.ProcCall.prototype.tryIdShim = function(
               maybeDeref();
           if (node.shouldUnquoteSplice()) {
             if (ans.isList()) {
-              if (ans.firstChild) // `(1 ,@(list 2 3) 4) => (1 2 3 4)
-                ans = ans.firstChild;
-              else // `(1 ,@(list) 2) => (1 2)
+              if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
+                ans = ans.getFirstChild();
+	      } else { // `(1 ,@(list) 2) => (1 2)
                 ans = null;
+	      }
             } else throw new r5js.QuasiquoteError(ans + ' is not a list');
           }
           return ans;
         });
     // Now strip away the quote mark.
     // the newIdOrLiteral part is for (quote quote)
-    ans = ans.firstChild ? ans.firstChild : r5js.data.newIdOrLiteral('quote');
+    ans = ans.getFirstChild() ? ans.getFirstChild() : r5js.data.newIdOrLiteral('quote');
   }
   else if (arg.isQuasiquote()) {
     resultStruct.nextContinuable = processQuasiquote(
@@ -1014,8 +1015,8 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
     else if (cur.isQuote()) {
       cur.normalizeInput();
       // the newIdOrLiteral part is for (quote quote)
-      args.push(cur.firstChild ?
-          cur.firstChild :
+      args.push(cur.getFirstChild() ?
+          cur.getFirstChild() :
           r5js.data.newIdOrLiteral('quote'));
     }
     else if (cur.isProcedure()) {
@@ -1057,7 +1058,7 @@ function processQuasiquote(datum, env, cpsName, parserProvider) {
       },
       function(node) {
         var asContinuable = /** @type {!r5js.Continuable} */ (parserProvider(
-            /** @type {!r5js.Datum} */(node.firstChild)).
+            /** @type {!r5js.Datum} */(node.getFirstChild())).
                 parse('expression').
                 desugar(env, true));
         var continuation = asContinuable.getLastContinuable().continuation;

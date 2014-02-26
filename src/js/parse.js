@@ -480,9 +480,9 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
 
                 todo bl: make this flow of control explicit. */
       var def = node.extractDefinition();
-      var name = def.firstChild;
+      var name = def.getFirstChild();
       var lambda = name.getNextSibling();
-      var formalRoot = lambda.firstChild.getNextSibling();
+      var formalRoot = lambda.getFirstChild().getNextSibling();
       var formals = formalRoot.mapChildren(function(child) {
         return child.getPayload();
       });
@@ -517,10 +517,10 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
 
                 todo bl: make this flow of control explicit. */
       var def = node.extractDefinition();
-      var name = def.firstChild;
+      var name = def.getFirstChild();
       var lambda = name.getNextSibling();
-      var formalRoot = lambda.firstChild.getNextSibling();
-      var formals = formalRoot.firstChild ?
+      var formalRoot = lambda.getFirstChild().getNextSibling();
+      var formals = formalRoot.getFirstChild() ?
           formalRoot.mapChildren(function(child) {
             return child.getPayload();
           }) :

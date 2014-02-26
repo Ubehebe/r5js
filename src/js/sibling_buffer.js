@@ -72,7 +72,7 @@ r5js.SiblingBuffer.prototype.toSiblings = function() {
  */
 r5js.SiblingBuffer.prototype.toList = function(type) {
   var ans = newEmptyList();
-    ans.firstChild = this.first_;
+    ans.setFirstChild(this.first_);
     if (type)
         ans.type = type; // default is (
     return ans;

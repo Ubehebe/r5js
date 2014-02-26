@@ -40,8 +40,8 @@ r5js.PayloadType;
  * @constructor
  */
 r5js.Datum = function() {
-    /** @type {r5js.Datum} */
-    this.firstChild = null;
+    /** @private {r5js.Datum} */
+    this.firstChild_ = null;
 
     /** @private {r5js.Datum} */
     this.nextSibling_ = null;
@@ -106,7 +106,7 @@ r5js.Datum.prototype.forEach = function(callback) {
      be opaque to this function. */
     if (!this.isQuote()) {
         callback(this);
-        for (var cur = this.firstChild; cur; cur = cur.nextSibling_) {
+        for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
             cur.forEach(callback);
         }
     }
@@ -136,6 +136,18 @@ r5js.Datum.prototype.getParent = function() {
 /** @param {!r5js.Datum} parent */
 r5js.Datum.prototype.setParent = function(parent) {
     this.parent_ = parent;
+};
+
+
+/** @return {r5js.Datum} */
+r5js.Datum.prototype.getFirstChild = function() {
+    return this.firstChild_;
+};
+
+
+/** @param {!r5js.Datum} firstChild */
+r5js.Datum.prototype.setFirstChild = function(firstChild) {
+    this.firstChild_ = firstChild;
 };
 
 
@@ -178,12 +190,12 @@ r5js.Datum.prototype.setPayload = function(payload) {
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.setImmutableOnQuote = function() {
-    if (this.firstChild) {
-        switch (this.firstChild.type) {
+    if (this.firstChild_) {
+        switch (this.firstChild_.type) {
             case r5js.DatumType.LIST:
             case r5js.DatumType.DOTTED_LIST:
             case r5js.DatumType.VECTOR:
-                this.firstChild.setImmutable();
+                this.firstChild_.setImmutable();
         }
     }
     return this;
@@ -207,7 +219,7 @@ r5js.Datum.prototype.isImmutable = function() {
  */
 r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
 
-    for (var cur = this.firstChild, prev; cur; prev = cur,cur = cur.nextSibling_) {
+    for (var cur = this.firstChild_, prev; cur; prev = cur,cur = cur.nextSibling_) {
         if (predicate(/** @type {!r5js.Datum} */(cur))) {
             var tmp = cur.nextSibling_;
             cur.nextSibling_ = null;
@@ -218,7 +230,7 @@ r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
                 if (prev) {
                     prev.nextSibling_ = cur;
                 } else {
-                    this.firstChild = cur;
+                    this.firstChild_ = cur;
                 }
 
                 /* If cur suddenly has a sibling, it must have been inserted
@@ -266,7 +278,7 @@ function newEmptyList() {
  * @return {boolean} True iff this Datum represents an empty list.
  */
 r5js.Datum.prototype.isEmptyList = function() {
-    return this.isList() && !this.firstChild;
+    return this.isList() && !this.firstChild_;
 };
 
 /**
@@ -296,12 +308,12 @@ r5js.Datum.prototype.clone = function(parent) {
     if (this.parent_) {
         ans.parent_ = this.parent_;
     }
-    if (this.firstChild) {
+    if (this.firstChild_) {
         var buf = new r5js.SiblingBuffer();
-        for (var child = this.firstChild; child; child = child.nextSibling_) {
+        for (var child = this.firstChild_; child; child = child.nextSibling_) {
             buf.appendSibling(child.clone(ans));
         }
-        ans.firstChild = buf.toSiblings();
+        ans.firstChild_ = buf.toSiblings();
     }
     // We only need the parent_ pointer on the last sibling.
     if (!this.nextSibling_) {
@@ -353,7 +365,7 @@ r5js.Datum.prototype.setDesugar = function(desugarFunc) {
  */
 r5js.Datum.prototype.unsetParse = function() {
     this.nonterminals_ = null;
-    for (var child = this.firstChild; child; child = child.nextSibling_) {
+    for (var child = this.firstChild_; child; child = child.nextSibling_) {
         child.unsetParse();
     }
 };
@@ -392,7 +404,7 @@ r5js.Datum.prototype.hasParse = function(nonterminal) {
  * @returns {*} TODO bl
  */
 r5js.Datum.prototype.at = function(type) {
-    for (var cur = this.firstChild; cur; cur = cur.nextSibling_) {
+    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
         /* The first clause is a convenience for things like node.at('(');
          the second is a convenience for things like node.at('expression') */
         if (cur.type === type || cur.peekParse() === type) {
@@ -431,10 +443,10 @@ r5js.Datum.prototype.appendSibling = function(sibling) {
  * @param {!r5js.Datum} child Child to append.
  */
 r5js.Datum.prototype.appendChild = function(child) {
-    if (!this.firstChild) {
-        this.firstChild = child;
+    if (!this.firstChild_) {
+        this.firstChild_ = child;
     } else {
-        this.firstChild.appendSibling(child);
+        this.firstChild_.appendSibling(child);
     }
 };
 
@@ -442,8 +454,8 @@ r5js.Datum.prototype.appendChild = function(child) {
  * @param {!r5js.Datum} child Child to append.
  */
 r5js.Datum.prototype.prependChild = function(child) {
-    var oldFirstChild = this.firstChild;
-    this.firstChild = child;
+    var oldFirstChild = this.firstChild_;
+    this.firstChild_ = child;
     child.nextSibling_ = oldFirstChild;
 };
 
@@ -456,7 +468,7 @@ r5js.Datum.prototype.prependChild = function(child) {
  */
 r5js.Datum.prototype.mapChildren = function(f) {
     var ans = [];
-    for (var cur = this.firstChild; cur; cur = cur.nextSibling_) {
+    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
         ans.push(f(/** @type {!r5js.Datum} */(cur)));
     }
     return ans;
@@ -474,7 +486,7 @@ r5js.Datum.prototype.resetDesugars = function() {
     if (this.nextDesugar_ === -1) {
         this.nextDesugar_ += this.desugars_.length;
     }
-    for (var cur = this.firstChild; cur; cur = cur.nextSibling_) {
+    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
         cur.resetDesugars();
     }
 };
@@ -491,8 +503,8 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     var ans;
     if (desugarFn) {
         ans = desugarFn(this, env);
-    } else if (this.firstChild && this.firstChild.payload_ === 'begin') {
-        ans = this.firstChild.nextSibling_ ? this.firstChild.nextSibling_.sequence(env) : null;
+    } else if (this.firstChild_ && this.firstChild_.payload_ === 'begin') {
+        ans = this.firstChild_.nextSibling_ ? this.firstChild_.nextSibling_.sequence(env) : null;
     } else {
         ans = this;
     }
@@ -641,9 +653,9 @@ r5js.Datum.prototype.isArrayBacked = function() {
  */
 r5js.Datum.prototype.convertVectorToArrayBacked = function () {
     this.payload_ = [];
-    for (var cur = this.firstChild; cur; cur = cur.nextSibling_)
+    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_)
         this.payload_.push(cur);
-    this.firstChild = null;
+    this.firstChild_ = null;
     return this;
 };
 
@@ -697,7 +709,7 @@ r5js.Datum.prototype.isLiteral = function() {
  */
 r5js.Datum.prototype.isQuote = function() {
     return this.type === r5js.DatumType.QUOTE ||
-        (this.isList() && !!this.firstChild && this.firstChild.payload_ === 'quote');
+        (this.isList() && !!this.firstChild_ && this.firstChild_.payload_ === 'quote');
     // todo bl should datums know about this?
 };
 
@@ -737,7 +749,7 @@ r5js.Datum.prototype.isEqual = function(other) {
         && this.type === other.type
         && this.payload_ === other.payload_) {
         var thisChild, otherChild;
-        for (thisChild = this.firstChild,otherChild = other.firstChild;
+        for (thisChild = this.firstChild_,otherChild = other.firstChild_;
              thisChild && otherChild;
              thisChild = thisChild.nextSibling_,otherChild = otherChild.nextSibling_) {
             if (!thisChild.isEqual(otherChild)) {
@@ -756,7 +768,7 @@ r5js.Datum.prototype.isEqual = function(other) {
 r5js.Datum.prototype.quote = function() {
     var ans = new r5js.Datum();
     ans.type = r5js.DatumType.QUOTE;
-    ans.firstChild = this;
+    ans.firstChild_ = this;
     return ans;
 };
 
@@ -815,34 +827,34 @@ r5js.Datum.prototype.lastSibling = function() {
  */
 r5js.Datum.prototype.normalizeInput = function() {
 
-    if (this.firstChild) {
-        switch (this.firstChild.payload_) {
+    if (this.firstChild_) {
+        switch (this.firstChild_.payload_) {
             case 'quote':
                 this.type = r5js.DatumType.QUOTE;
-                this.firstChild = this.firstChild.nextSibling_;
+                this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
             case 'quasiquote':
                 this.type = r5js.DatumType.QUASIQUOTE;
-                this.firstChild = this.firstChild.nextSibling_;
+                this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
             case 'unquote':
                 this.type = r5js.DatumType.UNQUOTE;
-                this.firstChild = this.firstChild.nextSibling_;
+                this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
             case 'unquote-splicing':
                 this.type = r5js.DatumType.UNQUOTE_SPLICING;
-                this.firstChild = this.firstChild.nextSibling_;
+                this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
         }
     }
 
     var isImproperList = this.isImproperList();
 
-    for (var child = this.firstChild; child; child = child.nextSibling_) {
+    for (var child = this.firstChild_; child; child = child.nextSibling_) {
         child.normalizeInput();
         if (isImproperList && child.nextSibling_ && !child.nextSibling_.nextSibling_) {
             var maybeEmptyList = child.nextSibling_;
-            if (maybeEmptyList.isList() && !maybeEmptyList.firstChild) {
+            if (maybeEmptyList.isList() && !maybeEmptyList.firstChild_) {
                 child.parent_ = child.nextSibling_.parent_;
                 child.nextSibling_ = null;
                 this.type = r5js.DatumType.LIST;
@@ -877,7 +889,7 @@ r5js.Datum.prototype.decorateQuasiquote = function(qqLevel) {
         this.qqLevel_ = qqLevel+1;
     }
 
-    for (var cur = this.firstChild; cur; cur = cur.nextSibling_) {
+    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
         if (cur.isQuasiquote()) {
             cur.decorateQuasiquote(qqLevel+1);
         } else if (cur.isUnquote()) {
@@ -899,7 +911,7 @@ r5js.Datum.prototype.decorateQuasiquote = function(qqLevel) {
  *
  * Unfortunately, this approach breaks referential transparency:
  * (cdr x) does not point to the same region of memory as
- * x.firstChild.nextSibling_. So we have to build in special logic
+ * x.firstChild_.nextSibling_. So we have to build in special logic
  * to the primitive equivalence predicates, and especially into the primitive
  * mutation procedures (set-car! and set-cdr!).
  * That is what {@link r5js.CdrHelper} does.
@@ -916,7 +928,7 @@ r5js.Datum.prototype.decorateQuasiquote = function(qqLevel) {
 r5js.Datum.prototype.siblingsToList = function(dotted) {
     var ans = new r5js.Datum();
     ans.type = dotted ? r5js.DatumType.DOTTED_LIST : r5js.DatumType.LIST;
-    ans.firstChild = this;
+    ans.firstChild_ = this;
     return ans;
 };
 
@@ -993,15 +1005,15 @@ r5js.Datum.prototype.extractDefinition = function() {
     if (variable) {
         list.prependChild(this.at('expression'));
     } else {
-        var formalsList = this.firstChild.nextSibling_;
-        variable = formalsList.firstChild;
+        var formalsList = this.firstChild_.nextSibling_;
+        variable = formalsList.firstChild_;
         var bodyStart = formalsList.nextSibling_;
         var lambda = newEmptyList();
-        lambda.firstChild = bodyStart;
+        lambda.firstChild_ = bodyStart;
         var newFormalsList = formalsList;
-        newFormalsList.firstChild = newFormalsList.firstChild.nextSibling_;
-        if (newFormalsList.isImproperList() && !newFormalsList.firstChild.nextSibling_) {
-            lambda.prependChild(r5js.data.newIdOrLiteral(newFormalsList.firstChild.payload_));
+        newFormalsList.firstChild_ = newFormalsList.firstChild_.nextSibling_;
+        if (newFormalsList.isImproperList() && !newFormalsList.firstChild_.nextSibling_) {
+            lambda.prependChild(r5js.data.newIdOrLiteral(newFormalsList.firstChild_.payload_));
         } else {
             lambda.prependChild(newFormalsList);
         }
@@ -1064,8 +1076,8 @@ r5js.Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
     var cur;
 
     // (lambda (x y) ...) or (lambda (x . y) ...)
-    if (formalRoot.firstChild) {
-        for (cur = formalRoot.firstChild; cur; cur = cur.nextSibling_) {
+    if (formalRoot.firstChild_) {
+        for (cur = formalRoot.firstChild_; cur; cur = cur.nextSibling_) {
             if (isParserSensitiveId(cur.payload_)) {
                 cur.payload_ = newHelper.addRenameBinding(cur.payload_);
             }
@@ -1092,8 +1104,8 @@ r5js.Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
             maybeVar.payload_ = helper.addRenameBinding(maybeVar.payload_);
         }
     } else {
-        var vars = this.firstChild.nextSibling_;
-        var name = vars.firstChild;
+        var vars = this.firstChild_.nextSibling_;
+        var name = vars.firstChild_;
         var newHelper = new r5js.RenameHelper(helper);
         for (var cur = name.nextSibling_; cur; cur = cur.nextSibling_) {
             var payload = /** @type {string} */ (cur.payload_);
@@ -1126,7 +1138,7 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
     } else if (this.isQuote()) {
         ; // no-op
     } else {
-        for (var cur = this.firstChild; cur; cur = cur.nextSibling_) {
+        for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
             cur.fixParserSensitiveIds(helper);
         }
     }

@@ -43,7 +43,7 @@ r5js.Reader = function(scanner) {
 r5js.Reader.prototype.read = function() {
     var datums = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS].match(
         new r5js.Datum(), this.scanner_);
-    return datums.firstChild;
+    return datums.getFirstChild();
 };
 
 /**
@@ -146,7 +146,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                      (These should not make it into any external representation.)
                      if (this.qqLevel_ !== undefined && ans !== "'")
                      ans += 'qq' + this.qqLevel_; */
-                    for (child = this.firstChild;
+                    for (child = this.getFirstChild();
                          child && child.getNextSibling();
                          child = child.getNextSibling()) {
                         ans += child.stringForOutputMode(outputMode) + ' ';
@@ -156,7 +156,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                         + endDelimiter;
                 case r5js.DatumType.DOTTED_LIST:
                     ans = '(';
-                    for (child = this.firstChild;
+                    for (child = this.getFirstChild();
                          child && child.getNextSibling() && child.getNextSibling().getNextSibling();
                          child = child.getNextSibling()) {
                         ans += child.stringForOutputMode(outputMode) + ' ';

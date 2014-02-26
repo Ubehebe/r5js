@@ -48,7 +48,7 @@ r5js.CdrHelper.prototype.setCar = function(car) {
     if (this.head.isImmutable()) {
         throw new r5js.ImmutableError(this.head.toString());
     }
-    this.head.firstChild.setNextSibling(car);
+    this.head.getFirstChild().setNextSibling(car);
 };
 
 /**
@@ -87,7 +87,7 @@ r5js.CdrHelper.prototype.resolvesTo = function(datum) {
     if (!datum) {
         return false;
     } else if (this.head === datum) {
-        return this.startOfCdr === datum.firstChild;
+        return this.startOfCdr === datum.getFirstChild();
     } else {
         return false;
     }

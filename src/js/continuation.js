@@ -171,7 +171,7 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
 
   var letBindings = new r5js.SiblingBuffer();
 
-  for (var spec = datum.at('(').firstChild; spec; spec = spec.getNextSibling()) {
+  for (var spec = datum.at('(').getFirstChild(); spec; spec = spec.getNextSibling()) {
     var kw = spec.at('keyword').clone();
     var macro = /** @type {!r5js.Macro} */ (
         spec.at('transformer-spec').desugar(env));

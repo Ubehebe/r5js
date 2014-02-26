@@ -90,7 +90,7 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
      the identifier ... and F is a vector of n or more forms the first n
      of which match P1 through Pn, respectively, and each remaining element
      of F matches Pn+1" */
-    for (var subinput = inputDatum.firstChild, i=0;
+    for (var subinput = inputDatum.getFirstChild(), i=0;
          subinput;
          subinput = subinput.getNextSibling(), ++i) {
 
@@ -112,7 +112,7 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
     if (maybeEllipsis) {
         /* Corner case:
          an empty input like () cannot match a pattern like (x y ...) */
-        return (!inputDatum.firstChild && len > 1)
+        return (!inputDatum.getFirstChild() && len > 1)
             ? false
             : maybeEllipsis.matchInput(subinput, literalIds, definitionEnv, useEnv, bindings);
     }

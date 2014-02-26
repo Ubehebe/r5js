@@ -82,7 +82,7 @@ r5js.DatumStreamImpl.prototype.advanceToChild = function() {
   this.prev_ = this.next_;
   /* See comments in body of Parser() for explanation of
      emptyListSentinel. */
-  this.next_ = this.next_.firstChild ||
+  this.next_ = this.next_.getFirstChild() ||
       r5js.DatumStreamImpl.EMPTY_LIST_SENTINEL_;
 };
 
