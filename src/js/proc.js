@@ -1049,11 +1049,11 @@ function processQuasiquote(datum, env, cpsName, parserProvider) {
 
   var newCalls = new r5js.ContinuableHelper();
 
-  var qqLevel = datum.qqLevel;
+  var qqLevel = datum.getQQLevel();
 
   datum.replaceChildren(
       function(node) {
-        return node.isUnquote() && (node.qqLevel === qqLevel);
+        return node.isUnquote() && (node.getQQLevel() === qqLevel);
       },
       function(node) {
         var asContinuable = /** @type {!r5js.Continuable} */ (parserProvider(

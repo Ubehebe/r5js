@@ -86,8 +86,8 @@ r5js.Datum = function() {
     /** @type {boolean} */
     this.immutable = false;
 
-    /** @type {number|undefined} */
-    this.qqLevel;
+    /** @private {number|undefined} */
+    this.qqLevel_;
 
     /** @type {r5js.CdrHelper} */
     this.cdrHelper;
@@ -124,6 +124,12 @@ r5js.Datum.prototype.hasNonterminals = function() {
 r5js.Datum.prototype.setImmutable = function() {
     this.immutable = true;
     return this;
+};
+
+
+/** @return {number|undefined} */
+r5js.Datum.prototype.getQQLevel = function() {
+    return this.qqLevel_;
 };
 
 /**
@@ -824,9 +830,9 @@ r5js.Datum.prototype.normalizeInput = function() {
 r5js.Datum.prototype.decorateQuasiquote = function(qqLevel) {
 
     if (this.isQuasiquote()) {
-        this.qqLevel = qqLevel;
+        this.qqLevel_ = qqLevel;
     } else if (this.isUnquote()) {
-        this.qqLevel = qqLevel+1;
+        this.qqLevel_ = qqLevel+1;
     }
 
     for (var cur = this.firstChild; cur; cur = cur.nextSibling) {

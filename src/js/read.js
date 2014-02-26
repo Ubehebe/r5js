@@ -146,8 +146,8 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                     ans = this.type;
                     /* Uncomment to show quasiquotation levels.
                      (These should not make it into any external representation.)
-                     if (this.qqLevel !== undefined && ans !== "'")
-                     ans += 'qq' + this.qqLevel; */
+                     if (this.qqLevel_ !== undefined && ans !== "'")
+                     ans += 'qq' + this.qqLevel_; */
                     for (child = this.firstChild;
                          child && child.nextSibling;
                          child = child.nextSibling)
