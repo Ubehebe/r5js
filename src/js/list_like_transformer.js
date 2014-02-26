@@ -92,7 +92,7 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
      of F matches Pn+1" */
     for (var subinput = inputDatum.firstChild, i=0;
          subinput;
-         subinput = subinput.nextSibling, ++i) {
+         subinput = subinput.getNextSibling(), ++i) {
 
         if (i === len - 1 &&
             (maybeEllipsis || this.type === r5js.DatumType.DOTTED_LIST)) {
@@ -124,7 +124,7 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
         if (inputDatum.isList()) {
             toMatchAgainst = subinput.siblingsToList();
         } else if (inputDatum.isImproperList()) {
-            if (subinput.nextSibling)
+            if (subinput.getNextSibling())
                 toMatchAgainst = subinput.siblingsToList(true);
             else
                 toMatchAgainst = subinput;

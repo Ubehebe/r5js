@@ -77,7 +77,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
     var letrecBindings = new r5js.SiblingBuffer();
     for (var cur = bodyStart;
          cur && cur.peekParse() === 'definition';
-         cur = cur.nextSibling) {
+         cur = cur.getNextSibling()) {
       cur.forEach(function(node) {
         if (node.firstChild && node.firstChild.payload === 'define')
           letrecBindings.appendSibling(node.extractDefinition());
@@ -89,7 +89,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
     } else {
       var letrec = newEmptyList();
       letrec.firstChild = letrecBindings.toSiblings();
-      letrec.nextSibling = cur;
+      letrec.setNextSibling(cur);
       this.body = r5js.procs.newProcCall(
           r5js.data.newIdOrLiteral('letrec'),
           letrec,
@@ -393,8 +393,9 @@ r5js.ProcCall.prototype.debugString = function(
   if (this.env && !suppressEnv)
     ans += '|' + this.env;
   if (this.operatorName) {
-    for (var cur = this.firstOperand; cur; cur = cur.nextSibling)
+    for (var cur = this.firstOperand; cur; cur = cur.getNextSibling()) {
       ans += ' ' + cur.toString();
+    }
   } else {
     ans += ' ' + this.firstOperand;
   }
@@ -409,7 +410,7 @@ r5js.ProcCall.prototype.debugString = function(
  */
 r5js.ProcCall.prototype.reconstructDatum = function() {
   var op = r5js.data.newIdOrLiteral(this.operatorName.payload);
-  op.nextSibling = this.firstOperand;
+  op.setNextSibling(this.firstOperand);
   var ans = newEmptyList();
   ans.appendChild(op);
   return ans;
@@ -420,7 +421,7 @@ r5js.ProcCall.prototype.reconstructDatum = function() {
  * @return {boolean} True iff the operands are in continuation-passing style.
  */
 r5js.ProcCall.prototype.operandsInCpsStyle = function() {
-  for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
+  for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.Datum) {
       if (cur.isEmptyList()) {
         throw new r5js.IllegalEmptyApplication(this.operatorName.payload);
@@ -530,7 +531,7 @@ r5js.ProcCall.prototype.cpsify = function(
   var finalArgs = new r5js.SiblingBuffer();
   var maybeContinuable;
 
-  for (var arg = this.firstOperand; arg; arg = arg.nextSibling) {
+  for (var arg = this.firstOperand; arg; arg = arg.getNextSibling()) {
     arg.resetDesugars();
     if (arg.isQuote())
       finalArgs.appendSibling(arg.clone().normalizeInput());
@@ -687,7 +688,7 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
  * @param {!r5js.TrampolineHelper} resultStruct
  */
 r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
-  var src = this.env.get(this.firstOperand.nextSibling.payload);
+  var src = this.env.get(this.firstOperand.getNextSibling().payload);
   /* In Scheme, macros can be bound to identifiers but they are not really
      first-class citizens; you cannot say
 
@@ -967,6 +968,7 @@ r5js.ProcCall.prototype.specialOps = {
  * @param {boolean} wrapArgs
  * @return {?}
  * TODO bl: this method is too long.
+ * @suppress {accessControls} for the raw access to nextSibling_.
  */
 r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
   var args = [];
@@ -984,7 +986,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
      to _0. Later on the trampoline, we reach (+ _0). We have to know that
      _0 refers to an array of values, not a single value. */
   if (this.firstOperand instanceof r5js.Datum &&
-      !this.firstOperand.nextSibling &&
+      !this.firstOperand.getNextSibling() &&
       this.firstOperand.isIdentifier()) {
     var maybeArray = this.env.get(
         /** @type {string} */ (this.firstOperand.payload));
@@ -994,7 +996,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
   }
 
   // todo bl too much logic
-  for (var cur = this.firstOperand; cur; cur = cur.nextSibling) {
+  for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.Continuation) {
       args.push(cur);
     } else if (cur.isIdentifier()) {

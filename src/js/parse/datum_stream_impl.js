@@ -90,7 +90,7 @@ r5js.DatumStreamImpl.prototype.advanceToChild = function() {
 /** @override */
 r5js.DatumStreamImpl.prototype.advanceToNextSibling = function() {
   this.prev_ = this.next_;
-  this.next_ = this.next_.nextSibling;
+  this.next_ = this.next_.getNextSibling();
 };
 
 
@@ -103,10 +103,11 @@ r5js.DatumStreamImpl.prototype.maybeAdvanceToNextSiblingOfParent = function() {
          (a b (c d) e)
 
          we have just finished parsing d. next is null, prev is d,
-         prev.parent_ is (c d), and prev.parent_.nextSibling is e,
+         prev.parent_ is (c d), and prev.parent_.nextSibling_ is e,
          which is where we want to go next. */
 
-    this.next_ = this.prev_.getParent() && this.prev_.getParent().nextSibling;
+    this.next_ = this.prev_.getParent() &&
+        this.prev_.getParent().getNextSibling();
     return true;
   } else if (this.next_ === r5js.DatumStreamImpl.EMPTY_LIST_SENTINEL_) {
     /*
@@ -115,9 +116,9 @@ r5js.DatumStreamImpl.prototype.maybeAdvanceToNextSiblingOfParent = function() {
          (a b () e)
 
          we have just finished parsing (). next is emptyListSentinel,
-         prev is (), and prev.nextSibling is e, which is where we
+         prev is (), and prev.nextSibling_ is e, which is where we
          want to go next. */
-    this.next_ = this.prev_.nextSibling;
+    this.next_ = this.prev_.getNextSibling();
     return true;
   } else {
     // If we're not at the end of a list, this parse must fail.

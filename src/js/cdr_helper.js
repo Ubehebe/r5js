@@ -48,7 +48,7 @@ r5js.CdrHelper.prototype.setCar = function(car) {
     if (this.head.isImmutable()) {
         throw new r5js.ImmutableError(this.head.toString());
     }
-    this.head.firstChild.nextSibling = car;
+    this.head.firstChild.setNextSibling(car);
 };
 
 /**
@@ -59,7 +59,7 @@ r5js.CdrHelper.prototype.setCdr = function(cdr) {
     if (this.head.isImmutable()) {
         throw new r5js.ImmutableError(this.head.toString());
     }
-    this.startOfCdr.nextSibling = cdr;
+    this.startOfCdr.setNextSibling(cdr);
     if (!cdr.isList()) {
         var cur = this;
         do {

@@ -139,8 +139,9 @@ r5js.read.bnf.AtLeast_.prototype.match = function(ansDatum, tokenStream) {
     ++num;
     if (!firstChild)
       firstChild = cur;
-    if (prev)
-      prev.nextSibling = cur;
+    if (prev) {
+      prev.setNextSibling(cur);
+    }
     prev = cur;
   }
 

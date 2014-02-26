@@ -27,6 +27,7 @@ goog.require('r5js.Transformer');
  * @param {!r5js.Datum} rules
  * @param {!r5js.IEnvironment} definitionEnv
  * @constructor
+ * @suppress {accessControls} for the raw access of nextSibling_
  */
 r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
 
@@ -40,7 +41,7 @@ r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
      */
     this.literalIdentifiers = {};
 
-    for (var curId = literalIdentifiers; curId; curId = curId.nextSibling) {
+    for (var curId = literalIdentifiers; curId; curId = curId.nextSibling_) {
         this.literalIdentifiers[curId.payload] = true;
     }
 
@@ -49,7 +50,7 @@ r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
      */
     this.transformers = [];
 
-    for (var rule = rules; rule; rule = rule.nextSibling) {
+    for (var rule = rules; rule; rule = rule.getNextSibling()) {
         var pattern = rule.at('pattern').desugar(/* no env needed */);
         var template = rule.at('template').desugar(/* no env needed */);
         var transformer = new r5js.Transformer(pattern, template);

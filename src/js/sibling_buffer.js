@@ -52,7 +52,7 @@ r5js.SiblingBuffer.prototype.appendSibling = function(node) {
             this.first_ = node;
             this.last_ = node.lastSibling();
         } else {
-            this.last_.nextSibling = node;
+            this.last_.setNextSibling(node);
             this.last_ = node.lastSibling();
         }
     }

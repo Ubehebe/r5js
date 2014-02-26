@@ -154,7 +154,7 @@ r5js.Parser.maybeFixParserSensitiveIds_ = function(root) {
   if (helper.wasUsed()) {
     /* todo bl inefficient, but i've had errors fusing this
                      into fixParserSensitiveIds() */
-    for (var cur = root; cur; cur = cur.nextSibling) {
+    for (var cur = root; cur; cur = cur.getNextSibling()) {
       cur.unsetParse();
     }
     return new r5js.Parser(root).parse();
@@ -384,7 +384,7 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.seq(
       env.addClosure(
           name,
           new r5js.Procedure(
-              formals, treatAsDotted, formalRoot.nextSibling, env, name));
+              formals, treatAsDotted, formalRoot.getNextSibling(), env, name));
       return newIdShim(r5js.data.newIdOrLiteral(name));
         });
 
@@ -451,7 +451,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
 
                 todo bl: make this flow of control explicit. */
       var variable = node.at(Nonterminals.VARIABLE);
-      var desugaredExpr = variable.nextSibling.desugar(env, true);
+      var desugaredExpr = variable.getNextSibling().desugar(env, true);
       var lastContinuable = desugaredExpr.getLastContinuable();
       var cpsName = lastContinuable.continuation.lastResultName;
       lastContinuable.continuation.nextContinuable =
@@ -481,8 +481,8 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
                 todo bl: make this flow of control explicit. */
       var def = node.extractDefinition();
       var name = def.firstChild;
-      var lambda = name.nextSibling;
-      var formalRoot = lambda.firstChild.nextSibling;
+      var lambda = name.getNextSibling();
+      var formalRoot = lambda.firstChild.getNextSibling();
       var formals = formalRoot.mapChildren(function(child) {
         return child.payload;
       });
@@ -490,7 +490,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       env.addBinding(
           anonymousName,
           new r5js.Procedure(
-              formals, false, formalRoot.nextSibling, env, name));
+              formals, false, formalRoot.getNextSibling(), env, name));
       return r5js.procs.newAssignment(
           name.payload,
           anonymousName,
@@ -518,8 +518,8 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
                 todo bl: make this flow of control explicit. */
       var def = node.extractDefinition();
       var name = def.firstChild;
-      var lambda = name.nextSibling;
-      var formalRoot = lambda.firstChild.nextSibling;
+      var lambda = name.getNextSibling();
+      var formalRoot = lambda.firstChild.getNextSibling();
       var formals = formalRoot.firstChild ?
           formalRoot.mapChildren(function(child) {
             return child.payload;
@@ -528,7 +528,8 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       var anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
-          new r5js.Procedure(formals, true, formalRoot.nextSibling, env, name));
+          new r5js.Procedure(
+              formals, true, formalRoot.getNextSibling(), env, name));
       return r5js.procs.newAssignment(
           /** @type {string} */(name.payload), // TODO bl
           anonymousName,
@@ -620,7 +621,7 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.seq(
         desugar(function(node, env) {
       // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
       var variable = node.at(Nonterminals.VARIABLE);
-      var desugaredExpr = variable.nextSibling.desugar(env, true);
+      var desugaredExpr = variable.getNextSibling().desugar(env, true);
       var lastContinuable = desugaredExpr.getLastContinuable();
       var cpsName = lastContinuable.continuation.lastResultName;
       lastContinuable.continuation.nextContinuable =
@@ -846,9 +847,9 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
-           cur = cur.nextSibling) {
-        if (cur.nextSibling &&
-            cur.nextSibling.payload === Terminals.ELLIPSIS) {
+           cur = cur.getNextSibling()) {
+        if (cur.getNextSibling() &&
+            cur.getNextSibling().payload === Terminals.ELLIPSIS) {
           ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
           break;
         } else {
@@ -866,9 +867,9 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
-           cur = cur.nextSibling) {
-        if (cur.nextSibling &&
-            cur.nextSibling.payload === Terminals.ELLIPSIS) {
+           cur = cur.getNextSibling()) {
+        if (cur.getNextSibling() &&
+            cur.getNextSibling().payload === Terminals.ELLIPSIS) {
           ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
           break;
         } else {
@@ -890,7 +891,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
-           cur = cur.nextSibling) {
+           cur = cur.getNextSibling()) {
         ans.addSubtransformer(cur.desugar());
       }
       return ans;
@@ -905,7 +906,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
-           cur = cur.nextSibling) {
+           cur = cur.getNextSibling()) {
         ans.addSubtransformer(cur.desugar());
       }
       return ans;
@@ -918,7 +919,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
-           cur = cur.nextSibling) {
+           cur = cur.getNextSibling()) {
         ans.addSubtransformer(cur.desugar());
       }
       return ans;
@@ -992,11 +993,11 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
-           cur = cur.nextSibling) {
-        if (cur.nextSibling &&
-            cur.nextSibling.payload === Terminals.ELLIPSIS) {
+           cur = cur.getNextSibling()) {
+        if (cur.getNextSibling() &&
+            cur.getNextSibling().payload === Terminals.ELLIPSIS) {
           ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
-          cur = cur.nextSibling;
+          cur = cur.getNextSibling();
         } else {
           ans.addSubtransformer(cur.desugar());
         }
@@ -1012,11 +1013,11 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
-           cur = cur.nextSibling) {
-        if (cur.nextSibling &&
-            cur.nextSibling.payload === Terminals.ELLIPSIS) {
+           cur = cur.getNextSibling()) {
+        if (cur.getNextSibling() &&
+            cur.getNextSibling().payload === Terminals.ELLIPSIS) {
           ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
-          cur = cur.nextSibling;
+          cur = cur.getNextSibling();
         } else {
           ans.addSubtransformer(cur.desugar());
         }
@@ -1031,11 +1032,11 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
-           cur = cur.nextSibling) {
-        if (cur.nextSibling &&
-            cur.nextSibling.payload === Terminals.ELLIPSIS) {
+           cur = cur.getNextSibling()) {
+        if (cur.getNextSibling() &&
+            cur.getNextSibling().payload === Terminals.ELLIPSIS) {
           ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
-          cur = cur.nextSibling;
+          cur = cur.getNextSibling();
         } else {
           ans.addSubtransformer(cur.desugar());
         }

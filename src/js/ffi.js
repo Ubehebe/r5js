@@ -43,7 +43,7 @@ r5js.ProcCall.prototype.tryFFI = function(
         if (jsObjOrMethod.isBoundMethod()) {
             property = jsObjOrMethod.callWith(this.evalArgs(false));
         } else if (this.firstOperand
-            && !this.firstOperand.nextSibling
+            && !this.firstOperand.getNextSibling()
             && this.firstOperand.isQuote()
             && this.firstOperand.firstChild.isIdentifier()) {
             property = jsObjOrMethod.getObject()[this.firstOperand.firstChild.payload];

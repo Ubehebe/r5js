@@ -72,7 +72,7 @@ r5js.EllipsisTransformer.prototype.matchInput = function(
                 bindings.getPatternIds(),
                 bindings.getTemplateRenameCandidates()));
 
-    for (var subinput = inputDatum; subinput; subinput = subinput.nextSibling) {
+    for (var subinput = inputDatum; subinput; subinput = subinput.getNextSibling()) {
         var childBindings = new r5js.TemplateBindings(
             useEnv,
             bindings.getPatternIds(),

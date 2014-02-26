@@ -663,10 +663,10 @@ r5js.builtins['pair'] = {
         argc: 1,
         argtypes: ['pair'],
         proc: function(p) {
-            var startOfCdr = p.firstChild.nextSibling;
+            var startOfCdr = p.firstChild.getNextSibling();
             var ans;
             if (startOfCdr) {
-                ans = (startOfCdr.nextSibling || p.isList())
+                ans = (startOfCdr.getNextSibling() || p.isList())
                     ? startOfCdr.siblingsToList(p.isImproperList())
                     : startOfCdr;
                 return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
@@ -682,7 +682,7 @@ r5js.builtins['pair'] = {
                 if (p.isImmutable())
                     throw new r5js.ImmutableError(p.toString());
 
-                car.nextSibling = p.firstChild.nextSibling;
+                car.setNextSibling(p.firstChild.getNextSibling());
                 p.firstChild = car;
 
                 for (var helper = p.getCdrHelper();
@@ -704,10 +704,10 @@ r5js.builtins['pair'] = {
                     throw new r5js.ImmutableError(p.toString());
 
                 if (cdr.isList()) {
-                    p.firstChild.nextSibling = cdr.firstChild;
+                    p.firstChild.setNextSibling(cdr.firstChild);
                     p.type = '(';
                 } else {
-                    p.firstChild.nextSibling = cdr;
+                    p.firstChild.setNextSibling(cdr);
                     p.type = '.(';
                 }
 
@@ -972,7 +972,7 @@ r5js.builtins['control'] = {
             if (lastRealArgIndex === 1) {
                 var newArgs = new r5js.SiblingBuffer();
                 // todo bl document why we are quoting the arguments
-                for (var arg = mustBeList.firstChild; arg; arg = arg.nextSibling)
+                for (var arg = mustBeList.firstChild; arg; arg = arg.getNextSibling())
                     newArgs.appendSibling(arg.quote());
                 var actualProcCall = r5js.procs.newProcCall(procName, newArgs.toSiblings(), continuation);
                 actualProcCall.setStartingEnv(curProcCall.env);
@@ -982,8 +982,8 @@ r5js.builtins['control'] = {
             // (apply foo a b c '(1 2 3))
             else {
                 for (var i = 1; i < lastRealArgIndex - 1; ++i)
-                    arguments[i].nextSibling = arguments[i + 1];
-                arguments[lastRealArgIndex - 1].nextSibling = mustBeList.firstChild;
+                    arguments[i].setNextSibling(arguments[i + 1]);
+                arguments[lastRealArgIndex - 1].setNextSibling(mustBeList.firstChild);
 
                 var newArgs = newEmptyList();
                 newArgs.appendChild(arguments[1]);
@@ -1085,7 +1085,7 @@ r5js.builtins['control'] = {
                 producerContinuation);
             producerCall.setStartingEnv(procCall.env);
             var consumerCall = r5js.procs.newProcCall(
-                procCall.firstOperand.nextSibling,
+                procCall.firstOperand.getNextSibling(),
                 r5js.data.newIdOrLiteral(valuesName),
                 continuation);
             consumerCall.setStartingEnv(procCall.env);
@@ -1145,7 +1145,7 @@ r5js.builtins['control'] = {
 
 
             var procCallAfter = r5js.procs.newProcCall(
-                procCall.firstOperand.nextSibling.nextSibling,
+                procCall.firstOperand.getNextSibling().getNextSibling(),
                 null, // no arguments
                 new r5js.Continuation());
 
@@ -1154,7 +1154,7 @@ r5js.builtins['control'] = {
             procCallAfter.getLastContinuable().continuation = continuation;
 
             var procCallThunk = r5js.procs.newProcCall(
-                procCall.firstOperand.nextSibling,
+                procCall.firstOperand.getNextSibling(),
                 null, // no arguments
                 new r5js.Continuation(result)
             );
@@ -1179,7 +1179,7 @@ r5js.builtins['control'] = {
 r5js.builtins['eval'] = {
     'eval': {
         argc: 2,
-        proc: function(expr, envSpec) {
+        proc: /** @suppress {checkTypes} */ function(expr, envSpec) {
             if (!(expr instanceof r5js.Datum))
                 throw new r5js.ArgumentTypeError(expr, 0, 'eval', r5js.DatumType.REF /* TODO bl is this right? */);
             if (!(envSpec instanceof r5js.Datum) || !envSpec.isEnvironmentSpecifier())
@@ -1213,7 +1213,7 @@ r5js.builtins['eval'] = {
 
                 var env = /** @type {!r5js.IEnvironment} */ (envSpec.payload);
                 // don't accidentally evaluate the next expr!
-                expr.nextSibling = null;
+                expr.setNextSibling(null);
 
                 var parsed = new r5js.Parser(expr).parse();
                 if (!parsed)

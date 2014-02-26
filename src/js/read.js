@@ -147,23 +147,25 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                      if (this.qqLevel_ !== undefined && ans !== "'")
                      ans += 'qq' + this.qqLevel_; */
                     for (child = this.firstChild;
-                         child && child.nextSibling;
-                         child = child.nextSibling)
+                         child && child.getNextSibling();
+                         child = child.getNextSibling()) {
                         ans += child.stringForOutputMode(outputMode) + ' ';
+                    }
                     return ans
                         + (child ? child.stringForOutputMode(outputMode) : '')
                         + endDelimiter;
                 case r5js.DatumType.DOTTED_LIST:
                     ans = '(';
                     for (child = this.firstChild;
-                         child && child.nextSibling && child.nextSibling.nextSibling;
-                         child = child.nextSibling)
+                         child && child.getNextSibling() && child.getNextSibling().getNextSibling();
+                         child = child.getNextSibling()) {
                         ans += child.stringForOutputMode(outputMode) + ' ';
+                    }
                     var nextToLastChildString = child
                         ? child.stringForOutputMode(outputMode)
                         : '';
-                    var lastChildString = child.nextSibling ?
-                        child.nextSibling.stringForOutputMode(outputMode)
+                    var lastChildString = child.getNextSibling() ?
+                        child.getNextSibling().stringForOutputMode(outputMode)
                         : '';
                     return ans + nextToLastChildString + ' . ' + lastChildString + ')';
                 default:

@@ -67,7 +67,6 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
     case r5js.parse.Terminals.RPAREN:
       return datumStream.maybeAdvanceToNextSiblingOfParent();
     default: // TODO bl where is this from?
-      // Convenience for things like rhs({type: 'define'})
       next = datumStream.getNextDatum();
       if (next && next.payload === this.terminal_) {
         datumStream.advanceToNextSibling();
@@ -98,7 +97,7 @@ r5js.parse.bnf.OneNonterminal_.prototype.match = function(datumStream) {
   var parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream);
   if (parsed instanceof r5js.Datum) {
     parsed.setParse(this.nonterminal_);
-    datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.nextSibling));
+    datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.getNextSibling()));
   }
   return parsed;
 };
@@ -158,7 +157,6 @@ r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream) {
 
   var parsed;
   while (parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream)) {
-    // this.next_ has already been advanced by the success of parseFunction
     parsed.setParse(this.nonterminal_);
     ++numParsed;
   }
@@ -294,7 +292,7 @@ r5js.parse.bnf.Seq_.prototype.match = function(datumStream) {
   }
 
   var nextSibling = /** just in case of an empty program */ root &&
-      root.nextSibling;
+      root.getNextSibling();
   datumStream.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
 
   if (root instanceof r5js.Datum && this.desugarFunc_) {
