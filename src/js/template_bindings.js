@@ -153,8 +153,8 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
      See SchemeMacro.prototype.transcribe. */
     val.forEach(function (datum) {
         if (datum.isIdentifier()
-            && self.templateRenameCandidates[datum.payload])
-            self.renameInTemplate[datum.payload] = true;
+            && self.templateRenameCandidates[datum.getPayload()])
+            self.renameInTemplate[datum.getPayload()] = true;
     });
 };
 
@@ -251,7 +251,7 @@ r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
 
     if (datum.isIdentifier()) {
-        var name = datum.payload;
+        var name = datum.getPayload();
 
         var maybe = this.bindings[name];
         if (maybe) {

@@ -67,8 +67,8 @@ r5js.Branch.prototype.evalAndAdvance = function(
     /* Branches always use the old environment left by the previous action
     on the trampoline. */
     var testResult = this.test.isIdentifier()
-        ? envBuffer.get(this.test.payload)
-        : r5js.data.maybeWrapResult(this.test, this.test.type).payload;
+        ? envBuffer.get(this.test.getPayload())
+        : r5js.data.maybeWrapResult(this.test, this.test.type).getPayload();
     if (testResult === false) {
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;

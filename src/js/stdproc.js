@@ -58,13 +58,13 @@ r5js.builtins['equiv'] = {
             if (p.sameTypeAs(q)) {
 
                 if (p.isBoolean())
-                    return p.payload === q.payload;
+                    return p.getPayload() === q.getPayload();
                 else if (p.isIdentifier())
-                    return p.payload === q.payload;
+                    return p.getPayload() === q.getPayload();
                 else if (p.isNumber())
-                    return p.payload === q.payload; // todo bl numerical precision...
+                    return p.getPayload() === q.getPayload(); // todo bl numerical precision...
                 else if (p.isCharacter())
-                    return p.payload === q.payload;
+                    return p.getPayload() === q.getPayload();
                 else if (p.isList()) {
                     var ans;
                     if (p === q || p.isEmptyList() && q.isEmptyList())
@@ -87,13 +87,13 @@ r5js.builtins['equiv'] = {
                     return p === q;
                 else if (p.isVector()) {
                     return (p.isArrayBacked() && q.isArrayBacked())
-                        ? p.payload === q.payload
+                        ? p.getPayload() === q.getPayload()
                         : p === q;
                 }
                 else if (p.isString())
                     return p === q;
                 else if (p.isProcedure())
-                    return p.payload === q.payload;
+                    return p.getPayload() === q.getPayload();
                 else if (p.isQuasiquote()) {
                     /* todo bl: not sure this is the right thing to do.
                      We can't just "unescape" the quasiquotations. Example:
@@ -258,7 +258,7 @@ r5js.builtins['number'] = {
     'integer?': {
         argc: 1,
         proc: function(node) {
-            return node.isNumber() && Math.round(node.payload) === node.payload;
+            return node.isNumber() && Math.round(node.getPayload()) === node.getPayload();
         }
     },
 
@@ -736,7 +736,7 @@ r5js.builtins['symbol'] = {
         argc: 1,
         argtypes: ['string'],
         proc: function(node) {
-            return r5js.data.newIdOrLiteral(node.payload, r5js.DatumType.IDENTIFIER);
+            return r5js.data.newIdOrLiteral(node.getPayload(), r5js.DatumType.IDENTIFIER);
         }
     }
 };
@@ -747,42 +747,42 @@ r5js.builtins['char'] = {
         argc: 2,
         argtypes: ['char', 'char'],
         proc: function(node1, node2) {
-            return node1.payload === node2.payload;
+            return node1.getPayload() === node2.getPayload();
         }
     },
     'char<?': {
         argc: 2,
         argtypes: ['char', 'char'],
         proc: function(node1, node2) {
-            return node1.payload < node2.payload;
+            return node1.getPayload() < node2.getPayload();
         }
     },
     'char>?': {
         argc: 2,
         argtypes: ['char', 'char'],
         proc: function(node1, node2) {
-            return node1.payload > node2.payload;
+            return node1.getPayload() > node2.getPayload();
         }
     },
     'char<=?': {
         argc: 2,
         argtypes: ['char', 'char'],
         proc: function(node1, node2) {
-            return node1.payload <= node2.payload;
+            return node1.getPayload() <= node2.getPayload();
         }
     },
     'char>=?': {
         argc: 2,
         argtypes: ['char', 'char'],
         proc: function(node1, node2) {
-            return node1.payload >= node2.payload;
+            return node1.getPayload() >= node2.getPayload();
         }
     },
     'char->integer': {
         argc: 1,
         argtypes: ['char'],
         proc: function(node) {
-            return node.payload.charCodeAt(0);
+            return node.getPayload().charCodeAt(0);
         }
     },
     'integer->char': {
@@ -796,14 +796,14 @@ r5js.builtins['char'] = {
         argc: 1,
         argtypes: ['char'],
         proc: function(node) {
-            return r5js.data.newIdOrLiteral(node.payload.toUpperCase(), r5js.DatumType.CHARACTER);
+            return r5js.data.newIdOrLiteral(node.getPayload().toUpperCase(), r5js.DatumType.CHARACTER);
         }
     },
     'char-downcase': {
         argc: 1,
         argtypes: ['char'],
         proc: function(node) {
-            return r5js.data.newIdOrLiteral(node.payload.toLowerCase(), r5js.DatumType.CHARACTER);
+            return r5js.data.newIdOrLiteral(node.getPayload().toLowerCase(), r5js.DatumType.CHARACTER);
         }
     }
 };
@@ -817,7 +817,7 @@ r5js.builtins['string'] = {
             /* R5RS 6.3.5: "If char is given, then all elements of the
              string are initialized to char, otherwise the contents
              of the string are unspecified." */
-            var c = charNode ? charNode.payload : ' ';
+            var c = charNode ? charNode.getPayload() : ' ';
             var s = '';
             for (var i = 0; i < n; ++i)
                 s += c;
@@ -828,14 +828,14 @@ r5js.builtins['string'] = {
         argc: 1,
         argtypes: ['string'],
         proc: function(node) {
-            return node.payload.length;
+            return node.getPayload().length;
         }
     },
     'string-ref': {
         argc: 2,
         argtypes: ['string', 'number'],
         proc: function(node, i) {
-            return r5js.data.newIdOrLiteral(node.payload.charAt(i), r5js.DatumType.CHARACTER);
+            return r5js.data.newIdOrLiteral(node.getPayload().charAt(i), r5js.DatumType.CHARACTER);
         }
     },
     'string-set!': {
@@ -850,13 +850,13 @@ r5js.builtins['string'] = {
                 throw new r5js.ArgumentTypeError(c, 2, 'string-set!', r5js.DatumType.CHARACTER);
 
             if (str.isImmutable())
-                throw new r5js.ImmutableError(str.payload);
+                throw new r5js.ImmutableError(str.getPayload());
 
-            var s = str.payload;
+            var s = str.getPayload();
 
-            str.payload = s.substr(0, k.payload)
-                + c.payload
-                + s.substr(k.payload + 1);
+            str.setPayload(s.substr(0, k.getPayload())
+                + c.getPayload()
+                + s.substr(k.getPayload() + 1))
 
             return null; // unspecified return value
         }
@@ -900,8 +900,8 @@ r5js.builtins['vector'] = {
         argtypes: ['vector'],
         proc:function (v) {
             return v.isArrayBacked()
-                ? v.payload.length
-                : v.convertVectorToArrayBacked().payload.length;
+                ? v.getPayload().length
+                : v.convertVectorToArrayBacked().getPayload().length;
 
         }
     },
@@ -910,8 +910,8 @@ r5js.builtins['vector'] = {
         argtypes: ['vector', 'number'],
         proc: function(v, k) {
             return v.isArrayBacked()
-                ? v.payload[k]
-                : v.convertVectorToArrayBacked().payload[k];
+                ? v.getPayload()[k]
+                : v.convertVectorToArrayBacked().getPayload()[k];
         }
     },
     'vector-set!': {
@@ -929,9 +929,9 @@ r5js.builtins['vector'] = {
                 throw new r5js.ImmutableError(v.toString());
 
             if (v.isArrayBacked())
-                v.payload[k] = fill;
+                v.getPayload()[k] = fill;
             else
-                v.convertVectorToArrayBacked().payload[k] = fill;
+                v.convertVectorToArrayBacked().getPayload()[k] = fill;
 
             // todo bl requires a cycle-labeling procedure like set-car! and set-cdr!
 
@@ -960,7 +960,7 @@ r5js.builtins['control'] = {
             /* todo bl: very little idea what's going on here, but we seem to
              use both sources of procName. */
             var procName = r5js.data.newIdOrLiteral(
-                curProcCall.firstOperand.payload || mustBeProc.getName());
+                curProcCall.firstOperand.getPayload() || mustBeProc.getName());
             var continuation = arguments[arguments.length - 2];
             var resultStruct = arguments[arguments.length - 1];
 
@@ -1212,7 +1212,7 @@ r5js.builtins['eval'] = {
                  Reasoning about this copy/pasted code is simpler than
                  reasoning about the build process. */
 
-                var env = /** @type {!r5js.IEnvironment} */ (envSpec.payload);
+                var env = /** @type {!r5js.IEnvironment} */ (envSpec.getPayload());
                 // don't accidentally evaluate the next expr!
                 expr.setNextSibling(null);
 
@@ -1279,7 +1279,7 @@ r5js.builtins['io'] = {
      and in the implementation class definition (and to different names,
      which is the problem). To defeat this, the call and definition sites must
      both access the functions via string literals, not properties:
-     datum.payload['write'](), not datum.payload.write(). */
+     datum.getPayload()['write'](), not datum.getPayload().write(). */
 
     'current-input-port': {
         argc: 0,
@@ -1300,7 +1300,7 @@ r5js.builtins['io'] = {
         argtypes: ['string'],
         proc: function(datum) {
             return r5js.data.newInputPortDatum(
-                new r5js.NodeBackedPort(datum.payload, 'r'));
+                new r5js.NodeBackedPort(datum.getPayload(), 'r'));
         }
     },
     'open-output-file': {
@@ -1308,14 +1308,14 @@ r5js.builtins['io'] = {
         argtypes: ['string'],
         proc: function(datum) {
             return r5js.data.newOutputPortDatum(
-                new r5js.NodeBackedPort(datum.payload, 'w'));
+                new r5js.NodeBackedPort(datum.getPayload(), 'w'));
         }
     },
     'close-input-port': {
         argc: 1,
         argtypes: ['input-port'],
         proc: function(datum) {
-            datum.payload['close']();
+            datum.getPayload()['close']();
             return null;
         }
     },
@@ -1323,7 +1323,7 @@ r5js.builtins['io'] = {
         argc: 1,
         argtypes: ['output-port'],
         proc: function(datum) {
-            datum.payload['close']();
+            datum.getPayload()['close']();
             return null;
         }
     },
@@ -1337,11 +1337,11 @@ r5js.builtins['io'] = {
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
-                } else if (inputPort.payload['isEof']()) {
+                } else if (inputPort.getPayload()['isEof']()) {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
                     return inputPort;
-                } else return r5js.data.newIdOrLiteral(inputPort.payload['readChar'](), r5js.DatumType.CHARACTER);
+                } else return r5js.data.newIdOrLiteral(inputPort.getPayload()['readChar'](), r5js.DatumType.CHARACTER);
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
     },
@@ -1355,11 +1355,11 @@ r5js.builtins['io'] = {
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
-                } else if (inputPort.payload['isEof']()) {
+                } else if (inputPort.getPayload()['isEof']()) {
                     /* R5RS 6.6.2: "If no more characters are available,
                      an end of file object is returned." */
                     return inputPort;
-                } else return r5js.data.newIdOrLiteral(inputPort.payload['peekChar'](), r5js.DatumType.CHARACTER);
+                } else return r5js.data.newIdOrLiteral(inputPort.getPayload()['peekChar'](), r5js.DatumType.CHARACTER);
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
     },
@@ -1368,7 +1368,7 @@ r5js.builtins['io'] = {
         proc: function(port) {
             return port instanceof r5js.Datum
                 && port.isPort()
-                && port.payload['isEof']();
+                && port.getPayload()['isEof']();
         }
     },
     'char-ready?': {
@@ -1381,12 +1381,12 @@ r5js.builtins['io'] = {
                     : arguments[0];
                 if (!inputPort.isInputPort()) {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'char-ready?', r5js.DatumType.INPUT_PORT);
-                } else if (inputPort.payload['isEof']()) {
+                } else if (inputPort.getPayload()['isEof']()) {
                     /* R5RS 6.6.2: "If the port is at end of file then
                      char-ready? returns true." (Because the next call to
                      read-char is guaranteed not to block -- it'll return EOF.) */
                     return true;
-                } else return inputPort.payload['isCharReady']();
+                } else return inputPort.getPayload()['isCharReady']();
             } else throw new r5js.TooManyArgs('char-ready?', 1, arguments.length);
         }
     },
@@ -1409,11 +1409,11 @@ r5js.builtins['io'] = {
                 /* Port implementations aren't required to implement
                  write. If they don't, we just call writeChar (which they
                  must implement) on every single character. */
-                if (outputPort.payload['write']) {
-                    outputPort.payload['write'](toWrite);
+                if (outputPort.getPayload()['write']) {
+                    outputPort.getPayload()['write'](toWrite);
                 } else {
                     for (var i = 0; i < toWrite.length; ++i)
-                        outputPort.payload['writeChar'](toWrite[i]);
+                        outputPort.getPayload()['writeChar'](toWrite[i]);
                 }
                 return null; // unspecified return value
             } else throw new r5js.TooManyArgs('write', 2, numUserArgs);
@@ -1437,7 +1437,7 @@ r5js.builtins['io'] = {
                 if (!outputPort.isOutputPort())
                     throw new r5js.ArgumentTypeError(outputPort, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
 
-                outputPort.payload['writeChar'](c.payload);
+                outputPort.getPayload()['writeChar'](c.getPayload());
             } else throw new r5js.TooManyArgs('write-char', 2, numUserArgs);
             return null;
         }
@@ -1467,11 +1467,11 @@ r5js.builtins['io'] = {
                 /* Port implementations aren't required to implement
                  write. If they don't, we just call writeChar (which they
                  must implement) on every single character. */
-                if (outputPort.payload['write']) {
-                    outputPort.payload['write'](toWrite);
+                if (outputPort.getPayload()['write']) {
+                    outputPort.getPayload()['write'](toWrite);
                 } else {
                     for (var i = 0; i < toWrite.length; ++i)
-                        outputPort.payload['writeChar'](toWrite[i]);
+                        outputPort.getPayload()['writeChar'](toWrite[i]);
                 }
                 return null; // unspecified return value
             } else throw new r5js.TooManyArgs('display', 2, numUserArgs);

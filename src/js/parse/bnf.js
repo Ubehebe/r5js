@@ -68,7 +68,7 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
       return datumStream.maybeAdvanceToNextSiblingOfParent();
     default: // TODO bl where is this from?
       next = datumStream.getNextDatum();
-      if (next && next.payload === this.terminal_) {
+      if (next && next.getPayload() === this.terminal_) {
         datumStream.advanceToNextSibling();
         return true;
       } else {

@@ -79,7 +79,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
          cur && cur.peekParse() === 'definition';
          cur = cur.getNextSibling()) {
       cur.forEach(function(node) {
-        if (node.firstChild && node.firstChild.payload === 'define')
+        if (node.firstChild && node.firstChild.getPayload() === 'define')
           letrecBindings.appendSibling(node.extractDefinition());
       });
     }
@@ -319,9 +319,7 @@ r5js.ProcCall.prototype.setEnv = function(env, opt_override) {
  * @param {!r5js.IEnvironment} env An environment.
  */
 r5js.ProcCall.prototype.maybeSetEnv = function(env) {
-  if (!this.env ||
-      this.env.getProcedure(this.operatorName.payload) instanceof
-          r5js.Continuation) {
+  if (!this.env) {
     this.env = env;
   }
 };
@@ -388,7 +386,7 @@ r5js.ProcCall.prototype.debugString = function(
   for (var i = 0; i < indentLevel; ++i)
     ans += '\t';
   ans += '(' + (this.operatorName instanceof r5js.Datum ?
-      this.operatorName.payload :
+      this.operatorName.getPayload() :
       this.specialOps.names[this.operatorName]);
   if (this.env && !suppressEnv)
     ans += '|' + this.env;
@@ -409,7 +407,7 @@ r5js.ProcCall.prototype.debugString = function(
  * @return {!r5js.Datum}
  */
 r5js.ProcCall.prototype.reconstructDatum = function() {
-  var op = r5js.data.newIdOrLiteral(this.operatorName.payload);
+  var op = r5js.data.newIdOrLiteral(this.operatorName.getPayload());
   op.setNextSibling(this.firstOperand);
   var ans = newEmptyList();
   ans.appendChild(op);
@@ -424,7 +422,7 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.Datum) {
       if (cur.isEmptyList()) {
-        throw new r5js.IllegalEmptyApplication(this.operatorName.payload);
+        throw new r5js.IllegalEmptyApplication(this.operatorName.getPayload());
       } else if (!cur.isLiteral()) {
         return false;
       }
@@ -453,7 +451,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
   else if (typeof arg === 'function' || arg.isProcedure())
     ans = arg;
   else if (arg.isIdentifier())
-    ans = this.env.get(arg.payload);
+    ans = this.env.get(arg.getPayload());
   else if (arg.isQuote()) {
     var env = this.env;
     // Do the appropriate substitutions.
@@ -462,7 +460,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
           return node.shouldUnquote();
         },
         function(node) {
-          var ans = r5js.data.maybeWrapResult(env.get(node.payload)).
+          var ans = r5js.data.maybeWrapResult(env.get(node.getPayload())).
               maybeDeref();
           if (node.shouldUnquoteSplice()) {
             if (ans.isList()) {
@@ -489,7 +487,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
   } else {
-    ans = r5js.data.maybeWrapResult(arg.payload, arg.type);
+    ans = r5js.data.maybeWrapResult(arg.getPayload(), arg.type);
     if (arg.isImmutable())
       ans.setImmutable();
   }
@@ -573,7 +571,7 @@ r5js.ProcCall.prototype.cpsify = function(
                   getLastContinuable().continuation.lastResultName));
       newCallChain.appendContinuable(maybeContinuable);
     } else {
-      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.payload, arg.type));
+      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.getPayload(), arg.type));
     }
   }
 
@@ -622,7 +620,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   var specialOp = this.isSpecialOperator();
   var proc = specialOp ?
       this.operatorName :
-      this.env.getProcedure(this.operatorName.payload);
+      this.env.getProcedure(this.operatorName.getPayload());
   var args = [proc, continuation, resultStruct, parserProvider];
 
   if (specialOp) {
@@ -688,7 +686,7 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
  * @param {!r5js.TrampolineHelper} resultStruct
  */
 r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
-  var src = this.env.get(this.firstOperand.getNextSibling().payload);
+  var src = this.env.get(this.firstOperand.getNextSibling().getPayload());
   /* In Scheme, macros can be bound to identifiers but they are not really
      first-class citizens; you cannot say
 
@@ -715,7 +713,7 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
       !this.isSyntaxAssignment) {
     throw new r5js.GeneralSyntaxError(this);
   }
-  this.env.mutate(this.firstOperand.payload, src, this.isTopLevelAssignment);
+  this.env.mutate(this.firstOperand.getPayload(), src, this.isTopLevelAssignment);
   /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
   this.bindResult(continuation, null);
@@ -989,7 +987,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
       !this.firstOperand.getNextSibling() &&
       this.firstOperand.isIdentifier()) {
     var maybeArray = this.env.get(
-        /** @type {string} */ (this.firstOperand.payload));
+        /** @type {string} */ (this.firstOperand.getPayload()));
     if (maybeArray instanceof Array)
       return maybeArray;
     // Otherwise, fall through to normal logic.
@@ -1001,15 +999,15 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
       args.push(cur);
     } else if (cur.isIdentifier()) {
       var toPush = wrapArgs ?
-          r5js.data.maybeWrapResult(this.env.get(cur.payload)) :
-          this.env.get(cur.payload);
+          r5js.data.maybeWrapResult(this.env.get(cur.getPayload())) :
+          this.env.get(cur.getPayload());
       /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
              for convenience. The isLetOrLetrecSyntax flag discriminates
              between the programmer and the implementation. */
       if (toPush instanceof r5js.Macro &&
           !toPush.isLetOrLetrecSyntax) {
-        throw new r5js.MacroError(cur.payload, 'bad syntax');
+        throw new r5js.MacroError(cur.getPayload(), 'bad syntax');
       }
       args.push(toPush);
     }
@@ -1022,8 +1020,8 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
     }
     else if (cur.isProcedure()) {
       args.push(cur);
-    } else if (cur.payload !== undefined) {
-      args.push(r5js.data.maybeWrapResult(cur.payload, cur.type));
+    } else if (cur.getPayload() !== undefined) {
+      args.push(r5js.data.maybeWrapResult(cur.getPayload(), cur.type));
     }
     else throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
   }

@@ -37,11 +37,11 @@ r5js.IdOrLiteralTransformer.prototype.matchInput = function(
          in the macro expression and its occurrence in the macro definition
          have the same lexical binding, or the two identifiers are equal
          and both have no lexical binding." */
-        if (literalIds[this.datum.payload]) {
+        if (literalIds[this.datum.getPayload()]) {
             if (inputDatum.isIdentifier()) {
-                var name = inputDatum.payload;
+                var name = inputDatum.getPayload();
                 // Both have no lexical binding
-                if (name === this.datum.payload
+                if (name === this.datum.getPayload()
                     && (!definitionEnv.hasBindingRecursive(name, false)
                     && !useEnv.hasBindingRecursive(name, false))) {
                     bindings.addTemplateBinding(name, inputDatum);
@@ -56,7 +56,7 @@ r5js.IdOrLiteralTransformer.prototype.matchInput = function(
          [...] P is a non-literal identifier [...]".
          That is, non-literal identifiers match anything. */
         else {
-            bindings.addTemplateBinding(this.datum.payload, inputDatum);
+            bindings.addTemplateBinding(this.datum.getPayload(), inputDatum);
             return true;
         }
     } else {

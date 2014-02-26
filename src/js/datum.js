@@ -58,8 +58,8 @@ r5js.Datum = function() {
      */
     this.type;
 
-    /** @type {r5js.PayloadType} */
-    this.payload;
+    /** @private {r5js.PayloadType} */
+    this.payload_;
 
     /**
      * @private {Array.<*>}
@@ -160,6 +160,18 @@ r5js.Datum.prototype.getQQLevel = function() {
 /** @return {string|undefined} */
 r5js.Datum.prototype.getName = function() {
     return this.name_;
+};
+
+
+/** @return {r5js.PayloadType} */
+r5js.Datum.prototype.getPayload = function() {
+    return this.payload_;
+};
+
+
+/** @param {!r5js.PayloadType} payload */
+r5js.Datum.prototype.setPayload = function(payload) {
+    this.payload_ = payload;
 };
 
 /**
@@ -279,7 +291,7 @@ r5js.Datum.prototype.clone = function(parent) {
     var ans = new r5js.Datum();
 
     ans.type = this.type;
-    ans.payload = this.payload;
+    ans.payload_ = this.payload_;
 
     if (this.parent_) {
         ans.parent_ = this.parent_;
@@ -310,7 +322,7 @@ r5js.Datum.prototype.clone = function(parent) {
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.unescapeStringLiteral = function() {
-    this.payload = this.payload.replace(/\\(["\\])/g, "$1");
+    this.payload_ = this.payload_.replace(/\\(["\\])/g, "$1");
     return this;
 };
 
@@ -479,7 +491,7 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
     var ans;
     if (desugarFn) {
         ans = desugarFn(this, env);
-    } else if (this.firstChild && this.firstChild.payload === 'begin') {
+    } else if (this.firstChild && this.firstChild.payload_ === 'begin') {
         ans = this.firstChild.nextSibling_ ? this.firstChild.nextSibling_.sequence(env) : null;
     } else {
         ans = this;
@@ -498,7 +510,7 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
  */
 r5js.Datum.prototype.maybeDeref = function () {
     return this.type === r5js.DatumType.REF ?
-    /** @type {!r5js.Datum} */ (this.payload) :
+    /** @type {!r5js.Datum} */ (this.payload_) :
         this;
 };
 
@@ -508,8 +520,8 @@ r5js.Datum.prototype.maybeDeref = function () {
  * @return {r5js.Macro} TODO bl
  */
 r5js.Datum.prototype.getMacro = function() {
-    if (this.payload instanceof r5js.Macro) {
-        return this.payload.setIsLetOrLetrecSyntax();
+    if (this.payload_ instanceof r5js.Macro) {
+        return this.payload_.setIsLetOrLetrecSyntax();
     } else {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     }
@@ -522,7 +534,7 @@ r5js.Datum.prototype.getMacro = function() {
 function newVectorDatum(array) {
     var ans = new r5js.Datum();
     ans.type = r5js.DatumType.VECTOR;
-    ans.payload = array;
+    ans.payload_ = array;
     return ans;
 }
 
@@ -614,7 +626,7 @@ r5js.Datum.prototype.isVector = function() {
  * a vector.
  */
 r5js.Datum.prototype.isArrayBacked = function() {
-    return !!this.payload;
+    return !!this.payload_;
 };
 
 /**
@@ -628,9 +640,9 @@ r5js.Datum.prototype.isArrayBacked = function() {
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.convertVectorToArrayBacked = function () {
-    this.payload = [];
+    this.payload_ = [];
     for (var cur = this.firstChild; cur; cur = cur.nextSibling_)
-        this.payload.push(cur);
+        this.payload_.push(cur);
     this.firstChild = null;
     return this;
 };
@@ -685,7 +697,7 @@ r5js.Datum.prototype.isLiteral = function() {
  */
 r5js.Datum.prototype.isQuote = function() {
     return this.type === r5js.DatumType.QUOTE ||
-        (this.isList() && !!this.firstChild && this.firstChild.payload === 'quote');
+        (this.isList() && !!this.firstChild && this.firstChild.payload_ === 'quote');
     // todo bl should datums know about this?
 };
 
@@ -723,7 +735,7 @@ r5js.Datum.prototype.isUnquote = function() {
 r5js.Datum.prototype.isEqual = function(other) {
     if (other instanceof r5js.Datum
         && this.type === other.type
-        && this.payload === other.payload) {
+        && this.payload_ === other.payload_) {
         var thisChild, otherChild;
         for (thisChild = this.firstChild,otherChild = other.firstChild;
              thisChild && otherChild;
@@ -764,14 +776,14 @@ r5js.Datum.prototype.quote = function() {
  */
 r5js.Datum.prototype.unwrap = function() {
 
-    return (this.payload !== undefined
+    return (this.payload_ !== undefined
         && !this.isVector() // watch out for 0's and falses
         && !this.isEnvironmentSpecifier()
         && !this.isString()
         && !this.isCharacter()
         && !this.isUndefined()
         && !this.isPort())
-        ? this.payload
+        ? this.payload_
         : this;
 };
 
@@ -804,7 +816,7 @@ r5js.Datum.prototype.lastSibling = function() {
 r5js.Datum.prototype.normalizeInput = function() {
 
     if (this.firstChild) {
-        switch (this.firstChild.payload) {
+        switch (this.firstChild.payload_) {
             case 'quote':
                 this.type = r5js.DatumType.QUOTE;
                 this.firstChild = this.firstChild.nextSibling_;
@@ -957,7 +969,7 @@ r5js.Datum.PROC_PREFIX_ = 'proc';
  * unquoted (i.e. starts with a ,).
  */
 r5js.Datum.prototype.shouldUnquote = function() {
-    return this.isIdentifier() && this.payload.charAt(0) === ',';
+    return this.isIdentifier() && this.payload_.charAt(0) === ',';
 };
 
 /**
@@ -966,7 +978,7 @@ r5js.Datum.prototype.shouldUnquote = function() {
  * @return {boolean} TODO bl
  */
 r5js.Datum.prototype.shouldUnquoteSplice = function() {
-    return this.isIdentifier() && this.payload.charAt(1) === '@';
+    return this.isIdentifier() && this.payload_.charAt(1) === '@';
 };
 
 /**
@@ -989,7 +1001,7 @@ r5js.Datum.prototype.extractDefinition = function() {
         var newFormalsList = formalsList;
         newFormalsList.firstChild = newFormalsList.firstChild.nextSibling_;
         if (newFormalsList.isImproperList() && !newFormalsList.firstChild.nextSibling_) {
-            lambda.prependChild(r5js.data.newIdOrLiteral(newFormalsList.firstChild.payload));
+            lambda.prependChild(r5js.data.newIdOrLiteral(newFormalsList.firstChild.payload_));
         } else {
             lambda.prependChild(newFormalsList);
         }
@@ -1054,15 +1066,15 @@ r5js.Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
     // (lambda (x y) ...) or (lambda (x . y) ...)
     if (formalRoot.firstChild) {
         for (cur = formalRoot.firstChild; cur; cur = cur.nextSibling_) {
-            if (isParserSensitiveId(cur.payload)) {
-                cur.payload = newHelper.addRenameBinding(cur.payload);
+            if (isParserSensitiveId(cur.payload_)) {
+                cur.payload_ = newHelper.addRenameBinding(cur.payload_);
             }
         }
     }
 
     // (lambda x ...)
-    else if (cur && isParserSensitiveId(formalRoot.payload)) {
-        cur.payload = newHelper.addRenameBinding(formalRoot.payload);
+    else if (cur && isParserSensitiveId(formalRoot.payload_)) {
+        cur.payload_ = newHelper.addRenameBinding(formalRoot.payload_);
     }
 
     formalRoot.nextSibling_.fixParserSensitiveIds(newHelper);
@@ -1076,23 +1088,23 @@ r5js.Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
     var maybeVar = this.at('variable');
 
     if (maybeVar) {
-        if (isParserSensitiveId(maybeVar.payload)) {
-            maybeVar.payload = helper.addRenameBinding(maybeVar.payload);
+        if (isParserSensitiveId(maybeVar.payload_)) {
+            maybeVar.payload_ = helper.addRenameBinding(maybeVar.payload_);
         }
     } else {
         var vars = this.firstChild.nextSibling_;
         var name = vars.firstChild;
         var newHelper = new r5js.RenameHelper(helper);
         for (var cur = name.nextSibling_; cur; cur = cur.nextSibling_) {
-            var payload = /** @type {string} */ (cur.payload);
+            var payload = /** @type {string} */ (cur.payload_);
             if (isParserSensitiveId(payload)) {
-                cur.payload = newHelper.addRenameBinding(payload);
+                cur.payload_ = newHelper.addRenameBinding(payload);
             }
         }
         vars.nextSibling_.fixParserSensitiveIds(newHelper);
-        var namePayload = /** @type {string} */ (name.payload);
+        var namePayload = /** @type {string} */ (name.payload_);
         if (isParserSensitiveId(namePayload)) {
-            name.payload = helper.addRenameBinding(namePayload);
+            name.payload_ = helper.addRenameBinding(namePayload);
         }
     }
 };
@@ -1107,10 +1119,10 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
         this.fixParserSensitiveIdsLambda(helper);
     } else if (this.hasParse('definition')) {
         this.fixParserSensitiveIdsDef(helper);
-    } else if (isParserSensitiveId(/** @type {string} */ (this.payload))) {
-        this.payload =
-            helper.getRenameBinding(/** @type {string} */(this.payload)) ||
-                this.payload;
+    } else if (isParserSensitiveId(/** @type {string} */ (this.payload_))) {
+        this.payload_ =
+            helper.getRenameBinding(/** @type {string} */(this.payload_)) ||
+                this.payload_;
     } else if (this.isQuote()) {
         ; // no-op
     } else {
@@ -1140,7 +1152,7 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
     // todo bl: we're sometimes creating these with undefined payloads! Investigate.
     var ans = new r5js.Datum();
     ans.type = opt_type || r5js.DatumType.IDENTIFIER;
-    ans.payload = payload;
+    ans.payload_ = payload;
     return ans;
 };
 
@@ -1153,7 +1165,7 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
 r5js.data.newProcedureDatum = function(name, procedure) {
     var ans = new r5js.Datum();
     ans.type = r5js.DatumType.LAMBDA;
-    ans.payload = procedure;
+    ans.payload_ = procedure;
     ans.name_ = name;
     return ans;
 };
@@ -1166,7 +1178,7 @@ r5js.data.newProcedureDatum = function(name, procedure) {
 r5js.data.newInputPortDatum = function(port) {
     var ans = new r5js.Datum();
     ans.type = r5js.DatumType.INPUT_PORT;
-    ans.payload = port;
+    ans.payload_ = port;
     return ans;
 };
 
@@ -1178,7 +1190,7 @@ r5js.data.newInputPortDatum = function(port) {
 r5js.data.newOutputPortDatum = function(port) {
     var ans = new r5js.Datum();
     ans.type = r5js.DatumType.OUTPUT_PORT;
-    ans.payload = port;
+    ans.payload_ = port;
     return ans;
 };
 
@@ -1189,7 +1201,7 @@ r5js.data.newOutputPortDatum = function(port) {
 r5js.data.newDatumRef = function(deref) {
     var ans = new r5js.Datum();
     ans.type = r5js.DatumType.REF;
-    ans.payload = deref;
+    ans.payload_ = deref;
     return ans;
 };
 
@@ -1202,7 +1214,7 @@ r5js.data.newDatumRef = function(deref) {
 r5js.data.newMacroDatum = function(macro) {
     var ans = new r5js.Datum();
     ans.type = r5js.DatumType.MACRO;
-    ans.payload = macro;
+    ans.payload_ = macro;
     return ans;
 };
 
@@ -1224,7 +1236,7 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
     }
 
     var ans = new r5js.Datum();
-    ans.payload = result;
+    ans.payload_ = result;
     if (goog.isDef(opt_type)) {
         ans.type = opt_type;
     } else {

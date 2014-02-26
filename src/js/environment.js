@@ -68,7 +68,7 @@ r5js.Environment = function(name, enclosingEnv) {
      * @private
      */
     this.unspecifiedSentinel_ = new r5js.Datum();
-    this.unspecifiedSentinel_.type = this.unspecifiedSentinel_.payload = null;
+    this.unspecifiedSentinel_.type = null;
 
     /**
      * @type {boolean}

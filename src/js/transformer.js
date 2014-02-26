@@ -43,7 +43,7 @@ r5js.Transformer = function(pattern, template) {
     /**
      * @type {string}
      */
-    this.name = pattern.subtransformers[0].datum.payload;
+    this.name = pattern.subtransformers[0].datum.getPayload();
     this.setupIds();
 };
 
@@ -82,8 +82,8 @@ r5js.Transformer.prototype.setupIds = function() {
 
     var patternFn = function(subtrans, ellipsisLevel) {
         if (subtrans instanceof r5js.IdOrLiteralTransformer) {
-            if (subtrans.datum.isIdentifier() && subtrans.datum.payload !== macroName) {
-                patternIds[subtrans.datum.payload] = ellipsisLevel;
+            if (subtrans.datum.isIdentifier() && subtrans.datum.getPayload() !== macroName) {
+                patternIds[subtrans.datum.getPayload()] = ellipsisLevel;
             }
         } else subtrans.forEachSubtransformer(
             patternFn,
@@ -93,7 +93,7 @@ r5js.Transformer.prototype.setupIds = function() {
     var templateFn = function(subtrans, ellipsisLevel) {
         if (subtrans instanceof r5js.IdOrLiteralTransformer) {
             if (subtrans.datum.isIdentifier()) {
-                var name = subtrans.datum.payload;
+                var name = subtrans.datum.getPayload();
                 var maybeInPattern = patternIds[name];
                 /* An identifier in a template is a candidate for being
                  renamed during transcription if it doesn't occur in the pattern

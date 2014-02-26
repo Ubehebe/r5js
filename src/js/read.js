@@ -58,65 +58,65 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
 
     switch (this.type) {
         case r5js.DatumType.FFI: // JavaScript object
-            return this.payload.toString();
+            return this.getPayload().toString();
         case r5js.DatumType.INPUT_PORT:
-            if (this.payload['isEof']())
+            if (this.getPayload()['isEof']())
                 return 'EOF';
             // otherwise fallthrough
         case r5js.DatumType.OUTPUT_PORT:
-                return this.type + ':' + this.payload.toString();
+                return this.type + ':' + this.getPayload().toString();
         case null:
             // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
             return 'undefined';
         case r5js.DatumType.REF:
-            return this.payload.stringForOutputMode(outputMode);
+            return this.getPayload().stringForOutputMode(outputMode);
         case r5js.DatumType.ENVIRONMENT_SPECIFIER: // R5RS 6.5
-            return this.payload === 5
+            return this.getPayload() === 5
                 ? 'scheme-report-environment-5'
                 : 'null-environment-5';
         case r5js.DatumType.LAMBDA:
-            return typeof this.payload === 'function'
+            return typeof this.getPayload() === 'function'
                 ? /** @type {string} */ (this.getName())
-                : 'proc:' + this.payload.name;
+                : 'proc:' + this.getPayload().name;
         case r5js.DatumType.MACRO:
             return '[macro]';
         case r5js.DatumType.IDENTIFIER:
-            return /** @type {string} */ (this.payload);
+            return /** @type {string} */ (this.getPayload());
         case r5js.DatumType.BOOLEAN:
-            return this.payload ? '#t' : '#f';
+            return this.getPayload() ? '#t' : '#f';
         case r5js.DatumType.NUMBER:
-            return this.payload + '';
+            return this.getPayload() + '';
         case r5js.DatumType.CHARACTER:
             switch (outputMode) {
                 case r5js.OutputMode.WRITE:
-                    if (this.payload === ' ')
+                    if (this.getPayload() === ' ')
                         return '#\\space';
-                    else if (this.payload === '\n')
+                    else if (this.getPayload() === '\n')
                         return '#\\newline';
                     else
-                        return '#\\' + this.payload;
+                        return '#\\' + this.getPayload();
                 case r5js.OutputMode.DISPLAY:
                 default:
-                    return /** @type {string} */(this.payload);
+                    return /** @type {string} */(this.getPayload());
             }
             break;
         case r5js.DatumType.STRING:
             switch (outputMode) {
                 case r5js.OutputMode.WRITE:
-                    ans = this.payload;
+                    ans = this.getPayload();
                     return '"' + ans.replace(/([\\"])/g, "\\$1") + '"';
                 case r5js.OutputMode.DISPLAY:
                 default:
-                    return /** @type {string} */ (this.payload);
+                    return /** @type {string} */ (this.getPayload());
             }
             break;
         case r5js.DatumType.VECTOR:
                     if (this.isArrayBacked()) {
                         ans = '#(';
-                        if (this.payload.length > 0) {
-                            for (var i = 0; i < this.payload.length - 1; ++i)
-                                ans += this.payload[i] + ' ';
-                            ans += this.payload[this.payload.length - 1];
+                        if (this.getPayload().length > 0) {
+                            for (var i = 0; i < this.getPayload().length - 1; ++i)
+                                ans += this.getPayload()[i] + ' ';
+                            ans += this.getPayload()[this.getPayload().length - 1];
                         }
                         return ans + ')';
                     }

@@ -46,7 +46,7 @@ r5js.ProcCall.prototype.tryFFI = function(
             && !this.firstOperand.getNextSibling()
             && this.firstOperand.isQuote()
             && this.firstOperand.firstChild.isIdentifier()) {
-            property = jsObjOrMethod.getObject()[this.firstOperand.firstChild.payload];
+            property = jsObjOrMethod.getObject()[this.firstOperand.firstChild.getPayload()];
         } else throw new r5js.FFIError();
 
         var ans;
@@ -97,7 +97,7 @@ r5js.ffiutil = {};
 r5js.ffiutil.newFFIDatum = function(jsObj) {
     var ans = new r5js.Datum();
     ans.type = r5js.DatumType.FFI;
-    ans.payload = jsObj;
+    ans.setPayload(jsObj);
     return ans;
 };
 

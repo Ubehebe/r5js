@@ -42,7 +42,7 @@ r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
     this.literalIdentifiers = {};
 
     for (var curId = literalIdentifiers; curId; curId = curId.nextSibling_) {
-        this.literalIdentifiers[curId.payload] = true;
+        this.literalIdentifiers[curId.payload_] = true;
     }
 
     /**
@@ -206,10 +206,10 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
                 fake.appendChild(newParseTree);
                 fake.replaceChildren(
                     function (node) {
-                        return node.isIdentifier() && toRename[node.payload];
+                        return node.isIdentifier() && toRename[node.getPayload()];
                     },
                     function (node) {
-                        node.payload = toRename[node.payload];
+                        node.payload_ = toRename[node.getPayload()];
                         return node;
                     }
                 );
