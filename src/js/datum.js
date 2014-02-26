@@ -84,7 +84,7 @@ r5js.Datum = function() {
     this.name;
 
     /** @type {boolean} */
-    this.immutable = false;
+    this.immutable_ = false;
 
     /** @private {number|undefined} */
     this.qqLevel_;
@@ -122,7 +122,7 @@ r5js.Datum.prototype.hasNonterminals = function() {
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.setImmutable = function() {
-    this.immutable = true;
+    this.immutable_ = true;
     return this;
 };
 
@@ -152,7 +152,7 @@ r5js.Datum.prototype.setImmutableOnQuote = function() {
  * on this Datum.
  */
 r5js.Datum.prototype.isImmutable = function() {
-    return this.immutable;
+    return this.immutable_;
 };
 
 /**
@@ -268,8 +268,8 @@ r5js.Datum.prototype.clone = function(parent) {
     if (this.name) {
         ans.name = this.name;
     }
-    if (this.immutable) {
-        ans.immutable = true;
+    if (this.immutable_) {
+        ans.immutable_ = true;
     }
 
     return ans;
