@@ -357,27 +357,11 @@ r5js.Datum.prototype.setDesugar = function(desugarFunc) {
     ++this.nextDesugar_;
 };
 
-/**
- * TODO bl: document what this method does.
- */
-r5js.Datum.prototype.unsetParse = function() {
-    this.nonterminals_.length = 0;
-    for (var child = this.firstChild_; child; child = child.nextSibling_) {
-        child.unsetParse();
-    }
-};
 
-/**
- * @return {*} TODO bl
- */
+/** @return {r5js.parse.Nonterminal|null} */
 r5js.Datum.prototype.peekParse = function() {
-    if (this.nonterminals_) {
         var len = this.nonterminals_.length;
-        if (len > 0) {
-            return this.nonterminals_[len - 1];
-        }
-    }
-    return null;
+        return len > 0 ? this.nonterminals_[len - 1] : null;
 };
 
 /**

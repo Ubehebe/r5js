@@ -151,16 +151,7 @@ r5js.Parser.maybeFixParserSensitiveIds_ = function(root) {
   r5js.Parser.fixParserSensitiveIds_ = false;
   var helper = new r5js.RenameHelper(null);
   root.fixParserSensitiveIds(helper);
-  if (helper.wasUsed()) {
-    /* todo bl inefficient, but i've had errors fusing this
-                     into fixParserSensitiveIds() */
-    for (var cur = root; cur; cur = cur.getNextSibling()) {
-      cur.unsetParse();
-    }
-    return new r5js.Parser(root).parse();
-  } else {
-    return root;
-  }
+  return helper.wasUsed() ? new r5js.Parser(root).parse() : root;
 };
 
 
