@@ -365,10 +365,11 @@ r5js.Datum.prototype.peekParse = function() {
 };
 
 /**
- * @param {*} nonterminal TODO bl
+ * @param {!r5js.parse.Nonterminal} nonterminal
  * @return {boolean} True iff this Datum parses as the given nonterminal.
+ * @private
  */
-r5js.Datum.prototype.hasParse = function(nonterminal) {
+r5js.Datum.prototype.hasParse_ = function(nonterminal) {
     if (this.nonterminals_) {
         var len = this.nonterminals_.length;
         for (var i = 0; i < len; ++i) {
@@ -1047,8 +1048,9 @@ function isParserSensitiveId(name) {
 /**
  * TODO bl: document what this method does.
  * @param {!r5js.RenameHelper} helper A rename helper.
+ * @private
  */
-r5js.Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
+r5js.Datum.prototype.fixParserSensitiveIdsLambda_ = function(helper) {
     var formalRoot = this.at('formals');
 
     var newHelper = new r5js.RenameHelper(helper);
@@ -1076,8 +1078,9 @@ r5js.Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
 /**
  * TODO bl: document what this method does.
  * @param {!r5js.RenameHelper} helper A rename helper.
+ * @private
  */
-r5js.Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
+r5js.Datum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
     var maybeVar = this.at('variable');
 
     if (maybeVar) {
@@ -1108,11 +1111,10 @@ r5js.Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
  * @param {!r5js.RenameHelper} helper A rename helper.
  */
 r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
-
-    if (this.hasParse('lambda-expression')) {
-        this.fixParserSensitiveIdsLambda(helper);
-    } else if (this.hasParse('definition')) {
-        this.fixParserSensitiveIdsDef(helper);
+    if (this.hasParse_(r5js.parse.Nonterminals.LAMBDA_EXPRESSION)) {
+        this.fixParserSensitiveIdsLambda_(helper);
+    } else if (this.hasParse_(r5js.parse.Nonterminals.DEFINITION)) {
+        this.fixParserSensitiveIdsDef_(helper);
     } else if (isParserSensitiveId(/** @type {string} */ (this.payload_))) {
         this.payload_ =
             helper.getRenameBinding(/** @type {string} */(this.payload_)) ||
