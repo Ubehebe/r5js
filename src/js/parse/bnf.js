@@ -304,7 +304,7 @@ r5js.parse.bnf.Seq_.prototype.match = function(datumStream) {
 
 
 /**
- * @param {function(!r5js.Datum, !r5js.IEnvironment)} desugarFunc
+ * @param {!r5js.DesugarFunc} desugarFunc
  * @return {!r5js.parse.bnf.Rule}
  */
 r5js.parse.bnf.Seq_.prototype.desugar = function(desugarFunc) {

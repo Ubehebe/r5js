@@ -35,6 +35,14 @@ goog.require('r5js.SiblingBuffer');
 r5js.PayloadType;
 
 
+/** @typedef {function(!r5js.Datum, !r5js.IEnvironment):
+* (!r5js.Datum|!r5js.Continuable|!r5js.ITransformer|!r5js.Macro|null)}
+ * TODO bl: narrow this typedef.
+ */
+r5js.DesugarFunc;
+
+
+
 /**
  * @struct
  * @constructor
@@ -64,7 +72,7 @@ r5js.Datum = function() {
     /** @const @private {!Array.<!r5js.parse.Nonterminal>} */
     this.nonterminals_ = [];
 
-    /** @const @private {!Array.<function(!r5js.Datum, !r5js.IEnvironment)>} */
+    /** @const @private {!Array.<!r5js.DesugarFunc>} */
     this.desugars_ = [];
 
     /** @private {number} */
@@ -348,9 +356,7 @@ r5js.Datum.prototype.setParse = function(type) {
     this.nonterminals_.push(type);
 };
 
-/**
- * @param {*} desugarFunc TODO bl
- */
+/** @param {!r5js.DesugarFunc} desugarFunc */
 r5js.Datum.prototype.setDesugar = function(desugarFunc) {
     this.desugars_.push(desugarFunc);
     ++this.nextDesugar_;
@@ -580,12 +586,11 @@ r5js.Datum.prototype.isEnvironmentSpecifier = function() {
 
 /**
  * @param {!r5js.IEnvironment} env TODO bl
- * @return {*} TODO bl
+ * @return {r5js.Continuable}
  */
 r5js.Datum.prototype.sequence = function(env) {
-    var first, tmp, curEnd;
+    var first = null, tmp, curEnd;
     for (var cur = this; cur; cur = cur.nextSibling_) {
-        // todo bl do we need this check anymore?
         if (tmp = cur.desugar(env)) {
 
             /* Nodes that have no desugar functions (for example, variables
