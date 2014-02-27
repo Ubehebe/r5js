@@ -61,13 +61,10 @@ r5js.Datum = function() {
     /** @private {r5js.PayloadType} */
     this.payload_;
 
-    /**
-     * @private {Array.<*>}
-     * TODO bl: narrow the * to !r5js.parse.Nonterminal
-     */
-    this.nonterminals_;
+    /** @const @private {!Array.<!r5js.parse.Nonterminal>} */
+    this.nonterminals_ = [];
 
-    /** @const {!Array.<function(!r5js.Datum, !r5js.IEnvironment)>} */
+    /** @const @private {!Array.<function(!r5js.Datum, !r5js.IEnvironment)>} */
     this.desugars_ = [];
 
     /** @private {number} */
@@ -346,13 +343,8 @@ r5js.Datum.prototype.unescapeStringLiteral = function() {
     return this;
 };
 
-/**
- * @param {string} type
- */
+/** @param {!r5js.parse.Nonterminal} type */
 r5js.Datum.prototype.setParse = function(type) {
-    if (!this.nonterminals_) {
-        this.nonterminals_ = [];
-    }
     this.nonterminals_.push(type);
 };
 
@@ -368,7 +360,7 @@ r5js.Datum.prototype.setDesugar = function(desugarFunc) {
  * TODO bl: document what this method does.
  */
 r5js.Datum.prototype.unsetParse = function() {
-    this.nonterminals_ = null;
+    this.nonterminals_.length = 0;
     for (var child = this.firstChild_; child; child = child.nextSibling_) {
         child.unsetParse();
     }
