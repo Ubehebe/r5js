@@ -397,8 +397,8 @@ r5js.Datum.prototype.hasParse = function(nonterminal) {
 };
 
 /**
- * @param {string} type TODO bl
- * @returns {*} TODO bl
+ * @param {!r5js.parse.Nonterminal} type
+ * @return {r5js.Datum}
  */
 r5js.Datum.prototype.at = function(type) {
     for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
@@ -1073,15 +1073,17 @@ r5js.Datum.prototype.fixParserSensitiveIdsLambda = function(helper) {
     // (lambda (x y) ...) or (lambda (x . y) ...)
     if (formalRoot.firstChild_) {
         for (cur = formalRoot.firstChild_; cur; cur = cur.nextSibling_) {
-            if (isParserSensitiveId(cur.payload_)) {
-                cur.payload_ = newHelper.addRenameBinding(cur.payload_);
+            var id = /** @type {string} */ (cur.payload_);
+            if (isParserSensitiveId(id)) {
+                cur.payload_ = newHelper.addRenameBinding(id);
             }
         }
     }
 
     // (lambda x ...)
-    else if (cur && isParserSensitiveId(formalRoot.payload_)) {
-        cur.payload_ = newHelper.addRenameBinding(formalRoot.payload_);
+    else if (cur && isParserSensitiveId(/** @type {string} */(formalRoot.payload_))) {
+        cur.payload_ = newHelper.addRenameBinding(
+            /** @type {string} */ (formalRoot.payload_));
     }
 
     formalRoot.nextSibling_.fixParserSensitiveIds(newHelper);
@@ -1095,8 +1097,9 @@ r5js.Datum.prototype.fixParserSensitiveIdsDef = function(helper) {
     var maybeVar = this.at('variable');
 
     if (maybeVar) {
-        if (isParserSensitiveId(maybeVar.payload_)) {
-            maybeVar.payload_ = helper.addRenameBinding(maybeVar.payload_);
+        var id = /** @type {string} */ (maybeVar.payload_);
+        if (isParserSensitiveId(id)) {
+            maybeVar.payload_ =helper.addRenameBinding(id);
         }
     } else {
         var vars = this.firstChild_.nextSibling_;
