@@ -114,11 +114,6 @@ r5js.Datum.prototype.forEach = function(callback) {
 };
 
 
-/** @return {boolean} */
-r5js.Datum.prototype.hasNonterminals = function() {
-    return !!this.nonterminals_;
-};
-
 /**
  * @return {!r5js.Datum} This object, for chaining.
  */

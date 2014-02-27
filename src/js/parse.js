@@ -145,7 +145,7 @@ r5js.Parser.prototype.parse = function(opt_nonterminal) {
  * @private
  */
 r5js.Parser.maybeFixParserSensitiveIds_ = function(root) {
-  if (!root || !root.hasNonterminals() || !r5js.Parser.fixParserSensitiveIds_) {
+  if (!root || !r5js.Parser.fixParserSensitiveIds_) {
     return root;
   }
   r5js.Parser.fixParserSensitiveIds_ = false;
