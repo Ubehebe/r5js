@@ -40,7 +40,7 @@ r5js.token.Base_.prototype.getPayload = function() {
 /** @override */
 r5js.token.Base_.prototype.formatDatum = function(datum) {
   datum.setPayload(this.payload_);
-  datum.type = this.type_;
+  datum.setType(this.type_);
   return datum;
 };
 

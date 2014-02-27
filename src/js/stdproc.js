@@ -642,7 +642,7 @@ r5js.builtins['pair'] = {
                 return realCdr;
             } else {
                 var ans = new r5js.Datum();
-                ans.type = r5js.DatumType.DOTTED_LIST;
+                ans.setType(r5js.DatumType.DOTTED_LIST);
                 ans.appendChild(realCar);
                 ans.appendChild(realCdr);
                 // todo bl hmm the parent field isn't getting set...is that ok?
@@ -705,10 +705,10 @@ r5js.builtins['pair'] = {
 
                 if (cdr.isList()) {
                     p.getFirstChild().setNextSibling(cdr.getFirstChild());
-                    p.type = '(';
+                    p.setType('(');
                 } else {
                     p.getFirstChild().setNextSibling(cdr);
-                    p.type = '.(';
+                    p.setType('.(');
                 }
 
                 for (var helper = p.getCdrHelper();

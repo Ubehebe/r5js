@@ -488,7 +488,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
   } else {
-    ans = r5js.data.maybeWrapResult(arg.getPayload(), arg.type);
+    ans = r5js.data.maybeWrapResult(arg.getPayload(), arg.getType());
     if (arg.isImmutable())
       ans.setImmutable();
   }
@@ -555,7 +555,7 @@ r5js.ProcCall.prototype.cpsify = function(
                  merely by switching the type of the datum from quasiquote (`)
                  to quote ('). evalArgs will see the quote and evaluate it
                  accordingly. */
-        arg.type = "'";
+        arg.setType("'");
         finalArgs.appendSibling(arg);
       }
     } else if (arg.isProcedure()) {
@@ -572,7 +572,7 @@ r5js.ProcCall.prototype.cpsify = function(
                   getLastContinuable().continuation.lastResultName));
       newCallChain.appendContinuable(maybeContinuable);
     } else {
-      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.getPayload(), arg.type));
+      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.getPayload(), arg.getType()));
     }
   }
 
@@ -1022,7 +1022,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
     else if (cur.isProcedure()) {
       args.push(cur);
     } else if (cur.getPayload() !== undefined) {
-      args.push(r5js.data.maybeWrapResult(cur.getPayload(), cur.type));
+      args.push(r5js.data.maybeWrapResult(cur.getPayload(), cur.getType()));
     }
     else throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
   }
@@ -1065,12 +1065,12 @@ function processQuasiquote(datum, env, cpsName, parserProvider) {
         /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */
-        continuation.lastResultName = node.type + '' + goog.getUid(new Object());
+        continuation.lastResultName = node.getType() + '' + goog.getUid(new Object());
         newCalls.appendContinuable(asContinuable);
         return r5js.data.newIdOrLiteral(continuation.lastResultName);
       });
 
-  datum.type = r5js.DatumType.QUOTE;
+  datum.setType(r5js.DatumType.QUOTE);
 
   newCalls.appendContinuable(newIdShim(datum, cpsName));
   var ans = newCalls.toContinuable();

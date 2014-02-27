@@ -58,7 +58,7 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
     case r5js.parse.Terminals.COMMA:
     case r5js.parse.Terminals.COMMA_AT:
       next = datumStream.getNextDatum();
-      if (next && next.type === this.terminal_) {
+      if (next && next.getType() === this.terminal_) {
         datumStream.advanceToChild();
         return true;
       } else {

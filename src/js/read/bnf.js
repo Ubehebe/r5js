@@ -84,7 +84,7 @@ r5js.read.bnf.One_.prototype.matchNonterminal_ = function(
   if (!parsed) {
     return null;
   }
-  ansDatum.type = this.name_ || this.type_;
+  ansDatum.setType(this.name_ || this.type_);
   ansDatum.appendChild(parsed);
   parsed.setParent(ansDatum);
   return ansDatum;
@@ -146,7 +146,7 @@ r5js.read.bnf.AtLeast_.prototype.match = function(ansDatum, tokenStream) {
   }
 
   if (num >= this.repetition_) {
-    ansDatum.type = this.name_ || this.type_;
+    ansDatum.setType(this.name_ || this.type_);
     // TODO bl is this cast needed, or does it indicate a bug?
     ansDatum.appendChild(/** @type {!r5js.Datum} */ (firstChild));
     if (prev) {
@@ -215,7 +215,7 @@ r5js.read.bnf.OnePrimitive_.prototype.match = function(ansDatum, tokenStream) {
     return null;
   }
   token.formatDatum(ansDatum);
-  return ansDatum.type === this.type_ ? ansDatum : null;
+  return ansDatum.getType() === this.type_ ? ansDatum : null;
 };
 
 

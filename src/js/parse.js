@@ -278,7 +278,7 @@ r5js.Parser.grammar[Nonterminals.DATUM] = _.seq(
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 r5js.Parser.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
     _.matchDatum(function(datum) {
-      switch (datum.type) {
+      switch (datum.getType()) {
         case r5js.DatumType.BOOLEAN:
         case r5js.DatumType.NUMBER:
         case r5js.DatumType.CHARACTER:
@@ -654,7 +654,7 @@ r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.choice(
  */
 r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
     _.matchDatum(function(datum) {
-      switch (datum.type) {
+      switch (datum.getType()) {
         case r5js.DatumType.BOOLEAN:
         case r5js.DatumType.NUMBER:
         case r5js.DatumType.CHARACTER:
@@ -758,7 +758,7 @@ r5js.Parser.grammar[Nonterminals.KEYWORD] = _.seq(
       /* TODO bl: Tests fail when I replace this type switch by
         datum.isIdentifier(), suggesting that this argument is not always
         a Datum. Investigate. */
-      return datum.type === r5js.DatumType.IDENTIFIER;
+      return datum.getType() === r5js.DatumType.IDENTIFIER;
     }));
 
 
@@ -934,7 +934,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
 r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
     _.matchDatum(function(datum) {
-      switch (datum.type) {
+      switch (datum.getType()) {
         case r5js.DatumType.BOOLEAN:
         case r5js.DatumType.NUMBER:
         case r5js.DatumType.CHARACTER:
@@ -1065,7 +1065,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
       /* TODO bl: Tests fail when I replace this type switch by
          datum.isIdentifier(), suggesting that this argument is not
          always a Datum. Investigate. */
-      return datum.type === r5js.DatumType.IDENTIFIER &&
+      return datum.getType() === r5js.DatumType.IDENTIFIER &&
           datum.getPayload() !== Terminals.ELLIPSIS;
     }));
 

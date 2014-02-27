@@ -56,7 +56,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
     var ans, child;
     var endDelimiter = "";
 
-    switch (this.type) {
+    switch (this.getType()) {
         case r5js.DatumType.FFI: // JavaScript object
             return this.getPayload().toString();
         case r5js.DatumType.INPUT_PORT:
@@ -64,7 +64,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                 return 'EOF';
             // otherwise fallthrough
         case r5js.DatumType.OUTPUT_PORT:
-                return this.type + ':' + this.getPayload().toString();
+                return this.getType() + ':' + this.getPayload().toString();
         case null:
             // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
             return 'undefined';
@@ -141,7 +141,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                      false for cyclical lists. Accordingly, I've written the
                      cycle-detecting logic wholly in Scheme, not bothering
                      to reimplement it here. */
-                    ans = this.type;
+                    ans = this.getType();
                     /* Uncomment to show quasiquotation levels.
                      (These should not make it into any external representation.)
                      if (this.qqLevel_ !== undefined && ans !== "'")
@@ -169,6 +169,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                         : '';
                     return ans + nextToLastChildString + ' . ' + lastChildString + ')';
                 default:
-                    throw new r5js.InternalInterpreterError('unknown datum type ' + this.type);
+                    throw new r5js.InternalInterpreterError('unknown datum type ' + this.getType());
             }
     };

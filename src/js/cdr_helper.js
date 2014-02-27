@@ -63,7 +63,7 @@ r5js.CdrHelper.prototype.setCdr = function(cdr) {
     if (!cdr.isList()) {
         var cur = this;
         do {
-            cur.head.type = '.(';
+            cur.head.setType('.(');
         } while (cur = cur.head.getCdrHelper());
     }
 };

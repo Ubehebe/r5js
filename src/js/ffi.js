@@ -96,7 +96,7 @@ r5js.ffiutil = {};
  */
 r5js.ffiutil.newFFIDatum = function(jsObj) {
     var ans = new r5js.Datum();
-    ans.type = r5js.DatumType.FFI;
+    ans.setType(r5js.DatumType.FFI);
     ans.setPayload(jsObj);
     return ans;
 };

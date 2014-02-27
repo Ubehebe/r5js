@@ -53,10 +53,10 @@ r5js.Datum = function() {
     this.parent_ = null;
 
     /**
-     * @type {r5js.Type|null}
+     * @private {r5js.Type|null}
      * TODO bl make non-nullable.
      */
-    this.type;
+    this.type_;
 
     /** @private {r5js.PayloadType} */
     this.payload_;
@@ -182,12 +182,24 @@ r5js.Datum.prototype.setPayload = function(payload) {
     this.payload_ = payload;
 };
 
+
+/** @return {!r5js.Type|null} */
+r5js.Datum.prototype.getType = function() {
+    return this.type_;
+};
+
+
+/** @param {!r5js.Type} type */
+r5js.Datum.prototype.setType = function(type) {
+    this.type_ = type;
+};
+
 /**
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.setImmutableOnQuote = function() {
     if (this.firstChild_) {
-        switch (this.firstChild_.type) {
+        switch (this.firstChild_.type_) {
             case r5js.DatumType.LIST:
             case r5js.DatumType.DOTTED_LIST:
             case r5js.DatumType.VECTOR:
@@ -264,7 +276,7 @@ r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
 
 function newEmptyList() {
     var ans = new r5js.Datum();
-    ans.type = r5js.DatumType.LIST;
+    ans.type_ = r5js.DatumType.LIST;
     return ans;
 }
 
@@ -282,7 +294,7 @@ r5js.Datum.prototype.isEmptyList = function() {
  * @returns {boolean} True iff both Datum objects have the same type.
  */
 r5js.Datum.prototype.sameTypeAs = function(other) {
-    return this.type === other.type;
+    return this.type_ === other.type_;
 };
 
 /**
@@ -298,7 +310,7 @@ r5js.Datum.prototype.clone = function(parent) {
 
     var ans = new r5js.Datum();
 
-    ans.type = this.type;
+    ans.type_ = this.type_;
     ans.payload_ = this.payload_;
 
     if (this.parent_) {
@@ -403,7 +415,7 @@ r5js.Datum.prototype.at = function(type) {
     for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
         /* The first clause is a convenience for things like node.at('(');
          the second is a convenience for things like node.at('expression') */
-        if (cur.type === type || cur.peekParse() === type) {
+        if (cur.type_ === type || cur.peekParse() === type) {
             return cur;
         }
     }
@@ -472,7 +484,7 @@ r5js.Datum.prototype.mapChildren = function(f) {
 
 /** @return {boolean} True if this datum represents an improper list. */
 r5js.Datum.prototype.isImproperList = function() {
-    return this.type === r5js.DatumType.DOTTED_LIST;
+    return this.type_ === r5js.DatumType.DOTTED_LIST;
 };
 
 /**
@@ -516,7 +528,7 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
  * returns this Datum.
  */
 r5js.Datum.prototype.maybeDeref = function () {
-    return this.type === r5js.DatumType.REF ?
+    return this.type_ === r5js.DatumType.REF ?
     /** @type {!r5js.Datum} */ (this.payload_) :
         this;
 };
@@ -540,14 +552,14 @@ r5js.Datum.prototype.getMacro = function() {
  */
 function newVectorDatum(array) {
     var ans = new r5js.Datum();
-    ans.type = r5js.DatumType.VECTOR;
+    ans.type_ = r5js.DatumType.VECTOR;
     ans.payload_ = array;
     return ans;
 }
 
 /** @return {boolean} True iff this datum represents a lambda. */
 r5js.Datum.prototype.isProcedure = function() {
-  return this.type === r5js.DatumType.LAMBDA;
+  return this.type_ === r5js.DatumType.LAMBDA;
 };
 
 /** @return {boolean} True iff this datum represents an input or output port. */
@@ -557,17 +569,17 @@ r5js.Datum.prototype.isPort = function() {
 
 /** @return {boolean} True iff this datum represents an input port. */
 r5js.Datum.prototype.isInputPort = function() {
-    return this.type === r5js.DatumType.INPUT_PORT;
+    return this.type_ === r5js.DatumType.INPUT_PORT;
 };
 
 /** @return {boolean} True iff this datum represents an output port. */
 r5js.Datum.prototype.isOutputPort = function() {
-    return this.type === r5js.DatumType.OUTPUT_PORT;
+    return this.type_ === r5js.DatumType.OUTPUT_PORT;
 };
 
 /** @return {boolean} True iff this datum represents a macro. */
 r5js.Datum.prototype.isMacro = function() {
-    return this.type === r5js.DatumType.MACRO;
+    return this.type_ === r5js.DatumType.MACRO;
 };
 
 
@@ -575,7 +587,7 @@ r5js.Datum.prototype.isMacro = function() {
  * @return {boolean} True iff this datum represents an environment specifier.
  */
 r5js.Datum.prototype.isEnvironmentSpecifier = function() {
-    return this.type === r5js.DatumType.ENVIRONMENT_SPECIFIER;
+    return this.type_ === r5js.DatumType.ENVIRONMENT_SPECIFIER;
 };
 
 /**
@@ -615,14 +627,14 @@ r5js.Datum.prototype.sequence = function(env) {
  * @return {boolean} True iff this datum represents a list.
  */
 r5js.Datum.prototype.isList = function() {
-    return this.type === r5js.DatumType.LIST;
+    return this.type_ === r5js.DatumType.LIST;
 };
 
 /**
  * @return {boolean} True iff this datum represents a vector.
  */
 r5js.Datum.prototype.isVector = function() {
-    return this.type === r5js.DatumType.VECTOR;
+    return this.type_ === r5js.DatumType.VECTOR;
 };
 
 /**
@@ -656,27 +668,27 @@ r5js.Datum.prototype.convertVectorToArrayBacked = function () {
 
 /** @return {boolean} True iff this datum represents a boolean. */
 r5js.Datum.prototype.isBoolean = function() {
-    return this.type === r5js.DatumType.BOOLEAN;
+    return this.type_ === r5js.DatumType.BOOLEAN;
 };
 
 /** @return {boolean} True iff this datum represents an identifier. */
 r5js.Datum.prototype.isIdentifier = function() {
-    return this.type === r5js.DatumType.IDENTIFIER;
+    return this.type_ === r5js.DatumType.IDENTIFIER;
 };
 
 /** @return {boolean} True iff this datum represents a character. */
 r5js.Datum.prototype.isCharacter = function() {
-    return this.type === r5js.DatumType.CHARACTER;
+    return this.type_ === r5js.DatumType.CHARACTER;
 };
 
 /** @return {boolean} True iff this datum represents a number. */
 r5js.Datum.prototype.isNumber = function() {
-    return this.type === r5js.DatumType.NUMBER;
+    return this.type_ === r5js.DatumType.NUMBER;
 };
 
 /** @return {boolean} True iff this datum represents a string. */
 r5js.Datum.prototype.isString = function() {
-    return this.type === r5js.DatumType.STRING;
+    return this.type_ === r5js.DatumType.STRING;
 };
 
 /**
@@ -685,7 +697,7 @@ r5js.Datum.prototype.isString = function() {
  * TODO bl: would "isPrimitive" be a better name?
  */
 r5js.Datum.prototype.isLiteral = function() {
-    switch (this.type) {
+    switch (this.type_) {
         case r5js.DatumType.BOOLEAN:
         case r5js.DatumType.IDENTIFIER:
         case r5js.DatumType.CHARACTER:
@@ -703,14 +715,14 @@ r5js.Datum.prototype.isLiteral = function() {
  * @return {boolean} True iff this datum represents a quotation (quote or ').
  */
 r5js.Datum.prototype.isQuote = function() {
-    return this.type === r5js.DatumType.QUOTE ||
+    return this.type_ === r5js.DatumType.QUOTE ||
         (this.isList() && !!this.firstChild_ && this.firstChild_.payload_ === 'quote');
     // todo bl should datums know about this?
 };
 
 /** @return {boolean} True iff this datum represents a quasiquotation (`). */
 r5js.Datum.prototype.isQuasiquote = function() {
-    return this.type === r5js.DatumType.QUASIQUOTE;
+    return this.type_ === r5js.DatumType.QUASIQUOTE;
 };
 
 /**
@@ -718,7 +730,7 @@ r5js.Datum.prototype.isQuasiquote = function() {
  * TODO bl why is this useful?
  */
 r5js.Datum.prototype.isUndefined = function() {
-  return this.type === null;
+  return this.type_ === null;
 };
 
 /**
@@ -728,8 +740,8 @@ r5js.Datum.prototype.isUndefined = function() {
  * or an unquote-splicing.
  */
 r5js.Datum.prototype.isUnquote = function() {
-    return this.type === r5js.DatumType.UNQUOTE ||
-        this.type === r5js.DatumType.UNQUOTE_SPLICING;
+    return this.type_ === r5js.DatumType.UNQUOTE ||
+        this.type_ === r5js.DatumType.UNQUOTE_SPLICING;
 };
 
 /**
@@ -741,7 +753,7 @@ r5js.Datum.prototype.isUnquote = function() {
  */
 r5js.Datum.prototype.isEqual = function(other) {
     if (other instanceof r5js.Datum
-        && this.type === other.type
+        && this.type_ === other.type_
         && this.payload_ === other.payload_) {
         var thisChild, otherChild;
         for (thisChild = this.firstChild_,otherChild = other.firstChild_;
@@ -762,7 +774,7 @@ r5js.Datum.prototype.isEqual = function(other) {
  */
 r5js.Datum.prototype.quote = function() {
     var ans = new r5js.Datum();
-    ans.type = r5js.DatumType.QUOTE;
+    ans.type_ = r5js.DatumType.QUOTE;
     ans.firstChild_ = this;
     return ans;
 };
@@ -825,19 +837,19 @@ r5js.Datum.prototype.normalizeInput = function() {
     if (this.firstChild_) {
         switch (this.firstChild_.payload_) {
             case 'quote':
-                this.type = r5js.DatumType.QUOTE;
+                this.type_ = r5js.DatumType.QUOTE;
                 this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
             case 'quasiquote':
-                this.type = r5js.DatumType.QUASIQUOTE;
+                this.type_ = r5js.DatumType.QUASIQUOTE;
                 this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
             case 'unquote':
-                this.type = r5js.DatumType.UNQUOTE;
+                this.type_ = r5js.DatumType.UNQUOTE;
                 this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
             case 'unquote-splicing':
-                this.type = r5js.DatumType.UNQUOTE_SPLICING;
+                this.type_ = r5js.DatumType.UNQUOTE_SPLICING;
                 this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
         }
@@ -852,7 +864,7 @@ r5js.Datum.prototype.normalizeInput = function() {
             if (maybeEmptyList.isList() && !maybeEmptyList.firstChild_) {
                 child.parent_ = child.nextSibling_.parent_;
                 child.nextSibling_ = null;
-                this.type = r5js.DatumType.LIST;
+                this.type_ = r5js.DatumType.LIST;
             }
         }
     }
@@ -922,7 +934,7 @@ r5js.Datum.prototype.decorateQuasiquote = function(qqLevel) {
  */
 r5js.Datum.prototype.siblingsToList = function(dotted) {
     var ans = new r5js.Datum();
-    ans.type = dotted ? r5js.DatumType.DOTTED_LIST : r5js.DatumType.LIST;
+    ans.type_ = dotted ? r5js.DatumType.DOTTED_LIST : r5js.DatumType.LIST;
     ans.firstChild_ = this;
     return ans;
 };
@@ -1158,7 +1170,7 @@ r5js.data = {};
 r5js.data.newIdOrLiteral = function(payload, opt_type) {
     // todo bl: we're sometimes creating these with undefined payloads! Investigate.
     var ans = new r5js.Datum();
-    ans.type = opt_type || r5js.DatumType.IDENTIFIER;
+    ans.type_ = opt_type || r5js.DatumType.IDENTIFIER;
     ans.payload_ = payload;
     return ans;
 };
@@ -1171,7 +1183,7 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
  */
 r5js.data.newProcedureDatum = function(name, procedure) {
     var ans = new r5js.Datum();
-    ans.type = r5js.DatumType.LAMBDA;
+    ans.type_ = r5js.DatumType.LAMBDA;
     ans.payload_ = procedure;
     ans.name_ = name;
     return ans;
@@ -1184,7 +1196,7 @@ r5js.data.newProcedureDatum = function(name, procedure) {
  */
 r5js.data.newInputPortDatum = function(port) {
     var ans = new r5js.Datum();
-    ans.type = r5js.DatumType.INPUT_PORT;
+    ans.type_ = r5js.DatumType.INPUT_PORT;
     ans.payload_ = port;
     return ans;
 };
@@ -1196,7 +1208,7 @@ r5js.data.newInputPortDatum = function(port) {
  */
 r5js.data.newOutputPortDatum = function(port) {
     var ans = new r5js.Datum();
-    ans.type = r5js.DatumType.OUTPUT_PORT;
+    ans.type_ = r5js.DatumType.OUTPUT_PORT;
     ans.payload_ = port;
     return ans;
 };
@@ -1207,7 +1219,7 @@ r5js.data.newOutputPortDatum = function(port) {
  */
 r5js.data.newDatumRef = function(deref) {
     var ans = new r5js.Datum();
-    ans.type = r5js.DatumType.REF;
+    ans.type_ = r5js.DatumType.REF;
     ans.payload_ = deref;
     return ans;
 };
@@ -1220,7 +1232,7 @@ r5js.data.newDatumRef = function(deref) {
  */
 r5js.data.newMacroDatum = function(macro) {
     var ans = new r5js.Datum();
-    ans.type = r5js.DatumType.MACRO;
+    ans.type_ = r5js.DatumType.MACRO;
     ans.payload_ = macro;
     return ans;
 };
@@ -1245,22 +1257,22 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
     var ans = new r5js.Datum();
     ans.payload_ = result;
     if (goog.isDef(opt_type)) {
-        ans.type = opt_type;
+        ans.type_ = opt_type;
     } else {
         // If no type was supplied, we can deduce it in most (not all) cases
         switch (typeof result) {
             case 'boolean':
-                ans.type = r5js.DatumType.BOOLEAN;
+                ans.type_ = r5js.DatumType.BOOLEAN;
                 break;
             case 'number':
-                ans.type = r5js.DatumType.NUMBER;
+                ans.type_ = r5js.DatumType.NUMBER;
                 break;
             case 'string':
-                ans.type = r5js.DatumType.IDENTIFIER;
+                ans.type_ = r5js.DatumType.IDENTIFIER;
                 break;
             case 'object':
                 if (result instanceof r5js.Procedure) {
-                    ans.type = r5js.DatumType.LAMBDA;
+                    ans.type_ = r5js.DatumType.LAMBDA;
                     break;
                 }
             default:

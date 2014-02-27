@@ -40,7 +40,7 @@ r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
       return false;
     }
     var asDatum = token.formatDatum(new r5js.Datum());
-    return asDatum.type === this.expectedType_;
+    return asDatum.getType() === this.expectedType_;
   } catch (e) {
     return false; // some tests purposely cause scan errors
   }
