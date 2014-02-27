@@ -843,17 +843,17 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS),
         _.one(Terminals.RPAREN)).
-    desugar(function(node) {
+    desugar(function(node, env) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         if (cur.getNextSibling() &&
             cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
-          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
+          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar(env)));
           break;
         } else {
-          ans.addSubtransformer(cur.desugar());
+          ans.addSubtransformer(cur.desugar(env));
         }
       }
       return ans;
@@ -863,17 +863,17 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS),
         _.one(Terminals.RPAREN)).
-    desugar(function(node) {
+    desugar(function(node, env) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         if (cur.getNextSibling() &&
             cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
-          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
+          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar(env)));
           break;
         } else {
-          ans.addSubtransformer(cur.desugar());
+          ans.addSubtransformer(cur.desugar(env));
         }
       }
       return ans;
@@ -887,12 +887,12 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
         _.one(Terminals.LPAREN),
         _.zeroOrMore(Nonterminals.PATTERN),
         _.one(Terminals.RPAREN)).
-    desugar(function(node) {
+    desugar(function(node, env) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(cur.desugar());
+        ans.addSubtransformer(cur.desugar(env));
       }
       return ans;
     }),
@@ -902,12 +902,12 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
         _.one(Terminals.DOT),
         _.one(Nonterminals.PATTERN),
         _.one(Terminals.RPAREN)).
-    desugar(function(node) {
+    desugar(function(node, env) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(cur.desugar());
+        ans.addSubtransformer(cur.desugar(env));
       }
       return ans;
     }),
@@ -915,12 +915,12 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
         _.one(Terminals.LPAREN_VECTOR),
         _.zeroOrMore(Nonterminals.PATTERN),
         _.one(Terminals.RPAREN)).
-    desugar(function(node) {
+    desugar(function(node, env) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(cur.desugar());
+        ans.addSubtransformer(cur.desugar(env));
       }
       return ans;
     }),
@@ -989,17 +989,17 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Terminals.DOT),
         _.one(Nonterminals.TEMPLATE),
         _.one(Terminals.RPAREN)).
-    desugar(function(node) {
+    desugar(function(node, env) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
         if (cur.getNextSibling() &&
             cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
-          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
+          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar(env)));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(cur.desugar());
+          ans.addSubtransformer(cur.desugar(env));
         }
       }
 
@@ -1009,17 +1009,17 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Terminals.LPAREN),
         _.zeroOrMore(Nonterminals.TEMPLATE),
         _.one(Terminals.RPAREN)).
-    desugar(function(node) {
+    desugar(function(node, env) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.LIST);
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
         if (cur.getNextSibling() &&
             cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
-          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
+          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar(env)));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(cur.desugar());
+          ans.addSubtransformer(cur.desugar(env));
         }
       }
       return ans;
@@ -1028,17 +1028,17 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Terminals.LPAREN_VECTOR),
         _.zeroOrMore(Nonterminals.TEMPLATE),
         _.one(Terminals.RPAREN)).
-    desugar(function(node) {
+    desugar(function(node, env) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
         if (cur.getNextSibling() &&
             cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
-          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar()));
+          ans.addSubtransformer(new r5js.EllipsisTransformer(cur.desugar(env)));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(cur.desugar());
+          ans.addSubtransformer(cur.desugar(env));
         }
       }
       return ans;
@@ -1046,10 +1046,10 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
     _.seq(
         _.one(Terminals.TICK),
         _.one(Nonterminals.TEMPLATE)).
-    desugar(function(node) {
+    desugar(function(node, env) {
       var ans = new r5js.ListLikeTransformer(r5js.DatumType.QUOTE);
       ans.addSubtransformer(node.at(Nonterminals.TEMPLATE).
-          desugar());
+          desugar(env));
       return ans;
     }));
 
