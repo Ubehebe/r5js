@@ -490,10 +490,10 @@ r5js.Datum.prototype.resetDesugars = function() {
 
 /**
  * @param {!r5js.IEnvironment} env TODO bl
- * @param {boolean=} forceContinuationWrapper TODO bl document
- * @return {*} TODO bl
+ * @param {boolean=} opt_forceContinuationWrapper TODO bl document
+ * @return {!r5js.Datum|!r5js.Continuable|!r5js.ITransformer|!r5js.Macro|null}
  */
-r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
+r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
     var desugarFn = (this.desugars_ && this.nextDesugar_ >= 0) ?
         this.desugars_[this.nextDesugar_--] : null;
     var ans;
@@ -505,7 +505,7 @@ r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
         ans = this;
     }
 
-    if (forceContinuationWrapper && !(ans instanceof r5js.Continuable)) {
+    if (opt_forceContinuationWrapper && !(ans instanceof r5js.Continuable)) {
         ans = newIdShim(ans);
     }
     return ans;
