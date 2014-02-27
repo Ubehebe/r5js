@@ -67,11 +67,11 @@ r5js.Datum = function() {
      */
     this.nonterminals_;
 
-    /** @private {!Array.<function(!r5js.Datum, !r5js.IEnvironment)>} */
-    this.desugars_;
+    /** @const {!Array.<function(!r5js.Datum, !r5js.IEnvironment)>} */
+    this.desugars_ = [];
 
-    /** @private {number|undefined} */
-    this.nextDesugar_;
+    /** @private {number} */
+    this.nextDesugar_ = -1;
 
     /**
      * Only for procedures.
@@ -360,10 +360,6 @@ r5js.Datum.prototype.setParse = function(type) {
  * @param {*} desugarFunc TODO bl
  */
 r5js.Datum.prototype.setDesugar = function(desugarFunc) {
-    if (!this.desugars_) {
-        this.desugars_ = [];
-        this.nextDesugar_ = -1;
-    }
     this.desugars_.push(desugarFunc);
     ++this.nextDesugar_;
 };
