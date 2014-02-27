@@ -67,11 +67,7 @@ r5js.Datum = function() {
      */
     this.nonterminals_;
 
-    /**
-     * @private {*}
-     * TODO bl: The type should be
-     * !Array.<function(!r5js.Datum, !r5js.IEnvironment)>
-     */
+    /** @private {!Array.<function(!r5js.Datum, !r5js.IEnvironment)>} */
     this.desugars_;
 
     /** @private {number|undefined} */
@@ -497,9 +493,8 @@ r5js.Datum.prototype.resetDesugars = function() {
  * @return {*} TODO bl
  */
 r5js.Datum.prototype.desugar = function(env, forceContinuationWrapper) {
-    var desugarFn = this.desugars_
-        && this.nextDesugar_ >= 0
-        && this.desugars_[this.nextDesugar_--];
+    var desugarFn = (this.desugars_ && this.nextDesugar_ >= 0) ?
+        this.desugars_[this.nextDesugar_--] : null;
     var ans;
     if (desugarFn) {
         ans = desugarFn(this, env);
