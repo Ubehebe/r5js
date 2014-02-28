@@ -14,10 +14,6 @@ r5js.ast.Node = function() {};
 r5js.ast.Node.prototype.getPayload = function() {};
 
 
-/** @return {!r5js.DatumType} */
-r5js.ast.Node.prototype.getType = function() {};
-
-
 /**
  * @param {*} obj
  * @return {boolean}
@@ -30,25 +26,15 @@ r5js.ast.Node.isImplementedBy = function(obj) {
 
 
 /**
- * @param {!r5js.DatumType} type
  * @param {T} payload
  * @struct
  * @constructor
  * @template T
  * @private
  */
-r5js.ast.BaseNode_ = function(type, payload) {
-  /** @const @private {!r5js.DatumType} */
-  this.type_ = type;
-
+r5js.ast.BaseNode_ = function(payload) {
   /** @const @private {T} */
   this.payload_ = payload;
-};
-
-
-/** @return {!r5js.DatumType} */
-r5js.ast.BaseNode_.prototype.getType = function() {
-  return this.type_;
 };
 
 
@@ -67,8 +53,6 @@ r5js.ast.BaseNode_.prototype.getPayload = function() {
  * @constructor
  */
 r5js.ast.EnvironmentSpecifier = function(baseEnv) {
-  goog.base(this,
-      r5js.DatumType.ENVIRONMENT_SPECIFIER,
-      new r5js.Environment('', baseEnv));
+  goog.base(this, new r5js.Environment('', baseEnv));
 };
 goog.inherits(r5js.ast.EnvironmentSpecifier, r5js.ast.BaseNode_);

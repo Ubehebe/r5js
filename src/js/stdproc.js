@@ -1181,8 +1181,7 @@ r5js.builtins['eval'] = {
             if (!(expr instanceof r5js.Datum))
                 throw new r5js.ArgumentTypeError(expr, 0, 'eval', r5js.DatumType.REF /* TODO bl is this right? */);
             var isEnvNode = r5js.ast.Node.isImplementedBy(envSpec) &&
-                (/** @type {!r5js.ast.Node} */ (envSpec)).getType() ===
-                    r5js.DatumType.ENVIRONMENT_SPECIFIER;
+                envSpec instanceof r5js.ast.EnvironmentSpecifier;
             if (!isEnvNode) {
                 throw new r5js.ArgumentTypeError(envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER);
             }
