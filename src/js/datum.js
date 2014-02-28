@@ -698,13 +698,6 @@ r5js.Datum.prototype.isQuasiquote = function() {
     return this.type_ === r5js.DatumType.QUASIQUOTE;
 };
 
-/**
- * @return {boolean} True iff this datum has no type.
- * TODO bl why is this useful?
- */
-r5js.Datum.prototype.isUndefined = function() {
-  return this.type_ === null;
-};
 
 /**
  * In most situations, we want to detect both unquote (,) and
@@ -773,7 +766,6 @@ r5js.Datum.prototype.unwrap = function() {
         && !this.isEnvironmentSpecifier()
         && !this.isString()
         && !this.isCharacter()
-        && !this.isUndefined()
         && !this.isPort())
         ? this.payload_
         : this;
