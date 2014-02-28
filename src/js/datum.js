@@ -18,6 +18,7 @@ goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 
 
+goog.require('r5js.ast.Node');
 goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.DatumType');
@@ -561,13 +562,6 @@ r5js.Datum.prototype.isMacro = function() {
 
 
 /**
- * @return {boolean} True iff this datum represents an environment specifier.
- */
-r5js.Datum.prototype.isEnvironmentSpecifier = function() {
-    return this.type_ === r5js.DatumType.ENVIRONMENT_SPECIFIER;
-};
-
-/**
  * @param {!r5js.IEnvironment} env TODO bl
  * @return {r5js.Continuable}
  */
@@ -768,7 +762,6 @@ r5js.Datum.prototype.unwrap = function() {
 
     return (this.payload_ !== undefined
         && !this.isVector() // watch out for 0's and falses
-        && !this.isEnvironmentSpecifier()
         && !this.isString()
         && !this.isCharacter()
         && !this.isPort())
@@ -1228,7 +1221,8 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
         || result instanceof r5js.Datum
         || result instanceof r5js.Continuation
         || result instanceof r5js.Macro
-        || result instanceof r5js.JsObjOrMethod /* JS interop (experimental) */) {
+        || result instanceof r5js.JsObjOrMethod /* JS interop (experimental) */
+        || r5js.ast.Node.isImplementedBy(result)) {
         return result; // no-op, strictly for convenience
     }
 

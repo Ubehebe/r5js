@@ -17,6 +17,8 @@
 goog.provide('r5js.PrimitiveProcedures');
 
 
+goog.require('r5js.ast.EnvironmentSpecifier');
+goog.require('r5js.ast.Node');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
@@ -1178,9 +1180,12 @@ r5js.builtins['eval'] = {
         proc: /** @suppress {checkTypes} */ function(expr, envSpec) {
             if (!(expr instanceof r5js.Datum))
                 throw new r5js.ArgumentTypeError(expr, 0, 'eval', r5js.DatumType.REF /* TODO bl is this right? */);
-            if (!(envSpec instanceof r5js.Datum) || !envSpec.isEnvironmentSpecifier())
+            var isEnvNode = r5js.ast.Node.isImplementedBy(envSpec) &&
+                (/** @type {!r5js.ast.Node} */ (envSpec)).getType() ===
+                    r5js.DatumType.ENVIRONMENT_SPECIFIER;
+            if (!isEnvNode) {
                 throw new r5js.ArgumentTypeError(envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER);
-
+            }
             /* An interesting special case. If we're about to evaluate a wrapped
              procedure (primitive JavaScript or SchemeProcedure), return its name
              (= external representation) instead. Example:
@@ -1241,7 +1246,7 @@ r5js.builtins['eval'] = {
         argtypes: ['number'],
         proc: function(num) {
             if (num === 5)
-                return newEnvironmentSpecifier(
+                return new r5js.ast.EnvironmentSpecifier(
                     /** @type {!r5js.IEnvironment} */(r5js.PrimitiveProcedures.r5RSEnv_));
             else throw new r5js.InternalInterpreterError(
                 'unsupported scheme report environment ' + num);
@@ -1252,7 +1257,7 @@ r5js.builtins['eval'] = {
         argtypes: ['number'],
         proc: function(num) {
             if (num === 5)
-                return newEnvironmentSpecifier(
+                return new r5js.ast.EnvironmentSpecifier(
                     /** @type {!r5js.IEnvironment} */ (r5js.PrimitiveProcedures.nullEnv_));
             else throw new r5js.InternalInterpreterError(
                 'unsupported null environment ' + num);

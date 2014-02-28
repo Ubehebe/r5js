@@ -17,6 +17,7 @@
 goog.provide('r5js.Environment');
 
 
+goog.require('r5js.ast.Node');
 goog.require('r5js.Continuation');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
@@ -252,7 +253,8 @@ r5js.Environment.prototype.addBinding = function(name, val) {
         if (typeof val === 'number'
              || typeof val === 'string'
              || val === true
-             || val === false) {
+             || val === false
+             || r5js.ast.Node.isImplementedBy(val)) {
              this.bindings_[name] = val;
          } else if (val === null) {
             /* A value of null on the trampoline means an unspecified value.
@@ -352,15 +354,3 @@ r5js.Environment.prototype.newChildEnv = function(name) {
 r5js.RootEnvironment.prototype.newChildEnv = function(name) {
   return new r5js.Environment(name, this);
 };
-
-/**
- * TODO bl: I moved this here from datum.js to fix a goog.require() cycle.
- * Perhaps move this to a more fitting place.
- * @param {!r5js.IEnvironment} version Environment to wrap.
- * @return {!r5js.Datum} A new datum representing the given environment.
- */
-function newEnvironmentSpecifier(version) {
-    return r5js.data.newIdOrLiteral(
-        new r5js.Environment('', version),
-        r5js.DatumType.ENVIRONMENT_SPECIFIER);
-}
