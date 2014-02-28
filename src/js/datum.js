@@ -23,6 +23,8 @@ goog.require('r5js.ContinuableHelper');
 goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
+goog.require('r5js.parse.Nonterminals');
+goog.require('r5js.parse.Terminals');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.Macro');
 goog.require('r5js.SiblingBuffer');
@@ -484,7 +486,8 @@ r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
     var ans;
     if (desugarFn) {
         ans = desugarFn(this, env);
-    } else if (this.firstChild_ && this.firstChild_.payload_ === 'begin') {
+    } else if (this.firstChild_ &&
+        this.firstChild_.payload_ === r5js.parse.Terminals.BEGIN) {
         ans = this.firstChild_.nextSibling_ ? this.firstChild_.nextSibling_.sequence(env) : null;
     } else {
         ans = this;
@@ -689,7 +692,9 @@ r5js.Datum.prototype.isLiteral = function() {
  */
 r5js.Datum.prototype.isQuote = function() {
     return this.type_ === r5js.DatumType.QUOTE ||
-        (this.isList() && !!this.firstChild_ && this.firstChild_.payload_ === 'quote');
+        (this.isList() &&
+            !!this.firstChild_ &&
+            this.firstChild_.payload_ === r5js.parse.Terminals.QUOTE);
     // todo bl should datums know about this?
 };
 
@@ -801,19 +806,19 @@ r5js.Datum.prototype.normalizeInput = function() {
 
     if (this.firstChild_) {
         switch (this.firstChild_.payload_) {
-            case 'quote':
+            case r5js.parse.Terminals.QUOTE:
                 this.type_ = r5js.DatumType.QUOTE;
                 this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
-            case 'quasiquote':
+            case r5js.parse.Terminals.QUASIQUOTE:
                 this.type_ = r5js.DatumType.QUASIQUOTE;
                 this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
-            case 'unquote':
+            case r5js.parse.Terminals.UNQUOTE:
                 this.type_ = r5js.DatumType.UNQUOTE;
                 this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
-            case 'unquote-splicing':
+            case r5js.parse.Terminals.UNQUOTE_SPLICING:
                 this.type_ = r5js.DatumType.UNQUOTE_SPLICING;
                 this.firstChild_ = this.firstChild_.nextSibling_;
                 break;
@@ -953,7 +958,8 @@ r5js.Datum.PROC_PREFIX_ = 'proc';
  * unquoted (i.e. starts with a ,).
  */
 r5js.Datum.prototype.shouldUnquote = function() {
-    return this.isIdentifier() && this.payload_.charAt(0) === ',';
+    return this.isIdentifier() &&
+        this.payload_.charAt(0) === ',';
 };
 
 /**
@@ -962,7 +968,8 @@ r5js.Datum.prototype.shouldUnquote = function() {
  * @return {boolean} TODO bl
  */
 r5js.Datum.prototype.shouldUnquoteSplice = function() {
-    return this.isIdentifier() && this.payload_.charAt(1) === '@';
+    return this.isIdentifier() &&
+        this.payload_.charAt(1) === r5js.Datum.CPS_PREFIX_;
 };
 
 /**
@@ -972,10 +979,10 @@ r5js.Datum.prototype.shouldUnquoteSplice = function() {
  * @return {!r5js.Datum} New Datum representing this datum's definition.
  */
 r5js.Datum.prototype.extractDefinition = function() {
-    var variable = this.at('variable');
+    var variable = this.at(r5js.parse.Nonterminals.VARIABLE);
     var list = newEmptyList();
     if (variable) {
-        list.prependChild(this.at('expression'));
+        list.prependChild(this.at(r5js.parse.Nonterminals.EXPRESSION));
     } else {
         var formalsList = this.firstChild_.nextSibling_;
         variable = formalsList.firstChild_;
@@ -989,7 +996,7 @@ r5js.Datum.prototype.extractDefinition = function() {
         } else {
             lambda.prependChild(newFormalsList);
         }
-        lambda.prependChild(r5js.data.newIdOrLiteral('lambda'));
+        lambda.prependChild(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
         list.prependChild(lambda);
     }
     list.prependChild(variable);
@@ -1019,23 +1026,25 @@ r5js.Datum.prototype.closestAncestorSibling = function() {
  */
 function isParserSensitiveId(name) {
     switch (name) {
-        case 'begin':
-        case 'define':
-        case 'define-syntax':
-        case 'if':
-        case 'lambda':
-        case 'let-syntax':
-        case 'letrec-syntax':
-        case 'quasiquote':
-        case 'quote':
-        case 'set!':
-        case 'unquote':
-        case 'unquote-splicing':
+        case r5js.parse.Terminals.BEGIN:
+        case r5js.parse.Terminals.DEFINE:
+        case r5js.parse.Terminals.DEFINE_SYNTAX:
+        case r5js.parse.Terminals.IF:
+        case r5js.parse.Terminals.LAMBDA:
+        case r5js.parse.Terminals.LET_SYNTAX:
+        case r5js.parse.Terminals.LETREC_SYNTAX:
+        case r5js.parse.Terminals.QUASIQUOTE:
+        case r5js.parse.Terminals.QUOTE:
+        case r5js.parse.Terminals.SET:
+        case r5js.parse.Terminals.UNQUOTE:
+        case r5js.parse.Terminals.UNQUOTE_SPLICING:
             return true;
         default:
             return false;
     }
 }
+
+
 
 /**
  * TODO bl: document what this method does.
@@ -1043,7 +1052,7 @@ function isParserSensitiveId(name) {
  * @private
  */
 r5js.Datum.prototype.fixParserSensitiveIdsLambda_ = function(helper) {
-    var formalRoot = this.at('formals');
+    var formalRoot = this.at(r5js.parse.Nonterminals.FORMALS);
 
     var newHelper = new r5js.RenameHelper(helper);
     var cur;
@@ -1073,7 +1082,7 @@ r5js.Datum.prototype.fixParserSensitiveIdsLambda_ = function(helper) {
  * @private
  */
 r5js.Datum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
-    var maybeVar = this.at('variable');
+    var maybeVar = this.at(r5js.parse.Nonterminals.VARIABLE);
 
     if (maybeVar) {
         var id = /** @type {string} */ (maybeVar.payload_);
