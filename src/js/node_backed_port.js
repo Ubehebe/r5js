@@ -62,10 +62,6 @@ r5js.NodeBackedPort = function(filename, mode) {
 r5js.NodeBackedPort.prototype.close = function() {
     this.fsModule.closeSync(this.fd);
 };
-goog.exportSymbol(
-    'r5js.NodeBackedPort.prototype.close',
-    r5js.NodeBackedPort.prototype.close
-);
 
 
 /**
@@ -74,20 +70,12 @@ goog.exportSymbol(
 r5js.NodeBackedPort.prototype.isCharReady = function() {
     return true;
 };
-goog.exportSymbol(
-    'r5js.NodeBackedPort.prototype.isCharReady',
-    r5js.NodeBackedPort.prototype.isCharReady
-);
 
 
 /** @override */
 r5js.NodeBackedPort.prototype.isEof = function() {
     return this.offset >= this.size;
 };
-goog.exportSymbol(
-    'r5js.NodeBackedPort.prototype.isEof',
-    r5js.NodeBackedPort.prototype.isEof
-);
 
 
 /**
@@ -100,10 +88,6 @@ r5js.NodeBackedPort.prototype.peekChar = function() {
         ? this
         : this.fsModule.readSync(this.fd, 1, this.offset)[0];
 };
-goog.exportSymbol(
-    'r5js.NodeBackedPort.prototype.peekChar',
-    r5js.NodeBackedPort.prototype.peekChar
-);
 
 
 /**
@@ -116,19 +100,13 @@ r5js.NodeBackedPort.prototype.readChar = function() {
         ? this
         : this.fsModule.readSync(this.fd, 1, this.offset++)[0];
 };
-goog.exportSymbol(
-    'r5js.NodeBackedPort.prototype.readChar',
-    r5js.NodeBackedPort.prototype.readChar
-);
+
 
 /** @override */
 r5js.NodeBackedPort.prototype.toString = function() {
     return String(this.fd);
 };
-goog.exportSymbol(
-    'r5js.NodeBackedPort.prototype.toString',
-    r5js.NodeBackedPort.prototype.toString
-);
+
 
 /**
  * @override
@@ -138,10 +116,7 @@ goog.exportSymbol(
 r5js.NodeBackedPort.prototype.write = function(str) {
     this.fsModule.writeSync(this.fd, str, null);
 };
-goog.exportSymbol(
-    'r5js.NodeBackedPort.prototype.write',
-    r5js.NodeBackedPort.prototype.write
-);
+
 
 /**
  * @override
@@ -151,7 +126,3 @@ goog.exportSymbol(
 r5js.NodeBackedPort.prototype.writeChar = function(c) {
     this.fsModule.writeSync(this.fd, c, null);
 };
-goog.exportSymbol(
-    'r5js.NodeBackedPort.prototype.writeChar',
-    r5js.NodeBackedPort.prototype.writeChar
-);

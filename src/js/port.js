@@ -18,14 +18,7 @@ goog.provide('r5js.Port');
 
 
 
-/**
- * bl important: Port implementations must name these functions
- * with string literals, not properties (PortImpl.prototype['close'] = ..., not
- * PortImpl.prototype.close = ...), to prevent the Google Closure Compiler
- * from renaming them and thus making them useless on the trampoline.
- *
- * @interface
- */
+/** @interface */
 r5js.Port = function() {};
 
 
