@@ -26,6 +26,7 @@ static_root = http://localhost:$(static_port)
 
 # Test-related paths.
 test_main_class = r5js.test.main
+test_outfile = $(outdir)/test-all.js
 phantom_driver  = src/js/tdd/phantom_driver.js
 test_url = $(static_root)/src/js/test/test.html
 # test_opts can be overridden from the command line. Example:
@@ -98,6 +99,19 @@ typecheck:
 		--jscomp_error uselessCode \
 		--jscomp_error visibility \
 		> /dev/null
+
+.PHONY: compile-tests
+compile-tests:
+	@mkdir -p $(outdir)
+	@find $(src) -name "*\.js" \
+	| xargs printf "\-\-input %s " \
+	| xargs $(builder) --root=$(src) --root=$(closure_root) \
+	| xargs printf "\-\-js %s " \
+	| xargs $(compiler) \
+		--js $(closure_root)/closure/goog/deps.js \
+		--closure_entry_point=$(test_main_class) \
+		--compilation_level ADVANCED_OPTIMIZATIONS \
+		> $(test_outfile)
 
 .PHONY: interpreter
 interpreter: doctor-api-js
