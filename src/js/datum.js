@@ -542,7 +542,7 @@ r5js.Datum.prototype.isProcedure = function() {
 
 /** @return {boolean} True iff this datum represents an input or output port. */
 r5js.Datum.prototype.isPort = function() {
-    return this.isInputPort() || this.isOutputPort();
+    return this.isInputPort();
 };
 
 /** @return {boolean} True iff this datum represents an input port. */

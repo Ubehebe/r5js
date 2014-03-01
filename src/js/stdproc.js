@@ -19,6 +19,7 @@ goog.provide('r5js.PrimitiveProcedures');
 
 goog.require('r5js.ast.EnvironmentSpecifier');
 goog.require('r5js.ast.Node');
+goog.require('r5js.ast.OutputPort');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
@@ -210,7 +211,7 @@ r5js.builtins['type'] = {
     'port?': {
         argc: 1,
         proc: function(datum) {
-            return datum.isPort();
+            return datum instanceof r5js.ast.OutputPort || datum.isPort();
         }
     },
 
@@ -224,7 +225,7 @@ r5js.builtins['type'] = {
     'output-port?': {
         argc: 1,
         proc: function(datum) {
-            return datum.isOutputPort();
+            return datum instanceof r5js.ast.OutputPort;
         }
     }
 };
@@ -1306,7 +1307,7 @@ r5js.builtins['io'] = {
         argc: 1,
         argtypes: ['string'],
         proc: function(datum) {
-            return r5js.data.newOutputPortDatum(
+            return new r5js.ast.OutputPort(
                 new r5js.NodeBackedPort(datum.getPayload(), 'w'));
         }
     },
@@ -1400,8 +1401,9 @@ r5js.builtins['io'] = {
                 var outputPort = (numUserArgs === 1)
                     ? arguments[arguments.length - 1]
                     : arguments[1];
-                if (!outputPort.isOutputPort())
+                if (!(outputPort instanceof r5js.ast.OutputPort)) {
                     throw new r5js.ArgumentTypeError(outputPort, 1, 'write', r5js.DatumType.OUTPUT_PORT);
+                }
                 var toWrite = x instanceof r5js.Datum
                     ? x.stringForOutputMode(r5js.OutputMode.WRITE)
                     : String(x);
@@ -1433,9 +1435,9 @@ r5js.builtins['io'] = {
                 var outputPort = (numUserArgs === 1)
                     ? arguments[arguments.length - 1]
                     : arguments[1];
-                if (!outputPort.isOutputPort())
+                if (!(outputPort instanceof r5js.ast.OutputPort)) {
                     throw new r5js.ArgumentTypeError(outputPort, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
-
+                }
                 outputPort.getPayload()['writeChar'](c.getPayload());
             } else throw new r5js.TooManyArgs('write-char', 2, numUserArgs);
             return null;
@@ -1458,9 +1460,10 @@ r5js.builtins['io'] = {
                 var outputPort = (numUserArgs === 1)
                     ? arguments[arguments.length - 1]
                     : arguments[1];
-                if (!outputPort.isOutputPort())
+                if (!(outputPort instanceof r5js.ast.OutputPort)) {
                     throw new r5js.ArgumentTypeError(outputPort, 1, 'display', r5js.DatumType.OUTPUT_PORT);
-                var toWrite = x instanceof r5js.Datum
+                }
+                    var toWrite = x instanceof r5js.Datum
                     ? x.stringForOutputMode(r5js.OutputMode.DISPLAY)
                     : String(x);
                 /* Port implementations aren't required to implement
