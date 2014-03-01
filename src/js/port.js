@@ -32,12 +32,6 @@ r5js.Port.prototype.isCharReady = function() {};
 
 
 /**
- * @return {boolean} True iff the port is at end of file.
- */
-r5js.Port.prototype.isEof = function() {};
-
-
-/**
  * @return {?} TODO bl
  */
 r5js.Port.prototype.peekChar = function() {};

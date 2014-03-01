@@ -72,21 +72,13 @@ r5js.NodeBackedPort.prototype.isCharReady = function() {
 };
 
 
-/** @override */
-r5js.NodeBackedPort.prototype.isEof = function() {
-    return this.offset >= this.size;
-};
-
-
 /**
  * @override
  * @suppress {missingProperties} For this.fsModule.readSync.
  * TODO bl: remove @suppress once Node interop is better.
  */
 r5js.NodeBackedPort.prototype.peekChar = function() {
-    return this.isEof()
-        ? this
-        : this.fsModule.readSync(this.fd, 1, this.offset)[0];
+    return this.fsModule.readSync(this.fd, 1, this.offset)[0];
 };
 
 
@@ -96,9 +88,7 @@ r5js.NodeBackedPort.prototype.peekChar = function() {
  * TODO bl: remove @suppress once Node interop is better.
  */
 r5js.NodeBackedPort.prototype.readChar = function() {
-    return this.isEof()
-        ? this
-        : this.fsModule.readSync(this.fd, 1, this.offset++)[0];
+    return this.fsModule.readSync(this.fd, 1, this.offset++)[0];
 };
 
 

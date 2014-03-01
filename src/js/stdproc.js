@@ -1339,10 +1339,6 @@ r5js.builtins['io'] = {
                     : arguments[0];
                 if (!(inputPort instanceof r5js.ast.InputPort)) {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
-                } else if (inputPort.getPayload()['isEof']()) {
-                    /* R5RS 6.6.2: "If no more characters are available,
-                     an end of file object is returned." */
-                    return inputPort;
                 } else return r5js.data.newIdOrLiteral(inputPort.getPayload()['readChar'](), r5js.DatumType.CHARACTER);
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
@@ -1357,10 +1353,6 @@ r5js.builtins['io'] = {
                     : arguments[0];
                 if (!(inputPort instanceof r5js.ast.InputPort)) {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
-                } else if (inputPort.getPayload()['isEof']()) {
-                    /* R5RS 6.6.2: "If no more characters are available,
-                     an end of file object is returned." */
-                    return inputPort;
                 } else return r5js.data.newIdOrLiteral(inputPort.getPayload()['peekChar'](), r5js.DatumType.CHARACTER);
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
@@ -1368,9 +1360,7 @@ r5js.builtins['io'] = {
     'eof-object?': {
         argc: 1,
         proc: function(port) {
-            return port instanceof r5js.Datum
-                && port.isPort()
-                && port.getPayload()['isEof']();
+            return false; // TODO bl add port tests
         }
     },
     'char-ready?': {
@@ -1383,11 +1373,6 @@ r5js.builtins['io'] = {
                     : arguments[0];
                 if (!(inputPort instanceof r5js.ast.InputPort)) {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'char-ready?', r5js.DatumType.INPUT_PORT);
-                } else if (inputPort.getPayload()['isEof']()) {
-                    /* R5RS 6.6.2: "If the port is at end of file then
-                     char-ready? returns true." (Because the next call to
-                     read-char is guaranteed not to block -- it'll return EOF.) */
-                    return true;
                 } else return inputPort.getPayload()['isCharReady']();
             } else throw new r5js.TooManyArgs('char-ready?', 1, arguments.length);
         }

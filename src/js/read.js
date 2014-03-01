@@ -59,12 +59,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
     switch (this.getType()) {
         case r5js.DatumType.FFI: // JavaScript object
             return this.getPayload().toString();
-        case r5js.DatumType.INPUT_PORT:
-            if (this.getPayload()['isEof']())
-                return 'EOF';
-            // otherwise fallthrough
-        case r5js.DatumType.OUTPUT_PORT:
-                return this.getType() + ':' + this.getPayload().toString();
         case null:
             // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
             return 'undefined';

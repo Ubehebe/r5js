@@ -50,12 +50,6 @@ r5js.CallbackBackedPort.prototype.readChar = function () {
 
 
 /** @override */
-r5js.CallbackBackedPort.prototype.isEof = function() {
-    return true;
-};
-
-
-/** @override */
 r5js.CallbackBackedPort.prototype.isCharReady = function() {
     return true; // Because we're always at EOF
 };
