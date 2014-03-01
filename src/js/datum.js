@@ -540,15 +540,6 @@ r5js.Datum.prototype.isProcedure = function() {
   return this.type_ === r5js.DatumType.LAMBDA;
 };
 
-/** @return {boolean} True iff this datum represents an input or output port. */
-r5js.Datum.prototype.isPort = function() {
-    return this.isInputPort();
-};
-
-/** @return {boolean} True iff this datum represents an input port. */
-r5js.Datum.prototype.isInputPort = function() {
-    return this.type_ === r5js.DatumType.INPUT_PORT;
-};
 
 /** @return {boolean} True iff this datum represents a macro. */
 r5js.Datum.prototype.isMacro = function() {
@@ -758,8 +749,7 @@ r5js.Datum.prototype.unwrap = function() {
     return (this.payload_ !== undefined
         && !this.isVector() // watch out for 0's and falses
         && !this.isString()
-        && !this.isCharacter()
-        && !this.isPort())
+        && !this.isCharacter())
         ? this.payload_
         : this;
 };

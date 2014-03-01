@@ -1338,7 +1338,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length - 2]
                     : arguments[0];
                 if (!(inputPort instanceof r5js.ast.InputPort)) {
-                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
+                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
                 } else return r5js.data.newIdOrLiteral(inputPort.getPayload()['readChar'](), r5js.DatumType.CHARACTER);
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
@@ -1352,7 +1352,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length - 2]
                     : arguments[0];
                 if (!(inputPort instanceof r5js.ast.InputPort)) {
-                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
+                    throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
                 } else return r5js.data.newIdOrLiteral(inputPort.getPayload()['peekChar'](), r5js.DatumType.CHARACTER);
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
         }
@@ -1372,7 +1372,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length-2]
                     : arguments[0];
                 if (!(inputPort instanceof r5js.ast.InputPort)) {
-                    throw new r5js.ArgumentTypeError(inputPort, 0, 'char-ready?', r5js.DatumType.INPUT_PORT);
+                    throw new r5js.ArgumentTypeError(inputPort, 0, 'char-ready?', 'input-port');
                 } else return inputPort.getPayload()['isCharReady']();
             } else throw new r5js.TooManyArgs('char-ready?', 1, arguments.length);
         }
@@ -1389,7 +1389,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length - 1]
                     : arguments[1];
                 if (!(outputPort instanceof r5js.ast.OutputPort)) {
-                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write', r5js.DatumType.OUTPUT_PORT);
+                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write', 'output-port');
                 }
                 var toWrite = x instanceof r5js.Datum
                     ? x.stringForOutputMode(r5js.OutputMode.WRITE)
@@ -1423,7 +1423,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length - 1]
                     : arguments[1];
                 if (!(outputPort instanceof r5js.ast.OutputPort)) {
-                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
+                    throw new r5js.ArgumentTypeError(outputPort, 1, 'write-char', 'output-port');
                 }
                 outputPort.getPayload()['writeChar'](c.getPayload());
             } else throw new r5js.TooManyArgs('write-char', 2, numUserArgs);
@@ -1448,7 +1448,7 @@ r5js.builtins['io'] = {
                     ? arguments[arguments.length - 1]
                     : arguments[1];
                 if (!(outputPort instanceof r5js.ast.OutputPort)) {
-                    throw new r5js.ArgumentTypeError(outputPort, 1, 'display', r5js.DatumType.OUTPUT_PORT);
+                    throw new r5js.ArgumentTypeError(outputPort, 1, 'display', 'output-port');
                 }
                     var toWrite = x instanceof r5js.Datum
                     ? x.stringForOutputMode(r5js.OutputMode.DISPLAY)
