@@ -43,8 +43,8 @@ r5js.PublicApi.prototype.read = function(string) {
 /** @param {string} string The string to parse. */
 r5js.PublicApi.prototype.parse = function(string) {
     return this.pipeline_.parse(
-        this.pipeline_.read(
-            this.pipeline_.scan(string)));
+        /** @type {!r5js.Datum} */ (this.pipeline_.read(
+            this.pipeline_.scan(string))));
 };
 
 
@@ -108,15 +108,11 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler, logger) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
-                this.pipeline_.parse(
+                this.pipeline_.parse(/** @type {!r5js.Datum} */ (
                     this.pipeline_.read(
-                        this.pipeline_.scan(string)
-                    )),
-                false
-            ),
-            sideEffectHandler,
-            logger
-        );
+                        this.pipeline_.scan(string)))),
+                false /* replMode */),
+            sideEffectHandler, logger);
     return ans instanceof r5js.Datum ?
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :
@@ -135,9 +131,8 @@ r5js.PublicApi.prototype.repl = function (string, sideEffectHandler, logger) {
         this.pipeline_.Eval(
             this.pipeline_.desugar(
                     this.pipeline_.parse(
-                    this.pipeline_.read(
-                        this.pipeline_.scan(string)
-                    )),
+                    /** @type {!r5js.Datum} */ (this.pipeline_.read(
+                        this.pipeline_.scan(string)))),
                 true
             ),
             goog.nullFunction,

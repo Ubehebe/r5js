@@ -39,8 +39,7 @@ r5js.IPipeline.prototype.scan = function(string) {};
 
 /**
  * @param {!r5js.TokenStream} scanner The scanner to read from.
- * @return {!r5js.Datum} Is this correct?
- * TODO bl: figure out the return type.
+ * @return {r5js.Datum} The root of the parse tree, or null if reading failed.
  */
 r5js.IPipeline.prototype.read = function(scanner) {};
 

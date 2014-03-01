@@ -33,7 +33,7 @@ goog.require('r5js.trampoline');
  * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
  * @param {string} procLib Scheme source code for the R5RS procedure library.
  * @param {!r5js.util.Logger} logger Logger for debug output.
- * @return {!r5js.IEnvironment} The R5RS environment.
+ * @return {!r5js.RootEnvironment} The R5RS environment.
  */
 r5js.boot = function(syntaxLib, procLib, logger) {
   var nullEnv = new r5js.Environment('null-environment-5', null);

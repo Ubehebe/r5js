@@ -76,7 +76,7 @@ r5js.test.getApi_ = function(sources) {
               sources.syntax,
               sources.procedures,
               r5js.util.Logger.getLogger('r5js'));
-          pipeline.setRootEnv(r5RSEnv);
+          pipeline.setRootEnv(/** @type {!r5js.RootEnvironment} */ (r5RSEnv));
         });
     r5js.test.api_ = new r5js.PublicApi(pipeline);
   }
