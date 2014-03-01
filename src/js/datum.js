@@ -118,6 +118,18 @@ r5js.Datum.prototype.forEach = function(callback) {
 
 
 /**
+ * @param {function(this: T, !r5js.Datum)} callback
+ * @param {T=} opt_context
+ * @template T
+ */
+r5js.Datum.prototype.forEachChild = function(callback, opt_context) {
+    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
+        callback.call(opt_context, cur);
+    }
+};
+
+
+/**
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.setImmutable = function() {
@@ -447,14 +459,16 @@ r5js.Datum.prototype.prependChild = function(child) {
 /**
  * Map isn't the best word, since the function returns an array
  * but the children are represented as a linked list.
- * @param {function(!r5js.Datum):!r5js.Datum} f Function for transforming
+ * @param {function(this:SCOPE, !r5js.Datum):T} f Function for transforming
  * an individual child.
- * @return {!Array.<!r5js.Datum>} Array of transformed children.
+ * @param {SCOPE=} opt_context Optional receiver for f.
+ * @return {!Array.<T>} Array of transformed children.
+ * @template SCOPE,T
  */
-r5js.Datum.prototype.mapChildren = function(f) {
+r5js.Datum.prototype.mapChildren = function(f, opt_context) {
     var ans = [];
     for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
-        ans.push(f(/** @type {!r5js.Datum} */(cur)));
+        ans.push(f.call(opt_context, cur));
     }
     return ans;
 };

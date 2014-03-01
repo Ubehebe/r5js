@@ -135,33 +135,19 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                      false for cyclical lists. Accordingly, I've written the
                      cycle-detecting logic wholly in Scheme, not bothering
                      to reimplement it here. */
-                    ans = this.getType();
-                    /* Uncomment to show quasiquotation levels.
-                     (These should not make it into any external representation.)
-                     if (this.qqLevel_ !== undefined && ans !== "'")
-                     ans += 'qq' + this.qqLevel_; */
-                    for (child = this.getFirstChild();
-                         child && child.getNextSibling();
-                         child = child.getNextSibling()) {
-                        ans += child.stringForOutputMode(outputMode) + ' ';
-                    }
-                    return ans
-                        + (child ? child.stringForOutputMode(outputMode) : '')
-                        + endDelimiter;
+                    var children = this.mapChildren(function(child) {
+                        return child.stringForOutputMode(outputMode);
+                    });
+                    return this.getType() + children.join(' ') + endDelimiter;
                 case r5js.DatumType.DOTTED_LIST:
-                    ans = '(';
-                    for (child = this.getFirstChild();
-                         child && child.getNextSibling() && child.getNextSibling().getNextSibling();
-                         child = child.getNextSibling()) {
-                        ans += child.stringForOutputMode(outputMode) + ' ';
-                    }
-                    var nextToLastChildString = child
-                        ? child.stringForOutputMode(outputMode)
-                        : '';
-                    var lastChildString = child.getNextSibling() ?
-                        child.getNextSibling().stringForOutputMode(outputMode)
-                        : '';
-                    return ans + nextToLastChildString + ' . ' + lastChildString + ')';
+                        var children = this.mapChildren(function(child) {
+                            return child.stringForOutputMode(outputMode);
+                        });
+                        // Insert the dot at the next-to-last location.
+                        children.splice(-1, 0, r5js.parse.Terminals.DOT);
+                        return r5js.parse.Terminals.LPAREN +
+                            children.join(' ') +
+                            r5js.parse.Terminals.RPAREN;
                 default:
                     throw new r5js.InternalInterpreterError('unknown datum type ' + this.getType());
             }

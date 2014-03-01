@@ -171,7 +171,7 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
 
   var letBindings = new r5js.SiblingBuffer();
 
-  for (var spec = datum.at('(').getFirstChild(); spec; spec = spec.getNextSibling()) {
+    datum.at(r5js.parse.Terminals.LPAREN).forEachChild(function(spec) {
     var kw = spec.at('keyword').clone(null /* parent */);
     var macro = /** @type {!r5js.Macro} */ (
         spec.at('transformer-spec').desugar(env));
@@ -181,7 +181,7 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
     buf.appendSibling(kw);
     buf.appendSibling(r5js.data.newMacroDatum(macro));
     letBindings.appendSibling(buf.toList());
-  }
+  });
 
   var _let = new r5js.SiblingBuffer();
   _let.appendSibling(letBindings.toList());
