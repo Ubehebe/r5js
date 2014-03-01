@@ -19,6 +19,7 @@ goog.provide('r5js.PrimitiveProcedures');
 
 goog.require('r5js.ast.EnvironmentSpecifier');
 goog.require('r5js.ast.Node');
+goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.OutputPort');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.CdrHelper');
@@ -211,14 +212,15 @@ r5js.builtins['type'] = {
     'port?': {
         argc: 1,
         proc: function(datum) {
-            return datum instanceof r5js.ast.OutputPort || datum.isPort();
+            return datum instanceof r5js.ast.InputPort ||
+                datum instanceof r5js.ast.OutputPort;
         }
     },
 
     'input-port?': {
         argc: 1,
         proc: function(datum) {
-            return datum.isInputPort();
+            return datum instanceof r5js.ast.InputPort;
         }
     },
 
@@ -1299,7 +1301,7 @@ r5js.builtins['io'] = {
         argc: 1,
         argtypes: ['string'],
         proc: function(datum) {
-            return r5js.data.newInputPortDatum(
+            return new r5js.ast.InputPort(
                 new r5js.NodeBackedPort(datum.getPayload(), 'r'));
         }
     },
@@ -1335,7 +1337,7 @@ r5js.builtins['io'] = {
                 var inputPort = (numUserArgs === 0)
                     ? arguments[arguments.length - 2]
                     : arguments[0];
-                if (!inputPort.isInputPort()) {
+                if (!(inputPort instanceof r5js.ast.InputPort)) {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
                 } else if (inputPort.getPayload()['isEof']()) {
                     /* R5RS 6.6.2: "If no more characters are available,
@@ -1353,7 +1355,7 @@ r5js.builtins['io'] = {
                 var inputPort = (numUserArgs === 0)
                     ? arguments[arguments.length - 2]
                     : arguments[0];
-                if (!inputPort.isInputPort()) {
+                if (!(inputPort instanceof r5js.ast.InputPort)) {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', r5js.DatumType.INPUT_PORT);
                 } else if (inputPort.getPayload()['isEof']()) {
                     /* R5RS 6.6.2: "If no more characters are available,
@@ -1379,7 +1381,7 @@ r5js.builtins['io'] = {
                 var inputPort = (numUserArgs === 0)
                     ? arguments[arguments.length-2]
                     : arguments[0];
-                if (!inputPort.isInputPort()) {
+                if (!(inputPort instanceof r5js.ast.InputPort)) {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'char-ready?', r5js.DatumType.INPUT_PORT);
                 } else if (inputPort.getPayload()['isEof']()) {
                     /* R5RS 6.6.2: "If the port is at end of file then

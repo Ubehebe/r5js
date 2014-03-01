@@ -550,11 +550,6 @@ r5js.Datum.prototype.isInputPort = function() {
     return this.type_ === r5js.DatumType.INPUT_PORT;
 };
 
-/** @return {boolean} True iff this datum represents an output port. */
-r5js.Datum.prototype.isOutputPort = function() {
-    return this.type_ === r5js.DatumType.OUTPUT_PORT;
-};
-
 /** @return {boolean} True iff this datum represents a macro. */
 r5js.Datum.prototype.isMacro = function() {
     return this.type_ === r5js.DatumType.MACRO;
@@ -1160,29 +1155,6 @@ r5js.data.newProcedureDatum = function(name, procedure) {
     return ans;
 };
 
-
-/**
- * @param {!r5js.Port} port The port to use.
- * @return {!r5js.Datum} New Datum representing an input port.
- */
-r5js.data.newInputPortDatum = function(port) {
-    var ans = new r5js.Datum();
-    ans.type_ = r5js.DatumType.INPUT_PORT;
-    ans.payload_ = port;
-    return ans;
-};
-
-
-/**
- * @param {!r5js.Port} port The port to use.
- * @return {!r5js.Datum} New Datum representing an output port.
- */
-r5js.data.newOutputPortDatum = function(port) {
-    var ans = new r5js.Datum();
-    ans.type_ = r5js.DatumType.OUTPUT_PORT;
-    ans.payload_ = port;
-    return ans;
-};
 
 /**
  * @param {!r5js.Datum} deref Datum to dereference.
