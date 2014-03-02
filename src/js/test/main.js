@@ -58,6 +58,19 @@ r5js.test.parseSandbox = function(text) {
 };
 
 
+/** @param {string} text Text to parse. */
+r5js.test.evalSandbox = function(text) {
+  r5js.test.SchemeSources.get().then(function(sources) {
+    var publicApi = r5js.test.getApi_(sources);
+    window.console.log(
+        publicApi.Eval(
+        text,
+        goog.nullFunction /* sideEffectHandler */,
+        r5js.util.Logger.getLogger('blah')));
+  });
+};
+
+
 /** @private {r5js.PublicApi} */
 r5js.test.api_ = null;
 
