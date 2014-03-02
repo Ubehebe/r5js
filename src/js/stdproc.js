@@ -135,50 +135,6 @@ r5js.builtins['equiv'] = {
 
 r5js.builtins['number'] = {
 
-    'complex?': {
-        argc: 1,
-        proc: function(x) {
-            return x.isNumber();
-        }
-    },
-
-    'real?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isNumber();
-        }
-    },
-
-    'rational?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isNumber();
-        }
-    },
-
-    'integer?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isNumber() && Math.round(node.getPayload()) === node.getPayload();
-        }
-    },
-
-    'exact?': {
-        argc: 1,
-        argtypes: 'number',
-        proc: function(x) {
-            return false;
-        }
-    }, // In JavaScript every number is a double.
-
-    'inexact?': {
-        argc: 1,
-        argtypes: 'number',
-        proc: function(x) {
-            return true;
-        }
-    },
-
     '=': {
         argtypes: 'number',
         proc: function() {
@@ -283,17 +239,6 @@ r5js.builtins['number'] = {
                     ans /= arguments[i];
                 return ans;
             }
-        }
-    },
-
-    'remainder': {
-        argc: 2,
-        argtypes: 'number',
-        proc: function(p, q) {
-            if (q === 0)
-                throw new r5js.PrimitiveProcedureError('remainder: undefined for 0');
-            // The JavaScript % semantics are precisely the Scheme remainder semantics.
-            else return p % q;
         }
     },
 

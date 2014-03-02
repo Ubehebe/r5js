@@ -3,6 +3,8 @@ goog.provide('r5js.runtime');
 
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
+goog.require('r5js.DatumType');
+goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.OutputPort');
 goog.require('r5js.runtime.unary');
@@ -14,6 +16,8 @@ r5js.runtime.PrimitiveProcedures_ = {};
 
 goog.scope(function() {
 var _ = r5js.runtime;
+
+// Type-related procedures
 
 _.PrimitiveProcedures_['boolean?'] = _.unary(function(node) {
   return node.isBoolean();
@@ -70,6 +74,43 @@ _.PrimitiveProcedures_['symbol?'] = _.unary(
 _.PrimitiveProcedures_['vector?'] = _.unary(function(node) {
   return node.isVector();
 });
+
+// Number-related procedures
+
+_.PrimitiveProcedures_['complex?'] = _.unary(function(node) {
+  return node.isNumber();
+});
+
+_.PrimitiveProcedures_['real?'] = _.unary(function(node) {
+  return node.isNumber();
+});
+
+_.PrimitiveProcedures_['rational?'] = _.unary(function(node) {
+  return node.isNumber();
+});
+
+_.PrimitiveProcedures_['integer?'] = _.unary(function(node) {
+  return node.isNumber() &&
+      Math.round(node.getPayload()) === node.getPayload();
+});
+
+_.PrimitiveProcedures_['exact?'] = _.unary(function(x) {
+  return false; // In JavaScript every number is a double.
+}, r5js.DatumType.NUMBER);
+
+_.PrimitiveProcedures_['inexact?'] = _.unary(function(x) {
+  return true;
+}, r5js.DatumType.NUMBER);
+
+_.PrimitiveProcedures_['remainder'] = _.binary(function(p, q) {
+  if (q === 0) {
+    throw new r5js.PrimitiveProcedureError('remainder: undefined for 0');
+  }
+  // The JavaScript % semantics are precisely the Scheme remainder semantics.
+  return p % q;
+}, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
+
+
 });  // goog.scope
 
 
