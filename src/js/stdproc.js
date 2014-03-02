@@ -38,6 +38,7 @@ goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.data');
+goog.require('r5js.runtime');
 goog.require('r5js.procs');
 goog.require('r5js.trampoline');
 goog.require('r5js.util.Logger');
@@ -131,106 +132,6 @@ r5js.builtins['equiv'] = {
     }
 };
 
-r5js.builtins['type'] = {
-
-    'boolean?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isBoolean();
-        }
-    },
-
-    'symbol?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isIdentifier();
-        }
-    },
-
-    'char?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isCharacter();
-        }
-    },
-
-    /* 6.3.6: "Like list constants, vector constants must be quoted."
-     (Neither lists nor vectors appear anywhere in the non-datum grammar).
-     Thus (vector? '#()) => #t, but (vector? #()) is a parse error. Nevertheless,
-     both PLT and MIT Scheme have it evaluate to #t. In those implementations,
-     it seems vectors (but not lists?) are self-evaluating. */
-    'vector?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isVector();
-        }
-    },
-
-    'procedure?': {
-        argc: 1,
-        proc: function(p) {
-            /* R5RS 6.4: "The procedure call-with-current-continuation
-             packages up the current continuation as an "escape procedure"
-             and passes it as an argument to proc." Thus a Continuation
-             must count as a procedure. */
-            return (p instanceof r5js.Datum && p.isProcedure())
-                || p instanceof r5js.Continuation;
-        }
-    },
-
-    'pair?': {
-        argc: 1,
-        proc: function(node) {
-            return (node.isList()
-                || node.isImproperList()
-                || node.isQuote())
-                && !!node.getFirstChild(); // 3.2: (pair? '()) => #f
-        }
-    },
-
-    'null?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isEmptyList();
-        }
-    },
-
-    'number?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isNumber();
-        }
-    },
-
-    'string?': {
-        argc: 1,
-        proc: function(node) {
-            return node.isString();
-        }
-    },
-
-    'port?': {
-        argc: 1,
-        proc: function(datum) {
-            return datum instanceof r5js.ast.InputPort ||
-                datum instanceof r5js.ast.OutputPort;
-        }
-    },
-
-    'input-port?': {
-        argc: 1,
-        proc: function(datum) {
-            return datum instanceof r5js.ast.InputPort;
-        }
-    },
-
-    'output-port?': {
-        argc: 1,
-        proc: function(datum) {
-            return datum instanceof r5js.ast.OutputPort;
-        }
-    }
-};
 
 r5js.builtins['number'] = {
 
@@ -1487,11 +1388,14 @@ r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv, logger) {
     r5js.PrimitiveProcedures.nullEnv_ = nullEnv;
     r5js.PrimitiveProcedures.r5RSEnv_ = r5RSEnv;
 
+    r5js.runtime.install(r5RSEnv);
+
   for (var category in r5js.builtins) {
     var procs = r5js.builtins[category];
     for (var name in procs)
       r5js.PrimitiveProcedures.install_(name, procs[name], r5RSEnv, logger);
   }
+
 
   /* Experimental Scheme->JS FFI is browser-only for now.
      I used to have if (this.window === this), which is cleverer but
