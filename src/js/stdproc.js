@@ -1521,7 +1521,6 @@ r5js.PrimitiveProcedures.install_ = function(name, definition, targetEnv, logger
 
   var argc = definition.argc;
   var argtypes = definition.argtypes;
-  var resultType = definition.resultType;
   var proc = definition.proc;
 
   if (!proc) {
@@ -1609,7 +1608,7 @@ r5js.PrimitiveProcedures.install_ = function(name, definition, targetEnv, logger
     var returnValue = proc.apply(null, maybeUnwrappedArgs);
     return definition.hasSpecialEvalLogic
             ? null /* A function with special eval logic will set the trampolineResultStruct directly. */
-            : r5js.data.maybeWrapResult(returnValue, resultType);
+            : r5js.data.maybeWrapResult(returnValue);
   };
   /* We are setting a boolean flag on a JavaScript function object.
      Not sure this is good style, but it saves us having to wrap
