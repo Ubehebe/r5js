@@ -1,6 +1,7 @@
 goog.provide('r5js.runtime.unary');
 
 
+goog.require('goog.array');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.data');
@@ -53,12 +54,41 @@ r5js.runtime.Exactly_.prototype.checkNumArgs = function(numArgs) {
 };
 
 
+
+/**
+ * @param {number} min
+ * @implements {r5js.runtime.NumArgChecker_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.runtime.AtLeast_ = function(min) {
+  this.min_ = min;
+};
+
+
+/** @override */
+r5js.runtime.AtLeast_.prototype.checkNumArgs = function(numArgs) {
+  if (numArgs < this.min_) {
+    throw new r5js.TooFewArgs('blah' /* TODO bl */, this.min_, numArgs);
+  }
+};
+
+
 /** @const @private {!r5js.runtime.NumArgChecker_} */
 r5js.runtime.EXACTLY_1_ARG_ = new r5js.runtime.Exactly_(1);
 
 
 /** @const @private {!r5js.runtime.NumArgChecker_} */
 r5js.runtime.EXACTLY_2_ARGS_ = new r5js.runtime.Exactly_(2);
+
+
+/** @const @private {!r5js.runtime.NumArgChecker_} */
+r5js.runtime.ANY_NUMBER_OF_ARGS_ = new r5js.runtime.AtLeast_(0);
+
+
+/** @const @private {!r5js.runtime.NumArgChecker_} */
+r5js.runtime.AT_LEAST_1_ARG_ = new r5js.runtime.AtLeast_(1);
 
 
 
@@ -127,8 +157,38 @@ r5js.runtime.NoTypeChecking_.prototype.checkAndUnwrapArgs = function(args) {
 };
 
 
+
+/**
+ * @param {!r5js.Type} type
+ * @implements {r5js.runtime.ArgumentTypeCheckerAndUnwrapper_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.runtime.AllArgsOfType_ = function(type) {
+  /** @const @private {!r5js.Type} */
+  this.type_ = type;
+};
+
+
 /** @const @private {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} */
 r5js.runtime.NO_TYPE_RESTRICTIONS_ = new r5js.runtime.NoTypeChecking_();
+
+
+/**
+ * @override
+ * @suppress {accessControls} TODO bl
+ */
+r5js.runtime.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(args) {
+  var argtype = this.type_;
+  return goog.array.map(args, function(arg, i) {
+    if (!r5js.runtime.PrimitiveProcedures_[argtype + '?'].fn_.call(null, arg)) {
+      throw new r5js.ArgumentTypeError(
+          arg, i, 'blah' /* TODO bl */, argtype);
+    }
+    return arg instanceof r5js.Datum ? arg.unwrap() : arg;
+  });
+};
 
 
 
@@ -168,6 +228,7 @@ r5js.runtime.PrimitiveProcedure.Base_.prototype.javascript = function() {
  * @param {!r5js.Type=} opt_argtype
  * @return {!r5js.runtime.PrimitiveProcedure}
  * @template T
+ * TODO bl: make the template type mean something
  */
 r5js.runtime.unary = function(fn, opt_argtype) {
   return new r5js.runtime.PrimitiveProcedure.Base_(
@@ -184,6 +245,7 @@ r5js.runtime.unary = function(fn, opt_argtype) {
  * @param {!r5js.Type=} opt_argtype2
  * @return {!r5js.runtime.PrimitiveProcedure}
  * @template T1,T2
+ * TODO bl: make the template types mean something
  */
 r5js.runtime.binary = function(fn, opt_argtype1, opt_argtype2) {
   var argtypes = [];
@@ -198,4 +260,28 @@ r5js.runtime.binary = function(fn, opt_argtype1, opt_argtype2) {
       new r5js.runtime.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes);
   return new r5js.runtime.PrimitiveProcedure.Base_(
       fn, r5js.runtime.EXACTLY_2_ARGS_, typeChecker);
+};
+
+
+/**
+ * @param {!Function} fn
+ * @param {!r5js.Type} typeOfAllArgs
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.varargsAtLeast0 = function(fn, typeOfAllArgs) {
+  return new r5js.runtime.PrimitiveProcedure.Base_(
+      fn, r5js.runtime.ANY_NUMBER_OF_ARGS_,
+      new r5js.runtime.AllArgsOfType_(typeOfAllArgs));
+};
+
+
+/**
+ * @param {!Function} fn
+ * @param {!r5js.Type} typeOfAllArgs
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.varargsAtLeast1 = function(fn, typeOfAllArgs) {
+  return new r5js.runtime.PrimitiveProcedure.Base_(
+      fn, r5js.runtime.AT_LEAST_1_ARG_,
+      new r5js.runtime.AllArgsOfType_(typeOfAllArgs));
 };
