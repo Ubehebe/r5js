@@ -24,6 +24,15 @@ r5js.runtime.PrimitiveProcedure = function() {};
 r5js.runtime.PrimitiveProcedure.prototype.javascript;
 
 
+/**
+ * Procedures have no deep need to know their names, as they are only bindings
+ * and can change: (set! car cdr). This method exists only to increase
+ * the usefulness of error messages thrown from primitive procedures.
+ * @param {string} name
+ */
+r5js.runtime.PrimitiveProcedure.prototype.setDebugName = function(name) {};
+
+
 
 /**
  * @interface
@@ -32,8 +41,12 @@ r5js.runtime.PrimitiveProcedure.prototype.javascript;
 r5js.runtime.NumArgChecker_ = function() {};
 
 
-/** @param {number} numArgs */
-r5js.runtime.NumArgChecker_.prototype.checkNumArgs = function(numArgs) {};
+/**
+ * @param {number} numArgs
+ * @param {string} nameToShowInErrorMessage
+ */
+r5js.runtime.NumArgChecker_.prototype.checkNumArgs = function(
+    numArgs, nameToShowInErrorMessage) {};
 
 
 
@@ -51,10 +64,11 @@ r5js.runtime.Exactly_ = function(numArgs) {
 
 
 /** @override */
-r5js.runtime.Exactly_.prototype.checkNumArgs = function(numArgs) {
+r5js.runtime.Exactly_.prototype.checkNumArgs = function(
+    numArgs, nameToShowInErrorMessage) {
   if (numArgs !== this.numArgs_) {
     throw new r5js.IncorrectNumArgs(
-        'blah' /* TODO bl */, this.numArgs_, numArgs);
+        nameToShowInErrorMessage, this.numArgs_, numArgs);
   }
 };
 
@@ -73,9 +87,11 @@ r5js.runtime.AtLeast_ = function(min) {
 
 
 /** @override */
-r5js.runtime.AtLeast_.prototype.checkNumArgs = function(numArgs) {
+r5js.runtime.AtLeast_.prototype.checkNumArgs = function(
+    numArgs, nameToShowInErrorMessage) {
   if (numArgs < this.min_) {
-    throw new r5js.TooFewArgs('blah' /* TODO bl */, this.min_, numArgs);
+    throw new r5js.TooFewArgs(
+        nameToShowInErrorMessage, this.min_, numArgs);
   }
 };
 
@@ -99,12 +115,15 @@ r5js.runtime.Between_ = function(minArgs, maxArgs) {
 
 
 /** @override */
-r5js.runtime.Between_.prototype.checkNumArgs = function(numArgs) {
+r5js.runtime.Between_.prototype.checkNumArgs = function(
+    numArgs, nameToShowInErrorMessage) {
   if (numArgs < this.minArgs_) {
-    throw new r5js.TooFewArgs('blah' /* TODO bl */, this.minArgs_, numArgs);
+    throw new r5js.TooFewArgs(
+        nameToShowInErrorMessage, this.minArgs_, numArgs);
   }
   if (numArgs > this.maxArgs_) {
-    throw new r5js.TooManyArgs('blah' /* TODO bl */, this.maxArgs_, numArgs);
+    throw new r5js.TooManyArgs(
+        nameToShowInErrorMessage, this.maxArgs_, numArgs);
   }
 };
 
@@ -139,10 +158,11 @@ r5js.runtime.ArgumentTypeCheckerAndUnwrapper_ = function() {};
 
 /**
  * @param {!goog.array.ArrayLike} args
+ * @param {string} nameToShowInErrorMessage
  * @return {!goog.array.ArrayLike}
  */
 r5js.runtime.ArgumentTypeCheckerAndUnwrapper_.prototype.checkAndUnwrapArgs =
-    function(args) {};
+    function(args, nameToShowInErrorMessage) {};
 
 
 
@@ -164,14 +184,14 @@ r5js.runtime.ArgumentTypeCheckerAndUnwrapperImpl_ = function(argtypes) {
  * @suppress {accessControls} for r5js.runtime.PrimitiveProcedures_
  */
 r5js.runtime.ArgumentTypeCheckerAndUnwrapperImpl_.prototype.checkAndUnwrapArgs =
-    function(args) {
+    function(args, nameToShowInErrorMessage) {
   var unwrappedArgs = [];
   for (var i = 0; i < this.argtypes_.length; ++i) {
     var arg = args[i];
     var argtype = this.argtypes_[i];
     if (!r5js.runtime.PrimitiveProcedures_[argtype + '?'].fn_.call(null, arg)) {
       throw new r5js.ArgumentTypeError(
-          arg, i, 'blah' /* TODO bl */, argtype);
+          arg, i, nameToShowInErrorMessage, argtype);
     }
     unwrappedArgs.push(arg instanceof r5js.Datum ? arg.unwrap() : arg);
   }
@@ -190,7 +210,8 @@ r5js.runtime.NoTypeChecking_ = function() {};
 
 
 /** @override */
-r5js.runtime.NoTypeChecking_.prototype.checkAndUnwrapArgs = function(args) {
+r5js.runtime.NoTypeChecking_.prototype.checkAndUnwrapArgs = function(
+    args, nameToShowInErrorMessage) {
   return args;
 };
 
@@ -217,12 +238,13 @@ r5js.runtime.NO_TYPE_RESTRICTIONS_ = new r5js.runtime.NoTypeChecking_();
  * @override
  * @suppress {accessControls} TODO bl
  */
-r5js.runtime.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(args) {
+r5js.runtime.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
+    args, nameToShowInErrorMessage) {
   var argtype = this.type_;
   return goog.array.map(args, function(arg, i) {
     if (!r5js.runtime.PrimitiveProcedures_[argtype + '?'].fn_.call(null, arg)) {
       throw new r5js.ArgumentTypeError(
-          arg, i, 'blah' /* TODO bl */, argtype);
+          arg, i, nameToShowInErrorMessage, argtype);
     }
     return arg instanceof r5js.Datum ? arg.unwrap() : arg;
   });
@@ -249,13 +271,22 @@ r5js.runtime.PrimitiveProcedure.Base_ = function(
 
   /** @const @private {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} */
   this.typeChecker_ = typeChecker;
+
+  /** @private {string} */
+  this.debugName_ = '';
+};
+
+
+/** @override */
+r5js.runtime.PrimitiveProcedure.Base_.prototype.setDebugName = function(name) {
+  this.debugName_ = name;
 };
 
 
 /** @override */
 r5js.runtime.PrimitiveProcedure.Base_.prototype.javascript = function() {
-  this.numArgChecker_.checkNumArgs(arguments.length);
-  var args = this.typeChecker_.checkAndUnwrapArgs(arguments);
+  this.numArgChecker_.checkNumArgs(arguments.length, this.debugName_);
+  var args = this.typeChecker_.checkAndUnwrapArgs(arguments, this.debugName_);
   var retval = this.fn_.apply(null, args);
   return r5js.data.maybeWrapResult(retval);
 };

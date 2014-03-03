@@ -678,6 +678,7 @@ PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
 r5js.runtime.install = function(env) {
   for (var name in r5js.runtime.PrimitiveProcedures_) {
     var proc = r5js.runtime.PrimitiveProcedures_[name];
+    proc.setDebugName(name);
     env.addBinding(name, goog.bind(proc.javascript, proc));
   }
 };
