@@ -541,6 +541,96 @@ PrimitiveProcedures['string-ref'] = _.binary(function(node, i) {
 
 // Vector-related procedures
 
+// Evaluation-related procedures
+
+PrimitiveProcedures['eval'] = _.binary(
+    /** @suppress {checkTypes} */ function(expr, envSpec) {
+      if (!(expr instanceof r5js.Datum))
+        throw new r5js.ArgumentTypeError(
+            expr, 0, 'eval', r5js.DatumType.REF /* TODO bl is this right? */);
+      var isEnvNode = r5js.ast.Node.isImplementedBy(envSpec) &&
+          envSpec instanceof r5js.ast.EnvironmentSpecifier;
+      if (!isEnvNode) {
+        throw new r5js.ArgumentTypeError(
+            envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER);
+      }
+      /* An interesting special case. If we're about to evaluate a wrapped
+  procedure (primitive JavaScript or SchemeProcedure), return its name
+  (= external representation) instead. Example:
+
+  (eval + (null-environment 5))
+
+  The answer is (the external representation) +, even though the identifier
+  + is not bound in the null environment. Why? eval, like every procedure,
+  receives its arguments already evaluated, and the value of the identifier
+  + in the regular environment is the primitive procedure for addition.
+  But if we were to pass this Datum-wrapped procedure into the parser,
+  it would not know what to do with it and parsing would fail.
+
+  todo bl: are there any other cases where a procedure can
+  escape into the parser? */
+
+      if (expr && expr.isProcedure())
+        return r5js.data.newIdOrLiteral(/** @type {string} */ (expr.getName()));
+
+      else {
+        /* Call the parse/desugar/eval portions of the interpreter pipeline
+    manually. It would be nice to reuse the code in api.js, but it made
+    for some awkward forward references. Reasoning about this copy/pasted
+    code is simpler than reasoning about the build process. */
+
+        var env = /** @type {!r5js.IEnvironment} */ (envSpec.getPayload());
+        // don't accidentally evaluate the next expr!
+        expr.setNextSibling(null);
+
+        var parsed = new r5js.Parser(expr).parse();
+        if (!parsed)
+          throw new r5js.ParseError(expr);
+        var continuable = parsed.desugar(env).setStartingEnv(env);
+        return r5js.trampoline(
+            continuable,
+            null,
+            null,
+            r5js.util.Logger.getLogger('[embedded eval]'));
+      }
+    });
+
+/* This is not part of any Scheme standard, but it should be useful to
+     test Scheme expressions that should not evaluate. */
+PrimitiveProcedures['will-eval?'] = _.binary(function(expr, envSpec) {
+  try {
+    PrimitiveProcedures['eval'].fn_.call(null, expr, envSpec);
+    return true;
+  } catch (e) {
+    return false;
+  }
+});
+
+// I/O related procedures
+
+PrimitiveProcedures['open-input-file'] = _.unary(function(datum) {
+  return new r5js.ast.InputPort(
+      new r5js.NodeBackedPort(datum.getPayload(), 'r'));
+}, r5js.DatumType.STRING);
+
+PrimitiveProcedures['open-output-file'] = _.unary(function(datum) {
+  return new r5js.ast.OutputPort(
+      new r5js.NodeBackedPort(datum.getPayload(), 'w'));
+}, r5js.DatumType.STRING);
+
+PrimitiveProcedures['close-input-port'] = _.unary(function(datum) {
+  datum.getPayload()['close']();
+  return null;
+}, r5js.DatumType.INPUT_PORT);
+
+PrimitiveProcedures['close-output-port'] = _.unary(function(datum) {
+  datum.getPayload()['close']();
+  return null;
+}, r5js.DatumType.OUTPUT_PORT);
+
+PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
+  return false; // TODO bl add port tests
+});
 });  // goog.scope
 
 

@@ -1,4 +1,7 @@
+goog.provide('r5js.runtime.binary');
 goog.provide('r5js.runtime.unary');
+goog.provide('r5js.runtime.varargsAtLeast0');
+goog.provide('r5js.runtime.varargsAtLeast1');
 
 
 goog.require('goog.array');

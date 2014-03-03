@@ -407,71 +407,6 @@ r5js.builtins['control'] = {
 };
 
 r5js.builtins['eval'] = {
-    'eval': {
-        argc: 2,
-        proc: /** @suppress {checkTypes} */ function(expr, envSpec) {
-            if (!(expr instanceof r5js.Datum))
-                throw new r5js.ArgumentTypeError(expr, 0, 'eval', r5js.DatumType.REF /* TODO bl is this right? */);
-            var isEnvNode = r5js.ast.Node.isImplementedBy(envSpec) &&
-                envSpec instanceof r5js.ast.EnvironmentSpecifier;
-            if (!isEnvNode) {
-                throw new r5js.ArgumentTypeError(envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER);
-            }
-            /* An interesting special case. If we're about to evaluate a wrapped
-             procedure (primitive JavaScript or SchemeProcedure), return its name
-             (= external representation) instead. Example:
-
-             (eval + (null-environment 5))
-
-             The answer is (the external representation) +, even though the identifier
-             + is not bound in the null environment. Why? eval, like every procedure,
-             receives its arguments already evaluated, and the value of the identifier
-             + in the regular environment is the primitive procedure for addition.
-             But if we were to pass this Datum-wrapped procedure into the parser,
-             it would not know what to do with it and parsing would fail.
-
-             todo bl: are there any other cases where a procedure can
-             escape into the parser? */
-
-            if (expr && expr.isProcedure())
-                return r5js.data.newIdOrLiteral(/** @type {string} */ (expr.getName()));
-
-            else {
-                /* Call the parse/desugar/eval portions of the interpreter
-                 pipeline manually. It would be nice to reuse the code in
-                 api.js, but it made for some awkward forward references.
-                 Reasoning about this copy/pasted code is simpler than
-                 reasoning about the build process. */
-
-                var env = /** @type {!r5js.IEnvironment} */ (envSpec.getPayload());
-                // don't accidentally evaluate the next expr!
-                expr.setNextSibling(null);
-
-                var parsed = new r5js.Parser(expr).parse();
-                if (!parsed)
-                    throw new r5js.ParseError(expr);
-                var continuable = parsed.desugar(env).setStartingEnv(env);
-                return r5js.trampoline(
-                    continuable,
-                    null,
-                    null,
-                    r5js.util.Logger.getLogger('[embedded eval]'));
-            }
-        }
-    },
-    /* This is not part of any Scheme standard, but it should be useful to
-     test Scheme expressions that should not evaluate. */
-    'will-eval?': {
-        argc: 2,
-        proc: function(expr, envSpec) {
-            try {
-                r5js.builtins['eval']['eval'].proc(expr, envSpec);
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-    },
     'scheme-report-environment': {
         argc: 1,
         argtypes: ['number'],
@@ -526,38 +461,6 @@ r5js.builtins['io'] = {
             return arguments[1];
         }
     },
-    'open-input-file': {
-        argc: 1,
-        argtypes: ['string'],
-        proc: function(datum) {
-            return new r5js.ast.InputPort(
-                new r5js.NodeBackedPort(datum.getPayload(), 'r'));
-        }
-    },
-    'open-output-file': {
-        argc: 1,
-        argtypes: ['string'],
-        proc: function(datum) {
-            return new r5js.ast.OutputPort(
-                new r5js.NodeBackedPort(datum.getPayload(), 'w'));
-        }
-    },
-    'close-input-port': {
-        argc: 1,
-        argtypes: ['input-port'],
-        proc: function(datum) {
-            datum.getPayload()['close']();
-            return null;
-        }
-    },
-    'close-output-port': {
-        argc: 1,
-        argtypes: ['output-port'],
-        proc: function(datum) {
-            datum.getPayload()['close']();
-            return null;
-        }
-    },
     'read-char': {
         needsCurrentPorts: true,
         proc: function() {
@@ -584,12 +487,6 @@ r5js.builtins['io'] = {
                     throw new r5js.ArgumentTypeError(inputPort, 0, 'read-char', 'input-port');
                 } else return r5js.data.newIdOrLiteral(inputPort.getPayload()['peekChar'](), r5js.DatumType.CHARACTER);
             } else throw new r5js.TooManyArgs('read-char', 1, numUserArgs);
-        }
-    },
-    'eof-object?': {
-        argc: 1,
-        proc: function(port) {
-            return false; // TODO bl add port tests
         }
     },
     'char-ready?': {

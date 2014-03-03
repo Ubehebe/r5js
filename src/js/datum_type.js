@@ -20,10 +20,12 @@ r5js.DatumType = {
   ENVIRONMENT_SPECIFIER: 'environment-specifier',
   FFI: 'ffi',
   IDENTIFIER: 'identifier',
+  INPUT_PORT: 'input-port',
   LAMBDA: 'lambda',
   LIST: '(',
   MACRO: 'macro',
   NUMBER: 'number',
+  OUTPUT_PORT: 'output-port',
   PAIR: 'pair', // TODO bl
   QUASIQUOTE: '`',
   QUOTE: "'",
