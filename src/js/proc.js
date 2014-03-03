@@ -31,6 +31,8 @@ goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
+goog.require('r5js.parse.Nonterminals');
+goog.require('r5js.parse.Terminals');
 goog.require('r5js.MacroError');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
@@ -76,11 +78,13 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
         be converted into a completely equivalent letrec expression." */
     var letrecBindings = new r5js.SiblingBuffer();
     for (var cur = bodyStart;
-         cur && cur.peekParse() === 'definition';
+         cur && cur.peekParse() === r5js.parse.Nonterminals.DEFINITION;
          cur = cur.getNextSibling()) {
       cur.forEach(function(node) {
-        if (node.getFirstChild() && node.getFirstChild().getPayload() === 'define')
+        if (node.getFirstChild() &&
+            node.getFirstChild().getPayload() === r5js.parse.Terminals.DEFINE) {
           letrecBindings.appendSibling(node.extractDefinition());
+        }
       });
     }
 
@@ -475,7 +479,9 @@ r5js.ProcCall.prototype.tryIdShim = function(
         });
     // Now strip away the quote mark.
     // the newIdOrLiteral part is for (quote quote)
-    ans = ans.getFirstChild() ? ans.getFirstChild() : r5js.data.newIdOrLiteral('quote');
+    ans = ans.getFirstChild() ?
+        ans.getFirstChild() :
+        r5js.data.newIdOrLiteral(r5js.parse.Terminals.QUOTE);
   }
   else if (arg.isQuasiquote()) {
     resultStruct.nextContinuable = processQuasiquote(
@@ -1017,7 +1023,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
       // the newIdOrLiteral part is for (quote quote)
       args.push(cur.getFirstChild() ?
           cur.getFirstChild() :
-          r5js.data.newIdOrLiteral('quote'));
+          r5js.data.newIdOrLiteral(r5js.parse.Terminals.QUOTE));
     }
     else if (cur.isProcedure()) {
       args.push(cur);
@@ -1059,7 +1065,7 @@ function processQuasiquote(datum, env, cpsName, parserProvider) {
       function(node) {
         var asContinuable = /** @type {!r5js.Continuable} */ (parserProvider(
             /** @type {!r5js.Datum} */(node.getFirstChild())).
-                parse('expression').
+                parse(r5js.parse.Nonterminals.EXPRESSION).
                 desugar(env, true));
         var continuation = asContinuable.getLastContinuable().continuation;
         /* Throw out the last result name and replace it with another

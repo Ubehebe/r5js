@@ -5,7 +5,6 @@ goog.provide('r5js.DatumType');
 r5js.Type;
 
 
-
 /**
  * @enum {!r5js.Type}
  * TODO bl: remove. Type enums are inferior to subclasses as a way
@@ -16,7 +15,7 @@ r5js.Type;
  */
 r5js.DatumType = {
   BOOLEAN: 'boolean',
-  CHARACTER: 'character',
+  CHARACTER: 'char',
   DOTTED_LIST: '.(',
   ENVIRONMENT_SPECIFIER: 'environment-specifier',
   FFI: 'ffi',
@@ -25,10 +24,12 @@ r5js.DatumType = {
   LIST: '(',
   MACRO: 'macro',
   NUMBER: 'number',
+  PAIR: 'pair', // TODO bl
   QUASIQUOTE: '`',
   QUOTE: "'",
   REF: 'ref',
   STRING: 'string',
+  SYMBOL: 'symbol',
   UNQUOTE: ',',
   UNQUOTE_SPLICING: ',@',
   VECTOR: '#('
