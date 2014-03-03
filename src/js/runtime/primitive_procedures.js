@@ -20,6 +20,74 @@ goog.scope(function() {
 var _ = r5js.runtime;
 var PrimitiveProcedures = r5js.runtime.PrimitiveProcedures_;
 
+// Equivalence-related procedures
+
+/* From the description of eq? at R5RS 6.1, it looks like it is
+     permissible for eq? to have exactly the same semantics as eqv?. */
+PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
+    _.binary(function(p, q) {
+  /* This implementation closely follows the description of eqv?
+             in R5RS 6.1, which explicitly leaves some comparisons undefined. */
+
+  if (!p.sameTypeAs(q)) {
+    return false;
+  }
+
+  if (p.isBoolean()) {
+    return p.getPayload() === q.getPayload();
+  } else if (p.isIdentifier()) {
+    return p.getPayload() === q.getPayload();
+  } else if (p.isNumber()) {
+    return p.getPayload() === q.getPayload(); // todo bl numerical precision...
+  } else if (p.isCharacter()) {
+    return p.getPayload() === q.getPayload();
+  } else if (p.isList()) {
+    var ans;
+    if (p === q || p.isEmptyList() && q.isEmptyList())
+      ans = true;
+    else {
+      var pHelper = p.getCdrHelper();
+      var qHelper = q.getCdrHelper();
+      if (pHelper && qHelper) {
+        ans = pHelper.equals(qHelper);
+      } else if (pHelper) {
+        ans = pHelper.resolvesTo(q);
+      } else if (qHelper) {
+        ans = qHelper.resolvesTo(p);
+      } else ans = false;
+    }
+
+    return ans;
+  } else if (p.isImproperList()) {
+    return p === q;
+  } else if (p.isVector()) {
+    return (p.isArrayBacked() && q.isArrayBacked()) ?
+        p.getPayload() === q.getPayload() :
+        p === q;
+  } else if (p.isString()) {
+    return p === q;
+  } else if (p.isProcedure()) {
+    return p.getPayload() === q.getPayload();
+  } else if (p.isQuasiquote()) {
+    /* todo bl: not sure this is the right thing to do.
+    We can't just "unescape" the quasiquotations. Example:
+
+    (equal? '(a `(b ,(+ 1 2))) '(a `(b ,(+ 1 2))))
+
+    This will eventually call
+
+    (eqv? `(b ,(+ 1 2)) `(b ,(+ 1 2)))
+
+    From this procedure call, it looks as if we should unescape
+    the quasiquotes, but that's incorrect; we've lost the surrounding
+    quotation level.
+
+    It may be possible to figure out what to do based on the qqLevels,
+    but it's been a while since I've looked at that subsystem. */
+    return p.isEqual(q);
+  } else return false;
+});
+
 // Type-related procedures
 
 PrimitiveProcedures['boolean?'] = _.unary(function(node) {
@@ -329,6 +397,150 @@ PrimitiveProcedures['truncate'] = _.unary(function(x) {
    whose absolute value is not larger than the absolute value of x." */
   return x > 0 ? Math.floor(x) : Math.ceil(x);
 }, r5js.DatumType.NUMBER);
+
+// Pair-related procedures
+
+PrimitiveProcedures['car'] = _.unary(function(p) {
+  return p.getFirstChild();
+}, r5js.DatumType.PAIR);
+
+PrimitiveProcedures['cdr'] = _.unary(function(p) {
+  var startOfCdr = p.getFirstChild().getNextSibling();
+  var ans;
+  if (startOfCdr) {
+    ans = (startOfCdr.getNextSibling() || p.isList()) ?
+        startOfCdr.siblingsToList(p.isImproperList()) :
+        startOfCdr;
+    return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
+  } else return newEmptyList();
+}, r5js.DatumType.PAIR);
+
+PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
+  // todo bl this is really expensive! can we cut down on the copying?
+  var realCar = car.clone();
+  var realCdr = cdr.clone();
+  // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
+  if (realCdr.isList() || realCdr.isImproperList()) {
+    realCdr.prependChild(realCar);
+    return realCdr;
+  } else {
+    var ans = new r5js.Datum();
+    ans.setType(r5js.DatumType.DOTTED_LIST);
+    ans.appendChild(realCar);
+    ans.appendChild(realCdr);
+    // todo bl hmm the parent field isn't getting set...is that ok?
+    return ans;
+  }
+});
+
+PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
+  if (!(p.isList() || p.isImproperList())) {
+    throw new r5js.ArgumentTypeError(p, 0, 'set-car!', r5js.DatumType.LIST);
+  }
+  if (p.isImmutable()) {
+    throw new r5js.ImmutableError(p.toString());
+  }
+
+  car.setNextSibling(p.getFirstChild().getNextSibling());
+  p.setFirstChild(car);
+
+  for (var helper = p.getCdrHelper();
+      helper;
+      helper = helper.getCdrHelper())
+    helper.setCar(car);
+
+  return null; // unspecified return value
+});
+
+PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
+  if (!(p.isList() || p.isImproperList())) {
+    throw new r5js.ArgumentTypeError(p, 0, 'set-cdr!', r5js.DatumType.LIST);
+  }
+
+  if (p.isImmutable()) {
+    throw new r5js.ImmutableError(p.toString());
+  }
+
+  if (cdr.isList()) {
+    p.getFirstChild().setNextSibling(cdr.getFirstChild());
+    p.setType(r5js.parse.Terminals.LPAREN);
+  } else {
+    p.getFirstChild().setNextSibling(cdr);
+    p.setType(r5js.parse.Terminals.LPAREN_DOT);
+  }
+
+  for (var helper = p.getCdrHelper();
+      helper; helper = helper.getCdrHelper()) {
+    helper.setCdr(cdr);
+  }
+
+  return null; // unspecified return value
+});
+
+// Symbol-related procedures
+
+PrimitiveProcedures['symbol->string'] = _.unary(function(sym) {
+  return r5js.data.newIdOrLiteral(sym, r5js.DatumType.STRING).setImmutable();
+}, r5js.DatumType.SYMBOL);
+
+PrimitiveProcedures['string->symbol'] = _.unary(function(node) {
+  return r5js.data.newIdOrLiteral(node.getPayload(), r5js.DatumType.IDENTIFIER);
+});
+
+// Character-related procedures
+
+PrimitiveProcedures['char=?'] = _.binary(function(node1, node2) {
+  return node1.getPayload() === node2.getPayload();
+}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+
+PrimitiveProcedures['char<?'] = _.binary(function(node1, node2) {
+  return node1.getPayload() < node2.getPayload();
+}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+
+PrimitiveProcedures['char>?'] = _.binary(function(node1, node2) {
+  return node1.getPayload() > node2.getPayload();
+}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+
+PrimitiveProcedures['char<=?'] = _.binary(function(node1, node2) {
+  return node1.getPayload() <= node2.getPayload();
+}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+
+PrimitiveProcedures['char>=?'] = _.binary(function(node1, node2) {
+  return node1.getPayload() >= node2.getPayload();
+}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+
+PrimitiveProcedures['char->integer'] = _.unary(function(node) {
+  return node.getPayload().charCodeAt(0);
+}, r5js.DatumType.CHARACTER);
+
+PrimitiveProcedures['integer->char'] = _.unary(function(i) {
+  return r5js.data.newIdOrLiteral(
+      String.fromCharCode(i), r5js.DatumType.CHARACTER);
+}, r5js.DatumType.NUMBER);
+
+PrimitiveProcedures['char-upcase'] = _.unary(function(node) {
+  return r5js.data.newIdOrLiteral(
+      node.getPayload().toUpperCase(), r5js.DatumType.CHARACTER);
+}, r5js.DatumType.CHARACTER);
+
+PrimitiveProcedures['char-downcase'] = _.unary(function(node) {
+  return r5js.data.newIdOrLiteral(
+      node.getPayload().toLowerCase(), r5js.DatumType.CHARACTER);
+}, r5js.DatumType.CHARACTER);
+
+// String-related procedures
+
+PrimitiveProcedures['string-length'] = _.unary(function(node) {
+  return node.getPayload().length;
+}, r5js.DatumType.STRING);
+
+PrimitiveProcedures['string-ref'] = _.binary(function(node, i) {
+  return r5js.data.newIdOrLiteral(
+      node.getPayload().charAt(i), r5js.DatumType.CHARACTER);
+}, r5js.DatumType.STRING, r5js.DatumType.NUMBER);
+
+// Vector-related procedures
+
 });  // goog.scope
 
 

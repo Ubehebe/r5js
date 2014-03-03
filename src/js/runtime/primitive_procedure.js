@@ -84,6 +84,10 @@ r5js.runtime.EXACTLY_2_ARGS_ = new r5js.runtime.Exactly_(2);
 
 
 /** @const @private {!r5js.runtime.NumArgChecker_} */
+r5js.runtime.EXACTLY_3_ARGS_ = new r5js.runtime.Exactly_(3);
+
+
+/** @const @private {!r5js.runtime.NumArgChecker_} */
 r5js.runtime.ANY_NUMBER_OF_ARGS_ = new r5js.runtime.AtLeast_(0);
 
 
@@ -260,6 +264,22 @@ r5js.runtime.binary = function(fn, opt_argtype1, opt_argtype2) {
       new r5js.runtime.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes);
   return new r5js.runtime.PrimitiveProcedure.Base_(
       fn, r5js.runtime.EXACTLY_2_ARGS_, typeChecker);
+};
+
+
+/**
+ * @param {function(T1, T2, T3): ?} fn
+ * @param {!r5js.Type} argtype1
+ * @param {!r5js.Type} argtype2
+ * @param {!r5js.Type} argtype3
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ * @template T1,T2,T3
+ */
+r5js.runtime.ternary = function(fn, argtype1, argtype2, argtype3) {
+  return new r5js.runtime.PrimitiveProcedure.Base_(
+      fn, r5js.runtime.EXACTLY_3_ARGS_,
+      new r5js.runtime.ArgumentTypeCheckerAndUnwrapperImpl_([
+        argtype1, argtype2, argtype3]));
 };
 
 
