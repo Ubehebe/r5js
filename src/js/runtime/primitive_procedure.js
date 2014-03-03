@@ -7,6 +7,8 @@ goog.provide('r5js.runtime.varargsAtLeast1');
 goog.require('goog.array');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
+goog.require('r5js.TooFewArgs');
+goog.require('r5js.TooManyArgs');
 goog.require('r5js.data');
 
 
@@ -74,6 +76,35 @@ r5js.runtime.AtLeast_ = function(min) {
 r5js.runtime.AtLeast_.prototype.checkNumArgs = function(numArgs) {
   if (numArgs < this.min_) {
     throw new r5js.TooFewArgs('blah' /* TODO bl */, this.min_, numArgs);
+  }
+};
+
+
+
+/**
+ * @param {number} minArgs
+ * @param {number} maxArgs
+ * @implements {r5js.runtime.NumArgChecker_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.runtime.Between_ = function(minArgs, maxArgs) {
+  /** @const @private {number} */
+  this.minArgs_ = minArgs;
+
+  /** @const @private {number} */
+  this.maxArgs_ = maxArgs;
+};
+
+
+/** @override */
+r5js.runtime.Between_.prototype.checkNumArgs = function(numArgs) {
+  if (numArgs < this.minArgs_) {
+    throw new r5js.TooFewArgs('blah' /* TODO bl */, this.minArgs_, numArgs);
+  }
+  if (numArgs > this.maxArgs_) {
+    throw new r5js.TooManyArgs('blah' /* TODO bl */, this.maxArgs_, numArgs);
   }
 };
 
@@ -271,18 +302,14 @@ r5js.runtime.binary = function(fn, opt_argtype1, opt_argtype2) {
 
 
 /**
- * @param {function(T1, T2, T3): ?} fn
- * @param {!r5js.Type} argtype1
- * @param {!r5js.Type} argtype2
- * @param {!r5js.Type} argtype3
+ * @param {function(?, ?, ?): ?} fn
  * @return {!r5js.runtime.PrimitiveProcedure}
- * @template T1,T2,T3
  */
-r5js.runtime.ternary = function(fn, argtype1, argtype2, argtype3) {
+r5js.runtime.ternary = function(fn) {
   return new r5js.runtime.PrimitiveProcedure.Base_(
-      fn, r5js.runtime.EXACTLY_3_ARGS_,
-      new r5js.runtime.ArgumentTypeCheckerAndUnwrapperImpl_([
-        argtype1, argtype2, argtype3]));
+      fn,
+      r5js.runtime.EXACTLY_3_ARGS_,
+      r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };
 
 
@@ -307,4 +334,18 @@ r5js.runtime.varargsAtLeast1 = function(fn, typeOfAllArgs) {
   return new r5js.runtime.PrimitiveProcedure.Base_(
       fn, r5js.runtime.AT_LEAST_1_ARG_,
       new r5js.runtime.AllArgsOfType_(typeOfAllArgs));
+};
+
+
+/**
+ * @param {!Function} fn
+ * @param {number} minArgs
+ * @param {number} maxArgs
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.varargsRange = function(fn, minArgs, maxArgs) {
+  return new r5js.runtime.PrimitiveProcedure.Base_(
+      fn,
+      new r5js.runtime.Between_(minArgs, maxArgs),
+      r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };

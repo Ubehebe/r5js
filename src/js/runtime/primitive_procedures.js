@@ -530,6 +530,20 @@ PrimitiveProcedures['char-downcase'] = _.unary(function(node) {
 
 // String-related procedures
 
+PrimitiveProcedures['make-string'] = _.varargsRange(
+    function(numberNode, charNode) {
+      /* R5RS 6.3.5: "If char is given, then all elements of the
+             string are initialized to char, otherwise the contents
+             of the string are unspecified." */
+      var c = goog.isDef(charNode) ? charNode.getPayload() : ' ';
+      var n = numberNode.getPayload();
+      var s = '';
+      for (var i = 0; i < n; ++i) {
+        s += c;
+      }
+      return r5js.data.newIdOrLiteral(s, r5js.DatumType.STRING);
+    }, 1, 2);
+
 PrimitiveProcedures['string-length'] = _.unary(function(node) {
   return node.getPayload().length;
 }, r5js.DatumType.STRING);
@@ -538,6 +552,32 @@ PrimitiveProcedures['string-ref'] = _.binary(function(node, i) {
   return r5js.data.newIdOrLiteral(
       node.getPayload().charAt(i), r5js.DatumType.CHARACTER);
 }, r5js.DatumType.STRING, r5js.DatumType.NUMBER);
+
+PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
+  if (!str.isString()) {
+    throw new r5js.ArgumentTypeError(
+        str, 0, 'string-set!', r5js.DatumType.STRING);
+  }
+  if (!k.isNumber()) {
+    throw new r5js.ArgumentTypeError(
+        k, 1, 'string-set!', r5js.DatumType.NUMBER);
+  }
+  if (!c.isCharacter()) {
+    throw new r5js.ArgumentTypeError(
+        c, 2, 'string-set!', r5js.DatumType.CHARACTER);
+  }
+
+  if (str.isImmutable()) {
+    throw new r5js.ImmutableError(str.getPayload());
+  }
+
+  var s = str.getPayload();
+
+  str.setPayload(s.substr(0, k.getPayload()) +
+      c.getPayload() + s.substr(k.getPayload() + 1));
+
+  return null; // unspecified return value
+});
 
 // Vector-related procedures
 
