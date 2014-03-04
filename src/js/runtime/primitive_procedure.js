@@ -18,10 +18,10 @@ r5js.runtime.PrimitiveProcedure = function() {};
 
 
 /**
- * @type {!Function}
+ * @return {!Function}
  * TODO bl improve name.
  */
-r5js.runtime.PrimitiveProcedure.prototype.javascript;
+r5js.runtime.PrimitiveProcedure.prototype.getBoundJavascript = function() {};
 
 
 /**
@@ -69,6 +69,38 @@ r5js.runtime.Exactly_.prototype.checkNumArgs = function(
   if (numArgs !== this.numArgs_) {
     throw new r5js.IncorrectNumArgs(
         nameToShowInErrorMessage, this.numArgs_, numArgs);
+  }
+};
+
+
+
+/**
+ * @param {number} numUserArgs
+ * @param {number} numArgsAddedByRuntime
+ * @implements {r5js.runtime.NumArgChecker_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.runtime.ExactlyWithExtraRuntimeArgs_ = function(
+    numUserArgs, numArgsAddedByRuntime) {
+  /** @const @private {number} */
+  this.numUserArgs_ = numUserArgs;
+
+  /** @const @private {number} */
+  this.numArgsAddedByRuntime_ = numArgsAddedByRuntime;
+};
+
+
+/** @override */
+r5js.runtime.ExactlyWithExtraRuntimeArgs_.prototype.checkNumArgs = function(
+    numArgs, nameToShowInErrorMessage) {
+  var numArgsToExpect = this.numUserArgs_ + this.numArgsAddedByRuntime_;
+  if (numArgsToExpect !== numArgs) {
+    throw new r5js.IncorrectNumArgs(
+        nameToShowInErrorMessage,
+        this.numUserArgs_,
+        numArgs - this.numArgsAddedByRuntime_);
   }
 };
 
@@ -124,6 +156,49 @@ r5js.runtime.Between_.prototype.checkNumArgs = function(
   if (numArgs > this.maxArgs_) {
     throw new r5js.TooManyArgs(
         nameToShowInErrorMessage, this.maxArgs_, numArgs);
+  }
+};
+
+
+
+/**
+ * @param {number} minNumUserArgs
+ * @param {number} maxNumUserArgs
+ * @param {number} numArgsAddedByRuntime
+ * @implements {r5js.runtime.NumArgChecker_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.runtime.BetweenWithExtraRuntimeArgs_ = function(
+    minNumUserArgs, maxNumUserArgs, numArgsAddedByRuntime) {
+  /** @const @private {number} */
+  this.minNumUserArgs_ = minNumUserArgs;
+
+  /** @const @private {number} */
+  this.maxNumUserArgs_ = maxNumUserArgs;
+
+  /** @const @private {number} */
+  this.numArgsAddedByRuntime_ = numArgsAddedByRuntime;
+};
+
+
+/** @override */
+r5js.runtime.BetweenWithExtraRuntimeArgs_.prototype.checkNumArgs = function(
+    numArgs, nameToShowInErrorMessage) {
+  var minNumArgs = this.minNumUserArgs_ + this.numArgsAddedByRuntime_;
+  var maxNumArgs = this.maxNumUserArgs_ + this.numArgsAddedByRuntime_;
+  if (numArgs < minNumArgs) {
+    throw new r5js.TooFewArgs(
+        nameToShowInErrorMessage,
+        this.minNumUserArgs_,
+        numArgs - this.numArgsAddedByRuntime_);
+  }
+  if (numArgs > maxNumArgs) {
+    throw new r5js.TooManyArgs(
+        nameToShowInErrorMessage,
+        this.maxNumUserArgs_,
+        numArgs - this.numArgsAddedByRuntime_);
   }
 };
 
@@ -256,13 +331,14 @@ r5js.runtime.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
  * @param {!Function} fn TODO bl narrow type?
  * @param {!r5js.runtime.NumArgChecker_} numArgChecker
  * @param {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} typeChecker
+ * @param {boolean=} opt_needsCurrentPorts
  * @implements {r5js.runtime.PrimitiveProcedure}
  * @struct
  * @constructor
  * @private
  */
 r5js.runtime.PrimitiveProcedure.Base_ = function(
-    fn, numArgChecker, typeChecker) {
+    fn, numArgChecker, typeChecker, opt_needsCurrentPorts) {
   /** @const @private {function(!r5js.Datum):?} */
   this.fn_ = fn;
 
@@ -271,6 +347,9 @@ r5js.runtime.PrimitiveProcedure.Base_ = function(
 
   /** @const @private {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} */
   this.typeChecker_ = typeChecker;
+
+  /** @const @private {boolean} */
+  this.needsCurrentPorts_ = !!opt_needsCurrentPorts;
 
   /** @private {string} */
   this.debugName_ = '';
@@ -284,10 +363,27 @@ r5js.runtime.PrimitiveProcedure.Base_.prototype.setDebugName = function(name) {
 
 
 /** @override */
-r5js.runtime.PrimitiveProcedure.Base_.prototype.javascript = function() {
+r5js.runtime.PrimitiveProcedure.Base_.prototype.getBoundJavascript =
+    function() {
+  var bound = goog.bind(this.javascript_, this);
+  // TODO bl remove once legacy primitive procedures are all migrated.
+  // Will also need to update r5js.ProcCall#tryPrimitiveProcedure.
+  if (this.needsCurrentPorts_) {
+    bound.needsCurrentPorts = true;
+  }
+  return bound;
+};
+
+
+/**
+ * @return {r5js.PayloadType}
+ * @private
+ */
+r5js.runtime.PrimitiveProcedure.Base_.prototype.javascript_ = function() {
   this.numArgChecker_.checkNumArgs(arguments.length, this.debugName_);
-  var args = this.typeChecker_.checkAndUnwrapArgs(arguments, this.debugName_);
-  var retval = this.fn_.apply(null, args);
+  var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
+      arguments, this.debugName_);
+  var retval = this.fn_.apply(null, unwrappedArgs);
   return r5js.data.maybeWrapResult(retval);
 };
 
@@ -328,7 +424,9 @@ r5js.runtime.binary = function(fn, opt_argtype1, opt_argtype2) {
       r5js.runtime.NO_TYPE_RESTRICTIONS_ :
       new r5js.runtime.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes);
   return new r5js.runtime.PrimitiveProcedure.Base_(
-      fn, r5js.runtime.EXACTLY_2_ARGS_, typeChecker);
+      fn,
+      r5js.runtime.EXACTLY_2_ARGS_,
+      typeChecker);
 };
 
 
@@ -379,4 +477,37 @@ r5js.runtime.varargsRange = function(fn, minArgs, maxArgs) {
       fn,
       new r5js.runtime.Between_(minArgs, maxArgs),
       r5js.runtime.NO_TYPE_RESTRICTIONS_);
+};
+
+
+/**
+ * @param {function(!r5js.ast.InputPort, !r5js.ast.OutputPort): ?} fn
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.nullaryWithCurrentPorts = function(fn) {
+  return new r5js.runtime.PrimitiveProcedure.Base_(
+      fn, new r5js.runtime.ExactlyWithExtraRuntimeArgs_(0, 2),
+      r5js.runtime.NO_TYPE_RESTRICTIONS_, true /* needsCurrentPorts */);
+};
+
+
+/**
+ * @param {function(?, !r5js.ast.InputPort, !r5js.ast.OutputPort): ?} fn
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.nullaryOrUnaryWithCurrentPorts = function(fn) {
+  return new r5js.runtime.PrimitiveProcedure.Base_(
+      fn, new r5js.runtime.BetweenWithExtraRuntimeArgs_(0, 1, 2),
+      r5js.runtime.NO_TYPE_RESTRICTIONS_, true /* needsCurrentPorts */);
+};
+
+
+/**
+ * @param {function(?, ?, !r5js.ast.InputPort, !r5js.ast.OutputPort): ?} fn
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.unaryOrBinaryWithCurrentPorts = function(fn) {
+  return new r5js.runtime.PrimitiveProcedure.Base_(
+      fn, new r5js.runtime.BetweenWithExtraRuntimeArgs_(1, 2, 2),
+      r5js.runtime.NO_TYPE_RESTRICTIONS_, true /* needsCurrentPorts */);
 };
