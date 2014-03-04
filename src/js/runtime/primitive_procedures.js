@@ -4,6 +4,7 @@ goog.provide('r5js.runtime');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
+goog.require('r5js.OutputMode');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
@@ -648,6 +649,62 @@ PrimitiveProcedures['will-eval?'] = _.binary(function(expr, envSpec) {
 
 // I/O related procedures
 
+PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
+    function(maybeUserSuppliedInputPort, inputPort) {
+      var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
+      if (!(inputPortToUse instanceof r5js.ast.InputPort)) {
+        throw new r5js.ArgumentTypeError(
+            inputPortToUse, 0, 'char-ready?', r5js.DatumType.INPUT_PORT);
+      }
+      return inputPortToUse.getPayload().isCharReady();
+    });
+
+PrimitiveProcedures['close-input-port'] = _.unary(function(datum) {
+  datum.getPayload().close();
+  return null;
+}, r5js.DatumType.INPUT_PORT);
+
+PrimitiveProcedures['close-output-port'] = _.unary(function(datum) {
+  datum.getPayload().close();
+  return null;
+}, r5js.DatumType.OUTPUT_PORT);
+
+PrimitiveProcedures['current-input-port'] = _.nullaryWithCurrentPorts(
+    function(inputPort) { return inputPort; });
+
+PrimitiveProcedures['current-output-port'] = _.nullaryWithCurrentPorts(
+    function(inputPort, outputPort) { return outputPort; });
+
+/* According to R5RS 6.6.3, display is supposed to be a library
+     procedure. Since the only non-library output routine is write-char,
+     display would presumably have to be written in terms of write-char.
+     That's not too efficient, so I decided to write it in JavaScript. */
+PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
+    function(datum, inputPort, outputPort) {
+      if (!(outputPort instanceof r5js.ast.OutputPort)) {
+        throw new r5js.ArgumentTypeError(
+            outputPort, 1, 'display', r5js.DatumType.OUTPUT_PORT);
+      }
+      var toWrite = datum instanceof r5js.Datum ?
+          datum.stringForOutputMode(r5js.OutputMode.DISPLAY) :
+          String(datum);
+      /* Port implementations aren't required to implement
+             write. If they don't, we just call writeChar (which they
+             must implement) on every single character. */
+      if (outputPort.getPayload().write) {
+        outputPort.getPayload().write(toWrite);
+      } else {
+        for (var i = 0; i < toWrite.length; ++i) {
+          outputPort.getPayload().writeChar(toWrite[i]);
+        }
+      }
+      return null; // unspecified return value
+    });
+
+PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
+  return false; // TODO bl add port tests
+});
+
 PrimitiveProcedures['open-input-file'] = _.unary(function(datum) {
   return new r5js.ast.InputPort(
       new r5js.NodeBackedPort(datum.getPayload(), 'r'));
@@ -658,19 +715,67 @@ PrimitiveProcedures['open-output-file'] = _.unary(function(datum) {
       new r5js.NodeBackedPort(datum.getPayload(), 'w'));
 }, r5js.DatumType.STRING);
 
-PrimitiveProcedures['close-input-port'] = _.unary(function(datum) {
-  datum.getPayload()['close']();
-  return null;
-}, r5js.DatumType.INPUT_PORT);
+PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
+    function(maybeUserSuppliedInputPort, inputPort) {
+      var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
+      if (!(inputPortToUse instanceof r5js.ast.InputPort)) {
+        throw new r5js.ArgumentTypeError(
+            inputPortToUse, 0, 'peek-char', r5js.DatumType.INPUT_PORT);
+      }
+      return r5js.data.newIdOrLiteral(
+          inputPortToUse.getPayload().peekChar(),
+          r5js.DatumType.CHARACTER);
+    });
 
-PrimitiveProcedures['close-output-port'] = _.unary(function(datum) {
-  datum.getPayload()['close']();
-  return null;
-}, r5js.DatumType.OUTPUT_PORT);
+PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
+    function(maybeUserSuppliedInputPort, inputPort) {
+      var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
+      if (!(inputPortToUse instanceof r5js.ast.InputPort)) {
+        throw new r5js.ArgumentTypeError(
+            inputPortToUse, 0, 'read-char', r5js.DatumType.INPUT_PORT);
+      }
+      return r5js.data.newIdOrLiteral(
+          inputPortToUse.getPayload().readChar(),
+          r5js.DatumType.CHARACTER);
+    });
 
-PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
-  return false; // TODO bl add port tests
-});
+PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
+    function(datum, maybeUserSuppliedOutputPort, inputPort, outputPort) {
+      var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
+      if (!(outputPortToUse instanceof r5js.ast.OutputPort)) {
+        throw new r5js.ArgumentTypeError(
+            outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT);
+      }
+      var toWrite = datum instanceof r5js.Datum ?
+          datum.stringForOutputMode(r5js.OutputMode.WRITE) :
+          String(datum);
+      /* Port implementations aren't required to implement
+            write. If they don't, we just call writeChar (which they
+            must implement) on every single character. */
+      if (outputPortToUse.getPayload().write) {
+        outputPortToUse.getPayload().write(toWrite);
+      } else {
+        for (var i = 0; i < toWrite.length; ++i) {
+          outputPortToUse.getPayload().writeChar(toWrite[i]);
+        }
+      }
+      return null; // unspecified return value
+    });
+
+PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
+    function(charNode, maybeUserSuppliedOutputPort, inputPort, outputPort) {
+      if (!charNode.isCharacter()) {
+        throw new r5js.ArgumentTypeError(
+            charNode, 0, 'write-char', r5js.DatumType.CHARACTER);
+      }
+      var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
+      if (!(outputPortToUse instanceof r5js.ast.OutputPort)) {
+        throw new r5js.ArgumentTypeError(
+            outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
+      }
+      outputPort.getPayload().writeChar(charNode.getPayload());
+      return null; // unspecified return value
+    });
 });  // goog.scope
 
 
@@ -679,7 +784,7 @@ r5js.runtime.install = function(env) {
   for (var name in r5js.runtime.PrimitiveProcedures_) {
     var proc = r5js.runtime.PrimitiveProcedures_[name];
     proc.setDebugName(name);
-    env.addBinding(name, goog.bind(proc.javascript, proc));
+    env.addBinding(name, proc.getBoundJavascript());
   }
 };
 
