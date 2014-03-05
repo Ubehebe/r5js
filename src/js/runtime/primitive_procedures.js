@@ -1,6 +1,7 @@
 goog.provide('r5js.runtime');
 
 
+goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
@@ -11,6 +12,14 @@ goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.OutputPort');
 goog.require('r5js.runtime.unary');
+
+
+/** @private {r5js.IEnvironment} */
+r5js.runtime.nullEnv_;
+
+
+/** @private {r5js.IEnvironment} */
+r5js.runtime.r5RSEnv_;
 
 
 /** @const @private {!Object.<string, !r5js.runtime.PrimitiveProcedure>} */
@@ -1074,15 +1083,43 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
   resultStruct.nextContinuable = continuation.nextContinuable;
   return null;
 });
+
+
+// Environment-related procedures
+
+PrimitiveProcedures['null-environment'] = _.unary(function(num) {
+  if (num !== 5) {
+    throw new r5js.InternalInterpreterError(
+        'unsupported null environment ' + num);
+  }
+  return new r5js.ast.EnvironmentSpecifier(
+      /** @type {!r5js.IEnvironment} */ (r5js.runtime.nullEnv_));
+}, r5js.DatumType.NUMBER);
+
+PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
+  if (num !== 5) {
+    throw new r5js.InternalInterpreterError(
+        'unsupported scheme report environment ' + num);
+  }
+  return new r5js.ast.EnvironmentSpecifier(
+      /** @type {!r5js.IEnvironment} */(r5js.runtime.r5RSEnv_));
+}, r5js.DatumType.NUMBER);
+
+
 });  // goog.scope
 
 
-/** @param {!r5js.IEnvironment} env */
-r5js.runtime.install = function(env) {
+/**
+ * @param {!r5js.IEnvironment} nullEnv
+ * @param {!r5js.IEnvironment} r5RSEnv
+ */
+r5js.runtime.install = function(nullEnv, r5RSEnv) {
+  r5js.runtime.nullEnv_ = nullEnv;
+  r5js.runtime.r5RSEnv_ = r5RSEnv;
   for (var name in r5js.runtime.PrimitiveProcedures_) {
     var proc = r5js.runtime.PrimitiveProcedures_[name];
     proc.setDebugName(name);
-    env.addBinding(name, proc.getBoundJavascript());
+    r5RSEnv.addBinding(name, proc.getBoundJavascript());
   }
 };
 
