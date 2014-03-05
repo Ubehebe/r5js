@@ -331,14 +331,13 @@ r5js.runtime.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
  * @param {!Function} fn TODO bl narrow type?
  * @param {!r5js.runtime.NumArgChecker_} numArgChecker
  * @param {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} typeChecker
- * @param {boolean=} opt_needsCurrentPorts
  * @implements {r5js.runtime.PrimitiveProcedure}
  * @struct
  * @constructor
  * @private
  */
 r5js.runtime.PrimitiveProcedure.Base_ = function(
-    fn, numArgChecker, typeChecker, opt_needsCurrentPorts) {
+    fn, numArgChecker, typeChecker) {
   /** @const @private {function(!r5js.Datum):?} */
   this.fn_ = fn;
 
@@ -347,9 +346,6 @@ r5js.runtime.PrimitiveProcedure.Base_ = function(
 
   /** @const @private {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} */
   this.typeChecker_ = typeChecker;
-
-  /** @const @private {boolean} */
-  this.needsCurrentPorts_ = !!opt_needsCurrentPorts;
 
   /** @private {string} */
   this.debugName_ = '';
@@ -365,13 +361,7 @@ r5js.runtime.PrimitiveProcedure.Base_.prototype.setDebugName = function(name) {
 /** @override */
 r5js.runtime.PrimitiveProcedure.Base_.prototype.getBoundJavascript =
     function() {
-  var bound = goog.bind(this.javascript_, this);
-  // TODO bl remove once legacy primitive procedures are all migrated.
-  // Will also need to update r5js.ProcCall#tryPrimitiveProcedure.
-  if (this.needsCurrentPorts_) {
-    bound.needsCurrentPorts = true;
-  }
-  return bound;
+  return goog.bind(this.javascript_, this);
 };
 
 
@@ -385,6 +375,33 @@ r5js.runtime.PrimitiveProcedure.Base_.prototype.javascript_ = function() {
       arguments, this.debugName_);
   var retval = this.fn_.apply(null, unwrappedArgs);
   return r5js.data.maybeWrapResult(retval);
+};
+
+
+
+/**
+ * @param {!Function} fn
+ * @param {!r5js.runtime.NumArgChecker_} numArgChecker
+ * @param {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} typeChecker
+ * @extends {r5js.runtime.PrimitiveProcedure.Base_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.runtime.NeedsCurrentPorts_ = function(fn, numArgChecker, typeChecker) {
+  goog.base(this, fn, numArgChecker, typeChecker);
+};
+goog.inherits(
+    r5js.runtime.NeedsCurrentPorts_, r5js.runtime.PrimitiveProcedure.Base_);
+
+
+/** @override */
+r5js.runtime.NeedsCurrentPorts_.prototype.getBoundJavascript = function() {
+  // TODO bl remove once legacy primitive procedures are all migrated.
+  // Will also need to update r5js.ProcCall#tryPrimitiveProcedure.
+  var bound = goog.base(this, 'getBoundJavascript');
+  bound.needsCurrentPorts = true;
+  return bound;
 };
 
 
@@ -485,9 +502,9 @@ r5js.runtime.varargsRange = function(fn, minArgs, maxArgs) {
  * @return {!r5js.runtime.PrimitiveProcedure}
  */
 r5js.runtime.nullaryWithCurrentPorts = function(fn) {
-  return new r5js.runtime.PrimitiveProcedure.Base_(
+  return new r5js.runtime.NeedsCurrentPorts_(
       fn, new r5js.runtime.ExactlyWithExtraRuntimeArgs_(0, 2),
-      r5js.runtime.NO_TYPE_RESTRICTIONS_, true /* needsCurrentPorts */);
+      r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };
 
 
@@ -496,9 +513,9 @@ r5js.runtime.nullaryWithCurrentPorts = function(fn) {
  * @return {!r5js.runtime.PrimitiveProcedure}
  */
 r5js.runtime.nullaryOrUnaryWithCurrentPorts = function(fn) {
-  return new r5js.runtime.PrimitiveProcedure.Base_(
+  return new r5js.runtime.NeedsCurrentPorts_(
       fn, new r5js.runtime.BetweenWithExtraRuntimeArgs_(0, 1, 2),
-      r5js.runtime.NO_TYPE_RESTRICTIONS_, true /* needsCurrentPorts */);
+      r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };
 
 
@@ -507,7 +524,7 @@ r5js.runtime.nullaryOrUnaryWithCurrentPorts = function(fn) {
  * @return {!r5js.runtime.PrimitiveProcedure}
  */
 r5js.runtime.unaryOrBinaryWithCurrentPorts = function(fn) {
-  return new r5js.runtime.PrimitiveProcedure.Base_(
+  return new r5js.runtime.NeedsCurrentPorts_(
       fn, new r5js.runtime.BetweenWithExtraRuntimeArgs_(1, 2, 2),
-      r5js.runtime.NO_TYPE_RESTRICTIONS_, true /* needsCurrentPorts */);
+      r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };
