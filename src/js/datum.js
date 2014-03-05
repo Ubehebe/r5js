@@ -1148,7 +1148,7 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
 
 /**
  * @param {string} name Name of the procedure.
- * @param {Function|!r5js.Procedure} procedure TODO bl.
+ * @param {!r5js.runtime.PrimitiveProcedure|!r5js.Procedure} procedure TODO bl.
  * @return {!r5js.Datum} New Datum representing the given procedure.
  */
 r5js.data.newProcedureDatum = function(name, procedure) {

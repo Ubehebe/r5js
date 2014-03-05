@@ -1119,7 +1119,7 @@ r5js.runtime.install = function(nullEnv, r5RSEnv) {
   for (var name in r5js.runtime.PrimitiveProcedures_) {
     var proc = r5js.runtime.PrimitiveProcedures_[name];
     proc.setDebugName(name);
-    r5RSEnv.addBinding(name, proc.getBoundJavascript());
+    r5RSEnv.addBinding(name, proc);
   }
 };
 

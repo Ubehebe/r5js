@@ -27,6 +27,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
 goog.require('r5js.Procedure');
+goog.require('r5js.runtime.PrimitiveProcedure');
 goog.require('r5js.RootEnvironment');
 goog.require('r5js.UnboundVariable');
 
@@ -149,9 +150,11 @@ r5js.Environment.prototype.get = function(name) {
          but wrap them in a Datum if they are requested through get.
          (getProcedure, which is intended just for evaluating the operator
          on the trampoline, will return the unwrapped procedures.) */
-        else if (typeof maybe === 'function'
+        else if (r5js.runtime.PrimitiveProcedure.isImplementedBy(maybe)
             || maybe instanceof r5js.Procedure)
-            return r5js.data.newProcedureDatum(name, maybe);
+            return r5js.data.newProcedureDatum(name,
+                /** @type {!r5js.runtime.PrimitiveProcedure|!r5js.Procedure} */ (
+                    maybe));
         else if (maybe === this.unspecifiedSentinel_)
             return maybe;
         else if (maybe instanceof r5js.Datum)
@@ -182,7 +185,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
     if (maybe != null) {
         if (maybe instanceof r5js.Environment) {
             return maybe.getProcedure(name);
-        } else if (typeof maybe === 'function'
+        } else if (r5js.runtime.PrimitiveProcedure.isImplementedBy(maybe)
             || maybe instanceof r5js.Procedure
             || maybe instanceof r5js.Macro
             || maybe instanceof r5js.Continuation
@@ -263,7 +266,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              a variable bound to an unspecified value (not an error), we use
              r5js.Environment.prototype.unspecifiedSentinel_. */
             this.bindings_[name] = this.unspecifiedSentinel_;
-        } else if (typeof val === 'function' /* primitive procedure */
+        } else if (r5js.runtime.PrimitiveProcedure.isImplementedBy(val)
             || val instanceof r5js.Procedure /* non-primitive procedure */
             || val instanceof r5js.Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */

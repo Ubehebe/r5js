@@ -1,3 +1,4 @@
+goog.provide('r5js.runtime.PrimitiveProcedure');
 goog.provide('r5js.runtime.binary');
 goog.provide('r5js.runtime.unary');
 goog.provide('r5js.runtime.varargsAtLeast0');
@@ -18,10 +19,13 @@ r5js.runtime.PrimitiveProcedure = function() {};
 
 
 /**
- * @return {!Function}
- * TODO bl improve name.
+ * @param {!goog.array.ArrayLike} userArgs
+ * @param {!r5js.ProcCall} procCall
+ * @param {!r5js.Continuation} continuation
+ * @param {!r5js.TrampolineHelper} trampolineHelper
  */
-r5js.runtime.PrimitiveProcedure.prototype.getBoundJavascript = function() {};
+r5js.runtime.PrimitiveProcedure.prototype.Call = function(
+    userArgs, procCall, continuation, trampolineHelper) {};
 
 
 /**
@@ -31,6 +35,18 @@ r5js.runtime.PrimitiveProcedure.prototype.getBoundJavascript = function() {};
  * @param {string} name
  */
 r5js.runtime.PrimitiveProcedure.prototype.setDebugName = function(name) {};
+
+
+/**
+ * @param {*} obj
+ * @return {boolean}
+ * TODO temporary shim. Remove.
+ */
+r5js.runtime.PrimitiveProcedure.isImplementedBy = function(obj) {
+  return obj instanceof r5js.runtime.PrimitiveProcedure.Base_ ||
+      obj instanceof r5js.runtime.NeedsCurrentPorts_ ||
+      obj instanceof r5js.runtime.HasSpecialEvalLogic_;
+};
 
 
 
@@ -415,22 +431,16 @@ r5js.runtime.PrimitiveProcedure.Base_.prototype.setDebugName = function(name) {
 
 
 /** @override */
-r5js.runtime.PrimitiveProcedure.Base_.prototype.getBoundJavascript =
-    function() {
-  return goog.bind(this.javascript_, this);
-};
-
-
-/**
- * @return {r5js.PayloadType}
- * @private
- */
-r5js.runtime.PrimitiveProcedure.Base_.prototype.javascript_ = function() {
-  this.numArgChecker_.checkNumArgs(arguments.length, this.debugName_);
+r5js.runtime.PrimitiveProcedure.Base_.prototype.Call = function(
+    userArgs, procCall, continuation, trampolineHelper) {
+  this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
-      arguments, this.debugName_);
+      userArgs, this.debugName_);
   var retval = this.fn_.apply(null, unwrappedArgs);
-  return r5js.data.maybeWrapResult(retval);
+  var ans = r5js.data.maybeWrapResult(retval);
+  procCall.bindResult(continuation, ans);
+  trampolineHelper.ans = ans;
+  trampolineHelper.nextContinuable = continuation.nextContinuable;
 };
 
 
@@ -439,25 +449,46 @@ r5js.runtime.PrimitiveProcedure.Base_.prototype.javascript_ = function() {
  * @param {!Function} fn
  * @param {!r5js.runtime.NumArgChecker_} numArgChecker
  * @param {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} typeChecker
- * @extends {r5js.runtime.PrimitiveProcedure.Base_}
+ * @implements {r5js.runtime.PrimitiveProcedure}
  * @struct
  * @constructor
  * @private
  */
 r5js.runtime.NeedsCurrentPorts_ = function(fn, numArgChecker, typeChecker) {
-  goog.base(this, fn, numArgChecker, typeChecker);
+  /** @const @private {function(!r5js.Datum):?} */
+  this.fn_ = fn;
+
+  /** @const @private {!r5js.runtime.NumArgChecker_} */
+  this.numArgChecker_ = numArgChecker;
+
+  /** @const @private {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} */
+  this.typeChecker_ = typeChecker;
+
+  /** @private {string} */
+  this.debugName_ = '';
 };
-goog.inherits(
-    r5js.runtime.NeedsCurrentPorts_, r5js.runtime.PrimitiveProcedure.Base_);
 
 
 /** @override */
-r5js.runtime.NeedsCurrentPorts_.prototype.getBoundJavascript = function() {
-  // TODO bl remove once legacy primitive procedures are all migrated.
-  // Will also need to update r5js.ProcCall#tryPrimitiveProcedure.
-  var bound = goog.base(this, 'getBoundJavascript');
-  bound.needsCurrentPorts = true;
-  return bound;
+r5js.runtime.NeedsCurrentPorts_.prototype.setDebugName = function(debugName) {
+  this.debugName_ = debugName;
+};
+
+
+/** @override */
+r5js.runtime.NeedsCurrentPorts_.prototype.Call = function(
+    userArgs, procCall, continuation, trampolineHelper) {
+  var args = goog.array.concat(
+      goog.array.toArray(userArgs),
+      trampolineHelper.getInputPort(), trampolineHelper.getOutputPort());
+  this.numArgChecker_.checkNumArgs(args.length, this.debugName_);
+  var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
+      args, this.debugName_);
+  var retval = this.fn_.apply(null, unwrappedArgs);
+  var ans = r5js.data.maybeWrapResult(retval);
+  procCall.bindResult(continuation, ans);
+  trampolineHelper.ans = ans;
+  trampolineHelper.nextContinuable = continuation.nextContinuable;
 };
 
 
@@ -466,23 +497,42 @@ r5js.runtime.NeedsCurrentPorts_.prototype.getBoundJavascript = function() {
  * @param {!Function} fn
  * @param {!r5js.runtime.NumArgChecker_} numArgChecker
  * @param {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} typeChecker
- * @extends {r5js.runtime.PrimitiveProcedure.Base_}
+ * @implements {r5js.runtime.PrimitiveProcedure}
  * @struct
  * @constructor
  * @private
  */
 r5js.runtime.HasSpecialEvalLogic_ = function(fn, numArgChecker, typeChecker) {
-  goog.base(this, fn, numArgChecker, typeChecker);
+  /** @const @private {function(!r5js.Datum):?} */
+  this.fn_ = fn;
+
+  /** @const @private {!r5js.runtime.NumArgChecker_} */
+  this.numArgChecker_ = numArgChecker;
+
+  /** @const @private {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} */
+  this.typeChecker_ = typeChecker;
+
+  /** @private {string} */
+  this.debugName_ = '';
 };
-goog.inherits(
-    r5js.runtime.HasSpecialEvalLogic_, r5js.runtime.PrimitiveProcedure.Base_);
 
 
 /** @override */
-r5js.runtime.HasSpecialEvalLogic_.prototype.getBoundJavascript = function() {
-  var bound = goog.base(this, 'getBoundJavascript');
-  bound.hasSpecialEvalLogic = true;
-  return bound;
+r5js.runtime.HasSpecialEvalLogic_.prototype.setDebugName = function(debugName) {
+  this.debugName_ = debugName;
+};
+
+
+/** @override */
+r5js.runtime.HasSpecialEvalLogic_.prototype.Call = function(
+    userArgs, procCall, continuation, trampolineHelper) {
+  var args = goog.array.concat(
+      goog.array.toArray(userArgs),
+      procCall, continuation, trampolineHelper);
+  this.numArgChecker_.checkNumArgs(args.length, this.debugName_);
+  var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
+      args, this.debugName_);
+  this.fn_.apply(null, unwrappedArgs);
 };
 
 

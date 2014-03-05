@@ -34,6 +34,7 @@ goog.require('r5js.Macro');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.MacroError');
+goog.require('r5js.runtime.PrimitiveProcedure');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
@@ -452,7 +453,8 @@ r5js.ProcCall.prototype.tryIdShim = function(
      disparate objects on the trampoline. The logic could be made clearer. */
   if (arg instanceof r5js.Macro)
     ans = arg;
-  else if (typeof arg === 'function' || arg.isProcedure())
+  else if (r5js.runtime.PrimitiveProcedure.isImplementedBy(arg) ||
+      arg.isProcedure())
     ans = arg;
   else if (arg.isIdentifier())
     ans = this.env.get(arg.getPayload());
@@ -632,7 +634,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
   if (specialOp) {
     this.specialOps.logic[args.shift()].apply(this, args);
-  } else if (typeof proc === 'function') {
+  } else if (r5js.runtime.PrimitiveProcedure.isImplementedBy(proc)) {
     this.tryPrimitiveProcedure.apply(this, args);
   } else if (proc instanceof r5js.Procedure) {
     this.tryNonPrimitiveProcedure.apply(this, args);
@@ -733,7 +735,7 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
  * (+ x y [ans ...]). We perform the action ("+"), bind the
  * result to the continuation's result name ("ans"), and advance
  * to the next continuable ("...").
- * @param {Function} proc
+ * @param {!r5js.runtime.PrimitiveProcedure} proc
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
@@ -751,38 +753,13 @@ r5js.ProcCall.prototype.tryPrimitiveProcedure = function(
   }
 
   else {
-
     var args = this.evalArgs(true);
-
     // todo bl document why we're doing this...
     for (var i = 0; i < args.length; ++i) {
       if (args[i] instanceof r5js.Datum)
         args[i] = args[i].maybeDeref();
     }
-
-    /* For call/cc etc: push the current ProcCall, the continuation,
-         and the result struct. todo bl: pushing the ProcCall invites trouble
-         because it contains the _unevaluated_ arguments. When I'm done
-         implementing all the 'magical' functions like apply and call/cc,
-         review what support they really need. */
-    if (proc.hasSpecialEvalLogic) {
-      args.push(this);
-      args.push(continuation);
-      args.push(resultStruct);
-      proc.apply(null, args);
-    } else {
-      /* For display, etc., push the current input and output ports.
-             We'll have to change this logic if any primitive procedure ever
-             has both hasSpecialEvalLogic and needsCurrentPorts. */
-      if (proc.needsCurrentPorts) {
-        args.push(resultStruct.getInputPort());
-        args.push(resultStruct.getOutputPort());
-      }
-      var ans = proc.apply(null, args);
-      this.bindResult(continuation, ans);
-      resultStruct.ans = ans;
-      resultStruct.nextContinuable = continuation.nextContinuable;
-    }
+      proc.Call(args, this, continuation, resultStruct);
   }
 };
 
