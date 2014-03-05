@@ -478,6 +478,66 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
   return null; // unspecified return value
 });
 
+// Vector-related procedures
+
+PrimitiveProcedures['make-vector'] = _.varargsRange(
+    function(numberNode, fillNode) {
+      var n = numberNode.unwrap();
+      if (typeof n !== 'number') {
+        throw new r5js.ArgumentTypeError(
+            numberNode, 0, 'make-vector', r5js.DatumType.NUMBER);
+      }
+      /* R5RS 6.3.6: "If a second argument is given, then each element
+         is initialized to fill. Otherwise the initial contents of each element
+         is unspecified." False seems like a good default. */
+      fillNode = fillNode ||
+          r5js.data.newIdOrLiteral(false, r5js.DatumType.BOOLEAN);
+      var buf = [];
+      for (var i = 0; i < n; ++i) {
+        buf.push(fillNode.clone());
+      }
+      return newVectorDatum(buf);
+    }, 1, 2);
+
+PrimitiveProcedures['vector-length'] = _.unary(function(v) {
+  return v.isArrayBacked() ?
+      v.getPayload().length :
+      v.convertVectorToArrayBacked().getPayload().length;
+}, 'vector' /* TODO bl */);
+
+PrimitiveProcedures['vector-ref'] = _.binary(function(v, k) {
+  return v.isArrayBacked() ?
+      v.getPayload()[k] :
+      v.convertVectorToArrayBacked().getPayload()[k];
+}, 'vector' /* TODO bl */, r5js.DatumType.NUMBER);
+
+PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
+  v = v.unwrap();
+  k = k.unwrap();
+
+  if (!v.isVector()) {
+    throw new r5js.ArgumentTypeError(
+        v, 0, 'vector-set!', r5js.DatumType.VECTOR);
+  }
+  if (typeof k !== 'number') {
+    throw new r5js.ArgumentTypeError(
+        k, 1, 'vector-set!', r5js.DatumType.NUMBER);
+  }
+  if (v.isImmutable()) {
+    throw new r5js.ImmutableError(v.toString());
+  }
+
+  if (v.isArrayBacked()) {
+    v.getPayload()[k] = fill;
+  } else {
+    v.convertVectorToArrayBacked().getPayload()[k] = fill;
+  }
+
+  // todo bl requires a cycle-labeling procedure like set-car! and set-cdr!
+
+  return null;
+});
+
 // Symbol-related procedures
 
 PrimitiveProcedures['symbol->string'] = _.unary(function(sym) {
@@ -929,12 +989,14 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
           procCall.firstOperand,
           null, // no arguments
           producerContinuation);
-      producerCall.setStartingEnv(/** @type {!r5js.IEnvironment} */ (procCall.env));
+      producerCall.setStartingEnv(
+          /** @type {!r5js.IEnvironment} */ (procCall.env));
       var consumerCall = r5js.procs.newProcCall(
           procCall.firstOperand.getNextSibling(),
           r5js.data.newIdOrLiteral(valuesName),
           continuation);
-      consumerCall.setStartingEnv(/** @type {!r5js.IEnvironment} */ (procCall.env));
+      consumerCall.setStartingEnv(
+          /** @type {!r5js.IEnvironment} */ (procCall.env));
       producerContinuation.nextContinuable = consumerCall;
       resultStruct.nextContinuable = producerCall;
       return null;
