@@ -776,6 +776,242 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
       outputPort.getPayload().writeChar(charNode.getPayload());
       return null; // unspecified return value
     });
+
+// Control flow related procedures
+
+
+/**
+ * R5RS 6.4: (apply proc arg1 ... args)
+ * "Proc must be a procedure and args must be a list.
+ * Calls proc with the elements of the list
+ * (append (list arg1 ...) args) as the actual arguments.
+ */
+PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
+  var mustBeProc = arguments[0];
+  if (!mustBeProc.isProcedure()) {
+    throw new r5js.ArgumentTypeError(
+        mustBeProc, 0, 'apply', r5js.DatumType.LAMBDA);
+  }
+
+  var curProcCall = arguments[arguments.length - 3];
+  /* todo bl: very little idea what's going on here, but we seem to
+     use both sources of procName. */
+  var procName = r5js.data.newIdOrLiteral(
+      curProcCall.firstOperand.getPayload() || mustBeProc.getName());
+  var continuation = arguments[arguments.length - 2];
+  var resultStruct = arguments[arguments.length - 1];
+
+  var lastRealArgIndex = arguments.length - 4;
+  var mustBeList = arguments[lastRealArgIndex];
+  if (!mustBeList.isList()) {
+    throw new r5js.ArgumentTypeError(
+        mustBeList, lastRealArgIndex, 'apply', r5js.DatumType.LIST);
+  }
+
+  // (apply foo '(x y z))
+  if (lastRealArgIndex === 1) {
+    var newArgs = new r5js.SiblingBuffer();
+    // todo bl document why we are quoting the arguments
+    for (var arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling())
+      newArgs.appendSibling(arg.quote());
+    var actualProcCall = r5js.procs.newProcCall(
+        procName, newArgs.toSiblings(), continuation);
+    actualProcCall.setStartingEnv(curProcCall.env);
+    resultStruct.nextContinuable = actualProcCall;
+  } else {
+    // (apply foo a b c '(1 2 3))
+    for (var i = 1; i < lastRealArgIndex - 1; ++i) {
+      arguments[i].setNextSibling(arguments[i + 1]);
+    }
+    arguments[lastRealArgIndex - 1].setNextSibling(mustBeList.getFirstChild());
+
+    var newArgs = newEmptyList();
+    newArgs.appendChild(arguments[1]);
+    var actualProcCall = r5js.procs.newProcCall(
+        procName, newArgs.getFirstChild(), continuation);
+    resultStruct.nextContinuable = actualProcCall;
+  }
+
+  return null;
+});
+
+
+/**
+ * Semantics of dynamic-wind (as I understand it):
+ * (dynamic-wind foo bar baz) means execute bar with the
+ * following modifications:
+ *
+ * - Whenever I'm about to go into bar, do foo first
+ * - Whenever I'm about to go out of bar, do baz first
+ *
+ * In simple cases, this is the same as (begin foo bar baz)
+ * (except that the return value is that of bar, not baz).
+ * The situation is complicated by continuations captured inside
+ * a call/cc and later reentered; these must trigger the before
+ * and after thunks. For example:
+ *
+ * (define cont #f)
+ * (define (foo) (display 'foo))
+ * (define (bar) (display 'bar))
+ * (dynamic-wind
+ * foo
+ * (lambda ()
+ * (call-with-current-continuation
+ * (lambda (c)
+ * (set! cont c))))
+ * bar)
+ * (cont 42)
+ *
+ * This will print "foo", "bar", "foo", "bar", and return
+ * an unspecified value (because there's nothing in the body
+ * of the lambda after the call/cc, for the call/cc to deliver the
+ * 42 to).
+ */
+PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
+    function(before, thunk, after, procCall, continuation, resultStruct) {
+      // TODO bl: the compiler thinks there's already a variable named
+      // "before" in scope here. Figure out why.
+      var before2 = newCpsName();
+
+      // None of the three thunks have any arguments.
+
+      // todo bl use a ContinuableBuffer for efficiency
+
+      var procCallBefore = r5js.procs.newProcCall(
+          procCall.firstOperand,
+          null, // no arguments
+          new r5js.Continuation(before2));
+
+      var procCallAfter = r5js.procs.newProcCall(
+          procCall.firstOperand.getNextSibling().getNextSibling(),
+          null, // no arguments
+          new r5js.Continuation());
+
+      var result = newCpsName();
+      procCallAfter.appendContinuable(
+          newIdShim(r5js.data.newIdOrLiteral(result)));
+      procCallAfter.getLastContinuable().continuation = continuation;
+
+      var procCallThunk = r5js.procs.newProcCall(
+          procCall.firstOperand.getNextSibling(),
+          null, // no arguments
+          new r5js.Continuation(result)
+          );
+
+      procCallThunk.appendContinuable(procCallAfter);
+      procCallBefore.appendContinuable(procCallThunk);
+
+      resultStruct.nextContinuable = procCallBefore;
+      /* We use the TrampolineResultStruct to store the thunk.
+         This should be okay because dynamic-wind is the only one
+         who writes to it, and call/cc is the only one who reads it.
+         todo bl document why we cannot reuse procCallBefore. */
+      resultStruct.beforeThunk = r5js.procs.newProcCall(
+          procCall.firstOperand,
+          null,
+          new r5js.Continuation(before2));
+      return null;
+    });
+
+
+/**
+ * R5RS 6.4: (call-with-values producer consumer)
+ * "Calls its producer argument with no values and a continuation that,
+ * when passed some values, calls the consumer procedure with those values
+ * as arguments. The continuation for the call to consumer is the continuation
+ * of the call to call-with-values."
+ */
+PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
+    function(producer, consumer, procCall, continuation, resultStruct) {
+      var valuesName = newCpsName();
+      var producerContinuation = new r5js.Continuation(valuesName);
+      var producerCall = r5js.procs.newProcCall(
+          procCall.firstOperand,
+          null, // no arguments
+          producerContinuation);
+      producerCall.setStartingEnv(/** @type {!r5js.IEnvironment} */ (procCall.env));
+      var consumerCall = r5js.procs.newProcCall(
+          procCall.firstOperand.getNextSibling(),
+          r5js.data.newIdOrLiteral(valuesName),
+          continuation);
+      consumerCall.setStartingEnv(/** @type {!r5js.IEnvironment} */ (procCall.env));
+      producerContinuation.nextContinuable = consumerCall;
+      resultStruct.nextContinuable = producerCall;
+      return null;
+    });
+
+
+/**
+ * Semantics of call/cc:
+ *
+ * (call-with-current-continuation foo)
+ *
+ * means create a new procedure call,
+ *
+ * (foo cc)
+ *
+ * where cc is the current continuation. Then inside the procedure body,
+ * if we see
+ *
+ * (cc x)
+ *
+ * (that is, if the trampoline determines that the identifier is bound to a
+ * Continuation object), this means bind x to cc's lastResultName and set
+ * the next continuable to cc's nextContinuable.
+ */
+PrimitiveProcedures['call-with-current-continuation'] =
+    _.unaryWithSpecialEvalLogic(function(
+        procedure, procCall, continuation, resultStruct) {
+      if (resultStruct.beforeThunk) {
+        /* If this continuation is inside a call to dynamic-wind but
+           escapes and then is later re-called, we have to remember
+           to execute the associated before and after thunks. */
+        continuation.installBeforeThunk(resultStruct.beforeThunk);
+        resultStruct.beforeThunk = null;
+      }
+      var dummyProcCall = r5js.procs.newProcCall(
+          procCall.firstOperand, continuation, continuation);
+      dummyProcCall.setStartingEnv(
+          /** @type {!r5js.IEnvironment} */ (procCall.env));
+      resultStruct.nextContinuable = dummyProcCall;
+      return null;
+    });
+
+PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
+  // Varargs procedures that also have special eval logic are a pain.
+  var resultStruct = arguments[arguments.length - 1];
+  var continuation = arguments[arguments.length - 2];
+  var procCall = arguments[arguments.length - 3];
+  var numUserArgs = arguments.length - 3;
+
+  /* If there's just one user-supplied argument, that works fine
+     with the existing machinery. Example:
+
+     (values 1 [_0 ...])
+
+     should just bind 1 to _0 and continue. */
+  if (numUserArgs === 1) {
+    procCall.env.addBinding(continuation.lastResultName, arguments[0]);
+  } else {
+    /* If there's more than one argument, we bind the whole array
+       to the continuation's lastResultName. This means later, when we're
+       evaluating the arguments to a procedure call, we have to remember
+       that a single name like _0 could specify a whole list of arguments. */
+
+    var userArgs = [];
+
+    for (var i = 0; i < numUserArgs; ++i) {
+      userArgs.push(arguments[i]);
+    }
+
+    procCall.env.addBinding(continuation.lastResultName, userArgs);
+  }
+  if (continuation.nextContinuable) {
+    continuation.nextContinuable.setStartingEnv(procCall.env);
+  }
+  resultStruct.nextContinuable = continuation.nextContinuable;
+  return null;
+});
 });  // goog.scope
 
 

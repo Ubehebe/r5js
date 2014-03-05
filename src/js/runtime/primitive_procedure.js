@@ -203,6 +203,38 @@ r5js.runtime.BetweenWithExtraRuntimeArgs_.prototype.checkNumArgs = function(
 };
 
 
+
+/**
+ * @param {number} minNumUserArgs
+ * @param {number} numArgsAddedByRuntime
+ * @implements {r5js.runtime.NumArgChecker_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.runtime.AtLeastWithExtraRuntimeArgs_ = function(
+    minNumUserArgs, numArgsAddedByRuntime) {
+  /** @const @private {number} */
+  this.numArgsAddedByRuntime_ = numArgsAddedByRuntime;
+
+  /** @const @private {number} */
+  this.minNumUserArgs_ = minNumUserArgs;
+};
+
+
+/** @override */
+r5js.runtime.AtLeastWithExtraRuntimeArgs_.prototype.checkNumArgs = function(
+    numArgs, nameToShowInErrorMessage) {
+  var minNumArgs = this.minNumUserArgs_ + this.numArgsAddedByRuntime_;
+  if (numArgs < minNumArgs) {
+    throw new r5js.TooFewArgs(
+        nameToShowInErrorMessage,
+        this.minNumUserArgs_,
+        numArgs - this.numArgsAddedByRuntime_);
+  }
+};
+
+
 /** @const @private {!r5js.runtime.NumArgChecker_} */
 r5js.runtime.EXACTLY_1_ARG_ = new r5js.runtime.Exactly_(1);
 
@@ -328,6 +360,30 @@ r5js.runtime.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
 
 
 /**
+ * @implements {r5js.runtime.ArgumentTypeCheckerAndUnwrapper_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.runtime.JustUnwrapArgs_ = function() {};
+
+
+/** @override */
+r5js.runtime.JustUnwrapArgs_.prototype.checkAndUnwrapArgs = function(
+    args, nameToShowInErrorMessage) {
+  return goog.array.map(args, function(arg) {
+    return arg instanceof r5js.Datum ?
+        arg.unwrap() : arg;
+  });
+};
+
+
+/** @const @private {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} */
+r5js.runtime.JUST_UNWRAP_ARGS_ = new r5js.runtime.JustUnwrapArgs_();
+
+
+
+/**
  * @param {!Function} fn TODO bl narrow type?
  * @param {!r5js.runtime.NumArgChecker_} numArgChecker
  * @param {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} typeChecker
@@ -401,6 +457,31 @@ r5js.runtime.NeedsCurrentPorts_.prototype.getBoundJavascript = function() {
   // Will also need to update r5js.ProcCall#tryPrimitiveProcedure.
   var bound = goog.base(this, 'getBoundJavascript');
   bound.needsCurrentPorts = true;
+  return bound;
+};
+
+
+
+/**
+ * @param {!Function} fn
+ * @param {!r5js.runtime.NumArgChecker_} numArgChecker
+ * @param {!r5js.runtime.ArgumentTypeCheckerAndUnwrapper_} typeChecker
+ * @extends {r5js.runtime.PrimitiveProcedure.Base_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.runtime.HasSpecialEvalLogic_ = function(fn, numArgChecker, typeChecker) {
+  goog.base(this, fn, numArgChecker, typeChecker);
+};
+goog.inherits(
+    r5js.runtime.HasSpecialEvalLogic_, r5js.runtime.PrimitiveProcedure.Base_);
+
+
+/** @override */
+r5js.runtime.HasSpecialEvalLogic_.prototype.getBoundJavascript = function() {
+  var bound = goog.base(this, 'getBoundJavascript');
+  bound.hasSpecialEvalLogic = true;
   return bound;
 };
 
@@ -528,3 +609,51 @@ r5js.runtime.unaryOrBinaryWithCurrentPorts = function(fn) {
       fn, new r5js.runtime.BetweenWithExtraRuntimeArgs_(1, 2, 2),
       r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };
+
+
+/**
+ * @param {function(?, !r5js.ProcCall, !r5js.Continuation, !r5js.TrampolineHelper): ?}  fn
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.unaryWithSpecialEvalLogic = function(fn) {
+  return new r5js.runtime.HasSpecialEvalLogic_(
+      fn, new r5js.runtime.ExactlyWithExtraRuntimeArgs_(1, 3),
+      r5js.runtime.JUST_UNWRAP_ARGS_);
+};
+
+
+/**
+ * @param {function(?, ?, !r5js.ProcCall, !r5js.Continuation, !r5js.TrampolineHelper): ?} fn
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.binaryWithSpecialEvalLogic = function(fn) {
+  return new r5js.runtime.HasSpecialEvalLogic_(
+      fn, new r5js.runtime.ExactlyWithExtraRuntimeArgs_(2, 3),
+      r5js.runtime.JUST_UNWRAP_ARGS_);
+};
+
+
+/**
+ * @param {function(?, ?, ?, !r5js.ProcCall, !r5js.Continuation, !r5js.TrampolineHelper): ?} fn
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.ternaryWithSpecialEvalLogic = function(fn) {
+  return new r5js.runtime.HasSpecialEvalLogic_(
+      fn, new r5js.runtime.ExactlyWithExtraRuntimeArgs_(3, 3),
+      r5js.runtime.JUST_UNWRAP_ARGS_);
+};
+
+
+/**
+ * @param {number} min
+ * @param {!Function} fn
+ * @return {!r5js.runtime.PrimitiveProcedure}
+ */
+r5js.runtime.atLeastNWithSpecialEvalLogic = function(min, fn) {
+  return new r5js.runtime.HasSpecialEvalLogic_(
+      fn, new r5js.runtime.AtLeastWithExtraRuntimeArgs_(min, 3),
+      r5js.runtime.NO_TYPE_RESTRICTIONS_);
+};
+
+
+
