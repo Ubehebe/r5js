@@ -73,7 +73,6 @@ typecheck:
 	| xargs $(builder) --root=$(src) --root=$(closure_root) \
 	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
-		--js src/api/api.js \
 		--js $(closure_root)/closure/goog/deps.js \
 		--warning_level VERBOSE \
 		--jscomp_error accessControls \
