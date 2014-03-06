@@ -91,38 +91,6 @@ r5js.runtime.Exactly_.prototype.checkNumArgs = function(
 
 
 /**
- * @param {number} numUserArgs
- * @param {number} numArgsAddedByRuntime
- * @implements {r5js.runtime.NumArgChecker_}
- * @struct
- * @constructor
- * @private
- */
-r5js.runtime.ExactlyWithExtraRuntimeArgs_ = function(
-    numUserArgs, numArgsAddedByRuntime) {
-  /** @const @private {number} */
-  this.numUserArgs_ = numUserArgs;
-
-  /** @const @private {number} */
-  this.numArgsAddedByRuntime_ = numArgsAddedByRuntime;
-};
-
-
-/** @override */
-r5js.runtime.ExactlyWithExtraRuntimeArgs_.prototype.checkNumArgs = function(
-    numArgs, nameToShowInErrorMessage) {
-  var numArgsToExpect = this.numUserArgs_ + this.numArgsAddedByRuntime_;
-  if (numArgsToExpect !== numArgs) {
-    throw new r5js.IncorrectNumArgs(
-        nameToShowInErrorMessage,
-        this.numUserArgs_,
-        numArgs - this.numArgsAddedByRuntime_);
-  }
-};
-
-
-
-/**
  * @param {number} min
  * @implements {r5js.runtime.NumArgChecker_}
  * @struct
@@ -172,81 +140,6 @@ r5js.runtime.Between_.prototype.checkNumArgs = function(
   if (numArgs > this.maxArgs_) {
     throw new r5js.TooManyArgs(
         nameToShowInErrorMessage, this.maxArgs_, numArgs);
-  }
-};
-
-
-
-/**
- * @param {number} minNumUserArgs
- * @param {number} maxNumUserArgs
- * @param {number} numArgsAddedByRuntime
- * @implements {r5js.runtime.NumArgChecker_}
- * @struct
- * @constructor
- * @private
- */
-r5js.runtime.BetweenWithExtraRuntimeArgs_ = function(
-    minNumUserArgs, maxNumUserArgs, numArgsAddedByRuntime) {
-  /** @const @private {number} */
-  this.minNumUserArgs_ = minNumUserArgs;
-
-  /** @const @private {number} */
-  this.maxNumUserArgs_ = maxNumUserArgs;
-
-  /** @const @private {number} */
-  this.numArgsAddedByRuntime_ = numArgsAddedByRuntime;
-};
-
-
-/** @override */
-r5js.runtime.BetweenWithExtraRuntimeArgs_.prototype.checkNumArgs = function(
-    numArgs, nameToShowInErrorMessage) {
-  var minNumArgs = this.minNumUserArgs_ + this.numArgsAddedByRuntime_;
-  var maxNumArgs = this.maxNumUserArgs_ + this.numArgsAddedByRuntime_;
-  if (numArgs < minNumArgs) {
-    throw new r5js.TooFewArgs(
-        nameToShowInErrorMessage,
-        this.minNumUserArgs_,
-        numArgs - this.numArgsAddedByRuntime_);
-  }
-  if (numArgs > maxNumArgs) {
-    throw new r5js.TooManyArgs(
-        nameToShowInErrorMessage,
-        this.maxNumUserArgs_,
-        numArgs - this.numArgsAddedByRuntime_);
-  }
-};
-
-
-
-/**
- * @param {number} minNumUserArgs
- * @param {number} numArgsAddedByRuntime
- * @implements {r5js.runtime.NumArgChecker_}
- * @struct
- * @constructor
- * @private
- */
-r5js.runtime.AtLeastWithExtraRuntimeArgs_ = function(
-    minNumUserArgs, numArgsAddedByRuntime) {
-  /** @const @private {number} */
-  this.numArgsAddedByRuntime_ = numArgsAddedByRuntime;
-
-  /** @const @private {number} */
-  this.minNumUserArgs_ = minNumUserArgs;
-};
-
-
-/** @override */
-r5js.runtime.AtLeastWithExtraRuntimeArgs_.prototype.checkNumArgs = function(
-    numArgs, nameToShowInErrorMessage) {
-  var minNumArgs = this.minNumUserArgs_ + this.numArgsAddedByRuntime_;
-  if (numArgs < minNumArgs) {
-    throw new r5js.TooFewArgs(
-        nameToShowInErrorMessage,
-        this.minNumUserArgs_,
-        numArgs - this.numArgsAddedByRuntime_);
   }
 };
 
@@ -478,13 +371,13 @@ r5js.runtime.NeedsCurrentPorts_.prototype.setDebugName = function(debugName) {
 /** @override */
 r5js.runtime.NeedsCurrentPorts_.prototype.Call = function(
     userArgs, procCall, continuation, trampolineHelper) {
-  var args = goog.array.concat(
-      goog.array.toArray(userArgs),
-      trampolineHelper.getInputPort(), trampolineHelper.getOutputPort());
-  this.numArgChecker_.checkNumArgs(args.length, this.debugName_);
+  this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
-      args, this.debugName_);
-  var retval = this.fn_.apply(null, unwrappedArgs);
+      userArgs, this.debugName_);
+  var args = goog.array.concat(
+      goog.array.toArray(unwrappedArgs),
+      trampolineHelper.getInputPort(), trampolineHelper.getOutputPort());
+  var retval = this.fn_.apply(null, args);
   var ans = r5js.data.maybeWrapResult(retval);
   procCall.bindResult(continuation, ans);
   trampolineHelper.ans = ans;
@@ -526,13 +419,13 @@ r5js.runtime.HasSpecialEvalLogic_.prototype.setDebugName = function(debugName) {
 /** @override */
 r5js.runtime.HasSpecialEvalLogic_.prototype.Call = function(
     userArgs, procCall, continuation, trampolineHelper) {
-  var args = goog.array.concat(
-      goog.array.toArray(userArgs),
-      procCall, continuation, trampolineHelper);
-  this.numArgChecker_.checkNumArgs(args.length, this.debugName_);
+  this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
-      args, this.debugName_);
-  this.fn_.apply(null, unwrappedArgs);
+      userArgs, this.debugName_);
+  var args = goog.array.concat(
+      goog.array.toArray(unwrappedArgs),
+      procCall, continuation, trampolineHelper);
+  this.fn_.apply(null, args);
 };
 
 
@@ -634,7 +527,7 @@ r5js.runtime.varargsRange = function(fn, minArgs, maxArgs) {
  */
 r5js.runtime.nullaryWithCurrentPorts = function(fn) {
   return new r5js.runtime.NeedsCurrentPorts_(
-      fn, new r5js.runtime.ExactlyWithExtraRuntimeArgs_(0, 2),
+      fn, new r5js.runtime.Exactly_(0),
       r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };
 
@@ -645,7 +538,7 @@ r5js.runtime.nullaryWithCurrentPorts = function(fn) {
  */
 r5js.runtime.nullaryOrUnaryWithCurrentPorts = function(fn) {
   return new r5js.runtime.NeedsCurrentPorts_(
-      fn, new r5js.runtime.BetweenWithExtraRuntimeArgs_(0, 1, 2),
+      fn, new r5js.runtime.Between_(0, 1),
       r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };
 
@@ -656,7 +549,7 @@ r5js.runtime.nullaryOrUnaryWithCurrentPorts = function(fn) {
  */
 r5js.runtime.unaryOrBinaryWithCurrentPorts = function(fn) {
   return new r5js.runtime.NeedsCurrentPorts_(
-      fn, new r5js.runtime.BetweenWithExtraRuntimeArgs_(1, 2, 2),
+      fn, new r5js.runtime.Between_(1, 2),
       r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };
 
@@ -667,8 +560,7 @@ r5js.runtime.unaryOrBinaryWithCurrentPorts = function(fn) {
  */
 r5js.runtime.unaryWithSpecialEvalLogic = function(fn) {
   return new r5js.runtime.HasSpecialEvalLogic_(
-      fn, new r5js.runtime.ExactlyWithExtraRuntimeArgs_(1, 3),
-      r5js.runtime.JUST_UNWRAP_ARGS_);
+      fn, r5js.runtime.EXACTLY_1_ARG_, r5js.runtime.JUST_UNWRAP_ARGS_);
 };
 
 
@@ -678,8 +570,7 @@ r5js.runtime.unaryWithSpecialEvalLogic = function(fn) {
  */
 r5js.runtime.binaryWithSpecialEvalLogic = function(fn) {
   return new r5js.runtime.HasSpecialEvalLogic_(
-      fn, new r5js.runtime.ExactlyWithExtraRuntimeArgs_(2, 3),
-      r5js.runtime.JUST_UNWRAP_ARGS_);
+      fn, r5js.runtime.EXACTLY_2_ARGS_, r5js.runtime.JUST_UNWRAP_ARGS_);
 };
 
 
@@ -689,8 +580,7 @@ r5js.runtime.binaryWithSpecialEvalLogic = function(fn) {
  */
 r5js.runtime.ternaryWithSpecialEvalLogic = function(fn) {
   return new r5js.runtime.HasSpecialEvalLogic_(
-      fn, new r5js.runtime.ExactlyWithExtraRuntimeArgs_(3, 3),
-      r5js.runtime.JUST_UNWRAP_ARGS_);
+      fn, r5js.runtime.EXACTLY_3_ARGS_, r5js.runtime.JUST_UNWRAP_ARGS_);
 };
 
 
@@ -701,7 +591,7 @@ r5js.runtime.ternaryWithSpecialEvalLogic = function(fn) {
  */
 r5js.runtime.atLeastNWithSpecialEvalLogic = function(min, fn) {
   return new r5js.runtime.HasSpecialEvalLogic_(
-      fn, new r5js.runtime.AtLeastWithExtraRuntimeArgs_(min, 3),
+      fn, new r5js.runtime.AtLeast_(min),
       r5js.runtime.NO_TYPE_RESTRICTIONS_);
 };
 
