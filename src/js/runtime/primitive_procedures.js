@@ -1,4 +1,4 @@
-goog.provide('r5js.runtime');
+goog.provide('r5js.PrimitiveProcedures');
 
 
 goog.require('r5js.CdrHelper');
@@ -11,24 +11,24 @@ goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.OutputPort');
-goog.require('r5js.runtime.unary');
+goog.require('r5js.procspec');
 
 
 /** @private {r5js.IEnvironment} */
-r5js.runtime.nullEnv_;
+r5js.PrimitiveProcedures.nullEnv_;
 
 
 /** @private {r5js.IEnvironment} */
-r5js.runtime.r5RSEnv_;
+r5js.PrimitiveProcedures.r5RSEnv_;
 
 
-/** @const @private {!Object.<string, !r5js.runtime.PrimitiveProcedure>} */
-r5js.runtime.PrimitiveProcedures_ = {};
+/** @const @private {!Object.<string, !r5js.PrimitiveProcedure>} */
+r5js.PrimitiveProcedures.registry_ = {};
 
 
 goog.scope(function() {
-var _ = r5js.runtime;
-var PrimitiveProcedures = r5js.runtime.PrimitiveProcedures_;
+var _ = r5js.procspec;
+var PrimitiveProcedures = r5js.PrimitiveProcedures.registry_;
 
 // Equivalence-related procedures
 
@@ -1093,7 +1093,7 @@ PrimitiveProcedures['null-environment'] = _.unary(function(num) {
         'unsupported null environment ' + num);
   }
   return new r5js.ast.EnvironmentSpecifier(
-      /** @type {!r5js.IEnvironment} */ (r5js.runtime.nullEnv_));
+      /** @type {!r5js.IEnvironment} */ (r5js.PrimitiveProcedures.nullEnv_));
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
@@ -1102,7 +1102,7 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
         'unsupported scheme report environment ' + num);
   }
   return new r5js.ast.EnvironmentSpecifier(
-      /** @type {!r5js.IEnvironment} */(r5js.runtime.r5RSEnv_));
+      /** @type {!r5js.IEnvironment} */(r5js.PrimitiveProcedures.r5RSEnv_));
 }, r5js.DatumType.NUMBER);
 
 
@@ -1113,11 +1113,11 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
  * @param {!r5js.IEnvironment} nullEnv
  * @param {!r5js.IEnvironment} r5RSEnv
  */
-r5js.runtime.install = function(nullEnv, r5RSEnv) {
-  r5js.runtime.nullEnv_ = nullEnv;
-  r5js.runtime.r5RSEnv_ = r5RSEnv;
-  for (var name in r5js.runtime.PrimitiveProcedures_) {
-    var proc = r5js.runtime.PrimitiveProcedures_[name];
+r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv) {
+  r5js.PrimitiveProcedures.nullEnv_ = nullEnv;
+  r5js.PrimitiveProcedures.r5RSEnv_ = r5RSEnv;
+  for (var name in r5js.PrimitiveProcedures.registry_) {
+    var proc = r5js.PrimitiveProcedures.registry_[name];
     proc.setDebugName(name);
     r5RSEnv.addBinding(name, proc);
   }

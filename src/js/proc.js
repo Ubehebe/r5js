@@ -34,7 +34,7 @@ goog.require('r5js.Macro');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.MacroError');
-goog.require('r5js.runtime.PrimitiveProcedure');
+goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
@@ -453,7 +453,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
      disparate objects on the trampoline. The logic could be made clearer. */
   if (arg instanceof r5js.Macro)
     ans = arg;
-  else if (r5js.runtime.PrimitiveProcedure.isImplementedBy(arg) ||
+  else if (r5js.PrimitiveProcedure.isImplementedBy(arg) ||
       arg.isProcedure())
     ans = arg;
   else if (arg.isIdentifier())
@@ -634,7 +634,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
   if (specialOp) {
     this.specialOps.logic[args.shift()].apply(this, args);
-  } else if (r5js.runtime.PrimitiveProcedure.isImplementedBy(proc)) {
+  } else if (r5js.PrimitiveProcedure.isImplementedBy(proc)) {
     this.tryPrimitiveProcedure.apply(this, args);
   } else if (proc instanceof r5js.Procedure) {
     this.tryNonPrimitiveProcedure.apply(this, args);
@@ -735,7 +735,7 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
  * (+ x y [ans ...]). We perform the action ("+"), bind the
  * result to the continuation's result name ("ans"), and advance
  * to the next continuable ("...").
- * @param {!r5js.runtime.PrimitiveProcedure} proc
+ * @param {!r5js.PrimitiveProcedure} proc
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function

@@ -22,10 +22,10 @@ goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
-goog.require('r5js.runtime');
 goog.require('r5js.Scanner');
 goog.require('r5js.ffi');
 goog.require('r5js.ffiutil');
+goog.require('r5js.PrimitiveProcedures');
 goog.require('r5js.trampoline');
 
 
@@ -66,7 +66,7 @@ r5js.boot = function(syntaxLib, procLib, logger) {
 
   var r5RSEnv = new r5js.RootEnvironment(
       nullEnv.clone('scheme-report-environment-5'));
-  r5js.runtime.install(nullEnv, r5RSEnv);
+  r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv);
   logger.info('installed primitive procedures ok');
   install(procLib, r5RSEnv, logger);
   logger.info('installed library procedures ok');

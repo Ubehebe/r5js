@@ -26,7 +26,7 @@ goog.require('r5js.OutputMode');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.isTerminal');
-goog.require('r5js.runtime.PrimitiveProcedure');
+goog.require('r5js.PrimitiveProcedure');
 
 /**
  * @param {!r5js.TokenStream} scanner
@@ -70,7 +70,7 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                 ? 'scheme-report-environment-5'
                 : 'null-environment-5';
         case r5js.DatumType.LAMBDA:
-            return r5js.runtime.PrimitiveProcedure.isImplementedBy(
+            return r5js.PrimitiveProcedure.isImplementedBy(
                 this.getPayload()) ?
             /** @type {string} */ (this.getName()) :
                 'proc:' + this.getPayload().name;
