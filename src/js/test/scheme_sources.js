@@ -2,6 +2,9 @@ goog.provide('r5js.test.SchemeSources');
 goog.setTestOnly('r5js.test.SchemeSources');
 
 
+goog.require('goog.Promise');
+
+
 
 /**
  * @param {string} syntax
@@ -36,12 +39,12 @@ r5js.test.SchemeSources = function(
 r5js.test.SchemeSources.sources_ = null;
 
 
-/** @return {!goog.labs.Promise.<!r5js.test.SchemeSources>} */
+/** @return {!goog.Promise.<!r5js.test.SchemeSources>} */
 r5js.test.SchemeSources.get = function() {
   if (r5js.test.SchemeSources.sources_) {
-    return goog.labs.Promise.resolve(r5js.test.SchemeSources.sources_);
+    return goog.Promise.resolve(r5js.test.SchemeSources.sources_);
   } else {
-    return goog.labs.Promise.all([
+    return goog.Promise.all([
       r5js.test.SchemeSources.urls_.SYNTAX,
       r5js.test.SchemeSources.urls_.PROCEDURES,
       r5js.test.SchemeSources.urls_.TEST_FRAMEWORK,

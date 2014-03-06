@@ -17,12 +17,13 @@
 goog.provide('r5js.util.Logger');
 
 
-goog.require('goog.debug.Logger');
+goog.require('goog.log');
+
 
 
 /**
  * General-purpose logging interface.
- * {@link goog.debug.Logger} in the Closure Library is perfectly suitable;
+ * {@link goog.log.Logger} in the Closure Library is perfectly suitable;
  * I'm using this just to avoid spreading dependencies on Closure throughout
  * the interpreter.
  * @interface
@@ -54,17 +55,17 @@ r5js.util.Logger.prototype.warning = function(msg) {};
 r5js.util.Logger.prototype.severe = function(msg) {};
 
 
+
 /**
- * Logger implementation that delegates to a {@link goog.debug.Logger}.
+ * Logger implementation that delegates to a {@link goog.log.Logger}.
+ * @param {string} name
  * @implements {r5js.util.Logger}
+ * @struct
  * @constructor
  */
 r5js.util.LoggerImpl = function(name) {
-    /**
-     * @type {!goog.debug.Logger}
-     * @private
-     */
-    this.logger_ = goog.debug.Logger.getLogger(name);
+  /** @const @private {goog.log.Logger} */
+  this.logger_ = goog.log.getLogger(name);
 };
 
 
@@ -73,8 +74,8 @@ r5js.util.LoggerImpl = function(name) {
  * @override
  */
 r5js.util.LoggerImpl.prototype.fine = function(msg) {
-    console.log(msg);
-    this.logger_.fine(msg);
+  console.log(msg);
+  this.logger_.fine(msg);
 };
 
 
@@ -83,8 +84,8 @@ r5js.util.LoggerImpl.prototype.fine = function(msg) {
  * @override
  */
 r5js.util.LoggerImpl.prototype.info = function(msg) {
-    console.log(msg);
-    this.logger_.info(msg);
+  console.log(msg);
+  this.logger_.info(msg);
 };
 
 
@@ -93,8 +94,8 @@ r5js.util.LoggerImpl.prototype.info = function(msg) {
  * @override
  */
 r5js.util.LoggerImpl.prototype.warning = function(msg) {
-    console.log(msg);
-    this.logger_.warning(msg);
+  console.log(msg);
+  this.logger_.warning(msg);
 };
 
 
@@ -103,7 +104,7 @@ r5js.util.LoggerImpl.prototype.warning = function(msg) {
  * @override
  */
 r5js.util.LoggerImpl.prototype.severe = function(msg) {
-    this.logger_.severe(msg);
+  this.logger_.severe(msg);
 };
 
 
@@ -112,5 +113,5 @@ r5js.util.LoggerImpl.prototype.severe = function(msg) {
  * @return {!r5js.util.Logger} Logger.
  */
 r5js.util.Logger.getLogger = function(name) {
-    return new r5js.util.LoggerImpl(name);
+  return new r5js.util.LoggerImpl(name);
 };

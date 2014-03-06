@@ -4,7 +4,7 @@ goog.setTestOnly('r5js.test.main');
 goog.setTestOnly('r5js.test.evalSandbox');
 
 
-goog.require('goog.debug.Logger');
+goog.require('goog.log');
 goog.require('goog.labs.net.xhr');
 goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
@@ -29,7 +29,7 @@ r5js.test.main = function(opt_argv) {
   var testConfig = goog.isDef(opt_argv) ?
       tdd.RunnerConfig.fromFlags(opt_argv) :
       tdd.RunnerConfig.DEFAULT;
-  var logger = goog.debug.Logger.getLogger('r5js.test.main');
+  var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
   r5js.test.SchemeSources.get().then(function(sources) {
     var publicApi = r5js.test.getApi_(sources);
