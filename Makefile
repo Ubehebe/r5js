@@ -28,8 +28,8 @@ static_root = http://localhost:$(static_port)
 test_main_class = r5js.test.main
 test_outfile = $(outdir)/test-all.js
 phantom_driver  = src/js/tdd/phantom_driver.js
-test_url = $(static_root)/src/js/test/test.html
-test_compiled_url = $(static_root)/src/js/test/test_compiled.html
+test_url = $(static_root)/test/test.html
+test_compiled_url = $(static_root)/test/test_compiled.html
 # test_opts can be overridden from the command line. Example:
 # make test test_opts="--type=integration --verbose"
 test_opts = --type=unit
