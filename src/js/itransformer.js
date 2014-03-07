@@ -44,5 +44,6 @@ r5js.ITransformer.prototype.matchInput = function(
 
 /**
  * @param {!r5js.TemplateBindings} bindings Template bindings.
+ * @return {!r5js.Datum}
  */
 r5js.ITransformer.prototype.toDatum = function(bindings) {};

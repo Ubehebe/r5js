@@ -31,12 +31,20 @@ goog.require('r5js.SiblingBuffer');
 r5js.ListLikeTransformer = function(type) {
     /** @const {!r5js.Type} */
     this.type = type;
-    this.subtransformers = [];
+
+    /** @const @private {!Array.<!r5js.ITransformer>} */
+    this.subtransformers_ = [];
 };
 
 r5js.ListLikeTransformer.prototype.addSubtransformer = function(subtransformer) {
-    this.subtransformers.push(subtransformer);
+    this.subtransformers_.push(subtransformer);
     return this;
+};
+
+
+/** @return {string} */
+r5js.ListLikeTransformer.prototype.getName = function() {
+    return this.subtransformers_[0].datum.getPayload();
 };
 
 /** @override */
@@ -44,8 +52,8 @@ r5js.ListLikeTransformer.prototype.forEachSubtransformer = function(callback, ar
     /* This is a no-op mainly so we don't accidentally rename identifiers
      inside quotes in Transformer.prototype.setupIds. */
     if (this.type !== r5js.DatumType.QUOTE) {
-        for (var i = 0; i < this.subtransformers.length; ++i) {
-            callback(this.subtransformers[i], args);
+        for (var i = 0; i < this.subtransformers_.length; ++i) {
+            callback(this.subtransformers_[i], args);
         }
     }
 };
@@ -68,9 +76,9 @@ r5js.ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
 
 /** @override */
 r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
-    var len = this.subtransformers.length;
-    var maybeEllipsis = this.subtransformers[len-1] instanceof r5js.EllipsisTransformer
-        && this.subtransformers[len-1];
+    var len = this.subtransformers_.length;
+    var maybeEllipsis = this.subtransformers_[len-1] instanceof r5js.EllipsisTransformer
+        && this.subtransformers_[len-1];
 
     if (!this.couldMatch(inputDatum))
         return false;
@@ -102,7 +110,7 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
             /* If there's no ellipsis in the pattern and the input is longer
              than the pattern, this is a failure. */
             return false;
-        } else if (!this.subtransformers[i].matchInput(subinput, literalIds, definitionEnv, useEnv, bindings)) {
+        } else if (!this.subtransformers_[i].matchInput(subinput, literalIds, definitionEnv, useEnv, bindings)) {
             /* If pattern matching on the subinput and subpattern fails, this is
              a failure. */
             return false;
@@ -130,7 +138,7 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
                 toMatchAgainst = subinput;
         }
 
-        return this.subtransformers[i].matchInput(toMatchAgainst, literalIds, definitionEnv, useEnv, bindings);
+        return this.subtransformers_[i].matchInput(toMatchAgainst, literalIds, definitionEnv, useEnv, bindings);
     }
 
     /* If we matched all of the input without getting through all of
@@ -144,15 +152,16 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
 r5js.ListLikeTransformer.prototype.toDatum = function (bindings) {
 
     var buf = new r5js.SiblingBuffer();
-    var len = this.subtransformers.length;
-    var success;
+    var len = this.subtransformers_.length;
 
     for (var i = 0; i < len; ++i) {
-        success = this.subtransformers[i].toDatum(bindings);
-        if (success === false)
+        var success = /** @type {!r5js.Datum|boolean} */ (
+            this.subtransformers_[i].toDatum(bindings));
+        if (success === false) {
             return false;
-        else
-            buf.appendSibling(success);
+        } else {
+            buf.appendSibling(/** @type {!r5js.Datum} */ (success));
+        }
     }
 
     return buf.toList(this.type);
@@ -162,14 +171,14 @@ r5js.ListLikeTransformer.prototype.toString = function () {
     var ans = this.type === r5js.DatumType.VECTOR ?
         this.type :
         r5js.DatumType.LIST;
-    if (this.subtransformers.length === 0) {
+    if (this.subtransformers_.length === 0) {
         return ans + ')';
     } else {
-        for (var i = 0; i < this.subtransformers.length - 1; ++i)
-            ans += this.subtransformers[i].toString() + ' ';
+        for (var i = 0; i < this.subtransformers_.length - 1; ++i)
+            ans += this.subtransformers_[i].toString() + ' ';
         if (this.type === r5js.DatumType.DOTTED_LIST) {
             ans += '. ';
         }
-        return ans + this.subtransformers[i].toString() + ')';
+        return ans + this.subtransformers_[i].toString() + ')';
     }
 };

@@ -41,9 +41,9 @@ r5js.Transformer = function(pattern, template) {
     this.template = template;
 
     /**
-     * @type {string}
+     * @const {string}
      */
-    this.name = pattern.subtransformers[0].datum.getPayload();
+    this.name = pattern.getName();
     this.setupIds();
 };
 
