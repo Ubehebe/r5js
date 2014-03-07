@@ -21,11 +21,11 @@ goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DatumType');
+goog.require('r5js.DottedListTransformer');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListTransformer');
-goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.Procedure');
@@ -901,7 +901,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
         _.one(Nonterminals.PATTERN),
         _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
-      var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
+      var ans = new r5js.DottedListTransformer();
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -988,7 +988,7 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Nonterminals.TEMPLATE),
         _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
-      var ans = new r5js.ListLikeTransformer(r5js.DatumType.DOTTED_LIST);
+      var ans = new r5js.DottedListTransformer();
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {

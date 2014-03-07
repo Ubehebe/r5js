@@ -14,15 +14,14 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
+goog.provide('r5js.DottedListTransformer');
 goog.provide('r5js.ListTransformer');
-goog.provide('r5js.ListLikeTransformer');
 goog.provide('r5js.QuoteTransformer');
 goog.provide('r5js.VectorTransformer');
 
 
 goog.require('r5js.DatumType');
 goog.require('r5js.EllipsisTransformer');
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.SiblingBuffer');
 
 
@@ -31,8 +30,9 @@ goog.require('r5js.SiblingBuffer');
  * @implements {r5js.ITransformer}
  * @struct
  * @constructor
+ * @private
  */
-r5js.ListLikeTransformer = function(type) {
+r5js.ListLikeTransformer_ = function(type) {
     /** @const {!r5js.Type} */
     this.type = type;
 
@@ -40,19 +40,19 @@ r5js.ListLikeTransformer = function(type) {
     this.subtransformers_ = [];
 };
 
-r5js.ListLikeTransformer.prototype.addSubtransformer = function(subtransformer) {
+r5js.ListLikeTransformer_.prototype.addSubtransformer = function(subtransformer) {
     this.subtransformers_.push(subtransformer);
     return this;
 };
 
 
 /** @return {string} */
-r5js.ListLikeTransformer.prototype.getName = function() {
+r5js.ListLikeTransformer_.prototype.getName = function() {
     return this.subtransformers_[0].datum.getPayload();
 };
 
 /** @override */
-r5js.ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
+r5js.ListLikeTransformer_.prototype.forEachSubtransformer = function(callback, args) {
         for (var i = 0; i < this.subtransformers_.length; ++i) {
             callback(this.subtransformers_[i], args);
         }
@@ -63,18 +63,10 @@ r5js.ListLikeTransformer.prototype.forEachSubtransformer = function(callback, ar
  * @return {boolean}
  * @private
  */
-r5js.ListLikeTransformer.prototype.couldMatch_ = function(inputDatum) {
-    switch (this.type) {
-        case r5js.DatumType.DOTTED_LIST:
-            // Dotted list patterns can match proper or dotted list inputs
-            return inputDatum.isList() || inputDatum.isImproperList();
-        default:
-            throw new r5js.InternalInterpreterError('enum changed');
-    }
-};
+r5js.ListLikeTransformer_.prototype.couldMatch_ = goog.abstractMethod;
 
 /** @override */
-r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+r5js.ListLikeTransformer_.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
     var len = this.subtransformers_.length;
     var maybeEllipsis = this.subtransformers_[len-1] instanceof r5js.EllipsisTransformer
         && this.subtransformers_[len-1];
@@ -148,7 +140,7 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
 };
 
 /** @override */
-r5js.ListLikeTransformer.prototype.toDatum = function (bindings) {
+r5js.ListLikeTransformer_.prototype.toDatum = function (bindings) {
 
     var buf = new r5js.SiblingBuffer();
     var len = this.subtransformers_.length;
@@ -168,14 +160,14 @@ r5js.ListLikeTransformer.prototype.toDatum = function (bindings) {
 
 
 /**
- * @extends {r5js.ListLikeTransformer}
+ * @extends {r5js.ListLikeTransformer_}
  * @struct
  * @constructor
  */
 r5js.QuoteTransformer = function() {
     goog.base(this, r5js.DatumType.QUOTE);
 };
-goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer);
+goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer_);
 
 
 /**
@@ -187,14 +179,14 @@ r5js.QuoteTransformer.prototype.forEachSubtransformer = goog.nullFunction;
 
 
 /**
- * @extends {r5js.ListLikeTransformer}
+ * @extends {r5js.ListLikeTransformer_}
  * @struct
  * @constructor
  */
 r5js.VectorTransformer = function() {
     goog.base(this, r5js.DatumType.VECTOR);
 };
-goog.inherits(r5js.VectorTransformer, r5js.ListLikeTransformer);
+goog.inherits(r5js.VectorTransformer, r5js.ListLikeTransformer_);
 
 
 /** @override */
@@ -205,18 +197,36 @@ r5js.VectorTransformer.prototype.couldMatch_ = function(inputDatum) {
 
 
 /**
- * @extends {r5js.ListLikeTransformer}
+ * @extends {r5js.ListLikeTransformer_}
  * @struct
  * @constructor
  */
 r5js.ListTransformer = function() {
   goog.base(this, r5js.DatumType.LIST);
 };
-goog.inherits(r5js.ListTransformer, r5js.ListLikeTransformer);
+goog.inherits(r5js.ListTransformer, r5js.ListLikeTransformer_);
 
 
 /** @override */
 r5js.ListTransformer.prototype.couldMatch_ = function(inputDatum) {
     // Proper list patterns can match only proper list inputs
     return inputDatum.isList();
+};
+
+
+/**
+ * @extends {r5js.ListLikeTransformer_}
+ * @struct
+ * @constructor
+ */
+r5js.DottedListTransformer = function() {
+    goog.base(this, r5js.DatumType.DOTTED_LIST);
+};
+goog.inherits(r5js.DottedListTransformer, r5js.ListLikeTransformer_);
+
+
+/** @override */
+r5js.DottedListTransformer.prototype.couldMatch_ = function(inputDatum) {
+    // Dotted list patterns can match proper or dotted list inputs
+    return inputDatum.isList() || inputDatum.isImproperList();
 };
