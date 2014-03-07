@@ -30,6 +30,7 @@ goog.require('r5js.MacroError');
 goog.require('r5js.Procedure');
 goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
+goog.require('r5js.VectorTransformer');
 goog.require('r5js.data');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
@@ -858,7 +859,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
         _.one(Terminals.ELLIPSIS),
         _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
-      var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
+      var ans = new r5js.VectorTransformer();
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -912,7 +913,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
         _.zeroOrMore(Nonterminals.PATTERN),
         _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
-      var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
+      var ans = new r5js.VectorTransformer();
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -1029,7 +1030,7 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.zeroOrMore(Nonterminals.TEMPLATE),
         _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
-      var ans = new r5js.ListLikeTransformer(r5js.DatumType.VECTOR);
+      var ans = new r5js.VectorTransformer();
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {

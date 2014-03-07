@@ -16,6 +16,7 @@
 
 goog.provide('r5js.ListLikeTransformer');
 goog.provide('r5js.QuoteTransformer');
+goog.provide('r5js.VectorTransformer');
 
 
 goog.require('r5js.DatumType');
@@ -69,9 +70,6 @@ r5js.ListLikeTransformer.prototype.couldMatch_ = function(inputDatum) {
         case r5js.DatumType.DOTTED_LIST:
             // Dotted list patterns can match proper or dotted list inputs
             return inputDatum.isList() || inputDatum.isImproperList();
-        case r5js.DatumType.VECTOR:
-            // Vector patterns match only vector inputs
-            return inputDatum.isVector();
         default:
             throw new r5js.InternalInterpreterError('enum changed');
     }
@@ -170,22 +168,6 @@ r5js.ListLikeTransformer.prototype.toDatum = function (bindings) {
     return buf.toList(this.type);
 };
 
-r5js.ListLikeTransformer.prototype.toString = function () {
-    var ans = this.type === r5js.DatumType.VECTOR ?
-        this.type :
-        r5js.DatumType.LIST;
-    if (this.subtransformers_.length === 0) {
-        return ans + ')';
-    } else {
-        for (var i = 0; i < this.subtransformers_.length - 1; ++i)
-            ans += this.subtransformers_[i].toString() + ' ';
-        if (this.type === r5js.DatumType.DOTTED_LIST) {
-            ans += '. ';
-        }
-        return ans + this.subtransformers_[i].toString() + ')';
-    }
-};
-
 
 /**
  * @extends {r5js.ListLikeTransformer}
@@ -204,3 +186,21 @@ goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer);
  * @override
  */
 r5js.QuoteTransformer.prototype.forEachSubtransformer = goog.nullFunction;
+
+
+/**
+ * @extends {r5js.ListLikeTransformer}
+ * @struct
+ * @constructor
+ */
+r5js.VectorTransformer = function() {
+    goog.base(this, r5js.DatumType.VECTOR);
+};
+goog.inherits(r5js.VectorTransformer, r5js.ListLikeTransformer);
+
+
+/** @override */
+r5js.VectorTransformer.prototype.couldMatch_ = function(inputDatum) {
+    // Vector patterns match only vector inputs
+    return inputDatum.isVector();
+};
