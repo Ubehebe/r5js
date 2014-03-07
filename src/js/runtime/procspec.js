@@ -15,33 +15,33 @@ goog.require('r5js.data');
  * @interface
  * @private
  */
-r5js.NumArgChecker_ = function() {};
+r5js.procspec.NumArgChecker_ = function() {};
 
 
 /**
  * @param {number} numArgs
  * @param {string} nameToShowInErrorMessage
  */
-r5js.NumArgChecker_.prototype.checkNumArgs = function(
+r5js.procspec.NumArgChecker_.prototype.checkNumArgs = function(
     numArgs, nameToShowInErrorMessage) {};
 
 
 
 /**
  * @param {number} numArgs
- * @implements {r5js.NumArgChecker_}
+ * @implements {r5js.procspec.NumArgChecker_}
  * @struct
  * @constructor
  * @private
  */
-r5js.Exactly_ = function(numArgs) {
+r5js.procspec.Exactly_ = function(numArgs) {
   /** @const @private {number} */
   this.numArgs_ = numArgs;
 };
 
 
 /** @override */
-r5js.Exactly_.prototype.checkNumArgs = function(
+r5js.procspec.Exactly_.prototype.checkNumArgs = function(
     numArgs, nameToShowInErrorMessage) {
   if (numArgs !== this.numArgs_) {
     throw new r5js.IncorrectNumArgs(
@@ -53,18 +53,18 @@ r5js.Exactly_.prototype.checkNumArgs = function(
 
 /**
  * @param {number} min
- * @implements {r5js.NumArgChecker_}
+ * @implements {r5js.procspec.NumArgChecker_}
  * @struct
  * @constructor
  * @private
  */
-r5js.AtLeast_ = function(min) {
+r5js.procspec.AtLeast_ = function(min) {
   this.min_ = min;
 };
 
 
 /** @override */
-r5js.AtLeast_.prototype.checkNumArgs = function(
+r5js.procspec.AtLeast_.prototype.checkNumArgs = function(
     numArgs, nameToShowInErrorMessage) {
   if (numArgs < this.min_) {
     throw new r5js.TooFewArgs(
@@ -77,12 +77,12 @@ r5js.AtLeast_.prototype.checkNumArgs = function(
 /**
  * @param {number} minArgs
  * @param {number} maxArgs
- * @implements {r5js.NumArgChecker_}
+ * @implements {r5js.procspec.NumArgChecker_}
  * @struct
  * @constructor
  * @private
  */
-r5js.Between_ = function(minArgs, maxArgs) {
+r5js.procspec.Between_ = function(minArgs, maxArgs) {
   /** @const @private {number} */
   this.minArgs_ = minArgs;
 
@@ -92,7 +92,7 @@ r5js.Between_ = function(minArgs, maxArgs) {
 
 
 /** @override */
-r5js.Between_.prototype.checkNumArgs = function(
+r5js.procspec.Between_.prototype.checkNumArgs = function(
     numArgs, nameToShowInErrorMessage) {
   if (numArgs < this.minArgs_) {
     throw new r5js.TooFewArgs(
@@ -105,24 +105,24 @@ r5js.Between_.prototype.checkNumArgs = function(
 };
 
 
-/** @const @private {!r5js.NumArgChecker_} */
-r5js.EXACTLY_1_ARG_ = new r5js.Exactly_(1);
+/** @const @private {!r5js.procspec.NumArgChecker_} */
+r5js.procspec.EXACTLY_1_ARG_ = new r5js.procspec.Exactly_(1);
 
 
-/** @const @private {!r5js.NumArgChecker_} */
-r5js.EXACTLY_2_ARGS_ = new r5js.Exactly_(2);
+/** @const @private {!r5js.procspec.NumArgChecker_} */
+r5js.procspec.EXACTLY_2_ARGS_ = new r5js.procspec.Exactly_(2);
 
 
-/** @const @private {!r5js.NumArgChecker_} */
-r5js.EXACTLY_3_ARGS_ = new r5js.Exactly_(3);
+/** @const @private {!r5js.procspec.NumArgChecker_} */
+r5js.procspec.EXACTLY_3_ARGS_ = new r5js.procspec.Exactly_(3);
 
 
-/** @const @private {!r5js.NumArgChecker_} */
-r5js.ANY_NUMBER_OF_ARGS_ = new r5js.AtLeast_(0);
+/** @const @private {!r5js.procspec.NumArgChecker_} */
+r5js.procspec.ANY_NUMBER_OF_ARGS_ = new r5js.procspec.AtLeast_(0);
 
 
-/** @const @private {!r5js.NumArgChecker_} */
-r5js.AT_LEAST_1_ARG_ = new r5js.AtLeast_(1);
+/** @const @private {!r5js.procspec.NumArgChecker_} */
+r5js.procspec.AT_LEAST_1_ARG_ = new r5js.procspec.AtLeast_(1);
 
 
 
@@ -130,7 +130,7 @@ r5js.AT_LEAST_1_ARG_ = new r5js.AtLeast_(1);
  * @interface
  * @private
  */
-r5js.ArgumentTypeCheckerAndUnwrapper_ = function() {};
+r5js.procspec.ArgumentTypeCheckerAndUnwrapper_ = function() {};
 
 
 /**
@@ -138,19 +138,19 @@ r5js.ArgumentTypeCheckerAndUnwrapper_ = function() {};
  * @param {string} nameToShowInErrorMessage
  * @return {!goog.array.ArrayLike}
  */
-r5js.ArgumentTypeCheckerAndUnwrapper_.prototype.checkAndUnwrapArgs =
+r5js.procspec.ArgumentTypeCheckerAndUnwrapper_.prototype.checkAndUnwrapArgs =
     function(args, nameToShowInErrorMessage) {};
 
 
 
 /**
  * @param {!Array.<!r5js.Type>} argtypes
- * @implements {r5js.ArgumentTypeCheckerAndUnwrapper_}
+ * @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_}
  * @struct
  * @constructor
  * @private
  */
-r5js.ArgumentTypeCheckerAndUnwrapperImpl_ = function(argtypes) {
+r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_ = function(argtypes) {
   /** @const @private {!Array.<!r5js.Type>} */
   this.argtypes_ = argtypes;
 };
@@ -160,8 +160,8 @@ r5js.ArgumentTypeCheckerAndUnwrapperImpl_ = function(argtypes) {
  * @override
  * @suppress {accessControls} for r5js.PrimitiveProcedures_
  */
-r5js.ArgumentTypeCheckerAndUnwrapperImpl_.prototype.checkAndUnwrapArgs =
-    function(args, nameToShowInErrorMessage) {
+r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_.prototype.
+    checkAndUnwrapArgs = function(args, nameToShowInErrorMessage) {
   var unwrappedArgs = [];
   for (var i = 0; i < this.argtypes_.length; ++i) {
     var arg = args[i];
@@ -179,16 +179,16 @@ r5js.ArgumentTypeCheckerAndUnwrapperImpl_.prototype.checkAndUnwrapArgs =
 
 
 /**
- * @implements {r5js.ArgumentTypeCheckerAndUnwrapper_}
+ * @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_}
  * @struct
  * @constructor
  * @private
  */
-r5js.NoTypeChecking_ = function() {};
+r5js.procspec.NoTypeChecking_ = function() {};
 
 
 /** @override */
-r5js.NoTypeChecking_.prototype.checkAndUnwrapArgs = function(
+r5js.procspec.NoTypeChecking_.prototype.checkAndUnwrapArgs = function(
     args, nameToShowInErrorMessage) {
   return args;
 };
@@ -197,26 +197,26 @@ r5js.NoTypeChecking_.prototype.checkAndUnwrapArgs = function(
 
 /**
  * @param {!r5js.Type} type
- * @implements {r5js.ArgumentTypeCheckerAndUnwrapper_}
+ * @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_}
  * @struct
  * @constructor
  * @private
  */
-r5js.AllArgsOfType_ = function(type) {
+r5js.procspec.AllArgsOfType_ = function(type) {
   /** @const @private {!r5js.Type} */
   this.type_ = type;
 };
 
 
-/** @const @private {!r5js.ArgumentTypeCheckerAndUnwrapper_} */
-r5js.NO_TYPE_RESTRICTIONS_ = new r5js.NoTypeChecking_();
+/** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
+r5js.procspec.NO_TYPE_RESTRICTIONS_ = new r5js.procspec.NoTypeChecking_();
 
 
 /**
  * @override
  * @suppress {accessControls} TODO bl
  */
-r5js.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
+r5js.procspec.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
     args, nameToShowInErrorMessage) {
   var argtype = this.type_;
   return goog.array.map(args, function(arg, i) {
@@ -232,16 +232,16 @@ r5js.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
 
 
 /**
- * @implements {r5js.ArgumentTypeCheckerAndUnwrapper_}
+ * @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_}
  * @struct
  * @constructor
  * @private
  */
-r5js.JustUnwrapArgs_ = function() {};
+r5js.procspec.JustUnwrapArgs_ = function() {};
 
 
 /** @override */
-r5js.JustUnwrapArgs_.prototype.checkAndUnwrapArgs = function(
+r5js.procspec.JustUnwrapArgs_.prototype.checkAndUnwrapArgs = function(
     args, nameToShowInErrorMessage) {
   return goog.array.map(args, function(arg) {
     return arg instanceof r5js.Datum ?
@@ -250,45 +250,45 @@ r5js.JustUnwrapArgs_.prototype.checkAndUnwrapArgs = function(
 };
 
 
-/** @const @private {!r5js.ArgumentTypeCheckerAndUnwrapper_} */
-r5js.JUST_UNWRAP_ARGS_ = new r5js.JustUnwrapArgs_();
+/** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
+r5js.procspec.JUST_UNWRAP_ARGS_ = new r5js.procspec.JustUnwrapArgs_();
 
 
 
 /**
  * @param {!Function} fn TODO bl narrow type?
- * @param {!r5js.NumArgChecker_} numArgChecker
- * @param {!r5js.ArgumentTypeCheckerAndUnwrapper_} typeChecker
+ * @param {!r5js.procspec.NumArgChecker_} numArgChecker
+ * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
  * @implements {r5js.PrimitiveProcedure}
  * @struct
  * @constructor
  * @private
  */
-r5js.PrimitiveProcedure.Base_ = function(
+r5js.procspec.PrimitiveProcedure_ = function(
     fn, numArgChecker, typeChecker) {
   /** @const @private {function(!r5js.Datum):?} */
   this.fn_ = fn;
 
-  /** @const @private {!r5js.NumArgChecker_} */
+  /** @const @private {!r5js.procspec.NumArgChecker_} */
   this.numArgChecker_ = numArgChecker;
 
-  /** @const @private {!r5js.ArgumentTypeCheckerAndUnwrapper_} */
+  /** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
   this.typeChecker_ = typeChecker;
 
   /** @private {string} */
   this.debugName_ = '';
 };
-r5js.PrimitiveProcedure.addImplementation(r5js.PrimitiveProcedure.Base_);
+r5js.PrimitiveProcedure.addImplementation(r5js.procspec.PrimitiveProcedure_);
 
 
 /** @override */
-r5js.PrimitiveProcedure.Base_.prototype.setDebugName = function(name) {
+r5js.procspec.PrimitiveProcedure_.prototype.setDebugName = function(name) {
   this.debugName_ = name;
 };
 
 
 /** @override */
-r5js.PrimitiveProcedure.Base_.prototype.Call = function(
+r5js.procspec.PrimitiveProcedure_.prototype.Call = function(
     userArgs, procCall, continuation, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
@@ -304,37 +304,37 @@ r5js.PrimitiveProcedure.Base_.prototype.Call = function(
 
 /**
  * @param {!Function} fn
- * @param {!r5js.NumArgChecker_} numArgChecker
- * @param {!r5js.ArgumentTypeCheckerAndUnwrapper_} typeChecker
+ * @param {!r5js.procspec.NumArgChecker_} numArgChecker
+ * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
  * @implements {r5js.PrimitiveProcedure}
  * @struct
  * @constructor
  * @private
  */
-r5js.NeedsCurrentPorts_ = function(fn, numArgChecker, typeChecker) {
+r5js.procspec.NeedsCurrentPorts_ = function(fn, numArgChecker, typeChecker) {
   /** @const @private {function(!r5js.Datum):?} */
   this.fn_ = fn;
 
-  /** @const @private {!r5js.NumArgChecker_} */
+  /** @const @private {!r5js.procspec.NumArgChecker_} */
   this.numArgChecker_ = numArgChecker;
 
-  /** @const @private {!r5js.ArgumentTypeCheckerAndUnwrapper_} */
+  /** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
   this.typeChecker_ = typeChecker;
 
   /** @private {string} */
   this.debugName_ = '';
 };
-r5js.PrimitiveProcedure.addImplementation(r5js.NeedsCurrentPorts_);
+r5js.PrimitiveProcedure.addImplementation(r5js.procspec.NeedsCurrentPorts_);
 
 
 /** @override */
-r5js.NeedsCurrentPorts_.prototype.setDebugName = function(debugName) {
+r5js.procspec.NeedsCurrentPorts_.prototype.setDebugName = function(debugName) {
   this.debugName_ = debugName;
 };
 
 
 /** @override */
-r5js.NeedsCurrentPorts_.prototype.Call = function(
+r5js.procspec.NeedsCurrentPorts_.prototype.Call = function(
     userArgs, procCall, continuation, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
@@ -353,37 +353,38 @@ r5js.NeedsCurrentPorts_.prototype.Call = function(
 
 /**
  * @param {!Function} fn
- * @param {!r5js.NumArgChecker_} numArgChecker
- * @param {!r5js.ArgumentTypeCheckerAndUnwrapper_} typeChecker
+ * @param {!r5js.procspec.NumArgChecker_} numArgChecker
+ * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
  * @implements {r5js.PrimitiveProcedure}
  * @struct
  * @constructor
  * @private
  */
-r5js.HasSpecialEvalLogic_ = function(fn, numArgChecker, typeChecker) {
+r5js.procspec.HasSpecialEvalLogic_ = function(fn, numArgChecker, typeChecker) {
   /** @const @private {function(!r5js.Datum):?} */
   this.fn_ = fn;
 
-  /** @const @private {!r5js.NumArgChecker_} */
+  /** @const @private {!r5js.procspec.NumArgChecker_} */
   this.numArgChecker_ = numArgChecker;
 
-  /** @const @private {!r5js.ArgumentTypeCheckerAndUnwrapper_} */
+  /** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
   this.typeChecker_ = typeChecker;
 
   /** @private {string} */
   this.debugName_ = '';
 };
-r5js.PrimitiveProcedure.addImplementation(r5js.HasSpecialEvalLogic_);
+r5js.PrimitiveProcedure.addImplementation(r5js.procspec.HasSpecialEvalLogic_);
 
 
 /** @override */
-r5js.HasSpecialEvalLogic_.prototype.setDebugName = function(debugName) {
+r5js.procspec.HasSpecialEvalLogic_.prototype.setDebugName =
+    function(debugName) {
   this.debugName_ = debugName;
 };
 
 
 /** @override */
-r5js.HasSpecialEvalLogic_.prototype.Call = function(
+r5js.procspec.HasSpecialEvalLogic_.prototype.Call = function(
     userArgs, procCall, continuation, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
@@ -403,11 +404,11 @@ r5js.HasSpecialEvalLogic_.prototype.Call = function(
  * TODO bl: make the template type mean something
  */
 r5js.procspec.unary = function(fn, opt_argtype) {
-  return new r5js.PrimitiveProcedure.Base_(
-      fn, r5js.EXACTLY_1_ARG_,
+  return new r5js.procspec.PrimitiveProcedure_(
+      fn, r5js.procspec.EXACTLY_1_ARG_,
       goog.isDef(opt_argtype) ?
-      new r5js.ArgumentTypeCheckerAndUnwrapperImpl_([opt_argtype]) :
-      r5js.NO_TYPE_RESTRICTIONS_);
+      new r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_([opt_argtype]) :
+      r5js.procspec.NO_TYPE_RESTRICTIONS_);
 };
 
 
@@ -428,10 +429,10 @@ r5js.procspec.binary = function(fn, opt_argtype1, opt_argtype2) {
     argtypes.push(opt_argtype2);
   }
   var typeChecker = argtypes.length === 0 ?
-      r5js.NO_TYPE_RESTRICTIONS_ :
-      new r5js.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes);
-  return new r5js.PrimitiveProcedure.Base_(
-      fn, r5js.EXACTLY_2_ARGS_, typeChecker);
+      r5js.procspec.NO_TYPE_RESTRICTIONS_ :
+      new r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes);
+  return new r5js.procspec.PrimitiveProcedure_(
+      fn, r5js.procspec.EXACTLY_2_ARGS_, typeChecker);
 };
 
 
@@ -440,8 +441,8 @@ r5js.procspec.binary = function(fn, opt_argtype1, opt_argtype2) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.ternary = function(fn) {
-  return new r5js.PrimitiveProcedure.Base_(
-      fn, r5js.EXACTLY_3_ARGS_, r5js.NO_TYPE_RESTRICTIONS_);
+  return new r5js.procspec.PrimitiveProcedure_(
+      fn, r5js.procspec.EXACTLY_3_ARGS_, r5js.procspec.NO_TYPE_RESTRICTIONS_);
 };
 
 
@@ -451,8 +452,9 @@ r5js.procspec.ternary = function(fn) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.varargsAtLeast0 = function(fn, typeOfAllArgs) {
-  return new r5js.PrimitiveProcedure.Base_(
-      fn, r5js.ANY_NUMBER_OF_ARGS_, new r5js.AllArgsOfType_(typeOfAllArgs));
+  return new r5js.procspec.PrimitiveProcedure_(
+      fn, r5js.procspec.ANY_NUMBER_OF_ARGS_,
+      new r5js.procspec.AllArgsOfType_(typeOfAllArgs));
 };
 
 
@@ -462,8 +464,9 @@ r5js.procspec.varargsAtLeast0 = function(fn, typeOfAllArgs) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.varargsAtLeast1 = function(fn, typeOfAllArgs) {
-  return new r5js.PrimitiveProcedure.Base_(
-      fn, r5js.AT_LEAST_1_ARG_, new r5js.AllArgsOfType_(typeOfAllArgs));
+  return new r5js.procspec.PrimitiveProcedure_(
+      fn, r5js.procspec.AT_LEAST_1_ARG_,
+      new r5js.procspec.AllArgsOfType_(typeOfAllArgs));
 };
 
 
@@ -474,8 +477,9 @@ r5js.procspec.varargsAtLeast1 = function(fn, typeOfAllArgs) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.varargsRange = function(fn, minArgs, maxArgs) {
-  return new r5js.PrimitiveProcedure.Base_(
-      fn, new r5js.Between_(minArgs, maxArgs), r5js.NO_TYPE_RESTRICTIONS_);
+  return new r5js.procspec.PrimitiveProcedure_(
+      fn, new r5js.procspec.Between_(minArgs, maxArgs),
+      r5js.procspec.NO_TYPE_RESTRICTIONS_);
 };
 
 
@@ -484,8 +488,9 @@ r5js.procspec.varargsRange = function(fn, minArgs, maxArgs) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.nullaryWithCurrentPorts = function(fn) {
-  return new r5js.NeedsCurrentPorts_(
-      fn, new r5js.Exactly_(0), r5js.NO_TYPE_RESTRICTIONS_);
+  return new r5js.procspec.NeedsCurrentPorts_(
+      fn, new r5js.procspec.Exactly_(0),
+      r5js.procspec.NO_TYPE_RESTRICTIONS_);
 };
 
 
@@ -494,9 +499,9 @@ r5js.procspec.nullaryWithCurrentPorts = function(fn) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.nullaryOrUnaryWithCurrentPorts = function(fn) {
-  return new r5js.NeedsCurrentPorts_(
-      fn, new r5js.Between_(0, 1),
-      r5js.NO_TYPE_RESTRICTIONS_);
+  return new r5js.procspec.NeedsCurrentPorts_(
+      fn, new r5js.procspec.Between_(0, 1),
+      r5js.procspec.NO_TYPE_RESTRICTIONS_);
 };
 
 
@@ -505,9 +510,9 @@ r5js.procspec.nullaryOrUnaryWithCurrentPorts = function(fn) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.unaryOrBinaryWithCurrentPorts = function(fn) {
-  return new r5js.NeedsCurrentPorts_(
-      fn, new r5js.Between_(1, 2),
-      r5js.NO_TYPE_RESTRICTIONS_);
+  return new r5js.procspec.NeedsCurrentPorts_(
+      fn, new r5js.procspec.Between_(1, 2),
+      r5js.procspec.NO_TYPE_RESTRICTIONS_);
 };
 
 
@@ -516,8 +521,8 @@ r5js.procspec.unaryOrBinaryWithCurrentPorts = function(fn) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.unaryWithSpecialEvalLogic = function(fn) {
-  return new r5js.HasSpecialEvalLogic_(
-      fn, r5js.EXACTLY_1_ARG_, r5js.JUST_UNWRAP_ARGS_);
+  return new r5js.procspec.HasSpecialEvalLogic_(
+      fn, r5js.procspec.EXACTLY_1_ARG_, r5js.procspec.JUST_UNWRAP_ARGS_);
 };
 
 
@@ -526,8 +531,8 @@ r5js.procspec.unaryWithSpecialEvalLogic = function(fn) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.binaryWithSpecialEvalLogic = function(fn) {
-  return new r5js.HasSpecialEvalLogic_(
-      fn, r5js.EXACTLY_2_ARGS_, r5js.JUST_UNWRAP_ARGS_);
+  return new r5js.procspec.HasSpecialEvalLogic_(
+      fn, r5js.procspec.EXACTLY_2_ARGS_, r5js.procspec.JUST_UNWRAP_ARGS_);
 };
 
 
@@ -536,8 +541,8 @@ r5js.procspec.binaryWithSpecialEvalLogic = function(fn) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.ternaryWithSpecialEvalLogic = function(fn) {
-  return new r5js.HasSpecialEvalLogic_(
-      fn, r5js.EXACTLY_3_ARGS_, r5js.JUST_UNWRAP_ARGS_);
+  return new r5js.procspec.HasSpecialEvalLogic_(
+      fn, r5js.procspec.EXACTLY_3_ARGS_, r5js.procspec.JUST_UNWRAP_ARGS_);
 };
 
 
@@ -547,7 +552,7 @@ r5js.procspec.ternaryWithSpecialEvalLogic = function(fn) {
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.atLeastNWithSpecialEvalLogic = function(min, fn) {
-  return new r5js.HasSpecialEvalLogic_(
-      fn, new r5js.AtLeast_(min),
-      r5js.NO_TYPE_RESTRICTIONS_);
+  return new r5js.procspec.HasSpecialEvalLogic_(
+      fn, new r5js.procspec.AtLeast_(min),
+      r5js.procspec.NO_TYPE_RESTRICTIONS_);
 };
