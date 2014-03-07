@@ -51,7 +51,7 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
   var next;
   switch (this.terminal_) {
     case r5js.parse.Terminals.LPAREN:
-    case r5js.DatumType.DOTTED_LIST: // TODO bl where is from?
+    case r5js.parse.Terminals.LPAREN_DOT: // TODO bl where is from?
     case r5js.parse.Terminals.LPAREN_VECTOR:
     case r5js.parse.Terminals.TICK:
     case r5js.parse.Terminals.BACKTICK:
