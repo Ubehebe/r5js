@@ -19,7 +19,6 @@ goog.provide('r5js.PublicApi');
 
 goog.require('r5js.OutputMode');
 goog.require('r5js.Scanner');
-goog.require('r5js.util.Logger');
 
 /**
  *
@@ -100,7 +99,7 @@ r5js.PublicApi.prototype.willParse = function(logicalLine) {
 /**
  * @param {string} string The source text to evaluate.
  * @param {function()} sideEffectHandler A side effect handler.
- * @param {!r5js.util.Logger} logger Logger.
+ * @param {goog.log.Logger} logger Logger.
  * @return {string} A string representation of the value of the evaluation.
  * TODO bl: narrow the type of sideEffectHandler.
  */
@@ -123,7 +122,7 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler, logger) {
  * Just like {@link r5js.PublicApi.eval}, but reuses the old environment.
  * @param {string} string The source text to evaluate.
  * @param {*} sideEffectHandler A side effect handler.
- * @param {!r5js.util.Logger} logger Logger.
+ * @param {goog.log.Logger} logger Logger.
  * TODO bl: tighten the type of sideEffectHandler.
  */
 r5js.PublicApi.prototype.repl = function (string, sideEffectHandler, logger) {

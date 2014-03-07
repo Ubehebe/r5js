@@ -3,6 +3,7 @@ goog.setTestOnly('r5js.test.Interpreter');
 
 
 goog.require('expect');
+goog.require('goog.log');
 
 
 
@@ -20,8 +21,8 @@ r5js.test.Interpreter = function(publicApi, sources) {
   /** @const @private */
   this.sources_ = sources;
 
-  /** @const @private {!r5js.util.Logger} */
-  this.logger_ = r5js.util.Logger.getLogger('r5js.test.Interpreter');
+  /** @const @private {goog.log.Logger} */
+  this.logger_ = goog.log.getLogger('r5js.test.Interpreter');
 };
 
 

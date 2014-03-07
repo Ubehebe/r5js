@@ -16,7 +16,6 @@ goog.require('r5js.test.Interpreter');
 goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
 goog.require('r5js.test.SchemeSources');
-goog.require('r5js.util.Logger');
 goog.require('tdd.Runner');
 goog.require('tdd.RunnerConfig');
 
@@ -66,7 +65,7 @@ r5js.test.evalSandbox = function(text) {
         publicApi.Eval(
         text,
         goog.nullFunction /* sideEffectHandler */,
-        r5js.util.Logger.getLogger('blah')));
+        goog.log.getLogger('blah')));
   });
 };
 
@@ -88,7 +87,7 @@ r5js.test.getApi_ = function(sources) {
           var r5RSEnv = r5js.boot(
               sources.syntax,
               sources.procedures,
-              r5js.util.Logger.getLogger('r5js'));
+              goog.log.getLogger('r5js'));
           pipeline.setRootEnv(/** @type {!r5js.RootEnvironment} */ (r5RSEnv));
         });
     r5js.test.api_ = new r5js.PublicApi(pipeline);

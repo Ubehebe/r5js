@@ -104,7 +104,7 @@ goog.require('r5js.TrampolineHelper');
  * @param {!r5js.Continuable} continuable The continuable object to evaluate.
  * @param {r5js.Port} inputPort The input port, if any.
  * @param {r5js.Port} outputPort The output port, if any.
- * @param {!r5js.util.Logger} logger Logger, for debugging messages.
+ * @param {goog.log.Logger} logger Logger, for debugging messages.
  * @return {?} TODO bl what does this return?
  * @suppress {uselessCode} for the currently-disabled debugging branch.
  */

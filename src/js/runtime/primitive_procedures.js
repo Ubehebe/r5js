@@ -1,6 +1,7 @@
 goog.provide('r5js.PrimitiveProcedures');
 
 
+goog.require('goog.log');
 goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
@@ -701,7 +702,7 @@ PrimitiveProcedures['eval'] = _.binary(
             continuable,
             null,
             null,
-            r5js.util.Logger.getLogger('[embedded eval]'));
+            goog.log.getLogger('[embedded eval]'));
       }
     });
 
