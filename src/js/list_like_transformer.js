@@ -56,7 +56,12 @@ r5js.ListLikeTransformer.prototype.forEachSubtransformer = function(callback, ar
         }
 };
 
-r5js.ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
+/**
+ * @param {!r5js.Datum} inputDatum
+ * @return {boolean}
+ * @private
+ */
+r5js.ListLikeTransformer.prototype.couldMatch_ = function(inputDatum) {
     switch (this.type) {
         case r5js.DatumType.LIST:
             // Proper list patterns can match only proper list inputs
@@ -78,7 +83,7 @@ r5js.ListLikeTransformer.prototype.matchInput = function(inputDatum, literalIds,
     var maybeEllipsis = this.subtransformers_[len-1] instanceof r5js.EllipsisTransformer
         && this.subtransformers_[len-1];
 
-    if (!this.couldMatch(inputDatum))
+    if (!this.couldMatch_(inputDatum))
         return false;
 
     /* R5RS 4.3.2: "an input form F matches a pattern P if and only if [...]
