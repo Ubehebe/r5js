@@ -36,7 +36,7 @@ r5js.read.bnf.NamedRule.prototype.named = function(nonterminal) {};
 
 
 /**
- * @param {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
+ * @param {!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
  * @implements {r5js.read.bnf.NamedRule}
  * @struct
  * @constructor
@@ -44,7 +44,7 @@ r5js.read.bnf.NamedRule.prototype.named = function(nonterminal) {};
  */
 r5js.read.bnf.One_ = function(type) {
   /**
-     * @private {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal}
+     * @private {!r5js.parse.Terminal|!r5js.parse.Nonterminal}
      * @const
      */
   this.type_ = type;
@@ -107,7 +107,7 @@ r5js.read.bnf.One_.prototype.matchTerminal_ = function(ansDatum, tokenStream) {
 
 
 /**
- * @param {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
+ * @param {!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
  * @param {number} minRepetitions
  * @implements {r5js.read.bnf.NamedRule}
  * @struct
@@ -116,7 +116,7 @@ r5js.read.bnf.One_.prototype.matchTerminal_ = function(ansDatum, tokenStream) {
  */
 r5js.read.bnf.AtLeast_ = function(type, minRepetitions) {
   /**
-   * @private {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal}
+   * @private {!r5js.parse.Terminal|!r5js.parse.Nonterminal}
    * @const
    */
   this.type_ = type;
@@ -168,7 +168,7 @@ r5js.read.bnf.AtLeast_.prototype.named = function(nonterminal) {
 
 
 /**
- * @param {!r5js.DatumType|!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
+ * @param {!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
  * @return {!r5js.read.bnf.NamedRule}
  */
 r5js.read.bnf.one = function(type) {
