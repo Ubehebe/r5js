@@ -20,22 +20,17 @@ goog.provide('r5js.QuoteTransformer');
 goog.provide('r5js.VectorTransformer');
 
 
-goog.require('r5js.DatumType');
 goog.require('r5js.EllipsisTransformer');
+goog.require('r5js.parse.Terminals');
 goog.require('r5js.SiblingBuffer');
 
 
 /**
- * @param {!r5js.Type} type The type of this transformer.
- * @implements {r5js.ITransformer}
  * @struct
  * @constructor
  * @private
  */
-r5js.ListLikeTransformer_ = function(type) {
-    /** @const {!r5js.Type} */
-    this.type = type;
-
+r5js.ListLikeTransformer_ = function() {
     /** @const @private {!Array.<!r5js.ITransformer>} */
     this.subtransformers_ = [];
 };
@@ -51,7 +46,11 @@ r5js.ListLikeTransformer_.prototype.getName = function() {
     return this.subtransformers_[0].datum.getPayload();
 };
 
-/** @override */
+/**
+ * @param {Function} callback Function to call on each subtransformer.
+ * @param {!Array.<*>} args Additional arguments to pass to the callback.
+ * TODO bl: tighten the type of the array elements.
+ */
 r5js.ListLikeTransformer_.prototype.forEachSubtransformer = function(callback, args) {
         for (var i = 0; i < this.subtransformers_.length; ++i) {
             callback(this.subtransformers_[i], args);
@@ -65,7 +64,16 @@ r5js.ListLikeTransformer_.prototype.forEachSubtransformer = function(callback, a
  */
 r5js.ListLikeTransformer_.prototype.couldMatch_ = goog.abstractMethod;
 
-/** @override */
+
+/**
+ * @param {!r5js.Datum} inputDatum The input datum.
+ * @param {!Object.<string, boolean>} literalIds Dictionary of literal identifiers.
+ * @param {!r5js.IEnvironment} definitionEnv Definition environment.
+ * @param {!r5js.IEnvironment} useEnv Use environment.
+ * @param {!r5js.TemplateBindings} bindings Template bindings.
+ * @return {boolean} True iff the transformer is a match (?)
+ * TODO bl: what is the use of the value type in the literalIds dictionary?
+ */
 r5js.ListLikeTransformer_.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
     var len = this.subtransformers_.length;
     var maybeEllipsis = this.subtransformers_[len-1] instanceof r5js.EllipsisTransformer
@@ -93,8 +101,7 @@ r5js.ListLikeTransformer_.prototype.matchInput = function(inputDatum, literalIds
          subinput;
          subinput = subinput.getNextSibling(), ++i) {
 
-        if (i === len - 1 &&
-            (maybeEllipsis || this.type === r5js.DatumType.DOTTED_LIST)) {
+        if (i === len - 1 && maybeEllipsis) {
             // If there's an ellipsis in the pattern, break out to deal with it.
             break;
         } else if (i >= len) {
@@ -113,34 +120,21 @@ r5js.ListLikeTransformer_.prototype.matchInput = function(inputDatum, literalIds
          an empty input like () cannot match a pattern like (x y ...) */
         return (!inputDatum.getFirstChild() && len > 1)
             ? false
-            : maybeEllipsis.matchInput(subinput, literalIds, definitionEnv, useEnv, bindings);
-    }
-
-    // Dotted-list patterns cannot end in ellipses.
-    else if (this.type === r5js.DatumType.DOTTED_LIST) {
-        var toMatchAgainst;
-
-        if (inputDatum.isList()) {
-            toMatchAgainst = subinput.siblingsToList();
-        } else if (inputDatum.isImproperList()) {
-            if (subinput.getNextSibling())
-                toMatchAgainst = subinput.siblingsToList(true);
-            else
-                toMatchAgainst = subinput;
-        }
-
-        return this.subtransformers_[i].matchInput(toMatchAgainst, literalIds, definitionEnv, useEnv, bindings);
-    }
-
+            : maybeEllipsis.matchInput(
+            /** @type {!r5js.Datum} */(subinput), literalIds, definitionEnv, useEnv, bindings);
+    } else {
     /* If we matched all of the input without getting through all of
      the pattern, this is a failure. */
-    else {
         return i === len;
     }
 };
 
-/** @override */
-r5js.ListLikeTransformer_.prototype.toDatum = function (bindings) {
+/**
+ * @param {!r5js.TemplateBindings} bindings
+ * @return {r5js.SiblingBuffer}
+ * @private
+ */
+r5js.ListLikeTransformer_.prototype.toSiblingBuffer_ = function(bindings) {
 
     var buf = new r5js.SiblingBuffer();
     var len = this.subtransformers_.length;
@@ -149,23 +143,23 @@ r5js.ListLikeTransformer_.prototype.toDatum = function (bindings) {
         var success = /** @type {!r5js.Datum|boolean} */ (
             this.subtransformers_[i].toDatum(bindings));
         if (success === false) {
-            return false;
+            return null;
         } else {
             buf.appendSibling(/** @type {!r5js.Datum} */ (success));
         }
     }
-
-    return buf.toList(this.type);
+    return buf;
 };
 
 
 /**
+ * @implements {r5js.ITransformer}
  * @extends {r5js.ListLikeTransformer_}
  * @struct
  * @constructor
  */
 r5js.QuoteTransformer = function() {
-    goog.base(this, r5js.DatumType.QUOTE);
+    goog.base(this);
 };
 goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer_);
 
@@ -178,13 +172,23 @@ goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer_);
 r5js.QuoteTransformer.prototype.forEachSubtransformer = goog.nullFunction;
 
 
+/** @override */
+r5js.QuoteTransformer.prototype.toDatum = function(bindings) {
+    var siblingBuffer = this.toSiblingBuffer_(bindings);
+    return siblingBuffer ?
+        siblingBuffer.toList(r5js.parse.Terminals.TICK) :
+        false;
+};
+
+
 /**
+ * @implements {r5js.ITransformer}
  * @extends {r5js.ListLikeTransformer_}
  * @struct
  * @constructor
  */
 r5js.VectorTransformer = function() {
-    goog.base(this, r5js.DatumType.VECTOR);
+    goog.base(this);
 };
 goog.inherits(r5js.VectorTransformer, r5js.ListLikeTransformer_);
 
@@ -195,14 +199,23 @@ r5js.VectorTransformer.prototype.couldMatch_ = function(inputDatum) {
     return inputDatum.isVector();
 };
 
+/** @override */
+r5js.VectorTransformer.prototype.toDatum = function(bindings) {
+  var siblingBuffer = this.toSiblingBuffer_(bindings);
+    return siblingBuffer ?
+        siblingBuffer.toList(r5js.parse.Terminals.LPAREN_VECTOR) :
+        false;
+};
+
 
 /**
+ * @implements {r5js.ITransformer}
  * @extends {r5js.ListLikeTransformer_}
  * @struct
  * @constructor
  */
 r5js.ListTransformer = function() {
-  goog.base(this, r5js.DatumType.LIST);
+  goog.base(this);
 };
 goog.inherits(r5js.ListTransformer, r5js.ListLikeTransformer_);
 
@@ -214,13 +227,23 @@ r5js.ListTransformer.prototype.couldMatch_ = function(inputDatum) {
 };
 
 
+/** @override */
+r5js.ListTransformer.prototype.toDatum = function(bindings) {
+    var siblingBuffer = this.toSiblingBuffer_(bindings);
+    return siblingBuffer ?
+       siblingBuffer.toList(r5js.parse.Terminals.LPAREN) :
+       false;
+};
+
+
 /**
+ * @implements {r5js.ITransformer}
  * @extends {r5js.ListLikeTransformer_}
  * @struct
  * @constructor
  */
 r5js.DottedListTransformer = function() {
-    goog.base(this, r5js.DatumType.DOTTED_LIST);
+    goog.base(this);
 };
 goog.inherits(r5js.DottedListTransformer, r5js.ListLikeTransformer_);
 
@@ -229,4 +252,81 @@ goog.inherits(r5js.DottedListTransformer, r5js.ListLikeTransformer_);
 r5js.DottedListTransformer.prototype.couldMatch_ = function(inputDatum) {
     // Dotted list patterns can match proper or dotted list inputs
     return inputDatum.isList() || inputDatum.isImproperList();
+};
+
+
+/** @override */
+r5js.DottedListTransformer.prototype.toDatum = function(bindings) {
+    var siblingBuffer = this.toSiblingBuffer_(bindings);
+    return siblingBuffer ?
+        siblingBuffer.toList(r5js.parse.Terminals.LPAREN_DOT) :
+        false;
+};
+
+
+/** @override */
+r5js.DottedListTransformer.prototype.matchInput = function(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+    var len = this.subtransformers_.length;
+    var maybeEllipsis = this.subtransformers_[len-1] instanceof r5js.EllipsisTransformer
+        && this.subtransformers_[len-1];
+
+    if (!this.couldMatch_(inputDatum))
+        return false;
+
+    /* R5RS 4.3.2: "an input form F matches a pattern P if and only if [...]
+     - P is a list (P1 ... Pn) and F is a list of n forms match P1 through Pn, respectively; or
+     - P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or
+     improper list of n or more forms that match P1 through Pn, respectively,
+     and whose nth "cdr" matches Pn+1; or
+     - P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
+     the identifier ... and F is a proper list of at least n forms,
+     the first n of which match P1 through Pn, respectively,
+     and each remaining element of F matches Pn+1; or
+     - P is a vector of the form #(P1 ...Pn) and F is a vector of n forms
+     that match P1 through Pn; or
+     - P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
+     the identifier ... and F is a vector of n or more forms the first n
+     of which match P1 through Pn, respectively, and each remaining element
+     of F matches Pn+1" */
+    for (var subinput = inputDatum.getFirstChild(), i=0;
+         subinput;
+         subinput = subinput.getNextSibling(), ++i) {
+
+        if (i === len - 1) {
+            // If there's an ellipsis in the pattern, break out to deal with it.
+            break;
+        } else if (i >= len) {
+            /* If there's no ellipsis in the pattern and the input is longer
+             than the pattern, this is a failure. */
+            return false;
+        } else if (!this.subtransformers_[i].matchInput(subinput, literalIds, definitionEnv, useEnv, bindings)) {
+            /* If pattern matching on the subinput and subpattern fails, this is
+             a failure. */
+            return false;
+        }
+    }
+
+    if (maybeEllipsis) {
+        /* Corner case:
+         an empty input like () cannot match a pattern like (x y ...) */
+        return (!inputDatum.getFirstChild() && len > 1)
+            ? false
+            : maybeEllipsis.matchInput(
+            /** @type {!r5js.Datum} */ (subinput), literalIds, definitionEnv, useEnv, bindings);
+    } else {
+    // Dotted-list patterns cannot end in ellipses.
+        var toMatchAgainst;
+
+        if (inputDatum.isList()) {
+            toMatchAgainst = subinput.siblingsToList(false);
+        } else if (inputDatum.isImproperList()) {
+            if (subinput.getNextSibling())
+                toMatchAgainst = subinput.siblingsToList(true);
+            else
+                toMatchAgainst = subinput;
+        }
+
+        return this.subtransformers_[i].matchInput(
+            /** @type {!r5js.Datum} */ (toMatchAgainst), literalIds, definitionEnv, useEnv, bindings);
+    }
 };
