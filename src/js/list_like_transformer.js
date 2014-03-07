@@ -14,6 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
+goog.provide('r5js.ListTransformer');
 goog.provide('r5js.ListLikeTransformer');
 goog.provide('r5js.QuoteTransformer');
 goog.provide('r5js.VectorTransformer');
@@ -64,9 +65,6 @@ r5js.ListLikeTransformer.prototype.forEachSubtransformer = function(callback, ar
  */
 r5js.ListLikeTransformer.prototype.couldMatch_ = function(inputDatum) {
     switch (this.type) {
-        case r5js.DatumType.LIST:
-            // Proper list patterns can match only proper list inputs
-            return inputDatum.isList();
         case r5js.DatumType.DOTTED_LIST:
             // Dotted list patterns can match proper or dotted list inputs
             return inputDatum.isList() || inputDatum.isImproperList();
@@ -203,4 +201,22 @@ goog.inherits(r5js.VectorTransformer, r5js.ListLikeTransformer);
 r5js.VectorTransformer.prototype.couldMatch_ = function(inputDatum) {
     // Vector patterns match only vector inputs
     return inputDatum.isVector();
+};
+
+
+/**
+ * @extends {r5js.ListLikeTransformer}
+ * @struct
+ * @constructor
+ */
+r5js.ListTransformer = function() {
+  goog.base(this, r5js.DatumType.LIST);
+};
+goog.inherits(r5js.ListTransformer, r5js.ListLikeTransformer);
+
+
+/** @override */
+r5js.ListTransformer.prototype.couldMatch_ = function(inputDatum) {
+    // Proper list patterns can match only proper list inputs
+    return inputDatum.isList();
 };
