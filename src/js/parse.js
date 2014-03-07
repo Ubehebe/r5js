@@ -28,6 +28,7 @@ goog.require('r5js.ListLikeTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.Procedure');
+goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.data');
 goog.require('r5js.parse.Nonterminals');
@@ -1048,7 +1049,7 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Terminals.TICK),
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      var ans = new r5js.ListLikeTransformer(r5js.DatumType.QUOTE);
+      var ans = new r5js.QuoteTransformer();
       ans.addSubtransformer(node.at(Nonterminals.TEMPLATE).
           desugar(env));
       return ans;

@@ -15,6 +15,7 @@
 
 
 goog.provide('r5js.ListLikeTransformer');
+goog.provide('r5js.QuoteTransformer');
 
 
 goog.require('r5js.DatumType');
@@ -26,6 +27,7 @@ goog.require('r5js.SiblingBuffer');
 /**
  * @param {!r5js.Type} type The type of this transformer.
  * @implements {r5js.ITransformer}
+ * @struct
  * @constructor
  */
 r5js.ListLikeTransformer = function(type) {
@@ -49,13 +51,9 @@ r5js.ListLikeTransformer.prototype.getName = function() {
 
 /** @override */
 r5js.ListLikeTransformer.prototype.forEachSubtransformer = function(callback, args) {
-    /* This is a no-op mainly so we don't accidentally rename identifiers
-     inside quotes in Transformer.prototype.setupIds. */
-    if (this.type !== r5js.DatumType.QUOTE) {
         for (var i = 0; i < this.subtransformers_.length; ++i) {
             callback(this.subtransformers_[i], args);
         }
-    }
 };
 
 r5js.ListLikeTransformer.prototype.couldMatch = function(inputDatum) {
@@ -182,3 +180,22 @@ r5js.ListLikeTransformer.prototype.toString = function () {
         return ans + this.subtransformers_[i].toString() + ')';
     }
 };
+
+
+/**
+ * @extends {r5js.ListLikeTransformer}
+ * @struct
+ * @constructor
+ */
+r5js.QuoteTransformer = function() {
+    goog.base(this, r5js.DatumType.QUOTE);
+};
+goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer);
+
+
+/**
+ * This is a no-op mainly so we don't accidentally rename identifiers inside
+ * quotes in {@link r5js.Transformer#setupIds}.
+ * @override
+ */
+r5js.QuoteTransformer.prototype.forEachSubtransformer = goog.nullFunction;
