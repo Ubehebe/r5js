@@ -776,6 +776,33 @@ r5js.Datum.prototype.lastSibling = function() {
     return this.nextSibling_ ? this.nextSibling_.lastSibling() : this;
 };
 
+
+/** @private */
+r5js.Datum.prototype.normalizeQuotation_ = function() {
+    if (!this.firstChild_) {
+        return;
+    }
+        switch (this.firstChild_.payload_) {
+            case r5js.parse.Terminals.QUOTE:
+                this.type_ = r5js.DatumType.QUOTE;
+                this.firstChild_ = this.firstChild_.nextSibling_;
+                break;
+            case r5js.parse.Terminals.QUASIQUOTE:
+                this.type_ = r5js.DatumType.QUASIQUOTE;
+                this.firstChild_ = this.firstChild_.nextSibling_;
+                break;
+            case r5js.parse.Terminals.UNQUOTE:
+                this.type_ = r5js.DatumType.UNQUOTE;
+                this.firstChild_ = this.firstChild_.nextSibling_;
+                break;
+            case r5js.parse.Terminals.UNQUOTE_SPLICING:
+                this.type_ = r5js.DatumType.UNQUOTE_SPLICING;
+                this.firstChild_ = this.firstChild_.nextSibling_;
+                break;
+        }
+};
+
+
 /**
  * (x . ()) is equivalent to (x). It is useful to perform this normalization
  * prior to evaluation time to simplify the Scheme procedure "list?".
@@ -795,27 +822,7 @@ r5js.Datum.prototype.lastSibling = function() {
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.normalizeInput = function() {
-
-    if (this.firstChild_) {
-        switch (this.firstChild_.payload_) {
-            case r5js.parse.Terminals.QUOTE:
-                this.type_ = r5js.DatumType.QUOTE;
-                this.firstChild_ = this.firstChild_.nextSibling_;
-                break;
-            case r5js.parse.Terminals.QUASIQUOTE:
-                this.type_ = r5js.DatumType.QUASIQUOTE;
-                this.firstChild_ = this.firstChild_.nextSibling_;
-                break;
-            case r5js.parse.Terminals.UNQUOTE:
-                this.type_ = r5js.DatumType.UNQUOTE;
-                this.firstChild_ = this.firstChild_.nextSibling_;
-                break;
-            case r5js.parse.Terminals.UNQUOTE_SPLICING:
-                this.type_ = r5js.DatumType.UNQUOTE_SPLICING;
-                this.firstChild_ = this.firstChild_.nextSibling_;
-                break;
-        }
-    }
+    this.normalizeQuotation_();
 
     var isImproperList = this.isImproperList();
 
