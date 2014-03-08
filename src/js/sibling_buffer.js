@@ -16,72 +16,63 @@
 
 goog.provide('r5js.SiblingBuffer');
 
+
+
 /**
  * Just a buffer to accumulate siblings without the client having to do
  * the pointer arithmetic.
+ * @struct
  * @constructor
  */
-r5js.SiblingBuffer = function() {};
+r5js.SiblingBuffer = function() {
+  /** @private {r5js.Datum} */
+  this.first_ = null;
 
-/**
- * @type {r5js.Datum}
- * @private
- */
-r5js.SiblingBuffer.prototype.first_;
-
-/**
- * @type {r5js.Datum}
- * @private
- */
-r5js.SiblingBuffer.prototype.last_;
-
-/**
- * @return {boolean} True iff the buffer is empty.
- */
-r5js.SiblingBuffer.prototype.isEmpty = function() {
-    return !this.first_;
+  /** @private {r5js.Datum} */
+  this.last_ = null;
 };
+
+
+/** @return {boolean} True iff the buffer is empty. */
+r5js.SiblingBuffer.prototype.isEmpty = function() {
+  return !this.first_;
+};
+
 
 /**
  * @param {!r5js.Datum} node Node to append.
  * @return {!r5js.SiblingBuffer} This object, for chaining.
  */
 r5js.SiblingBuffer.prototype.appendSibling = function(node) {
-    if (node) {
-        if (!this.first_) {
-            this.first_ = node;
-            this.last_ = node.lastSibling();
-        } else {
-            this.last_.setNextSibling(node);
-            this.last_ = node.lastSibling();
-        }
+  if (node) {
+    if (!this.first_) {
+      this.first_ = node;
+      this.last_ = node.lastSibling();
+    } else {
+      this.last_.setNextSibling(node);
+      this.last_ = node.lastSibling();
     }
-    return this;
+  }
+  return this;
 };
 
-/**
- * @return {r5js.Datum}
- */
+
+/** @return {r5js.Datum} */
 r5js.SiblingBuffer.prototype.toSiblings = function() {
-    return this.first_;
+  return this.first_;
 };
+
 
 /**
- * @param {*=} type
- * TODO bl: narrow the type of the parameter.
+ * @param {!r5js.parse.Terminal=} opt_type Optional type of the returned list.
+ * If unspecified, defaults to {@link r5js.DatumType.LIST}.
+ * @return {!r5js.Datum}
  */
-r5js.SiblingBuffer.prototype.toList = function(type) {
+r5js.SiblingBuffer.prototype.toList = function(opt_type) {
   var ans = newEmptyList();
-    ans.setFirstChild(this.first_);
-    if (type) {
-        ans.setType(type); // default is (
-    }
-    return ans;
-};
-
-/** @override */
-r5js.SiblingBuffer.prototype.toString = function() {
-    var tmp = newEmptyList();
-    tmp.appendChild(this.first_);
-    return tmp.toString();
+  ans.setFirstChild(this.first_);
+  if (opt_type) {
+    ans.setType(opt_type); // default is (
+  }
+  return ans;
 };
