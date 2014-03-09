@@ -25,16 +25,20 @@ r5js.ITransformer = function() {};
 
 
 /**
- * @param {Function} callback Function to call on each subtransformer.
+ * @param {function(this: T, !r5js.ITransformer)} callback Function to call
+ * on each subtransformer.
  * @param {!Array.<*>} args Additional arguments to pass to the callback.
  * TODO bl: tighten the type of the array elements.
+ * @param {T=} opt_context Optional receiver for the callback.
+ * @template T
  */
-r5js.ITransformer.prototype.forEachSubtransformer = function(callback, args) {};
+r5js.ITransformer.prototype.forEachSubtransformer = function(
+    callback, args, opt_context) {};
 
 
 /**
  * @param {!r5js.Datum} inputDatum The input datum.
- * @param {!Object.<string, boolean>} literalIds Dictionary of literal identifiers.
+ * @param {!Object.<string, boolean>} literalIds Dictionary of literal ids.
  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
  * @param {!r5js.IEnvironment} useEnv Use environment.
  * @param {!r5js.TemplateBindings} bindings Template bindings.

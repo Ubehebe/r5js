@@ -104,8 +104,12 @@ r5js.EllipsisTransformer.prototype.toDatum = function(bindings) {
 };
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {checkTypes} TODO bl the compiler complains about an incorrect
+ * override from the interface definition. Why?
+ */
 r5js.EllipsisTransformer.prototype.forEachSubtransformer = function(
-    callback, args) {
-  callback(this.subtransformer_, args);
+    callback, args, opt_context) {
+  callback.call(opt_context, this.subtransformer_, args);
 };

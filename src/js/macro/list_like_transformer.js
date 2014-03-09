@@ -78,14 +78,14 @@ r5js.ListLikeTransformer.Base_.prototype.getName = function() {
 
 
 /**
- * @param {Function} callback Function to call on each subtransformer.
- * @param {!Array.<*>} args Additional arguments to pass to the callback.
- * TODO bl: tighten the type of the array elements.
+ * @override
+ * @suppress {checkTypes} TODO bl the compiler complains about an incorrect
+ * override from the interface definition.
  */
 r5js.ListLikeTransformer.Base_.prototype.forEachSubtransformer = function(
-    callback, args) {
+    callback, args, opt_context) {
   for (var i = 0; i < this.subtransformers_.length; ++i) {
-    callback(this.subtransformers_[i], args);
+    callback.call(opt_context, this.subtransformers_[i], args);
   }
 };
 
