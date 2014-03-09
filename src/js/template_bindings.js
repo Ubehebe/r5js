@@ -79,58 +79,42 @@ goog.require('r5js.InternalInterpreterError');
  * @constructor
  */
 r5js.TemplateBindings = function(letSyntaxEnv, patternIds, templateRenameCandidates) {
-    /**
-     * @type {!Object.<*,*>}
-     * TODO bl tighten type and make private
-     */
-    this.bindings = {};
+    /** @const @private {!Object.<*,*>} */
+    this.bindings_ = {};
 
-    /**
-     * @type {!Object.<*,*>}
-     * TODO bl tighten type and make private
-     */
-    this.children = [];
+    /** @const @private {!Array.<!r5js.TemplateBindings>} */
+    this.children_ = [];
 
-    /**
-     * @type {number}
-     * TODO bl make private
-     */
-    this.curChild = 0;
+    /** @private {number} */
+    this.curChild_ = 0;
 
-    /**
-     * @type {!r5js.IEnvironment}
-     * TODO bl make private
-     */
-    this.letSyntaxEnv = letSyntaxEnv;
+    /** @const @private {!r5js.IEnvironment} */
+    this.letSyntaxEnv_ = letSyntaxEnv;
+    
     this.patternIds = patternIds;
     this.templateRenameCandidates = templateRenameCandidates;
 
-    /**
-     * @type {!Object.<*,*>}
-     * TODO bl make private
-     */
-    this.renameInTemplate = {};
+    /** @const @private {!Object.<*,*>} */
+    this.renameInTemplate_ = {};
 };
 
-/**
- * @returns {!r5js.TemplateBindings} This object, for chaining.
- */
+/** @return {!r5js.TemplateBindings} This object, for chaining. */
 r5js.TemplateBindings.prototype.resetCurChild = function() {
-    this.curChild = 0;
+    this.curChild_ = 0;
     return this;
 };
 
 r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
-    if (this.bindings[name])
+    if (this.bindings_[name])
         throw new r5js.InternalInterpreterError('invariant incorrect');
     else if (val.isMacro()) {
         // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
         var fakeName = newCpsName();
-        this.letSyntaxEnv.addBinding(fakeName, val.getMacro());
-        this.bindings[name] = r5js.data.newIdOrLiteral(fakeName);
+        this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
+        this.bindings_[name] = r5js.data.newIdOrLiteral(fakeName);
     }
     else {
-        this.bindings[name] = val;
+        this.bindings_[name] = val;
     }
 
     var self = this;
@@ -154,7 +138,7 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
     val.forEach(function (datum) {
         if (datum.isIdentifier()
             && self.templateRenameCandidates[datum.getPayload()])
-            self.renameInTemplate[datum.getPayload()] = true;
+            self.renameInTemplate_[datum.getPayload()] = true;
     });
 };
 
@@ -165,31 +149,32 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
 r5js.TemplateBindings.prototype.debugString = function(tabs) {
     tabs = tabs || '';
     var ans = '';
-    for (var name in this.bindings) {
-        ans += tabs + name + ' = ' + this.bindings[name].toString() + '\n';
+    for (var name in this.bindings_) {
+        ans += tabs + name + ' = ' + this.bindings_[name].toString() + '\n';
     }
-    for (var i = 0; i < this.children.length; ++i) {
-        ans += tabs + 'child ' + i + ':\n' + this.children[i].debugString(tabs+'\t');
+    for (var i = 0; i < this.children_.length; ++i) {
+        ans += tabs + 'child ' + i + ':\n' + this.children_[i].debugString(tabs+'\t');
     }
     return ans;
 };
 
 /**
- * @param {*} child TODO bl
+ * @param {!r5js.TemplateBindings} child Child bindings.
  * @return {!r5js.TemplateBindings} This object, for chaining.
  */
 r5js.TemplateBindings.prototype.addChildBindings = function(child) {
-    this.children.push(child);
+    this.children_.push(child);
     return this;
 };
 
 /**
- * @param {*} other TODO bl
- * @return {boolean} TODO bl
+ * @param {!r5js.TemplateBindings} other Other template bindings.
+ * @return {boolean}
+ * @private
  */
-r5js.TemplateBindings.prototype.hasNoneOf = function(other) {
-    for (var name in other.bindings) {
-        if (this.bindings[name]) {
+r5js.TemplateBindings.prototype.hasNoneOf_ = function(other) {
+    for (var name in other.bindings_) {
+        if (name in this.bindings_) {
             return false;
         }
     }
@@ -199,21 +184,21 @@ r5js.TemplateBindings.prototype.hasNoneOf = function(other) {
 /**
  * Try to incorporate the child's bindings in an existing child
  * if there's room, otherwise just tack the child on to the parent.
- * @param {*} child TODO bl
+ * @param {!r5js.TemplateBindings} child Child bindings.
+ * @return {r5js.TemplateBindings}
  */
 r5js.TemplateBindings.prototype.addOrIncorporateChild = function(child) {
     return this.incorporateChild(child) || this.addChildBindings(child);
 };
 
 /**
- * @param {*} child TODO bl
+ * @param {!r5js.TemplateBindings} child Child bindings.
  * @return {r5js.TemplateBindings} This object, or null.
- * TODO bl: what is the reason behind the odd return type variance?
  */
 r5js.TemplateBindings.prototype.incorporateChild = function(child) {
 
     // We only incorporate flat TemplateBindings objects.
-    if (child.children.length > 0) {
+    if (child.children_.length > 0) {
         return null;
     }
 
@@ -221,11 +206,11 @@ r5js.TemplateBindings.prototype.incorporateChild = function(child) {
      have any of the bindings.
 
      todo bl: i have no idea why this heuristic seems to work. */
-    for (var i = 0; i < this.children.length; ++i) {
-        var candidate = this.children[i];
-        if (candidate.hasNoneOf(child)) {
-            for (var name in child.bindings) {
-                candidate.addTemplateBinding(name, child.bindings[name]);
+    for (var i = 0; i < this.children_.length; ++i) {
+        var candidate = this.children_[i];
+        if (candidate.hasNoneOf_(child)) {
+            for (var name in child.bindings_) {
+                candidate.addTemplateBinding(name, child.bindings_[name]);
             }
             return this;
         }
@@ -234,14 +219,12 @@ r5js.TemplateBindings.prototype.incorporateChild = function(child) {
     return null;
 };
 
-/**
- * @return {*} TODO bl
- */
+/** @return {r5js.TemplateBindings} */
 r5js.TemplateBindings.prototype.getNextChild = function() {
-    if (this.curChild < this.children.length) {
-        return this.children[this.curChild++];
+    if (this.curChild_ < this.children_.length) {
+        return this.children_[this.curChild_++];
     } else {
-        this.curChild = 0;   // reset for next time
+        this.curChild_ = 0;   // reset for next time
         return null;
     }
 };
@@ -253,7 +236,7 @@ r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
     if (datum.isIdentifier()) {
         var name = datum.getPayload();
 
-        var maybe = this.bindings[name];
+        var maybe = this.bindings_[name];
         if (maybe) {
             return maybe.clone();
         } else if (this.patternIds[name] !== undefined) {
@@ -288,6 +271,10 @@ r5js.TemplateBindings.prototype.getTemplateRenameCandidates = function() {
     return this.templateRenameCandidates;
 };
 
+/**
+ * @param {string} id
+ * @return {*} TODO bl
+ */
 r5js.TemplateBindings.prototype.wasRenamed = function(id) {
-    return this.renameInTemplate[id];
+    return this.renameInTemplate_[id];
 };
