@@ -21,26 +21,24 @@ goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 
 
+
 /**
  * @param {!r5js.ITransformer} subtransformer Subtransformer.
  * @implements {r5js.ITransformer}
+ * @struct
  * @constructor
- * TODO bl: what is the meaning of the parameter?
  */
 r5js.EllipsisTransformer = function(subtransformer) {
-    this.subtransformer = subtransformer;
-    this.bindings = [];
+  /** @const @private {!r5js.ITransformer} */
+  this.subtransformer_ = subtransformer;
 };
 
-r5js.EllipsisTransformer.prototype.toString = function() {
-    return this.subtransformer.toString() + ' ...';
-};
 
 /** @override */
 r5js.EllipsisTransformer.prototype.matchInput = function(
-    inputDatum, literalIds,definitionEnv, useEnv, bindings) {
+    inputDatum, literalIds, definitionEnv, useEnv, bindings) {
 
-    /* We have to leave some evidence in the TemplateBindings object of
+  /* We have to leave some evidence in the TemplateBindings object of
         an empty match. Example:
 
      (define-syntax foo
@@ -65,39 +63,49 @@ r5js.EllipsisTransformer.prototype.matchInput = function(
 
      (+ (*) (*) (*)) => 3.
      */
-    if (!inputDatum)
-        bindings.addChildBindings(
-            new r5js.TemplateBindings(
-                useEnv,
-                bindings.getPatternIds(),
-                bindings.getTemplateRenameCandidates()));
+  if (!inputDatum) {
+    bindings.addChildBindings(
+        new r5js.TemplateBindings(
+        useEnv,
+        bindings.getPatternIds(),
+        bindings.getTemplateRenameCandidates()));
+  }
 
-    for (var subinput = inputDatum; subinput; subinput = subinput.getNextSibling()) {
-        var childBindings = new r5js.TemplateBindings(
-            useEnv,
-            bindings.getPatternIds(),
-            bindings.getTemplateRenameCandidates());
-        var maybeMatched = this.subtransformer.matchInput(subinput, literalIds, definitionEnv, useEnv, childBindings);
-        if (maybeMatched)
-            bindings.addOrIncorporateChild(childBindings)
-        else return false;
+  for (var subinput = inputDatum;
+       subinput;
+       subinput = subinput.getNextSibling()) {
+    var childBindings = new r5js.TemplateBindings(
+        useEnv,
+        bindings.getPatternIds(),
+        bindings.getTemplateRenameCandidates());
+    var maybeMatched = this.subtransformer_.matchInput(
+        subinput, literalIds, definitionEnv, useEnv, childBindings);
+    if (maybeMatched) {
+      bindings.addOrIncorporateChild(childBindings);
+    } else {
+      return false;
     }
-    return true;
+  }
+  return true;
 };
+
 
 /** @override */
 r5js.EllipsisTransformer.prototype.toDatum = function(bindings) {
-    var buf = new r5js.SiblingBuffer();
-    var bindingsToUse;
-    var success;
-    while ((bindingsToUse = bindings.getNextChild())
-        && (success = this.subtransformer.toDatum(bindingsToUse)))
-        buf.appendSibling(success);
-    bindings.resetCurChild();
-    return buf.toSiblings();
+  var buf = new r5js.SiblingBuffer();
+  var bindingsToUse;
+  var success;
+  while ((bindingsToUse = bindings.getNextChild()) &&
+      (success = this.subtransformer_.toDatum(bindingsToUse))) {
+    buf.appendSibling(success);
+  }
+  bindings.resetCurChild();
+  return buf.toSiblings();
 };
 
+
 /** @override */
-r5js.EllipsisTransformer.prototype.forEachSubtransformer = function(callback, args) {
-    callback(this.subtransformer, args);
+r5js.EllipsisTransformer.prototype.forEachSubtransformer = function(
+    callback, args) {
+  callback(this.subtransformer_, args);
 };
