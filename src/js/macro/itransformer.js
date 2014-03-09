@@ -17,10 +17,12 @@
 goog.provide('r5js.ITransformer');
 
 
+
 /**
  * @interface
  */
 r5js.ITransformer = function() {};
+
 
 /**
  * @param {Function} callback Function to call on each subtransformer.
@@ -41,6 +43,7 @@ r5js.ITransformer.prototype.forEachSubtransformer = function(callback, args) {};
  */
 r5js.ITransformer.prototype.matchInput = function(
     inputDatum, literalIds, definitionEnv, useEnv, bindings) {};
+
 
 /**
  * @param {!r5js.TemplateBindings} bindings Template bindings.
