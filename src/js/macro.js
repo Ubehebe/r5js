@@ -51,8 +51,10 @@ r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
     this.transformers = [];
 
     for (var rule = rules; rule; rule = rule.getNextSibling()) {
-        var pattern = rule.at('pattern').desugar(definitionEnv);
-        var template = rule.at('template').desugar(definitionEnv);
+        var pattern = /** @type {!r5js.ListLikeTransformer} */(
+            rule.at('pattern').desugar(definitionEnv));
+        var template = /** @type {!r5js.ListLikeTransformer} */ (
+            rule.at('template').desugar(definitionEnv));
         var transformer = new r5js.Transformer(pattern, template);
         this.transformers.push(transformer);
     }
