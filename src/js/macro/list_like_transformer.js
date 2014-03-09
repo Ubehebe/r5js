@@ -73,7 +73,7 @@ r5js.ListLikeTransformer.Base_.prototype.addSubtransformer = function(
 
 /** @return {string} */
 r5js.ListLikeTransformer.Base_.prototype.getName = function() {
-  return this.subtransformers_[0].datum.getPayload();
+  return this.subtransformers_[0].getDatum().getPayload();
 };
 
 

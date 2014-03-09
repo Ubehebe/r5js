@@ -85,9 +85,11 @@ r5js.Transformer.prototype.getTemplate = function() {
 r5js.Transformer.prototype.patternFn_ = function(
     subtransformer, ellipsisLevel) {
   if (subtransformer instanceof r5js.IdOrLiteralTransformer) {
-    if (subtransformer.datum.isIdentifier() &&
-        subtransformer.datum.getPayload() !== this.name_) {
-      this.patternIds_[subtransformer.datum.getPayload()] = ellipsisLevel;
+    if (subtransformer.getDatum().isIdentifier() &&
+        subtransformer.getDatum().getPayload() !== this.name_) {
+      this.patternIds_[
+          /** @type {string} */ (subtransformer.getDatum().getPayload())] =
+          ellipsisLevel;
     }
   } else subtransformer.forEachSubtransformer(
       this.patternFn_,
@@ -106,8 +108,8 @@ r5js.Transformer.prototype.patternFn_ = function(
 r5js.Transformer.prototype.templateFn_ = function(
     subtransformer, ellipsisLevel) {
   if (subtransformer instanceof r5js.IdOrLiteralTransformer) {
-    if (subtransformer.datum.isIdentifier()) {
-      var name = subtransformer.datum.getPayload();
+    if (subtransformer.getDatum().isIdentifier()) {
+      var name = /** @type {string} */ (subtransformer.getDatum().getPayload());
       var maybeInPattern = this.patternIds_[name];
       /* An identifier in a template is a candidate for being
          renamed during transcription if it doesn't occur in the pattern
