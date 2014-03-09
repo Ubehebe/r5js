@@ -849,7 +849,8 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
           break;
         } else {
-          ans.addSubtransformer(cur.desugar(env));
+          ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
+              cur.desugar(env)));
         }
       }
       return ans;
@@ -871,7 +872,8 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
           break;
         } else {
-          ans.addSubtransformer(cur.desugar(env));
+          ans.addSubtransformer(
+              /** @type {!r5js.ITransformer} */ (cur.desugar(env)));
         }
       }
       return ans;
@@ -890,7 +892,8 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(cur.desugar(env));
+        ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
+            cur.desugar(env)));
       }
       return ans;
     }),
@@ -905,7 +908,8 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(cur.desugar(env));
+        ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
+            cur.desugar(env)));
       }
       return ans;
     }),
@@ -918,7 +922,8 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(cur.desugar(env));
+        ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
+            cur.desugar(env)));
       }
       return ans;
     }),
@@ -999,7 +1004,8 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(cur.desugar(env));
+          ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
+              cur.desugar(env)));
         }
       }
 
@@ -1021,7 +1027,8 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(cur.desugar(env));
+          ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
+              cur.desugar(env)));
         }
       }
       return ans;
@@ -1042,7 +1049,8 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(cur.desugar(env));
+          ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
+              cur.desugar(env)));
         }
       }
       return ans;
@@ -1052,8 +1060,8 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
       var ans = new r5js.QuoteTransformer();
-      ans.addSubtransformer(node.at(Nonterminals.TEMPLATE).
-          desugar(env));
+      ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
+          node.at(Nonterminals.TEMPLATE).desugar(env)));
       return ans;
     }));
 

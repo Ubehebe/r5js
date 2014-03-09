@@ -35,7 +35,7 @@ r5js.ListLikeTransformer = function() {};
 
 
 /**
- * @param {?} subtransformer TODO bl.
+ * @param {!r5js.ITransformer} subtransformer
  * @return {!r5js.ListLikeTransformer} This object, for chaining.
  */
 r5js.ListLikeTransformer.prototype.addSubtransformer =
@@ -63,10 +63,7 @@ r5js.ListLikeTransformer.Base_ = function(terminal) {
 };
 
 
-/**
- * @param {?} subtransformer TODO bl.
- * @return {!r5js.ListLikeTransformer} This object, for chaining.
- */
+/** @override */
 r5js.ListLikeTransformer.Base_.prototype.addSubtransformer = function(
     subtransformer) {
   this.subtransformers_.push(subtransformer);
