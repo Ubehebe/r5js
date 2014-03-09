@@ -76,8 +76,16 @@ r5js.IdOrLiteralTransformer.prototype.toString = function() {
     return this.datum.stringForOutputMode(r5js.OutputMode.DISPLAY);
 };
 
-/** @override */
-r5js.IdOrLiteralTransformer.prototype.forEachSubtransformer = function(callback, args) {
-    callback(this, args);
+/**
+ * @param {function(this: T, !r5js.ITransformer, number)} callback
+ * @param {number} ellipsisLevel
+ * @param {T=} opt_context
+ * @template T
+ * @override
+ * TODO bl why is it necessary to repeat the params from the interface?
+ */
+r5js.IdOrLiteralTransformer.prototype.forEachSubtransformer = function(
+    callback, ellipsisLevel, opt_context) {
+    callback.call(opt_context, this, ellipsisLevel);
 };
 

@@ -105,11 +105,14 @@ r5js.EllipsisTransformer.prototype.toDatum = function(bindings) {
 
 
 /**
+ * @param {function(this: T, !r5js.ITransformer, number)} callback
+ * @param {number} ellipsisLevel
+ * @param {T=} opt_context
+ * @template T
  * @override
- * @suppress {checkTypes} TODO bl the compiler complains about an incorrect
- * override from the interface definition. Why?
+ * TODO bl why is it necessary to repeat the params from the interface?
  */
 r5js.EllipsisTransformer.prototype.forEachSubtransformer = function(
-    callback, args, opt_context) {
-  callback.call(opt_context, this.subtransformer_, args);
+    callback, ellipsisLevel, opt_context) {
+  callback.call(opt_context, this.subtransformer_, ellipsisLevel);
 };

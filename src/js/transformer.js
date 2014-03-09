@@ -28,7 +28,6 @@ goog.require('r5js.MacroError');
  * @param {!r5js.ListLikeTransformer} template
  * @struct
  * @constructor
- * @suppress {checkTypes} TODO bl
  */
 r5js.Transformer = function(pattern, template) {
   /** @const @private {!r5js.ListLikeTransformer} */
@@ -82,7 +81,6 @@ r5js.Transformer.prototype.getTemplate = function() {
  * @param {!r5js.ITransformer} subtransformer
  * @param {number} ellipsisLevel
  * @private
- * @suppress {checkTypes} TODO bl
  */
 r5js.Transformer.prototype.patternFn_ = function(
     subtransformer, ellipsisLevel) {
@@ -104,7 +102,6 @@ r5js.Transformer.prototype.patternFn_ = function(
  * @param {!r5js.ITransformer} subtransformer
  * @param {number} ellipsisLevel
  * @private
- * @suppress {checkTypes} TODO bl
  */
 r5js.Transformer.prototype.templateFn_ = function(
     subtransformer, ellipsisLevel) {
