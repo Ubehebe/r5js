@@ -21,116 +21,134 @@ goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.MacroError');
 
+
+
 /**
- * @param {?} pattern
- * @param {?} template
+ * @param {!r5js.ListLikeTransformer} pattern
+ * @param {!r5js.ListLikeTransformer} template
  * @constructor
  */
 r5js.Transformer = function(pattern, template) {
-    this.pattern = pattern;
-    this.template = template;
+  /** @const @private {!r5js.ListLikeTransformer} */
+  this.pattern_ = pattern;
 
-    /**
-     * @const {string}
-     */
-    this.name = pattern.getName();
-    this.setupIds();
+  /** @const @private {!r5js.ListLikeTransformer} */
+  this.template_ = template;
+
+  /** @const {string} */
+  this.name = pattern.getName();
+  this.setupIds_();
 };
 
 
 /**
- * @param {?} inputDatum
- * @param {?} literalIdentifiers
- * @param {?} definitionEnv
- * @param {?} useEnv
- * @param {?} bindings
- * @return {?}
+ * @param {!r5js.Datum} inputDatum The input datum.
+ * @param {!Object.<string, boolean>} literalIds Dictionary of literal ids.
+ * @param {!r5js.IEnvironment} definitionEnv Definition environment.
+ * @param {!r5js.IEnvironment} useEnv Use environment.
+ * @param {!r5js.TemplateBindings} bindings Template bindings.
+ * @return {boolean} True iff the transformer is a match (?).
  */
 r5js.Transformer.prototype.matchInput = function(
-    inputDatum, literalIdentifiers, definitionEnv, useEnv, bindings) {
-    return this.pattern.matchInput(inputDatum, literalIdentifiers, definitionEnv, useEnv, bindings);
+    inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+  return this.pattern_.matchInput(
+      inputDatum, literalIds, definitionEnv, useEnv, bindings);
 };
 
 
-/**
- * @return {string} The name of this transformer.
- */
+/** @return {string} The name of this transformer. */
 r5js.Transformer.prototype.getName = function() {
-    return this.name;
+  return this.name;
+};
+
+
+/** @return {!r5js.ListLikeTransformer} */
+r5js.Transformer.prototype.getTemplate = function() {
+  return this.template_;
 };
 
 
 /**
+ * @private
  * TODO bl this procedure is too long.
+ * @suppress {checkTypes} for the calls to forEachSubtransformer.
  */
-r5js.Transformer.prototype.setupIds = function() {
-    var patternIds = {}; // names to nesting levels
-    var templateRenameCandidates = {};
-    var pattern = this.pattern;
-    var template = this.template;
-    var macroName = this.name;
+r5js.Transformer.prototype.setupIds_ = function() {
+  var patternIds = {}; // names to nesting levels
+  var templateRenameCandidates = {};
+  var pattern = this.pattern_;
+  var template = this.template_;
+  var macroName = this.name;
 
-    var patternFn = function(subtrans, ellipsisLevel) {
-        if (subtrans instanceof r5js.IdOrLiteralTransformer) {
-            if (subtrans.datum.isIdentifier() && subtrans.datum.getPayload() !== macroName) {
-                patternIds[subtrans.datum.getPayload()] = ellipsisLevel;
-            }
-        } else subtrans.forEachSubtransformer(
-            patternFn,
-            subtrans instanceof r5js.EllipsisTransformer ? ellipsisLevel + 1 : ellipsisLevel);
-    };
+  var patternFn = function(subtrans, ellipsisLevel) {
+    if (subtrans instanceof r5js.IdOrLiteralTransformer) {
+      if (subtrans.datum.isIdentifier() &&
+          subtrans.datum.getPayload() !== macroName) {
+        patternIds[subtrans.datum.getPayload()] = ellipsisLevel;
+      }
+    } else subtrans.forEachSubtransformer(
+        patternFn,
+        subtrans instanceof r5js.EllipsisTransformer ?
+            ellipsisLevel + 1 :
+            ellipsisLevel);
+  };
 
-    var templateFn = function(subtrans, ellipsisLevel) {
-        if (subtrans instanceof r5js.IdOrLiteralTransformer) {
-            if (subtrans.datum.isIdentifier()) {
-                var name = subtrans.datum.getPayload();
-                var maybeInPattern = patternIds[name];
-                /* An identifier in a template is a candidate for being
+  var templateFn = function(subtrans, ellipsisLevel) {
+    if (subtrans instanceof r5js.IdOrLiteralTransformer) {
+      if (subtrans.datum.isIdentifier()) {
+        var name = subtrans.datum.getPayload();
+        var maybeInPattern = patternIds[name];
+        /* An identifier in a template is a candidate for being
                  renamed during transcription if it doesn't occur in the pattern
                  and is not the name of the macro. I've also thrown in a check
                  that it's not a parser-sensititive identifier so we don't
                  accidentally break the parser, but this may be buggy.
                  The right thing to do is to remove the parser altogether.
                  See comments at the top of Parser. */
-                if (maybeInPattern === undefined
-                    && name !== macroName) {
-                    if (!isParserSensitiveId(name))
-                        templateRenameCandidates[name] = true;
-                } else if (maybeInPattern !== ellipsisLevel
-                    && name !== macroName) {
-                    throw new r5js.MacroError(
-                        macroName,
-                        name
-                            + ' is at ellipsis level '
-                            + maybeInPattern
-                            + ' in pattern '
-                            + pattern.toString()
-                            + ' but at ellipsis level '
-                            + ellipsisLevel
-                            + ' in template '
-                            + template.toString());
-                }
-            }
-        } else subtrans.forEachSubtransformer(
-            templateFn,
-            subtrans instanceof r5js.EllipsisTransformer ? ellipsisLevel + 1 : ellipsisLevel);
-    };
+        if (maybeInPattern === undefined &&
+            name !== macroName) {
+          if (!isParserSensitiveId(name))
+            templateRenameCandidates[name] = true;
+        } else if (maybeInPattern !== ellipsisLevel &&
+            name !== macroName) {
+          throw new r5js.MacroError(
+              macroName,
+              name +
+                  ' is at ellipsis level ' +
+                  maybeInPattern +
+                  ' in pattern ' +
+                  pattern.toString() +
+                  ' but at ellipsis level ' +
+                  ellipsisLevel +
+                  ' in template ' +
+                  template.toString());
+        }
+      }
+    } else subtrans.forEachSubtransformer(
+        templateFn,
+        subtrans instanceof r5js.EllipsisTransformer ?
+            ellipsisLevel + 1 :
+            ellipsisLevel);
+  };
 
-    pattern.forEachSubtransformer(patternFn, 0);
-    template.forEachSubtransformer(templateFn, 0);
+  pattern.forEachSubtransformer(patternFn, 0);
+  template.forEachSubtransformer(templateFn, 0);
 
-    this.templateRenameCandidates = templateRenameCandidates;
-    this.patternIds = patternIds;
+  /** @const @private {!Object.<string, boolean>} */
+  this.templateRenameCandidates_ = templateRenameCandidates;
 
-    return this;
+  /** @const @private {!Object.<string, number>} */
+  this.patternIds_ = patternIds;
 };
 
 
+/** @return {!Object.<string, number>} */
 r5js.Transformer.prototype.getPatternIds = function() {
-    return this.patternIds;
+  return this.patternIds_;
 };
 
 
+/** @return {!Object.<string, boolean>} */
 r5js.Transformer.prototype.getTemplateRenameCandidates = function() {
-    return this.templateRenameCandidates;
+  return this.templateRenameCandidates_;
 };

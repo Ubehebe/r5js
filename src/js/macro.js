@@ -139,7 +139,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
         transformer = this.transformers[i];
         bindings = new r5js.TemplateBindings(useEnv, transformer.getPatternIds(), transformer.getTemplateRenameCandidates());
         if (transformer.matchInput(datum, this.literalIdentifiers, this.definitionEnv, useEnv, bindings)
-            && (newDatumTree = transformer.template.toDatum(bindings))) {
+            && (newDatumTree = transformer.getTemplate().toDatum(bindings))) {
             // this is a good place to see the TemplateBindings object
             // console.log(bindings.toString());
 
@@ -172,7 +172,8 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
              I don't think this is correct, but it works for the letrec macro definition,
              which is the most complex case I've tried so far. */
             var toRename = {};
-            for (var id in transformer.templateRenameCandidates) {
+            var candidates = transformer.getTemplateRenameCandidates();
+            for (var id in candidates) {
                 if (this.definitionEnv.hasBindingRecursive(id, false))
                     useEnv.addBinding(id, this.definitionEnv);
                 else if (!isParserSensitiveId(id)) {
