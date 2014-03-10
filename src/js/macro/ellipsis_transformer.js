@@ -104,15 +104,8 @@ r5js.EllipsisTransformer.prototype.toDatum = function(bindings) {
 };
 
 
-/**
- * @param {function(this: T, !r5js.ITransformer, number)} callback
- * @param {number} ellipsisLevel
- * @param {T=} opt_context
- * @template T
- * @override
- * TODO bl why is it necessary to repeat the params from the interface?
- */
+/** @override */
 r5js.EllipsisTransformer.prototype.forEachSubtransformer = function(
-    callback, ellipsisLevel, opt_context) {
-  callback.call(opt_context, this.subtransformer_, ellipsisLevel);
+    callback, ellipsisLevel, transformer) {
+  callback.call(null, this.subtransformer_, ellipsisLevel + 1, transformer);
 };

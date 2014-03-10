@@ -86,15 +86,68 @@ r5js.IdOrLiteralTransformer.prototype.getDatum = function() {
 
 
 /**
- * @param {function(this: T, !r5js.ITransformer, number)} callback
- * @param {number} ellipsisLevel
- * @param {T=} opt_context
- * @template T
  * @override
- * TODO bl why is it necessary to repeat the params from the interface?
+ * TODO bl: the type switch can naturally be decomposed into two subclasses.
  */
 r5js.IdOrLiteralTransformer.prototype.forEachSubtransformer = function(
-    callback, ellipsisLevel, opt_context) {
-  callback.call(opt_context, this, ellipsisLevel);
+    callback, ellipsisLevel, transformer) {
+  if (!this.datum_.isIdentifier()) {
+    return;
+  } else if (callback === r5js.Transformer.collectEllipsisLevelsForPatternIds) {
+    this.maybeCollectEllipsisLevel_(ellipsisLevel, transformer);
+  } else if (callback ===
+      r5js.Transformer.collectRenameCandidatesFromTemplate) {
+    this.maybeCollectRenameCandidates_(ellipsisLevel, transformer);
+  }
+};
+
+
+/**
+ * @param {number} ellipsisLevel
+ * @param {!r5js.Transformer} transformer
+ * @private
+ */
+r5js.IdOrLiteralTransformer.prototype.maybeCollectEllipsisLevel_ = function(
+    ellipsisLevel, transformer) {
+  var name = /** @type {string} */ (this.datum_.getPayload());
+  if (name !== transformer.getName()) {
+    transformer.setEllipsisLevel(name, ellipsisLevel);
+  }
+};
+
+
+/**
+ * @param {number} ellipsisLevel
+ * @param {!r5js.Transformer} transformer
+ * @private
+ */
+r5js.IdOrLiteralTransformer.prototype.maybeCollectRenameCandidates_ = function(
+    ellipsisLevel, transformer) {
+  var name = /** @type {string} */ (this.datum_.getPayload());
+  var maybeInPattern = transformer.getEllipsisLevel(name);
+  /* An identifier in a template is a candidate for being
+             renamed during transcription if it doesn't occur in the pattern
+             and is not the name of the macro. I've also thrown in a check
+             that it's not a parser-sensititive identifier so we don't
+             accidentally break the parser, but this may be buggy.
+             The right thing to do is to remove the parser altogether.
+             See comments at the top of Parser. */
+  if (maybeInPattern === -1 &&
+      name !== transformer.getName()) {
+    if (!isParserSensitiveId(name)) {
+      transformer.setTemplateRenameCandidate(name);
+    }
+  } else if (maybeInPattern !== ellipsisLevel &&
+      name !== transformer.getName()) {
+    throw new r5js.MacroError(
+        transformer.getName(),
+        name +
+        ' is at ellipsis level ' +
+        maybeInPattern +
+        ' in pattern ' +
+                        ' but at ellipsis level ' +
+                        ellipsisLevel +
+                        ' in template ');
+  }
 };
 

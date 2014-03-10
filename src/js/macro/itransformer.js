@@ -25,15 +25,14 @@ r5js.ITransformer = function() {};
 
 
 /**
- * @param {function(this: T, !r5js.ITransformer, number)} callback
+ * @param {function(!r5js.ITransformer, number, !r5js.Transformer)} callback
  * Function to call on each subtransformer.
  * @param {number} ellipsisLevel Nesting level of ellipses, passed as the last
  * argument to the callback.
- * @param {T=} opt_context Optional receiver for the callback.
- * @template T
+ * @param {!r5js.Transformer} transformer
  */
 r5js.ITransformer.prototype.forEachSubtransformer = function(
-    callback, ellipsisLevel, opt_context) {};
+    callback, ellipsisLevel, transformer) {};
 
 
 /**

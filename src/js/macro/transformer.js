@@ -45,8 +45,10 @@ r5js.Transformer = function(pattern, template) {
   /** @const @private {!Object.<string, boolean>} */
   this.templateRenameCandidates_ = {};
 
-  this.pattern_.forEachSubtransformer(this.patternFn_, 0, this);
-  this.template_.forEachSubtransformer(this.templateFn_, 0, this);
+  this.pattern_.forEachSubtransformer(
+      r5js.Transformer.collectEllipsisLevelsForPatternIds, 0, this);
+  this.template_.forEachSubtransformer(
+      r5js.Transformer.collectRenameCandidatesFromTemplate, 0, this);
 };
 
 
@@ -80,69 +82,28 @@ r5js.Transformer.prototype.getTemplate = function() {
 /**
  * @param {!r5js.ITransformer} subtransformer
  * @param {number} ellipsisLevel
- * @private
+ * @param {!r5js.Transformer} transformer
  */
-r5js.Transformer.prototype.patternFn_ = function(
-    subtransformer, ellipsisLevel) {
-  if (subtransformer instanceof r5js.IdOrLiteralTransformer) {
-    if (subtransformer.getDatum().isIdentifier() &&
-        subtransformer.getDatum().getPayload() !== this.name_) {
-      this.patternIds_[
-          /** @type {string} */ (subtransformer.getDatum().getPayload())] =
-          ellipsisLevel;
-    }
-  } else subtransformer.forEachSubtransformer(
-      this.patternFn_,
-      subtransformer instanceof r5js.EllipsisTransformer ?
-      ellipsisLevel + 1 :
+r5js.Transformer.collectEllipsisLevelsForPatternIds = function(
+    subtransformer, ellipsisLevel, transformer) {
+  subtransformer.forEachSubtransformer(
+      r5js.Transformer.collectEllipsisLevelsForPatternIds,
       ellipsisLevel,
-      this);
+      transformer);
 };
 
 
 /**
  * @param {!r5js.ITransformer} subtransformer
  * @param {number} ellipsisLevel
- * @private
+ * @param {!r5js.Transformer} transformer
  */
-r5js.Transformer.prototype.templateFn_ = function(
-    subtransformer, ellipsisLevel) {
-  if (subtransformer instanceof r5js.IdOrLiteralTransformer) {
-    if (subtransformer.getDatum().isIdentifier()) {
-      var name = /** @type {string} */ (subtransformer.getDatum().getPayload());
-      var maybeInPattern = this.patternIds_[name];
-      /* An identifier in a template is a candidate for being
-         renamed during transcription if it doesn't occur in the pattern
-         and is not the name of the macro. I've also thrown in a check
-         that it's not a parser-sensititive identifier so we don't
-         accidentally break the parser, but this may be buggy.
-         The right thing to do is to remove the parser altogether.
-         See comments at the top of Parser. */
-      if (maybeInPattern === undefined &&
-          name !== this.name_) {
-        if (!isParserSensitiveId(name))
-          this.templateRenameCandidates_[name] = true;
-      } else if (maybeInPattern !== ellipsisLevel &&
-          name !== this.name_) {
-        throw new r5js.MacroError(
-            this.name_,
-            name +
-            ' is at ellipsis level ' +
-            maybeInPattern +
-            ' in pattern ' +
-            this.pattern_.toString() +
-            ' but at ellipsis level ' +
-            ellipsisLevel +
-            ' in template ' +
-            this.template_.toString());
-      }
-    }
-  } else subtransformer.forEachSubtransformer(
-      this.templateFn_,
-      subtransformer instanceof r5js.EllipsisTransformer ?
-      ellipsisLevel + 1 :
+r5js.Transformer.collectRenameCandidatesFromTemplate = function(
+    subtransformer, ellipsisLevel, transformer) {
+  subtransformer.forEachSubtransformer(
+      r5js.Transformer.collectRenameCandidatesFromTemplate,
       ellipsisLevel,
-      this);
+      transformer);
 };
 
 
@@ -152,7 +113,31 @@ r5js.Transformer.prototype.getPatternIds = function() {
 };
 
 
+/**
+ * @param {string} patternId
+ * @return {number}
+ */
+r5js.Transformer.prototype.getEllipsisLevel = function(patternId) {
+  return patternId in this.patternIds_ ? this.patternIds_[patternId] : -1;
+};
+
+
+/**
+ * @param {string} patternId
+ * @param {number} level
+ */
+r5js.Transformer.prototype.setEllipsisLevel = function(patternId, level) {
+  this.patternIds_[patternId] = level;
+};
+
+
 /** @return {!Object.<string, boolean>} */
 r5js.Transformer.prototype.getTemplateRenameCandidates = function() {
   return this.templateRenameCandidates_;
+};
+
+
+/** @param {string} name */
+r5js.Transformer.prototype.setTemplateRenameCandidate = function(name) {
+  this.templateRenameCandidates_[name] = true;
 };

@@ -77,15 +77,11 @@ r5js.ListLikeTransformer.Base_.prototype.getName = function() {
 };
 
 
-/**
- * @override
- * @suppress {checkTypes} TODO bl the compiler complains about an incorrect
- * override from the interface definition.
- */
+/** @override */
 r5js.ListLikeTransformer.Base_.prototype.forEachSubtransformer = function(
-    callback, args, opt_context) {
+    callback, ellipsisLevel, transformer) {
   for (var i = 0; i < this.subtransformers_.length; ++i) {
-    callback.call(opt_context, this.subtransformers_[i], args);
+    callback.call(null, this.subtransformers_[i], ellipsisLevel, transformer);
   }
 };
 
