@@ -18,10 +18,12 @@ goog.provide('r5js.Macro');
 
 
 goog.require('r5js.MacroError');
-goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.ParseError');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
+goog.require('r5js.parse.Nonterminals');
+
+
 
 /**
  * @param {r5js.Datum} literalIdentifiers
@@ -31,34 +33,37 @@ goog.require('r5js.Transformer');
  * @struct
  * @constructor
  */
-r5js.Macro = function(literalIdentifiers, rules, definitionEnv, opt_transformers) {
-    /** @private {!r5js.IEnvironment} */
-    this.definitionEnv_ = definitionEnv;
+r5js.Macro = function(
+    literalIdentifiers, rules, definitionEnv, opt_transformers) {
+  /** @private {!r5js.IEnvironment} */
+  this.definitionEnv_ = definitionEnv;
 
-    /** @const @private {!Object.<string, boolean>} */
-    this.literalIdentifiers_ = {};
+  /** @const @private {!Object.<string, boolean>} */
+  this.literalIdentifiers_ = {};
 
-    for (var curId = literalIdentifiers; curId; curId = curId.getNextSibling()) {
-        this.literalIdentifiers_[curId.getPayload()] = true;
-    }
+  for (var curId = literalIdentifiers; curId; curId = curId.getNextSibling()) {
+    this.literalIdentifiers_[curId.getPayload()] = true;
 
-    /** @const @private {!Array.<!r5js.Transformer>} */
-    this.transformers_ = opt_transformers || [];
+  }
 
-    if (!opt_transformers) {
+  /** @const @private {!Array.<!r5js.Transformer>} */
+  this.transformers_ = opt_transformers || [];
+
+  if (!opt_transformers) {
     for (var rule = rules; rule; rule = rule.getNextSibling()) {
-        var pattern = /** @type {!r5js.ListLikeTransformer} */(
-            rule.at(r5js.parse.Nonterminals.PATTERN).desugar(definitionEnv));
-        var template = /** @type {!r5js.ListLikeTransformer} */ (
-            rule.at(r5js.parse.Nonterminals.TEMPLATE).desugar(definitionEnv));
-        var transformer = new r5js.Transformer(pattern, template);
-        this.transformers_.push(transformer);
+      var pattern = /** @type {!r5js.ListLikeTransformer} */(
+          rule.at(r5js.parse.Nonterminals.PATTERN).desugar(definitionEnv));
+      var template = /** @type {!r5js.ListLikeTransformer} */ (
+          rule.at(r5js.parse.Nonterminals.TEMPLATE).desugar(definitionEnv));
+      var transformer = new r5js.Transformer(pattern, template);
+      this.transformers_.push(transformer);
     }
-    }
+  }
 
-    /** @private {boolean} */
-    this.isLetOrLetrecSyntax_ = false;
+  /** @private {boolean} */
+  this.isLetOrLetrecSyntax_ = false;
 };
+
 
 /**
  * Workaround for let-syntax and letrec-syntax.
@@ -91,29 +96,31 @@ r5js.Macro = function(literalIdentifiers, rules, definitionEnv, opt_transformers
  * @return {!r5js.Macro} This object.
  */
 r5js.Macro.prototype.setIsLetOrLetrecSyntax = function() {
-    this.isLetOrLetrecSyntax_ = true;
-    return this;
+  this.isLetOrLetrecSyntax_ = true;
+  return this;
 };
 
 
 /** @return {boolean} */
 r5js.Macro.prototype.isLetOrLetrecSyntax = function() {
-    return this.isLetOrLetrecSyntax_;
+  return this.isLetOrLetrecSyntax_;
 };
 
 
 /** @param {!r5js.IEnvironment} env */
 r5js.Macro.prototype.setDefinitionEnv = function(env) {
-    this.definitionEnv_ = env;
+  this.definitionEnv_ = env;
 };
+
 
 /**
  * Should only be used during interpreter bootstrapping.
+ * @param {!r5js.IEnvironment} newDefinitionEnv
  * @return {!r5js.Macro} A clone of this macro.
  */
 r5js.Macro.prototype.clone = function(newDefinitionEnv) {
-    return new r5js.Macro(
-        null, null, newDefinitionEnv, this.transformers_);
+  return new r5js.Macro(
+      null, null, newDefinitionEnv, this.transformers_);
 };
 
 
@@ -122,12 +129,12 @@ r5js.Macro.prototype.clone = function(newDefinitionEnv) {
  * @return {boolean} True iff all of the macro's patterns begin with kw.
  */
 r5js.Macro.prototype.allPatternsBeginWith = function(kw) {
-    for (var i = 0; i < this.transformers_.length; ++i) {
-        if (this.transformers_[i].getName() !== kw) {
-            return false;
-        }
+  for (var i = 0; i < this.transformers_.length; ++i) {
+    if (this.transformers_[i].getName() !== kw) {
+      return false;
     }
-    return true;
+  }
+  return true;
 };
 
 
@@ -138,95 +145,105 @@ r5js.Macro.prototype.allPatternsBeginWith = function(kw) {
  * that will return a new Parser for the given Datum. This is a hack to avoid
  * instantiating a Parser directly in this file, which would cause
  * a cyclic dependency between macro.js and parse.js.
- * @return {?} TODO bl
+ * @return {?} TODO bl.
  */
 r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
-    var transformer, bindings, newDatumTree;
-    for (var i = 0; i < this.transformers_.length; ++i) {
-        transformer = this.transformers_[i];
-        bindings = new r5js.TemplateBindings(useEnv, transformer.getPatternIds(), transformer.getTemplateRenameCandidates());
-        if (transformer.matchInput(datum, this.literalIdentifiers_, this.definitionEnv_, useEnv, bindings)
-            && (newDatumTree = transformer.getTemplate().toDatum(bindings))) {
-            // this is a good place to see the TemplateBindings object
-            // console.log(bindings.toString());
+  var transformer, bindings, newDatumTree;
+  for (var i = 0; i < this.transformers_.length; ++i) {
+    transformer = this.transformers_[i];
+    bindings = new r5js.TemplateBindings(
+        useEnv,
+        transformer.getPatternIds(),
+        transformer.getTemplateRenameCandidates());
+    if (transformer.matchInput(
+        datum,
+        this.literalIdentifiers_,
+        this.definitionEnv_,
+        useEnv,
+        bindings) &&
+        (newDatumTree = transformer.getTemplate().toDatum(bindings))) {
+      // this is a good place to see the TemplateBindings object
+      // console.log(bindings.toString());
 
-            var newParseTree = parserProvider(newDatumTree).parse();
+      var newParseTree = parserProvider(newDatumTree).parse();
 
-            /* R5RS 4.3: "If a macro transformer inserts a binding for an identifier
-             (variable or keyword), the identifier will in effect be renamed
-             throughout its scope to avoid conflicts with other identifiers.
+      /* R5RS 4.3: "If a macro transformer inserts a binding for an identifier
+         (variable or keyword), the identifier will in effect be renamed
+         throughout its scope to avoid conflicts with other identifiers.
 
-             "If a macro transformer inserts a free reference to an
-             identifier, the reference refers to the binding that was visible
-             where the transformer was specified, regardless of any local bindings
-             that may surround the use of the macro."
+         "If a macro transformer inserts a free reference to an
+         identifier, the reference refers to the binding that was visible
+         where the transformer was specified, regardless of any local bindings
+         that may surround the use of the macro."
 
-             It's easy to collect the set of identifiers inserted by a macro transformer:
-             it's the set of identifiers in the template minus the set of identifiers
-             in the pattern. But how do we determine which of these are supposed
-             to be "free" and which are bindings and thus should be renamed?
+         It's easy to collect the set of identifiers inserted by a macro
+         transformer: it's the set of identifiers in the template minus the set
+         of identifiers in the pattern. But how do we determine which of these
+         are supposed to be "free" and which are bindings and thus should be
+         renamed?
 
-             My current heuristic is to do a lookup in the macro's definition
-             environment. If we find something, the identifier is probably
-             supposed to refer to that. For example, the "+" in the pattern of
+         My current heuristic is to do a lookup in the macro's definition
+         environment. If we find something, the identifier is probably
+         supposed to refer to that. For example, the "+" in the pattern of
 
-             (define-syntax foo (syntax-rules () ((foo x) (+ x x))))
+         (define-syntax foo (syntax-rules () ((foo x) (+ x x))))
 
-             If we don't find a binding in the macro's definition environment, we
-             suppose this is a new binding inserted by the transformer and
-             defensively rename it.
+         If we don't find a binding in the macro's definition environment, we
+         suppose this is a new binding inserted by the transformer and
+         defensively rename it.
 
-             I don't think this is correct, but it works for the letrec macro definition,
-             which is the most complex case I've tried so far. */
-            var toRename = {};
-            var candidates = transformer.getTemplateRenameCandidates();
-            for (var id in candidates) {
-                if (this.definitionEnv_.hasBindingRecursive(id, false))
-                    useEnv.addBinding(id, this.definitionEnv_);
-                else if (!isParserSensitiveId(id)) {
-                    var tmpName = newCpsName();
-                    toRename[id] = tmpName;
-                    /* If the TemplateBindings object has detected that the same
-                     identifier is used in the input and (unrelatedly) in the template, id
-                     may be replaced in the template, so we have to manually add
-                     the binding here. See the logic at the end of
-                     TemplateBindings.prototype.addTemplateBinding. */
-                    if (bindings.wasRenamed(id)
-                        && useEnv.hasBindingRecursive(id, false)) {
-                        useEnv.addBinding(tmpName, useEnv.get(id));
-                    }
-                }
-            }
-
-            if (newParseTree) {
-                /* We have to embed the new parse tree in a fake shell to do the
-                 replacement in case the entire newParseTree is an identifier that
-                 needs to be replaced (Datum.prototype.replaceChildren() only
-                 looks at a node's children).
-
-                 This is a problem that has surfaced more than once, so perhaps
-                 there is a better way to write replaceChildren.
-
-                 todo bl: we should be able to determine the id's in the template
-                 that will have to be renamed prior to transcription. That would
-                 save the following tree walk replacing all the identifiers. */
-                var fake = newEmptyList();
-                fake.appendChild(newParseTree);
-                fake.replaceChildren(
-                    function (node) {
-                        return node.isIdentifier() && toRename[node.getPayload()];
-                    },
-                    function (node) {
-                        node.payload_ = toRename[node.getPayload()];
-                        return node;
-                    }
-                );
-            } else {
-                throw new r5js.ParseError(newDatumTree);
-            }
-
-            return newParseTree;
+         I don't think this is correct, but it works for the letrec
+         macro definition, which is the most complex case I've tried so far. */
+      var toRename = {};
+      var candidates = transformer.getTemplateRenameCandidates();
+      for (var id in candidates) {
+        if (this.definitionEnv_.hasBindingRecursive(id, false))
+          useEnv.addBinding(id, this.definitionEnv_);
+        else if (!isParserSensitiveId(id)) {
+          var tmpName = newCpsName();
+          toRename[id] = tmpName;
+          /* If the TemplateBindings object has detected that the same
+             identifier is used in the input and (unrelatedly) in the template,
+             id may be replaced in the template, so we have to manually add
+             the binding here. See the logic at the end of
+             TemplateBindings.prototype.addTemplateBinding. */
+          if (bindings.wasRenamed(id) &&
+              useEnv.hasBindingRecursive(id, false)) {
+            useEnv.addBinding(tmpName, useEnv.get(id));
+          }
         }
+      }
+
+      if (newParseTree) {
+        /* We have to embed the new parse tree in a fake shell to do the
+           replacement in case the entire newParseTree is an identifier that
+           needs to be replaced (Datum.prototype.replaceChildren() only
+           looks at a node's children).
+
+           This is a problem that has surfaced more than once, so perhaps
+           there is a better way to write replaceChildren.
+
+           todo bl: we should be able to determine the id's in the template
+           that will have to be renamed prior to transcription. That would
+           save the following tree walk replacing all the identifiers. */
+        var fake = newEmptyList();
+        fake.appendChild(newParseTree);
+        fake.replaceChildren(
+            function(node) {
+              return node.isIdentifier() && toRename[node.getPayload()];
+            },
+            function(node) {
+              node.payload_ = toRename[node.getPayload()];
+              return node;
+            }
+        );
+      } else {
+        throw new r5js.ParseError(newDatumTree);
+      }
+
+      return newParseTree;
     }
-    throw new r5js.MacroError(this.transformers_[0].getName(), 'no pattern match for input ' + datum);
+  }
+  throw new r5js.MacroError(
+      this.transformers_[0].getName(), 'no pattern match for input ' + datum);
 };
