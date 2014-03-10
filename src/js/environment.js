@@ -249,7 +249,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
         /* Macros require a backlink to the environment they were defined in to resolve
          literal identifiers. todo bl: is there a better place to put this? */
         if (val instanceof r5js.Macro) {
-            val.definitionEnv = this;
+            val.setDefinitionEnv(this);
         }
 
         // Store primitive values directly.

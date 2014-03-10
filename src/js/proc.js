@@ -718,7 +718,7 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
      We tell the difference between the two parties via the isLetOrLetrecSyntax
      flag on the SchemeMacro object, which only the implementation can set. */
   if (src instanceof r5js.Macro &&
-      !src.isLetOrLetrecSyntax &&
+      !src.isLetOrLetrecSyntax() &&
       !this.isSyntaxAssignment) {
     throw new r5js.GeneralSyntaxError(this);
   }
@@ -990,7 +990,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
              for convenience. The isLetOrLetrecSyntax flag discriminates
              between the programmer and the implementation. */
       if (toPush instanceof r5js.Macro &&
-          !toPush.isLetOrLetrecSyntax) {
+          !toPush.isLetOrLetrecSyntax()) {
         throw new r5js.MacroError(cur.getPayload(), 'bad syntax');
       }
       args.push(toPush);

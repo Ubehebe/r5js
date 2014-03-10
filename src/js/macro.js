@@ -18,46 +18,46 @@ goog.provide('r5js.Macro');
 
 
 goog.require('r5js.MacroError');
+goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.ParseError');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
 
 /**
- * @param {!r5js.Datum} literalIdentifiers
- * @param {!r5js.Datum} rules
+ * @param {r5js.Datum} literalIdentifiers
+ * @param {r5js.Datum} rules
  * @param {!r5js.IEnvironment} definitionEnv
+ * @struct
  * @constructor
- * @suppress {accessControls} for the raw access of nextSibling_
  */
 r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
+    /** @private {!r5js.IEnvironment} */
+    this.definitionEnv_ = definitionEnv;
 
-    /**
-     * @type {!r5js.IEnvironment}
-     */
-    this.definitionEnv = definitionEnv;
+    /** @const @private {!Object.<string, boolean>} */
+    this.literalIdentifiers_ = {};
 
-    /**
-     * @type {!Object.<string, boolean>}
-     */
-    this.literalIdentifiers = {};
-
-    for (var curId = literalIdentifiers; curId; curId = curId.nextSibling_) {
-        this.literalIdentifiers[curId.payload_] = true;
+    for (var curId = literalIdentifiers; curId; curId = curId.getNextSibling()) {
+        this.literalIdentifiers_[curId.getPayload()] = true;
     }
 
     /**
-     * @type {!Array.<!r5js.Transformer>}
+     * @private {!Array.<!r5js.Transformer>}
+     * TODO bl: seems easy to make const.
      */
-    this.transformers = [];
+    this.transformers_ = [];
 
     for (var rule = rules; rule; rule = rule.getNextSibling()) {
         var pattern = /** @type {!r5js.ListLikeTransformer} */(
-            rule.at('pattern').desugar(definitionEnv));
+            rule.at(r5js.parse.Nonterminals.PATTERN).desugar(definitionEnv));
         var template = /** @type {!r5js.ListLikeTransformer} */ (
-            rule.at('template').desugar(definitionEnv));
+            rule.at(r5js.parse.Nonterminals.TEMPLATE).desugar(definitionEnv));
         var transformer = new r5js.Transformer(pattern, template);
-        this.transformers.push(transformer);
+        this.transformers_.push(transformer);
     }
+
+    /** @private {boolean} */
+    this.isLetOrLetrecSyntax_ = false;
 };
 
 /**
@@ -91,23 +91,29 @@ r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
  * @return {!r5js.Macro} This object.
  */
 r5js.Macro.prototype.setIsLetOrLetrecSyntax = function() {
-    this.isLetOrLetrecSyntax = true;
+    this.isLetOrLetrecSyntax_ = true;
     return this;
+};
+
+
+/** @return {boolean} */
+r5js.Macro.prototype.isLetOrLetrecSyntax = function() {
+    return this.isLetOrLetrecSyntax_;
+};
+
+
+/** @param {!r5js.IEnvironment} env */
+r5js.Macro.prototype.setDefinitionEnv = function(env) {
+    this.definitionEnv_ = env;
 };
 
 /**
  * Should only be used during interpreter bootstrapping.
  * @return {!r5js.Macro} A clone of this macro.
- * TODO bl: this is almost certainly a bug. The types of the parameters
- * passed in to the constructor in this method seem to be different than
- * the types of the parameters passed in the only other use of the constructor
- * (in the parser). Yet removing this method and changing its callers to
- * use the uncloned Macro cause tests to fail.
- * @suppress {checkTypes}
  */
 r5js.Macro.prototype.clone = function(newDefinitionEnv) {
-    var ans = new r5js.Macro(this.literalIdentifiers, null, newDefinitionEnv);
-    ans.transformers = this.transformers;
+    var ans = new r5js.Macro(null, null, newDefinitionEnv);
+    ans.transformers_ = this.transformers_;
     return ans;
 };
 
@@ -117,8 +123,8 @@ r5js.Macro.prototype.clone = function(newDefinitionEnv) {
  * @return {boolean} True iff all of the macro's patterns begin with kw.
  */
 r5js.Macro.prototype.allPatternsBeginWith = function(kw) {
-    for (var i = 0; i < this.transformers.length; ++i) {
-        if (this.transformers[i].getName() !== kw) {
+    for (var i = 0; i < this.transformers_.length; ++i) {
+        if (this.transformers_[i].getName() !== kw) {
             return false;
         }
     }
@@ -137,10 +143,10 @@ r5js.Macro.prototype.allPatternsBeginWith = function(kw) {
  */
 r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
     var transformer, bindings, newDatumTree;
-    for (var i = 0; i < this.transformers.length; ++i) {
-        transformer = this.transformers[i];
+    for (var i = 0; i < this.transformers_.length; ++i) {
+        transformer = this.transformers_[i];
         bindings = new r5js.TemplateBindings(useEnv, transformer.getPatternIds(), transformer.getTemplateRenameCandidates());
-        if (transformer.matchInput(datum, this.literalIdentifiers, this.definitionEnv, useEnv, bindings)
+        if (transformer.matchInput(datum, this.literalIdentifiers_, this.definitionEnv_, useEnv, bindings)
             && (newDatumTree = transformer.getTemplate().toDatum(bindings))) {
             // this is a good place to see the TemplateBindings object
             // console.log(bindings.toString());
@@ -176,8 +182,8 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
             var toRename = {};
             var candidates = transformer.getTemplateRenameCandidates();
             for (var id in candidates) {
-                if (this.definitionEnv.hasBindingRecursive(id, false))
-                    useEnv.addBinding(id, this.definitionEnv);
+                if (this.definitionEnv_.hasBindingRecursive(id, false))
+                    useEnv.addBinding(id, this.definitionEnv_);
                 else if (!isParserSensitiveId(id)) {
                     var tmpName = newCpsName();
                     toRename[id] = tmpName;
@@ -223,5 +229,5 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
             return newParseTree;
         }
     }
-    throw new r5js.MacroError(this.transformers[0].getName(), 'no pattern match for input ' + datum);
+    throw new r5js.MacroError(this.transformers_[0].getName(), 'no pattern match for input ' + datum);
 };

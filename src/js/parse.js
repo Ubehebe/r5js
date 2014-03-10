@@ -806,8 +806,8 @@ r5js.Parser.grammar[Nonterminals.TRANSFORMER_SPEC] = _.seq(
       /*4.3.2: It is an error for ... to appear in <literals>.
                 So we can reuse the pattern-identifier nonterminal
                 to check this in the parser. Win! */
-      var ids = /** @type {!r5js.Datum} */ (node.at(Terminals.LPAREN).
-          at(Nonterminals.PATTERN_IDENTIFIER));
+      var ids = node.at(Terminals.LPAREN).
+          at(Nonterminals.PATTERN_IDENTIFIER);
       var rules = node.at(Nonterminals.SYNTAX_RULE);
       // todo bl implement: It is an error for the same pattern
       // variable to appear more than once in a <pattern>.
