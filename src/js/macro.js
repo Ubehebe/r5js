@@ -27,10 +27,11 @@ goog.require('r5js.Transformer');
  * @param {r5js.Datum} literalIdentifiers
  * @param {r5js.Datum} rules
  * @param {!r5js.IEnvironment} definitionEnv
+ * @param {!Array.<!r5js.Transformer>=} opt_transformers
  * @struct
  * @constructor
  */
-r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
+r5js.Macro = function(literalIdentifiers, rules, definitionEnv, opt_transformers) {
     /** @private {!r5js.IEnvironment} */
     this.definitionEnv_ = definitionEnv;
 
@@ -41,12 +42,10 @@ r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
         this.literalIdentifiers_[curId.getPayload()] = true;
     }
 
-    /**
-     * @private {!Array.<!r5js.Transformer>}
-     * TODO bl: seems easy to make const.
-     */
-    this.transformers_ = [];
+    /** @const @private {!Array.<!r5js.Transformer>} */
+    this.transformers_ = opt_transformers || [];
 
+    if (!opt_transformers) {
     for (var rule = rules; rule; rule = rule.getNextSibling()) {
         var pattern = /** @type {!r5js.ListLikeTransformer} */(
             rule.at(r5js.parse.Nonterminals.PATTERN).desugar(definitionEnv));
@@ -54,6 +53,7 @@ r5js.Macro = function(literalIdentifiers, rules, definitionEnv) {
             rule.at(r5js.parse.Nonterminals.TEMPLATE).desugar(definitionEnv));
         var transformer = new r5js.Transformer(pattern, template);
         this.transformers_.push(transformer);
+    }
     }
 
     /** @private {boolean} */
@@ -112,9 +112,8 @@ r5js.Macro.prototype.setDefinitionEnv = function(env) {
  * @return {!r5js.Macro} A clone of this macro.
  */
 r5js.Macro.prototype.clone = function(newDefinitionEnv) {
-    var ans = new r5js.Macro(null, null, newDefinitionEnv);
-    ans.transformers_ = this.transformers_;
-    return ans;
+    return new r5js.Macro(
+        null, null, newDefinitionEnv, this.transformers_);
 };
 
 
