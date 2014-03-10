@@ -17,8 +17,6 @@
 goog.provide('r5js.Transformer');
 
 
-goog.require('r5js.EllipsisTransformer');
-goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.MacroError');
 
 
