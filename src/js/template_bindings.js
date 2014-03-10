@@ -74,12 +74,13 @@ goog.require('r5js.InternalInterpreterError');
  * with "incorporation". Do we even need it?
  *
  * @param {!r5js.IEnvironment} letSyntaxEnv TODO bl
- * @param {*} patternIds TODO bl
- * @param {*} templateRenameCandidates TODO bl
+ * @param {!Object.<string, number>} patternIds TODO bl
+ * @param {!Object.<string, boolean>} templateRenameCandidates TODO bl
+ * @struct
  * @constructor
  */
 r5js.TemplateBindings = function(letSyntaxEnv, patternIds, templateRenameCandidates) {
-    /** @const @private {!Object.<*,*>} */
+    /** @const @private {!Object.<string,!r5js.Datum>} */
     this.bindings_ = {};
 
     /** @const @private {!Array.<!r5js.TemplateBindings>} */
@@ -90,9 +91,12 @@ r5js.TemplateBindings = function(letSyntaxEnv, patternIds, templateRenameCandida
 
     /** @const @private {!r5js.IEnvironment} */
     this.letSyntaxEnv_ = letSyntaxEnv;
-    
-    this.patternIds = patternIds;
-    this.templateRenameCandidates = templateRenameCandidates;
+
+    /** @const @private {!Object.<string, number>} */
+    this.patternIds_ = patternIds;
+
+    /** @const {!Object.<string, boolean>} */
+    this.templateRenameCandidates_ = templateRenameCandidates;
 
     /** @const @private {!Object.<*,*>} */
     this.renameInTemplate_ = {};
@@ -104,16 +108,20 @@ r5js.TemplateBindings.prototype.resetCurChild = function() {
     return this;
 };
 
+
+/**
+ * @param {string} name
+ * @param {!r5js.Datum} val
+ */
 r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
-    if (this.bindings_[name])
+    if (name in this.bindings_) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
-    else if (val.isMacro()) {
+    } else if (val.isMacro()) {
         // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
         var fakeName = newCpsName();
         this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
         this.bindings_[name] = r5js.data.newIdOrLiteral(fakeName);
-    }
-    else {
+    } else {
         this.bindings_[name] = val;
     }
 
@@ -137,7 +145,8 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
      See SchemeMacro.prototype.transcribe. */
     val.forEach(function (datum) {
         if (datum.isIdentifier()
-            && self.templateRenameCandidates[datum.getPayload()])
+            && self.templateRenameCandidates_[/** @type {string} */(
+            datum.getPayload())])
             self.renameInTemplate_[datum.getPayload()] = true;
     });
 };
@@ -229,17 +238,23 @@ r5js.TemplateBindings.prototype.getNextChild = function() {
     }
 };
 
+
+/**
+ * @param {!r5js.Datum} datum
+ * @return {!r5js.Datum|boolean}
+ * TODO bl document what this does.
+ */
 r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
-    if (!this.patternIds)
+    if (!this.patternIds_)
         throw new r5js.InternalInterpreterError('invariant incorrect');
 
     if (datum.isIdentifier()) {
-        var name = datum.getPayload();
+        var name = /** @type {string} */(datum.getPayload());
 
         var maybe = this.bindings_[name];
         if (maybe) {
-            return maybe.clone();
-        } else if (this.patternIds[name] !== undefined) {
+            return maybe.clone(null /* parent */);
+        } else if (this.patternIds_[name] !== undefined) {
             /* It's important to return false here, instead of some other
              "falsey" value like null. This value is immediately returned by
              IdOrLiteralTransformer.prototype.matchInput. Meanwhile,
@@ -255,20 +270,22 @@ r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
              Static types would be useful here. */
             return false;
         } else {
-            return datum.clone();
+            return datum.clone(null /* parent */);
         }
 
     } else {
-        return datum.clone();
+        return datum.clone(null /* parent */);
     }
 };
 
+/** @return {!Object.<string, number>} */
 r5js.TemplateBindings.prototype.getPatternIds = function() {
-    return this.patternIds;
+    return this.patternIds_;
 };
 
+/** @return {!Object.<string, boolean>} */
 r5js.TemplateBindings.prototype.getTemplateRenameCandidates = function() {
-    return this.templateRenameCandidates;
+    return this.templateRenameCandidates_;
 };
 
 /**
