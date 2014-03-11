@@ -42,41 +42,62 @@ r5js.MacroIdTransformer_ = function(datum) {
  */
 r5js.MacroIdTransformer_.prototype.matchInput = function(
     inputDatum, literalIds, definitionEnv, useEnv, bindings) {
-  if (this.datum.isIdentifier()) {
-    /* R5RS 4.3.2: "A subform in the input matches a literal identifier
-         if and only if it is an identifier and either both its occurrence
-         in the macro expression and its occurrence in the macro definition
-         have the same lexical binding, or the two identifiers are equal
-         and both have no lexical binding." */
-    if (literalIds[/** @type {string} */ (this.datum.getPayload())]) {
-      if (inputDatum.isIdentifier()) {
-        var name = /** @type {string} */ (inputDatum.getPayload());
-        // Both have no lexical binding
-        if (name === this.datum.getPayload() &&
-            (!definitionEnv.hasBindingRecursive(name, false) &&
-                !useEnv.hasBindingRecursive(name, false))) {
-          bindings.addTemplateBinding(name, inputDatum);
-          return true;
-        } else if (definitionEnv.get(name) === useEnv.get(name)) {
-          bindings.addTemplateBinding(name, inputDatum);
-          return true;
-        } else return false;
-      } else return false;
-    }
   /* R5RS 4.3.2: "An input form F matches a pattern P if and only if
-         [...] P is a non-literal identifier [...]".
-         That is, non-literal identifiers match anything. */
-    else {
-      bindings.addTemplateBinding(
-          /** @type {string} */ (this.datum.getPayload()), inputDatum);
-      return true;
-    }
-  } else {
-    /* R5RS 4.3.2: "An input form F matches a pattern P if and only if
-         [...] P is a datum and F is equal to P in the sense of the equal?
-         procedure." */
+     [...] P is a datum and F is equal to P in the sense of the equal?
+     procedure." */
+  if (!this.datum.isIdentifier()) {
     return inputDatum.isEqual(this.datum);
   }
+
+  /* R5RS 4.3.2: "A subform in the input matches a literal identifier
+     if and only if it is an identifier and either both its occurrence
+     in the macro expression and its occurrence in the macro definition
+     have the same lexical binding, or the two identifiers are equal
+     and both have no lexical binding." */
+  if (this.datum.getPayload() in literalIds) {
+    return inputDatum.isIdentifier() &&
+        (this.datumsAreEqualAndUnbound_(
+        inputDatum, definitionEnv, useEnv) ||
+        this.datumsHaveSameLexicalBinding_(
+            inputDatum, definitionEnv, useEnv));
+  } else {
+    /* R5RS 4.3.2: "An input form F matches a pattern P if and only if
+         [...] P is a non-literal identifier [...]".
+         That is, non-literal identifiers match anything. */
+    bindings.addTemplateBinding(
+        /** @type {string} */ (this.datum.getPayload()), inputDatum);
+    return true;
+  }
+};
+
+
+/**
+ * @param {!r5js.Datum} inputDatum
+ * @param {!r5js.IEnvironment} definitionEnv
+ * @param {!r5js.IEnvironment} useEnv
+ * @return {boolean}
+ * @private
+ */
+r5js.MacroIdTransformer_.prototype.datumsAreEqualAndUnbound_ = function(
+    inputDatum, definitionEnv, useEnv) {
+  var name = /** @type {string} */ (inputDatum.getPayload());
+  return name === this.datum.getPayload() &&
+      !definitionEnv.hasBindingRecursive(name, false /* searchClosures */) &&
+      !useEnv.hasBindingRecursive(name, false /* searchClosures */);
+};
+
+
+/**
+ * @param {!r5js.Datum} inputDatum
+ * @param {!r5js.IEnvironment} definitionEnv
+ * @param {!r5js.IEnvironment} useEnv
+ * @return {boolean}
+ * @private
+ */
+r5js.MacroIdTransformer_.prototype.datumsHaveSameLexicalBinding_ = function(
+    inputDatum, definitionEnv, useEnv) {
+  var name = /** @type {string} */ (inputDatum.getPayload());
+  return definitionEnv.get(name) === useEnv.get(name);
 };
 
 
