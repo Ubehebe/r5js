@@ -23,7 +23,6 @@ goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DatumType');
 goog.require('r5js.DottedListTransformer');
 goog.require('r5js.EllipsisTransformer');
-goog.require('r5js.IdOrLiteralTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
@@ -31,11 +30,13 @@ goog.require('r5js.MacroError');
 goog.require('r5js.Procedure');
 goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
+goog.require('r5js.TemplateIdTransformer');
 goog.require('r5js.VectorTransformer');
 goog.require('r5js.data');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.bnf');
+goog.require('r5js.PatternIdTransformer');
 goog.require('r5js.procs');
 
 
@@ -881,7 +882,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
     _.seq(
         _.one(Nonterminals.PATTERN_IDENTIFIER)).
     desugar(function(node) {
-      return new r5js.IdOrLiteralTransformer(node);
+      return new r5js.PatternIdTransformer(node);
     }),
     _.seq(
         _.one(Terminals.LPAREN),
@@ -930,7 +931,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
     _.seq(
         _.one(Nonterminals.PATTERN_DATUM)).
     desugar(function(node) {
-      return new r5js.IdOrLiteralTransformer(node);
+      return new r5js.PatternIdTransformer(node);
     }));
 
 
@@ -977,14 +978,14 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
     _.seq(
         _.one(Nonterminals.PATTERN_IDENTIFIER)).
     desugar(function(node) {
-      return new r5js.IdOrLiteralTransformer(node);
+      return new r5js.TemplateIdTransformer(node);
     }),
     _.seq(
         _.one(Terminals.ELLIPSIS)),
     _.seq(
         _.one(Nonterminals.TEMPLATE_DATUM)).
     desugar(function(node) {
-      return new r5js.IdOrLiteralTransformer(node);
+      return new r5js.TemplateIdTransformer(node);
     }),
     _.seq(
         _.one(Terminals.LPAREN),

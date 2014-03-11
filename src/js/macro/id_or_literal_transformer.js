@@ -14,39 +14,45 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.IdOrLiteralTransformer');
-
-
-goog.require('r5js.OutputMode');
+goog.provide('r5js.PatternIdTransformer');
+goog.provide('r5js.TemplateIdTransformer');
 
 
 
 /**
  * @param {!r5js.Datum} datum
- * @implements {r5js.ITransformer}
  * @struct
  * @constructor
+ * @private
  */
-r5js.IdOrLiteralTransformer = function(datum) {
-  /** @const @private {!r5js.Datum} */
-  this.datum_ = datum;
+r5js.MacroIdTransformer_ = function(datum) {
+  /** @const @protected {!r5js.Datum} */
+  this.datum = datum;
 };
 
 
-/** @override */
-r5js.IdOrLiteralTransformer.prototype.matchInput = function(
+/**
+ * @param {!r5js.Datum} inputDatum The input datum.
+ * @param {!Object.<string, boolean>} literalIds Dictionary of literal ids.
+ * @param {!r5js.IEnvironment} definitionEnv Definition environment.
+ * @param {!r5js.IEnvironment} useEnv Use environment.
+ * @param {!r5js.TemplateBindings} bindings Template bindings.
+ * @return {boolean} True iff the transformer is a match (?)
+ * TODO bl: what is the use of the value type in the literalIds dictionary?
+ */
+r5js.MacroIdTransformer_.prototype.matchInput = function(
     inputDatum, literalIds, definitionEnv, useEnv, bindings) {
-  if (this.datum_.isIdentifier()) {
+  if (this.datum.isIdentifier()) {
     /* R5RS 4.3.2: "A subform in the input matches a literal identifier
          if and only if it is an identifier and either both its occurrence
          in the macro expression and its occurrence in the macro definition
          have the same lexical binding, or the two identifiers are equal
          and both have no lexical binding." */
-    if (literalIds[this.datum_.getPayload()]) {
+    if (literalIds[/** @type {string} */ (this.datum.getPayload())]) {
       if (inputDatum.isIdentifier()) {
-        var name = inputDatum.getPayload();
+        var name = /** @type {string} */ (inputDatum.getPayload());
         // Both have no lexical binding
-        if (name === this.datum_.getPayload() &&
+        if (name === this.datum.getPayload() &&
             (!definitionEnv.hasBindingRecursive(name, false) &&
                 !useEnv.hasBindingRecursive(name, false))) {
           bindings.addTemplateBinding(name, inputDatum);
@@ -61,77 +67,91 @@ r5js.IdOrLiteralTransformer.prototype.matchInput = function(
          [...] P is a non-literal identifier [...]".
          That is, non-literal identifiers match anything. */
     else {
-      bindings.addTemplateBinding(this.datum_.getPayload(), inputDatum);
+      bindings.addTemplateBinding(
+          /** @type {string} */ (this.datum.getPayload()), inputDatum);
       return true;
     }
   } else {
     /* R5RS 4.3.2: "An input form F matches a pattern P if and only if
          [...] P is a datum and F is equal to P in the sense of the equal?
          procedure." */
-    return inputDatum.isEqual(this.datum_);
+    return inputDatum.isEqual(this.datum);
   }
 };
 
 
-/** @override */
-r5js.IdOrLiteralTransformer.prototype.toDatum = function(bindings) {
-  return bindings.resolveDatum(this.datum_);
+/**
+ * @param {!r5js.TemplateBindings} bindings Template bindings.
+ * @return {!r5js.Datum}
+ * @suppress {checkTypes} TODO bl
+ */
+r5js.MacroIdTransformer_.prototype.toDatum = function(bindings) {
+  return bindings.resolveDatum(this.datum);
 };
 
 
 /** @return {!r5js.Datum} */
-r5js.IdOrLiteralTransformer.prototype.getDatum = function() {
-  return this.datum_;
+r5js.MacroIdTransformer_.prototype.getDatum = function() {
+  return this.datum;
 };
 
 
+
 /**
- * @override
- * TODO bl: the type switch can naturally be decomposed into two subclasses.
+ * @param {!r5js.Datum} datum
+ * @implements {r5js.ITransformer}
+ * @extends {r5js.MacroIdTransformer_}
+ * @struct
+ * @constructor
  */
-r5js.IdOrLiteralTransformer.prototype.forEachSubtransformer = function(
+r5js.PatternIdTransformer = function(datum) {
+  goog.base(this, datum);
+};
+goog.inherits(r5js.PatternIdTransformer, r5js.MacroIdTransformer_);
+
+
+/** @override */
+r5js.PatternIdTransformer.prototype.forEachSubtransformer = function(
     callback, ellipsisLevel, transformer) {
-  if (!this.datum_.isIdentifier()) {
+  if (!this.datum.isIdentifier()) {
     return;
-  } else if (callback === r5js.Transformer.collectEllipsisLevelsForPatternIds) {
-    this.maybeCollectEllipsisLevel_(ellipsisLevel, transformer);
-  } else if (callback ===
-      r5js.Transformer.collectRenameCandidatesFromTemplate) {
-    this.maybeCollectRenameCandidates_(ellipsisLevel, transformer);
   }
-};
-
-
-/**
- * @param {number} ellipsisLevel
- * @param {!r5js.Transformer} transformer
- * @private
- */
-r5js.IdOrLiteralTransformer.prototype.maybeCollectEllipsisLevel_ = function(
-    ellipsisLevel, transformer) {
-  var name = /** @type {string} */ (this.datum_.getPayload());
+  var name = /** @type {string} */ (this.datum.getPayload());
   if (name !== transformer.getName()) {
     transformer.setEllipsisLevel(name, ellipsisLevel);
   }
 };
 
 
+
 /**
- * @param {number} ellipsisLevel
- * @param {!r5js.Transformer} transformer
- * @private
+ * @param {!r5js.Datum} datum
+ * @implements {r5js.ITransformer}
+ * @extends {r5js.MacroIdTransformer_}
+ * @struct
+ * @constructor
  */
-r5js.IdOrLiteralTransformer.prototype.maybeCollectRenameCandidates_ = function(
-    ellipsisLevel, transformer) {
-  var name = /** @type {string} */ (this.datum_.getPayload());
+r5js.TemplateIdTransformer = function(datum) {
+  goog.base(this, datum);
+};
+goog.inherits(r5js.TemplateIdTransformer, r5js.MacroIdTransformer_);
+
+
+/** @override */
+r5js.TemplateIdTransformer.prototype.forEachSubtransformer = function(
+    callback, ellipsisLevel, transformer) {
+  if (!this.datum.isIdentifier()) {
+    return;
+  }
+  var name = /** @type {string} */ (this.datum.getPayload());
   var maybeInPattern = transformer.getEllipsisLevel(name);
   /* An identifier in a template is a candidate for being
-             renamed during transcription if it doesn't occur in the pattern
-             and is not the name of the macro. I've also thrown in a check
-             that it's not a parser-sensititive identifier so we don't
-             accidentally break the parser, but this may be buggy.
-             The right thing to do is to remove the parser altogether.
-             See comments at the top of Parser. */
+     renamed during transcription if it doesn't occur in the pattern
+     and is not the name of the macro. I've also thrown in a check
+     that it's not a parser-sensititive identifier so we don't
+     accidentally break the parser, but this may be buggy.
+     The right thing to do is to remove the parser altogether.
+     See comments at the top of Parser. */
   if (maybeInPattern === -1 &&
       name !== transformer.getName()) {
     if (!isParserSensitiveId(name)) {
@@ -143,11 +163,10 @@ r5js.IdOrLiteralTransformer.prototype.maybeCollectRenameCandidates_ = function(
         transformer.getName(),
         name +
         ' is at ellipsis level ' +
-        maybeInPattern +
-        ' in pattern ' +
-                        ' but at ellipsis level ' +
-                        ellipsisLevel +
-                        ' in template ');
+                maybeInPattern +
+                ' in pattern ' +
+                ' but at ellipsis level ' +
+                ellipsisLevel +
+                ' in template ');
   }
 };
-
