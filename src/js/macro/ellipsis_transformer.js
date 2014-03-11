@@ -105,7 +105,7 @@ r5js.EllipsisTransformer.prototype.toDatum = function(bindings) {
 
 
 /** @override */
-r5js.EllipsisTransformer.prototype.forEachSubtransformer = function(
-    callback, ellipsisLevel, transformer) {
-  callback.call(null, this.subtransformer_, ellipsisLevel + 1, transformer);
+r5js.EllipsisTransformer.prototype.collectNestingLevels = function(
+    ellipsisLevel, transformer) {
+  this.subtransformer_.collectNestingLevels(ellipsisLevel + 1, transformer);
 };

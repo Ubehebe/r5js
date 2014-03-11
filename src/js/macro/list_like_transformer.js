@@ -81,10 +81,10 @@ r5js.ListLikeTransformer.Base_.prototype.getName = function() {
 
 
 /** @override */
-r5js.ListLikeTransformer.Base_.prototype.forEachSubtransformer = function(
-    callback, ellipsisLevel, transformer) {
+r5js.ListLikeTransformer.Base_.prototype.collectNestingLevels = function(
+    ellipsisLevel, transformer) {
   for (var i = 0; i < this.subtransformers_.length; ++i) {
-    callback.call(null, this.subtransformers_[i], ellipsisLevel, transformer);
+    this.subtransformers_[i].collectNestingLevels(ellipsisLevel, transformer);
   }
 };
 
@@ -217,7 +217,7 @@ goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer.Base_);
  * quotes in {@link r5js.Transformer#setupIds_}.
  * @override
  */
-r5js.QuoteTransformer.prototype.forEachSubtransformer = goog.nullFunction;
+r5js.QuoteTransformer.prototype.collectNestingLevels = goog.nullFunction;
 
 
 

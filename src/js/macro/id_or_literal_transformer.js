@@ -111,8 +111,8 @@ goog.inherits(r5js.PatternIdTransformer, r5js.MacroIdTransformer_);
 
 
 /** @override */
-r5js.PatternIdTransformer.prototype.forEachSubtransformer = function(
-    callback, ellipsisLevel, transformer) {
+r5js.PatternIdTransformer.prototype.collectNestingLevels = function(
+    ellipsisLevel, transformer) {
   if (!this.datum.isIdentifier()) {
     return;
   }
@@ -138,8 +138,8 @@ goog.inherits(r5js.TemplateIdTransformer, r5js.MacroIdTransformer_);
 
 
 /** @override */
-r5js.TemplateIdTransformer.prototype.forEachSubtransformer = function(
-    callback, ellipsisLevel, transformer) {
+r5js.TemplateIdTransformer.prototype.collectNestingLevels = function(
+    ellipsisLevel, transformer) {
   if (!this.datum.isIdentifier()) {
     return;
   }

@@ -43,10 +43,8 @@ r5js.Transformer = function(pattern, template) {
   /** @const @private {!Object.<string, boolean>} */
   this.templateRenameCandidates_ = {};
 
-  this.pattern_.forEachSubtransformer(
-      r5js.Transformer.collectEllipsisLevelsForPatternIds, 0, this);
-  this.template_.forEachSubtransformer(
-      r5js.Transformer.collectRenameCandidatesFromTemplate, 0, this);
+  this.pattern_.collectNestingLevels(0, this);
+  this.template_.collectNestingLevels(0, this);
 };
 
 
@@ -74,34 +72,6 @@ r5js.Transformer.prototype.getName = function() {
 /** @return {!r5js.ListLikeTransformer} */
 r5js.Transformer.prototype.getTemplate = function() {
   return this.template_;
-};
-
-
-/**
- * @param {!r5js.ITransformer} subtransformer
- * @param {number} ellipsisLevel
- * @param {!r5js.Transformer} transformer
- */
-r5js.Transformer.collectEllipsisLevelsForPatternIds = function(
-    subtransformer, ellipsisLevel, transformer) {
-  subtransformer.forEachSubtransformer(
-      r5js.Transformer.collectEllipsisLevelsForPatternIds,
-      ellipsisLevel,
-      transformer);
-};
-
-
-/**
- * @param {!r5js.ITransformer} subtransformer
- * @param {number} ellipsisLevel
- * @param {!r5js.Transformer} transformer
- */
-r5js.Transformer.collectRenameCandidatesFromTemplate = function(
-    subtransformer, ellipsisLevel, transformer) {
-  subtransformer.forEachSubtransformer(
-      r5js.Transformer.collectRenameCandidatesFromTemplate,
-      ellipsisLevel,
-      transformer);
 };
 
 
