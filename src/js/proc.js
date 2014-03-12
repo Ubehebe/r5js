@@ -359,26 +359,6 @@ function newIdShim(payload, opt_continuationName) {
 
 
 /**
- * @param {string} dstName
- * @param {string} srcName
- * @param {!r5js.Continuation} continuation
- * @return {!r5js.Continuable}
- */
-function newAssignment(dstName, srcName, continuation) {
-  var operands = new r5js.SiblingBuffer()
-        .appendSibling(r5js.data.newIdOrLiteral(dstName))
-        .appendSibling(r5js.data.newIdOrLiteral(srcName))
-        .toSiblings();
-
-  return r5js.procs.newProcCall(
-      r5js.ProcCall.prototype.specialOps._set,
-      operands,
-      continuation
-  );
-}
-
-
-/**
  * Just for debugging.
  * @param {!r5js.Continuation} continuation
  * @param {number} indentLevel
