@@ -58,13 +58,13 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
   /** @const @private {boolean} */
   this.isDotted_ = isDotted;
 
-    /** @const {string} */
-    this.name = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
+    /** @const @private {string} */
+    this.name_ = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
 
   /**
      * @type {!r5js.IEnvironment}
      */
-  this.env = env.newChildEnv(this.name);
+  this.env = env.newChildEnv(this.name_);
 
   /** @const @private {!Array.<string>} */
   this.formalsArray_ = formalsArray;
@@ -164,7 +164,7 @@ r5js.Procedure.prototype.isTailCall = function(c) {
 
 /** @override */
 r5js.Procedure.prototype.toString = function() {
-  return 'proc:' + this.name;
+  return 'proc:' + this.name_;
 };
 
 
