@@ -433,7 +433,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
       arg.isProcedure())
     ans = arg;
   else if (arg.isIdentifier())
-    ans = this.env.get(arg.getPayload());
+    ans = this.env.get(/** @type {string} */ (arg.getPayload()));
   else if (arg.isQuote()) {
     var env = this.env;
     // Do the appropriate substitutions.
@@ -442,7 +442,8 @@ r5js.ProcCall.prototype.tryIdShim = function(
           return node.shouldUnquote();
         },
         function(node) {
-          var ans = r5js.data.maybeWrapResult(env.get(node.getPayload())).
+          var ans = r5js.data.maybeWrapResult(
+                  env.get(/** @type {string} */ (node.getPayload()))).
               maybeDeref();
           if (node.shouldUnquoteSplice()) {
             if (ans.isList()) {
@@ -472,9 +473,12 @@ r5js.ProcCall.prototype.tryIdShim = function(
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
   } else {
-    ans = r5js.data.maybeWrapResult(arg.getPayload(), arg.getType());
-    if (arg.isImmutable())
+    ans = r5js.data.maybeWrapResult(
+        /** @type {!r5js.PayloadType} */ (arg.getPayload()),
+        /** @type {string|undefined} */ (arg.getType()));
+    if (arg.isImmutable()) {
       ans.setImmutable();
+    }
   }
 
   this.bindResult(continuation, ans);
@@ -483,7 +487,9 @@ r5js.ProcCall.prototype.tryIdShim = function(
      trying to return a macro object off the trampoline, that's an error.
      The input was a bare macro name. */
   if (!continuation.nextContinuable && ans instanceof r5js.Macro)
-    throw new r5js.MacroError(this.firstOperand, 'bad macro syntax');
+    throw new r5js.MacroError(
+        /** @type {string} */ (this.firstOperand.getPayload()),
+        'bad macro syntax');
 
   resultStruct.ans = ans;
   resultStruct.nextContinuable = continuation.nextContinuable;
@@ -517,7 +523,7 @@ r5js.ProcCall.prototype.cpsify = function(
   for (var arg = this.firstOperand; arg; arg = arg.getNextSibling()) {
     arg.resetDesugars();
     if (arg.isQuote())
-      finalArgs.appendSibling(arg.clone().normalizeInput());
+      finalArgs.appendSibling(arg.clone(null /* parent */).normalizeInput());
     else if (arg.isQuasiquote()) {
       if ((maybeContinuable =
           processQuasiquote(
@@ -543,10 +549,11 @@ r5js.ProcCall.prototype.cpsify = function(
         finalArgs.appendSibling(arg);
       }
     } else if (arg.isProcedure()) {
-      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.getName()));
+      finalArgs.appendSibling(r5js.data.newIdOrLiteral(/** @type {string} */ (arg.getName())));
     } else if (arg.isImproperList()) {
       throw new r5js.GeneralSyntaxError(arg);
-    } else if ((maybeContinuable = arg.desugar(this.env)) instanceof
+    } else if ((maybeContinuable = arg.desugar(
+        /** @type {!r5js.IEnvironment} */ (this.env))) instanceof
         r5js.Continuable) {
       /* todo bl is it an invariant violation to be a list
              and not to desugar to a Continuable? */
@@ -605,7 +612,8 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   var specialOp = this.isSpecialOperator();
   var proc = specialOp ?
       this.operatorName :
-      this.env.getProcedure(this.operatorName.getPayload());
+      this.env.getProcedure(/** @type {string} */ (
+          this.operatorName.getPayload()));
   var args = [proc, continuation, resultStruct, parserProvider];
 
   if (specialOp) {
@@ -671,7 +679,8 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
  * @param {!r5js.TrampolineHelper} resultStruct
  */
 r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
-  var src = this.env.get(this.firstOperand.getNextSibling().getPayload());
+  var src = this.env.get(/** @type {string} */ (
+      this.firstOperand.getNextSibling().getPayload()));
   /* In Scheme, macros can be bound to identifiers but they are not really
      first-class citizens; you cannot say
 
@@ -698,7 +707,8 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
       !this.isSyntaxAssignment) {
     throw new r5js.GeneralSyntaxError(this);
   }
-  this.env.mutate(this.firstOperand.getPayload(), src, this.isTopLevelAssignment);
+  this.env.mutate(/** @type {string} */ (
+      this.firstOperand.getPayload()), src, this.isTopLevelAssignment);
   /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
   this.bindResult(continuation, null);
@@ -958,16 +968,18 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
     if (cur instanceof r5js.Continuation) {
       args.push(cur);
     } else if (cur.isIdentifier()) {
+        var name = /** @type {string} */ (cur.getPayload());
       var toPush = wrapArgs ?
-          r5js.data.maybeWrapResult(this.env.get(cur.getPayload())) :
-          this.env.get(cur.getPayload());
+          r5js.data.maybeWrapResult(this.env.get(name)) :
+          this.env.get(name);
       /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
              for convenience. The isLetOrLetrecSyntax flag discriminates
              between the programmer and the implementation. */
       if (toPush instanceof r5js.Macro &&
           !toPush.isLetOrLetrecSyntax()) {
-        throw new r5js.MacroError(cur.getPayload(), 'bad syntax');
+        throw new r5js.MacroError(
+            /** @type {string} */(cur.getPayload()), 'bad syntax');
       }
       args.push(toPush);
     }
