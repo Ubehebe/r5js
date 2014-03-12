@@ -55,10 +55,8 @@ goog.require('r5js.data');
  * @constructor
  */
 r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
-  /**
-     * @type {boolean}
-     */
-  this.isDotted = isDotted;
+  /** @const @private {boolean} */
+  this.isDotted_ = isDotted;
 
     /** @const {string} */
     this.name = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
@@ -68,10 +66,8 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
      */
   this.env = env.newChildEnv(this.name);
 
-  /**
-     * @type {!Array.<string>}
-     */
-  this.formalsArray = formalsArray;
+  /** @const @private {!Array.<string>} */
+  this.formalsArray_ = formalsArray;
 
   if (bodyStart) {
 
@@ -112,7 +108,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
  *         environment.
  */
 r5js.Procedure.prototype.cloneWithEnv = function(env) {
-  var ans = new r5js.Procedure(this.formalsArray, this.isDotted, null, env);
+  var ans = new r5js.Procedure(this.formalsArray_, this.isDotted_, null, env);
   ans.env.setClosuresFrom(this.env); // non-cloning ok?
   ans.body = this.body;
   ans.lastContinuable = this.lastContinuable;
@@ -178,12 +174,12 @@ r5js.Procedure.prototype.toString = function() {
  */
 r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
 
-  if (!this.isDotted) {
-    if (numActuals !== this.formalsArray.length)
+  if (!this.isDotted_) {
+    if (numActuals !== this.formalsArray_.length)
       throw new r5js.IncorrectNumArgs(
-          this.toString(), this.formalsArray.length, numActuals);
+          this.toString(), this.formalsArray_.length, numActuals);
   } else {
-    var minNumArgs = this.formalsArray.length - 1;
+    var minNumArgs = this.formalsArray_.length - 1;
     if (numActuals < minNumArgs)
       throw new r5js.TooFewArgs(this.toString(), minNumArgs, numActuals);
   }
@@ -198,21 +194,21 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
 
   var name, i;
 
-  for (i = 0; i < this.formalsArray.length - 1; ++i) {
-    name = this.formalsArray[i];
+  for (i = 0; i < this.formalsArray_.length - 1; ++i) {
+    name = this.formalsArray_[i];
     env.addBinding(name, args[i]);
   }
 
-  if (this.formalsArray.length > 0) {
+  if (this.formalsArray_.length > 0) {
 
-    name = this.formalsArray[i];
-    if (!this.isDotted) {
+    name = this.formalsArray_[i];
+    if (!this.isDotted_) {
       env.addBinding(name, args[i]);
     } else {
       // Roll up the remaining arguments into a list
       var list = newEmptyList();
       // Go backwards and do prepends to avoid quadratic performance
-      for (var j = args.length - 1; j >= this.formalsArray.length - 1; --j)
+      for (var j = args.length - 1; j >= this.formalsArray_.length - 1; --j)
         list.prependChild(args[j]);
       env.addBinding(name, list);
     }
