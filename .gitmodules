@@ -11,3 +11,6 @@
 	path = src/js/tdd
 	url = https://github.com/Ubehebe/closure-tdd
 
+[submodule "externs"]
+	path = externs
+	url = https://github.com/dcodeIO/node.js-closure-compiler-externs
