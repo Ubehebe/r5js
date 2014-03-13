@@ -4,8 +4,8 @@ goog.setTestOnly('r5js.test.main');
 goog.setTestOnly('r5js.test.evalSandbox');
 
 
-goog.require('goog.log');
 goog.require('goog.labs.net.xhr');
+goog.require('goog.log');
 goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
@@ -30,13 +30,50 @@ r5js.test.main = function(opt_argv) {
       tdd.RunnerConfig.DEFAULT;
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
-  r5js.test.SchemeSources.get().then(function(sources) {
+  var isNode = typeof XMLHttpRequest === 'undefined';
+  var urlFetcher = isNode ?
+      r5js.test.main.nodeFetchUrl_ :
+      goog.labs.net.xhr.get;
+  r5js.test.SchemeSources.get(urlFetcher).then(function(sources) {
     var publicApi = r5js.test.getApi_(sources);
     r5js.test.getTestSuites_(publicApi, sources).forEach(function(testSuite) {
       runner.add(testSuite);
     });
     runner.run().then(function(result) {
       console.log(result.toString());
+      if (isNode) {
+        r5js.test.main.nodeExitWithStatus_(
+            result.getNumFailed() + result.getNumExceptions() === 0 ? 0 : 1);
+      }
+    });
+  });
+};
+
+
+/**
+ * @param {number} status
+ * @private
+ * @suppress {checkTypes|undefinedVars} for nodejs machinery
+ */
+r5js.test.main.nodeExitWithStatus_ = function(status) {
+  process.exit(status);
+};
+
+
+/**
+ * @param {string} url
+ * @return {!goog.Promise.<string>}
+ * @private
+ * @suppress {checkTypes|undefinedVars} for nodejs machinery
+ */
+r5js.test.main.nodeFetchUrl_ = function(url) {
+  return new goog.Promise(function(resolve, reject) {
+    require('fs').readFile('.' + url, function(err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data.toString());
+      }
     });
   });
 };
@@ -59,7 +96,7 @@ r5js.test.parseSandbox = function(text) {
 
 /** @param {string} text Text to parse. */
 r5js.test.evalSandbox = function(text) {
-  r5js.test.SchemeSources.get().then(function(sources) {
+  r5js.test.SchemeSources.get(goog.labs.net.xhr.get).then(function(sources) {
     var publicApi = r5js.test.getApi_(sources);
     console.log(
         publicApi.Eval(
@@ -112,3 +149,5 @@ r5js.test.getTestSuites_ = function(publicApi, sources) {
 
 
 goog.exportSymbol('r5js.test.main', r5js.test.main);
+// nodejs hack. See comment in goog.promise.testSuiteAdapter.
+goog.exportSymbol('setTimeout', setTimeout);

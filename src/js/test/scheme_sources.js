@@ -39,8 +39,11 @@ r5js.test.SchemeSources = function(
 r5js.test.SchemeSources.sources_ = null;
 
 
-/** @return {!goog.Promise.<!r5js.test.SchemeSources>} */
-r5js.test.SchemeSources.get = function() {
+/**
+ * @param {function(string):!goog.Promise.<string>} urlFetcher
+ * @return {!goog.Promise.<!r5js.test.SchemeSources>}
+ */
+r5js.test.SchemeSources.get = function(urlFetcher) {
   if (r5js.test.SchemeSources.sources_) {
     return goog.Promise.resolve(r5js.test.SchemeSources.sources_);
   } else {
@@ -53,7 +56,7 @@ r5js.test.SchemeSources.get = function() {
       r5js.test.SchemeSources.urls_.NEGATIVE_TESTS,
       r5js.test.SchemeSources.urls_.OTHER_TESTS
     ].map(function(url) {
-      return goog.labs.net.xhr.get(url);
+      return urlFetcher(url);
     })).then(function(sources) {
       if (!r5js.test.SchemeSources.sources_) {
         r5js.test.SchemeSources.sources_ = new r5js.test.SchemeSources(
