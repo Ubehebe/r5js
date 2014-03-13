@@ -36,7 +36,7 @@ r5js.test.main = function(opt_argv) {
       runner.add(testSuite);
     });
     runner.run().then(function(result) {
-      window.console.log(result.toString());
+      console.log(result.toString());
     });
   });
 };
@@ -61,7 +61,7 @@ r5js.test.parseSandbox = function(text) {
 r5js.test.evalSandbox = function(text) {
   r5js.test.SchemeSources.get().then(function(sources) {
     var publicApi = r5js.test.getApi_(sources);
-    window.console.log(
+    console.log(
         publicApi.Eval(
         text,
         goog.nullFunction /* sideEffectHandler */,
