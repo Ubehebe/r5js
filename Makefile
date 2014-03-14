@@ -74,6 +74,12 @@ typecheck:
 	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
+		--externs=externs/buffer.js \
+		--externs=externs/core.js \
+		--externs=externs/events.js \
+		--externs=externs/fs.js \
+		--externs=externs/process.js \
+		--externs=externs/stream.js \
 		--warning_level VERBOSE \
 		--jscomp_error accessControls \
 		--jscomp_error ambiguousFunctionDecl \
