@@ -14,17 +14,10 @@ if [ $ret_code != 0 ]; then
     echo 'type errors, aborting commit'
     exit $ret_code
 fi
-echo 'unit tests (uncompiled)...'
+echo 'testing...'
 eval 'make test'
 ret_code=$?
 if [ $ret_code != 0 ]; then
-    echo 'failure(s) in uncompiled tests, aborting commit'
-    exit $ret_code
-fi
-echo 'unit tests (compiled)...'
-eval 'make test-compiled'
-ret_code=$?
-if [ $ret_code != 0 ]; then
-    echo 'failure(s) in compiled tests, aborting commit'
+    echo 'failure(s) in tests, aborting commit'
     exit $ret_code
 fi

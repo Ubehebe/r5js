@@ -27,9 +27,6 @@ static_root = http://localhost:$(static_port)
 # Test-related paths.
 test_main_class = r5js.test.main
 test_outfile = $(outdir)/test-all.js
-phantom_driver  = src/js/tdd/phantom_driver.js
-test_url = $(static_root)/test/test.html
-test_compiled_url = $(static_root)/test/test_compiled.html
 # test_opts can be overridden from the command line. Example:
 # make test test_opts="type=integration verbose"
 test_opts = type=unit
@@ -178,20 +175,8 @@ doctor-api-js:
 	@cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
 
 .PHONY: test
-test: deps
+test: compile-tests
 test:
-	@command -v python > /dev/null 2>&1 || \
-		{ echo >&2 "python is required for testing."; exit 1; }
-	@command -v phantomjs >/dev/null 2>&1 || \
-		{ echo >&2 "phantomjs is required for testing."; exit 1; }
-	@python -m SimpleHTTPServer $(static_port) > /dev/null 2>&1 & echo "$$!" > python.pid
-	@phantomjs $(phantom_driver) $(test_url) $(test_main_class) $(test_opts) 2>/dev/null
-	@-cat python.pid | xargs kill
-	@rm python.pid
-
-.PHONY: test-compiled
-test-compiled: compile-tests
-test-compiled:
 	@command -v node > /dev/null 2>&1 || \
 		{ echo >&2 "node is required for testing."; exit 1; }
 	@node -e "require('./build/test-all').r5js.test.main(process.argv);" $(test_opts)
