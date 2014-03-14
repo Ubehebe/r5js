@@ -42,7 +42,7 @@ r5js.test.main = function(opt_argv) {
     runner.run().then(function(result) {
       console.log(result.toString());
       if (isNode) {
-        r5js.test.main.nodeExitWithStatus_(
+        process.exit(
             result.getNumFailed() + result.getNumExceptions() === 0 ? 0 : 1);
       }
     });
@@ -51,24 +51,14 @@ r5js.test.main = function(opt_argv) {
 
 
 /**
- * @param {number} status
- * @private
- * @suppress {checkTypes|undefinedVars} for nodejs machinery
- */
-r5js.test.main.nodeExitWithStatus_ = function(status) {
-  process.exit(status);
-};
-
-
-/**
  * @param {string} url
  * @return {!goog.Promise.<string>}
  * @private
- * @suppress {checkTypes|undefinedVars} for nodejs machinery
  */
 r5js.test.main.nodeFetchUrl_ = function(url) {
   return new goog.Promise(function(resolve, reject) {
-    require('fs').readFile('.' + url, function(err, data) {
+    var fs = require('fs');
+    fs.readFile('.' + url, function(err, data) {
       if (err) {
         reject(err);
       } else {
