@@ -777,29 +777,39 @@ r5js.Datum.prototype.lastSibling = function() {
 };
 
 
-/** @private */
+/**
+ * @return {!r5js.Datum} The normalized quotation datum.
+ * @private
+ */
 r5js.Datum.prototype.normalizeQuotation_ = function() {
     if (!this.firstChild_) {
-        return;
+        return this;
     }
+    var normalizedType;
         switch (this.firstChild_.payload_) {
             case r5js.parse.Terminals.QUOTE:
-                this.type_ = r5js.DatumType.QUOTE;
-                this.firstChild_ = this.firstChild_.nextSibling_;
+                normalizedType = r5js.DatumType.QUOTE;
                 break;
             case r5js.parse.Terminals.QUASIQUOTE:
-                this.type_ = r5js.DatumType.QUASIQUOTE;
-                this.firstChild_ = this.firstChild_.nextSibling_;
+                normalizedType = r5js.DatumType.QUASIQUOTE;
                 break;
             case r5js.parse.Terminals.UNQUOTE:
-                this.type_ = r5js.DatumType.UNQUOTE;
-                this.firstChild_ = this.firstChild_.nextSibling_;
+                normalizedType = r5js.DatumType.UNQUOTE;
                 break;
             case r5js.parse.Terminals.UNQUOTE_SPLICING:
-                this.type_ = r5js.DatumType.UNQUOTE_SPLICING;
-                this.firstChild_ = this.firstChild_.nextSibling_;
+                normalizedType = r5js.DatumType.UNQUOTE_SPLICING;
+                break;
+            default:
                 break;
         }
+    if (normalizedType) {
+        var ans = new r5js.Datum();
+        ans.type_ = normalizedType;
+        ans.firstChild_ = this.firstChild_.nextSibling_;
+        return ans;
+    } else {
+        return this;
+    }
 };
 
 
@@ -819,30 +829,31 @@ r5js.Datum.prototype.normalizeQuotation_ = function() {
  *
  * so we don't have to worry about these synonyms during evaluation proper.
  *
- * @return {!r5js.Datum} This object, for chaining.
+ * @return {!r5js.Datum} The normalized datum.
  */
 r5js.Datum.prototype.normalizeInput = function() {
-    this.normalizeQuotation_();
+    var thisNormalized = this.normalizeQuotation_();
 
-    var isImproperList = this.isImproperList();
-
-    for (var child = this.firstChild_; child; child = child.nextSibling_) {
-        child.normalizeInput();
-        if (isImproperList && child.nextSibling_ && !child.nextSibling_.nextSibling_) {
-            var maybeEmptyList = child.nextSibling_;
-            if (maybeEmptyList.isList() && !maybeEmptyList.firstChild_) {
-                child.parent_ = child.nextSibling_.parent_;
-                child.nextSibling_ = null;
-                this.type_ = r5js.DatumType.LIST;
+    for (var cur = thisNormalized.getFirstChild(), prev;
+         cur;
+         prev = cur, cur = cur.getNextSibling()) {
+        var curNormalized = cur.normalizeInput();
+        if (curNormalized !== cur) {
+            if (prev) {
+                prev.nextSibling_ = curNormalized;
+            } else {
+                thisNormalized.firstChild_ = curNormalized;
             }
+            curNormalized.nextSibling_ = cur.nextSibling_;
         }
+        cur = curNormalized;
     }
 
-    if (this.isString()) {
-        this.unescapeStringLiteral();
+    if (thisNormalized.isString()) {
+        thisNormalized.unescapeStringLiteral();
     }
 
-    return this.setImmutableOnQuote();
+    return thisNormalized.setImmutableOnQuote();
 };
 
 /**
