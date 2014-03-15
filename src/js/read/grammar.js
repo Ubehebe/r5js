@@ -64,7 +64,7 @@ r5js.read.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
             named(r5js.parse.Terminals.COMMA_AT)));
 
 
-r5js.read.grammar[r5js.parse.Nonterminals.DATUMS] = _.choice(
-    _.zeroOrMore(r5js.parse.Nonterminals.DATUM).
-        named(r5js.parse.Nonterminals.DATUMS));
+r5js.read.grammar[r5js.parse.Nonterminals.DATUMS] = _.zeroOrMore(
+    r5js.parse.Nonterminals.DATUM).
+        named(r5js.parse.Nonterminals.DATUMS);
 });  // goog.scope
