@@ -23,23 +23,8 @@ r5js.read.bnf.Rule.prototype.match = function(tokenStream) {};
 
 
 /**
- * @interface
- * @extends {r5js.read.bnf.Rule}
- */
-r5js.read.bnf.NamedRule = function() {};
-
-
-/**
- * @param {!r5js.parse.Nonterminal} nonterminal
- * @return {!r5js.read.bnf.NamedRule} This rule, for chaining.
- */
-r5js.read.bnf.NamedRule.prototype.named = function(nonterminal) {};
-
-
-
-/**
  * @param {!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
- * @implements {r5js.read.bnf.NamedRule}
+ * @implements {r5js.read.bnf.Rule}
  * @struct
  * @constructor
  * @private
@@ -50,9 +35,6 @@ r5js.read.bnf.One_ = function(type) {
      * @const
      */
   this.type_ = type;
-
-  /** @private {r5js.parse.Nonterminal|null} */
-  this.name_ = null;
 };
 
 
@@ -66,13 +48,6 @@ r5js.read.bnf.One_ = function(type) {
  * @const {!r5js.Datum}
  */
 r5js.read.bnf.One_.TERMINAL_SENTINEL = new r5js.Datum();
-
-
-/** @override */
-r5js.read.bnf.One_.prototype.named = function(name) {
-  this.name_ = name;
-  return this;
-};
 
 
 /** @override */
@@ -100,7 +75,7 @@ r5js.read.bnf.One_.prototype.matchTerminal_ = function(tokenStream) {
 /**
  * @param {!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
  * @param {number} minRepetitions
- * @implements {r5js.read.bnf.NamedRule}
+ * @implements {r5js.read.bnf.Rule}
  * @struct
  * @constructor
  * @private
@@ -114,9 +89,6 @@ r5js.read.bnf.AtLeast_ = function(type, minRepetitions) {
 
   /** @const @private {number} */
   this.repetition_ = minRepetitions;
-
-  /** @private {r5js.parse.Nonterminal|null} */
-  this.name_ = null;
 };
 
 
@@ -155,16 +127,9 @@ r5js.read.bnf.AtLeast_.prototype.match = function(tokenStream) {
 };
 
 
-/** @override */
-r5js.read.bnf.AtLeast_.prototype.named = function(nonterminal) {
-  this.name_ = nonterminal;
-  return this;
-};
-
-
 /**
  * @param {!r5js.parse.Terminal|!r5js.parse.Nonterminal} type
- * @return {!r5js.read.bnf.NamedRule}
+ * @return {!r5js.read.bnf.Rule}
  */
 r5js.read.bnf.one = function(type) {
   return new r5js.read.bnf.One_(type);
@@ -173,7 +138,7 @@ r5js.read.bnf.one = function(type) {
 
 /**
  * @param {!r5js.parse.Nonterminal} nonterminal
- * @return {!r5js.read.bnf.NamedRule}
+ * @return {!r5js.read.bnf.Rule}
  */
 r5js.read.bnf.zeroOrMore = function(nonterminal) {
   return new r5js.read.bnf.AtLeast_(nonterminal, 0);
@@ -235,6 +200,19 @@ r5js.read.bnf.onePrimitive = function(type) {
 r5js.read.bnf.Seq_ = function(rules) {
   /** @const @private {!Array.<!r5js.read.bnf.Rule>} */
   this.rules_ = rules;
+
+  /** @private {r5js.parse.Nonterminal|null} */
+  this.name_ = null;
+};
+
+
+/**
+ * @param {!r5js.parse.Nonterminal} name
+ * @return {!r5js.read.bnf.Seq_} This rule, for chaining.
+ */
+r5js.read.bnf.Seq_.prototype.named = function(name) {
+  this.name_ = name;
+  return this;
 };
 
 
@@ -248,9 +226,8 @@ r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
     if (parsed === r5js.read.bnf.One_.TERMINAL_SENTINEL) {
       continue;
     } else if (parsed === r5js.read.bnf.AtLeast_.EMPTY_LIST_SENTINEL) {
-      ansDatum.setType(rule.name_); // TODO bl explain/eliminate
+      continue;
     } else if (parsed) {
-      ansDatum.setType(rule.name_ || rule.type_);
       ansDatum.appendChild(parsed);
       parsed.lastSibling().setParent(ansDatum); // TODO bl
     } else {
@@ -258,13 +235,14 @@ r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
       return null;
     }
   }
+  ansDatum.setType(/** @type {!r5js.parse.Nonterminal} */ (this.name_));
   return ansDatum;
 };
 
 
 /**
  * @param {...!r5js.read.bnf.Rule} var_args
- * @return {!r5js.read.bnf.Rule}
+ * @return {!r5js.read.bnf.Seq_}
  * @suppress {checkTypes} for the varargs. TODO bl: is there a safer way
  * that still makes the BNF DSL nice?
  */

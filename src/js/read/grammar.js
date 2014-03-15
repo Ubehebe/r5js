@@ -32,39 +32,39 @@ r5js.read.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
     _.onePrimitive(r5js.DatumType.STRING),
     _.seq(
         _.one(r5js.parse.Terminals.LPAREN),
-        _.zeroOrMore(r5js.parse.Nonterminals.DATUM).
-            named(r5js.parse.Terminals.LPAREN),
-        _.one(r5js.parse.Terminals.RPAREN)),
+        _.zeroOrMore(r5js.parse.Nonterminals.DATUM),
+        _.one(r5js.parse.Terminals.RPAREN)).
+    named(r5js.parse.Terminals.LPAREN),
     _.seq(
         _.one(r5js.parse.Terminals.LPAREN),
-        _.oneOrMore(r5js.parse.Nonterminals.DATUM).
-            named(r5js.DatumType.DOTTED_LIST),
+        _.oneOrMore(r5js.parse.Nonterminals.DATUM),
         _.one(r5js.parse.Terminals.DOT),
-        _.one(r5js.parse.Nonterminals.DATUM).
-            named(r5js.parse.Terminals.LPAREN_DOT),
-        _.one(r5js.parse.Terminals.RPAREN)),
+        _.one(r5js.parse.Nonterminals.DATUM),
+        _.one(r5js.parse.Terminals.RPAREN)).
+    named(r5js.parse.Terminals.LPAREN_DOT),
     _.seq(
         _.one(r5js.parse.Terminals.LPAREN_VECTOR),
-        _.zeroOrMore(r5js.parse.Nonterminals.DATUM).
-            named(r5js.parse.Terminals.LPAREN_VECTOR),
-        _.one(r5js.parse.Terminals.RPAREN)),
+        _.zeroOrMore(r5js.parse.Nonterminals.DATUM),
+        _.one(r5js.parse.Terminals.RPAREN)).
+    named(r5js.parse.Terminals.LPAREN_VECTOR),
     _.seq(
         _.one(r5js.parse.Terminals.TICK),
-        _.one(r5js.parse.Nonterminals.DATUM).named(r5js.parse.Terminals.TICK)),
+        _.one(r5js.parse.Nonterminals.DATUM)).
+        named(r5js.parse.Terminals.TICK),
     _.seq(
         _.one(r5js.parse.Terminals.BACKTICK),
-        _.one(r5js.parse.Nonterminals.DATUM).
-            named(r5js.parse.Terminals.BACKTICK)),
+        _.one(r5js.parse.Nonterminals.DATUM)).
+    named(r5js.parse.Terminals.BACKTICK),
     _.seq(
         _.one(r5js.parse.Terminals.COMMA),
-        _.one(r5js.parse.Nonterminals.DATUM).named(r5js.parse.Terminals.COMMA)),
+        _.one(r5js.parse.Nonterminals.DATUM)).
+        named(r5js.parse.Terminals.COMMA),
     _.seq(
         _.one(r5js.parse.Terminals.COMMA_AT),
-        _.one(r5js.parse.Nonterminals.DATUM).
-            named(r5js.parse.Terminals.COMMA_AT)));
+        _.one(r5js.parse.Nonterminals.DATUM)).
+    named(r5js.parse.Terminals.COMMA_AT));
 
 
 r5js.read.grammar[r5js.parse.Nonterminals.DATUMS] = _.zeroOrMore(
-    r5js.parse.Nonterminals.DATUM).
-        named(r5js.parse.Nonterminals.DATUMS);
+    r5js.parse.Nonterminals.DATUM);
 });  // goog.scope
