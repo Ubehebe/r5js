@@ -2,6 +2,7 @@ goog.provide('r5js.read.bnf');
 
 
 goog.require('r5js.Datum');
+goog.require('r5js.SiblingBuffer');
 // TODO bl circular dependency goog.require('r5js.read.grammar');
 goog.require('r5js.parse.Nonterminals');
 
@@ -12,11 +13,12 @@ r5js.read.bnf.Rule = function() {};
 
 
 /**
- * @param {!r5js.Datum} ansDatum
  * @param {!r5js.TokenStream} tokenStream
- * @return {r5js.Datum}
+ * @return {r5js.Datum} The datum extracted from the token stream, or null if
+ * reading was unsuccessful. Note that this may not be a proper tree:
+ * rules like {@link r5js.read.bnf.AtLeast_} should return a list of siblings.
  */
-r5js.read.bnf.Rule.prototype.match = function(ansDatum, tokenStream) {};
+r5js.read.bnf.Rule.prototype.match = function(tokenStream) {};
 
 
 
@@ -54,6 +56,18 @@ r5js.read.bnf.One_ = function(type) {
 };
 
 
+/**
+ * When a terminal is successfully matched out of the token stream,
+ * the rule needs to communicate success (= a non-null return value),
+ * but the terminal itself is not useful. This sentinel is returned by
+ * {@link r5js.read.bnf.One_#matchTerminal_} to avoid instantiating
+ * useless datums.
+ * TODO bl: this API can be improved.
+ * @const {!r5js.Datum}
+ */
+r5js.read.bnf.One_.TERMINAL_SENTINEL = new r5js.Datum();
+
+
 /** @override */
 r5js.read.bnf.One_.prototype.named = function(name) {
   this.name_ = name;
@@ -62,45 +76,22 @@ r5js.read.bnf.One_.prototype.named = function(name) {
 
 
 /** @override */
-r5js.read.bnf.One_.prototype.match = function(ansDatum, tokenStream) {
+r5js.read.bnf.One_.prototype.match = function(tokenStream) {
   // The rule will be found in the grammar iff it is a nonterminal.
   var rule = r5js.read.grammar[this.type_];
-  return rule ?
-      this.matchNonterminal_(ansDatum, tokenStream, rule) :
-      this.matchTerminal_(ansDatum, tokenStream);
+  return rule ? rule.match(tokenStream) : this.matchTerminal_(tokenStream);
 };
 
 
 /**
- * @param {!r5js.Datum} ansDatum
- * @param {!r5js.TokenStream} tokenStream
- * @param {!r5js.read.bnf.Rule} rule
- * @return {r5js.Datum}
- * @private
- */
-r5js.read.bnf.One_.prototype.matchNonterminal_ = function(
-    ansDatum, tokenStream, rule) {
-  var parsed = rule.match(new r5js.Datum(), tokenStream);
-  if (!parsed) {
-    return null;
-  }
-  ansDatum.setType(this.name_ || this.type_);
-  ansDatum.appendChild(parsed);
-  parsed.setParent(ansDatum);
-  return ansDatum;
-};
-
-
-/**
- * @param {!r5js.Datum} ansDatum
  * @param {!r5js.TokenStream} tokenStream
  * @return {r5js.Datum}
  * @private
  */
-r5js.read.bnf.One_.prototype.matchTerminal_ = function(ansDatum, tokenStream) {
+r5js.read.bnf.One_.prototype.matchTerminal_ = function(tokenStream) {
   var token = tokenStream.nextToken();
   return (token && token.getPayload() === this.type_) ?
-      ansDatum :
+      r5js.read.bnf.One_.TERMINAL_SENTINEL :
       null;
 };
 
@@ -129,30 +120,34 @@ r5js.read.bnf.AtLeast_ = function(type, minRepetitions) {
 };
 
 
+/**
+ * See {@link r5js.read.bnf.AtLeast_#match} for description.
+ * @const {!r5js.Datum}
+ * TODO bl: This object is mutable and can be returned from a top-level
+ * call to {@link r5js.Reader#read}, which seems like a bug.
+ */
+r5js.read.bnf.AtLeast_.EMPTY_LIST_SENTINEL = new r5js.Datum();
+
+
 /** @override */
-r5js.read.bnf.AtLeast_.prototype.match = function(ansDatum, tokenStream) {
+r5js.read.bnf.AtLeast_.prototype.match = function(tokenStream) {
+  var siblingBuffer = new r5js.SiblingBuffer();
   var rule = r5js.read.grammar[this.type_];
   var checkpoint = tokenStream.checkpoint();
-  var prev, cur, firstChild;
-  var num = 0;
-  while (cur = rule.match(new r5js.Datum(), tokenStream)) {
+  var num = 0, cur;
+
+  while (cur = rule.match(tokenStream)) {
+    siblingBuffer.appendSibling(cur);
     ++num;
-    if (!firstChild)
-      firstChild = cur;
-    if (prev) {
-      prev.setNextSibling(cur);
-    }
-    prev = cur;
   }
 
   if (num >= this.repetition_) {
-    ansDatum.setType(this.name_ || this.type_);
-    // TODO bl is this cast needed, or does it indicate a bug?
-    ansDatum.appendChild(/** @type {!r5js.Datum} */ (firstChild));
-    if (prev) {
-      prev.setParent(ansDatum);
-    }
-    return ansDatum;
+    /* In the special case when repetition_ is 0 and 0 datums were
+      (successfully) matched, siblingBuffer.toSiblings() will return null.
+      However, null is used by this API to communicate failure, so we must
+      return a different object. */
+    return siblingBuffer.toSiblings() ||
+        r5js.read.bnf.AtLeast_.EMPTY_LIST_SENTINEL;
   } else {
     tokenStream.restore(checkpoint);
     return null;
@@ -209,7 +204,8 @@ r5js.read.bnf.OnePrimitive_ = function(type) {
 
 
 /** @override */
-r5js.read.bnf.OnePrimitive_.prototype.match = function(ansDatum, tokenStream) {
+r5js.read.bnf.OnePrimitive_.prototype.match = function(tokenStream) {
+  var ansDatum = new r5js.Datum();
   var token = tokenStream.nextToken();
   if (!token) {
     return null;
@@ -243,10 +239,21 @@ r5js.read.bnf.Seq_ = function(rules) {
 
 
 /** @override */
-r5js.read.bnf.Seq_.prototype.match = function(ansDatum, tokenStream) {
+r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
+  var ansDatum = new r5js.Datum();
   var checkpoint = tokenStream.checkpoint();
   for (var i = 0; i < this.rules_.length; ++i) {
-    if (!this.rules_[i].match(ansDatum, tokenStream)) {
+    var rule = this.rules_[i];
+    var parsed = rule.match(tokenStream);
+    if (parsed === r5js.read.bnf.One_.TERMINAL_SENTINEL) {
+      continue;
+    } else if (parsed === r5js.read.bnf.AtLeast_.EMPTY_LIST_SENTINEL) {
+      ansDatum.setType(rule.name_); // TODO bl explain/eliminate
+    } else if (parsed) {
+      ansDatum.setType(rule.name_ || rule.type_);
+      ansDatum.appendChild(parsed);
+      parsed.lastSibling().setParent(ansDatum); // TODO bl
+    } else {
       tokenStream.restore(checkpoint);
       return null;
     }
@@ -281,11 +288,11 @@ r5js.read.bnf.Choice_ = function(rules) {
 
 
 /** @override */
-r5js.read.bnf.Choice_.prototype.match = function(ansDatum, tokenStream) {
+r5js.read.bnf.Choice_.prototype.match = function(tokenStream) {
   for (var i = 0; i < this.rules_.length; ++i) {
     var checkpoint = tokenStream.checkpoint();
-    var newDatum = new r5js.Datum();
-    if (this.rules_[i].match(newDatum, tokenStream)) {
+    var newDatum;
+    if (newDatum = this.rules_[i].match(tokenStream)) {
       return newDatum;
     } else {
       tokenStream.restore(checkpoint);

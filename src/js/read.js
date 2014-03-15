@@ -42,9 +42,7 @@ r5js.Reader = function(scanner) {
 
 /** @override */
 r5js.Reader.prototype.read = function() {
-    var datums = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS].match(
-        new r5js.Datum(), this.scanner_);
-    return datums.getFirstChild();
+    return r5js.read.grammar[r5js.parse.Nonterminals.DATUMS].match(this.scanner_);
 };
 
 /**
