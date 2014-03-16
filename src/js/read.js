@@ -119,7 +119,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                     endDelimiter = ')';
                 // fallthrough
                 case r5js.DatumType.QUOTE:
-                case r5js.DatumType.QUASIQUOTE:
                     /* Note: this will be an infinite loop for cyclical data
                      structures created by the programmer through set-cdr!, etc.
                      Some implementations do nice things, like print "holes" where
