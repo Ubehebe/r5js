@@ -32,6 +32,5 @@ r5js.DatumType = {
   REF: 'ref',
   STRING: 'string',
   SYMBOL: 'symbol',
-  UNQUOTE: ',',
   VECTOR: '#('
 };

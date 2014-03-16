@@ -16,6 +16,7 @@
 
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
+goog.provide('r5js.Unquote');
 goog.provide('r5js.UnquoteSplicing');
 
 
@@ -706,9 +707,34 @@ r5js.Datum.prototype.isQuasiquote = function() {
  * or an unquote-splicing.
  */
 r5js.Datum.prototype.isUnquote = function() {
-    return this.type_ === r5js.DatumType.UNQUOTE ||
+    return this instanceof r5js.Unquote ||
         this instanceof r5js.UnquoteSplicing;
 };
+
+
+/**
+ * @param {r5js.Datum} firstChild
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.Unquote = function(firstChild) {
+    goog.base(this);
+    this.type_ = r5js.parse.Terminals.COMMA;
+    if (firstChild) {
+        this.firstChild_ = firstChild;
+    }
+};
+goog.inherits(r5js.Unquote, r5js.Datum);
+
+/** @override */
+r5js.Unquote.prototype.stringForOutputMode = function(outputMode) {
+    var children = this.mapChildren(function(child) {
+        return child.stringForOutputMode(outputMode);
+    });
+    return r5js.parse.Terminals.COMMA_AT + children.join(' ');
+};
+
 
 
 /**
@@ -821,8 +847,7 @@ r5js.Datum.prototype.normalizeQuotation_ = function() {
                 normalizedType = r5js.DatumType.QUASIQUOTE;
                 break;
             case r5js.parse.Terminals.UNQUOTE:
-                normalizedType = r5js.DatumType.UNQUOTE;
-                break;
+                return new r5js.Unquote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.UNQUOTE_SPLICING:
                 return new r5js.UnquoteSplicing(this.firstChild_.nextSibling_);
             default:

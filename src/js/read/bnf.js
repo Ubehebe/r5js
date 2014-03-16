@@ -3,6 +3,7 @@ goog.provide('r5js.read.bnf');
 
 goog.require('r5js.Datum');
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.Unquote');
 goog.require('r5js.UnquoteSplicing');
 // TODO bl circular dependency goog.require('r5js.read.grammar');
 goog.require('r5js.parse.Nonterminals');
@@ -219,8 +220,8 @@ r5js.read.bnf.Seq_.prototype.named = function(name) {
 
 /** @override */
 r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
-  var ansDatum = this.name_ === r5js.parse.Terminals.COMMA_AT ?
-      new r5js.UnquoteSplicing(null /* firstChild */) : new r5js.Datum();
+  var ansDatum = r5js.read.bnf.emptyDatumForSequence_(
+      /** @type {!r5js.parse.Terminal} */ (this.name_));
   var checkpoint = tokenStream.checkpoint();
   for (var i = 0; i < this.rules_.length; ++i) {
     var rule = this.rules_[i];
@@ -239,6 +240,23 @@ r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
   }
   ansDatum.setType(/** @type {!r5js.Type} */ (this.name_));
   return ansDatum;
+};
+
+
+/**
+ * @param {!r5js.parse.Terminal} type
+ * @return {!r5js.Datum}
+ * @private
+ */
+r5js.read.bnf.emptyDatumForSequence_ = function(type) {
+  switch (type) {
+    case r5js.parse.Terminals.COMMA:
+      return new r5js.Unquote(null /* firstChild */);
+    case r5js.parse.Terminals.COMMA_AT:
+      return new r5js.UnquoteSplicing(null /* firstChild */);
+    default:
+      return new r5js.Datum();
+  }
 };
 
 
