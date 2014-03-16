@@ -218,7 +218,7 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
         _.seq(
             _.one(Nonterminals.QUASIQUOTATION)).
             desugar(function(node, env) {
-      return node.normalizeInput().decorateQuasiquote(1);
+      return node.normalizeInput().setQuasiquotationLevel(1);
             }),
         _.seq(
             _.one(Terminals.LPAREN),

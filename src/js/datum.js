@@ -721,9 +721,9 @@ r5js.Unquote.prototype.stringForOutputMode = function(outputMode) {
 
 
 /** @override */
-r5js.Unquote.prototype.decorateQuasiquote = function(qqLevel) {
+r5js.Unquote.prototype.setQuasiquotationLevel = function(qqLevel) {
         this.qqLevel_ = qqLevel;
-        return goog.base(this, 'decorateQuasiquote', qqLevel-1);
+        return goog.base(this, 'setQuasiquotationLevel', qqLevel-1);
 };
 
 
@@ -753,9 +753,9 @@ r5js.UnquoteSplicing.prototype.stringForOutputMode = function(outputMode) {
 };
 
 /** @override */
-r5js.UnquoteSplicing.prototype.decorateQuasiquote = function(qqLevel) {
+r5js.UnquoteSplicing.prototype.setQuasiquotationLevel = function(qqLevel) {
     this.qqLevel_ = qqLevel;
-    return goog.base(this, 'decorateQuasiquote', qqLevel-1);
+    return goog.base(this, 'setQuasiquotationLevel', qqLevel-1);
 };
 
 
@@ -830,9 +830,9 @@ r5js.Quasiquote.prototype.processQuasiquote = function(
 
 
 /** @override */
-r5js.Quasiquote.prototype.decorateQuasiquote = function(qqLevel) {
+r5js.Quasiquote.prototype.setQuasiquotationLevel = function(qqLevel) {
             this.qqLevel_ = qqLevel+1;
-    return goog.base(this, 'decorateQuasiquote', this.qqLevel_);
+    return goog.base(this, 'setQuasiquotationLevel', this.qqLevel_);
     };
 
 
@@ -992,8 +992,8 @@ r5js.Datum.prototype.normalizeInput = function() {
  * @param {number} qqLevel The level of quasiquotation.
  * @return {!r5js.Datum} This object, for chaining.
  */
-r5js.Datum.prototype.decorateQuasiquote = function(qqLevel) {
-    this.forEachChild(function(child) { child.decorateQuasiquote(qqLevel); });
+r5js.Datum.prototype.setQuasiquotationLevel = function(qqLevel) {
+    this.forEachChild(function(child) { child.setQuasiquotationLevel(qqLevel); });
     return this;
 };
 
