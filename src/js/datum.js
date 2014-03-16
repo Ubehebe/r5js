@@ -697,18 +697,6 @@ r5js.Datum.prototype.isQuote = function() {
 
 
 /**
- * In most situations, we want to detect both unquote (,) and
- * unquote-splicing (,@).
- * @return {boolean} True iff this datum represents an unquote
- * or an unquote-splicing.
- */
-r5js.Datum.prototype.isUnquote = function() {
-    return this instanceof r5js.Unquote ||
-        this instanceof r5js.UnquoteSplicing;
-};
-
-
-/**
  * @param {r5js.Datum} firstChild
  * @extends {r5js.Datum}
  * @struct
@@ -815,7 +803,9 @@ r5js.Quasiquote.prototype.processQuasiquote = function(
 
     this.replaceChildren(
         function(node) {
-            return node.isUnquote() && (node.getQQLevel() === qqLevel);
+            return (node instanceof r5js.Unquote ||
+                node instanceof r5js.UnquoteSplicing) &&
+                node.getQQLevel() === qqLevel;
         },
         function(node) {
             var asContinuable = /** @type {!r5js.Continuable} */ (parserProvider(
