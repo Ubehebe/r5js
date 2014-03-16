@@ -33,6 +33,5 @@ r5js.DatumType = {
   STRING: 'string',
   SYMBOL: 'symbol',
   UNQUOTE: ',',
-  UNQUOTE_SPLICING: ',@',
   VECTOR: '#('
 };

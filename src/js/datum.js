@@ -16,6 +16,7 @@
 
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
+goog.provide('r5js.UnquoteSplicing');
 
 
 goog.require('r5js.ast.Node');
@@ -323,7 +324,7 @@ r5js.Datum.prototype.clone = function(parent) {
      They are created by mutation, i.e. once a value is already bound in an
      Environment, and once that happens, we never clone it again. */
 
-    var ans = new r5js.Datum();
+    var ans = new this.constructor();
 
     ans.type_ = this.type_;
     ans.payload_ = this.payload_;
@@ -706,8 +707,34 @@ r5js.Datum.prototype.isQuasiquote = function() {
  */
 r5js.Datum.prototype.isUnquote = function() {
     return this.type_ === r5js.DatumType.UNQUOTE ||
-        this.type_ === r5js.DatumType.UNQUOTE_SPLICING;
+        this instanceof r5js.UnquoteSplicing;
 };
+
+
+/**
+ * @param {r5js.Datum} firstChild
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.UnquoteSplicing = function(firstChild) {
+  goog.base(this);
+    this.type_ = r5js.parse.Terminals.COMMA_AT;
+    if (firstChild) {
+        this.firstChild_ = firstChild;
+    }
+};
+goog.inherits(r5js.UnquoteSplicing, r5js.Datum);
+
+
+/** @override */
+r5js.UnquoteSplicing.prototype.stringForOutputMode = function(outputMode) {
+    var children = this.mapChildren(function(child) {
+        return child.stringForOutputMode(outputMode);
+    });
+    return r5js.parse.Terminals.COMMA_AT + children.join(' ');
+};
+
 
 /**
  * TODO bl: this is intended to have the exact semantics of the library
@@ -797,8 +824,7 @@ r5js.Datum.prototype.normalizeQuotation_ = function() {
                 normalizedType = r5js.DatumType.UNQUOTE;
                 break;
             case r5js.parse.Terminals.UNQUOTE_SPLICING:
-                normalizedType = r5js.DatumType.UNQUOTE_SPLICING;
-                break;
+                return new r5js.UnquoteSplicing(this.firstChild_.nextSibling_);
             default:
                 break;
         }

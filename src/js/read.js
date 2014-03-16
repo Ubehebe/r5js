@@ -121,7 +121,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                 case r5js.DatumType.QUOTE:
                 case r5js.DatumType.QUASIQUOTE:
                 case r5js.DatumType.UNQUOTE:
-                case r5js.DatumType.UNQUOTE_SPLICING:
                     /* Note: this will be an infinite loop for cyclical data
                      structures created by the programmer through set-cdr!, etc.
                      Some implementations do nice things, like print "holes" where

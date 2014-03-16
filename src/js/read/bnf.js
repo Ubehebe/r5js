@@ -3,6 +3,7 @@ goog.provide('r5js.read.bnf');
 
 goog.require('r5js.Datum');
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.UnquoteSplicing');
 // TODO bl circular dependency goog.require('r5js.read.grammar');
 goog.require('r5js.parse.Nonterminals');
 
@@ -201,13 +202,13 @@ r5js.read.bnf.Seq_ = function(rules) {
   /** @const @private {!Array.<!r5js.read.bnf.Rule>} */
   this.rules_ = rules;
 
-  /** @private {r5js.parse.Nonterminal|null} */
+  /** @private {r5js.parse.Terminal|null} */
   this.name_ = null;
 };
 
 
 /**
- * @param {!r5js.parse.Nonterminal} name
+ * @param {!r5js.parse.Terminal} name
  * @return {!r5js.read.bnf.Seq_} This rule, for chaining.
  */
 r5js.read.bnf.Seq_.prototype.named = function(name) {
@@ -218,7 +219,8 @@ r5js.read.bnf.Seq_.prototype.named = function(name) {
 
 /** @override */
 r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
-  var ansDatum = new r5js.Datum();
+  var ansDatum = this.name_ === r5js.parse.Terminals.COMMA_AT ?
+      new r5js.UnquoteSplicing(null /* firstChild */) : new r5js.Datum();
   var checkpoint = tokenStream.checkpoint();
   for (var i = 0; i < this.rules_.length; ++i) {
     var rule = this.rules_[i];
@@ -235,7 +237,7 @@ r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
       return null;
     }
   }
-  ansDatum.setType(/** @type {!r5js.parse.Nonterminal} */ (this.name_));
+  ansDatum.setType(/** @type {!r5js.Type} */ (this.name_));
   return ansDatum;
 };
 
