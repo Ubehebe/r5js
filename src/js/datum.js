@@ -737,6 +737,13 @@ r5js.Unquote.prototype.stringForOutputMode = function(outputMode) {
 };
 
 
+/** @override */
+r5js.Unquote.prototype.decorateQuasiquote = function(qqLevel) {
+        this.qqLevel_ = qqLevel;
+        return goog.base(this, 'decorateQuasiquote', qqLevel-1);
+};
+
+
 
 /**
  * @param {r5js.Datum} firstChild
@@ -761,6 +768,13 @@ r5js.UnquoteSplicing.prototype.stringForOutputMode = function(outputMode) {
     });
     return r5js.parse.Terminals.COMMA_AT + children.join(' ');
 };
+
+/** @override */
+r5js.UnquoteSplicing.prototype.decorateQuasiquote = function(qqLevel) {
+    this.qqLevel_ = qqLevel;
+    return goog.base(this, 'decorateQuasiquote', qqLevel-1);
+};
+
 
 
 /**
@@ -834,6 +848,13 @@ r5js.Quasiquote.prototype.processQuasiquote = function(
     var ans = newCalls.toContinuable();
     return ans && ans.setStartingEnv(env);
 };
+
+
+/** @override */
+r5js.Quasiquote.prototype.decorateQuasiquote = function(qqLevel) {
+            this.qqLevel_ = qqLevel+1;
+    return goog.base(this, 'decorateQuasiquote', this.qqLevel_);
+    };
 
 
 /**
@@ -993,23 +1014,7 @@ r5js.Datum.prototype.normalizeInput = function() {
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.decorateQuasiquote = function(qqLevel) {
-
-    if (this.isQuasiquote()) {
-        this.qqLevel_ = qqLevel;
-    } else if (this.isUnquote()) {
-        this.qqLevel_ = qqLevel+1;
-    }
-
-    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
-        if (cur.isQuasiquote()) {
-            cur.decorateQuasiquote(qqLevel+1);
-        } else if (cur.isUnquote()) {
-            cur.decorateQuasiquote(qqLevel-1);
-        } else {
-            cur.decorateQuasiquote(qqLevel);
-        }
-    }
-
+    this.forEachChild(function(child) { child.decorateQuasiquote(qqLevel); });
     return this;
 };
 
