@@ -695,11 +695,6 @@ r5js.Datum.prototype.isQuote = function() {
     // todo bl should datums know about this?
 };
 
-/** @return {boolean} True iff this datum represents a quasiquotation (`). */
-r5js.Datum.prototype.isQuasiquote = function() {
-    return false;
-};
-
 
 /**
  * In most situations, we want to detect both unquote (,) and
@@ -791,12 +786,6 @@ r5js.Quasiquote = function(firstChild) {
     }
 };
 goog.inherits(r5js.Quasiquote, r5js.Datum);
-
-
-/** @override */
-r5js.Quasiquote.prototype.isQuasiquote = function() {
-    return true;
-};
 
 
 /** @override */

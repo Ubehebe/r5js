@@ -35,6 +35,7 @@ goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.MacroError');
 goog.require('r5js.PrimitiveProcedure');
+goog.require('r5js.Quasiquote');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
@@ -462,7 +463,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
         ans.getFirstChild() :
         r5js.data.newIdOrLiteral(r5js.parse.Terminals.QUOTE);
   }
-  else if (arg.isQuasiquote()) {
+  else if (arg instanceof r5js.Quasiquote) {
     resultStruct.nextContinuable = arg.processQuasiquote(
         /** @type {!r5js.IEnvironment} */ (this.env),
         continuation.lastResultName,
@@ -523,7 +524,7 @@ r5js.ProcCall.prototype.cpsify = function(
     arg.resetDesugars();
     if (arg.isQuote())
       finalArgs.appendSibling(arg.clone(null /* parent */).normalizeInput());
-    else if (arg.isQuasiquote()) {
+    else if (arg instanceof r5js.Quasiquote) {
       if ((maybeContinuable =
           arg.processQuasiquote(
               /** @type {!r5js.IEnvironment} */ (this.env),
