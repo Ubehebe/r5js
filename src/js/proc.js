@@ -463,8 +463,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
         r5js.data.newIdOrLiteral(r5js.parse.Terminals.QUOTE);
   }
   else if (arg.isQuasiquote()) {
-    resultStruct.nextContinuable = processQuasiquote(
-        arg,
+    resultStruct.nextContinuable = arg.processQuasiquote(
         /** @type {!r5js.IEnvironment} */ (this.env),
         continuation.lastResultName,
         parserProvider
@@ -526,9 +525,8 @@ r5js.ProcCall.prototype.cpsify = function(
       finalArgs.appendSibling(arg.clone(null /* parent */).normalizeInput());
     else if (arg.isQuasiquote()) {
       if ((maybeContinuable =
-          processQuasiquote(
-          arg,
-          /** @type {!r5js.IEnvironment} */ (this.env),
+          arg.processQuasiquote(
+              /** @type {!r5js.IEnvironment} */ (this.env),
           continuation.lastResultName,
           parserProvider)) instanceof r5js.Continuable) {
         finalArgs.appendSibling(
@@ -1000,51 +998,3 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
 
   return args;
 };
-
-
-/**
- * Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
- * Note: this was once an instance method on {@link r5js.Datum}, defined
- * in datum.js. I moved it here (its only point of use) to break
- * a cyclic dependency between Datum and the parser, and thought it was
- * cleaner at that point to turn it into a regular function.
- * @param {!r5js.Datum} datum Datum to process.
- * @param {!r5js.IEnvironment} env TODO bl.
- * @param {string} cpsName TODO bl.
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
- * that will return a new Parser for the given Datum when called.
- * @return {*} TODO bl.
- * @suppress {const} for the assignment to continuation.lastResultName,
- * which may indicate a bug. TODO bl investigate.
- */
-function processQuasiquote(datum, env, cpsName, parserProvider) {
-
-  var newCalls = new r5js.ContinuableHelper();
-
-  var qqLevel = datum.getQQLevel();
-
-  datum.replaceChildren(
-      function(node) {
-        return node.isUnquote() && (node.getQQLevel() === qqLevel);
-      },
-      function(node) {
-        var asContinuable = /** @type {!r5js.Continuable} */ (parserProvider(
-            /** @type {!r5js.Datum} */(node.getFirstChild())).
-                parse(r5js.parse.Nonterminals.EXPRESSION).
-                desugar(env, true));
-        var continuation = asContinuable.getLastContinuable().continuation;
-        /* Throw out the last result name and replace it with another
-             identifier (also illegal in Scheme) that will let us know if it's
-             unquotation or unquotation with splicing. */
-        continuation.lastResultName = node.getType() + '' + goog.getUid(new Object());
-        newCalls.appendContinuable(asContinuable);
-        return r5js.data.newIdOrLiteral(continuation.lastResultName);
-      });
-
-  datum.setType(r5js.DatumType.QUOTE);
-
-  newCalls.appendContinuable(newIdShim(datum, cpsName));
-  var ans = newCalls.toContinuable();
-  return ans && ans.setStartingEnv(env);
-}
-
