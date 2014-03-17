@@ -37,6 +37,7 @@ goog.require('r5js.MacroError');
 goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.Quasiquote');
 goog.require('r5js.QuasiquoteError');
+goog.require('r5js.Quote');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.data');
@@ -435,7 +436,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
     ans = arg;
   else if (arg.isIdentifier())
     ans = this.env.get(/** @type {string} */ (arg.getPayload()));
-  else if (arg.isQuote()) {
+  else if (arg instanceof r5js.Quote) {
     var env = this.env;
     // Do the appropriate substitutions.
     ans = arg.replaceChildren(
@@ -981,19 +982,18 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
             /** @type {string} */(cur.getPayload()), 'bad syntax');
       }
       args.push(toPush);
-    }
-    else if (cur.isQuote()) {
+    } else if (cur instanceof r5js.Quote) {
       // the newIdOrLiteral part is for (quote quote)
       args.push(cur.getFirstChild() ?
           cur.getFirstChild() :
           r5js.data.newIdOrLiteral(r5js.parse.Terminals.QUOTE));
-    }
-    else if (cur.isProcedure()) {
+    } else if (cur.isProcedure()) {
       args.push(cur);
     } else if (cur.getPayload() !== undefined) {
       args.push(r5js.data.maybeWrapResult(cur.getPayload(), cur.getType()));
+    } else {
+        throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
     }
-    else throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
   }
 
   return args;

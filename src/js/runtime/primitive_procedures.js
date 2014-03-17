@@ -9,6 +9,7 @@ goog.require('r5js.DatumType');
 goog.require('r5js.OutputMode');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.Quasiquote');
+goog.require('r5js.Quote');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.InputPort');
@@ -127,7 +128,9 @@ PrimitiveProcedures['output-port?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['pair?'] = _.unary(function(node) {
-  return (node.isList() || node.isImproperList() || node.isQuote()) &&
+  return (node.isList() ||
+      node.isImproperList() ||
+      node instanceof r5js.Quote) &&
       !!node.getFirstChild(); // 3.2: (pair? '()) => #f
 });
 

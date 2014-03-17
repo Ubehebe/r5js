@@ -112,7 +112,7 @@ r5js.Datum = function() {
 r5js.Datum.prototype.forEach = function(callback) {
     /* Quotations are like pseudo-leaves in the datum tree, so they should
      be opaque to this function. */
-    if (!this.isQuote()) {
+    if (!(this instanceof r5js.Quote)) {
         callback(this);
         for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
             cur.forEach(callback);
@@ -1255,7 +1255,7 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
         this.payload_ =
             helper.getRenameBinding(/** @type {string} */(this.payload_)) ||
                 this.payload_;
-    } else if (this.isQuote()) {
+    } else if (this instanceof r5js.Quote) {
         ; // no-op
     } else {
         for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {

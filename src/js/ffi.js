@@ -24,6 +24,7 @@ goog.require('r5js.DatumType');
 goog.require('r5js.FFIError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ProcCall');
+goog.require('r5js.Quote');
 
 
 /**
@@ -44,7 +45,7 @@ r5js.ProcCall.prototype.tryFFI = function(
             property = jsObjOrMethod.callWith(this.evalArgs(false));
         } else if (this.firstOperand
             && !this.firstOperand.getNextSibling()
-            && this.firstOperand.isQuote()
+            && this.firstOperand instanceof r5js.Quote
             && this.firstOperand.getFirstChild().isIdentifier()) {
             property = jsObjOrMethod.getObject()[this.firstOperand.getFirstChild().getPayload()];
         } else throw new r5js.FFIError();
