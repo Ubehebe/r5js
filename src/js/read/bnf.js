@@ -222,8 +222,7 @@ r5js.read.bnf.Seq_.prototype.named = function(name) {
 
 /** @override */
 r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
-  var ansDatum = r5js.read.bnf.emptyDatumForSequence_(
-      /** @type {!r5js.parse.Terminal} */ (this.name_));
+  var siblingBuffer = new r5js.SiblingBuffer();
   var checkpoint = tokenStream.checkpoint();
   for (var i = 0; i < this.rules_.length; ++i) {
     var rule = this.rules_[i];
@@ -233,36 +232,13 @@ r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
     } else if (parsed === r5js.read.bnf.AtLeast_.EMPTY_LIST_SENTINEL) {
       continue;
     } else if (parsed) {
-      ansDatum.appendChild(parsed);
-      parsed.lastSibling().setParent(ansDatum); // TODO bl
+      siblingBuffer.appendSibling(parsed);
     } else {
       tokenStream.restore(checkpoint);
       return null;
     }
   }
-  ansDatum.setType(/** @type {!r5js.Type} */ (this.name_));
-  return ansDatum;
-};
-
-
-/**
- * @param {!r5js.parse.Terminal} type
- * @return {!r5js.Datum}
- * @private
- */
-r5js.read.bnf.emptyDatumForSequence_ = function(type) {
-  switch (type) {
-    case r5js.parse.Terminals.BACKTICK:
-      return new r5js.Quasiquote(null /* firstChild */);
-    case r5js.parse.Terminals.COMMA:
-      return new r5js.Unquote(null /* firstChild */);
-    case r5js.parse.Terminals.COMMA_AT:
-      return new r5js.UnquoteSplicing(null /* firstChild */);
-    case r5js.parse.Terminals.TICK:
-      return new r5js.Quote(null /* firstChild */);
-    default:
-      return new r5js.Datum();
-  }
+  return siblingBuffer.toList(/** @type {!r5js.parse.Terminal} */ (this.name_));
 };
 
 
