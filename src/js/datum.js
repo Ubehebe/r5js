@@ -17,6 +17,7 @@
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 goog.provide('r5js.Quasiquote');
+goog.provide('r5js.Quote');
 goog.provide('r5js.Unquote');
 goog.provide('r5js.UnquoteSplicing');
 
@@ -677,7 +678,6 @@ r5js.Datum.prototype.isLiteral = function() {
         case r5js.DatumType.NUMBER:
         case r5js.DatumType.STRING:
         case r5js.DatumType.LAMBDA:
-        case r5js.DatumType.QUOTE:
             return true;
         default:
         return false;
@@ -688,7 +688,7 @@ r5js.Datum.prototype.isLiteral = function() {
  * @return {boolean} True iff this datum represents a quotation (quote or ').
  */
 r5js.Datum.prototype.isQuote = function() {
-    return this.type_ === r5js.DatumType.QUOTE ||
+    return this.type_ === r5js.parse.Terminals.TICK ||
         (this.isList() &&
             !!this.firstChild_ &&
             this.firstChild_.payload_ === r5js.parse.Terminals.QUOTE);
@@ -821,9 +821,9 @@ r5js.Quasiquote.prototype.processQuasiquote = function(
             return r5js.data.newIdOrLiteral(continuation.lastResultName);
         });
 
-    this.setType(r5js.DatumType.QUOTE);
+    var newDatum = new r5js.Quote(this.firstChild_);
 
-    newCalls.appendContinuable(newIdShim(this, cpsName));
+    newCalls.appendContinuable(newIdShim(newDatum, cpsName));
     var ans = newCalls.toContinuable();
     return ans && ans.setStartingEnv(env);
 };
@@ -834,6 +834,35 @@ r5js.Quasiquote.prototype.setQuasiquotationLevel = function(qqLevel) {
             this.qqLevel_ = qqLevel+1;
     return goog.base(this, 'setQuasiquotationLevel', this.qqLevel_);
     };
+
+
+/**
+ * @param {r5js.Datum} firstChild
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.Quote = function(firstChild) {
+  goog.base(this);
+    this.type_ = r5js.parse.Terminals.TICK;
+    this.firstChild_ = firstChild;
+};
+goog.inherits(r5js.Quote, r5js.Datum);
+
+
+/** @override */
+r5js.Quote.prototype.isLiteral = function() {
+    return true;
+};
+
+
+/** @override */
+r5js.Quote.prototype.stringForOutputMode = function(outputMode) {
+    var children = this.mapChildren(function(child) {
+        return child.stringForOutputMode(outputMode);
+    });
+    return this.getType() + children.join(' ');
+};
 
 
 /**
@@ -865,10 +894,7 @@ r5js.Datum.prototype.isEqual = function(other) {
  * @return {!r5js.Datum} A new Datum representing a quotation.
  */
 r5js.Datum.prototype.quote = function() {
-    var ans = new r5js.Datum();
-    ans.type_ = r5js.DatumType.QUOTE;
-    ans.firstChild_ = this;
-    return ans;
+    return new r5js.Quote(this);
 };
 
 /**
@@ -907,16 +933,15 @@ r5js.Datum.prototype.lastSibling = function() {
 /**
  * @return {!r5js.Datum} The normalized quotation datum.
  * @private
+ * TODO bl: remove the type switch in favor of overrides on the subclasses.
  */
 r5js.Datum.prototype.normalizeQuotation_ = function() {
     if (!this.firstChild_) {
         return this;
     }
-    var normalizedType;
         switch (this.firstChild_.payload_) {
             case r5js.parse.Terminals.QUOTE:
-                normalizedType = r5js.DatumType.QUOTE;
-                break;
+                return new r5js.Quote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.QUASIQUOTE:
                 return new r5js.Quasiquote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.UNQUOTE:
@@ -924,16 +949,8 @@ r5js.Datum.prototype.normalizeQuotation_ = function() {
             case r5js.parse.Terminals.UNQUOTE_SPLICING:
                 return new r5js.UnquoteSplicing(this.firstChild_.nextSibling_);
             default:
-                break;
+                return this;
         }
-    if (normalizedType) {
-        var ans = new r5js.Datum();
-        ans.type_ = normalizedType;
-        ans.firstChild_ = this.firstChild_.nextSibling_;
-        return ans;
-    } else {
-        return this;
-    }
 };
 
 

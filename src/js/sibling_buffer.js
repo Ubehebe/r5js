@@ -17,6 +17,9 @@
 goog.provide('r5js.SiblingBuffer');
 
 
+// TODO bl cyclic dependency goog.require('r5js.Quote');
+
+
 
 /**
  * Just a buffer to accumulate siblings without the client having to do
@@ -69,6 +72,9 @@ r5js.SiblingBuffer.prototype.toSiblings = function() {
  * @return {!r5js.Datum}
  */
 r5js.SiblingBuffer.prototype.toList = function(opt_type) {
+  if (opt_type === r5js.parse.Terminals.TICK) {
+    return new r5js.Quote(this.first_);
+  }
   var ans = newEmptyList();
   ans.setFirstChild(this.first_);
   if (opt_type) {

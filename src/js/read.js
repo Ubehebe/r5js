@@ -117,8 +117,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                 // fallthrough for non-array-backed vectors
                 case r5js.DatumType.LIST:
                     endDelimiter = ')';
-                // fallthrough
-                case r5js.DatumType.QUOTE:
                     /* Note: this will be an infinite loop for cyclical data
                      structures created by the programmer through set-cdr!, etc.
                      Some implementations do nice things, like print "holes" where

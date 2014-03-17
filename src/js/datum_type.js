@@ -27,7 +27,6 @@ r5js.DatumType = {
   NUMBER: 'number',
   OUTPUT_PORT: 'output-port',
   PAIR: 'pair', // TODO bl
-  QUOTE: "'",
   REF: 'ref',
   STRING: 'string',
   SYMBOL: 'symbol',

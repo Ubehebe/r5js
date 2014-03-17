@@ -3,6 +3,7 @@ goog.provide('r5js.read.bnf');
 
 goog.require('r5js.Datum');
 goog.require('r5js.Quasiquote');
+goog.require('r5js.Quote');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.Unquote');
 goog.require('r5js.UnquoteSplicing');
@@ -257,6 +258,8 @@ r5js.read.bnf.emptyDatumForSequence_ = function(type) {
       return new r5js.Unquote(null /* firstChild */);
     case r5js.parse.Terminals.COMMA_AT:
       return new r5js.UnquoteSplicing(null /* firstChild */);
+    case r5js.parse.Terminals.TICK:
+      return new r5js.Quote(null /* firstChild */);
     default:
       return new r5js.Datum();
   }
