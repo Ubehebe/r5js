@@ -523,9 +523,12 @@ r5js.ProcCall.prototype.cpsify = function(
 
   for (var arg = this.firstOperand; arg; arg = arg.getNextSibling()) {
     arg.resetDesugars();
-    if (arg.isQuote())
-      finalArgs.appendSibling(arg.clone(null /* parent */).normalizeInput());
-    else if (arg instanceof r5js.Quasiquote) {
+    if (arg.isNonNormalizedQuotation()) {
+        // TODO bl: quote normalization belongs in the frontend.
+        finalArgs.appendSibling(arg.clone(null /* parent */).normalizeInput());
+    } else if (arg instanceof r5js.Quote) {
+          finalArgs.appendSibling(arg.clone(null /* parent */));
+    } else if (arg instanceof r5js.Quasiquote) {
       if ((maybeContinuable =
           arg.processQuasiquote(
               /** @type {!r5js.IEnvironment} */ (this.env),

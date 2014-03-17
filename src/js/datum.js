@@ -685,14 +685,13 @@ r5js.Datum.prototype.isLiteral = function() {
 };
 
 /**
- * @return {boolean} True iff this datum represents a quotation (quote or ').
+ * @return {boolean} Whether this datum is a quotation that needs to be
+ * normalized.
  */
-r5js.Datum.prototype.isQuote = function() {
-    return this.type_ === r5js.parse.Terminals.TICK ||
-        (this.isList() &&
+r5js.Datum.prototype.isNonNormalizedQuotation = function() {
+        return this.isList() &&
             !!this.firstChild_ &&
-            this.firstChild_.payload_ === r5js.parse.Terminals.QUOTE);
-    // todo bl should datums know about this?
+            this.firstChild_.payload_ === r5js.parse.Terminals.QUOTE;
 };
 
 
