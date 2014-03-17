@@ -218,7 +218,7 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
         _.seq(
             _.one(Nonterminals.QUASIQUOTATION)).
             desugar(function(node, env) {
-      return node.normalizeInput().setQuasiquotationLevel(1);
+      return node.setQuasiquotationLevel(1);
             }),
         _.seq(
             _.one(Terminals.LPAREN),
@@ -250,18 +250,12 @@ r5js.Parser.grammar[Nonterminals.LITERAL] = _.choice(
 r5js.Parser.grammar[Nonterminals.QUOTATION] = _.choice(
     _.seq(
         _.one(Terminals.TICK),
-        _.one(Nonterminals.DATUM)).
-    desugar(function(node, env) {
-      return node.normalizeInput();
-    }),
+        _.one(Nonterminals.DATUM)),
     _.seq(
         _.one(Terminals.LPAREN),
         _.one(Terminals.QUOTE),
         _.one(Nonterminals.DATUM),
-        _.one(Terminals.RPAREN)).
-    desugar(function(node, env) {
-      return node.normalizeInput();
-    }));
+        _.one(Terminals.RPAREN)));
 
 
 r5js.Parser.grammar[Nonterminals.DATUM] = _.seq(

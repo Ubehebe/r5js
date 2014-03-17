@@ -983,7 +983,6 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
       args.push(toPush);
     }
     else if (cur.isQuote()) {
-      cur.normalizeInput();
       // the newIdOrLiteral part is for (quote quote)
       args.push(cur.getFirstChild() ?
           cur.getFirstChild() :
