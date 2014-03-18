@@ -453,8 +453,10 @@ r5js.Datum.prototype.appendChild = function(child) {
 
 /**
  * @param {!r5js.Datum} child Child to append.
+ * @private
+ * @deprecated TODO bl remove
  */
-r5js.Datum.prototype.prependChild = function(child) {
+r5js.Datum.prototype.prependChild_ = function(child) {
     var oldFirstChild = this.firstChild_;
     this.firstChild_ = child;
     child.nextSibling_ = oldFirstChild;
@@ -1116,16 +1118,16 @@ r5js.Datum.prototype.extractDefinition = function() {
     var variable = this.at(r5js.parse.Nonterminals.VARIABLE);
     var list = newEmptyList();
     if (variable) {
-        list.prependChild(this.at(r5js.parse.Nonterminals.EXPRESSION));
+        list.prependChild_(this.at(r5js.parse.Nonterminals.EXPRESSION));
     } else {
         var formalsList = this.firstChild_.nextSibling_;
         variable = formalsList.firstChild_;
         var bodyStart = formalsList.nextSibling_;
         formalsList.firstChild_ = formalsList.firstChild_.nextSibling_;
         var lambda = r5js.Datum.prepareLambdaForDefinition_(bodyStart, formalsList);
-        list.prependChild(lambda);
+        list.prependChild_(lambda);
     }
-    list.prependChild(variable);
+    list.prependChild_(variable);
     return list;
 };
 
@@ -1150,11 +1152,11 @@ r5js.Datum.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
       var lambda = newEmptyList();
     lambda.appendChild(bodyStart);
     if (formalsList.isImproperList() && !formalsList.firstChild_.nextSibling_) {
-        lambda.prependChild(r5js.data.newIdOrLiteral(formalsList.firstChild_.payload_));
+        lambda.prependChild_(r5js.data.newIdOrLiteral(formalsList.firstChild_.payload_));
     } else {
-        lambda.prependChild(formalsList);
+        lambda.prependChild_(formalsList);
     }
-        lambda.prependChild(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
+        lambda.prependChild_(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
     return lambda;
 };
 
