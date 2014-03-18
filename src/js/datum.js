@@ -1137,27 +1137,18 @@ r5js.Datum.prototype.extractDefinition = function() {
  * @param {!r5js.Datum} formalsList
  * @return {!r5js.Datum}
  * @private
- * TODO bl get this working without {@link r5js.Datum#prependChild}.
  */
 r5js.Datum.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
-//    var buffer = new r5js.SiblingBuffer();
-//    buffer.appendSibling(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
-//    if (formalsList.isImproperList() && !formalsList.firstChild_.nextSibling_) {
-//        buffer.appendSibling(r5js.data.newIdOrLiteral(formalsList.firstChild_.payload_));
-//    } else {
-//        buffer.appendSibling(formalsList);
-//    }
-//    buffer.appendSibling(bodyStart);
-//    return buffer.toList();
-      var lambda = newEmptyList();
-    lambda.appendChild(bodyStart);
+    var buffer = new r5js.SiblingBuffer();
+    buffer.appendSibling(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
     if (formalsList.isImproperList() && !formalsList.firstChild_.nextSibling_) {
-        lambda.prependChild_(r5js.data.newIdOrLiteral(formalsList.firstChild_.payload_));
+        buffer.appendSibling(r5js.data.newIdOrLiteral(formalsList.firstChild_.payload_));
     } else {
-        lambda.prependChild_(formalsList);
+        formalsList.nextSibling_ = null;
+        buffer.appendSibling(formalsList);
     }
-        lambda.prependChild_(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
-    return lambda;
+    buffer.appendSibling(bodyStart);
+    return buffer.toList();
 };
 
 /**
