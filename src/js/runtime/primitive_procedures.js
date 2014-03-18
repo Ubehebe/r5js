@@ -436,7 +436,9 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
   var realCdr = cdr.clone();
   // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
   if (realCdr.isList() || realCdr.isImproperList()) {
-    realCdr.prependChild(realCar);
+      var oldFirstChild = realCdr.getFirstChild();
+      realCdr.setFirstChild(realCar);
+      realCar.setNextSibling(oldFirstChild);
     return realCdr;
   } else {
     var ans = new r5js.Datum();

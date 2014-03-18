@@ -208,11 +208,11 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
       env.addBinding(name, args[i]);
     } else {
       // Roll up the remaining arguments into a list
-      var list = newEmptyList();
-      // Go backwards and do prepends to avoid quadratic performance
-      for (var j = args.length - 1; j >= this.formalsArray_.length - 1; --j)
-        list.prependChild(args[j]);
-      env.addBinding(name, list);
+      var siblingBuffer = new r5js.SiblingBuffer();
+      for (var j = this.formalsArray_.length-1; j < args.length; ++j) {
+          siblingBuffer.appendSibling(/** @type {!r5js.Datum} */ (args[j]));
+      }
+      env.addBinding(name, siblingBuffer.toList());
     }
   }
 };
