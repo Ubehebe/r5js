@@ -1121,20 +1121,41 @@ r5js.Datum.prototype.extractDefinition = function() {
         var formalsList = this.firstChild_.nextSibling_;
         variable = formalsList.firstChild_;
         var bodyStart = formalsList.nextSibling_;
-        var lambda = newEmptyList();
-        lambda.firstChild_ = bodyStart;
-        var newFormalsList = formalsList;
-        newFormalsList.firstChild_ = newFormalsList.firstChild_.nextSibling_;
-        if (newFormalsList.isImproperList() && !newFormalsList.firstChild_.nextSibling_) {
-            lambda.prependChild(r5js.data.newIdOrLiteral(newFormalsList.firstChild_.payload_));
-        } else {
-            lambda.prependChild(newFormalsList);
-        }
-        lambda.prependChild(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
+        formalsList.firstChild_ = formalsList.firstChild_.nextSibling_;
+        var lambda = r5js.Datum.prepareLambdaForDefinition_(bodyStart, formalsList);
         list.prependChild(lambda);
     }
     list.prependChild(variable);
     return list;
+};
+
+
+/**
+ * @param bodyStart
+ * @param {!r5js.Datum} formalsList
+ * @return {!r5js.Datum}
+ * @private
+ * TODO bl get this working without {@link r5js.Datum#prependChild}.
+ */
+r5js.Datum.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
+//    var buffer = new r5js.SiblingBuffer();
+//    buffer.appendSibling(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
+//    if (formalsList.isImproperList() && !formalsList.firstChild_.nextSibling_) {
+//        buffer.appendSibling(r5js.data.newIdOrLiteral(formalsList.firstChild_.payload_));
+//    } else {
+//        buffer.appendSibling(formalsList);
+//    }
+//    buffer.appendSibling(bodyStart);
+//    return buffer.toList();
+      var lambda = newEmptyList();
+    lambda.appendChild(bodyStart);
+    if (formalsList.isImproperList() && !formalsList.firstChild_.nextSibling_) {
+        lambda.prependChild(r5js.data.newIdOrLiteral(formalsList.firstChild_.payload_));
+    } else {
+        lambda.prependChild(formalsList);
+    }
+        lambda.prependChild(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
+    return lambda;
 };
 
 /**
