@@ -19,6 +19,7 @@ goog.provide('r5js.Macro');
 
 goog.require('r5js.MacroError');
 goog.require('r5js.ParseError');
+goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
 goog.require('r5js.parse.Nonterminals');
@@ -226,8 +227,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
            todo bl: we should be able to determine the id's in the template
            that will have to be renamed prior to transcription. That would
            save the following tree walk replacing all the identifiers. */
-        var fake = newEmptyList();
-        fake.appendChild(newParseTree);
+        var fake = new r5js.SiblingBuffer().appendSibling(newParseTree).toList();
         fake.replaceChildren(
             function(node) {
               return node.isIdentifier() && toRename[node.getPayload()];

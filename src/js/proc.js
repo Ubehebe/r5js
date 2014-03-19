@@ -393,9 +393,7 @@ r5js.ProcCall.prototype.debugString = function(
 r5js.ProcCall.prototype.reconstructDatum = function() {
   var op = r5js.data.newIdOrLiteral(this.operatorName.getPayload());
   op.setNextSibling(this.firstOperand);
-  var ans = newEmptyList();
-  ans.appendChild(op);
-  return ans;
+    return new r5js.SiblingBuffer().appendSibling(op).toList();
 };
 
 

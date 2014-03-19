@@ -11,6 +11,7 @@ goog.require('r5js.OutputMode');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.Quasiquote');
 goog.require('r5js.Quote');
+goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.InputPort');
@@ -428,7 +429,9 @@ PrimitiveProcedures['cdr'] = _.unary(function(p) {
         startOfCdr.siblingsToList(p.isImproperList()) :
         startOfCdr;
     return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
-  } else return newEmptyList();
+  } else {
+    return new r5js.SiblingBuffer().toList();
+  }
 }, r5js.DatumType.PAIR);
 
 PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
@@ -437,9 +440,9 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
   var realCdr = cdr.clone();
   // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
   if (realCdr.isList() || realCdr.isImproperList()) {
-      var oldFirstChild = realCdr.getFirstChild();
-      realCdr.setFirstChild(realCar);
-      realCar.setNextSibling(oldFirstChild);
+    var oldFirstChild = realCdr.getFirstChild();
+    realCdr.setFirstChild(realCar);
+    realCar.setNextSibling(oldFirstChild);
     return realCdr;
   } else {
     var ans = new r5js.Datum();
@@ -902,10 +905,11 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     }
     arguments[lastRealArgIndex - 1].setNextSibling(mustBeList.getFirstChild());
 
-    var newArgs = newEmptyList();
-    newArgs.appendChild(arguments[1]);
+    var newArgs = new r5js.SiblingBuffer().
+        appendSibling(arguments[1]).
+        toSiblings();
     var actualProcCall = r5js.procs.newProcCall(
-        procName, newArgs.getFirstChild(), continuation);
+        procName, newArgs, continuation);
     resultStruct.nextContinuable = actualProcCall;
   }
 
