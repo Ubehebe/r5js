@@ -451,16 +451,6 @@ r5js.Datum.prototype.appendChild = function(child) {
     }
 };
 
-/**
- * @param {!r5js.Datum} child Child to append.
- * @private
- * @deprecated TODO bl remove
- */
-r5js.Datum.prototype.prependChild_ = function(child) {
-    var oldFirstChild = this.firstChild_;
-    this.firstChild_ = child;
-    child.nextSibling_ = oldFirstChild;
-};
 
 /**
  * Map isn't the best word, since the function returns an array
@@ -1116,19 +1106,25 @@ r5js.Datum.prototype.shouldUnquoteSplice = function() {
  */
 r5js.Datum.prototype.extractDefinition = function() {
     var variable = this.at(r5js.parse.Nonterminals.VARIABLE);
-    var list = newEmptyList();
     if (variable) {
-        list.prependChild_(this.at(r5js.parse.Nonterminals.EXPRESSION));
+        var expr = this.at(r5js.parse.Nonterminals.EXPRESSION);
+        variable.nextSibling_ = null; // TODO bl
+        return new r5js.SiblingBuffer().
+            appendSibling(variable).
+            appendSibling(/** @type {!r5js.Datum} */(expr)).
+            toList();
     } else {
         var formalsList = this.firstChild_.nextSibling_;
         variable = formalsList.firstChild_;
         var bodyStart = formalsList.nextSibling_;
         formalsList.firstChild_ = formalsList.firstChild_.nextSibling_;
         var lambda = r5js.Datum.prepareLambdaForDefinition_(bodyStart, formalsList);
-        list.prependChild_(lambda);
+        variable.nextSibling_ = null; // TODO bl
+        return new r5js.SiblingBuffer().
+            appendSibling(variable).
+            appendSibling(lambda).
+            toList();
     }
-    list.prependChild_(variable);
-    return list;
 };
 
 
