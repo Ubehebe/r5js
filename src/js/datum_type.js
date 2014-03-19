@@ -21,12 +21,12 @@ r5js.DatumType = {
   FFI: 'ffi',
   IDENTIFIER: 'identifier',
   INPUT_PORT: 'input-port',
-  LAMBDA: 'lambda',
   LIST: '(',
   MACRO: 'macro',
   NUMBER: 'number',
   OUTPUT_PORT: 'output-port',
   PAIR: 'pair', // TODO bl
+    // TODO bl: add PROCEDURE
   REF: 'ref',
   STRING: 'string',
   SYMBOL: 'symbol',

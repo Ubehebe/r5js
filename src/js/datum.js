@@ -547,7 +547,7 @@ function newVectorDatum(array) {
 
 /** @return {boolean} True iff this datum represents a lambda. */
 r5js.Datum.prototype.isProcedure = function() {
-  return this.type_ === r5js.DatumType.LAMBDA;
+  return false;
 };
 
 
@@ -669,7 +669,6 @@ r5js.Datum.prototype.isLiteral = function() {
         case r5js.DatumType.CHARACTER:
         case r5js.DatumType.NUMBER:
         case r5js.DatumType.STRING:
-        case r5js.DatumType.LAMBDA:
             return true;
         default:
         return false;
@@ -853,6 +852,39 @@ r5js.Quote.prototype.stringForOutputMode = function(outputMode) {
         return child.stringForOutputMode(outputMode);
     });
     return this.getType() + children.join(' ');
+};
+
+
+/**
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.Lambda = function() {
+    goog.base(this);
+    this.type_ = r5js.parse.Terminals.LAMBDA;
+};
+goog.inherits(r5js.Lambda, r5js.Datum);
+
+
+/** @override */
+r5js.Lambda.prototype.isLiteral = function() {
+    return true;
+};
+
+
+/** @override */
+r5js.Lambda.prototype.isProcedure = function() {
+    return true;
+};
+
+
+/** @override */
+r5js.Lambda.prototype.stringForOutputMode = function(outputMode) {
+    return r5js.PrimitiveProcedure.isImplementedBy(
+        this.getPayload()) ?
+    /** @type {string} */ (this.getName()) :
+        'proc:' + this.getPayload().name;
 };
 
 
@@ -1304,8 +1336,7 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
  * @return {!r5js.Datum} New Datum representing the given procedure.
  */
 r5js.data.newProcedureDatum = function(name, procedure) {
-    var ans = new r5js.Datum();
-    ans.type_ = r5js.DatumType.LAMBDA;
+    var ans = new r5js.Lambda();
     ans.payload_ = procedure;
     ans.name_ = name;
     return ans;
@@ -1372,7 +1403,7 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
                 break;
             case 'object':
                 if (result instanceof r5js.Procedure) {
-                    ans.type_ = r5js.DatumType.LAMBDA;
+                    ans.type_ = r5js.parse.Terminals.LAMBDA;
                     break;
                 }
             default:

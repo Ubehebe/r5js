@@ -866,7 +866,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var mustBeProc = arguments[0];
   if (!mustBeProc.isProcedure()) {
     throw new r5js.ArgumentTypeError(
-        mustBeProc, 0, 'apply', r5js.DatumType.LAMBDA);
+        mustBeProc, 0, 'apply', r5js.parse.Terminals.LAMBDA);
   }
 
   var curProcCall = arguments[arguments.length - 3];
