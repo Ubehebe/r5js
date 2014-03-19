@@ -16,6 +16,7 @@
 
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
+goog.provide('r5js.Lambda');
 goog.provide('r5js.Quasiquote');
 goog.provide('r5js.Quote');
 goog.provide('r5js.Unquote');
@@ -545,11 +546,6 @@ function newVectorDatum(array) {
     return ans;
 }
 
-/** @return {boolean} True iff this datum represents a lambda. */
-r5js.Datum.prototype.isProcedure = function() {
-  return false;
-};
-
 
 /** @return {boolean} True iff this datum represents a macro. */
 r5js.Datum.prototype.isMacro = function() {
@@ -869,12 +865,6 @@ goog.inherits(r5js.Lambda, r5js.Datum);
 
 /** @override */
 r5js.Lambda.prototype.isLiteral = function() {
-    return true;
-};
-
-
-/** @override */
-r5js.Lambda.prototype.isProcedure = function() {
     return true;
 };
 
