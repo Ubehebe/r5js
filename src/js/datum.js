@@ -86,12 +86,6 @@ r5js.Datum = function() {
     /** @private {number} */
     this.nextDesugar_ = -1;
 
-    /**
-     * Only for procedures.
-     * @private {string|undefined}
-     */
-    this.name_;
-
     /** @type {boolean} */
     this.immutable_ = false;
 
@@ -182,12 +176,6 @@ r5js.Datum.prototype.setNextSibling = function(nextSibling) {
 /** @return {number|undefined} */
 r5js.Datum.prototype.getQQLevel = function() {
     return this.qqLevel_;
-};
-
-
-/** @return {string|undefined} */
-r5js.Datum.prototype.getName = function() {
-    return this.name_;
 };
 
 
@@ -346,9 +334,6 @@ r5js.Datum.prototype.clone = function(parent) {
     // We only need the parent_ pointer on the last sibling.
     if (!this.nextSibling_) {
         ans.parent_ = parent;
-    }
-    if (this.name_) {
-        ans.name_ = this.name_;
     }
     if (this.immutable_) {
         ans.immutable_ = true;
@@ -852,15 +837,28 @@ r5js.Quote.prototype.stringForOutputMode = function(outputMode) {
 
 
 /**
+ * @param {string} name Name of the procedure.
+ * @param {!r5js.PrimitiveProcedure|!r5js.Procedure} procedure TODO bl.
  * @extends {r5js.Datum}
  * @struct
  * @constructor
  */
-r5js.Lambda = function() {
+r5js.Lambda = function(name, procedure) {
     goog.base(this);
     this.type_ = r5js.parse.Terminals.LAMBDA;
+    this.payload_ = procedure;
+
+    /** @const @private {string} */
+    this.name_ = name;
 };
 goog.inherits(r5js.Lambda, r5js.Datum);
+
+
+/** @return {string} */
+r5js.Lambda.prototype.getName = function() {
+    return this.name_;
+};
+
 
 
 /** @override */
@@ -872,8 +870,7 @@ r5js.Lambda.prototype.isLiteral = function() {
 /** @override */
 r5js.Lambda.prototype.stringForOutputMode = function(outputMode) {
     return r5js.PrimitiveProcedure.isImplementedBy(
-        this.getPayload()) ?
-    /** @type {string} */ (this.getName()) :
+        this.getPayload()) ? this.name_ :
         'proc:' + this.getPayload().name;
 };
 
@@ -1326,10 +1323,7 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
  * @return {!r5js.Datum} New Datum representing the given procedure.
  */
 r5js.data.newProcedureDatum = function(name, procedure) {
-    var ans = new r5js.Lambda();
-    ans.payload_ = procedure;
-    ans.name_ = name;
-    return ans;
+    return new r5js.Lambda(name, procedure);
 };
 
 
