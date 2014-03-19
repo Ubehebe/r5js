@@ -1318,16 +1318,6 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
 
 
 /**
- * @param {string} name Name of the procedure.
- * @param {!r5js.PrimitiveProcedure|!r5js.Procedure} procedure TODO bl.
- * @return {!r5js.Datum} New Datum representing the given procedure.
- */
-r5js.data.newProcedureDatum = function(name, procedure) {
-    return new r5js.Lambda(name, procedure);
-};
-
-
-/**
  * @param {!r5js.Datum} deref Datum to dereference.
  * @return {!r5js.Datum} New Datum capable of dereferencing the given Datum.
  */
