@@ -17,6 +17,7 @@
 goog.provide('r5js.SiblingBuffer');
 
 
+goog.require('r5js.parse.Terminals'); // TODO bl remove
 // TODO bl cyclic dependency goog.require('r5js.Quote');
 
 
@@ -68,7 +69,7 @@ r5js.SiblingBuffer.prototype.toSiblings = function() {
 
 /**
  * @param {!r5js.parse.Terminal=} opt_type Optional type of the returned list.
- * If unspecified, defaults to {@link r5js.DatumType.LIST}.
+ * If unspecified, defaults to {@link r5js.List}.
  * @return {!r5js.Datum}
  */
 r5js.SiblingBuffer.prototype.toList = function(opt_type) {
@@ -87,11 +88,15 @@ r5js.SiblingBuffer.prototype.toList = function(opt_type) {
       ans = new r5js.Quote(this.first_);
       break;
     default:
-      ans = new r5js.Datum();
-      if (this.first_) {
-        ans.setFirstChild(this.first_);
+      if (opt_type && opt_type !== r5js.parse.Terminals.LPAREN) {
+        ans = new r5js.Datum();
+        if (this.first_) {
+            ans.setFirstChild(this.first_);
+        }
+        ans.setType(opt_type);
+      } else {
+          ans = new r5js.List(this.first_);
       }
-      ans.setType(opt_type || r5js.DatumType.LIST);
       break;
   }
   if (this.last_) {

@@ -17,6 +17,7 @@
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 goog.provide('r5js.Lambda');
+goog.provide('r5js.List');
 goog.provide('r5js.Quasiquote');
 goog.provide('r5js.Quote');
 goog.provide('r5js.Unquote');
@@ -208,7 +209,7 @@ r5js.Datum.prototype.setType = function(type) {
 r5js.Datum.prototype.setImmutableOnQuote = function() {
     if (this.firstChild_) {
         switch (this.firstChild_.type_) {
-            case r5js.DatumType.LIST:
+            case r5js.parse.Terminals.LPAREN: // TODO bl
             case r5js.DatumType.DOTTED_LIST:
             case r5js.DatumType.VECTOR:
                 this.firstChild_.setImmutable();
@@ -567,7 +568,7 @@ r5js.Datum.prototype.sequence = function(env) {
  * @return {boolean} True iff this datum represents a list.
  */
 r5js.Datum.prototype.isList = function() {
-    return this.type_ === r5js.DatumType.LIST;
+    return this.type_ === r5js.parse.Terminals.LPAREN;
 };
 
 /**
@@ -869,6 +870,44 @@ r5js.Lambda.prototype.stringForOutputMode = function(outputMode) {
 
 
 /**
+ * @param {r5js.Datum} firstChild
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.List = function(firstChild) {
+  goog.base(this);
+    this.type_ = r5js.parse.Terminals.LPAREN;
+    if (firstChild) {
+        this.firstChild_ = firstChild;
+    }
+};
+goog.inherits(r5js.List, r5js.Datum);
+
+
+/** @override */
+r5js.List.prototype.stringForOutputMode = function(outputMode) {
+    /* Note: this will be an infinite loop for cyclical data
+     structures created by the programmer through set-cdr!, etc.
+     Some implementations do nice things, like print "holes" where
+     a cycle starts. But the R5RS standard does not seem to define
+     external representations for lists (vectors, etc.) that contain
+     cycles. In general, the spirit of the standard seems to be that
+     the programmer is responsible for mayhem caused by the creation
+     of such structures.
+
+     There is one exception: list? (a library procedure) must return
+     false for cyclical lists. Accordingly, I've written the
+     cycle-detecting logic wholly in Scheme, not bothering
+     to reimplement it here. */
+    var children = this.mapChildren(function(child) {
+        return child.stringForOutputMode(outputMode);
+    });
+    return this.getType() + children.join(' ') + ')';
+}
+
+
+/**
  * TODO bl: this is intended to have the exact semantics of the library
  * procedure equal?, but I'm not sure that it does.
  * (I put it in JavaScript for fast access from the macro subsystem,
@@ -1041,10 +1080,14 @@ r5js.Datum.prototype.setQuasiquotationLevel = function(qqLevel) {
  * @return {!r5js.Datum} A new Datum representing the siblings of this datum.
  */
 r5js.Datum.prototype.siblingsToList = function(dotted) {
+    if (dotted) {
     var ans = new r5js.Datum();
-    ans.type_ = dotted ? r5js.DatumType.DOTTED_LIST : r5js.DatumType.LIST;
+    ans.type_ = r5js.DatumType.DOTTED_LIST;
     ans.firstChild_ = this;
     return ans;
+    } else {
+        return new r5js.List(this);
+    }
 };
 
 /**

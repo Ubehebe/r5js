@@ -31,6 +31,7 @@ goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Lambda');
+goog.require('r5js.List');
 goog.require('r5js.Macro');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
@@ -91,9 +92,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
     if (letrecBindings.isEmpty()) {
       this.body = cur.sequence(this.env);
     } else {
-      var letrec = new r5js.Datum();
-        letrec.setType(r5js.DatumType.LIST);
-      letrec.setFirstChild(/** @type {!r5js.Datum} */ (letrecBindings.toSiblings()));
+      var letrec = new r5js.List(letrecBindings.toSiblings());
       letrec.setNextSibling(cur);
       this.body = r5js.procs.newProcCall(
           r5js.data.newIdOrLiteral('letrec'),

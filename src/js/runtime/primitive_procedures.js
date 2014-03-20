@@ -456,7 +456,8 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
 
 PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
   if (!(p.isList() || p.isImproperList())) {
-    throw new r5js.ArgumentTypeError(p, 0, 'set-car!', r5js.DatumType.LIST);
+    throw new r5js.ArgumentTypeError(
+        p, 0, 'set-car!', r5js.parse.Terminals.LPAREN);
   }
   if (p.isImmutable()) {
     throw new r5js.ImmutableError(p.toString());
@@ -475,7 +476,8 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
 
 PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
   if (!(p.isList() || p.isImproperList())) {
-    throw new r5js.ArgumentTypeError(p, 0, 'set-cdr!', r5js.DatumType.LIST);
+    throw new r5js.ArgumentTypeError(
+        p, 0, 'set-cdr!', r5js.parse.Terminals.LPAREN);
   }
 
   if (p.isImmutable()) {
@@ -885,7 +887,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var mustBeList = arguments[lastRealArgIndex];
   if (!mustBeList.isList()) {
     throw new r5js.ArgumentTypeError(
-        mustBeList, lastRealArgIndex, 'apply', r5js.DatumType.LIST);
+        mustBeList, lastRealArgIndex, 'apply', r5js.parse.Terminals.LPAREN);
   }
 
   // (apply foo '(x y z))
