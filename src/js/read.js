@@ -110,7 +110,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                         return ans + ')';
                     }
                 // fallthrough for non-array-backed vectors
-                case r5js.DatumType.DOTTED_LIST:
                         var children = this.mapChildren(function(child) {
                             return child.stringForOutputMode(outputMode);
                         });

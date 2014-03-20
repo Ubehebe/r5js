@@ -16,6 +16,7 @@
 
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
+goog.provide('r5js.DottedList');
 goog.provide('r5js.Lambda');
 goog.provide('r5js.List');
 goog.provide('r5js.Quasiquote');
@@ -210,7 +211,7 @@ r5js.Datum.prototype.setImmutableOnQuote = function() {
     if (this.firstChild_) {
         switch (this.firstChild_.type_) {
             case r5js.parse.Terminals.LPAREN: // TODO bl
-            case r5js.DatumType.DOTTED_LIST:
+            case r5js.parse.Terminals.LPAREN_DOT:
             case r5js.DatumType.VECTOR:
                 this.firstChild_.setImmutable();
         }
@@ -451,7 +452,7 @@ r5js.Datum.prototype.mapChildren = function(f, opt_context) {
 
 /** @return {boolean} True if this datum represents an improper list. */
 r5js.Datum.prototype.isImproperList = function() {
-    return this.type_ === r5js.DatumType.DOTTED_LIST;
+    return this.type_ === r5js.parse.Terminals.LPAREN_DOT;
 };
 
 /**
@@ -911,7 +912,36 @@ r5js.List.prototype.stringForOutputMode = function(outputMode) {
         return child.stringForOutputMode(outputMode);
     });
     return this.getType() + children.join(' ') + ')';
-}
+};
+
+
+/**
+ * @param {r5js.Datum} firstChild
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.DottedList = function(firstChild) {
+    goog.base(this);
+    this.type_ = r5js.parse.Terminals.LPAREN_DOT;
+    if (firstChild) {
+        this.firstChild_ = firstChild;
+    }
+};
+goog.inherits(r5js.DottedList, r5js.Datum);
+
+
+/** @override */
+r5js.DottedList.prototype.stringForOutputMode = function(outputMode) {
+    var children = this.mapChildren(function(child) {
+        return child.stringForOutputMode(outputMode);
+    });
+    // Insert the dot at the next-to-last location.
+    children.splice(-1, 0, r5js.parse.Terminals.DOT);
+    return r5js.parse.Terminals.LPAREN +
+        children.join(' ') +
+        r5js.parse.Terminals.RPAREN;
+};
 
 
 /**
@@ -1087,14 +1117,7 @@ r5js.Datum.prototype.setQuasiquotationLevel = function(qqLevel) {
  * @return {!r5js.Datum} A new Datum representing the siblings of this datum.
  */
 r5js.Datum.prototype.siblingsToList = function(dotted) {
-    if (dotted) {
-    var ans = new r5js.Datum();
-    ans.type_ = r5js.DatumType.DOTTED_LIST;
-    ans.firstChild_ = this;
-    return ans;
-    } else {
-        return new r5js.List(this);
-    }
+    return dotted ? new r5js.DottedList(this) : new r5js.List(this);
 };
 
 /**

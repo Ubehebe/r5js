@@ -6,6 +6,7 @@ goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
+goog.require('r5js.DottedList');
 goog.require('r5js.Lambda');
 goog.require('r5js.List');
 goog.require('r5js.OutputMode');
@@ -447,9 +448,7 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
     realCar.setNextSibling(oldFirstChild);
     return realCdr;
   } else {
-    var ans = new r5js.Datum();
-    ans.setType(r5js.DatumType.DOTTED_LIST);
-    ans.appendChild(realCar);
+    var ans = new r5js.DottedList(realCar);
     ans.appendChild(realCdr);
     // todo bl hmm the parent field isn't getting set...is that ok?
     return ans;
@@ -499,9 +498,9 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
     helper.setCdr(cdr);
   }
 
-    if (p instanceof r5js.List) {
-        p.markDirty();
-    }
+  if (p instanceof r5js.List) {
+    p.markDirty();
+  }
 
   return null; // unspecified return value
 });
