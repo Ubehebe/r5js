@@ -57,7 +57,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     return p.getPayload() === q.getPayload(); // todo bl numerical precision...
   } else if (p.isCharacter()) {
     return p.getPayload() === q.getPayload();
-  } else if (p.isList()) {
+  } else if (p instanceof r5js.List) {
     var ans;
     if (p === q || p.isEmptyList() && q.isEmptyList())
       ans = true;
@@ -131,7 +131,7 @@ PrimitiveProcedures['output-port?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['pair?'] = _.unary(function(node) {
-  return (node.isList() ||
+  return (node instanceof r5js.List ||
       node.isImproperList() ||
       node instanceof r5js.Quote) &&
       !!node.getFirstChild(); // 3.2: (pair? '()) => #f
@@ -440,7 +440,7 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
   var realCar = car.clone();
   var realCdr = cdr.clone();
   // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
-  if (realCdr.isList() || realCdr.isImproperList()) {
+  if (realCdr instanceof r5js.List || realCdr.isImproperList()) {
     var oldFirstChild = realCdr.getFirstChild();
     realCdr.setFirstChild(realCar);
     realCar.setNextSibling(oldFirstChild);
@@ -456,7 +456,7 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
 });
 
 PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
-  if (!(p.isList() || p.isImproperList())) {
+  if (!(p instanceof r5js.List || p.isImproperList())) {
     throw new r5js.ArgumentTypeError(
         p, 0, 'set-car!', r5js.parse.Terminals.LPAREN);
   }
@@ -476,7 +476,7 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
 });
 
 PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
-  if (!(p.isList() || p.isImproperList())) {
+  if (!(p instanceof r5js.List || p.isImproperList())) {
     throw new r5js.ArgumentTypeError(
         p, 0, 'set-cdr!', r5js.parse.Terminals.LPAREN);
   }
@@ -485,7 +485,7 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
     throw new r5js.ImmutableError(p.toString());
   }
 
-  if (cdr.isList()) {
+  if (cdr instanceof r5js.List) {
     p.getFirstChild().setNextSibling(cdr.getFirstChild());
     p.setType(r5js.parse.Terminals.LPAREN);
   } else {
@@ -886,7 +886,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
 
   var lastRealArgIndex = arguments.length - 4;
   var mustBeList = arguments[lastRealArgIndex];
-  if (!mustBeList.isList()) {
+  if (!(mustBeList instanceof r5js.List)) {
     throw new r5js.ArgumentTypeError(
         mustBeList, lastRealArgIndex, 'apply', r5js.parse.Terminals.LPAREN);
   }

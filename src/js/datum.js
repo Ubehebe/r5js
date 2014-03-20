@@ -288,7 +288,7 @@ r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
  * @return {boolean} True iff this Datum represents an empty list.
  */
 r5js.Datum.prototype.isEmptyList = function() {
-    return this.isList() && !this.firstChild_;
+    return this instanceof r5js.List && !this.firstChild_;
 };
 
 /**
@@ -655,7 +655,7 @@ r5js.Datum.prototype.isLiteral = function() {
  * normalized.
  */
 r5js.Datum.prototype.isNonNormalizedQuotation = function() {
-        return this.isList() &&
+        return this instanceof r5js.List &&
             !!this.firstChild_ &&
             this.firstChild_.payload_ === r5js.parse.Terminals.QUOTE;
 };
@@ -881,8 +881,22 @@ r5js.List = function(firstChild) {
     if (firstChild) {
         this.firstChild_ = firstChild;
     }
+    /** @private {boolean} */
+    this.dirty_ = false;
 };
 goog.inherits(r5js.List, r5js.Datum);
+
+
+/** Marks dirty. */
+r5js.List.prototype.markDirty = function() {
+    this.dirty_ = true;
+};
+
+
+/** @return {boolean} */
+r5js.List.prototype.isDirty = function() {
+    return this.dirty_;
+};
 
 
 /** @override */
@@ -1346,8 +1360,13 @@ r5js.data = {};
  */
 r5js.data.newIdOrLiteral = function(payload, opt_type) {
     // todo bl: we're sometimes creating these with undefined payloads! Investigate.
-    var ans = new r5js.Datum();
-    ans.type_ = opt_type || r5js.DatumType.IDENTIFIER;
+    var ans;
+    if (opt_type === r5js.parse.Terminals.LPAREN) {
+        ans = new r5js.List(null /* firstChild */);
+    } else {
+        ans = new r5js.Datum();
+        ans.type_ = opt_type || r5js.DatumType.IDENTIFIER;
+    }
     ans.payload_ = payload;
     return ans;
 };
