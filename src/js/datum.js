@@ -565,13 +565,6 @@ r5js.Datum.prototype.sequence = function(env) {
 
 
 /**
- * @return {boolean} True iff this datum represents a list.
- */
-r5js.Datum.prototype.isList = function() {
-    return this.type_ === r5js.parse.Terminals.LPAREN;
-};
-
-/**
  * @return {boolean} True iff this datum represents a vector.
  */
 r5js.Datum.prototype.isVector = function() {

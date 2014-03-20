@@ -426,7 +426,8 @@ PrimitiveProcedures['cdr'] = _.unary(function(p) {
   var startOfCdr = p.getFirstChild().getNextSibling();
   var ans;
   if (startOfCdr) {
-    ans = (startOfCdr.getNextSibling() || p.isList()) ?
+    ans = (startOfCdr.getNextSibling() ||
+        (p instanceof r5js.List && !p.isDirty())) ?
         startOfCdr.siblingsToList(p.isImproperList()) :
         startOfCdr;
     return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
@@ -497,6 +498,10 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
   if (helper) {
     helper.setCdr(cdr);
   }
+
+    if (p instanceof r5js.List) {
+        p.markDirty();
+    }
 
   return null; // unspecified return value
 });
