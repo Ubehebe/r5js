@@ -24,17 +24,21 @@ goog.require('r5js.List');
 /**
  * See the comment to {@link r5js.Datum.siblingsToList}
  * for an explanation of what this class does.
- * @param {*} head TODO bl
- * @param {*} startOfCdr TODO bl
+ * @param {!r5js.Datum} head
+ * @param {!r5js.Datum} startOfCdr
+ * @struct
  * @constructor
  */
 r5js.CdrHelper = function(head, startOfCdr) {
-    this.head = head;
-    this.startOfCdr = startOfCdr;
+    /** @const @private {!r5js.Datum} */
+    this.head_ = head;
+
+    /** @const @private {!r5js.Datum} */
+    this.startOfCdr_ = startOfCdr;
 };
 
 /**
- * TODO bl: this used to return this.head.getCdrHelper(),
+ * TODO bl: this used to return this.head_.getCdrHelper(),
  * but I am not sure that's necessary.
  */
 r5js.CdrHelper.prototype.getCdrHelper = function() {
@@ -43,29 +47,29 @@ r5js.CdrHelper.prototype.getCdrHelper = function() {
 
 /**
  * Basically, call set-car! on the master list.
- * @param {*} car TODO bl
+ * @param {!r5js.Datum} car TODO bl
  */
 r5js.CdrHelper.prototype.setCar = function(car) {
-    if (this.head.isImmutable()) {
-        throw new r5js.ImmutableError(this.head.toString());
+    if (this.head_.isImmutable()) {
+        throw new r5js.ImmutableError(this.head_.toString());
     }
-    this.head.getFirstChild().setNextSibling(car);
+    this.head_.getFirstChild().setNextSibling(car);
 };
 
 /**
  * Basically, call set-cdr! on the master list.
- * @param {*} cdr TODO bl
+ * @param {!r5js.Datum} cdr TODO bl
  */
 r5js.CdrHelper.prototype.setCdr = function(cdr) {
-    if (this.head.isImmutable()) {
-        throw new r5js.ImmutableError(this.head.toString());
+    if (this.head_.isImmutable()) {
+        throw new r5js.ImmutableError(this.head_.toString());
     }
-    this.startOfCdr.setNextSibling(cdr);
+    this.startOfCdr_.setNextSibling(cdr);
     if (!(cdr instanceof r5js.List)) {
         var cur = this;
         do {
-            cur.head.setType('.(');
-        } while (cur = cur.head.getCdrHelper());
+            cur.head_.setType(r5js.parse.Terminals.LPAREN_DOT);
+        } while (cur = cur.head_.getCdrHelper());
     }
 };
 
@@ -75,8 +79,8 @@ r5js.CdrHelper.prototype.setCdr = function(cdr) {
  * and have the same offset.
  */
 r5js.CdrHelper.prototype.equals = function(cdrHelper) {
-    return this.head === cdrHelper.head
-        && this.startOfCdr === cdrHelper.startOfCdr;
+    return this.head_ === cdrHelper.head_
+        && this.startOfCdr_ === cdrHelper.startOfCdr_;
 };
 
 /**
@@ -87,8 +91,8 @@ r5js.CdrHelper.prototype.equals = function(cdrHelper) {
 r5js.CdrHelper.prototype.resolvesTo = function(datum) {
     if (!datum) {
         return false;
-    } else if (this.head === datum) {
-        return this.startOfCdr === datum.getFirstChild();
+    } else if (this.head_ === datum) {
+        return this.startOfCdr_ === datum.getFirstChild();
     } else {
         return false;
     }
