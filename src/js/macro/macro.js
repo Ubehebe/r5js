@@ -233,7 +233,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
               return node.isIdentifier() && toRename[node.getPayload()];
             },
             function(node) {
-              node.payload_ = toRename[node.getPayload()];
+              node.setPayload(toRename[node.getPayload()]);
               return node;
             }
         );
