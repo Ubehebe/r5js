@@ -189,7 +189,7 @@ r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
 
 
 /**
- * @param {!Array.<*>} args TODO bl narrow.
+ * @param {!Array.<!r5js.Datum>} args
  * @param {!r5js.IEnvironment} env
  */
 r5js.Procedure.prototype.bindArgs = function(args, env) {
@@ -935,7 +935,7 @@ r5js.ProcCall.prototype.specialOps = {
 
 /**
  * @param {boolean} wrapArgs
- * @return {?}
+ * @return {!Array.<!r5js.Datum>}
  * TODO bl: this method is too long.
  * @suppress {accessControls} for the raw access to nextSibling_.
  */
