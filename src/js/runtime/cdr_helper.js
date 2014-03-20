@@ -21,6 +21,7 @@ goog.require('r5js.ImmutableError');
 goog.require('r5js.List');
 
 
+
 /**
  * See the comment to {@link r5js.Datum.siblingsToList}
  * for an explanation of what this class does.
@@ -30,48 +31,53 @@ goog.require('r5js.List');
  * @constructor
  */
 r5js.CdrHelper = function(head, startOfCdr) {
-    /** @const @private {!r5js.Datum} */
-    this.head_ = head;
+  /** @const @private {!r5js.Datum} */
+  this.head_ = head;
 
-    /** @const @private {!r5js.Datum} */
-    this.startOfCdr_ = startOfCdr;
+  /** @const @private {!r5js.Datum} */
+  this.startOfCdr_ = startOfCdr;
 };
+
 
 /**
  * TODO bl: this used to return this.head_.getCdrHelper(),
  * but I am not sure that's necessary.
+ * @return {null}
  */
 r5js.CdrHelper.prototype.getCdrHelper = function() {
-    return null;
+  return null;
 };
+
 
 /**
  * Basically, call set-car! on the master list.
- * @param {!r5js.Datum} car TODO bl
+ * @param {!r5js.Datum} car TODO bl.
  */
 r5js.CdrHelper.prototype.setCar = function(car) {
-    if (this.head_.isImmutable()) {
-        throw new r5js.ImmutableError(this.head_.toString());
-    }
-    this.head_.getFirstChild().setNextSibling(car);
+  if (this.head_.isImmutable()) {
+    throw new r5js.ImmutableError(this.head_.toString());
+  }
+  this.head_.getFirstChild().setNextSibling(car);
 };
+
 
 /**
  * Basically, call set-cdr! on the master list.
- * @param {!r5js.Datum} cdr TODO bl
+ * @param {!r5js.Datum} cdr TODO bl.
  */
 r5js.CdrHelper.prototype.setCdr = function(cdr) {
-    if (this.head_.isImmutable()) {
-        throw new r5js.ImmutableError(this.head_.toString());
-    }
-    this.startOfCdr_.setNextSibling(cdr);
-    if (!(cdr instanceof r5js.List)) {
-        var cur = this;
-        do {
-            cur.head_.setType(r5js.parse.Terminals.LPAREN_DOT);
-        } while (cur = cur.head_.getCdrHelper());
-    }
+  if (this.head_.isImmutable()) {
+    throw new r5js.ImmutableError(this.head_.toString());
+  }
+  this.startOfCdr_.setNextSibling(cdr);
+  if (!(cdr instanceof r5js.List)) {
+    var cur = this;
+    do {
+      cur.head_.setType(r5js.parse.Terminals.LPAREN_DOT);
+    } while (cur = cur.head_.getCdrHelper());
+  }
 };
+
 
 /**
  * @param {!r5js.CdrHelper} cdrHelper Helper to compare against.
@@ -79,9 +85,10 @@ r5js.CdrHelper.prototype.setCdr = function(cdr) {
  * and have the same offset.
  */
 r5js.CdrHelper.prototype.equals = function(cdrHelper) {
-    return this.head_ === cdrHelper.head_
-        && this.startOfCdr_ === cdrHelper.startOfCdr_;
+  return this.head_ === cdrHelper.head_ &&
+      this.startOfCdr_ === cdrHelper.startOfCdr_;
 };
+
 
 /**
  * @param {r5js.Datum} datum The datum to test against.
@@ -89,11 +96,11 @@ r5js.CdrHelper.prototype.equals = function(cdrHelper) {
  * and its offset is that list's first child.
  */
 r5js.CdrHelper.prototype.resolvesTo = function(datum) {
-    if (!datum) {
-        return false;
-    } else if (this.head_ === datum) {
-        return this.startOfCdr_ === datum.getFirstChild();
-    } else {
-        return false;
-    }
+  if (!datum) {
+    return false;
+  } else if (this.head_ === datum) {
+    return this.startOfCdr_ === datum.getFirstChild();
+  } else {
+    return false;
+  }
 };
