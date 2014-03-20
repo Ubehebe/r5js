@@ -467,10 +467,10 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
   car.setNextSibling(p.getFirstChild().getNextSibling());
   p.setFirstChild(car);
 
-  for (var helper = p.getCdrHelper();
-      helper;
-      helper = helper.getCdrHelper())
+  var helper = p.getCdrHelper();
+  if (helper) {
     helper.setCar(car);
+  }
 
   return null; // unspecified return value
 });
@@ -493,8 +493,8 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
     p.setType(r5js.parse.Terminals.LPAREN_DOT);
   }
 
-  for (var helper = p.getCdrHelper();
-      helper; helper = helper.getCdrHelper()) {
+  var helper = p.getCdrHelper();
+  if (helper) {
     helper.setCdr(cdr);
   }
 

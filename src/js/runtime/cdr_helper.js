@@ -40,16 +40,6 @@ r5js.CdrHelper = function(head, startOfCdr) {
 
 
 /**
- * TODO bl: this used to return this.head_.getCdrHelper(),
- * but I am not sure that's necessary.
- * @return {null}
- */
-r5js.CdrHelper.prototype.getCdrHelper = function() {
-  return null;
-};
-
-
-/**
  * Basically, call set-car! on the master list.
  * @param {!r5js.Datum} car TODO bl.
  */
