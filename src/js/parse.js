@@ -24,6 +24,7 @@ goog.require('r5js.DatumType');
 goog.require('r5js.DottedListTransformer');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.List');
 goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
@@ -344,7 +345,7 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.seq(
       var treatAsDotted = false;
 
       // (lambda (x y) ...)
-      if (formalRoot.isList()) {
+      if (formalRoot instanceof r5js.List) {
         formals = formalRoot.mapChildren(function(child) {
           return /** @type {!r5js.Datum} */ (child.getPayload());
             });

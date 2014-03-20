@@ -446,7 +446,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
                   env.get(/** @type {string} */ (node.getPayload()))).
               maybeDeref();
           if (node.shouldUnquoteSplice()) {
-            if (ans.isList()) {
+            if (ans instanceof r5js.List) {
               if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
                 ans = ans.getFirstChild();
 	      } else { // `(1 ,@(list) 2) => (1 2)

@@ -7,6 +7,7 @@ goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.Lambda');
+goog.require('r5js.List');
 goog.require('r5js.OutputMode');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.Quasiquote');
