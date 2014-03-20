@@ -282,13 +282,6 @@ r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
     return this;
 };
 
-function newEmptyList() {
-    var ans = new r5js.Datum();
-    ans.type_ = r5js.DatumType.LIST;
-    return ans;
-}
-
-
 
 /**
  * @return {boolean} True iff this Datum represents an empty list.

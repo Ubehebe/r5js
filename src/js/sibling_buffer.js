@@ -87,11 +87,11 @@ r5js.SiblingBuffer.prototype.toList = function(opt_type) {
       ans = new r5js.Quote(this.first_);
       break;
     default:
-      ans = newEmptyList();
-      ans.setFirstChild(this.first_);
-      if (opt_type) {
-        ans.setType(opt_type); // default is (
+      ans = new r5js.Datum();
+      if (this.first_) {
+        ans.setFirstChild(this.first_);
       }
+      ans.setType(opt_type || r5js.DatumType.LIST);
       break;
   }
   if (this.last_) {

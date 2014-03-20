@@ -91,15 +91,15 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
     if (letrecBindings.isEmpty()) {
       this.body = cur.sequence(this.env);
     } else {
-      var letrec = newEmptyList();
-      letrec.setFirstChild(letrecBindings.toSiblings());
+      var letrec = new r5js.Datum();
+        letrec.setType(r5js.DatumType.LIST);
+      letrec.setFirstChild(/** @type {!r5js.Datum} */ (letrecBindings.toSiblings()));
       letrec.setNextSibling(cur);
       this.body = r5js.procs.newProcCall(
           r5js.data.newIdOrLiteral('letrec'),
           letrec,
           new r5js.Continuation());
     }
-
     this.lastContinuable = this.body.getLastContinuable();
   }
 };
