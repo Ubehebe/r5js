@@ -495,18 +495,6 @@ r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
 
 
 /**
- * @return {!r5js.Datum} Dereferences this Datum if possible; otherwise just
- * returns this Datum.
- */
-r5js.Datum.prototype.maybeDeref = function () {
-    return this instanceof r5js.Ref ?
-    /** @type {!r5js.Datum} */ (this.payload_) :
-        this;
-};
-
-
-
-/**
  * @return {r5js.Macro} TODO bl
  */
 r5js.Datum.prototype.getMacro = function() {
@@ -1410,6 +1398,12 @@ r5js.Ref = function(deref) {
     this.payload_ = deref;
 };
 goog.inherits(r5js.Ref, r5js.Datum);
+
+
+/** @return {!r5js.Datum} */
+r5js.Ref.prototype.deref = function() {
+    return /** @type {!r5js.Datum} */ (this.payload_);
+};
 
 
 /** @override */

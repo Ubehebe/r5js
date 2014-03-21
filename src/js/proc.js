@@ -40,6 +40,7 @@ goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.Quasiquote');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.Quote');
+goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.data');
@@ -443,8 +444,11 @@ r5js.ProcCall.prototype.tryIdShim = function(
         },
         function(node) {
           var ans = r5js.data.maybeWrapResult(
-                  env.get(/** @type {string} */ (node.getPayload()))).
-              maybeDeref();
+                  env.get(/** @type {string} */ (node.getPayload())));
+            // TODO bl document why we're doing this
+            if (ans instanceof r5js.Ref) {
+                ans = ans.deref();
+            }
           if (node.shouldUnquoteSplice()) {
             if (ans instanceof r5js.List) {
               if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
@@ -454,7 +458,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
 	      }
             } else throw new r5js.QuasiquoteError(ans + ' is not a list');
           }
-          return ans;
+          return /** @type {r5js.Datum} */ (ans);
         });
     // Now strip away the quote mark.
     // the newIdOrLiteral part is for (quote quote)
@@ -743,8 +747,9 @@ r5js.ProcCall.prototype.tryPrimitiveProcedure = function(
     var args = this.evalArgs(true);
     // todo bl document why we're doing this...
     for (var i = 0; i < args.length; ++i) {
-      if (args[i] instanceof r5js.Datum)
-        args[i] = args[i].maybeDeref();
+      if (args[i] instanceof r5js.Ref) {
+        args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
+      }
     }
       proc.Call(args, this, continuation, resultStruct);
   }
