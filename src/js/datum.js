@@ -19,6 +19,7 @@ goog.provide('r5js.Datum');
 goog.provide('r5js.DottedList');
 goog.provide('r5js.Lambda');
 goog.provide('r5js.List');
+goog.provide('r5js.MacroDatum');
 goog.provide('r5js.Quasiquote');
 goog.provide('r5js.Quote');
 goog.provide('r5js.Unquote');
@@ -529,7 +530,7 @@ function newVectorDatum(array) {
 
 /** @return {boolean} True iff this datum represents a macro. */
 r5js.Datum.prototype.isMacro = function() {
-    return this.type_ === r5js.DatumType.MACRO;
+    return this instanceof r5js.MacroDatum;
 };
 
 
@@ -1401,15 +1402,30 @@ r5js.data.newDatumRef = function(deref) {
 
 
 /**
- *
+ * @param {!r5js.Macro} macro
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.MacroDatum = function(macro) {
+    goog.base(this);
+    this.payload_ = macro;
+};
+goog.inherits(r5js.MacroDatum, r5js.Datum);
+
+
+/** @override */
+r5js.MacroDatum.prototype.stringForOutputMode = function(outputMode) {
+    return '[macro]';
+};
+
+
+/**
  * @param {!r5js.Macro} macro Macro object.
  * @return {!r5js.Datum} New Datum representing the given macro.
  */
 r5js.data.newMacroDatum = function(macro) {
-    var ans = new r5js.Datum();
-    ans.type_ = r5js.DatumType.MACRO;
-    ans.payload_ = macro;
-    return ans;
+    return new r5js.MacroDatum(macro);
 };
 
 

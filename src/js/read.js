@@ -67,8 +67,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
             return this.getPayload() === 5
                 ? 'scheme-report-environment-5'
                 : 'null-environment-5';
-        case r5js.DatumType.MACRO:
-            return '[macro]';
         case r5js.DatumType.IDENTIFIER:
             return /** @type {string} */ (this.getPayload());
         case r5js.DatumType.BOOLEAN:
