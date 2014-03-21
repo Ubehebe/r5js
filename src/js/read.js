@@ -61,8 +61,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
         case null:
             // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
             return 'undefined';
-        case r5js.DatumType.REF:
-            return this.getPayload().stringForOutputMode(outputMode);
         case r5js.DatumType.ENVIRONMENT_SPECIFIER: // R5RS 6.5
             return this.getPayload() === 5
                 ? 'scheme-report-environment-5'

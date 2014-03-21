@@ -25,7 +25,6 @@ r5js.DatumType = {
   OUTPUT_PORT: 'output-port',
   PAIR: 'pair', // TODO bl
   // TODO bl: add PROCEDURE
-  REF: 'ref',
   STRING: 'string',
   SYMBOL: 'symbol',
   VECTOR: '#('

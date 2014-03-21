@@ -22,6 +22,7 @@ goog.provide('r5js.List');
 goog.provide('r5js.MacroDatum');
 goog.provide('r5js.Quasiquote');
 goog.provide('r5js.Quote');
+goog.provide('r5js.Ref');
 goog.provide('r5js.Unquote');
 goog.provide('r5js.UnquoteSplicing');
 
@@ -498,7 +499,7 @@ r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
  * returns this Datum.
  */
 r5js.Datum.prototype.maybeDeref = function () {
-    return this.type_ === r5js.DatumType.REF ?
+    return this instanceof r5js.Ref ?
     /** @type {!r5js.Datum} */ (this.payload_) :
         this;
 };
@@ -1394,10 +1395,26 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
  * @return {!r5js.Datum} New Datum capable of dereferencing the given Datum.
  */
 r5js.data.newDatumRef = function(deref) {
-    var ans = new r5js.Datum();
-    ans.type_ = r5js.DatumType.REF;
-    ans.payload_ = deref;
-    return ans;
+    return new r5js.Ref(deref);
+};
+
+
+/**
+ * @param {!r5js.Datum} deref Datum to dereference.
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.Ref = function(deref) {
+  goog.base(this);
+    this.payload_ = deref;
+};
+goog.inherits(r5js.Ref, r5js.Datum);
+
+
+/** @override */
+r5js.Ref.prototype.stringForOutputMode = function(outputMode) {
+    return this.getPayload().stringForOutputMode(outputMode);
 };
 
 

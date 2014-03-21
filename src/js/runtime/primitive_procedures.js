@@ -675,7 +675,7 @@ PrimitiveProcedures['eval'] = _.binary(
     /** @suppress {checkTypes} */ function(expr, envSpec) {
       if (!(expr instanceof r5js.Datum))
         throw new r5js.ArgumentTypeError(
-            expr, 0, 'eval', r5js.DatumType.REF /* TODO bl is this right? */);
+            expr, 0, 'eval', 'ref' /* TODO bl is this right? */);
       var isEnvNode = r5js.ast.Node.isImplementedBy(envSpec) &&
           envSpec instanceof r5js.ast.EnvironmentSpecifier;
       if (!isEnvNode) {
