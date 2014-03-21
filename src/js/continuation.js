@@ -19,6 +19,7 @@ goog.provide('r5js.Continuation');
 
 goog.require('r5js.Branch');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.MacroDatum');
 goog.require('r5js.data');
 // TODO bl cyclic dependency goog.require('r5js.procs');
 
@@ -180,7 +181,7 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
     /* We have to wrap the SchemeMacro object in a Datum to get it into
          the parse tree. */
     buf.appendSibling(kw);
-    buf.appendSibling(r5js.data.newMacroDatum(macro));
+    buf.appendSibling(new r5js.MacroDatum(macro));
     letBindings.appendSibling(buf.toList());
   });
 

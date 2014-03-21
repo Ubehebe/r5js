@@ -1421,15 +1421,6 @@ r5js.MacroDatum.prototype.stringForOutputMode = function(outputMode) {
 
 
 /**
- * @param {!r5js.Macro} macro Macro object.
- * @return {!r5js.Datum} New Datum representing the given macro.
- */
-r5js.data.newMacroDatum = function(macro) {
-    return new r5js.MacroDatum(macro);
-};
-
-
-/**
  * @param {!r5js.PayloadType} result The result to potentially wrap.
  * @param {!r5js.Type=} opt_type TODO bl
  * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
