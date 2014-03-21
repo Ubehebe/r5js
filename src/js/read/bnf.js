@@ -69,7 +69,11 @@ r5js.read.bnf.One_.prototype.match = function(tokenStream) {
  */
 r5js.read.bnf.One_.prototype.matchTerminal_ = function(tokenStream) {
   var token = tokenStream.nextToken();
-  return (token && token.getPayload() === this.type_) ?
+  if (!token) {
+    return null;
+  }
+  var terminal = token.toDatum();
+  return terminal === this.type_ ?
       r5js.read.bnf.One_.TERMINAL_SENTINEL :
       null;
 };
@@ -174,13 +178,15 @@ r5js.read.bnf.OnePrimitive_ = function(type) {
 
 /** @override */
 r5js.read.bnf.OnePrimitive_.prototype.match = function(tokenStream) {
-  var ansDatum = new r5js.Datum();
   var token = tokenStream.nextToken();
   if (!token) {
     return null;
   }
-  token.formatDatum(ansDatum);
-  return ansDatum.getType() === this.type_ ? ansDatum : null;
+  var ansDatum = token.toDatum();
+  return (ansDatum instanceof r5js.Datum &&
+      ansDatum.getType() === this.type_) ?
+      ansDatum :
+      null;
 };
 
 

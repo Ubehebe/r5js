@@ -6,6 +6,7 @@ goog.provide('r5js.token.String');
 goog.provide('r5js.token.forSpecialTerminal');
 
 
+goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
@@ -32,13 +33,8 @@ r5js.token.Base_ = function(payload, type) {
 
 
 /** @override */
-r5js.token.Base_.prototype.getPayload = function() {
-  return this.payload_;
-};
-
-
-/** @override */
-r5js.token.Base_.prototype.formatDatum = function(datum) {
+r5js.token.Base_.prototype.toDatum = function() {
+  var datum = new r5js.Datum();
   datum.setPayload(this.payload_);
   datum.setType(this.type_);
   return datum;
@@ -219,6 +215,12 @@ r5js.token.Terminal_ = function(payload) {
   goog.base(this, payload, 'sefkj');
 };
 goog.inherits(r5js.token.Terminal_, r5js.token.Base_);
+
+
+/** @override */
+r5js.token.Terminal_.prototype.toDatum = function() {
+  return this.payload_;
+};
 
 
 /** @private {!Object.<!r5js.parse.Terminal, !r5js.Token>} */

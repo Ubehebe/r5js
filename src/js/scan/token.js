@@ -2,22 +2,17 @@ goog.provide('r5js.Token');
 
 
 
-/**
- * @interface
- * @template T
- */
+/** @interface */
 r5js.Token = function() {};
 
 
-/** @return {T} */
-r5js.Token.prototype.getPayload = function() {};
-
-
 /**
-  * @param {!r5js.Datum} datum
- * @return {!r5js.Datum}
+ * @return {!r5js.Datum|!r5js.parse.Terminal} A Datum representing this token,
+ * or a Terminal if this token is a terminal (and so has no interesting state).
+ * TODO bl: this interface is so small now that it might make sense to eliminate
+ * it and have the scanner return datums directly.
  */
-r5js.Token.prototype.formatDatum = function(datum) {};
+r5js.Token.prototype.toDatum = function() {};
 
 
 

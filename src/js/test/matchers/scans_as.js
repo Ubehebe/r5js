@@ -23,7 +23,7 @@ scanAs = function(expectedType) {
  * @private
  */
 r5js.test.matchers.ScansAs_ = function(expectedType) {
-  /** @const @private {!r5js.DatumType} */
+  /** @const @private {!r5js.Type} */
   this.expectedType_ = expectedType;
 };
 
@@ -39,8 +39,9 @@ r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
     if (!token || scanner.nextToken()) {
       return false;
     }
-    var asDatum = token.formatDatum(new r5js.Datum());
-    return asDatum.getType() === this.expectedType_;
+    var asDatum = token.toDatum();
+    return asDatum instanceof r5js.Datum &&
+        asDatum.getType() === this.expectedType_;
   } catch (e) {
     return false; // some tests purposely cause scan errors
   }
