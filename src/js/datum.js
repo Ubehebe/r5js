@@ -1380,15 +1380,6 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
 
 /**
  * @param {!r5js.Datum} deref Datum to dereference.
- * @return {!r5js.Datum} New Datum capable of dereferencing the given Datum.
- */
-r5js.data.newDatumRef = function(deref) {
-    return new r5js.Ref(deref);
-};
-
-
-/**
- * @param {!r5js.Datum} deref Datum to dereference.
  * @extends {r5js.Datum}
  * @struct
  * @constructor

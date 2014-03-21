@@ -29,6 +29,7 @@ goog.require('r5js.Lambda');
 goog.require('r5js.Macro');
 goog.require('r5js.Procedure');
 goog.require('r5js.PrimitiveProcedure');
+goog.require('r5js.Ref');
 goog.require('r5js.RootEnvironment');
 goog.require('r5js.UnboundVariable');
 
@@ -159,7 +160,7 @@ r5js.Environment.prototype.get = function(name) {
         else if (maybe === this.unspecifiedSentinel_)
             return maybe;
         else if (maybe instanceof r5js.Datum)
-            return r5js.data.newDatumRef(maybe);
+            return new r5js.Ref(maybe);
         // Everything else
         else return maybe;
     } else if (maybe = this.closures_[name]) {
