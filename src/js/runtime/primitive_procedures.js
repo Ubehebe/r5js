@@ -19,6 +19,7 @@ goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.InputPort');
+goog.require('r5js.ast.Number');
 goog.require('r5js.ast.OutputPort');
 goog.require('r5js.procspec');
 
@@ -56,7 +57,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     return p.getPayload() === q.getPayload();
   } else if (p.isIdentifier()) {
     return p.getPayload() === q.getPayload();
-  } else if (p.isNumber()) {
+  } else if (p instanceof r5js.ast.Number) {
     return p.getPayload() === q.getPayload(); // todo bl numerical precision...
   } else if (p instanceof r5js.ast.Character) {
     return p.getPayload() === q.getPayload();
@@ -126,7 +127,7 @@ PrimitiveProcedures['null?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['number?'] = _.unary(function(node) {
-  return node.isNumber();
+  return node instanceof r5js.ast.Number;
 });
 
 PrimitiveProcedures['output-port?'] = _.unary(function(node) {
@@ -276,7 +277,7 @@ PrimitiveProcedures['atan'] = _.varargsAtLeast1(function() {
 PrimitiveProcedures['ceiling'] = _.unary(Math.ceil, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['complex?'] = _.unary(function(node) {
-  return node.isNumber();
+  return node instanceof r5js.ast.Number;
 });
 
 PrimitiveProcedures['cos'] = _.unary(Math.cos, r5js.DatumType.NUMBER);
@@ -325,7 +326,7 @@ PrimitiveProcedures['number->string'] = _.unary(function(x) {
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['integer?'] = _.unary(function(node) {
-  return node.isNumber() &&
+  return node instanceof r5js.ast.Number &&
       Math.round(node.getPayload()) === node.getPayload();
 });
 
@@ -368,11 +369,11 @@ PrimitiveProcedures['quotient'] = _.binary(function(p, q) {
 }, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['rational?'] = _.unary(function(node) {
-  return node.isNumber();
+  return node instanceof r5js.ast.Number;
 });
 
 PrimitiveProcedures['real?'] = _.unary(function(node) {
-  return node.isNumber();
+  return node instanceof r5js.ast.Number;
 });
 
 PrimitiveProcedures['real-part'] = _.unary(function(z) {
@@ -647,7 +648,7 @@ PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
     throw new r5js.ArgumentTypeError(
         str, 0, 'string-set!', r5js.DatumType.STRING);
   }
-  if (!k.isNumber()) {
+  if (!(k instanceof r5js.ast.Number)) {
     throw new r5js.ArgumentTypeError(
         k, 1, 'string-set!', r5js.DatumType.NUMBER);
   }

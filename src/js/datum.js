@@ -601,10 +601,6 @@ r5js.Datum.prototype.isIdentifier = function() {
     return this.type_ === r5js.DatumType.IDENTIFIER;
 };
 
-/** @return {boolean} True iff this datum represents a number. */
-r5js.Datum.prototype.isNumber = function() {
-    return this instanceof r5js.ast.Number;
-};
 
 /** @return {boolean} True iff this datum represents a string. */
 r5js.Datum.prototype.isString = function() {
@@ -1524,6 +1520,9 @@ r5js.ast.Number.prototype.isLiteral = function() {
 r5js.ast.Number.prototype.stringForOutputMode = function(outputMode) {
     return this.payload_ + '';
 };
+
+
+
 
 
 /**
