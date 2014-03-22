@@ -51,7 +51,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     return false;
   }
 
-  if (p.isBoolean()) {
+  if (p instanceof r5js.ast.Boolean) {
     return p.getPayload() === q.getPayload();
   } else if (p.isIdentifier()) {
     return p.getPayload() === q.getPayload();
@@ -109,7 +109,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
 // Type-related procedures
 
 PrimitiveProcedures['boolean?'] = _.unary(function(node) {
-  return node.isBoolean();
+  return node instanceof r5js.ast.Boolean;
 });
 
 PrimitiveProcedures['char?'] = _.unary(function(node) {

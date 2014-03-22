@@ -592,10 +592,6 @@ r5js.Datum.prototype.convertVectorToArrayBacked = function () {
     return this;
 };
 
-/** @return {boolean} True iff this datum represents a boolean. */
-r5js.Datum.prototype.isBoolean = function() {
-    return this instanceof r5js.ast.Boolean;
-};
 
 /** @return {boolean} True iff this datum represents an identifier. */
 r5js.Datum.prototype.isIdentifier = function() {
@@ -1440,12 +1436,6 @@ r5js.ast.Boolean = function(val) {
     this.type_ = r5js.DatumType.BOOLEAN;
 };
 goog.inherits(r5js.ast.Boolean, r5js.Datum);
-
-
-/** @override */
-r5js.ast.Boolean.prototype.isBoolean = function() {
-    return true;
-};
 
 
 /** @override */
