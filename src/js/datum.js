@@ -603,11 +603,6 @@ r5js.Datum.prototype.isIdentifier = function() {
 };
 
 
-/** @return {boolean} True iff this datum represents a string. */
-r5js.Datum.prototype.isString = function() {
-    return this.type_ === r5js.DatumType.STRING;
-};
-
 /**
  * @return {boolean} True iff this datum represents a boolean, identifier,
  * character, number, string, or lambda.
@@ -971,8 +966,7 @@ r5js.Datum.prototype.quote = function() {
 r5js.Datum.prototype.unwrap = function() {
 
     return (this.payload_ !== undefined
-        && !this.isVector() // watch out for 0's and falses
-        && !this.isString())
+        && !this.isVector()) // watch out for 0's and falses
         ? this.payload_
         : this;
 };
@@ -1046,7 +1040,7 @@ r5js.Datum.prototype.normalizeInput = function() {
         cur = curNormalized;
     }
 
-    if (thisNormalized.isString()) {
+    if (thisNormalized instanceof r5js.ast.String) {
         thisNormalized.unescapeStringLiteral();
     }
 
@@ -1549,6 +1543,20 @@ r5js.ast.String.prototype.stringForOutputMode = function(outputMode) {
     return outputMode === r5js.OutputMode.DISPLAY ?
         this.payload_ :
         '"' + this.payload_.replace(/([\\"])/g, "\\$1") + '"';
+};
+
+
+/**
+ * Datums representing strings have payloads of type string.
+ * If they all unwrapped as JavaScript strings, it would be impossible
+ * to re-wrap them correctly (noninjective mapping). We choose to store
+ * identifiers unwrapped because they're expected to be more common than
+ * strings.
+ *
+ * @override
+ */
+r5js.ast.String.prototype.unwrap = function() {
+    return this;
 };
 
 

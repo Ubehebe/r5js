@@ -85,7 +85,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     return (p.isArrayBacked() && q.isArrayBacked()) ?
         p.getPayload() === q.getPayload() :
         p === q;
-  } else if (p.isString()) {
+  } else if (p instanceof r5js.ast.String) {
     return p === q;
   } else if (p instanceof r5js.Lambda) {
     return p.getPayload() === q.getPayload();
@@ -157,7 +157,7 @@ PrimitiveProcedures['procedure?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['string?'] = _.unary(function(node) {
-  return node.isString();
+  return node instanceof r5js.ast.String;
 });
 
 PrimitiveProcedures['symbol?'] = _.unary(function(node) {
@@ -644,7 +644,7 @@ PrimitiveProcedures['string-ref'] = _.binary(function(node, i) {
 }, r5js.DatumType.STRING, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
-  if (!str.isString()) {
+  if (!(str instanceof r5js.ast.String)) {
     throw new r5js.ArgumentTypeError(
         str, 0, 'string-set!', r5js.DatumType.STRING);
   }
@@ -658,13 +658,14 @@ PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
   }
 
   if (str.isImmutable()) {
-    throw new r5js.ImmutableError(str.getPayload());
+    throw new r5js.ImmutableError(/** @type {string} */ (str.getPayload()));
   }
 
   var s = str.getPayload();
 
-  str.setPayload(s.substr(0, k.getPayload()) +
-      c.getPayload() + s.substr(k.getPayload() + 1));
+  var kNum = /** @type {number} */ (k.getPayload());
+
+  str.setPayload(s.substr(0, kNum) + c.getPayload() + s.substr(kNum + 1));
 
   return null; // unspecified return value
 });
