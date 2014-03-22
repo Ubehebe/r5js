@@ -10,6 +10,7 @@ goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
+goog.require('r5js.ast.Boolean');
 goog.require('r5js.parse.Terminals');
 
 
@@ -79,6 +80,12 @@ r5js.token.Boolean = function(payload) {
   goog.base(this, actualPayload, r5js.DatumType.BOOLEAN);
 };
 goog.inherits(r5js.token.Boolean, r5js.token.Base_);
+
+
+/** @override */
+r5js.token.Boolean.prototype.toDatum = function() {
+  return new r5js.ast.Boolean(this.payload_);
+};
 
 
 

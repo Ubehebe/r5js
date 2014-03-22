@@ -18,6 +18,7 @@ goog.provide('r5js.ffi');
 goog.provide('r5js.ffiutil');
 
 
+goog.require('r5js.ast.Boolean');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
@@ -74,7 +75,7 @@ r5js.ProcCall.prototype.tryFFI = function(
                 ans = r5js.data.maybeWrapResult(property, r5js.DatumType.NUMBER);
                 break;
             case 'boolean':
-                ans = r5js.data.maybeWrapResult(property, r5js.DatumType.BOOLEAN);
+                ans = new r5js.ast.Boolean(property);
                 break;
         }
 

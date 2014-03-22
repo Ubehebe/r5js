@@ -14,6 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
+goog.provide('r5js.ast.Boolean');
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 goog.provide('r5js.DottedList');
@@ -593,7 +594,7 @@ r5js.Datum.prototype.convertVectorToArrayBacked = function () {
 
 /** @return {boolean} True iff this datum represents a boolean. */
 r5js.Datum.prototype.isBoolean = function() {
-    return this.type_ === r5js.DatumType.BOOLEAN;
+    return this instanceof r5js.ast.Boolean;
 };
 
 /** @return {boolean} True iff this datum represents an identifier. */
@@ -623,7 +624,6 @@ r5js.Datum.prototype.isString = function() {
  */
 r5js.Datum.prototype.isLiteral = function() {
     switch (this.type_) {
-        case r5js.DatumType.BOOLEAN:
         case r5js.DatumType.IDENTIFIER:
         case r5js.DatumType.CHARACTER:
         case r5js.DatumType.NUMBER:
@@ -1365,16 +1365,22 @@ r5js.data = {};
  * @return {!r5js.Datum} New Datum of given type with given payload.
  */
 r5js.data.newIdOrLiteral = function(payload, opt_type) {
-    // todo bl: we're sometimes creating these with undefined payloads! Investigate.
     var ans;
-    if (opt_type === r5js.parse.Terminals.LPAREN) {
+    // todo bl: we're sometimes creating these with undefined payloads! Investigate.
+    opt_type = opt_type || r5js.DatumType.IDENTIFIER;
+    switch (opt_type) {
+        case r5js.parse.Terminals.LPAREN:
         ans = new r5js.List(null /* firstChild */);
-    } else {
+        ans.payload_ = payload;
+            return ans;
+        case r5js.DatumType.BOOLEAN:
+            return new r5js.ast.Boolean(/** @type {boolean} */ (payload));
+        default:
         ans = new r5js.Datum();
-        ans.type_ = opt_type || r5js.DatumType.IDENTIFIER;
-    }
+        ans.setType(opt_type || r5js.DatumType.IDENTIFIER);
     ans.payload_ = payload;
     return ans;
+    }
 };
 
 
@@ -1423,6 +1429,38 @@ r5js.MacroDatum.prototype.stringForOutputMode = function(outputMode) {
 
 
 /**
+ * @param {boolean} val
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.ast.Boolean = function(val) {
+    goog.base(this);
+    this.payload_ = val;
+    this.type_ = r5js.DatumType.BOOLEAN;
+};
+goog.inherits(r5js.ast.Boolean, r5js.Datum);
+
+
+/** @override */
+r5js.ast.Boolean.prototype.isBoolean = function() {
+    return true;
+};
+
+
+/** @override */
+r5js.ast.Boolean.prototype.isLiteral = function() {
+    return true;
+};
+
+
+/** @override */
+r5js.ast.Boolean.prototype.stringForOutputMode = function() {
+    return this.payload_ ? '#t' : '#f';
+};
+
+
+/**
  * @param {!r5js.PayloadType} result The result to potentially wrap.
  * @param {!r5js.Type=} opt_type TODO bl
  * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
@@ -1441,14 +1479,15 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
 
     var ans = new r5js.Datum();
     ans.payload_ = result;
-    if (goog.isDef(opt_type)) {
+    if (opt_type === r5js.DatumType.BOOLEAN) {
+        return new r5js.ast.Boolean(/** @type {boolean} */ (result));
+    } else if (goog.isDef(opt_type)) {
         ans.type_ = opt_type;
     } else {
         // If no type was supplied, we can deduce it in most (not all) cases
         switch (typeof result) {
             case 'boolean':
-                ans.type_ = r5js.DatumType.BOOLEAN;
-                break;
+                return new r5js.ast.Boolean(result);
             case 'number':
                 ans.type_ = r5js.DatumType.NUMBER;
                 break;

@@ -67,8 +67,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                 : 'null-environment-5';
         case r5js.DatumType.IDENTIFIER:
             return /** @type {string} */ (this.getPayload());
-        case r5js.DatumType.BOOLEAN:
-            return this.getPayload() ? '#t' : '#f';
         case r5js.DatumType.NUMBER:
             return this.getPayload() + '';
         case r5js.DatumType.CHARACTER:

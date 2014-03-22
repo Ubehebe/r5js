@@ -16,6 +16,7 @@ goog.require('r5js.Quote');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
+goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.OutputPort');
 goog.require('r5js.procspec');
@@ -517,8 +518,7 @@ PrimitiveProcedures['make-vector'] = _.varargsRange(
       /* R5RS 6.3.6: "If a second argument is given, then each element
          is initialized to fill. Otherwise the initial contents of each element
          is unspecified." False seems like a good default. */
-      fillNode = fillNode ||
-          r5js.data.newIdOrLiteral(false, r5js.DatumType.BOOLEAN);
+      fillNode = fillNode || new r5js.ast.Boolean(false);
       var buf = [];
       for (var i = 0; i < n; ++i) {
         buf.push(fillNode.clone());
