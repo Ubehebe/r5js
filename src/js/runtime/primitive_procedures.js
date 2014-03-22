@@ -58,7 +58,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     return p.getPayload() === q.getPayload();
   } else if (p.isNumber()) {
     return p.getPayload() === q.getPayload(); // todo bl numerical precision...
-  } else if (p.isCharacter()) {
+  } else if (p instanceof r5js.ast.Character) {
     return p.getPayload() === q.getPayload();
   } else if (p instanceof r5js.List) {
     var ans;
@@ -114,7 +114,7 @@ PrimitiveProcedures['boolean?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['char?'] = _.unary(function(node) {
-  return node.isCharacter();
+  return node instanceof r5js.ast.Character;
 });
 
 PrimitiveProcedures['input-port?'] = _.unary(function(node) {
@@ -651,7 +651,7 @@ PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
     throw new r5js.ArgumentTypeError(
         k, 1, 'string-set!', r5js.DatumType.NUMBER);
   }
-  if (!c.isCharacter()) {
+  if (!(c instanceof r5js.ast.Character)) {
     throw new r5js.ArgumentTypeError(
         c, 2, 'string-set!', r5js.DatumType.CHARACTER);
   }
@@ -848,7 +848,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
 
 PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
     function(charNode, maybeUserSuppliedOutputPort, inputPort, outputPort) {
-      if (!charNode.isCharacter()) {
+      if (!(charNode instanceof r5js.ast.Character)) {
         throw new r5js.ArgumentTypeError(
             charNode, 0, 'write-char', r5js.DatumType.CHARACTER);
       }

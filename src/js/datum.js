@@ -600,11 +600,6 @@ r5js.Datum.prototype.isIdentifier = function() {
     return this.type_ === r5js.DatumType.IDENTIFIER;
 };
 
-/** @return {boolean} True iff this datum represents a character. */
-r5js.Datum.prototype.isCharacter = function() {
-    return this instanceof r5js.ast.Character;
-};
-
 /** @return {boolean} True iff this datum represents a number. */
 r5js.Datum.prototype.isNumber = function() {
     return this.type_ === r5js.DatumType.NUMBER;
@@ -981,8 +976,7 @@ r5js.Datum.prototype.unwrap = function() {
 
     return (this.payload_ !== undefined
         && !this.isVector() // watch out for 0's and falses
-        && !this.isString()
-        && !this.isCharacter())
+        && !this.isString())
         ? this.payload_
         : this;
 };
@@ -1470,6 +1464,20 @@ goog.inherits(r5js.ast.Character, r5js.Datum);
 /** @override */
 r5js.ast.Character.prototype.isLiteral = function() {
     return true;
+};
+
+
+/**
+ * Datums representing characters have payloads of type string.
+ * If they unwrapped as JavaScript strings, it would be impossible
+ * to re-wrap them correctly (noninjective mapping). We choose to store
+ * identifiers unwrapped because they're expected to be more common than
+ * the other two.
+ *
+ * @override
+ */
+r5js.ast.Character.prototype.unwrap = function() {
+    return this;
 };
 
 
