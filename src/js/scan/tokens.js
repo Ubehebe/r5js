@@ -13,6 +13,7 @@ goog.require('r5js.ScanError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Number');
+goog.require('r5js.ast.String');
 goog.require('r5js.parse.Terminals');
 
 
@@ -221,6 +222,12 @@ r5js.token.String = function(payload) {
   goog.base(this, actualPayload, r5js.DatumType.STRING);
 };
 goog.inherits(r5js.token.String, r5js.token.Base_);
+
+
+/** @override */
+r5js.token.String.prototype.toDatum = function() {
+  return new r5js.ast.String(this.payload_);
+};
 
 
 

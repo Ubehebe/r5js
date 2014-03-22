@@ -67,16 +67,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                 : 'null-environment-5';
         case r5js.DatumType.IDENTIFIER:
             return /** @type {string} */ (this.getPayload());
-        case r5js.DatumType.STRING:
-            switch (outputMode) {
-                case r5js.OutputMode.WRITE:
-                    ans = this.getPayload();
-                    return '"' + ans.replace(/([\\"])/g, "\\$1") + '"';
-                case r5js.OutputMode.DISPLAY:
-                default:
-                    return /** @type {string} */ (this.getPayload());
-            }
-            break;
         case r5js.DatumType.VECTOR:
                     if (this.isArrayBacked()) {
                         ans = '#(';

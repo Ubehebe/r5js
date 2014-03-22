@@ -21,6 +21,7 @@ goog.require('r5js.ast.Character');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.OutputPort');
+goog.require('r5js.ast.String');
 goog.require('r5js.procspec');
 
 
@@ -322,7 +323,7 @@ PrimitiveProcedures['make-rectangular'] = _.binary(function(r, theta) {
 }, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['number->string'] = _.unary(function(x) {
-  return r5js.data.newIdOrLiteral(x + '', r5js.DatumType.STRING);
+  return new r5js.ast.String(x + '');
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['integer?'] = _.unary(function(node) {
@@ -570,7 +571,7 @@ PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
 // Symbol-related procedures
 
 PrimitiveProcedures['symbol->string'] = _.unary(function(sym) {
-  return r5js.data.newIdOrLiteral(sym, r5js.DatumType.STRING).setImmutable();
+  return new r5js.ast.String(sym).setImmutable();
 }, r5js.DatumType.SYMBOL);
 
 PrimitiveProcedures['string->symbol'] = _.unary(function(node) {
@@ -631,7 +632,7 @@ PrimitiveProcedures['make-string'] = _.varargsRange(
       for (var i = 0; i < n; ++i) {
         s += c;
       }
-      return r5js.data.newIdOrLiteral(s, r5js.DatumType.STRING);
+      return new r5js.ast.String(s);
     }, 1, 2);
 
 PrimitiveProcedures['string-length'] = _.unary(function(node) {
@@ -639,8 +640,7 @@ PrimitiveProcedures['string-length'] = _.unary(function(node) {
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['string-ref'] = _.binary(function(node, i) {
-  return r5js.data.newIdOrLiteral(
-      node.getPayload().charAt(i), r5js.DatumType.CHARACTER);
+  return new r5js.ast.Character(node.getPayload().charAt(i));
 }, r5js.DatumType.STRING, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {

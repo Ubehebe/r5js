@@ -17,6 +17,7 @@
 goog.provide('r5js.ast.Boolean');
 goog.provide('r5js.ast.Character');
 goog.provide('r5js.ast.Number');
+goog.provide('r5js.ast.String');
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 goog.provide('r5js.DottedList');
@@ -615,7 +616,6 @@ r5js.Datum.prototype.isString = function() {
 r5js.Datum.prototype.isLiteral = function() {
     switch (this.type_) {
         case r5js.DatumType.IDENTIFIER:
-        case r5js.DatumType.STRING:
             return true;
         default:
         return false;
@@ -1366,6 +1366,8 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
             return new r5js.ast.Character(/** @type {string} */ (payload));
         case r5js.DatumType.NUMBER:
             return new r5js.ast.Number(/** @type {number} */ (payload));
+        case r5js.DatumType.STRING:
+            return new r5js.ast.String(/** @type {string} */ (payload));
         default:
         ans = new r5js.Datum();
         ans.setType(opt_type || r5js.DatumType.IDENTIFIER);
@@ -1522,6 +1524,34 @@ r5js.ast.Number.prototype.stringForOutputMode = function(outputMode) {
 };
 
 
+/**
+ * @param {string} s
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.ast.String = function(s) {
+    goog.base(this);
+    this.type_ = r5js.DatumType.STRING; // TODO bl remove
+    this.payload_ = s;
+};
+goog.inherits(r5js.ast.String, r5js.Datum);
+
+
+/** @override */
+r5js.ast.String.prototype.isLiteral = function() {
+    return true;
+};
+
+
+/** @override */
+r5js.ast.String.prototype.stringForOutputMode = function(outputMode) {
+    return outputMode === r5js.OutputMode.DISPLAY ?
+        this.payload_ :
+        '"' + this.payload_.replace(/([\\"])/g, "\\$1") + '"';
+};
+
+
 
 
 
@@ -1550,6 +1580,8 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
         return new r5js.ast.Character(/** @type {string} */ (result));
     } else if (opt_type === r5js.DatumType.NUMBER) {
         return new r5js.ast.Number(/** @type {number} */ (result));
+    } else if (opt_type === r5js.DatumType.STRING) {
+        return new r5js.ast.String(/** @type {string} */ (result));
     } else if (goog.isDef(opt_type)) {
         ans.type_ = opt_type;
     } else {

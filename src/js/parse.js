@@ -36,6 +36,7 @@ goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Number');
+goog.require('r5js.ast.String');
 goog.require('r5js.data');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
@@ -275,17 +276,15 @@ r5js.Parser.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
             datum instanceof r5js.ast.Character ||
             datum instanceof r5js.ast.Number) {
             return true;
-        }
-      switch (datum.getType()) {
-        case r5js.DatumType.STRING:
+        } else if (datum instanceof r5js.ast.String) {
           /* String literals could have escaped backslashes
                      and double quotes, but we want to store them unescaped. */
           // to defeat string-set! on a literal
           datum.unescapeStringLiteral().setImmutable();
-          return true;
-        default:
-          return false;
-      }
+            return true;
+        } else {
+            return false;
+        }
     }));
 
 
@@ -650,11 +649,11 @@ r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
     _.matchDatum(function(datum) {
         if (datum instanceof r5js.ast.Boolean ||
             datum instanceof r5js.ast.Character ||
-            datum instanceof r5js.ast.Number) {
+            datum instanceof r5js.ast.Number ||
+            datum instanceof r5js.ast.String) {
             return true;
         }
       switch (datum.getType()) {
-        case r5js.DatumType.STRING:
         case r5js.DatumType.IDENTIFIER:
           return true;
         default:
@@ -941,15 +940,12 @@ r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
     _.matchDatum(function(datum) {
         if (datum instanceof r5js.ast.Boolean ||
             datum instanceof r5js.ast.Character ||
-            datum instanceof r5js.ast.Number) {
+            datum instanceof r5js.ast.Number ||
+            datum instanceof r5js.ast.String) {
             return true;
+        } else {
+            return false;
         }
-      switch (datum.getType()) {
-        case r5js.DatumType.STRING:
-          return true;
-        default:
-          return false;
-      }
     }));
 
 
