@@ -17,6 +17,7 @@ goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.Boolean');
+goog.require('r5js.ast.Character');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.OutputPort');
 goog.require('r5js.procspec');
@@ -809,9 +810,7 @@ PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
         throw new r5js.ArgumentTypeError(
             inputPortToUse, 0, 'peek-char', r5js.DatumType.INPUT_PORT);
       }
-      return r5js.data.newIdOrLiteral(
-          inputPortToUse.getPayload().peekChar(),
-          r5js.DatumType.CHARACTER);
+      return new r5js.ast.Character(inputPortToUse.getPayload().peekChar());
     });
 
 PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
@@ -821,9 +820,7 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
         throw new r5js.ArgumentTypeError(
             inputPortToUse, 0, 'read-char', r5js.DatumType.INPUT_PORT);
       }
-      return r5js.data.newIdOrLiteral(
-          inputPortToUse.getPayload().readChar(),
-          r5js.DatumType.CHARACTER);
+      return new r5js.ast.Character(inputPortToUse.getPayload().readChar());
     });
 
 PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(

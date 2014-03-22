@@ -34,6 +34,7 @@ goog.require('r5js.RenameHelper');
 goog.require('r5js.TemplateIdTransformer');
 goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.Boolean');
+goog.require('r5js.ast.Character');
 goog.require('r5js.data');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
@@ -269,12 +270,12 @@ r5js.Parser.grammar[Nonterminals.DATUM] = _.seq(
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 r5js.Parser.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
     _.matchDatum(function(datum) {
-        if (datum instanceof r5js.ast.Boolean) {
+        if (datum instanceof r5js.ast.Boolean ||
+            datum instanceof r5js.ast.Character) {
             return true;
         }
       switch (datum.getType()) {
         case r5js.DatumType.NUMBER:
-        case r5js.DatumType.CHARACTER:
           return true;
         case r5js.DatumType.STRING:
           /* String literals could have escaped backslashes
@@ -647,12 +648,12 @@ r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.choice(
  */
 r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
     _.matchDatum(function(datum) {
-        if (datum instanceof r5js.ast.Boolean) {
+        if (datum instanceof r5js.ast.Boolean ||
+            datum instanceof r5js.ast.Character) {
             return true;
         }
       switch (datum.getType()) {
         case r5js.DatumType.NUMBER:
-        case r5js.DatumType.CHARACTER:
         case r5js.DatumType.STRING:
         case r5js.DatumType.IDENTIFIER:
           return true;
@@ -938,12 +939,12 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
 r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
     _.matchDatum(function(datum) {
-        if (datum instanceof r5js.ast.Boolean) {
+        if (datum instanceof r5js.ast.Boolean ||
+            datum instanceof r5js.ast.Character) {
             return true;
         }
       switch (datum.getType()) {
         case r5js.DatumType.NUMBER:
-        case r5js.DatumType.CHARACTER:
         case r5js.DatumType.STRING:
           return true;
         default:

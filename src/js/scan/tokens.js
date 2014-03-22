@@ -11,6 +11,7 @@ goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
 goog.require('r5js.ast.Boolean');
+goog.require('r5js.ast.Character');
 goog.require('r5js.parse.Terminals');
 
 
@@ -100,6 +101,12 @@ r5js.token.Character = function(name) {
       r5js.token.Character.normalize_(name), r5js.DatumType.CHARACTER);
 };
 goog.inherits(r5js.token.Character, r5js.token.Base_);
+
+
+/** @override */
+r5js.token.Character.prototype.toDatum = function() {
+  return new r5js.ast.Character(this.payload_);
+};
 
 
 /**

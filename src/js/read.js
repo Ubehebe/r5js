@@ -69,20 +69,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
             return /** @type {string} */ (this.getPayload());
         case r5js.DatumType.NUMBER:
             return this.getPayload() + '';
-        case r5js.DatumType.CHARACTER:
-            switch (outputMode) {
-                case r5js.OutputMode.WRITE:
-                    if (this.getPayload() === ' ')
-                        return '#\\space';
-                    else if (this.getPayload() === '\n')
-                        return '#\\newline';
-                    else
-                        return '#\\' + this.getPayload();
-                case r5js.OutputMode.DISPLAY:
-                default:
-                    return /** @type {string} */(this.getPayload());
-            }
-            break;
         case r5js.DatumType.STRING:
             switch (outputMode) {
                 case r5js.OutputMode.WRITE:

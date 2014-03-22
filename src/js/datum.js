@@ -15,6 +15,7 @@
 
 
 goog.provide('r5js.ast.Boolean');
+goog.provide('r5js.ast.Character');
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 goog.provide('r5js.DottedList');
@@ -36,6 +37,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.OutputMode')
 goog.require('r5js.RenameHelper');
 goog.require('r5js.Macro');
 goog.require('r5js.SiblingBuffer');
@@ -600,7 +602,7 @@ r5js.Datum.prototype.isIdentifier = function() {
 
 /** @return {boolean} True iff this datum represents a character. */
 r5js.Datum.prototype.isCharacter = function() {
-    return this.type_ === r5js.DatumType.CHARACTER;
+    return this instanceof r5js.ast.Character;
 };
 
 /** @return {boolean} True iff this datum represents a number. */
@@ -621,7 +623,6 @@ r5js.Datum.prototype.isString = function() {
 r5js.Datum.prototype.isLiteral = function() {
     switch (this.type_) {
         case r5js.DatumType.IDENTIFIER:
-        case r5js.DatumType.CHARACTER:
         case r5js.DatumType.NUMBER:
         case r5js.DatumType.STRING:
             return true;
@@ -1371,6 +1372,8 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
             return ans;
         case r5js.DatumType.BOOLEAN:
             return new r5js.ast.Boolean(/** @type {boolean} */ (payload));
+        case r5js.DatumType.CHARACTER:
+            return new r5js.ast.Character(/** @type {string} */ (payload));
         default:
         ans = new r5js.Datum();
         ans.setType(opt_type || r5js.DatumType.IDENTIFIER);
@@ -1451,6 +1454,43 @@ r5js.ast.Boolean.prototype.stringForOutputMode = function() {
 
 
 /**
+ * @param {string} c
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.ast.Character = function(c) {
+    goog.base(this);
+    this.payload_ = c;
+    this.type_ = r5js.DatumType.CHARACTER;
+};
+goog.inherits(r5js.ast.Character, r5js.Datum);
+
+
+/** @override */
+r5js.ast.Character.prototype.isLiteral = function() {
+    return true;
+};
+
+
+/** @override */
+r5js.ast.Character.prototype.stringForOutputMode = function(outputMode) {
+    switch (outputMode) {
+        case r5js.OutputMode.WRITE:
+            if (this.getPayload() === ' ')
+                return '#\\space';
+            else if (this.getPayload() === '\n')
+                return '#\\newline';
+            else
+                return '#\\' + this.getPayload();
+        case r5js.OutputMode.DISPLAY:
+        default:
+            return /** @type {string} */(this.getPayload());
+    }
+};
+
+
+/**
  * @param {!r5js.PayloadType} result The result to potentially wrap.
  * @param {!r5js.Type=} opt_type TODO bl
  * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
@@ -1471,6 +1511,8 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
     ans.payload_ = result;
     if (opt_type === r5js.DatumType.BOOLEAN) {
         return new r5js.ast.Boolean(/** @type {boolean} */ (result));
+    } else if (opt_type === r5js.DatumType.CHARACTER) {
+        return new r5js.ast.Character(/** @type {string} */ (result));
     } else if (goog.isDef(opt_type)) {
         ans.type_ = opt_type;
     } else {
