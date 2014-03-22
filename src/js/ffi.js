@@ -19,6 +19,7 @@ goog.provide('r5js.ffiutil');
 
 
 goog.require('r5js.ast.Boolean');
+goog.require('r5js.ast.Number');
 goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
@@ -72,7 +73,7 @@ r5js.ProcCall.prototype.tryFFI = function(
                 ans = r5js.data.maybeWrapResult(property, r5js.DatumType.STRING);
                 break;
             case 'number':
-                ans = r5js.data.maybeWrapResult(property, r5js.DatumType.NUMBER);
+                ans = new r5js.ast.Number(property);
                 break;
             case 'boolean':
                 ans = new r5js.ast.Boolean(property);

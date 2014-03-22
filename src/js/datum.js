@@ -16,6 +16,7 @@
 
 goog.provide('r5js.ast.Boolean');
 goog.provide('r5js.ast.Character');
+goog.provide('r5js.ast.Number');
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 goog.provide('r5js.DottedList');
@@ -602,7 +603,7 @@ r5js.Datum.prototype.isIdentifier = function() {
 
 /** @return {boolean} True iff this datum represents a number. */
 r5js.Datum.prototype.isNumber = function() {
-    return this.type_ === r5js.DatumType.NUMBER;
+    return this instanceof r5js.ast.Number;
 };
 
 /** @return {boolean} True iff this datum represents a string. */
@@ -618,7 +619,6 @@ r5js.Datum.prototype.isString = function() {
 r5js.Datum.prototype.isLiteral = function() {
     switch (this.type_) {
         case r5js.DatumType.IDENTIFIER:
-        case r5js.DatumType.NUMBER:
         case r5js.DatumType.STRING:
             return true;
         default:
@@ -1368,6 +1368,8 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
             return new r5js.ast.Boolean(/** @type {boolean} */ (payload));
         case r5js.DatumType.CHARACTER:
             return new r5js.ast.Character(/** @type {string} */ (payload));
+        case r5js.DatumType.NUMBER:
+            return new r5js.ast.Number(/** @type {number} */ (payload));
         default:
         ans = new r5js.Datum();
         ans.setType(opt_type || r5js.DatumType.IDENTIFIER);
@@ -1499,6 +1501,32 @@ r5js.ast.Character.prototype.stringForOutputMode = function(outputMode) {
 
 
 /**
+ * @param {number} x
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.ast.Number = function(x) {
+    goog.base(this);
+    this.type_ = r5js.DatumType.NUMBER; // TODO bl remove
+    this.payload_ = x;
+};
+goog.inherits(r5js.ast.Number, r5js.Datum);
+
+
+/** @override */
+r5js.ast.Number.prototype.isLiteral = function() {
+    return true;
+};
+
+
+/** @override */
+r5js.ast.Number.prototype.stringForOutputMode = function(outputMode) {
+    return this.payload_ + '';
+};
+
+
+/**
  * @param {!r5js.PayloadType} result The result to potentially wrap.
  * @param {!r5js.Type=} opt_type TODO bl
  * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
@@ -1521,6 +1549,8 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
         return new r5js.ast.Boolean(/** @type {boolean} */ (result));
     } else if (opt_type === r5js.DatumType.CHARACTER) {
         return new r5js.ast.Character(/** @type {string} */ (result));
+    } else if (opt_type === r5js.DatumType.NUMBER) {
+        return new r5js.ast.Number(/** @type {number} */ (result));
     } else if (goog.isDef(opt_type)) {
         ans.type_ = opt_type;
     } else {
@@ -1529,8 +1559,7 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
             case 'boolean':
                 return new r5js.ast.Boolean(result);
             case 'number':
-                ans.type_ = r5js.DatumType.NUMBER;
-                break;
+                return new r5js.ast.Number(result);
             case 'string':
                 ans.type_ = r5js.DatumType.IDENTIFIER;
                 break;
