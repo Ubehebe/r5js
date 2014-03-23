@@ -442,7 +442,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
     // Do the appropriate substitutions.
     ans = arg.replaceChildren(
         function(node) {
-          return node.shouldUnquote();
+          return node instanceof r5js.ast.Identifier && node.shouldUnquote();
         },
         function(node) {
           var ans = r5js.datumutil.maybeWrapResult(
@@ -451,7 +451,8 @@ r5js.ProcCall.prototype.tryIdShim = function(
             if (ans instanceof r5js.Ref) {
                 ans = ans.deref();
             }
-          if (node.shouldUnquoteSplice()) {
+          if (node instanceof r5js.ast.Identifier &&
+              node.shouldUnquoteSplice()) {
             if (ans instanceof r5js.List) {
               if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
                 ans = ans.getFirstChild();

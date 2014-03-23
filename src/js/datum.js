@@ -17,7 +17,6 @@
 goog.provide('r5js.ast.Identifier');
 goog.provide('r5js.ast.Literal');
 goog.provide('r5js.ast.SimpleDatum');
-goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 goog.provide('r5js.DottedList');
 goog.provide('r5js.Lambda');
@@ -1111,24 +1110,7 @@ r5js.Datum.CPS_PREFIX_ = '@';
 r5js.Datum.PROC_PREFIX_ = 'proc';
 
 
-/**
- * @return {boolean} True iff this Datum is in a quasiquotation and should be
- * unquoted (i.e. starts with a ,).
- */
-r5js.Datum.prototype.shouldUnquote = function() {
-    return this instanceof r5js.ast.Identifier &&
-        this.payload_.charAt(0) === ',';
-};
 
-/**
- * This is a subcase of shouldUnquote, because unquotes and unquote-splicings
- * have pretty much the same logic.
- * @return {boolean} TODO bl
- */
-r5js.Datum.prototype.shouldUnquoteSplice = function() {
-    return this instanceof r5js.ast.Identifier &&
-        this.payload_.charAt(1) === r5js.Datum.CPS_PREFIX_;
-};
 
 /**
  * Munges definitions to get them in a form suitable for let-type bindings.
@@ -1388,5 +1370,22 @@ goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
 /** @override */
 r5js.ast.Identifier.prototype.stringForOutputMode = function(outputMode) {
     return this.payload_;
+};
+
+/**
+ * @return {boolean} True iff this Datum is in a quasiquotation and should be
+ * unquoted (i.e. starts with a ,).
+ */
+r5js.ast.Identifier.prototype.shouldUnquote = function() {
+    return this.payload_.charAt(0) === ',';
+};
+
+/**
+ * This is a subcase of shouldUnquote, because unquotes and unquote-splicings
+ * have pretty much the same logic.
+ * @return {boolean} TODO bl
+ */
+r5js.ast.Identifier.prototype.shouldUnquoteSplice = function() {
+    return this.payload_.charAt(1) === r5js.Datum.CPS_PREFIX_;
 };
 
