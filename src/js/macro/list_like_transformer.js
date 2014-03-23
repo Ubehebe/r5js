@@ -24,6 +24,7 @@ goog.provide('r5js.VectorTransformer');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.List');
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.ast.Vector');
 goog.require('r5js.parse.Terminals');
 
 
@@ -237,7 +238,7 @@ goog.inherits(r5js.VectorTransformer, r5js.ListLikeTransformer.Base_);
 /** @override */
 r5js.VectorTransformer.prototype.couldMatch = function(inputDatum) {
   // Vector patterns match only vector inputs
-  return inputDatum.isVector();
+  return inputDatum instanceof r5js.ast.Vector;
 };
 
 

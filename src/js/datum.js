@@ -541,13 +541,6 @@ r5js.Datum.prototype.sequence = function(env) {
 
 
 /**
- * @return {boolean} True iff this datum represents a vector.
- */
-r5js.Datum.prototype.isVector = function() {
-    return this.type_ === r5js.DatumType.VECTOR;
-};
-
-/**
  * @return {boolean} True iff this datum represents a vector
  * and is backed by a JavaScript array.
  * See {@link r5js.Datum.convertVectorToArrayBacked}.
@@ -921,9 +914,7 @@ r5js.Datum.prototype.quote = function() {
  * Finally, the vector stuff may need to be overhauled.
  */
 r5js.Datum.prototype.unwrap = function() {
-
-    return (this.payload_ !== undefined
-        && !this.isVector()) // watch out for 0's and falses
+    return this.payload_ !== undefined
         ? this.payload_
         : this;
 };

@@ -45,3 +45,12 @@ r5js.ast.Vector.prototype.stringForOutputMode = function(outputMode) {
       children.join(' ') +
       r5js.parse.Terminals.RPAREN;
 };
+
+
+/**
+ * @override
+ * TODO bl explain or remove.
+ */
+r5js.ast.Vector.prototype.unwrap = function() {
+  return this;
+};

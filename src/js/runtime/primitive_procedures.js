@@ -83,7 +83,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     return ans;
   } else if (p.isImproperList()) {
     return p === q;
-  } else if (p.isVector()) {
+  } else if (p instanceof r5js.ast.Vector) {
     return (p.isArrayBacked() && q.isArrayBacked()) ?
         p.getPayload() === q.getPayload() :
         p === q;
@@ -167,7 +167,7 @@ PrimitiveProcedures['symbol?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['vector?'] = _.unary(function(node) {
-  return node.isVector();
+  return node instanceof r5js.ast.Vector;
 });
 
 // Number-related procedures
@@ -547,7 +547,7 @@ PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
   v = v.unwrap();
   k = k.unwrap();
 
-  if (!v.isVector()) {
+  if (!(v instanceof r5js.ast.Vector)) {
     throw new r5js.ArgumentTypeError(
         v, 0, 'vector-set!', r5js.DatumType.VECTOR);
   }

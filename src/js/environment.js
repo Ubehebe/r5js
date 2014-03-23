@@ -277,7 +277,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
             this.bindings_[name] = val;
         } else if (val instanceof r5js.Datum) {
         // lots of stuff, including wrapped procedures
-            if (val.isVector() && !val.isArrayBacked()) {
+            if (val instanceof r5js.ast.Vector && !val.isArrayBacked()) {
                 this.bindings_[name] = val.convertVectorToArrayBacked();
             /* r5js.Environment.prototype.get should honor requests to store
              both unwrapped procedures (= JavaScript functions and
