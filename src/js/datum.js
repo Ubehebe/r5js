@@ -21,7 +21,7 @@ goog.provide('r5js.Datum');
 goog.provide('r5js.DottedList');
 goog.provide('r5js.Lambda');
 goog.provide('r5js.List');
-goog.provide('r5js.MacroDatum');
+goog.provide('r5js.ast.Macro');
 goog.provide('r5js.Quasiquote');
 goog.provide('r5js.Quote');
 goog.provide('r5js.Ref');
@@ -1323,15 +1323,15 @@ r5js.Ref.prototype.stringForOutputMode = function(outputMode) {
  * @struct
  * @constructor
  */
-r5js.MacroDatum = function(macro) {
+r5js.ast.Macro = function(macro) {
     goog.base(this);
     this.payload_ = macro;
 };
-goog.inherits(r5js.MacroDatum, r5js.Datum);
+goog.inherits(r5js.ast.Macro, r5js.Datum);
 
 
 /** @override */
-r5js.MacroDatum.prototype.stringForOutputMode = function(outputMode) {
+r5js.ast.Macro.prototype.stringForOutputMode = function(outputMode) {
     return '[macro]';
 };
 

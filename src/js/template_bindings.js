@@ -17,7 +17,7 @@
 goog.provide('r5js.TemplateBindings');
 
 goog.require('r5js.InternalInterpreterError');
-// TODO bl circular dependency goog.require('r5js.MacroDatum');
+// TODO bl circular dependency goog.require('r5js.ast.Macro');
 
 /**
  * My approach for supporting nested ellipses in macro transcriptions
@@ -116,7 +116,7 @@ r5js.TemplateBindings.prototype.resetCurChild = function() {
 r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
     if (name in this.bindings_) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
-    } else if (val instanceof r5js.MacroDatum) {
+    } else if (val instanceof r5js.ast.Macro) {
         // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
         var fakeName = newCpsName();
         this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
