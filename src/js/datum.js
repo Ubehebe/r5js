@@ -17,7 +17,6 @@
 goog.provide('r5js.ast.Identifier');
 goog.provide('r5js.ast.Literal');
 goog.provide('r5js.ast.SimpleDatum');
-goog.provide('r5js.ast.String');
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
 goog.provide('r5js.DottedList');
@@ -1371,41 +1370,6 @@ r5js.ast.SimpleDatum = function() {
 };
 goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
 
-
-/**
- * @param {string} s
- * @extends {r5js.ast.SimpleDatum}
- * @struct
- * @constructor
- */
-r5js.ast.String = function(s) {
-    goog.base(this);
-    this.type_ = r5js.DatumType.STRING; // TODO bl remove
-    this.payload_ = s;
-};
-goog.inherits(r5js.ast.String, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.String.prototype.stringForOutputMode = function(outputMode) {
-    return outputMode === r5js.OutputMode.DISPLAY ?
-        this.payload_ :
-        '"' + this.payload_.replace(/([\\"])/g, "\\$1") + '"';
-};
-
-
-/**
- * Datums representing strings have payloads of type string.
- * If they all unwrapped as JavaScript strings, it would be impossible
- * to re-wrap them correctly (noninjective mapping). We choose to store
- * identifiers unwrapped because they're expected to be more common than
- * strings.
- *
- * @override
- */
-r5js.ast.String.prototype.unwrap = function() {
-    return this;
-};
 
 /**
  * @param {string} name
