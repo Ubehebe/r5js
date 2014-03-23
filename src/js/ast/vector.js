@@ -24,6 +24,40 @@ r5js.ast.Vector = function(firstChildOrArray) {
 goog.inherits(r5js.ast.Vector, r5js.Datum);
 
 
+/**
+ * @return {boolean} True iff this datum represents a vector
+ * and is backed by a JavaScript array.
+ * See {@link r5js.Datum.convertVectorToArrayBacked}.
+ * TODO bl: this method doesn't actually check that the datum represents
+ * a vector.
+ */
+r5js.ast.Vector.prototype.isArrayBacked = function() {
+  return !!this.getPayload();
+};
+
+
+/**
+ * Vector literals are constructed by the reader as linked lists
+ * with no random access, while vectors created programmatically
+ * via make-vector can just use JavaScript arrays. Instead of building
+ * logic into the reader to convert its inefficient vectors to array-backed
+ * ones, we check in every primitive vector procedure if the vector
+ * is array-backed, and mutate it in place if it isn't. There may
+ * be bugs involving the lost child/sibling pointers.
+ * @return {!r5js.Datum} This object, for chaining.
+ * @suppress {checkTypes} for setFirstChild(null). TODO bl remove.
+ */
+r5js.ast.Vector.prototype.convertVectorToArrayBacked = function() {
+  var newPayload = [];
+  this.forEachChild(function(child) {
+    newPayload.push(child);
+  });
+  this.setPayload(newPayload);
+  this.setFirstChild(null);
+  return this;
+};
+
+
 /** @override */
 r5js.ast.Vector.prototype.stringForOutputMode = function(outputMode) {
   if (this.isArrayBacked()) {
