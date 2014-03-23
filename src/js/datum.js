@@ -598,12 +598,6 @@ r5js.Datum.prototype.convertVectorToArrayBacked = function () {
 };
 
 
-/** @return {boolean} True iff this datum represents an identifier. */
-r5js.Datum.prototype.isIdentifier = function() {
-    return this instanceof r5js.ast.Identifier;
-};
-
-
 /**
  * @return {boolean} True iff this datum represents a boolean, identifier,
  * character, number, string, or lambda.
@@ -1136,7 +1130,7 @@ r5js.Datum.PROC_PREFIX_ = 'proc';
  * unquoted (i.e. starts with a ,).
  */
 r5js.Datum.prototype.shouldUnquote = function() {
-    return this.isIdentifier() &&
+    return this instanceof r5js.ast.Identifier &&
         this.payload_.charAt(0) === ',';
 };
 
@@ -1146,7 +1140,7 @@ r5js.Datum.prototype.shouldUnquote = function() {
  * @return {boolean} TODO bl
  */
 r5js.Datum.prototype.shouldUnquoteSplice = function() {
-    return this.isIdentifier() &&
+    return this instanceof r5js.ast.Identifier &&
         this.payload_.charAt(1) === r5js.Datum.CPS_PREFIX_;
 };
 

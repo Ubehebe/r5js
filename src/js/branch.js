@@ -16,6 +16,7 @@
 goog.provide('r5js.Branch');
 
 
+goog.require('r5js.ast.Identifier');
 goog.require('r5js.Continuable');
 goog.require('r5js.data');
 goog.require('r5js.DatumType');
@@ -66,9 +67,9 @@ r5js.Branch.prototype.evalAndAdvance = function(
 
     /* Branches always use the old environment left by the previous action
     on the trampoline. */
-    var testResult = this.test.isIdentifier()
-        ? envBuffer.get(this.test.getPayload())
-        : r5js.data.maybeWrapResult(this.test, this.test.getType()).getPayload();
+    var testResult = this.test instanceof r5js.ast.Identifier ?
+        envBuffer.get(/** @type {string} */ (this.test.getPayload())) :
+        r5js.data.maybeWrapResult(this.test, this.test.getType()).getPayload();
     if (testResult === false) {
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;

@@ -22,6 +22,7 @@ goog.require('r5js.ParseError');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
+// TODO bl circular dependency goog.require('r5js.ast.Identifier');
 goog.require('r5js.parse.Nonterminals');
 
 
@@ -227,10 +228,13 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
            todo bl: we should be able to determine the id's in the template
            that will have to be renamed prior to transcription. That would
            save the following tree walk replacing all the identifiers. */
-        var fake = new r5js.SiblingBuffer().appendSibling(newParseTree).toList();
+        var fake = new r5js.SiblingBuffer().
+            appendSibling(newParseTree).
+            toList();
         fake.replaceChildren(
             function(node) {
-              return node.isIdentifier() && toRename[node.getPayload()];
+              return node instanceof r5js.ast.Identifier &&
+                  toRename[node.getPayload()];
             },
             function(node) {
               node.setPayload(toRename[node.getPayload()]);

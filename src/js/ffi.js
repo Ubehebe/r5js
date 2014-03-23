@@ -19,6 +19,7 @@ goog.provide('r5js.ffiutil');
 
 
 goog.require('r5js.ast.Boolean');
+goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
 goog.require('r5js.data');
@@ -49,7 +50,7 @@ r5js.ProcCall.prototype.tryFFI = function(
         } else if (this.firstOperand
             && !this.firstOperand.getNextSibling()
             && this.firstOperand instanceof r5js.Quote
-            && this.firstOperand.getFirstChild().isIdentifier()) {
+            && this.firstOperand.getFirstChild() instanceof r5js.ast.Identifier) {
             property = jsObjOrMethod.getObject()[this.firstOperand.getFirstChild().getPayload()];
         } else throw new r5js.FFIError();
 

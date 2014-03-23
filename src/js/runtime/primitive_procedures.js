@@ -57,7 +57,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
 
   if (p instanceof r5js.ast.Boolean) {
     return p.getPayload() === q.getPayload();
-  } else if (p.isIdentifier()) {
+  } else if (p instanceof r5js.ast.Identifier) {
     return p.getPayload() === q.getPayload();
   } else if (p instanceof r5js.ast.Number) {
     return p.getPayload() === q.getPayload(); // todo bl numerical precision...
@@ -162,7 +162,7 @@ PrimitiveProcedures['string?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['symbol?'] = _.unary(function(node) {
-  return node.isIdentifier();
+  return node instanceof r5js.ast.Identifier;
 });
 
 PrimitiveProcedures['vector?'] = _.unary(function(node) {

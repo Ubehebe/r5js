@@ -238,7 +238,7 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 r5js.Parser.grammar[Nonterminals.VARIABLE] = _.seq(
     _.matchDatum(function(datum) {
-      var isIdentifier = datum.isIdentifier();
+      var isIdentifier = datum instanceof r5js.ast.Identifier;
       if (isIdentifier &&
           isParserSensitiveId(/** @type {string} */ (datum.getPayload()))) {
         r5js.Parser.fixParserSensitiveIds_ = true;

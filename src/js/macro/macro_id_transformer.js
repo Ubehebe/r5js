@@ -18,6 +18,9 @@ goog.provide('r5js.PatternIdTransformer');
 goog.provide('r5js.TemplateIdTransformer');
 
 
+goog.require('r5js.ast.Identifier');
+
+
 
 /**
  * @param {!r5js.Datum} datum
@@ -45,7 +48,7 @@ r5js.MacroIdTransformer_.prototype.matchInput = function(
   /* R5RS 4.3.2: "An input form F matches a pattern P if and only if
      [...] P is a datum and F is equal to P in the sense of the equal?
      procedure." */
-  if (!this.datum.isIdentifier()) {
+  if (!(this.datum instanceof r5js.ast.Identifier)) {
     return inputDatum.isEqual(this.datum);
   }
 
@@ -55,7 +58,7 @@ r5js.MacroIdTransformer_.prototype.matchInput = function(
      have the same lexical binding, or the two identifiers are equal
      and both have no lexical binding." */
   if (this.datum.getPayload() in literalIds) {
-    return inputDatum.isIdentifier() &&
+    return inputDatum instanceof r5js.ast.Identifier &&
         (this.datumsAreEqualAndUnbound_(
         inputDatum, definitionEnv, useEnv) ||
         this.datumsHaveSameLexicalBinding_(
@@ -134,7 +137,7 @@ goog.inherits(r5js.PatternIdTransformer, r5js.MacroIdTransformer_);
 /** @override */
 r5js.PatternIdTransformer.prototype.collectNestingLevels = function(
     ellipsisLevel, transformer) {
-  if (!this.datum.isIdentifier()) {
+  if (!(this.datum instanceof r5js.ast.Identifier)) {
     return;
   }
   var name = /** @type {string} */ (this.datum.getPayload());
@@ -161,7 +164,7 @@ goog.inherits(r5js.TemplateIdTransformer, r5js.MacroIdTransformer_);
 /** @override */
 r5js.TemplateIdTransformer.prototype.collectNestingLevels = function(
     ellipsisLevel, transformer) {
-  if (!this.datum.isIdentifier()) {
+  if (!(this.datum instanceof r5js.ast.Identifier)) {
     return;
   }
   var name = /** @type {string} */ (this.datum.getPayload());

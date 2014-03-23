@@ -144,8 +144,8 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
      the _template's_ x should be safely renamed.
      See SchemeMacro.prototype.transcribe. */
     val.forEach(function (datum) {
-        if (datum.isIdentifier()
-            && self.templateRenameCandidates_[/** @type {string} */(
+        if (datum instanceof r5js.ast.Identifier &&
+            self.templateRenameCandidates_[/** @type {string} */(
             datum.getPayload())])
             self.renameInTemplate_[datum.getPayload()] = true;
     });
@@ -248,7 +248,7 @@ r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
     if (!this.patternIds_)
         throw new r5js.InternalInterpreterError('invariant incorrect');
 
-    if (datum.isIdentifier()) {
+    if (datum instanceof r5js.ast.Identifier) {
         var name = /** @type {string} */(datum.getPayload());
 
         var maybe = this.bindings_[name];

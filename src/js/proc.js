@@ -43,6 +43,7 @@ goog.require('r5js.Quote');
 goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
+goog.require('r5js.ast.Identifier');
 goog.require('r5js.data');
 
 
@@ -433,7 +434,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
   else if (r5js.PrimitiveProcedure.isImplementedBy(arg) ||
       arg instanceof r5js.Lambda)
     ans = arg;
-  else if (arg.isIdentifier())
+  else if (arg instanceof r5js.ast.Identifier)
     ans = this.env.get(/** @type {string} */ (arg.getPayload()));
   else if (arg instanceof r5js.Quote) {
     var env = this.env;
@@ -959,9 +960,8 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
      In this implementation, this will bind the JavaScript array [1, 2, 3]
      to _0. Later on the trampoline, we reach (+ _0). We have to know that
      _0 refers to an array of values, not a single value. */
-  if (this.firstOperand instanceof r5js.Datum &&
-      !this.firstOperand.getNextSibling() &&
-      this.firstOperand.isIdentifier()) {
+  if (this.firstOperand instanceof r5js.ast.Identifier &&
+      !this.firstOperand.getNextSibling()) {
     var maybeArray = this.env.get(
         /** @type {string} */ (this.firstOperand.getPayload()));
     if (maybeArray instanceof Array)
@@ -973,7 +973,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.Continuation) {
       args.push(cur);
-    } else if (cur.isIdentifier()) {
+    } else if (cur instanceof r5js.ast.Identifier) {
         var name = /** @type {string} */ (cur.getPayload());
       var toPush = wrapArgs ?
           r5js.data.maybeWrapResult(this.env.get(name)) :
