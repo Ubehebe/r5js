@@ -16,7 +16,6 @@
 
 goog.provide('r5js.ast.Identifier');
 goog.provide('r5js.ast.Literal');
-goog.provide('r5js.ast.Number');
 goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.ast.String');
 goog.provide('r5js.data');
@@ -1371,26 +1370,6 @@ r5js.ast.SimpleDatum = function() {
   goog.base(this);
 };
 goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
-
-
-/**
- * @param {number} x
- * @extends {r5js.ast.SimpleDatum}
- * @struct
- * @constructor
- */
-r5js.ast.Number = function(x) {
-    goog.base(this);
-    this.type_ = r5js.DatumType.NUMBER; // TODO bl remove
-    this.payload_ = x;
-};
-goog.inherits(r5js.ast.Number, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.Number.prototype.stringForOutputMode = function(outputMode) {
-    return this.payload_ + '';
-};
 
 
 /**
