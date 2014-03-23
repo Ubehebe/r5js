@@ -216,7 +216,7 @@ r5js.Datum.prototype.setImmutableOnQuote = function() {
         switch (this.firstChild_.type_) {
             case r5js.parse.Terminals.LPAREN: // TODO bl
             case r5js.parse.Terminals.LPAREN_DOT:
-            case r5js.DatumType.VECTOR:
+            case r5js.parse.Terminals.LPAREN_VECTOR:
                 this.firstChild_.setImmutable();
         }
     }
@@ -506,17 +506,6 @@ r5js.Datum.prototype.getMacro = function() {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     }
 };
-
-/**
- * @param {!Array} array TODO bl Narrow the generic type.
- * @return {!r5js.Datum} A new Datum representing the given array.
- */
-function newVectorDatum(array) {
-    var ans = new r5js.Datum();
-    ans.type_ = r5js.DatumType.VECTOR;
-    ans.payload_ = array;
-    return ans;
-}
 
 
 /**

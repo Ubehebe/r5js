@@ -66,25 +66,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                 ? 'scheme-report-environment-5'
                 : 'null-environment-5';
         case r5js.DatumType.IDENTIFIER:
-        case r5js.DatumType.VECTOR:
-                    if (this.isArrayBacked()) {
-                        ans = '#(';
-                        if (this.getPayload().length > 0) {
-                            for (var i = 0; i < this.getPayload().length - 1; ++i)
-                                ans += this.getPayload()[i] + ' ';
-                            ans += this.getPayload()[this.getPayload().length - 1];
-                        }
-                        return ans + ')';
-                    }
-                // fallthrough for non-array-backed vectors
-                        var children = this.mapChildren(function(child) {
-                            return child.stringForOutputMode(outputMode);
-                        });
-                        // Insert the dot at the next-to-last location.
-                        children.splice(-1, 0, r5js.parse.Terminals.DOT);
-                        return r5js.parse.Terminals.LPAREN +
-                            children.join(' ') +
-                            r5js.parse.Terminals.RPAREN;
                 default:
                     throw new r5js.InternalInterpreterError('unknown datum type ' + this.getType());
             }

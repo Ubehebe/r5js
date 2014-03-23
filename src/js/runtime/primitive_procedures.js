@@ -23,6 +23,7 @@ goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.OutputPort');
 goog.require('r5js.ast.String');
+goog.require('r5js.ast.Vector');
 goog.require('r5js.procspec');
 
 
@@ -527,7 +528,7 @@ PrimitiveProcedures['make-vector'] = _.varargsRange(
       for (var i = 0; i < n; ++i) {
         buf.push(fillNode.clone());
       }
-      return newVectorDatum(buf);
+      return new r5js.ast.Vector(buf);
     }, 1, 2);
 
 PrimitiveProcedures['vector-length'] = _.unary(function(v) {
