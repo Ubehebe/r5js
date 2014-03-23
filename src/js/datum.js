@@ -520,12 +520,6 @@ function newVectorDatum(array) {
 }
 
 
-/** @return {boolean} True iff this datum represents a macro. */
-r5js.Datum.prototype.isMacro = function() {
-    return this instanceof r5js.MacroDatum;
-};
-
-
 /**
  * @param {!r5js.IEnvironment} env TODO bl
  * @return {r5js.Continuable}
