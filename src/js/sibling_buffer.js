@@ -88,6 +88,9 @@ r5js.SiblingBuffer.prototype.toList = function(opt_type) {
     case r5js.parse.Terminals.LPAREN:
       ans = new r5js.List(this.first_);
       break;
+    case r5js.parse.Terminals.LPAREN_VECTOR:
+      ans = new r5js.ast.Vector(/** @type {!r5js.Datum} */ (this.first_));
+      break;
     case r5js.parse.Terminals.TICK:
       ans = new r5js.Quote(this.first_);
       break;

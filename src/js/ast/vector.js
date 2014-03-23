@@ -7,14 +7,18 @@ goog.require('r5js.DatumType');
 
 
 /**
- * @param {!Array.<?>} array TODO bl narrow generic type.
+ * @param {!r5js.Datum|!Array.<!r5js.Datum>} firstChildOrArray
  * @extends {r5js.Datum}
  * @struct
  * @constructor
  */
-r5js.ast.Vector = function(array) {
+r5js.ast.Vector = function(firstChildOrArray) {
   goog.base(this);
-  this.setPayload(array);
+  if (goog.isArray(firstChildOrArray)) {
+    this.setPayload(firstChildOrArray);
+  } else {
+    this.setFirstChild(firstChildOrArray);
+  }
   this.setType(r5js.DatumType.VECTOR); // TODO bl remove
 };
 goog.inherits(r5js.ast.Vector, r5js.Datum);
