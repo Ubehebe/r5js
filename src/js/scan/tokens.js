@@ -12,6 +12,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
+goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
 goog.require('r5js.parse.Terminals');
@@ -69,6 +70,12 @@ r5js.token.Identifier = function(name) {
   goog.base(this, name/*.toLowerCase()*/, r5js.DatumType.IDENTIFIER);
 };
 goog.inherits(r5js.token.Identifier, r5js.token.Base_);
+
+
+/** @override */
+r5js.token.Identifier.prototype.toDatum = function() {
+  return new r5js.ast.Identifier(this.payload_);
+};
 
 
 

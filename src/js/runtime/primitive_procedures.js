@@ -18,6 +18,7 @@ goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
+goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.OutputPort');
@@ -575,7 +576,8 @@ PrimitiveProcedures['symbol->string'] = _.unary(function(sym) {
 }, r5js.DatumType.SYMBOL);
 
 PrimitiveProcedures['string->symbol'] = _.unary(function(node) {
-  return r5js.data.newIdOrLiteral(node.getPayload(), r5js.DatumType.IDENTIFIER);
+  // TODO bl it doesn't seem right to be creating Identifiers instead of Symbols
+  return new r5js.ast.Identifier(node.getPayload());
 });
 
 // Character-related procedures

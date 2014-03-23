@@ -35,6 +35,7 @@ goog.require('r5js.TemplateIdTransformer');
 goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
+goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
 goog.require('r5js.data');
@@ -647,18 +648,11 @@ r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.choice(
  */
 r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
     _.matchDatum(function(datum) {
-        if (datum instanceof r5js.ast.Boolean ||
+        return datum instanceof r5js.ast.Boolean ||
             datum instanceof r5js.ast.Character ||
+            datum instanceof r5js.ast.Identifier ||
             datum instanceof r5js.ast.Number ||
-            datum instanceof r5js.ast.String) {
-            return true;
-        }
-      switch (datum.getType()) {
-        case r5js.DatumType.IDENTIFIER:
-          return true;
-        default:
-          return false;
-      }
+            datum instanceof r5js.ast.String;
     }),
     _.one(Nonterminals.LIST_QQ_TEMPLATE),
     _.one(Nonterminals.VECTOR_QQ_TEMPLATE),
@@ -750,10 +744,7 @@ r5js.Parser.grammar[Nonterminals.MACRO_USE] = _.seq(
 // <keyword> -> <identifier>
 r5js.Parser.grammar[Nonterminals.KEYWORD] = _.seq(
     _.matchDatum(function(datum) {
-      /* TODO bl: Tests fail when I replace this type switch by
-        datum.isIdentifier(), suggesting that this argument is not always
-        a Datum. Investigate. */
-      return datum.getType() === r5js.DatumType.IDENTIFIER;
+      return datum instanceof r5js.ast.Identifier;
     }));
 
 
@@ -1074,10 +1065,7 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE_DATUM] = _.one(
 // <pattern identifier> -> <any identifier except ...>
 r5js.Parser.grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
     _.matchDatum(function(datum) {
-      /* TODO bl: Tests fail when I replace this type switch by
-         datum.isIdentifier(), suggesting that this argument is not
-         always a Datum. Investigate. */
-      return datum.getType() === r5js.DatumType.IDENTIFIER &&
+      return datum instanceof r5js.ast.Identifier &&
           datum.getPayload() !== Terminals.ELLIPSIS;
     }));
 

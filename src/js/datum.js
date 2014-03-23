@@ -16,6 +16,7 @@
 
 goog.provide('r5js.ast.Boolean');
 goog.provide('r5js.ast.Character');
+goog.provide('r5js.ast.Identifier');
 goog.provide('r5js.ast.Number');
 goog.provide('r5js.ast.String');
 goog.provide('r5js.data');
@@ -599,7 +600,7 @@ r5js.Datum.prototype.convertVectorToArrayBacked = function () {
 
 /** @return {boolean} True iff this datum represents an identifier. */
 r5js.Datum.prototype.isIdentifier = function() {
-    return this.type_ === r5js.DatumType.IDENTIFIER;
+    return this instanceof r5js.ast.Identifier;
 };
 
 
@@ -609,12 +610,7 @@ r5js.Datum.prototype.isIdentifier = function() {
  * TODO bl: would "isPrimitive" be a better name?
  */
 r5js.Datum.prototype.isLiteral = function() {
-    switch (this.type_) {
-        case r5js.DatumType.IDENTIFIER:
-            return true;
-        default:
         return false;
-    }
 };
 
 /**
@@ -1358,13 +1354,15 @@ r5js.data.newIdOrLiteral = function(payload, opt_type) {
             return new r5js.ast.Boolean(/** @type {boolean} */ (payload));
         case r5js.DatumType.CHARACTER:
             return new r5js.ast.Character(/** @type {string} */ (payload));
+        case r5js.DatumType.IDENTIFIER:
+            return new r5js.ast.Identifier(/** @type {string} */ (payload));
         case r5js.DatumType.NUMBER:
             return new r5js.ast.Number(/** @type {number} */ (payload));
         case r5js.DatumType.STRING:
             return new r5js.ast.String(/** @type {string} */ (payload));
         default:
         ans = new r5js.Datum();
-        ans.setType(opt_type || r5js.DatumType.IDENTIFIER);
+        ans.setType(opt_type);
     ans.payload_ = payload;
     return ans;
     }
@@ -1559,6 +1557,31 @@ r5js.ast.String.prototype.unwrap = function() {
     return this;
 };
 
+/**
+ * @param {string} name
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.ast.Identifier = function(name) {
+    goog.base(this);
+    this.payload_ = name;
+    this.type_ = r5js.DatumType.IDENTIFIER;
+};
+goog.inherits(r5js.ast.Identifier, r5js.Datum);
+
+
+/** @override */
+r5js.ast.Identifier.prototype.isLiteral = function() {
+    return true;
+};
+
+
+/** @override */
+r5js.ast.Identifier.prototype.stringForOutputMode = function(outputMode) {
+    return this.payload_;
+};
+
 
 
 
@@ -1600,8 +1623,7 @@ r5js.data.maybeWrapResult = function(result, opt_type) {
             case 'number':
                 return new r5js.ast.Number(result);
             case 'string':
-                ans.type_ = r5js.DatumType.IDENTIFIER;
-                break;
+                return new r5js.ast.Identifier(result);
             case 'object':
                 if (result instanceof r5js.Procedure) {
                     ans.type_ = r5js.parse.Terminals.LAMBDA;

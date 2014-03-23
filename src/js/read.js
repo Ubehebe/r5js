@@ -66,7 +66,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
                 ? 'scheme-report-environment-5'
                 : 'null-environment-5';
         case r5js.DatumType.IDENTIFIER:
-            return /** @type {string} */ (this.getPayload());
         case r5js.DatumType.VECTOR:
                     if (this.isArrayBacked()) {
                         ans = '#(';
