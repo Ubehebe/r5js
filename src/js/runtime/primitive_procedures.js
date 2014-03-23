@@ -607,18 +607,15 @@ PrimitiveProcedures['char->integer'] = _.unary(function(node) {
 }, r5js.DatumType.CHARACTER);
 
 PrimitiveProcedures['integer->char'] = _.unary(function(i) {
-  return r5js.data.newIdOrLiteral(
-      String.fromCharCode(i), r5js.DatumType.CHARACTER);
+  return new r5js.ast.Character(String.fromCharCode(i));
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['char-upcase'] = _.unary(function(node) {
-  return r5js.data.newIdOrLiteral(
-      node.getPayload().toUpperCase(), r5js.DatumType.CHARACTER);
+  return new r5js.ast.Character(node.getPayload().toUpperCase());
 }, r5js.DatumType.CHARACTER);
 
 PrimitiveProcedures['char-downcase'] = _.unary(function(node) {
-  return r5js.data.newIdOrLiteral(
-      node.getPayload().toLowerCase(), r5js.DatumType.CHARACTER);
+  return new r5js.ast.Character(node.getPayload().toLowerCase());
 }, r5js.DatumType.CHARACTER);
 
 // String-related procedures
@@ -704,7 +701,7 @@ PrimitiveProcedures['eval'] = _.binary(
   escape into the parser? */
 
       if (expr instanceof r5js.Lambda)
-        return r5js.data.newIdOrLiteral(/** @type {string} */ (expr.getName()));
+        return new r5js.ast.Identifier(/** @type {string} */ (expr.getName()));
 
       else {
         /* Call the parse/desugar/eval portions of the interpreter pipeline
@@ -884,7 +881,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var curProcCall = arguments[arguments.length - 3];
   /* todo bl: very little idea what's going on here, but we seem to
      use both sources of procName. */
-  var procName = r5js.data.newIdOrLiteral(
+  var procName = new r5js.ast.Identifier(
       curProcCall.firstOperand.getPayload() || mustBeProc.getName());
   var continuation = arguments[arguments.length - 2];
   var resultStruct = arguments[arguments.length - 1];
@@ -978,7 +975,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
 
       var result = newCpsName();
       procCallAfter.appendContinuable(
-          newIdShim(r5js.data.newIdOrLiteral(result)));
+          newIdShim(new r5js.ast.Identifier(result)));
       procCallAfter.getLastContinuable().continuation = continuation;
 
       var procCallThunk = r5js.procs.newProcCall(
@@ -1022,7 +1019,7 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
           /** @type {!r5js.IEnvironment} */ (procCall.env));
       var consumerCall = r5js.procs.newProcCall(
           procCall.firstOperand.getNextSibling(),
-          r5js.data.newIdOrLiteral(valuesName),
+          new r5js.ast.Identifier(valuesName),
           continuation);
       consumerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.env));

@@ -98,7 +98,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
       var letrec = new r5js.List(letrecBindings.toSiblings());
       letrec.setNextSibling(cur);
       this.body = r5js.procs.newProcCall(
-          r5js.data.newIdOrLiteral('letrec'),
+          new r5js.ast.Identifier('letrec'),
           letrec,
           new r5js.Continuation());
     }
@@ -235,8 +235,8 @@ r5js.procs = {};
  */
 r5js.procs.newAssignment = function(dstName, srcName, continuation) {
   var operands = new r5js.SiblingBuffer()
-        .appendSibling(r5js.data.newIdOrLiteral(dstName))
-        .appendSibling(r5js.data.newIdOrLiteral(srcName))
+        .appendSibling(new r5js.ast.Identifier(dstName))
+        .appendSibling(new r5js.ast.Identifier(srcName))
         .toSiblings();
 
   return r5js.procs.newProcCall(
@@ -393,7 +393,7 @@ r5js.ProcCall.prototype.debugString = function(
  * @return {!r5js.Datum}
  */
 r5js.ProcCall.prototype.reconstructDatum = function() {
-  var op = r5js.data.newIdOrLiteral(this.operatorName.getPayload());
+  var op = new r5js.ast.Identifier(this.operatorName.getPayload());
   op.setNextSibling(this.firstOperand);
     return new r5js.SiblingBuffer().appendSibling(op).toList();
 };
@@ -466,7 +466,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
     // the newIdOrLiteral part is for (quote quote)
     ans = ans.getFirstChild() ?
         ans.getFirstChild() :
-        r5js.data.newIdOrLiteral(r5js.parse.Terminals.QUOTE);
+        new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
   }
   else if (arg instanceof r5js.Quasiquote) {
     resultStruct.nextContinuable = arg.processQuasiquote(
@@ -539,7 +539,7 @@ r5js.ProcCall.prototype.cpsify = function(
           continuation.lastResultName,
           parserProvider)) instanceof r5js.Continuable) {
         finalArgs.appendSibling(
-            r5js.data.newIdOrLiteral(maybeContinuable
+            new r5js.ast.Identifier(maybeContinuable
                         .getLastContinuable()
                         .continuation
                         .lastResultName));
@@ -556,7 +556,7 @@ r5js.ProcCall.prototype.cpsify = function(
         finalArgs.appendSibling(arg);
       }
     } else if (arg instanceof r5js.Lambda) {
-      finalArgs.appendSibling(r5js.data.newIdOrLiteral(/** @type {string} */ (arg.getName())));
+      finalArgs.appendSibling(new r5js.ast.Identifier(/** @type {string} */ (arg.getName())));
     } else if (arg.isImproperList()) {
       throw new r5js.GeneralSyntaxError(arg);
     } else if ((maybeContinuable = arg.desugar(
@@ -565,8 +565,7 @@ r5js.ProcCall.prototype.cpsify = function(
       /* todo bl is it an invariant violation to be a list
              and not to desugar to a Continuable? */
       finalArgs.appendSibling(
-          r5js.data.newIdOrLiteral(
-              maybeContinuable.
+          new r5js.ast.Identifier(maybeContinuable.
                   getLastContinuable().continuation.lastResultName));
       newCallChain.appendContinuable(maybeContinuable);
     } else {
@@ -993,7 +992,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
       // the newIdOrLiteral part is for (quote quote)
       args.push(cur.getFirstChild() ?
           cur.getFirstChild() :
-          r5js.data.newIdOrLiteral(r5js.parse.Terminals.QUOTE));
+          new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE));
     } else if (cur instanceof r5js.Lambda) {
       args.push(cur);
     } else if (cur.getPayload() !== undefined) {

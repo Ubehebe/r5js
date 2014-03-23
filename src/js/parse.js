@@ -311,7 +311,7 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.seq(
         var lastContinuation = desugaredOp.getLastContinuable().continuation;
         var opName = lastContinuation.lastResultName;
         lastContinuation.nextContinuable = r5js.procs.newProcCall(
-            r5js.data.newIdOrLiteral(opName),
+            new r5js.ast.Identifier(opName),
             operands,
             new r5js.Continuation());
         return desugaredOp;
@@ -374,7 +374,7 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.seq(
           name,
           new r5js.Procedure(
               formals, treatAsDotted, formalRoot.getNextSibling(), env, name));
-      return newIdShim(r5js.data.newIdOrLiteral(name));
+      return newIdShim(new r5js.ast.Identifier(name));
         });
 
 
@@ -550,7 +550,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
 
       var testEndpoint = test.getLastContinuable();
 
-      var testName = r5js.data.newIdOrLiteral(
+      var testName = new r5js.ast.Identifier(
           testEndpoint.continuation.lastResultName);
       var branch = newBranch(
           testName,
@@ -573,7 +573,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
 
       var testEndpoint = test.getLastContinuable();
 
-      var testName = r5js.data.newIdOrLiteral(
+      var testName = new r5js.ast.Identifier(
           testEndpoint.continuation.lastResultName);
       var branch = newBranch(
           testName,

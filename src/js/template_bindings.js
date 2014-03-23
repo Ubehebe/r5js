@@ -120,7 +120,7 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
         // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
         var fakeName = newCpsName();
         this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
-        this.bindings_[name] = r5js.data.newIdOrLiteral(fakeName);
+        this.bindings_[name] = new r5js.ast.Identifier(fakeName);
     } else {
         this.bindings_[name] = val;
     }

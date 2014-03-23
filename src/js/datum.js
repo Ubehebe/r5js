@@ -733,7 +733,7 @@ r5js.Quasiquote.prototype.processQuasiquote = function(
              unquotation or unquotation with splicing. */
             continuation.lastResultName = node.getType() + '' + goog.getUid(new Object());
             newCalls.appendContinuable(asContinuable);
-            return r5js.data.newIdOrLiteral(continuation.lastResultName);
+            return new r5js.ast.Identifier(continuation.lastResultName);
         });
 
     var newDatum = new r5js.Quote(this.firstChild_);
@@ -1172,9 +1172,10 @@ r5js.Datum.prototype.extractDefinition = function() {
  */
 r5js.Datum.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
     var buffer = new r5js.SiblingBuffer();
-    buffer.appendSibling(r5js.data.newIdOrLiteral(r5js.parse.Terminals.LAMBDA));
+    buffer.appendSibling(new r5js.ast.Identifier(r5js.parse.Terminals.LAMBDA));
     if (formalsList.isImproperList() && !formalsList.firstChild_.nextSibling_) {
-        buffer.appendSibling(r5js.data.newIdOrLiteral(formalsList.firstChild_.payload_));
+        buffer.appendSibling(new r5js.ast.Identifier(
+            /** @type {string} */ (formalsList.firstChild_.payload_)));
     } else {
         formalsList.nextSibling_ = null;
         buffer.appendSibling(formalsList);
@@ -1556,6 +1557,7 @@ r5js.ast.Identifier.prototype.stringForOutputMode = function(outputMode) {
  * @param {!r5js.Type=} opt_type TODO bl
  * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
  *         if necessary.
+ * TODO bl: remove. This whole method seems confused.
  */
 r5js.data.maybeWrapResult = function(result, opt_type) {
 

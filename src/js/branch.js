@@ -18,6 +18,7 @@ goog.provide('r5js.Branch');
 
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.Continuable');
+goog.require('r5js.ast.Number');
 goog.require('r5js.data');
 goog.require('r5js.DatumType');
 
@@ -37,6 +38,7 @@ function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable,
 /**
  * @constructor
  * @private
+ * @suppress {checkTypes} for the null argument to r5js.ast.Number ctor.
  */
 r5js.Branch = function(
     testIdOrLiteral, consequentContinuable, alternateContinuable) {
@@ -51,7 +53,7 @@ r5js.Branch = function(
      would activate the default type, identifier, which would change the
      semantics. */
     this.alternate = alternateContinuable
-        || newIdShim(r5js.data.newIdOrLiteral(null, r5js.DatumType.NUMBER));
+        || newIdShim(new r5js.ast.Number(null));
     this.consequentLastContinuable = this.consequent.getLastContinuable();
     this.alternateLastContinuable = this.alternate.getLastContinuable();
 };
