@@ -37,7 +37,6 @@ goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Literal');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
-goog.require('r5js.data');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.bnf');

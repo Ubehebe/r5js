@@ -45,7 +45,7 @@ goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Literal');
-goog.require('r5js.data');
+goog.require('r5js.datumutil');
 
 
 
@@ -445,7 +445,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
           return node.shouldUnquote();
         },
         function(node) {
-          var ans = r5js.data.maybeWrapResult(
+          var ans = r5js.datumutil.maybeWrapResult(
                   env.get(/** @type {string} */ (node.getPayload())));
             // TODO bl document why we're doing this
             if (ans instanceof r5js.Ref) {
@@ -478,7 +478,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
   } else {
-    ans = r5js.data.maybeWrapResult(
+    ans = r5js.datumutil.maybeWrapResult(
         /** @type {!r5js.PayloadType} */ (arg.getPayload()),
         /** @type {string|undefined} */ (arg.getType()));
     if (arg.isImmutable()) {
@@ -980,7 +980,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
     } else if (cur instanceof r5js.ast.Identifier) {
         var name = /** @type {string} */ (cur.getPayload());
       var toPush = wrapArgs ?
-          r5js.data.maybeWrapResult(this.env.get(name)) :
+          r5js.datumutil.maybeWrapResult(this.env.get(name)) :
           this.env.get(name);
       /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
@@ -1000,7 +1000,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
     } else if (cur instanceof r5js.Lambda) {
       args.push(cur);
     } else if (cur.getPayload() !== undefined) {
-      args.push(r5js.data.maybeWrapResult(cur.getPayload(), cur.getType()));
+      args.push(r5js.datumutil.maybeWrapResult(cur.getPayload(), cur.getType()));
     } else {
         throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
     }

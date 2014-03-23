@@ -16,7 +16,6 @@
 
 goog.provide('r5js.TemplateBindings');
 
-// TODO bl circular dependency! goog.require('r5js.data');
 goog.require('r5js.InternalInterpreterError');
 
 /**

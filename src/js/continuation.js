@@ -21,7 +21,6 @@ goog.require('r5js.Branch');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.MacroDatum');
 goog.require('r5js.ast.Identifier');
-goog.require('r5js.data');
 // TODO bl cyclic dependency goog.require('r5js.procs');
 
 

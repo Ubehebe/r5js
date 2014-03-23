@@ -7,7 +7,7 @@ goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
-goog.require('r5js.data');
+goog.require('r5js.datumutil');
 
 
 
@@ -294,7 +294,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.Call = function(
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
   var retval = this.fn_.apply(null, unwrappedArgs);
-  var ans = r5js.data.maybeWrapResult(retval);
+  var ans = r5js.datumutil.maybeWrapResult(retval);
   procCall.bindResult(continuation, ans);
   trampolineHelper.ans = ans;
   trampolineHelper.nextContinuable = continuation.nextContinuable;
@@ -343,7 +343,7 @@ r5js.procspec.NeedsCurrentPorts_.prototype.Call = function(
       goog.array.toArray(unwrappedArgs),
       trampolineHelper.getInputPort(), trampolineHelper.getOutputPort());
   var retval = this.fn_.apply(null, args);
-  var ans = r5js.data.maybeWrapResult(retval);
+  var ans = r5js.datumutil.maybeWrapResult(retval);
   procCall.bindResult(continuation, ans);
   trampolineHelper.ans = ans;
   trampolineHelper.nextContinuable = continuation.nextContinuable;

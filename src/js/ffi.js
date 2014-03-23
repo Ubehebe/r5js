@@ -22,7 +22,6 @@ goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
-goog.require('r5js.data');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.FFIError');
