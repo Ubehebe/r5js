@@ -74,6 +74,7 @@ r5js.SiblingBuffer.prototype.toSiblings = function() {
  */
 r5js.SiblingBuffer.prototype.toList = function(opt_type) {
   var ans;
+  opt_type = opt_type || r5js.parse.Terminals.LPAREN;
   switch (opt_type) {
     case r5js.parse.Terminals.BACKTICK:
       ans = new r5js.Quasiquote(this.first_);
@@ -84,19 +85,18 @@ r5js.SiblingBuffer.prototype.toList = function(opt_type) {
     case r5js.parse.Terminals.COMMA_AT:
       ans = new r5js.UnquoteSplicing(this.first_);
       break;
+    case r5js.parse.Terminals.LPAREN:
+      ans = new r5js.List(this.first_);
+      break;
     case r5js.parse.Terminals.TICK:
       ans = new r5js.Quote(this.first_);
       break;
     default:
-      if (opt_type && opt_type !== r5js.parse.Terminals.LPAREN) {
-        ans = new r5js.Datum();
-        if (this.first_) {
-            ans.setFirstChild(this.first_);
-        }
-        ans.setType(opt_type);
-      } else {
-          ans = new r5js.List(this.first_);
+      ans = new r5js.Datum();
+      if (this.first_) {
+        ans.setFirstChild(this.first_);
       }
+      ans.setType(opt_type);
       break;
   }
   if (this.last_) {
