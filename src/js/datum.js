@@ -1235,11 +1235,6 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
     }
 };
 
-/**
- * Convenience functions for manipulating {@link r5js.Datum} objects.
- */
-r5js.data = {};
-
 
 /**
  * @param {!r5js.Datum} deref Datum to dereference.
