@@ -34,6 +34,7 @@ goog.require('r5js.RenameHelper');
 goog.require('r5js.TemplateIdTransformer');
 goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.Identifier');
+goog.require('r5js.ast.Literal');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
 goog.require('r5js.data');
@@ -297,7 +298,7 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.seq(
       // will be null if 0 operands
       var operands = node.at(Nonterminals.OPERAND);
 
-      if (operatorNode.isLiteral()) {
+      if (operatorNode instanceof r5js.ast.Literal) {
         return r5js.procs.newProcCall(
             operatorNode,
             operands,

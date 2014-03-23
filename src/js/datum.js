@@ -17,6 +17,7 @@
 goog.provide('r5js.ast.Boolean');
 goog.provide('r5js.ast.Character');
 goog.provide('r5js.ast.Identifier');
+goog.provide('r5js.ast.Literal');
 goog.provide('r5js.ast.Number');
 goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.ast.String');
@@ -600,15 +601,6 @@ r5js.Datum.prototype.convertVectorToArrayBacked = function () {
 
 
 /**
- * @return {boolean} True iff this datum represents a boolean, identifier,
- * character, number, string, or lambda.
- * TODO bl: would "isPrimitive" be a better name?
- */
-r5js.Datum.prototype.isLiteral = function() {
-        return false;
-};
-
-/**
  * @return {boolean} Whether this datum is a quotation that needs to be
  * normalized.
  */
@@ -760,8 +752,18 @@ r5js.Quasiquote.prototype.setQuasiquotationLevel = function(qqLevel) {
 
 
 /**
- * @param {r5js.Datum} firstChild
  * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.ast.Literal = function() {
+    goog.base(this);
+};
+goog.inherits(r5js.ast.Literal, r5js.Datum);
+
+/**
+ * @param {r5js.Datum} firstChild
+ * @extends {r5js.ast.Literal}
  * @struct
  * @constructor
  */
@@ -770,13 +772,7 @@ r5js.Quote = function(firstChild) {
     this.type_ = r5js.parse.Terminals.TICK;
     this.firstChild_ = firstChild;
 };
-goog.inherits(r5js.Quote, r5js.Datum);
-
-
-/** @override */
-r5js.Quote.prototype.isLiteral = function() {
-    return true;
-};
+goog.inherits(r5js.Quote, r5js.ast.Literal);
 
 
 /** @override */
@@ -809,13 +805,6 @@ goog.inherits(r5js.Lambda, r5js.Datum);
 /** @return {string} */
 r5js.Lambda.prototype.getName = function() {
     return this.name_;
-};
-
-
-
-/** @override */
-r5js.Lambda.prototype.isLiteral = function() {
-    return true;
 };
 
 
@@ -1409,14 +1398,14 @@ r5js.MacroDatum.prototype.stringForOutputMode = function(outputMode) {
 
 
 /**
- * @extends {r5js.Datum}
+ * @extends {r5js.ast.Literal}
  * @struct
  * @constructor
  */
 r5js.ast.SimpleDatum = function() {
   goog.base(this);
 };
-goog.inherits(r5js.ast.SimpleDatum, r5js.Datum);
+goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
 
 
 /**
@@ -1431,12 +1420,6 @@ r5js.ast.Boolean = function(val) {
     this.type_ = r5js.DatumType.BOOLEAN;
 };
 goog.inherits(r5js.ast.Boolean, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.Boolean.prototype.isLiteral = function() {
-    return true;
-};
 
 
 /** @override */
@@ -1457,12 +1440,6 @@ r5js.ast.Character = function(c) {
     this.type_ = r5js.DatumType.CHARACTER;
 };
 goog.inherits(r5js.ast.Character, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.Character.prototype.isLiteral = function() {
-    return true;
-};
 
 
 /**
@@ -1511,12 +1488,6 @@ goog.inherits(r5js.ast.Number, r5js.ast.SimpleDatum);
 
 
 /** @override */
-r5js.ast.Number.prototype.isLiteral = function() {
-    return true;
-};
-
-
-/** @override */
 r5js.ast.Number.prototype.stringForOutputMode = function(outputMode) {
     return this.payload_ + '';
 };
@@ -1534,12 +1505,6 @@ r5js.ast.String = function(s) {
     this.payload_ = s;
 };
 goog.inherits(r5js.ast.String, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.String.prototype.isLiteral = function() {
-    return true;
-};
 
 
 /** @override */
@@ -1575,12 +1540,6 @@ r5js.ast.Identifier = function(name) {
     this.type_ = r5js.DatumType.IDENTIFIER;
 };
 goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.Identifier.prototype.isLiteral = function() {
-    return true;
-};
 
 
 /** @override */

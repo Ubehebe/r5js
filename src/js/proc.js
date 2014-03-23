@@ -44,6 +44,7 @@ goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.ast.Identifier');
+goog.require('r5js.ast.Literal');
 goog.require('r5js.data');
 
 
@@ -406,7 +407,7 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
     if (cur instanceof r5js.Datum) {
       if (cur.isEmptyList()) {
         throw new r5js.IllegalEmptyApplication(this.operatorName.getPayload());
-      } else if (!cur.isLiteral()) {
+      } else if (!(cur instanceof r5js.ast.Literal)) {
         return false;
       }
     }
