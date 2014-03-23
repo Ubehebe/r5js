@@ -1321,40 +1321,6 @@ r5js.data = {};
 
 
 /**
- * @param {r5js.PayloadType} payload
- * @param {!r5js.Type=} opt_type The type of the Datum.
- * If not given, defaults to {@link r5js.DatumType.IDENTIFIER}.
- * @return {!r5js.Datum} New Datum of given type with given payload.
- */
-r5js.data.newIdOrLiteral = function(payload, opt_type) {
-    var ans;
-    // todo bl: we're sometimes creating these with undefined payloads! Investigate.
-    opt_type = opt_type || r5js.DatumType.IDENTIFIER;
-    switch (opt_type) {
-        case r5js.parse.Terminals.LPAREN:
-        ans = new r5js.List(null /* firstChild */);
-        ans.payload_ = payload;
-            return ans;
-        case r5js.DatumType.BOOLEAN:
-            return new r5js.ast.Boolean(/** @type {boolean} */ (payload));
-        case r5js.DatumType.CHARACTER:
-            return new r5js.ast.Character(/** @type {string} */ (payload));
-        case r5js.DatumType.IDENTIFIER:
-            return new r5js.ast.Identifier(/** @type {string} */ (payload));
-        case r5js.DatumType.NUMBER:
-            return new r5js.ast.Number(/** @type {number} */ (payload));
-        case r5js.DatumType.STRING:
-            return new r5js.ast.String(/** @type {string} */ (payload));
-        default:
-        ans = new r5js.Datum();
-        ans.setType(opt_type);
-    ans.payload_ = payload;
-    return ans;
-    }
-};
-
-
-/**
  * @param {!r5js.Datum} deref Datum to dereference.
  * @extends {r5js.Datum}
  * @struct

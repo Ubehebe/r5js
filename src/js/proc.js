@@ -569,7 +569,11 @@ r5js.ProcCall.prototype.cpsify = function(
                   getLastContinuable().continuation.lastResultName));
       newCallChain.appendContinuable(maybeContinuable);
     } else {
-      finalArgs.appendSibling(r5js.data.newIdOrLiteral(arg.getPayload(), arg.getType()));
+        // TODO bl grabbing the arg's ctor is a bad pattern
+        var clonedArg = new arg.constructor();
+        clonedArg.setType(arg.getType());
+        clonedArg.setPayload(arg.getPayload());
+      finalArgs.appendSibling(clonedArg);
     }
   }
 
