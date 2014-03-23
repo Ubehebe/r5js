@@ -33,10 +33,8 @@ goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.TemplateIdTransformer');
 goog.require('r5js.VectorTransformer');
-goog.require('r5js.ast.Boolean');
-goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.Number');
+goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
 goog.require('r5js.data');
 goog.require('r5js.parse.Nonterminals');
@@ -273,19 +271,15 @@ r5js.Parser.grammar[Nonterminals.DATUM] = _.seq(
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 r5js.Parser.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
     _.matchDatum(function(datum) {
-        if (datum instanceof r5js.ast.Boolean ||
-            datum instanceof r5js.ast.Character ||
-            datum instanceof r5js.ast.Number) {
-            return true;
-        } else if (datum instanceof r5js.ast.String) {
+        var ans = datum instanceof r5js.ast.SimpleDatum &&
+            !(datum instanceof r5js.ast.Identifier);
+        if (datum instanceof r5js.ast.String) {
           /* String literals could have escaped backslashes
                      and double quotes, but we want to store them unescaped. */
           // to defeat string-set! on a literal
           datum.unescapeStringLiteral().setImmutable();
-            return true;
-        } else {
-            return false;
         }
+        return ans;
     }));
 
 
@@ -648,11 +642,7 @@ r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.choice(
  */
 r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
     _.matchDatum(function(datum) {
-        return datum instanceof r5js.ast.Boolean ||
-            datum instanceof r5js.ast.Character ||
-            datum instanceof r5js.ast.Identifier ||
-            datum instanceof r5js.ast.Number ||
-            datum instanceof r5js.ast.String;
+        return datum instanceof r5js.ast.SimpleDatum;
     }),
     _.one(Nonterminals.LIST_QQ_TEMPLATE),
     _.one(Nonterminals.VECTOR_QQ_TEMPLATE),
@@ -929,14 +919,8 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
 r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
     _.matchDatum(function(datum) {
-        if (datum instanceof r5js.ast.Boolean ||
-            datum instanceof r5js.ast.Character ||
-            datum instanceof r5js.ast.Number ||
-            datum instanceof r5js.ast.String) {
-            return true;
-        } else {
-            return false;
-        }
+        return datum instanceof r5js.ast.SimpleDatum &&
+            !(datum instanceof r5js.ast.Identifier);
     }));
 
 

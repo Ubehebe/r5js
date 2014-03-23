@@ -18,6 +18,7 @@ goog.provide('r5js.ast.Boolean');
 goog.provide('r5js.ast.Character');
 goog.provide('r5js.ast.Identifier');
 goog.provide('r5js.ast.Number');
+goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.ast.String');
 goog.provide('r5js.data');
 goog.provide('r5js.Datum');
@@ -1408,8 +1409,19 @@ r5js.MacroDatum.prototype.stringForOutputMode = function(outputMode) {
 
 
 /**
- * @param {boolean} val
  * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.ast.SimpleDatum = function() {
+  goog.base(this);
+};
+goog.inherits(r5js.ast.SimpleDatum, r5js.Datum);
+
+
+/**
+ * @param {boolean} val
+ * @extends {r5js.ast.SimpleDatum}
  * @struct
  * @constructor
  */
@@ -1418,7 +1430,7 @@ r5js.ast.Boolean = function(val) {
     this.payload_ = val;
     this.type_ = r5js.DatumType.BOOLEAN;
 };
-goog.inherits(r5js.ast.Boolean, r5js.Datum);
+goog.inherits(r5js.ast.Boolean, r5js.ast.SimpleDatum);
 
 
 /** @override */
@@ -1435,7 +1447,7 @@ r5js.ast.Boolean.prototype.stringForOutputMode = function() {
 
 /**
  * @param {string} c
- * @extends {r5js.Datum}
+ * @extends {r5js.ast.SimpleDatum}
  * @struct
  * @constructor
  */
@@ -1444,7 +1456,7 @@ r5js.ast.Character = function(c) {
     this.payload_ = c;
     this.type_ = r5js.DatumType.CHARACTER;
 };
-goog.inherits(r5js.ast.Character, r5js.Datum);
+goog.inherits(r5js.ast.Character, r5js.ast.SimpleDatum);
 
 
 /** @override */
@@ -1486,7 +1498,7 @@ r5js.ast.Character.prototype.stringForOutputMode = function(outputMode) {
 
 /**
  * @param {number} x
- * @extends {r5js.Datum}
+ * @extends {r5js.ast.SimpleDatum}
  * @struct
  * @constructor
  */
@@ -1495,7 +1507,7 @@ r5js.ast.Number = function(x) {
     this.type_ = r5js.DatumType.NUMBER; // TODO bl remove
     this.payload_ = x;
 };
-goog.inherits(r5js.ast.Number, r5js.Datum);
+goog.inherits(r5js.ast.Number, r5js.ast.SimpleDatum);
 
 
 /** @override */
@@ -1512,7 +1524,7 @@ r5js.ast.Number.prototype.stringForOutputMode = function(outputMode) {
 
 /**
  * @param {string} s
- * @extends {r5js.Datum}
+ * @extends {r5js.ast.SimpleDatum}
  * @struct
  * @constructor
  */
@@ -1521,7 +1533,7 @@ r5js.ast.String = function(s) {
     this.type_ = r5js.DatumType.STRING; // TODO bl remove
     this.payload_ = s;
 };
-goog.inherits(r5js.ast.String, r5js.Datum);
+goog.inherits(r5js.ast.String, r5js.ast.SimpleDatum);
 
 
 /** @override */
@@ -1553,7 +1565,7 @@ r5js.ast.String.prototype.unwrap = function() {
 
 /**
  * @param {string} name
- * @extends {r5js.Datum}
+ * @extends {r5js.ast.SimpleDatum}
  * @struct
  * @constructor
  */
@@ -1562,7 +1574,7 @@ r5js.ast.Identifier = function(name) {
     this.payload_ = name;
     this.type_ = r5js.DatumType.IDENTIFIER;
 };
-goog.inherits(r5js.ast.Identifier, r5js.Datum);
+goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
 
 
 /** @override */
