@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.ast.Boolean');
 goog.provide('r5js.ast.Character');
 goog.provide('r5js.ast.Identifier');
 goog.provide('r5js.ast.Literal');
@@ -1373,26 +1372,6 @@ r5js.ast.SimpleDatum = function() {
   goog.base(this);
 };
 goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
-
-
-/**
- * @param {boolean} val
- * @extends {r5js.ast.SimpleDatum}
- * @struct
- * @constructor
- */
-r5js.ast.Boolean = function(val) {
-    goog.base(this);
-    this.payload_ = val;
-    this.type_ = r5js.DatumType.BOOLEAN;
-};
-goog.inherits(r5js.ast.Boolean, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.Boolean.prototype.stringForOutputMode = function() {
-    return this.payload_ ? '#t' : '#f';
-};
 
 
 /**
