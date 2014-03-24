@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.ast.Identifier');
 goog.provide('r5js.ast.Literal');
 goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.Datum');
@@ -40,6 +39,8 @@ goog.require('r5js.OutputMode')
 goog.require('r5js.RenameHelper');
 goog.require('r5js.Macro');
 goog.require('r5js.SiblingBuffer');
+
+// TODO bl circular dependency goog.require('r5js.ast.Identifier');
 
 /**
  * TODO bl: this is out of control. Create an interface and have each
@@ -1246,41 +1247,4 @@ r5js.ast.SimpleDatum = function() {
   goog.base(this);
 };
 goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
-
-
-/**
- * @param {string} name
- * @extends {r5js.ast.SimpleDatum}
- * @struct
- * @constructor
- */
-r5js.ast.Identifier = function(name) {
-    goog.base(this);
-    this.payload_ = name;
-    this.type_ = r5js.DatumType.IDENTIFIER;
-};
-goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.Identifier.prototype.stringForOutputMode = function(outputMode) {
-    return this.payload_;
-};
-
-/**
- * @return {boolean} True iff this Datum is in a quasiquotation and should be
- * unquoted (i.e. starts with a ,).
- */
-r5js.ast.Identifier.prototype.shouldUnquote = function() {
-    return this.payload_.charAt(0) === ',';
-};
-
-/**
- * This is a subcase of shouldUnquote, because unquotes and unquote-splicings
- * have pretty much the same logic.
- * @return {boolean} TODO bl
- */
-r5js.ast.Identifier.prototype.shouldUnquoteSplice = function() {
-    return this.payload_.charAt(1) === r5js.Datum.CPS_PREFIX_;
-};
 
