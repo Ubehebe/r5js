@@ -274,10 +274,8 @@ r5js.Parser.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
         var ans = datum instanceof r5js.ast.SimpleDatum &&
             !(datum instanceof r5js.ast.Identifier);
         if (datum instanceof r5js.ast.String) {
-          /* String literals could have escaped backslashes
-                     and double quotes, but we want to store them unescaped. */
           // to defeat string-set! on a literal
-          datum.unescapeStringLiteral().setImmutable();
+          datum.setImmutable();
         }
         return ans;
     }));

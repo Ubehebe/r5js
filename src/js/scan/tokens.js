@@ -226,6 +226,10 @@ r5js.token.Number.convert_ = function(payload) {
  */
 r5js.token.String = function(payload) {
   var actualPayload = payload.substr(1, payload.length - 2);
+  // String literals could have escaped backslashes and double quotes,
+  // but we want to store them unescaped.
+  // TODO bl: there seem to be no tests exercising string unescaping. Add some.
+  //      replace(/\\(["\\])/g, "$1");
   goog.base(this, actualPayload, r5js.DatumType.STRING);
 };
 goog.inherits(r5js.token.String, r5js.token.Base_);

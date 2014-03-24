@@ -341,14 +341,6 @@ r5js.Datum.prototype.clone = function(parent) {
     return ans;
 };
 
-/**
- * TODO bl document what this method does.
- * @return {!r5js.Datum} This object, for chaining.
- */
-r5js.Datum.prototype.unescapeStringLiteral = function() {
-    this.payload_ = this.payload_.replace(/\\(["\\])/g, "$1");
-    return this;
-};
 
 /** @param {!r5js.parse.Nonterminal} type */
 r5js.Datum.prototype.setParse = function(type) {
@@ -956,10 +948,6 @@ r5js.Datum.prototype.normalizeInput = function() {
             curNormalized.nextSibling_ = cur.nextSibling_;
         }
         cur = curNormalized;
-    }
-
-    if (thisNormalized instanceof r5js.ast.String) {
-        thisNormalized.unescapeStringLiteral();
     }
 
     return thisNormalized.setImmutableOnQuote();
