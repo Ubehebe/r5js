@@ -18,7 +18,7 @@ goog.provide('r5js.SiblingBuffer');
 
 
 goog.require('r5js.parse.Terminals'); // TODO bl remove
-// TODO bl cyclic dependency goog.require('r5js.Quote');
+// TODO bl cyclic dependency goog.require('r5js.ast.Quote');
 
 
 
@@ -92,7 +92,7 @@ r5js.SiblingBuffer.prototype.toList = function(opt_type) {
       ans = new r5js.ast.Vector(/** @type {!r5js.Datum} */ (this.first_));
       break;
     case r5js.parse.Terminals.TICK:
-      ans = new r5js.Quote(this.first_);
+      ans = new r5js.ast.Quote(this.first_);
       break;
     default:
       ans = new r5js.Datum();

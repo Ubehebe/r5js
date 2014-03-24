@@ -39,7 +39,7 @@ goog.require('r5js.MacroError');
 goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.Quasiquote');
 goog.require('r5js.QuasiquoteError');
-goog.require('r5js.Quote');
+goog.require('r5js.ast.Quote');
 goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
@@ -437,7 +437,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
     ans = arg;
   else if (arg instanceof r5js.ast.Identifier)
     ans = this.env.get(/** @type {string} */ (arg.getPayload()));
-  else if (arg instanceof r5js.Quote) {
+  else if (arg instanceof r5js.ast.Quote) {
     var env = this.env;
     // Do the appropriate substitutions.
     ans = arg.replaceChildren(
@@ -531,7 +531,7 @@ r5js.ProcCall.prototype.cpsify = function(
     if (arg.isNonNormalizedQuotation()) {
         // TODO bl: quote normalization belongs in the frontend.
         finalArgs.appendSibling(arg.clone(null /* parent */).normalizeInput());
-    } else if (arg instanceof r5js.Quote) {
+    } else if (arg instanceof r5js.ast.Quote) {
           finalArgs.appendSibling(arg.clone(null /* parent */));
     } else if (arg instanceof r5js.Quasiquote) {
       if ((maybeContinuable =
@@ -993,7 +993,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
             /** @type {string} */(cur.getPayload()), 'bad syntax');
       }
       args.push(toPush);
-    } else if (cur instanceof r5js.Quote) {
+    } else if (cur instanceof r5js.ast.Quote) {
       // the newIdOrLiteral part is for (quote quote)
       args.push(cur.getFirstChild() ?
           cur.getFirstChild() :

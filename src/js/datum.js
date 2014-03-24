@@ -21,7 +21,7 @@ goog.provide('r5js.DottedList');
 goog.provide('r5js.Lambda');
 goog.provide('r5js.List');
 goog.provide('r5js.Quasiquote');
-goog.provide('r5js.Quote');
+goog.provide('r5js.ast.Quote');
 goog.provide('r5js.Ref');
 goog.provide('r5js.Unquote');
 goog.provide('r5js.UnquoteSplicing');
@@ -114,7 +114,7 @@ r5js.Datum = function() {
 r5js.Datum.prototype.forEach = function(callback) {
     /* Quotations are like pseudo-leaves in the datum tree, so they should
      be opaque to this function. */
-    if (!(this instanceof r5js.Quote)) {
+    if (!(this instanceof r5js.ast.Quote)) {
         callback(this);
         for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
             cur.forEach(callback);
@@ -657,7 +657,7 @@ r5js.Quasiquote.prototype.processQuasiquote = function(
             return new r5js.ast.Identifier(continuation.lastResultName);
         });
 
-    var newDatum = new r5js.Quote(this.firstChild_);
+    var newDatum = new r5js.ast.Quote(this.firstChild_);
 
     newCalls.appendContinuable(newIdShim(newDatum, cpsName));
     var ans = newCalls.toContinuable();
@@ -688,16 +688,16 @@ goog.inherits(r5js.ast.Literal, r5js.Datum);
  * @struct
  * @constructor
  */
-r5js.Quote = function(firstChild) {
+r5js.ast.Quote = function(firstChild) {
   goog.base(this);
     this.type_ = r5js.parse.Terminals.TICK;
     this.firstChild_ = firstChild;
 };
-goog.inherits(r5js.Quote, r5js.ast.Literal);
+goog.inherits(r5js.ast.Quote, r5js.ast.Literal);
 
 
 /** @override */
-r5js.Quote.prototype.stringForOutputMode = function(outputMode) {
+r5js.ast.Quote.prototype.stringForOutputMode = function(outputMode) {
     var children = this.mapChildren(function(child) {
         return child.stringForOutputMode(outputMode);
     });
@@ -884,7 +884,7 @@ r5js.Datum.prototype.normalizeQuotation_ = function() {
     }
         switch (this.firstChild_.payload_) {
             case r5js.parse.Terminals.QUOTE:
-                return new r5js.Quote(this.firstChild_.nextSibling_);
+                return new r5js.ast.Quote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.QUASIQUOTE:
                 return new r5js.Quasiquote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.UNQUOTE:
@@ -1193,7 +1193,7 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
         this.payload_ =
             helper.getRenameBinding(/** @type {string} */(this.payload_)) ||
                 this.payload_;
-    } else if (this instanceof r5js.Quote) {
+    } else if (this instanceof r5js.ast.Quote) {
         ; // no-op
     } else {
         for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {

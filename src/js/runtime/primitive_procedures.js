@@ -12,7 +12,6 @@ goog.require('r5js.List');
 goog.require('r5js.OutputMode');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.Quasiquote');
-goog.require('r5js.Quote');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
@@ -22,6 +21,7 @@ goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.OutputPort');
+goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
 goog.require('r5js.procspec');
@@ -140,7 +140,7 @@ PrimitiveProcedures['output-port?'] = _.unary(function(node) {
 PrimitiveProcedures['pair?'] = _.unary(function(node) {
   return (node instanceof r5js.List ||
       node.isImproperList() ||
-      node instanceof r5js.Quote) &&
+      node instanceof r5js.ast.Quote) &&
       !!node.getFirstChild(); // 3.2: (pair? '()) => #f
 });
 
@@ -899,7 +899,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     var newArgs = new r5js.SiblingBuffer();
     // todo bl document why we are quoting the arguments
     for (var arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling())
-      newArgs.appendSibling(new r5js.Quote(arg));
+      newArgs.appendSibling(new r5js.ast.Quote(arg));
     var actualProcCall = r5js.procs.newProcCall(
         procName, newArgs.toSiblings(), continuation);
     actualProcCall.setStartingEnv(curProcCall.env);
