@@ -125,30 +125,44 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
         this.bindings_[name] = val;
     }
 
-    var self = this;
+    if (val instanceof r5js.ast.Identifier) {
+        this.maybeRenameId_(val);
+    } else {
+        val.forEachChild(this.maybeRenameId_, this);
+    }
+};
 
-    /* We have to check the datum to be bound for conflicts with identifiers
-    in the template. Example:
 
-    (define-syntax or
-        (syntax-rules ()
-            (or test1 test2 ...)
-            (let ((x test1)) (if x x (or test2 ...)))))
-
-    (let ((x 4) (y 3)) (or x y))
-
-     The identifier x occurs in the template but not the pattern, so it will
-     appear in templateRenameCandidates (see Transformer.prototype.setupIds).
-     Then, during pattern matching, addTemplateBinding(test1, x) will be
-     called. This should signal that, during transcription, any occurrence of
-     the _template's_ x should be safely renamed.
-     See SchemeMacro.prototype.transcribe. */
-    val.forEach(function (datum) {
-        if (datum instanceof r5js.ast.Identifier &&
-            self.templateRenameCandidates_[/** @type {string} */(
-            datum.getPayload())])
-            self.renameInTemplate_[datum.getPayload()] = true;
-    });
+/**
+ * We have to check the datum to be bound for conflicts with identifiers
+ * in the template. Example:
+ *
+ * (define-syntax or
+ * (syntax-rules ()
+ * (or test1 test2 ...)
+ * (let ((x test1)) (if x x (or test2 ...)))))
+ *
+ * (let ((x 4) (y 3)) (or x y))
+ *
+ * The identifier x occurs in the template but not the pattern, so it will
+ * appear in templateRenameCandidates (see Transformer.prototype.setupIds).
+ * Then, during pattern matching, addTemplateBinding(test1, x) will be
+ * called. This should signal that, during transcription, any occurrence of
+ * the _template's_ x should be safely renamed.
+ * @see {r5js.Macro#transcribe}.
+ *
+ * @param {!r5js.Datum} datum
+ * @private
+ */
+r5js.TemplateBindings.prototype.maybeRenameId_ = function(datum) {
+    if (datum instanceof r5js.ast.Identifier) {
+        var id = /** @type {string} */ (datum.getPayload());
+        if (this.templateRenameCandidates_[id]) {
+            this.renameInTemplate_[id] = true;
+        }
+    } else {
+        datum.forEachChild(this.maybeRenameId_, this);
+    }
 };
 
 /**
