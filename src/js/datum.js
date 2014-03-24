@@ -21,7 +21,6 @@ goog.provide('r5js.DottedList');
 goog.provide('r5js.Lambda');
 goog.provide('r5js.List');
 goog.provide('r5js.Quasiquote');
-goog.provide('r5js.ast.Quote');
 goog.provide('r5js.Ref');
 goog.provide('r5js.Unquote');
 goog.provide('r5js.UnquoteSplicing');
@@ -32,15 +31,14 @@ goog.require('r5js.Continuable');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.OutputMode')
 goog.require('r5js.RenameHelper');
-goog.require('r5js.Macro');
 goog.require('r5js.SiblingBuffer');
 
 // TODO bl circular dependency goog.require('r5js.ast.Identifier');
+// TODO bl circular dependency goog.require('r5js.ast.Quote');
 
 /**
  * TODO bl: this is out of control. Create an interface and have each
@@ -682,27 +680,7 @@ r5js.ast.Literal = function() {
 };
 goog.inherits(r5js.ast.Literal, r5js.Datum);
 
-/**
- * @param {r5js.Datum} firstChild
- * @extends {r5js.ast.Literal}
- * @struct
- * @constructor
- */
-r5js.ast.Quote = function(firstChild) {
-  goog.base(this);
-    this.type_ = r5js.parse.Terminals.TICK;
-    this.firstChild_ = firstChild;
-};
-goog.inherits(r5js.ast.Quote, r5js.ast.Literal);
 
-
-/** @override */
-r5js.ast.Quote.prototype.stringForOutputMode = function(outputMode) {
-    var children = this.mapChildren(function(child) {
-        return child.stringForOutputMode(outputMode);
-    });
-    return this.getType() + children.join(' ');
-};
 
 
 /**
