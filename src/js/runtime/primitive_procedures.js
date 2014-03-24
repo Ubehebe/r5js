@@ -899,7 +899,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     var newArgs = new r5js.SiblingBuffer();
     // todo bl document why we are quoting the arguments
     for (var arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling())
-      newArgs.appendSibling(arg.quote());
+      newArgs.appendSibling(new r5js.Quote(arg));
     var actualProcCall = r5js.procs.newProcCall(
         procName, newArgs.toSiblings(), continuation);
     actualProcCall.setStartingEnv(curProcCall.env);

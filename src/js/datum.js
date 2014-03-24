@@ -843,12 +843,6 @@ r5js.Datum.prototype.isEqual = function(other) {
     } else return false;
 };
 
-/**
- * @return {!r5js.Datum} A new Datum representing a quotation.
- */
-r5js.Datum.prototype.quote = function() {
-    return new r5js.Quote(this);
-};
 
 /**
  * Datums representing identifiers, strings, and characters
