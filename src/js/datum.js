@@ -489,18 +489,6 @@ r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
 
 
 /**
- * @return {r5js.Macro} TODO bl
- */
-r5js.Datum.prototype.getMacro = function() {
-    if (this.payload_ instanceof r5js.Macro) {
-        return this.payload_.setIsLetOrLetrecSyntax();
-    } else {
-        throw new r5js.InternalInterpreterError('invariant incorrect');
-    }
-};
-
-
-/**
  * @param {!r5js.IEnvironment} env TODO bl
  * @return {r5js.Continuable}
  */

@@ -22,3 +22,10 @@ goog.inherits(r5js.ast.Macro, r5js.Datum);
 r5js.ast.Macro.prototype.stringForOutputMode = function(outputMode) {
   return '[macro]';
 };
+
+
+/** @return {!r5js.Macro} */
+r5js.ast.Macro.prototype.getMacro = function() {
+  return this.getPayload().setIsLetOrLetrecSyntax();
+};
+
