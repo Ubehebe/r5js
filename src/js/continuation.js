@@ -182,11 +182,11 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
          the parse tree. */
     buf.appendSibling(kw);
     buf.appendSibling(new r5js.ast.Macro(macro));
-    letBindings.appendSibling(buf.toList());
+    letBindings.appendSibling(buf.toList(r5js.parse.Terminals.LPAREN));
   });
 
   var _let = new r5js.SiblingBuffer();
-  _let.appendSibling(letBindings.toList());
+  _let.appendSibling(letBindings.toList(r5js.parse.Terminals.LPAREN));
   _let.appendSibling(/** @type {!r5js.Datum} */ (datum.at('(').getNextSibling()));
 
   return r5js.procs.newProcCall(

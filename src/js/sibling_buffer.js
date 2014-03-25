@@ -70,14 +70,12 @@ r5js.SiblingBuffer.prototype.toSiblings = function() {
 
 
 /**
- * @param {!r5js.parse.Terminal=} opt_type Optional type of the returned list.
- * If unspecified, defaults to {@link r5js.List}.
+ * @param {!r5js.parse.Terminal} type Type of the returned list.
  * @return {!r5js.Datum}
  */
-r5js.SiblingBuffer.prototype.toList = function(opt_type) {
+r5js.SiblingBuffer.prototype.toList = function(type) {
   var ans;
-  opt_type = opt_type || r5js.parse.Terminals.LPAREN;
-  switch (opt_type) {
+  switch (type) {
     case r5js.parse.Terminals.BACKTICK:
       ans = new r5js.Quasiquote(this.first_);
       break;
@@ -101,7 +99,7 @@ r5js.SiblingBuffer.prototype.toList = function(opt_type) {
       if (this.first_) {
         ans.setFirstChild(this.first_);
       }
-      ans.setType(opt_type);
+      ans.setType(type);
       break;
   }
   if (this.last_) {

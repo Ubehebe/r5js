@@ -36,7 +36,7 @@ r5js.datumutil.extractDefinition = function(datum) {
     return new r5js.SiblingBuffer().
         appendSibling(variable).
             appendSibling(/** @type {!r5js.Datum} */(expr)).
-            toList();
+            toList(r5js.parse.Terminals.LPAREN);
   } else {
     var formalsList = datum.getFirstChild().getNextSibling();
     variable = formalsList.getFirstChild();
@@ -48,7 +48,7 @@ r5js.datumutil.extractDefinition = function(datum) {
     return new r5js.SiblingBuffer().
         appendSibling(variable).
             appendSibling(lambda).
-            toList();
+            toList(r5js.parse.Terminals.LPAREN);
   }
 };
 
@@ -72,7 +72,7 @@ r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
     buffer.appendSibling(formalsList);
   }
   buffer.appendSibling(bodyStart);
-  return buffer.toList();
+  return buffer.toList(r5js.parse.Terminals.LPAREN);
 };
 
 

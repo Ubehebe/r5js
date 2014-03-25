@@ -24,6 +24,7 @@ goog.require('r5js.ast.OutputPort');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
+goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
 
 
@@ -439,7 +440,7 @@ PrimitiveProcedures['cdr'] = _.unary(function(p) {
         startOfCdr;
     return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
   } else {
-    return new r5js.SiblingBuffer().toList();
+    return new r5js.SiblingBuffer().toList(r5js.parse.Terminals.LPAREN);
   }
 }, r5js.DatumType.PAIR);
 
