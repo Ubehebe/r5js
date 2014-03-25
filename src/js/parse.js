@@ -17,6 +17,7 @@
 goog.provide('r5js.Parser');
 
 goog.require('goog.array');
+goog.require('r5js.datumutil');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
@@ -465,7 +466,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      var def = node.extractDefinition();
+      var def = r5js.datumutil.extractDefinition(node);
       var name = def.getFirstChild();
       var lambda = name.getNextSibling();
       var formalRoot = lambda.getFirstChild().getNextSibling();
@@ -502,7 +503,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      var def = node.extractDefinition();
+      var def = r5js.datumutil.extractDefinition(node);
       var name = def.getFirstChild();
       var lambda = name.getNextSibling();
       var formalRoot = lambda.getFirstChild().getNextSibling();

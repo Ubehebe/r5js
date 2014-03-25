@@ -7,13 +7,73 @@ goog.require('r5js.DatumType');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
+goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Node');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
+goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
+
+
+/**
+ * Munges definitions to get them in a form suitable for let-type bindings.
+ * Example:
+ * (define (foo x y z) ...) => (foo (lambda (x y z) ...))
+ * @param {!r5js.Datum} datum Datum to extract the definition from.
+ * TODO bl: you can't extract a definition from an arbitrary datum.
+ * Make more strongly typed.
+ * @return {!r5js.Datum} A datum representing the given datum's definition.
+ * @suppress {checkTypes} for setNextSibling(null)
+ */
+r5js.datumutil.extractDefinition = function(datum) {
+  var variable = datum.at(r5js.parse.Nonterminals.VARIABLE);
+  if (variable) {
+    var expr = datum.at(r5js.parse.Nonterminals.EXPRESSION);
+    variable.setNextSibling(null); // TODO bl
+    return new r5js.SiblingBuffer().
+        appendSibling(variable).
+            appendSibling(/** @type {!r5js.Datum} */(expr)).
+            toList();
+  } else {
+    var formalsList = datum.getFirstChild().getNextSibling();
+    variable = formalsList.getFirstChild();
+    var bodyStart = formalsList.getNextSibling();
+    formalsList.setFirstChild(formalsList.getFirstChild().getNextSibling());
+    var lambda = r5js.datumutil.prepareLambdaForDefinition_(
+        bodyStart, formalsList);
+    variable.setNextSibling(null); // TODO bl
+    return new r5js.SiblingBuffer().
+        appendSibling(variable).
+            appendSibling(lambda).
+            toList();
+  }
+};
+
+
+/**
+ * @param {!r5js.Datum} bodyStart
+ * @param {!r5js.Datum} formalsList
+ * @return {!r5js.Datum}
+ * @private
+ * @suppress {checkTypes} for setNextSibling(null)
+ */
+r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
+  var buffer = new r5js.SiblingBuffer();
+  buffer.appendSibling(new r5js.ast.Identifier(r5js.parse.Terminals.LAMBDA));
+  if (formalsList.isImproperList() &&
+      !formalsList.getFirstChild().getNextSibling()) {
+    buffer.appendSibling(new r5js.ast.Identifier(
+        /** @type {string} */ (formalsList.getFirstChild().getPayload())));
+  } else {
+    formalsList.setNextSibling(null);
+    buffer.appendSibling(formalsList);
+  }
+  buffer.appendSibling(bodyStart);
+  return buffer.toList();
+};
 
 
 /**

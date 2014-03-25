@@ -40,6 +40,7 @@ goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.Quasiquote');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.ast.Quote');
+goog.require('r5js.datumutil');
 goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
@@ -87,7 +88,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
       cur.forEach(function(node) {
         if (node.getFirstChild() &&
             node.getFirstChild().getPayload() === r5js.parse.Terminals.DEFINE) {
-          letrecBindings.appendSibling(node.extractDefinition());
+          letrecBindings.appendSibling(r5js.datumutil.extractDefinition(node));
         }
       });
     }

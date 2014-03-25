@@ -1005,56 +1005,6 @@ r5js.Datum.PROC_PREFIX_ = 'proc';
 
 
 /**
- * Munges definitions to get them in a form suitable for let-type bindings.
- * Example:
- * (define (foo x y z) ...) => (foo (lambda (x y z) ...))
- * @return {!r5js.Datum} New Datum representing this datum's definition.
- */
-r5js.Datum.prototype.extractDefinition = function() {
-    var variable = this.at(r5js.parse.Nonterminals.VARIABLE);
-    if (variable) {
-        var expr = this.at(r5js.parse.Nonterminals.EXPRESSION);
-        variable.nextSibling_ = null; // TODO bl
-        return new r5js.SiblingBuffer().
-            appendSibling(variable).
-            appendSibling(/** @type {!r5js.Datum} */(expr)).
-            toList();
-    } else {
-        var formalsList = this.firstChild_.nextSibling_;
-        variable = formalsList.firstChild_;
-        var bodyStart = formalsList.nextSibling_;
-        formalsList.firstChild_ = formalsList.firstChild_.nextSibling_;
-        var lambda = r5js.Datum.prepareLambdaForDefinition_(bodyStart, formalsList);
-        variable.nextSibling_ = null; // TODO bl
-        return new r5js.SiblingBuffer().
-            appendSibling(variable).
-            appendSibling(lambda).
-            toList();
-    }
-};
-
-
-/**
- * @param bodyStart
- * @param {!r5js.Datum} formalsList
- * @return {!r5js.Datum}
- * @private
- */
-r5js.Datum.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
-    var buffer = new r5js.SiblingBuffer();
-    buffer.appendSibling(new r5js.ast.Identifier(r5js.parse.Terminals.LAMBDA));
-    if (formalsList.isImproperList() && !formalsList.firstChild_.nextSibling_) {
-        buffer.appendSibling(new r5js.ast.Identifier(
-            /** @type {string} */ (formalsList.firstChild_.payload_)));
-    } else {
-        formalsList.nextSibling_ = null;
-        buffer.appendSibling(formalsList);
-    }
-    buffer.appendSibling(bodyStart);
-    return buffer.toList();
-};
-
-/**
  * TODO bl: document what this method does.
  * @return {r5js.Datum}
  */
