@@ -19,7 +19,7 @@ goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.Datum');
 goog.provide('r5js.DottedList');
 goog.provide('r5js.Lambda');
-goog.provide('r5js.List');
+goog.provide('r5js.ast.List');
 goog.provide('r5js.Quasiquote');
 goog.provide('r5js.Ref');
 goog.provide('r5js.ast.Unquote');
@@ -292,7 +292,7 @@ r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
  * @return {boolean} True iff this Datum represents an empty list.
  */
 r5js.Datum.prototype.isEmptyList = function() {
-    return this instanceof r5js.List && !this.firstChild_;
+    return this instanceof r5js.ast.List && !this.firstChild_;
 };
 
 /**
@@ -524,7 +524,7 @@ r5js.Datum.prototype.sequence = function(env) {
  * normalized.
  */
 r5js.Datum.prototype.isNonNormalizedQuotation = function() {
-        return this instanceof r5js.List &&
+        return this instanceof r5js.ast.List &&
             !!this.firstChild_ &&
             this.firstChild_.payload_ === r5js.parse.Terminals.QUOTE;
 };
@@ -721,7 +721,7 @@ r5js.Lambda.prototype.stringForOutputMode = function(outputMode) {
  * @struct
  * @constructor
  */
-r5js.List = function(firstChild) {
+r5js.ast.List = function(firstChild) {
   goog.base(this);
     this.type_ = r5js.parse.Terminals.LPAREN;
     if (firstChild) {
@@ -730,23 +730,23 @@ r5js.List = function(firstChild) {
     /** @private {boolean} */
     this.dirty_ = false;
 };
-goog.inherits(r5js.List, r5js.Datum);
+goog.inherits(r5js.ast.List, r5js.Datum);
 
 
 /** Marks dirty. */
-r5js.List.prototype.markDirty = function() {
+r5js.ast.List.prototype.markDirty = function() {
     this.dirty_ = true;
 };
 
 
 /** @return {boolean} */
-r5js.List.prototype.isDirty = function() {
+r5js.ast.List.prototype.isDirty = function() {
     return this.dirty_;
 };
 
 
 /** @override */
-r5js.List.prototype.stringForOutputMode = function(outputMode) {
+r5js.ast.List.prototype.stringForOutputMode = function(outputMode) {
     /* Note: this will be an infinite loop for cyclical data
      structures created by the programmer through set-cdr!, etc.
      Some implementations do nice things, like print "holes" where

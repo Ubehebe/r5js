@@ -11,6 +11,7 @@ goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
+goog.require('r5js.ast.List');
 goog.require('r5js.ast.Node');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
@@ -36,7 +37,7 @@ r5js.datumutil.extractDefinition = function(datum) {
     return new r5js.SiblingBuffer().
         appendSibling(variable).
             appendSibling(/** @type {!r5js.Datum} */(expr)).
-            toList(r5js.List);
+            toList(r5js.ast.List);
   } else {
     var formalsList = datum.getFirstChild().getNextSibling();
     variable = formalsList.getFirstChild();
@@ -48,7 +49,7 @@ r5js.datumutil.extractDefinition = function(datum) {
     return new r5js.SiblingBuffer().
         appendSibling(variable).
             appendSibling(lambda).
-            toList(r5js.List);
+            toList(r5js.ast.List);
   }
 };
 
@@ -72,7 +73,7 @@ r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
     buffer.appendSibling(formalsList);
   }
   buffer.appendSibling(bodyStart);
-  return buffer.toList(r5js.List);
+  return buffer.toList(r5js.ast.List);
 };
 
 

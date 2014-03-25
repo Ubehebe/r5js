@@ -18,7 +18,7 @@ goog.provide('r5js.CdrHelper');
 
 
 goog.require('r5js.ImmutableError');
-goog.require('r5js.List');
+goog.require('r5js.ast.List');
 
 
 
@@ -60,7 +60,7 @@ r5js.CdrHelper.prototype.setCdr = function(cdr) {
     throw new r5js.ImmutableError(this.head_.toString());
   }
   this.startOfCdr_.setNextSibling(cdr);
-  if (!(cdr instanceof r5js.List)) {
+  if (!(cdr instanceof r5js.ast.List)) {
     var cur = this;
     do {
       cur.head_.setType(r5js.parse.Terminals.LPAREN_DOT);

@@ -3,9 +3,9 @@ goog.provide('r5js.read.bnf');
 
 goog.require('r5js.Datum');
 goog.require('r5js.DottedList');
-goog.require('r5js.List');
 goog.require('r5js.Quasiquote');
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');

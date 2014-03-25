@@ -8,7 +8,6 @@ goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.DottedList');
 goog.require('r5js.Lambda');
-goog.require('r5js.List');
 goog.require('r5js.OutputMode');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.Quasiquote');
@@ -19,6 +18,7 @@ goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.InputPort');
+goog.require('r5js.ast.List');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.OutputPort');
 goog.require('r5js.ast.Quote');
@@ -65,7 +65,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     return p.getPayload() === q.getPayload(); // todo bl numerical precision...
   } else if (p instanceof r5js.ast.Character) {
     return p.getPayload() === q.getPayload();
-  } else if (p instanceof r5js.List) {
+  } else if (p instanceof r5js.ast.List) {
     var ans;
     if (p === q || p.isEmptyList() && q.isEmptyList())
       ans = true;
@@ -139,7 +139,7 @@ PrimitiveProcedures['output-port?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['pair?'] = _.unary(function(node) {
-  return (node instanceof r5js.List ||
+  return (node instanceof r5js.ast.List ||
       node.isImproperList() ||
       node instanceof r5js.ast.Quote) &&
       !!node.getFirstChild(); // 3.2: (pair? '()) => #f
@@ -435,19 +435,19 @@ PrimitiveProcedures['cdr'] = _.unary(function(p) {
   var ans;
   if (startOfCdr) {
     if (startOfCdr.getNextSibling() ||
-        (p instanceof r5js.List && !p.isDirty())) {
+        (p instanceof r5js.ast.List && !p.isDirty())) {
       // TODO bl investigate why this is happening
       if (startOfCdr.getNextSibling() === startOfCdr) {
         startOfCdr.setNextSibling(null);
       }
       ans = new r5js.SiblingBuffer().appendSibling(startOfCdr).toList(
-          p.isImproperList() ? r5js.DottedList : r5js.List);
+          p.isImproperList() ? r5js.DottedList : r5js.ast.List);
     } else {
       ans = startOfCdr;
     }
     return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
   } else {
-    return new r5js.SiblingBuffer().toList(r5js.List);
+    return new r5js.SiblingBuffer().toList(r5js.ast.List);
   }
 }, r5js.DatumType.PAIR);
 
@@ -456,7 +456,7 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
   var realCar = car.clone();
   var realCdr = cdr.clone();
   // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
-  if (realCdr instanceof r5js.List || realCdr.isImproperList()) {
+  if (realCdr instanceof r5js.ast.List || realCdr.isImproperList()) {
     var oldFirstChild = realCdr.getFirstChild();
     realCdr.setFirstChild(realCar);
     realCar.setNextSibling(oldFirstChild);
@@ -470,7 +470,7 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
 });
 
 PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
-  if (!(p instanceof r5js.List || p.isImproperList())) {
+  if (!(p instanceof r5js.ast.List || p.isImproperList())) {
     throw new r5js.ArgumentTypeError(
         p, 0, 'set-car!', r5js.parse.Terminals.LPAREN);
   }
@@ -490,7 +490,7 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
 });
 
 PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
-  if (!(p instanceof r5js.List || p.isImproperList())) {
+  if (!(p instanceof r5js.ast.List || p.isImproperList())) {
     throw new r5js.ArgumentTypeError(
         p, 0, 'set-cdr!', r5js.parse.Terminals.LPAREN);
   }
@@ -499,7 +499,7 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
     throw new r5js.ImmutableError(p.toString());
   }
 
-  if (cdr instanceof r5js.List) {
+  if (cdr instanceof r5js.ast.List) {
     p.getFirstChild().setNextSibling(cdr.getFirstChild());
     p.setType(r5js.parse.Terminals.LPAREN);
   } else {
@@ -512,7 +512,7 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
     helper.setCdr(cdr);
   }
 
-  if (p instanceof r5js.List) {
+  if (p instanceof r5js.ast.List) {
     p.markDirty();
   }
 
@@ -897,7 +897,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
 
   var lastRealArgIndex = arguments.length - 4;
   var mustBeList = arguments[lastRealArgIndex];
-  if (!(mustBeList instanceof r5js.List)) {
+  if (!(mustBeList instanceof r5js.ast.List)) {
     throw new r5js.ArgumentTypeError(
         mustBeList, lastRealArgIndex, 'apply', r5js.parse.Terminals.LPAREN);
   }

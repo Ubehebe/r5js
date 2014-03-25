@@ -23,8 +23,8 @@ goog.provide('r5js.VectorTransformer');
 
 goog.require('r5js.DottedList');
 goog.require('r5js.EllipsisTransformer');
-goog.require('r5js.List');
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.ast.List');
 goog.require('r5js.ast.Vector');
 
 
@@ -249,7 +249,7 @@ r5js.VectorTransformer.prototype.couldMatch = function(inputDatum) {
  * @constructor
  */
 r5js.ListTransformer = function() {
-  goog.base(this, r5js.List);
+  goog.base(this, r5js.ast.List);
 };
 goog.inherits(r5js.ListTransformer, r5js.ListLikeTransformer.Base_);
 
@@ -257,7 +257,7 @@ goog.inherits(r5js.ListTransformer, r5js.ListLikeTransformer.Base_);
 /** @override */
 r5js.ListTransformer.prototype.couldMatch = function(inputDatum) {
   // Proper list patterns can match only proper list inputs
-  return inputDatum instanceof r5js.List;
+  return inputDatum instanceof r5js.ast.List;
 };
 
 
@@ -277,7 +277,7 @@ goog.inherits(r5js.DottedListTransformer, r5js.ListLikeTransformer.Base_);
 /** @override */
 r5js.DottedListTransformer.prototype.couldMatch = function(inputDatum) {
   // Dotted list patterns can match proper or dotted list inputs
-  return inputDatum instanceof r5js.List || inputDatum.isImproperList();
+  return inputDatum instanceof r5js.ast.List || inputDatum.isImproperList();
 };
 
 
@@ -340,10 +340,10 @@ r5js.DottedListTransformer.prototype.matchInput = function(
     // Dotted-list patterns cannot end in ellipses.
     var toMatchAgainst;
 
-    if (inputDatum instanceof r5js.List) {
+    if (inputDatum instanceof r5js.ast.List) {
       toMatchAgainst = new r5js.SiblingBuffer().
           appendSibling(/** @type {!r5js.Datum} */ (subinput)).
-          toList(r5js.List);
+          toList(r5js.ast.List);
     } else if (inputDatum.isImproperList()) {
       toMatchAgainst = subinput.getNextSibling() ?
           new r5js.SiblingBuffer().

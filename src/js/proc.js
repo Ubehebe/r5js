@@ -31,7 +31,7 @@ goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Lambda');
-goog.require('r5js.List');
+goog.require('r5js.ast.List');
 goog.require('r5js.Macro');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
@@ -96,7 +96,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
     if (letrecBindings.isEmpty()) {
       this.body = cur.sequence(this.env);
     } else {
-      var letrec = new r5js.List(letrecBindings.toSiblings());
+      var letrec = new r5js.ast.List(letrecBindings.toSiblings());
       letrec.setNextSibling(cur);
       this.body = r5js.procs.newProcCall(
           new r5js.ast.Identifier('letrec'),
@@ -216,7 +216,7 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
       for (var j = this.formalsArray_.length-1; j < args.length; ++j) {
           siblingBuffer.appendSibling(/** @type {!r5js.Datum} */ (args[j]));
       }
-      env.addBinding(name, siblingBuffer.toList(r5js.List));
+      env.addBinding(name, siblingBuffer.toList(r5js.ast.List));
     }
   }
 };
@@ -396,7 +396,7 @@ r5js.ProcCall.prototype.debugString = function(
 r5js.ProcCall.prototype.reconstructDatum = function() {
   var op = new r5js.ast.Identifier(this.operatorName.getPayload());
   op.setNextSibling(this.firstOperand);
-    return new r5js.SiblingBuffer().appendSibling(op).toList(r5js.List);
+    return new r5js.SiblingBuffer().appendSibling(op).toList(r5js.ast.List);
 };
 
 
@@ -454,7 +454,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
             }
           if (node instanceof r5js.ast.Identifier &&
               node.shouldUnquoteSplice()) {
-            if (ans instanceof r5js.List) {
+            if (ans instanceof r5js.ast.List) {
               if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
                 ans = ans.getFirstChild();
 	      } else { // `(1 ,@(list) 2) => (1 2)

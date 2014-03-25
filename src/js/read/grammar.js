@@ -3,8 +3,8 @@ goog.provide('r5js.read.grammar');
 
 goog.require('r5js.DatumType');
 goog.require('r5js.DottedList');
-goog.require('r5js.List');
 goog.require('r5js.Quasiquote');
+goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
@@ -40,7 +40,7 @@ r5js.read.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
         _.one(r5js.parse.Terminals.LPAREN),
         _.zeroOrMore(r5js.parse.Nonterminals.DATUM),
         _.one(r5js.parse.Terminals.RPAREN)).
-    named(r5js.List),
+    named(r5js.ast.List),
     _.seq(
         _.one(r5js.parse.Terminals.LPAREN),
         _.oneOrMore(r5js.parse.Nonterminals.DATUM),
