@@ -108,27 +108,6 @@ r5js.ListLikeTransformer.Base_.prototype.toDatum = function(bindings) {
 
 
 /**
- * @param {function(new:r5js.Datum, !r5js.Datum)} ctor
- * @return {?r5js.parse.Terminal}
- * @private
- * TODO bl: remove. Transitional.
- */
-r5js.ListLikeTransformer.Base_.terminalForCtor_ = function(ctor) {
-  if (ctor === r5js.List) {
-    return r5js.parse.Terminals.LPAREN;
-  } else if (ctor === r5js.DottedList) {
-    return r5js.parse.Terminals.LPAREN_DOT;
-  } else if (ctor === r5js.ast.Vector) {
-    return r5js.parse.Terminals.LPAREN_VECTOR;
-  } else if (ctor === r5js.ast.Quote) {
-    return r5js.parse.Terminals.TICK;
-  } else {
-    return null;
-  }
-};
-
-
-/**
  * @param {!r5js.Datum} inputDatum The input datum.
  * @param {!Object.<string, boolean>} literalIds Dictionary of literal ids.
  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
