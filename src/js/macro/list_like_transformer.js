@@ -103,10 +103,7 @@ r5js.ListLikeTransformer.Base_.prototype.couldMatch = function(inputDatum) {
 /** @override */
 r5js.ListLikeTransformer.Base_.prototype.toDatum = function(bindings) {
   var siblingBuffer = this.toSiblingBuffer_(bindings);
-  return siblingBuffer ?
-      siblingBuffer.toList(/** @type {r5js.parse.Terminal} */ (
-          r5js.ListLikeTransformer.Base_.terminalForCtor_(this.ctor_))) :
-      false;
+  return siblingBuffer ? siblingBuffer.toList(this.ctor_) : false;
 };
 
 

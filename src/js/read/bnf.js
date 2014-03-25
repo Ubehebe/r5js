@@ -248,35 +248,8 @@ r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
       return null;
     }
   }
-  return siblingBuffer.toList(/** @type {!r5js.parse.Terminal} */ (
-      r5js.read.bnf.Seq_.terminalForCtor_(this.ctor_)));
-};
-
-
-/**
- * @param {?function(new:r5js.Datum, !r5js.Datum)} ctor
- * @return {?r5js.parse.Terminal}
- * @private
- * TODO bl: remove. Transitional.
- */
-r5js.read.bnf.Seq_.terminalForCtor_ = function(ctor) {
-  if (ctor === r5js.List) {
-    return r5js.parse.Terminals.LPAREN;
-  } else if (ctor === r5js.DottedList) {
-    return r5js.parse.Terminals.LPAREN_DOT;
-  } else if (ctor === r5js.ast.Vector) {
-    return r5js.parse.Terminals.LPAREN_VECTOR;
-  } else if (ctor === r5js.ast.Quote) {
-    return r5js.parse.Terminals.TICK;
-  } else if (ctor === r5js.Quasiquote) {
-    return r5js.parse.Terminals.BACKTICK;
-  } else if (ctor === r5js.ast.Unquote) {
-    return r5js.parse.Terminals.COMMA;
-  } else if (ctor === r5js.ast.UnquoteSplicing) {
-    return r5js.parse.Terminals.COMMA_AT;
-  } else {
-    return null;
-  }
+  return siblingBuffer.toList(
+      /** @type {function(new: r5js.Datum, !r5js.Datum)} */ (this.ctor_));
 };
 
 

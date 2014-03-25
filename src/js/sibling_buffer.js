@@ -17,12 +17,6 @@
 goog.provide('r5js.SiblingBuffer');
 
 
-goog.require('r5js.parse.Terminals'); // TODO bl remove
-// TODO bl cyclic dependency goog.require('r5js.ast.Quote');
-// TODO bl cyclic dependency goog.require('r5js.ast.Unquote');
-// TODO bl cyclic dependency goog.require('r5js.ast.UnquoteSplicing');
-
-
 
 /**
  * Just a buffer to accumulate siblings without the client having to do
@@ -70,36 +64,14 @@ r5js.SiblingBuffer.prototype.toSiblings = function() {
 
 
 /**
- * @param {!r5js.parse.Terminal} type Type of the returned list.
+ * @param {function(new: r5js.Datum, !r5js.Datum)} ctor Constructor to use
+ * for the returned list.
  * @return {!r5js.Datum}
  */
-r5js.SiblingBuffer.prototype.toList = function(type) {
-  var ans;
-  switch (type) {
-    case r5js.parse.Terminals.BACKTICK:
-      ans = new r5js.Quasiquote(this.first_);
-      break;
-    case r5js.parse.Terminals.COMMA:
-      ans = new r5js.ast.Unquote(this.first_);
-      break;
-    case r5js.parse.Terminals.COMMA_AT:
-      ans = new r5js.ast.UnquoteSplicing(this.first_);
-      break;
-    case r5js.parse.Terminals.LPAREN:
-      ans = new r5js.List(this.first_);
-      break;
-    case r5js.parse.Terminals.LPAREN_DOT:
-      ans = new r5js.DottedList(this.first_);
-      break;
-    case r5js.parse.Terminals.LPAREN_VECTOR:
-      ans = new r5js.ast.Vector(/** @type {!r5js.Datum} */ (this.first_));
-      break;
-    case r5js.parse.Terminals.TICK:
-      ans = new r5js.ast.Quote(this.first_);
-      break;
-  }
+r5js.SiblingBuffer.prototype.toList = function(ctor) {
+  var ans = new ctor(/** @type {!r5js.Datum} */ (this.first_));
   if (this.last_ && ans) {
     this.last_.setParent(ans);
   }
-  return /** @type {!r5js.Datum} */ (ans);
+  return ans;
 };

@@ -23,6 +23,7 @@ goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
 // TODO bl circular dependency goog.require('r5js.ast.Identifier');
+// TODO bl circular dependency goog.require('r5js.List');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 
@@ -231,7 +232,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
            save the following tree walk replacing all the identifiers. */
         var fake = new r5js.SiblingBuffer().
             appendSibling(newParseTree).
-            toList(r5js.parse.Terminals.LPAREN);
+            toList(r5js.List);
         fake.replaceChildren(
             function(node) {
               return node instanceof r5js.ast.Identifier &&

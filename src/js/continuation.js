@@ -19,6 +19,7 @@ goog.provide('r5js.Continuation');
 
 goog.require('r5js.Branch');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.List');
 goog.require('r5js.ast.Macro');
 goog.require('r5js.ast.Identifier');
 // TODO bl cyclic dependency goog.require('r5js.procs');
@@ -182,11 +183,11 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
          the parse tree. */
     buf.appendSibling(kw);
     buf.appendSibling(new r5js.ast.Macro(macro));
-    letBindings.appendSibling(buf.toList(r5js.parse.Terminals.LPAREN));
+    letBindings.appendSibling(buf.toList(r5js.List));
   });
 
   var _let = new r5js.SiblingBuffer();
-  _let.appendSibling(letBindings.toList(r5js.parse.Terminals.LPAREN));
+  _let.appendSibling(letBindings.toList(r5js.List));
   _let.appendSibling(/** @type {!r5js.Datum} */ (datum.at('(').getNextSibling()));
 
   return r5js.procs.newProcCall(

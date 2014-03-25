@@ -216,7 +216,7 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
       for (var j = this.formalsArray_.length-1; j < args.length; ++j) {
           siblingBuffer.appendSibling(/** @type {!r5js.Datum} */ (args[j]));
       }
-      env.addBinding(name, siblingBuffer.toList(r5js.parse.Terminals.LPAREN));
+      env.addBinding(name, siblingBuffer.toList(r5js.List));
     }
   }
 };
@@ -396,7 +396,7 @@ r5js.ProcCall.prototype.debugString = function(
 r5js.ProcCall.prototype.reconstructDatum = function() {
   var op = new r5js.ast.Identifier(this.operatorName.getPayload());
   op.setNextSibling(this.firstOperand);
-    return new r5js.SiblingBuffer().appendSibling(op).toList(r5js.parse.Terminals.LPAREN);
+    return new r5js.SiblingBuffer().appendSibling(op).toList(r5js.List);
 };
 
 

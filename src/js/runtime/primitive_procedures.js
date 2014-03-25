@@ -440,7 +440,7 @@ PrimitiveProcedures['cdr'] = _.unary(function(p) {
         startOfCdr;
     return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
   } else {
-    return new r5js.SiblingBuffer().toList(r5js.parse.Terminals.LPAREN);
+    return new r5js.SiblingBuffer().toList(r5js.List);
   }
 }, r5js.DatumType.PAIR);
 
