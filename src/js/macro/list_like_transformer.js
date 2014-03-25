@@ -341,10 +341,14 @@ r5js.DottedListTransformer.prototype.matchInput = function(
     var toMatchAgainst;
 
     if (inputDatum instanceof r5js.List) {
-      toMatchAgainst = subinput.siblingsToList(false);
+      toMatchAgainst = new r5js.SiblingBuffer().
+          appendSibling(/** @type {!r5js.Datum} */ (subinput)).
+          toList(r5js.List);
     } else if (inputDatum.isImproperList()) {
       toMatchAgainst = subinput.getNextSibling() ?
-          subinput.siblingsToList(true /* dotted */) :
+          new r5js.SiblingBuffer().
+              appendSibling(subinput).
+              toList(r5js.DottedList) :
           subinput;
     }
 

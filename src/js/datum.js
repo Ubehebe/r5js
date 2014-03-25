@@ -931,32 +931,6 @@ r5js.Datum.prototype.setQuasiquotationLevel = function(qqLevel) {
     return this;
 };
 
-/**
- * Notice that our representation of lists is not recursive:
- * the "second element" of (x y z) is y, not (y z). So we provide this function
- * as an aid whenever we want that recursive property. Mainly, this is for cdr:
- * we allocate a new head-of-list object and point it to the second element
- * of the list in question.
- *
- * Unfortunately, this approach breaks referential transparency:
- * (cdr x) does not point to the same region of memory as
- * x.firstChild_.nextSibling_. So we have to build in special logic
- * to the primitive equivalence predicates, and especially into the primitive
- * mutation procedures (set-car! and set-cdr!).
- * That is what {@link r5js.CdrHelper} does.
- *
- * Conceptually, it would not be difficult to switch to an internal car/cdr
- * representation, and the performance would be similar. But practically,
- * it would involve a lot of refactoring, because the pointers are manipulated
- * directly (without function calls) all over the place.
- * So it's a "nice to have".
- *
- * @param {boolean} dotted True iff this should be a dotted list.
- * @return {!r5js.Datum} A new Datum representing the siblings of this datum.
- */
-r5js.Datum.prototype.siblingsToList = function(dotted) {
-    return dotted ? new r5js.DottedList(this) : new r5js.List(this);
-};
 
 /**
  * @param {!r5js.CdrHelper} cdrHelper A cdr helper.

@@ -434,10 +434,17 @@ PrimitiveProcedures['cdr'] = _.unary(function(p) {
   var startOfCdr = p.getFirstChild().getNextSibling();
   var ans;
   if (startOfCdr) {
-    ans = (startOfCdr.getNextSibling() ||
-        (p instanceof r5js.List && !p.isDirty())) ?
-        startOfCdr.siblingsToList(p.isImproperList()) :
-        startOfCdr;
+    if (startOfCdr.getNextSibling() ||
+        (p instanceof r5js.List && !p.isDirty())) {
+      // TODO bl investigate why this is happening
+      if (startOfCdr.getNextSibling() === startOfCdr) {
+        startOfCdr.setNextSibling(null);
+      }
+      ans = new r5js.SiblingBuffer().appendSibling(startOfCdr).toList(
+          p.isImproperList() ? r5js.DottedList : r5js.List);
+    } else {
+      ans = startOfCdr;
+    }
     return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
   } else {
     return new r5js.SiblingBuffer().toList(r5js.List);
