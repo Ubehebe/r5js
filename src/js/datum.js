@@ -22,8 +22,8 @@ goog.provide('r5js.Lambda');
 goog.provide('r5js.List');
 goog.provide('r5js.Quasiquote');
 goog.provide('r5js.Ref');
-goog.provide('r5js.Unquote');
-goog.provide('r5js.UnquoteSplicing');
+goog.provide('r5js.ast.Unquote');
+goog.provide('r5js.ast.UnquoteSplicing');
 
 
 goog.require('r5js.ast.Node');
@@ -536,17 +536,17 @@ r5js.Datum.prototype.isNonNormalizedQuotation = function() {
  * @struct
  * @constructor
  */
-r5js.Unquote = function(firstChild) {
+r5js.ast.Unquote = function(firstChild) {
     goog.base(this);
     this.type_ = r5js.parse.Terminals.COMMA;
     if (firstChild) {
         this.firstChild_ = firstChild;
     }
 };
-goog.inherits(r5js.Unquote, r5js.Datum);
+goog.inherits(r5js.ast.Unquote, r5js.Datum);
 
 /** @override */
-r5js.Unquote.prototype.stringForOutputMode = function(outputMode) {
+r5js.ast.Unquote.prototype.stringForOutputMode = function(outputMode) {
     var children = this.mapChildren(function(child) {
         return child.stringForOutputMode(outputMode);
     });
@@ -555,7 +555,7 @@ r5js.Unquote.prototype.stringForOutputMode = function(outputMode) {
 
 
 /** @override */
-r5js.Unquote.prototype.setQuasiquotationLevel = function(qqLevel) {
+r5js.ast.Unquote.prototype.setQuasiquotationLevel = function(qqLevel) {
         this.qqLevel_ = qqLevel;
         return goog.base(this, 'setQuasiquotationLevel', qqLevel-1);
 };
@@ -568,18 +568,18 @@ r5js.Unquote.prototype.setQuasiquotationLevel = function(qqLevel) {
  * @struct
  * @constructor
  */
-r5js.UnquoteSplicing = function(firstChild) {
+r5js.ast.UnquoteSplicing = function(firstChild) {
   goog.base(this);
     this.type_ = r5js.parse.Terminals.COMMA_AT;
     if (firstChild) {
         this.firstChild_ = firstChild;
     }
 };
-goog.inherits(r5js.UnquoteSplicing, r5js.Datum);
+goog.inherits(r5js.ast.UnquoteSplicing, r5js.Datum);
 
 
 /** @override */
-r5js.UnquoteSplicing.prototype.stringForOutputMode = function(outputMode) {
+r5js.ast.UnquoteSplicing.prototype.stringForOutputMode = function(outputMode) {
     var children = this.mapChildren(function(child) {
         return child.stringForOutputMode(outputMode);
     });
@@ -587,7 +587,7 @@ r5js.UnquoteSplicing.prototype.stringForOutputMode = function(outputMode) {
 };
 
 /** @override */
-r5js.UnquoteSplicing.prototype.setQuasiquotationLevel = function(qqLevel) {
+r5js.ast.UnquoteSplicing.prototype.setQuasiquotationLevel = function(qqLevel) {
     this.qqLevel_ = qqLevel;
     return goog.base(this, 'setQuasiquotationLevel', qqLevel-1);
 };
@@ -637,8 +637,8 @@ r5js.Quasiquote.prototype.processQuasiquote = function(
 
     this.replaceChildren(
         function(node) {
-            return (node instanceof r5js.Unquote ||
-                node instanceof r5js.UnquoteSplicing) &&
+            return (node instanceof r5js.ast.Unquote ||
+                node instanceof r5js.ast.UnquoteSplicing) &&
                 node.getQQLevel() === qqLevel;
         },
         function(node) {
@@ -866,9 +866,9 @@ r5js.Datum.prototype.normalizeQuotation_ = function() {
             case r5js.parse.Terminals.QUASIQUOTE:
                 return new r5js.Quasiquote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.UNQUOTE:
-                return new r5js.Unquote(this.firstChild_.nextSibling_);
+                return new r5js.ast.Unquote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.UNQUOTE_SPLICING:
-                return new r5js.UnquoteSplicing(this.firstChild_.nextSibling_);
+                return new r5js.ast.UnquoteSplicing(this.firstChild_.nextSibling_);
             default:
                 return this;
         }

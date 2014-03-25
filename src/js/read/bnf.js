@@ -4,9 +4,6 @@ goog.provide('r5js.read.bnf');
 goog.require('r5js.Datum');
 goog.require('r5js.Quasiquote');
 goog.require('r5js.SiblingBuffer');
-goog.require('r5js.Unquote');
-goog.require('r5js.UnquoteSplicing');
-goog.require('r5js.ast.Quote');
 // TODO bl circular dependency goog.require('r5js.read.grammar');
 goog.require('r5js.parse.Nonterminals');
 

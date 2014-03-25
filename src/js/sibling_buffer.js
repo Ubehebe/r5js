@@ -19,6 +19,8 @@ goog.provide('r5js.SiblingBuffer');
 
 goog.require('r5js.parse.Terminals'); // TODO bl remove
 // TODO bl cyclic dependency goog.require('r5js.ast.Quote');
+// TODO bl cyclic dependency goog.require('r5js.ast.Unquote');
+// TODO bl cyclic dependency goog.require('r5js.ast.UnquoteSplicing');
 
 
 
@@ -80,10 +82,10 @@ r5js.SiblingBuffer.prototype.toList = function(opt_type) {
       ans = new r5js.Quasiquote(this.first_);
       break;
     case r5js.parse.Terminals.COMMA:
-      ans = new r5js.Unquote(this.first_);
+      ans = new r5js.ast.Unquote(this.first_);
       break;
     case r5js.parse.Terminals.COMMA_AT:
-      ans = new r5js.UnquoteSplicing(this.first_);
+      ans = new r5js.ast.UnquoteSplicing(this.first_);
       break;
     case r5js.parse.Terminals.LPAREN:
       ans = new r5js.List(this.first_);
