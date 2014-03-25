@@ -2,10 +2,17 @@ goog.provide('r5js.read.bnf');
 
 
 goog.require('r5js.Datum');
+goog.require('r5js.DottedList');
+goog.require('r5js.List');
 goog.require('r5js.Quasiquote');
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.ast.Quote');
+goog.require('r5js.ast.Unquote');
+goog.require('r5js.ast.UnquoteSplicing');
+goog.require('r5js.ast.Vector');
 // TODO bl circular dependency goog.require('r5js.read.grammar');
 goog.require('r5js.parse.Nonterminals');
+goog.require('r5js.parse.Terminals');
 
 
 
@@ -208,17 +215,17 @@ r5js.read.bnf.Seq_ = function(rules) {
   /** @const @private {!Array.<!r5js.read.bnf.Rule>} */
   this.rules_ = rules;
 
-  /** @private {r5js.parse.Terminal|null} */
-  this.name_ = null;
+  /** @private {function(new: r5js.Datum, !r5js.Datum)|null} */
+  this.ctor_ = null;
 };
 
 
 /**
- * @param {!r5js.parse.Terminal} name
+ * @param {function(new: r5js.Datum, !r5js.Datum)} ctor
  * @return {!r5js.read.bnf.Seq_} This rule, for chaining.
  */
-r5js.read.bnf.Seq_.prototype.named = function(name) {
-  this.name_ = name;
+r5js.read.bnf.Seq_.prototype.named = function(ctor) {
+  this.ctor_ = ctor;
   return this;
 };
 
@@ -241,7 +248,35 @@ r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
       return null;
     }
   }
-  return siblingBuffer.toList(/** @type {!r5js.parse.Terminal} */ (this.name_));
+  return siblingBuffer.toList(/** @type {!r5js.parse.Terminal} */ (
+      r5js.read.bnf.Seq_.terminalForCtor_(this.ctor_)));
+};
+
+
+/**
+ * @param {?function(new:r5js.Datum, !r5js.Datum)} ctor
+ * @return {?r5js.parse.Terminal}
+ * @private
+ * TODO bl: remove. Transitional.
+ */
+r5js.read.bnf.Seq_.terminalForCtor_ = function(ctor) {
+  if (ctor === r5js.List) {
+    return r5js.parse.Terminals.LPAREN;
+  } else if (ctor === r5js.DottedList) {
+    return r5js.parse.Terminals.LPAREN_DOT;
+  } else if (ctor === r5js.ast.Vector) {
+    return r5js.parse.Terminals.LPAREN_VECTOR;
+  } else if (ctor === r5js.ast.Quote) {
+    return r5js.parse.Terminals.TICK;
+  } else if (ctor === r5js.Quasiquote) {
+    return r5js.parse.Terminals.BACKTICK;
+  } else if (ctor === r5js.ast.Unquote) {
+    return r5js.parse.Terminals.COMMA;
+  } else if (ctor === r5js.ast.UnquoteSplicing) {
+    return r5js.parse.Terminals.COMMA_AT;
+  } else {
+    return null;
+  }
 };
 
 
