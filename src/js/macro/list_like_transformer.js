@@ -26,7 +26,6 @@ goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.List');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Vector');
-goog.require('r5js.parse.Terminals');
 
 
 
