@@ -21,6 +21,7 @@ goog.provide('r5js.QuoteTransformer');
 goog.provide('r5js.VectorTransformer');
 
 
+goog.require('r5js.DottedList');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.List');
 goog.require('r5js.SiblingBuffer');
@@ -50,15 +51,14 @@ r5js.ListLikeTransformer.prototype.getName = function() {};
 
 
 /**
- * @param {!r5js.parse.Terminal} terminal
+ * @param {function(new: r5js.Datum, !r5js.Datum)} ctor
  * @implements {r5js.ListLikeTransformer}
  * @struct
  * @constructor
  * @private
  */
-r5js.ListLikeTransformer.Base_ = function(terminal) {
-  /** @const @private {!r5js.parse.Terminal} */
-  this.terminal_ = terminal;
+r5js.ListLikeTransformer.Base_ = function(ctor) {
+  /** @const @private */ this.ctor_ = ctor;
 
   /** @const @private {!Array.<!r5js.ITransformer>} */
   this.subtransformers_ = [];
@@ -103,7 +103,31 @@ r5js.ListLikeTransformer.Base_.prototype.couldMatch = function(inputDatum) {
 /** @override */
 r5js.ListLikeTransformer.Base_.prototype.toDatum = function(bindings) {
   var siblingBuffer = this.toSiblingBuffer_(bindings);
-  return siblingBuffer ? siblingBuffer.toList(this.terminal_) : false;
+  return siblingBuffer ?
+      siblingBuffer.toList(/** @type {r5js.parse.Terminal} */ (
+          r5js.ListLikeTransformer.Base_.terminalForCtor_(this.ctor_))) :
+      false;
+};
+
+
+/**
+ * @param {function(new:r5js.Datum, !r5js.Datum)} ctor
+ * @return {?r5js.parse.Terminal}
+ * @private
+ * TODO bl: remove. Transitional.
+ */
+r5js.ListLikeTransformer.Base_.terminalForCtor_ = function(ctor) {
+  if (ctor === r5js.List) {
+    return r5js.parse.Terminals.LPAREN;
+  } else if (ctor === r5js.DottedList) {
+    return r5js.parse.Terminals.LPAREN_DOT;
+  } else if (ctor === r5js.ast.Vector) {
+    return r5js.parse.Terminals.LPAREN_VECTOR;
+  } else if (ctor === r5js.ast.Quote) {
+    return r5js.parse.Terminals.TICK;
+  } else {
+    return null;
+  }
 };
 
 
@@ -209,7 +233,7 @@ r5js.ListLikeTransformer.Base_.prototype.toSiblingBuffer_ = function(bindings) {
  * @constructor
  */
 r5js.QuoteTransformer = function() {
-  goog.base(this, r5js.parse.Terminals.TICK);
+  goog.base(this, r5js.ast.Quote);
 };
 goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer.Base_);
 
@@ -230,7 +254,7 @@ r5js.QuoteTransformer.prototype.collectNestingLevels = goog.nullFunction;
  * @constructor
  */
 r5js.VectorTransformer = function() {
-  goog.base(this, r5js.parse.Terminals.LPAREN_VECTOR);
+  goog.base(this, r5js.ast.Vector);
 };
 goog.inherits(r5js.VectorTransformer, r5js.ListLikeTransformer.Base_);
 
@@ -250,7 +274,7 @@ r5js.VectorTransformer.prototype.couldMatch = function(inputDatum) {
  * @constructor
  */
 r5js.ListTransformer = function() {
-  goog.base(this, r5js.parse.Terminals.LPAREN);
+  goog.base(this, r5js.List);
 };
 goog.inherits(r5js.ListTransformer, r5js.ListLikeTransformer.Base_);
 
@@ -270,7 +294,7 @@ r5js.ListTransformer.prototype.couldMatch = function(inputDatum) {
  * @constructor
  */
 r5js.DottedListTransformer = function() {
-  goog.base(this, r5js.parse.Terminals.LPAREN_DOT);
+  goog.base(this, r5js.DottedList);
 };
 goog.inherits(r5js.DottedListTransformer, r5js.ListLikeTransformer.Base_);
 
