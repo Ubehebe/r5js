@@ -1,4 +1,4 @@
-goog.provide('r5js.DottedList');
+goog.provide('r5js.ast.DottedList');
 
 
 goog.require('r5js.Datum');
@@ -12,18 +12,18 @@ goog.require('r5js.parse.Terminals');
  * @struct
  * @constructor
  */
-r5js.DottedList = function(firstChild) {
+r5js.ast.DottedList = function(firstChild) {
   goog.base(this);
   this.setType(r5js.parse.Terminals.LPAREN_DOT); // TODO bl remove
   if (firstChild) {
     this.setFirstChild(firstChild);
   }
 };
-goog.inherits(r5js.DottedList, r5js.Datum);
+goog.inherits(r5js.ast.DottedList, r5js.Datum);
 
 
 /** @override */
-r5js.DottedList.prototype.stringForOutputMode = function(outputMode) {
+r5js.ast.DottedList.prototype.stringForOutputMode = function(outputMode) {
   var children = this.mapChildren(function(child) {
     return child.stringForOutputMode(outputMode);
   });

@@ -21,9 +21,9 @@ goog.provide('r5js.QuoteTransformer');
 goog.provide('r5js.VectorTransformer');
 
 
-goog.require('r5js.DottedList');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Vector');
 
@@ -269,7 +269,7 @@ r5js.ListTransformer.prototype.couldMatch = function(inputDatum) {
  * @constructor
  */
 r5js.DottedListTransformer = function() {
-  goog.base(this, r5js.DottedList);
+  goog.base(this, r5js.ast.DottedList);
 };
 goog.inherits(r5js.DottedListTransformer, r5js.ListLikeTransformer.Base_);
 
@@ -348,7 +348,7 @@ r5js.DottedListTransformer.prototype.matchInput = function(
       toMatchAgainst = subinput.getNextSibling() ?
           new r5js.SiblingBuffer().
               appendSibling(subinput).
-              toList(r5js.DottedList) :
+              toList(r5js.ast.DottedList) :
           subinput;
     }
 

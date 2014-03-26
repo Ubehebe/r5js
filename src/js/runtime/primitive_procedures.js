@@ -6,7 +6,6 @@ goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
-goog.require('r5js.DottedList');
 goog.require('r5js.Lambda');
 goog.require('r5js.OutputMode');
 goog.require('r5js.PrimitiveProcedureError');
@@ -16,6 +15,7 @@ goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
+goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.List');
@@ -441,7 +441,7 @@ PrimitiveProcedures['cdr'] = _.unary(function(p) {
         startOfCdr.setNextSibling(null);
       }
       ans = new r5js.SiblingBuffer().appendSibling(startOfCdr).toList(
-          p.isImproperList() ? r5js.DottedList : r5js.ast.List);
+          p.isImproperList() ? r5js.ast.DottedList : r5js.ast.List);
     } else {
       ans = startOfCdr;
     }
@@ -462,7 +462,7 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
     realCar.setNextSibling(oldFirstChild);
     return realCdr;
   } else {
-    var ans = new r5js.DottedList(realCar);
+    var ans = new r5js.ast.DottedList(realCar);
     ans.appendChild(realCdr);
     // todo bl hmm the parent field isn't getting set...is that ok?
     return ans;

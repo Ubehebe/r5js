@@ -2,8 +2,8 @@ goog.provide('r5js.read.grammar');
 
 
 goog.require('r5js.DatumType');
-goog.require('r5js.DottedList');
 goog.require('r5js.Quasiquote');
+goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.Unquote');
@@ -47,7 +47,7 @@ r5js.read.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
         _.one(r5js.parse.Terminals.DOT),
         _.one(r5js.parse.Nonterminals.DATUM),
         _.one(r5js.parse.Terminals.RPAREN)).
-    named(r5js.DottedList),
+    named(r5js.ast.DottedList),
     _.seq(
         _.one(r5js.parse.Terminals.LPAREN_VECTOR),
         _.zeroOrMore(r5js.parse.Nonterminals.DATUM),
