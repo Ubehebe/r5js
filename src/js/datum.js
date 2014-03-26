@@ -17,7 +17,6 @@
 goog.provide('r5js.ast.Literal');
 goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.Datum');
-goog.provide('r5js.DottedList');
 goog.provide('r5js.Lambda');
 goog.provide('r5js.Quasiquote');
 goog.provide('r5js.Ref');
@@ -37,6 +36,7 @@ goog.require('r5js.RenameHelper');
 goog.require('r5js.SiblingBuffer');
 
 // TODO bl circular dependency goog.require('r5js.ast.Identifier');
+// TODO bl circular dependency goog.require('r5js.ast.List');
 // TODO bl circular dependency goog.require('r5js.ast.Quote');
 
 /**
@@ -711,35 +711,6 @@ r5js.Lambda.prototype.stringForOutputMode = function(outputMode) {
     return r5js.PrimitiveProcedure.isImplementedBy(
         this.getPayload()) ? this.name_ :
         'proc:' + this.getPayload().name;
-};
-
-
-/**
- * @param {r5js.Datum} firstChild
- * @extends {r5js.Datum}
- * @struct
- * @constructor
- */
-r5js.DottedList = function(firstChild) {
-    goog.base(this);
-    this.type_ = r5js.parse.Terminals.LPAREN_DOT;
-    if (firstChild) {
-        this.firstChild_ = firstChild;
-    }
-};
-goog.inherits(r5js.DottedList, r5js.Datum);
-
-
-/** @override */
-r5js.DottedList.prototype.stringForOutputMode = function(outputMode) {
-    var children = this.mapChildren(function(child) {
-        return child.stringForOutputMode(outputMode);
-    });
-    // Insert the dot at the next-to-last location.
-    children.splice(-1, 0, r5js.parse.Terminals.DOT);
-    return r5js.parse.Terminals.LPAREN +
-        children.join(' ') +
-        r5js.parse.Terminals.RPAREN;
 };
 
 
