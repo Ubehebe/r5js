@@ -19,7 +19,6 @@ goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.Datum');
 goog.provide('r5js.Lambda');
 goog.provide('r5js.Ref');
-goog.provide('r5js.ast.UnquoteSplicing');
 
 
 goog.require('r5js.ast.Node');
@@ -36,6 +35,8 @@ goog.require('r5js.SiblingBuffer');
 // TODO bl circular dependency goog.require('r5js.ast.Identifier');
 // TODO bl circular dependency goog.require('r5js.ast.List');
 // TODO bl circular dependency goog.require('r5js.ast.Quote');
+// TODO bl circular dependency goog.require('r5js.ast.Unquote');
+// TODO bl circular dependency goog.require('r5js.ast.UnquoteSplicing');
 
 /**
  * TODO bl: this is out of control. Create an interface and have each
@@ -505,37 +506,6 @@ r5js.Datum.prototype.isNonNormalizedQuotation = function() {
         return this instanceof r5js.ast.List &&
             !!this.firstChild_ &&
             this.firstChild_.payload_ === r5js.parse.Terminals.QUOTE;
-};
-
-
-/**
- * @param {r5js.Datum} firstChild
- * @extends {r5js.Datum}
- * @struct
- * @constructor
- */
-r5js.ast.UnquoteSplicing = function(firstChild) {
-  goog.base(this);
-    this.type_ = r5js.parse.Terminals.COMMA_AT;
-    if (firstChild) {
-        this.firstChild_ = firstChild;
-    }
-};
-goog.inherits(r5js.ast.UnquoteSplicing, r5js.Datum);
-
-
-/** @override */
-r5js.ast.UnquoteSplicing.prototype.stringForOutputMode = function(outputMode) {
-    var children = this.mapChildren(function(child) {
-        return child.stringForOutputMode(outputMode);
-    });
-    return r5js.parse.Terminals.COMMA_AT + children.join(' ');
-};
-
-/** @override */
-r5js.ast.UnquoteSplicing.prototype.setQuasiquotationLevel = function(qqLevel) {
-    this.qqLevel = qqLevel;
-    return goog.base(this, 'setQuasiquotationLevel', qqLevel-1);
 };
 
 
