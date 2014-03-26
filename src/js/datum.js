@@ -17,7 +17,6 @@
 goog.provide('r5js.ast.Literal');
 goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.Datum');
-goog.provide('r5js.Ref');
 
 
 goog.require('r5js.ast.Node');
@@ -727,31 +726,6 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
     if (this.nextSibling_) {
         this.nextSibling_.fixParserSensitiveIds(helper);
     }
-};
-
-
-/**
- * @param {!r5js.Datum} deref Datum to dereference.
- * @extends {r5js.Datum}
- * @struct
- * @constructor
- */
-r5js.Ref = function(deref) {
-  goog.base(this);
-    this.payload_ = deref;
-};
-goog.inherits(r5js.Ref, r5js.Datum);
-
-
-/** @return {!r5js.Datum} */
-r5js.Ref.prototype.deref = function() {
-    return /** @type {!r5js.Datum} */ (this.payload_);
-};
-
-
-/** @override */
-r5js.Ref.prototype.stringForOutputMode = function(outputMode) {
-    return this.getPayload().stringForOutputMode(outputMode);
 };
 
 
