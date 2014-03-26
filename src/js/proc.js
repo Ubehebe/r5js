@@ -78,26 +78,14 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
   this.formalsArray_ = formalsArray;
 
   if (bodyStart) {
-
-    /* R5RS 5.2.2: "A <body> containing internal definitions can always
-        be converted into a completely equivalent letrec expression." */
-    var letrecBindings = new r5js.SiblingBuffer();
-    for (var cur = bodyStart;
-         cur && cur.peekParse() === r5js.parse.Nonterminals.DEFINITION;
-         cur = cur.getNextSibling()) {
-      cur.forEach(function(node) {
-        if (node.getFirstChild() &&
-            node.getFirstChild().getPayload() === r5js.parse.Terminals.DEFINE) {
-          letrecBindings.appendSibling(r5js.datumutil.extractDefinition(node));
-        }
-      });
-    }
+      var helper = new r5js.Procedure.LetrecBindingsHelper_();
+      var letrecBindings = helper.collectLetrecBindings(bodyStart);
 
     if (letrecBindings.isEmpty()) {
-      this.body = cur.sequence(this.env);
+      this.body = helper.getLast().sequence(this.env);
     } else {
       var letrec = new r5js.ast.List(letrecBindings.toSiblings());
-      letrec.setNextSibling(cur);
+      letrec.setNextSibling(/** @type {!r5js.Datum} */ (helper.getLast()));
       this.body = r5js.procs.newProcCall(
           new r5js.ast.Identifier('letrec'),
           letrec,
@@ -219,6 +207,46 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
       env.addBinding(name, siblingBuffer.toList(r5js.ast.List));
     }
   }
+};
+
+
+/**
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.Procedure.LetrecBindingsHelper_ = function() {
+    /** @const @private */ this.bindings_ = new r5js.SiblingBuffer();
+    /** @private {r5js.Datum} */ this.last_ = null;
+};
+
+
+/**
+ * R5RS 5.2.2: "A <body> containing internal definitions can always be
+ * converted into a completely equivalent letrec expression."
+ * @param {!r5js.Datum} bodyStart
+ * @return {!r5js.SiblingBuffer}
+ */
+r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindings = function(bodyStart) {
+    var self = this;
+    for (var cur = bodyStart;
+         cur && cur.peekParse() === r5js.parse.Nonterminals.DEFINITION;
+         cur = cur.getNextSibling()) {
+        cur.forEach(function(node) {
+            if (node.getFirstChild() &&
+                node.getFirstChild().getPayload() === r5js.parse.Terminals.DEFINE) {
+                self.bindings_.appendSibling(r5js.datumutil.extractDefinition(node));
+            }
+        });
+    }
+    this.last_ = cur;
+    return this.bindings_;
+};
+
+
+/** @return {r5js.Datum} */
+r5js.Procedure.LetrecBindingsHelper_.prototype.getLast = function() {
+    return this.last_;
 };
 
 
