@@ -17,7 +17,6 @@
 goog.provide('r5js.ast.Literal');
 goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.Datum');
-goog.provide('r5js.ast.Lambda');
 goog.provide('r5js.Ref');
 
 
@@ -495,40 +494,6 @@ r5js.ast.Literal = function() {
     goog.base(this);
 };
 goog.inherits(r5js.ast.Literal, r5js.Datum);
-
-
-
-
-/**
- * @param {string} name Name of the procedure.
- * @param {!r5js.PrimitiveProcedure|!r5js.Procedure} procedure TODO bl.
- * @extends {r5js.Datum}
- * @struct
- * @constructor
- */
-r5js.ast.Lambda = function(name, procedure) {
-    goog.base(this);
-    this.type_ = r5js.parse.Terminals.LAMBDA;
-    this.payload_ = procedure;
-
-    /** @const @private {string} */
-    this.name_ = name;
-};
-goog.inherits(r5js.ast.Lambda, r5js.Datum);
-
-
-/** @return {string} */
-r5js.ast.Lambda.prototype.getName = function() {
-    return this.name_;
-};
-
-
-/** @override */
-r5js.ast.Lambda.prototype.stringForOutputMode = function(outputMode) {
-    return r5js.PrimitiveProcedure.isImplementedBy(
-        this.getPayload()) ? this.name_ :
-        'proc:' + this.getPayload().name;
-};
 
 
 /**
