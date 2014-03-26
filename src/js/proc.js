@@ -32,6 +32,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Lambda');
 goog.require('r5js.ast.List');
+goog.require('r5js.ast.Quote');
 goog.require('r5js.Macro');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
@@ -228,19 +229,34 @@ r5js.Procedure.LetrecBindingsHelper_ = function() {
  * @return {!r5js.SiblingBuffer}
  */
 r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindings = function(bodyStart) {
-    var self = this;
     for (var cur = bodyStart;
          cur && cur.peekParse() === r5js.parse.Nonterminals.DEFINITION;
          cur = cur.getNextSibling()) {
-        cur.forEach(function(node) {
-            if (node.getFirstChild() &&
-                node.getFirstChild().getPayload() === r5js.parse.Terminals.DEFINE) {
-                self.bindings_.appendSibling(r5js.datumutil.extractDefinition(node));
-            }
-        });
+        if (cur.getFirstChild() &&
+            cur.getFirstChild().getPayload() === r5js.parse.Terminals.DEFINE) {
+                this.bindings_.appendSibling(r5js.datumutil.extractDefinition(cur));
+        } else {
+            cur.forEachChild(this.collectLetrecBindingsForChild_, this);
+        }
     }
     this.last_ = cur;
     return this.bindings_;
+};
+
+
+/**
+ * @param {!r5js.Datum} node
+ * @private
+ */
+r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindingsForChild_ = function(node) {
+    if (node instanceof r5js.ast.Quote) {
+        return;
+    } else if (node.getFirstChild() &&
+        node.getFirstChild().getPayload() === r5js.parse.Terminals.DEFINE) {
+        this.bindings_.appendSibling(r5js.datumutil.extractDefinition(node));
+    } else {
+        node.forEachChild(this.collectLetrecBindingsForChild_, this);
+    }
 };
 
 

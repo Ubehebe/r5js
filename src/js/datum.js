@@ -101,25 +101,6 @@ r5js.Datum = function() {
 };
 
 
-
-/**
- * Executes a callback on this Datum and on each of its children, in order.
- * TODO bl: there are too many of these utility functions.
- * Reduce to a minimal set.
- * @param {function(!r5js.Datum)} callback Callback to execute.
- */
-r5js.Datum.prototype.forEach = function(callback) {
-    /* Quotations are like pseudo-leaves in the datum tree, so they should
-     be opaque to this function. */
-    if (!(this instanceof r5js.ast.Quote)) {
-        callback(this);
-        for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
-            cur.forEach(callback);
-        }
-    }
-};
-
-
 /**
  * @param {function(this: T, !r5js.Datum)} callback
  * @param {T=} opt_context
