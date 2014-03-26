@@ -93,8 +93,8 @@ r5js.Datum = function() {
     /** @type {boolean} */
     this.immutable_ = false;
 
-    /** @private {number|undefined} */
-    this.qqLevel_;
+    /** @protected {number|undefined} */
+    this.qqLevel;
 
     /** @private {r5js.CdrHelper} */
     this.cdrHelper_;
@@ -160,7 +160,7 @@ r5js.Datum.prototype.setNextSibling = function(nextSibling) {
 
 /** @return {number|undefined} */
 r5js.Datum.prototype.getQQLevel = function() {
-    return this.qqLevel_;
+    return this.qqLevel;
 };
 
 
@@ -536,7 +536,7 @@ r5js.ast.Unquote.prototype.stringForOutputMode = function(outputMode) {
 
 /** @override */
 r5js.ast.Unquote.prototype.setQuasiquotationLevel = function(qqLevel) {
-        this.qqLevel_ = qqLevel;
+        this.qqLevel = qqLevel;
         return goog.base(this, 'setQuasiquotationLevel', qqLevel-1);
 };
 
@@ -568,7 +568,7 @@ r5js.ast.UnquoteSplicing.prototype.stringForOutputMode = function(outputMode) {
 
 /** @override */
 r5js.ast.UnquoteSplicing.prototype.setQuasiquotationLevel = function(qqLevel) {
-    this.qqLevel_ = qqLevel;
+    this.qqLevel = qqLevel;
     return goog.base(this, 'setQuasiquotationLevel', qqLevel-1);
 };
 
@@ -645,8 +645,8 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
 
 /** @override */
 r5js.ast.Quasiquote.prototype.setQuasiquotationLevel = function(qqLevel) {
-            this.qqLevel_ = qqLevel+1;
-    return goog.base(this, 'setQuasiquotationLevel', this.qqLevel_);
+            this.qqLevel = qqLevel+1;
+    return goog.base(this, 'setQuasiquotationLevel', this.qqLevel);
     };
 
 
