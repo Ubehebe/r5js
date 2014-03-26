@@ -24,7 +24,7 @@ goog.require('r5js.DatumType');
 goog.require('r5js.EvalError');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
-goog.require('r5js.Lambda');
+goog.require('r5js.ast.Lambda');
 goog.require('r5js.Macro');
 goog.require('r5js.Procedure');
 goog.require('r5js.PrimitiveProcedure');
@@ -153,7 +153,7 @@ r5js.Environment.prototype.get = function(name) {
          on the trampoline, will return the unwrapped procedures.) */
         else if (r5js.PrimitiveProcedure.isImplementedBy(maybe)
             || maybe instanceof r5js.Procedure)
-            return new r5js.Lambda(name,
+            return new r5js.ast.Lambda(name,
                 /** @type {!r5js.PrimitiveProcedure|!r5js.Procedure} */ (
                     maybe));
         else if (maybe === this.unspecifiedSentinel_)

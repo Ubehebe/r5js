@@ -6,7 +6,6 @@ goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
-goog.require('r5js.Lambda');
 goog.require('r5js.OutputMode');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.SiblingBuffer');
@@ -17,6 +16,7 @@ goog.require('r5js.ast.Character');
 goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.InputPort');
+goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.OutputPort');
@@ -94,7 +94,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
         p === q;
   } else if (p instanceof r5js.ast.String) {
     return p === q;
-  } else if (p instanceof r5js.Lambda) {
+  } else if (p instanceof r5js.ast.Lambda) {
     return p.getPayload() === q.getPayload();
   } else if (p instanceof r5js.ast.Quasiquote) {
     /* todo bl: not sure this is the right thing to do.
@@ -159,7 +159,7 @@ PrimitiveProcedures['procedure?'] = _.unary(function(node) {
          packages up the current continuation as an "escape procedure"
          and passes it as an argument to proc." Thus a Continuation
          must count as a procedure. */
-  return node instanceof r5js.Lambda ||
+  return node instanceof r5js.ast.Lambda ||
       node instanceof r5js.Continuation;
 });
 
@@ -713,7 +713,7 @@ PrimitiveProcedures['eval'] = _.binary(
   todo bl: are there any other cases where a procedure can
   escape into the parser? */
 
-      if (expr instanceof r5js.Lambda)
+      if (expr instanceof r5js.ast.Lambda)
         return new r5js.ast.Identifier(/** @type {string} */ (expr.getName()));
 
       else {
@@ -886,7 +886,7 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
  */
 PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var mustBeProc = arguments[0];
-  if (!(mustBeProc instanceof r5js.Lambda)) {
+  if (!(mustBeProc instanceof r5js.ast.Lambda)) {
     throw new r5js.ArgumentTypeError(
         mustBeProc, 0, 'apply', r5js.parse.Terminals.LAMBDA);
   }

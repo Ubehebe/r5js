@@ -30,7 +30,7 @@ goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
-goog.require('r5js.Lambda');
+goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.Macro');
@@ -478,7 +478,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
   if (arg instanceof r5js.Macro)
     ans = arg;
   else if (r5js.PrimitiveProcedure.isImplementedBy(arg) ||
-      arg instanceof r5js.Lambda)
+      arg instanceof r5js.ast.Lambda)
     ans = arg;
   else if (arg instanceof r5js.ast.Identifier)
     ans = this.env.get(/** @type {string} */ (arg.getPayload()));
@@ -598,7 +598,7 @@ r5js.ProcCall.prototype.cpsify = function(
         arg.setType("'");
         finalArgs.appendSibling(arg);
       }
-    } else if (arg instanceof r5js.Lambda) {
+    } else if (arg instanceof r5js.ast.Lambda) {
       finalArgs.appendSibling(new r5js.ast.Identifier(/** @type {string} */ (arg.getName())));
     } else if (arg.isImproperList()) {
       throw new r5js.GeneralSyntaxError(arg);
@@ -1040,7 +1040,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
       args.push(cur.getFirstChild() ?
           cur.getFirstChild() :
           new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE));
-    } else if (cur instanceof r5js.Lambda) {
+    } else if (cur instanceof r5js.ast.Lambda) {
       args.push(cur);
     } else if (cur.getPayload() !== undefined) {
       args.push(r5js.datumutil.maybeWrapResult(cur.getPayload(), cur.getType()));
