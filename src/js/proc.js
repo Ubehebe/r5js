@@ -573,9 +573,7 @@ r5js.ProcCall.prototype.cpsify = function(
 
   for (var arg = this.firstOperand; arg; arg = arg.getNextSibling()) {
     arg.resetDesugars();
-    if (arg.isNonNormalizedQuotation()) {
-        finalArgs.appendSibling(arg.clone(null /* parent */));
-    } else if (arg instanceof r5js.ast.Quote) {
+    if (arg instanceof r5js.ast.Quote) {
           finalArgs.appendSibling(arg.clone(null /* parent */));
     } else if (arg instanceof r5js.ast.Quasiquote) {
       if ((maybeContinuable =

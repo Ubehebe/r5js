@@ -496,17 +496,6 @@ r5js.Datum.prototype.sequence = function(env) {
 
 
 /**
- * @return {boolean} Whether this datum is a quotation that needs to be
- * normalized.
- */
-r5js.Datum.prototype.isNonNormalizedQuotation = function() {
-        return this instanceof r5js.ast.List &&
-            !!this.firstChild_ &&
-            this.firstChild_.payload_ === r5js.parse.Terminals.QUOTE;
-};
-
-
-/**
  * @extends {r5js.Datum}
  * @struct
  * @constructor
