@@ -180,20 +180,6 @@ r5js.Datum.prototype.setType = function(type) {
     this.type_ = type;
 };
 
-/**
- * @return {!r5js.Datum} This object, for chaining.
- */
-r5js.Datum.prototype.setImmutableOnQuote = function() {
-    if (this.firstChild_) {
-        switch (this.firstChild_.type_) {
-            case r5js.parse.Terminals.LPAREN: // TODO bl
-            case r5js.parse.Terminals.LPAREN_DOT:
-            case r5js.parse.Terminals.LPAREN_VECTOR:
-                this.firstChild_.setImmutable();
-        }
-    }
-    return this;
-};
 
 /**
  * @return {boolean} True iff {@link r5js.Datum.setImmutable} has been called
