@@ -19,7 +19,6 @@ goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.Datum');
 goog.provide('r5js.Lambda');
 goog.provide('r5js.Ref');
-goog.provide('r5js.ast.Unquote');
 goog.provide('r5js.ast.UnquoteSplicing');
 
 
@@ -507,38 +506,6 @@ r5js.Datum.prototype.isNonNormalizedQuotation = function() {
             !!this.firstChild_ &&
             this.firstChild_.payload_ === r5js.parse.Terminals.QUOTE;
 };
-
-
-/**
- * @param {r5js.Datum} firstChild
- * @extends {r5js.Datum}
- * @struct
- * @constructor
- */
-r5js.ast.Unquote = function(firstChild) {
-    goog.base(this);
-    this.type_ = r5js.parse.Terminals.COMMA;
-    if (firstChild) {
-        this.firstChild_ = firstChild;
-    }
-};
-goog.inherits(r5js.ast.Unquote, r5js.Datum);
-
-/** @override */
-r5js.ast.Unquote.prototype.stringForOutputMode = function(outputMode) {
-    var children = this.mapChildren(function(child) {
-        return child.stringForOutputMode(outputMode);
-    });
-    return r5js.parse.Terminals.COMMA + children.join(' ');
-};
-
-
-/** @override */
-r5js.ast.Unquote.prototype.setQuasiquotationLevel = function(qqLevel) {
-        this.qqLevel = qqLevel;
-        return goog.base(this, 'setQuasiquotationLevel', qqLevel-1);
-};
-
 
 
 /**
