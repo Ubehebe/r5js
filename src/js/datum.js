@@ -18,7 +18,7 @@ goog.provide('r5js.ast.Literal');
 goog.provide('r5js.ast.SimpleDatum');
 goog.provide('r5js.Datum');
 goog.provide('r5js.Lambda');
-goog.provide('r5js.Quasiquote');
+goog.provide('r5js.ast.Quasiquote');
 goog.provide('r5js.Ref');
 goog.provide('r5js.ast.Unquote');
 goog.provide('r5js.ast.UnquoteSplicing');
@@ -580,18 +580,18 @@ r5js.ast.UnquoteSplicing.prototype.setQuasiquotationLevel = function(qqLevel) {
  * @struct
  * @constructor
  */
-r5js.Quasiquote = function(firstChild) {
+r5js.ast.Quasiquote = function(firstChild) {
     goog.base(this);
     this.type_ = r5js.parse.Terminals.BACKTICK;
     if (firstChild) {
         this.firstChild_ = firstChild;
     }
 };
-goog.inherits(r5js.Quasiquote, r5js.Datum);
+goog.inherits(r5js.ast.Quasiquote, r5js.Datum);
 
 
 /** @override */
-r5js.Quasiquote.prototype.stringForOutputMode = function(outputMode) {
+r5js.ast.Quasiquote.prototype.stringForOutputMode = function(outputMode) {
     var children = this.mapChildren(function(child) {
         return child.stringForOutputMode(outputMode);
     });
@@ -608,7 +608,7 @@ r5js.Quasiquote.prototype.stringForOutputMode = function(outputMode) {
  * @suppress {const} for the assignment to continuation.lastResultName,
  * which may indicate a bug. TODO bl investigate.
  */
-r5js.Quasiquote.prototype.processQuasiquote = function(
+r5js.ast.Quasiquote.prototype.processQuasiquote = function(
     env, cpsName, parserProvider) {
 
     var newCalls = new r5js.ContinuableHelper();
@@ -644,7 +644,7 @@ r5js.Quasiquote.prototype.processQuasiquote = function(
 
 
 /** @override */
-r5js.Quasiquote.prototype.setQuasiquotationLevel = function(qqLevel) {
+r5js.ast.Quasiquote.prototype.setQuasiquotationLevel = function(qqLevel) {
             this.qqLevel_ = qqLevel+1;
     return goog.base(this, 'setQuasiquotationLevel', this.qqLevel_);
     };
@@ -763,7 +763,7 @@ r5js.Datum.prototype.normalizeQuotation_ = function() {
             case r5js.parse.Terminals.QUOTE:
                 return new r5js.ast.Quote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.QUASIQUOTE:
-                return new r5js.Quasiquote(this.firstChild_.nextSibling_);
+                return new r5js.ast.Quasiquote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.UNQUOTE:
                 return new r5js.ast.Unquote(this.firstChild_.nextSibling_);
             case r5js.parse.Terminals.UNQUOTE_SPLICING:

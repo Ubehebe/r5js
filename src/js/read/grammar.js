@@ -2,9 +2,9 @@ goog.provide('r5js.read.grammar');
 
 
 goog.require('r5js.DatumType');
-goog.require('r5js.Quasiquote');
 goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.List');
+goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
@@ -60,7 +60,7 @@ r5js.read.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
     _.seq(
         _.one(r5js.parse.Terminals.BACKTICK),
         _.one(r5js.parse.Nonterminals.DATUM)).
-    named(r5js.Quasiquote),
+    named(r5js.ast.Quasiquote),
     _.seq(
         _.one(r5js.parse.Terminals.COMMA),
         _.one(r5js.parse.Nonterminals.DATUM)).

@@ -40,7 +40,7 @@ goog.require('r5js.ast.Identifier');
  * @param {string=} opt_lastResultName Optional name to use for the last result.
  *     If not given, a unique name will be created.
  * @constructor
- * @suppress {const} See {@link r5js.Quasiquote#processQuasiquote}.
+ * @suppress {const} See {@link r5js.ast.Quasiquote#processQuasiquote}.
  */
 r5js.Continuation = function(opt_lastResultName) {
   /** @const {string} */

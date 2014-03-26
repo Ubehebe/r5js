@@ -9,7 +9,6 @@ goog.require('r5js.DatumType');
 goog.require('r5js.Lambda');
 goog.require('r5js.OutputMode');
 goog.require('r5js.PrimitiveProcedureError');
-goog.require('r5js.Quasiquote');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
@@ -21,6 +20,7 @@ goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.OutputPort');
+goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
@@ -92,7 +92,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     return p === q;
   } else if (p instanceof r5js.Lambda) {
     return p.getPayload() === q.getPayload();
-  } else if (p instanceof r5js.Quasiquote) {
+  } else if (p instanceof r5js.ast.Quasiquote) {
     /* todo bl: not sure this is the right thing to do.
     We can't just "unescape" the quasiquotations. Example:
 
