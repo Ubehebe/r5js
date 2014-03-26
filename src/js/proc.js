@@ -450,7 +450,7 @@ r5js.ProcCall.prototype.reconstructDatum = function() {
 r5js.ProcCall.prototype.operandsInCpsStyle = function() {
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.Datum) {
-      if (cur.isEmptyList()) {
+      if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
         throw new r5js.IllegalEmptyApplication(this.operatorName.getPayload());
       } else if (!(cur instanceof r5js.ast.Literal)) {
         return false;

@@ -67,7 +67,11 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     return p.getPayload() === q.getPayload();
   } else if (p instanceof r5js.ast.List) {
     var ans;
-    if (p === q || p.isEmptyList() && q.isEmptyList())
+    if (p === q ||
+        (p instanceof r5js.ast.List &&
+            q instanceof r5js.ast.List &&
+            !p.getFirstChild() &&
+            !q.getFirstChild()))
       ans = true;
     else {
       var pHelper = p.getCdrHelper();
@@ -127,7 +131,7 @@ PrimitiveProcedures['input-port?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['null?'] = _.unary(function(node) {
-  return node.isEmptyList();
+  return node instanceof r5js.ast.List && !node.getFirstChild();
 });
 
 PrimitiveProcedures['number?'] = _.unary(function(node) {

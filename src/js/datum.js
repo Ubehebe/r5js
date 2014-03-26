@@ -32,8 +32,6 @@ goog.require('r5js.OutputMode');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.SiblingBuffer');
 
-// TODO bl circular dependency goog.require('r5js.ast.Identifier');
-// TODO bl circular dependency goog.require('r5js.ast.List');
 
 /**
  * TODO bl: this is out of control. Create an interface and have each
@@ -263,13 +261,6 @@ r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
     return this;
 };
 
-
-/**
- * @return {boolean} True iff this Datum represents an empty list.
- */
-r5js.Datum.prototype.isEmptyList = function() {
-    return this instanceof r5js.ast.List && !this.firstChild_;
-};
 
 /**
  * @param {!r5js.Datum} other Datum to compare against.
