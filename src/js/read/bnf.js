@@ -248,8 +248,37 @@ r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
       return null;
     }
   }
-  return siblingBuffer.toList(
-      /** @type {function(new: r5js.Datum, !r5js.Datum)} */ (this.ctor_));
+
+  return r5js.read.bnf.Seq_.maybeCanonicalize(siblingBuffer.toList(
+      /** @type {function(new: r5js.Datum, !r5js.Datum)} */ (this.ctor_)));
+};
+
+
+/**
+ * (quote x) -> 'x
+ * (quasiquote x) -> `x
+ * (unquote x) -> ,x
+ * (unquote-splicing x) -> ,@x
+ * @param {!r5js.Datum} datum
+ * @return {!r5js.Datum}
+ */
+r5js.read.bnf.Seq_.maybeCanonicalize = function(datum) {
+  if (!(datum instanceof r5js.ast.List) || !datum.getFirstChild()) {
+    return datum;
+  }
+  var realFirstChild = datum.getFirstChild().getNextSibling();
+  switch (datum.getFirstChild().getPayload()) {
+    case r5js.parse.Terminals.QUOTE:
+      return new r5js.ast.Quote(realFirstChild);
+    case r5js.parse.Terminals.QUASIQUOTE:
+      return new r5js.ast.Quasiquote(realFirstChild);
+    case r5js.parse.Terminals.UNQUOTE:
+      return new r5js.ast.Unquote(realFirstChild);
+    case r5js.parse.Terminals.UNQUOTE_SPLICING:
+      return new r5js.ast.UnquoteSplicing(realFirstChild);
+    default:
+      return datum;
+  }
 };
 
 

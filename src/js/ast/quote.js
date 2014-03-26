@@ -16,7 +16,7 @@ r5js.ast.Quote = function(firstChild) {
   goog.base(this);
   this.setType(r5js.parse.Terminals.TICK); // TODO bl remove
   if (firstChild) {
-    this.setFirstChild(firstChild);
+    this.setFirstChild(firstChild.setImmutable());
   }
 };
 goog.inherits(r5js.ast.Quote, r5js.ast.Literal);

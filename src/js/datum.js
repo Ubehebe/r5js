@@ -34,9 +34,6 @@ goog.require('r5js.SiblingBuffer');
 
 // TODO bl circular dependency goog.require('r5js.ast.Identifier');
 // TODO bl circular dependency goog.require('r5js.ast.List');
-// TODO bl circular dependency goog.require('r5js.ast.Quote');
-// TODO bl circular dependency goog.require('r5js.ast.Unquote');
-// TODO bl circular dependency goog.require('r5js.ast.UnquoteSplicing');
 
 /**
  * TODO bl: this is out of control. Create an interface and have each
@@ -608,69 +605,6 @@ r5js.Datum.prototype.lastSibling = function() {
     return this.nextSibling_ ? this.nextSibling_.lastSibling() : this;
 };
 
-
-/**
- * @return {!r5js.Datum} The normalized quotation datum.
- * @private
- * TODO bl: remove the type switch in favor of overrides on the subclasses.
- */
-r5js.Datum.prototype.normalizeQuotation_ = function() {
-    if (!this.firstChild_) {
-        return this;
-    }
-        switch (this.firstChild_.payload_) {
-            case r5js.parse.Terminals.QUOTE:
-                return new r5js.ast.Quote(this.firstChild_.nextSibling_);
-            case r5js.parse.Terminals.QUASIQUOTE:
-                return new r5js.ast.Quasiquote(this.firstChild_.nextSibling_);
-            case r5js.parse.Terminals.UNQUOTE:
-                return new r5js.ast.Unquote(this.firstChild_.nextSibling_);
-            case r5js.parse.Terminals.UNQUOTE_SPLICING:
-                return new r5js.ast.UnquoteSplicing(this.firstChild_.nextSibling_);
-            default:
-                return this;
-        }
-};
-
-
-/**
- * (x . ()) is equivalent to (x). It is useful to perform this normalization
- * prior to evaluation time to simplify the Scheme procedure "list?".
- * With normalization, we can merely say, (list? x) iff x.isList().
- * Without normalization, we would also have to check if x is an
- * improper list, and if so, whether its last element was an empty list.
- *
- * This is also an opportune time to do these:
- *
- * (quote x) -> 'x
- * (quasiquote x) -> `x
- * (unquote x) -> ,x
- * (unquote-splicing x) -> ,@x
- *
- * so we don't have to worry about these synonyms during evaluation proper.
- *
- * @return {!r5js.Datum} The normalized datum.
- */
-r5js.Datum.prototype.normalizeInput = function() {
-    var thisNormalized = this.normalizeQuotation_();
-
-    for (var cur = thisNormalized.getFirstChild(), prev;
-         cur;
-         prev = cur, cur = cur.getNextSibling()) {
-        var curNormalized = cur.normalizeInput();
-        if (curNormalized !== cur) {
-            if (prev) {
-                prev.nextSibling_ = curNormalized;
-            } else {
-                thisNormalized.firstChild_ = curNormalized;
-            }
-            curNormalized.nextSibling_ = cur.nextSibling_;
-        }
-        cur = curNormalized;
-    }
-
-    return thisNormalized.setImmutableOnQuote();
-};
 
 /**
  * Example:
