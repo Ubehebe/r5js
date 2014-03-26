@@ -29,3 +29,7 @@ r5js.ast.Quote.prototype.stringForOutputMode = function(outputMode) {
   });
   return this.getType() + children.join(' ');
 };
+
+
+/** @override */
+r5js.ast.Quote.prototype.fixParserSensitiveIds = goog.nullFunction;

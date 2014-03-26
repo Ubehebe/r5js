@@ -994,8 +994,6 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
         this.payload_ =
             helper.getRenameBinding(/** @type {string} */(this.payload_)) ||
                 this.payload_;
-    } else if (this instanceof r5js.ast.Quote) {
-        ; // no-op
     } else {
         for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
             cur.fixParserSensitiveIds(helper);
