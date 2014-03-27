@@ -61,10 +61,6 @@ r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
         case null:
             // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
             return 'undefined';
-        case r5js.DatumType.ENVIRONMENT_SPECIFIER: // R5RS 6.5
-            return this.getPayload() === 5
-                ? 'scheme-report-environment-5'
-                : 'null-environment-5';
         case r5js.DatumType.IDENTIFIER:
                 default:
                     throw new r5js.InternalInterpreterError('unknown datum type ' + this.getType());

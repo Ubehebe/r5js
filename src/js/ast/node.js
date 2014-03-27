@@ -62,6 +62,16 @@ r5js.ast.EnvironmentSpecifier = function(baseEnv) {
 goog.inherits(r5js.ast.EnvironmentSpecifier, r5js.ast.BaseNode_);
 
 
+/**
+ * TODO bl: this should do something different depending on
+ * (scheme-report-environment 5) or (null-environment 5).
+ * @override
+ */
+r5js.ast.EnvironmentSpecifier.prototype.toString = function() {
+  return 'environment';
+};
+
+
 
 /**
  * @param {!r5js.Port} port
