@@ -57,15 +57,13 @@ r5js.ProcCall.prototype.tryFFI = function(
 
         switch (typeof property) {
             case 'function':
-                ans = r5js.ffiutil.newFFIDatum(
+                ans = new r5js.ast.Ffi(
                     new r5js.JsObjOrMethod(
                         jsObjOrMethod.getObject(),
-                        property
-                    )
-                );
+                        property));
                 break;
             case 'object':
-                ans = r5js.ffiutil.newFFIDatum(new r5js.JsObjOrMethod(property));
+                ans = new r5js.ast.Ffi(new r5js.JsObjOrMethod(property));
                 break;
             case 'undefined':
                 ans = null;
@@ -96,13 +94,30 @@ r5js.ffiutil = {};
 
 /**
  * @param {!Object} jsObj A JavaScript object.
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.ast.Ffi = function(jsObj) {
+  goog.base(this);
+    this.setType(r5js.DatumType.FFI); // TODO bl remove
+    this.setPayload(jsObj);
+};
+goog.inherits(r5js.ast.Ffi, r5js.Datum);
+
+
+/** @override */
+r5js.ast.Ffi.prototype.stringForOutputMode = function(outputMode) {
+    return this.getPayload().toString();
+};
+
+
+/**
+ * @param {!Object} jsObj A JavaScript object.
  * @return {!r5js.Datum} A new datum representing the given JavaScript object.
  */
 r5js.ffiutil.newFFIDatum = function(jsObj) {
-    var ans = new r5js.Datum();
-    ans.setType(r5js.DatumType.FFI);
-    ans.setPayload(jsObj);
-    return ans;
+    return new r5js.ast.Ffi(jsObj);
 };
 
 
