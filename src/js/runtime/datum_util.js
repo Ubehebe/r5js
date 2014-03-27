@@ -11,6 +11,7 @@ goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
+goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Node');
 goog.require('r5js.ast.Number');
@@ -82,6 +83,7 @@ r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
  * @param {!r5js.Type=} opt_type TODO bl.
  * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
  *         if necessary.
+ * @suppress {accessControls} for result.name_.
  * TODO bl: remove. This whole method seems confused.
  */
 r5js.datumutil.maybeWrapResult = function(result, opt_type) {
@@ -95,8 +97,6 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
     return result; // no-op, strictly for convenience
   }
 
-  var ans = new r5js.Datum();
-  ans.setPayload(result);
   if (opt_type === r5js.DatumType.BOOLEAN) {
     return new r5js.ast.Boolean(/** @type {boolean} */ (result));
   } else if (opt_type === r5js.DatumType.CHARACTER) {
@@ -105,8 +105,6 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
     return new r5js.ast.Number(/** @type {number} */ (result));
   } else if (opt_type === r5js.DatumType.STRING) {
     return new r5js.ast.String(/** @type {string} */ (result));
-  } else if (goog.isDef(opt_type)) {
-    ans.setType(opt_type);
   } else {
     // If no type was supplied, we can deduce it in most (not all) cases
     switch (typeof result) {
@@ -118,8 +116,7 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
         return new r5js.ast.Identifier(result);
       case 'object':
         if (result instanceof r5js.Procedure) {
-          ans.setType(r5js.parse.Terminals.LAMBDA);
-          break;
+          return new r5js.ast.Lambda(result.name_, result);
         }
       default:
         throw new r5js.InternalInterpreterError(
@@ -128,5 +125,4 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
                 ': noninjective mapping from values to types');
     }
   }
-  return ans;
 };

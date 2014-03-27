@@ -523,6 +523,8 @@ r5js.ProcCall.prototype.tryIdShim = function(
     return;
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
+  } else if (arg instanceof r5js.ast.List) {
+      ans = arg;
   } else {
     ans = r5js.datumutil.maybeWrapResult(
         /** @type {!r5js.PayloadType} */ (arg.getPayload()),
