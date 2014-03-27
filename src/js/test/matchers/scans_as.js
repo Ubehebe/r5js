@@ -6,7 +6,7 @@ goog.require('r5js.Scanner');
 
 
 /**
- * @param {!r5js.DatumType} expectedType
+ * @param {function(new: r5js.Datum, ?)} expectedType
  * @return {!tdd.matchers.Matcher}
  */
 scanAs = function(expectedType) {
@@ -16,15 +16,14 @@ scanAs = function(expectedType) {
 
 
 /**
- * @param {!r5js.DatumType} expectedType
+ * @param {function(new: r5js.Datum, ?)} expectedType
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
  * @private
  */
 r5js.test.matchers.ScansAs_ = function(expectedType) {
-  /** @const @private {!r5js.Type} */
-  this.expectedType_ = expectedType;
+  /** @const @private */ this.expectedType_ = expectedType;
 };
 
 
@@ -39,9 +38,7 @@ r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
     if (!token || scanner.nextToken()) {
       return false;
     }
-    var asDatum = token.toDatum();
-    return asDatum instanceof r5js.Datum &&
-        asDatum.getType() === this.expectedType_;
+    return token.toDatum() instanceof this.expectedType_;
   } catch (e) {
     return false; // some tests purposely cause scan errors
   }
