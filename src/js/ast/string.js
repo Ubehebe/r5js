@@ -24,9 +24,9 @@ goog.inherits(r5js.ast.String, r5js.ast.SimpleDatum);
 /** @override */
 r5js.ast.String.prototype.stringForOutputMode = function(outputMode) {
   var payload = this.getPayload();
-  return outputMode === r5js.OutputMode.DISPLAY ?
+  return /** @type {string} */ (outputMode === r5js.OutputMode.DISPLAY ?
       payload :
-      '"' + payload.replace(/([\\"])/g, '\\$1') + '"';
+      '"' + payload.replace(/([\\"])/g, '\\$1') + '"');
 };
 
 

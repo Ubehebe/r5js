@@ -17,16 +17,10 @@
 goog.provide('r5js.Reader');
 
 
-goog.require('r5js.read.bnf');
-goog.require('r5js.Datum');
-goog.require('r5js.DatumType');
-goog.require('r5js.read.grammar');
-goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.OutputMode');
 goog.require('r5js.parse.Nonterminals');
-goog.require('r5js.parse.Terminals');
-goog.require('r5js.parse.isTerminal');
-goog.require('r5js.PrimitiveProcedure');
+goog.require('r5js.read.grammar');
+
+
 
 /**
  * @param {!r5js.TokenStream} scanner
@@ -35,34 +29,12 @@ goog.require('r5js.PrimitiveProcedure');
  * @constructor
  */
 r5js.Reader = function(scanner) {
-    /** @const @private {!r5js.TokenStream} */
-    this.scanner_ = scanner;
+  /** @const @private {!r5js.TokenStream} */
+  this.scanner_ = scanner;
 };
 
 
 /** @override */
 r5js.Reader.prototype.read = function() {
-    return r5js.read.grammar[r5js.parse.Nonterminals.DATUMS].match(this.scanner_);
+  return r5js.read.grammar[r5js.parse.Nonterminals.DATUMS].match(this.scanner_);
 };
-
-/**
- * This is the inverse of {@link r5js.Reader.read}, which is why it's here.
- * @param {!r5js.OutputMode} outputMode Desired output mode.
- * @return {string} String representation for desired output mode.
- */
-r5js.Datum.prototype.stringForOutputMode = function(outputMode) {
-
-    var ans, child;
-    var endDelimiter = "";
-
-    switch (this.getType()) {
-        case r5js.DatumType.FFI: // JavaScript object
-            return this.getPayload().toString();
-        case null:
-            // Mainly for silly stuff like (cons (if #f #f) (display 'hi))
-            return 'undefined';
-        case r5js.DatumType.IDENTIFIER:
-                default:
-                    throw new r5js.InternalInterpreterError('unknown datum type ' + this.getType());
-            }
-    };

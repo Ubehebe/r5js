@@ -24,7 +24,7 @@ goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
 
 /** @override */
 r5js.ast.Identifier.prototype.stringForOutputMode = function(outputMode) {
-  return this.getPayload();
+  return /** @type {string} */ (this.getPayload());
 };
 
 

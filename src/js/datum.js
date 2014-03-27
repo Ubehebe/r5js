@@ -94,6 +94,13 @@ r5js.Datum = function() {
 
 
 /**
+ * @param {!r5js.OutputMode} outputMode
+ * @return {string}
+ */
+r5js.Datum.prototype.stringForOutputMode = goog.abstractMethod;
+
+
+/**
  * @param {function(this: T, !r5js.Datum)} callback
  * @param {T=} opt_context
  * @template T
