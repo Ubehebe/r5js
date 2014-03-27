@@ -612,10 +612,9 @@ r5js.ProcCall.prototype.cpsify = function(
                   getLastContinuable().continuation.lastResultName));
       newCallChain.appendContinuable(maybeContinuable);
     } else {
-        // TODO bl grabbing the arg's ctor is a bad pattern
-        var clonedArg = new arg.constructor();
-        clonedArg.setType(arg.getType());
-        clonedArg.setPayload(arg.getPayload());
+        var clonedArg = arg.clone(null /* parent */)
+        clonedArg.setFirstChild(null);
+        clonedArg.setNextSibling(null);
       finalArgs.appendSibling(clonedArg);
     }
   }
@@ -1043,7 +1042,10 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
     } else if (cur instanceof r5js.ast.Lambda) {
       args.push(cur);
     } else if (cur.getPayload() !== undefined) {
-      args.push(r5js.datumutil.maybeWrapResult(cur.getPayload(), cur.getType()));
+        var clone = cur.clone(null /* parent */);
+        clone.setFirstChild(null);
+        clone.setNextSibling(null);
+      args.push(clone);
     } else {
         throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
     }

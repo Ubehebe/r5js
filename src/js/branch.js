@@ -71,7 +71,7 @@ r5js.Branch.prototype.evalAndAdvance = function(
     on the trampoline. */
     var testResult = this.test instanceof r5js.ast.Identifier ?
         envBuffer.get(/** @type {string} */ (this.test.getPayload())) :
-        r5js.datumutil.maybeWrapResult(this.test, this.test.getType()).getPayload();
+        this.test.getPayload();
     if (testResult === false) {
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;
