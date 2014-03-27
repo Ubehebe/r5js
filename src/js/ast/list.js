@@ -54,5 +54,7 @@ r5js.ast.List.prototype.stringForOutputMode = function(outputMode) {
   var children = this.mapChildren(function(child) {
     return child.stringForOutputMode(outputMode);
   });
-  return this.getType() + children.join(' ') + ')';
+  return r5js.parse.Terminals.LPAREN +
+      children.join(' ') +
+      r5js.parse.Terminals.RPAREN;
 };

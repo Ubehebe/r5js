@@ -27,7 +27,7 @@ r5js.ast.Quote.prototype.stringForOutputMode = function(outputMode) {
   var children = this.mapChildren(function(child) {
     return child.stringForOutputMode(outputMode);
   });
-  return this.getType() + children.join(' ');
+  return r5js.parse.Terminals.TICK + children.join(' ');
 };
 
 
