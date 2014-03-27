@@ -1,11 +1,15 @@
 goog.provide('r5js.read.grammar');
 
 
-goog.require('r5js.DatumType');
+goog.require('r5js.ast.Boolean');
+goog.require('r5js.ast.Character');
 goog.require('r5js.ast.DottedList');
+goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
+goog.require('r5js.ast.Number');
 goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
+goog.require('r5js.ast.String');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.parse.Nonterminals');
@@ -31,11 +35,11 @@ r5js.read.grammar = {};
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
 r5js.read.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
-    _.onePrimitive(r5js.DatumType.IDENTIFIER),
-    _.onePrimitive(r5js.DatumType.BOOLEAN),
-    _.onePrimitive(r5js.DatumType.NUMBER),
-    _.onePrimitive(r5js.DatumType.CHARACTER),
-    _.onePrimitive(r5js.DatumType.STRING),
+    _.onePrimitive(r5js.ast.Identifier),
+    _.onePrimitive(r5js.ast.Boolean),
+    _.onePrimitive(r5js.ast.Number),
+    _.onePrimitive(r5js.ast.Character),
+    _.onePrimitive(r5js.ast.String),
     _.seq(
         _.one(r5js.parse.Terminals.LPAREN),
         _.zeroOrMore(r5js.parse.Nonterminals.DATUM),

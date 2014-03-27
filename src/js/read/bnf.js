@@ -168,15 +168,14 @@ r5js.read.bnf.oneOrMore = function(nonterminal) {
 
 
 /**
- * @param {!r5js.DatumType} type
+ * @param {function(new: r5js.Datum, ?)} ctor
  * @implements {r5js.read.bnf.Rule}
  * @struct
  * @constructor
  * @private
  */
-r5js.read.bnf.OnePrimitive_ = function(type) {
-  /** @const @private {!r5js.DatumType} */
-  this.type_ = type;
+r5js.read.bnf.OnePrimitive_ = function(ctor) {
+  /** @const @private */ this.ctor_ = ctor;
 };
 
 
@@ -187,19 +186,16 @@ r5js.read.bnf.OnePrimitive_.prototype.match = function(tokenStream) {
     return null;
   }
   var ansDatum = token.toDatum();
-  return (ansDatum instanceof r5js.Datum &&
-      ansDatum.getType() === this.type_) ?
-      ansDatum :
-      null;
+  return ansDatum instanceof this.ctor_ ? ansDatum : null;
 };
 
 
 /**
- * @param {!r5js.DatumType} type
+ * @param {function(new: r5js.Datum, ?)} ctor
  * @return {!r5js.read.bnf.Rule}
  */
-r5js.read.bnf.onePrimitive = function(type) {
-  return new r5js.read.bnf.OnePrimitive_(type);
+r5js.read.bnf.onePrimitive = function(ctor) {
+  return new r5js.read.bnf.OnePrimitive_(ctor);
 };
 
 
