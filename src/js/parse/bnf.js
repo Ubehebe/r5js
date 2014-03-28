@@ -329,6 +329,36 @@ r5js.parse.bnf.seq = function(var_args) {
 
 
 /**
+ * @param {...!r5js.parse.bnf.Rule} var_args
+ * @return {!r5js.parse.bnf.Seq_}
+ */
+r5js.parse.bnf.list = function(var_args) {
+  var rules = [];
+  rules.push(r5js.parse.bnf.one(r5js.parse.Terminals.LPAREN));
+  for (var i = 0; i < arguments.length; ++i) {
+    rules.push(arguments[i]);
+  }
+  rules.push(r5js.parse.bnf.one(r5js.parse.Terminals.RPAREN));
+  return new r5js.parse.bnf.Seq_(rules);
+};
+
+
+/**
+ * @param {...!r5js.parse.bnf.Rule} var_args
+ * @return {!r5js.parse.bnf.Seq_}
+ */
+r5js.parse.bnf.vector = function(var_args) {
+  var rules = [];
+  rules.push(r5js.parse.bnf.one(r5js.parse.Terminals.LPAREN_VECTOR));
+  for (var i = 0; i < arguments.length; ++i) {
+    rules.push(arguments[i]);
+  }
+  rules.push(r5js.parse.bnf.one(r5js.parse.Terminals.RPAREN));
+  return new r5js.parse.bnf.Seq_(rules);
+};
+
+
+/**
  * This is a convenience function: we want to specify parse rules like
  * (<variable>+ . <variable>) as if we don't know ahead of time whether
  * the list is going to be dotted or not, but the reader already knows.
