@@ -3,6 +3,13 @@ goog.provide('r5js.parse.bnf');
 
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
+goog.require('r5js.ast.DottedList');
+goog.require('r5js.ast.List');
+goog.require('r5js.ast.Quasiquote');
+goog.require('r5js.ast.Quote');
+goog.require('r5js.ast.Unquote');
+goog.require('r5js.ast.UnquoteSplicing');
+goog.require('r5js.ast.Vector');
 goog.require('r5js.parse.Terminals');
 // TODO bl circular dependency goog.require('r5js.Parser');
 
@@ -46,28 +53,40 @@ r5js.parse.bnf.OneTerminal_ = function(terminal) {
 };
 
 
-/** @override */
+/**
+ * @override
+ * TODO bl put the instanceof checks into the Datum subclasses
+ */
 r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
-  var next;
+  if (this.terminal_ === r5js.parse.Terminals.RPAREN) {
+    return datumStream.maybeAdvanceToNextSiblingOfParent();
+  }
+
+  var next = datumStream.getNextDatum();
+  var match = false;
   switch (this.terminal_) {
     case r5js.parse.Terminals.LPAREN:
-    case r5js.parse.Terminals.LPAREN_DOT: // TODO bl where is from?
+      match = next instanceof r5js.ast.List;
+      break;
+    case r5js.parse.Terminals.LPAREN_DOT:
+      match = next instanceof r5js.ast.DottedList;
+      break;
     case r5js.parse.Terminals.LPAREN_VECTOR:
+      match = next instanceof r5js.ast.Vector;
+      break;
     case r5js.parse.Terminals.TICK:
+      match = next instanceof r5js.ast.Quote;
+      break;
     case r5js.parse.Terminals.BACKTICK:
+      match = next instanceof r5js.ast.Quasiquote;
+      break;
     case r5js.parse.Terminals.COMMA:
+      match = next instanceof r5js.ast.Unquote;
+      break;
     case r5js.parse.Terminals.COMMA_AT:
-      next = datumStream.getNextDatum();
-      if (next && next.getType() === this.terminal_) {
-        datumStream.advanceToChild();
-        return true;
-      } else {
-        return false;
-      }
-    case r5js.parse.Terminals.RPAREN:
-      return datumStream.maybeAdvanceToNextSiblingOfParent();
+      match = next instanceof r5js.ast.UnquoteSplicing;
+      break;
     default: // TODO bl where is this from?
-      next = datumStream.getNextDatum();
       if (next && next.getPayload() === this.terminal_) {
         datumStream.advanceToNextSibling();
         return true;
@@ -75,6 +94,11 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
         return false;
       }
   }
+
+  if (match) {
+    datumStream.advanceToChild();
+  }
+  return match;
 };
 
 
