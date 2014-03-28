@@ -886,9 +886,8 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
     desugar(function(node) {
       return new r5js.TemplateIdTransformer(node);
     }),
-    _.list(
+    _.dottedList(
         _.oneOrMore(Nonterminals.TEMPLATE),
-        _.one(Terminals.DOT),
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
       var ans = new r5js.DottedListTransformer();
