@@ -482,9 +482,7 @@ goog.inherits(r5js.ast.Literal, r5js.Datum);
  * @param {!r5js.Datum} other Datum to compare against.
  */
 r5js.Datum.prototype.isEqual = function(other) {
-    if (other instanceof r5js.Datum
-        && this.type_ === other.type_
-        && this.payload_ === other.payload_) {
+    if (this.payload_ === other.payload_) {
         var thisChild, otherChild;
         for (thisChild = this.firstChild_,otherChild = other.firstChild_;
              thisChild && otherChild;
