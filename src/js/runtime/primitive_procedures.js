@@ -51,11 +51,8 @@ var PrimitiveProcedures = r5js.PrimitiveProcedures.registry_;
 PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     _.binary(function(p, q) {
   /* This implementation closely follows the description of eqv?
-             in R5RS 6.1, which explicitly leaves some comparisons undefined. */
-
-  if (!p.sameTypeAs(q)) {
-    return false;
-  }
+  in R5RS 6.1, which explicitly leaves some comparisons undefined.
+  TODO bl: replace this type switch with a subclass equals() method. */
 
   if (p instanceof r5js.ast.Boolean) {
     return p.getPayload() === q.getPayload();

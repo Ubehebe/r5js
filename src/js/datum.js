@@ -248,14 +248,6 @@ r5js.Datum.prototype.replaceChildren = function(predicate, transform) {
 
 
 /**
- * @param {!r5js.Datum} other Datum to compare against.
- * @returns {boolean} True iff both Datum objects have the same type.
- */
-r5js.Datum.prototype.sameTypeAs = function(other) {
-    return this.type_ === other.type_;
-};
-
-/**
  * @param {r5js.Datum} parent Datum to use for the parent of the clone, if any.
  * @return {!r5js.Datum} A new clone of this Datum object.
  */
