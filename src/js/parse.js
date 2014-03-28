@@ -17,7 +17,6 @@
 goog.provide('r5js.Parser');
 
 goog.require('goog.array');
-goog.require('r5js.datumutil');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
@@ -25,23 +24,24 @@ goog.require('r5js.DatumType');
 goog.require('r5js.DottedListTransformer');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.ast.List');
 goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
+goog.require('r5js.PatternIdTransformer');
 goog.require('r5js.Procedure');
 goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.TemplateIdTransformer');
 goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.Identifier');
+goog.require('r5js.ast.List');
 goog.require('r5js.ast.Literal');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
+goog.require('r5js.datumutil');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.bnf');
-goog.require('r5js.PatternIdTransformer');
 goog.require('r5js.procs');
 
 
@@ -250,13 +250,11 @@ r5js.Parser.grammar[Nonterminals.LITERAL] = _.choice(
 
 
 // <quotation> -> '<datum> | (quote <datum>)
-r5js.Parser.grammar[Nonterminals.QUOTATION] = _.choice(
-    _.seq(
-        _.one(Terminals.TICK),
-        _.one(Nonterminals.DATUM)),
-    _.list(
-        _.one(Terminals.QUOTE),
-        _.one(Nonterminals.DATUM)));
+r5js.Parser.grammar[Nonterminals.QUOTATION] = _.seq(
+    // Terminals.QUOTE has already been canonicalized as Terminals.TICK
+    // (see r5js.read.bnf.Seq_#maybeCanonicalize).
+    _.one(Terminals.TICK),
+    _.one(Nonterminals.DATUM));
 
 
 r5js.Parser.grammar[Nonterminals.DATUM] = _.seq(
@@ -268,13 +266,13 @@ r5js.Parser.grammar[Nonterminals.DATUM] = _.seq(
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 r5js.Parser.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
     _.matchDatum(function(datum) {
-        var ans = datum instanceof r5js.ast.SimpleDatum &&
-            !(datum instanceof r5js.ast.Identifier);
-        if (datum instanceof r5js.ast.String) {
-          // to defeat string-set! on a literal
-          datum.setImmutable();
-        }
-        return ans;
+      var ans = datum instanceof r5js.ast.SimpleDatum &&
+          !(datum instanceof r5js.ast.Identifier);
+      if (datum instanceof r5js.ast.String) {
+        // to defeat string-set! on a literal
+        datum.setImmutable();
+      }
+      return ans;
     }));
 
 
@@ -590,13 +588,11 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.list(
 
 // <quasiquotation> -> <quasiquotation 1>
 // <quasiquotation D> -> `<qq template D> | (quasiquote <qq template D>)
-r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.choice(
-    _.seq(
-        _.one(Terminals.BACKTICK),
-        _.one(Nonterminals.QQ_TEMPLATE)),
-    _.list(
-        _.one(Terminals.QUASIQUOTE),
-        _.one(Nonterminals.QQ_TEMPLATE)));
+r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.seq(
+    // Terminals.QUASIQUOTE has already been canonicalized as
+    // Terminals.BACKTICK (see r5js.read.bnf.Seq_#maybeCanonicalize)
+    _.one(Terminals.BACKTICK),
+    _.one(Nonterminals.QQ_TEMPLATE));
 
 
 /* <qq template 0> -> <expression>
@@ -607,7 +603,7 @@ r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.choice(
  */
 r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
     _.matchDatum(function(datum) {
-        return datum instanceof r5js.ast.SimpleDatum;
+      return datum instanceof r5js.ast.SimpleDatum;
     }),
     _.one(Nonterminals.LIST_QQ_TEMPLATE),
     _.one(Nonterminals.VECTOR_QQ_TEMPLATE),
@@ -637,13 +633,11 @@ r5js.Parser.grammar[Nonterminals.VECTOR_QQ_TEMPLATE] =
 
 
 // <unquotation D> -> ,<qq template D-1> | (unquote <qq template D-1>)
-r5js.Parser.grammar[Nonterminals.UNQUOTATION] = _.choice(
-    _.seq(
-        _.one(Terminals.COMMA),
-        _.one(Nonterminals.QQ_TEMPLATE)),
-    _.list(
-        _.one(Terminals.UNQUOTE),
-        _.one(Nonterminals.QQ_TEMPLATE)));
+r5js.Parser.grammar[Nonterminals.UNQUOTATION] = _.seq(
+    // Terminals.QUOTE has already been canonicalized as Terminals.COMMA
+    // (see r5js.read.bnf.Seq_.#maybeCanonicalize).
+    _.one(Terminals.COMMA),
+    _.one(Nonterminals.QQ_TEMPLATE));
 
 
 // <qq template or splice D> -> <qq template D> | <splicing unquotation D>
@@ -657,14 +651,11 @@ r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
 /* <splicing unquotation D> -> ,@<qq template D-1>
  | (unquote-splicing <qq template D-1>)
  */
-r5js.Parser.grammar[Nonterminals.SPLICING_UNQUOTATION] = _.choice(
-    _.seq(
-        _.one(Terminals.COMMA_AT),
-        _.one(Nonterminals.QQ_TEMPLATE)),
-    _.list(
-        _.one(Terminals.UNQUOTE_SPLICING),
-        _.one(Nonterminals.QQ_TEMPLATE)));
-
+r5js.Parser.grammar[Nonterminals.SPLICING_UNQUOTATION] = _.seq(
+    // Terminals.UNQUOTE_SPLICING has already been canonicalized as
+    // Terminals.COMMA_AT (see r5js.read.bnf.Seq_#maybeCanonicalize).
+    _.one(Terminals.COMMA_AT),
+    _.one(Nonterminals.QQ_TEMPLATE));
 
 // <macro use> -> (<keyword> <datum>*)
 r5js.Parser.grammar[Nonterminals.MACRO_USE] = _.list(
@@ -844,8 +835,8 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
 r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
     _.matchDatum(function(datum) {
-        return datum instanceof r5js.ast.SimpleDatum &&
-            !(datum instanceof r5js.ast.Identifier);
+      return datum instanceof r5js.ast.SimpleDatum &&
+          !(datum instanceof r5js.ast.Identifier);
     }));
 
 
