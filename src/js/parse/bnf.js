@@ -344,6 +344,21 @@ r5js.parse.bnf.list = function(var_args) {
 
 
 /**
+ * @param {!r5js.parse.bnf.Rule} beforeDot
+ * @param {!r5js.parse.bnf.Rule} afterDot
+ * @return {!r5js.parse.bnf.Seq_}
+ */
+r5js.parse.bnf.dottedList = function(beforeDot, afterDot) {
+  var rules = [
+    r5js.parse.bnf.one(r5js.parse.Terminals.LPAREN),
+    beforeDot,
+    r5js.parse.bnf.one(r5js.parse.Terminals.DOT),
+    afterDot];
+  return new r5js.parse.bnf.Seq_(rules);
+};
+
+
+/**
  * @param {...!r5js.parse.bnf.Rule} var_args
  * @return {!r5js.parse.bnf.Seq_}
  */
