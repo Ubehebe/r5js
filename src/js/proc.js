@@ -30,6 +30,7 @@ goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
+goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quote');
@@ -466,6 +467,7 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
  * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
+ * TODO bl too long
  */
 r5js.ProcCall.prototype.tryIdShim = function(
     continuation, resultStruct, parserProvider) {
@@ -525,10 +527,11 @@ r5js.ProcCall.prototype.tryIdShim = function(
     throw new r5js.GeneralSyntaxError(arg);
   } else if (arg instanceof r5js.ast.List) {
       ans = arg;
+  } else if (arg instanceof r5js.ast.String) {
+      ans = arg;
   } else {
     ans = r5js.datumutil.maybeWrapResult(
-        /** @type {!r5js.PayloadType} */ (arg.getPayload()),
-        /** @type {string|undefined} */ (arg.getType()));
+        /** @type {!r5js.PayloadType} */ (arg.getPayload()));
     if (arg.isImmutable()) {
       ans.setImmutable();
     }
