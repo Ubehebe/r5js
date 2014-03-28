@@ -175,12 +175,6 @@ r5js.Datum.prototype.setPayload = function(payload) {
 };
 
 
-/** @return {!r5js.Type|null} */
-r5js.Datum.prototype.getType = function() {
-    return this.type_;
-};
-
-
 /** @param {!r5js.Type} type */
 r5js.Datum.prototype.setType = function(type) {
     this.type_ = type;
