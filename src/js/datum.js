@@ -326,9 +326,7 @@ r5js.Datum.prototype.hasParse_ = function(nonterminal) {
  */
 r5js.Datum.prototype.at = function(type) {
     for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
-        /* The first clause is a convenience for things like node.at('(');
-         the second is a convenience for things like node.at('expression') */
-        if (cur.type_ === type || cur.peekParse() === type) {
+        if (cur.peekParse() === type) {
             return cur;
         }
     }
