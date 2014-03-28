@@ -175,9 +175,9 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
   var letBindings = new r5js.SiblingBuffer();
 
     datum.at(r5js.parse.Terminals.LPAREN).forEachChild(function(spec) {
-    var kw = spec.at('keyword').clone(null /* parent */);
+    var kw = spec.at(r5js.parse.Nonterminals.KEYWORD).clone(null /* parent */);
     var macro = /** @type {!r5js.Macro} */ (
-        spec.at('transformer-spec').desugar(env));
+        spec.at(r5js.parse.Nonterminals.TRANSFORMER_SPEC).desugar(env));
     var buf = new r5js.SiblingBuffer();
     /* We have to wrap the SchemeMacro object in a Datum to get it into
          the parse tree. */
@@ -188,7 +188,7 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
 
   var _let = new r5js.SiblingBuffer();
   _let.appendSibling(letBindings.toList(r5js.ast.List));
-  _let.appendSibling(/** @type {!r5js.Datum} */ (datum.at('(').getNextSibling()));
+  _let.appendSibling(/** @type {!r5js.Datum} */ (datum.at(r5js.parse.Terminals.LPAREN).getNextSibling()));
 
   return r5js.procs.newProcCall(
       new r5js.ast.Identifier(operatorName),
