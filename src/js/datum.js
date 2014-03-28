@@ -404,7 +404,9 @@ r5js.Datum.prototype.mapChildren = function(f, opt_context) {
 
 /** @return {boolean} True if this datum represents an improper list. */
 r5js.Datum.prototype.isImproperList = function() {
-    return this.type_ === r5js.parse.Terminals.LPAREN_DOT;
+    return this instanceof r5js.ast.DottedList ||
+        (this instanceof r5js.ast.List &&
+            (/** @type {!r5js.ast.List} */ (this)).isDotted());
 };
 
 /**

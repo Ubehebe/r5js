@@ -20,6 +20,8 @@ r5js.ast.List = function(firstChild) {
   }
 
   /** @private */ this.dirty_ = false;
+
+  /** @private */ this.dotted_ = false;
 };
 goog.inherits(r5js.ast.List, r5js.Datum);
 
@@ -30,9 +32,21 @@ r5js.ast.List.prototype.markDirty = function() {
 };
 
 
+/** Marks dotted. */
+r5js.ast.List.prototype.markDotted = function() {
+  this.dotted_ = true;
+};
+
+
 /** @return {boolean} */
 r5js.ast.List.prototype.isDirty = function() {
   return this.dirty_;
+};
+
+
+/** @return {boolean} */
+r5js.ast.List.prototype.isDotted = function() {
+  return this.dotted_;
 };
 
 

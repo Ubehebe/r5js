@@ -63,7 +63,9 @@ r5js.CdrHelper.prototype.setCdr = function(cdr) {
   if (!(cdr instanceof r5js.ast.List)) {
     var cur = this;
     do {
-      cur.head_.setType(r5js.parse.Terminals.LPAREN_DOT);
+      if (cur.head_ instanceof r5js.ast.List) {
+        cur.head_.markDotted();
+      }
     } while (cur = cur.head_.getCdrHelper());
   }
 };
