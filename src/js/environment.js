@@ -277,8 +277,6 @@ r5js.Environment.prototype.addBinding = function(name, val) {
             this.bindings_[name] = val;
         } else if (val instanceof r5js.Datum) {
         // lots of stuff, including wrapped procedures
-            if (val instanceof r5js.ast.Vector && !val.isArrayBacked()) {
-                this.bindings_[name] = val.convertVectorToArrayBacked();
             /* r5js.Environment.prototype.get should honor requests to store
              both unwrapped procedures (= JavaScript functions and
              SchemeProcedure objects) and those things wrapped in a Datum.
@@ -295,9 +293,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              then the trampoline will call
              r5js.Environment.prototype.addBinding with this wrapped procedure
              as the second argument. */
-            } else {
-                this.bindings_[name] = val.unwrap();
-            }
+            this.bindings_[name] = val.unwrap();
         } else {
             throw new r5js.InternalInterpreterError('tried to store '
                 + name

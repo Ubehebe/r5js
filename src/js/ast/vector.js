@@ -23,14 +23,48 @@ r5js.ast.Vector = function(firstChildOrArray) {
 goog.inherits(r5js.ast.Vector, r5js.Datum);
 
 
+/** @return {number} */
+r5js.ast.Vector.prototype.vectorLength = function() {
+  if (!this.isArrayBacked_()) {
+    this.convertVectorToArrayBacked_();
+  }
+  return this.getPayload().length;
+};
+
+
+/**
+ * @param {number} index
+ * @return {!r5js.Datum}
+ */
+r5js.ast.Vector.prototype.vectorRef = function(index) {
+  if (!this.isArrayBacked_()) {
+    this.convertVectorToArrayBacked_();
+  }
+  return this.getPayload()[index];
+};
+
+
+/**
+ * @param {number} index
+ * @param {!r5js.Datum} val
+ */
+r5js.ast.Vector.prototype.vectorSet = function(index, val) {
+  if (!this.isArrayBacked_()) {
+    this.convertVectorToArrayBacked_();
+  }
+  this.getPayload()[index] = val;
+};
+
+
 /**
  * @return {boolean} True iff this datum represents a vector
  * and is backed by a JavaScript array.
- * See {@link r5js.Datum.convertVectorToArrayBacked}.
+ * See {@link r5js.Datum.convertVectorToArrayBacked_}.
  * TODO bl: this method doesn't actually check that the datum represents
  * a vector.
+ * @private
  */
-r5js.ast.Vector.prototype.isArrayBacked = function() {
+r5js.ast.Vector.prototype.isArrayBacked_ = function() {
   return !!this.getPayload();
 };
 
@@ -44,9 +78,10 @@ r5js.ast.Vector.prototype.isArrayBacked = function() {
  * is array-backed, and mutate it in place if it isn't. There may
  * be bugs involving the lost child/sibling pointers.
  * @return {!r5js.Datum} This object, for chaining.
+ * @private
  * @suppress {checkTypes} for setFirstChild(null). TODO bl remove.
  */
-r5js.ast.Vector.prototype.convertVectorToArrayBacked = function() {
+r5js.ast.Vector.prototype.convertVectorToArrayBacked_ = function() {
   var newPayload = [];
   this.forEachChild(function(child) {
     newPayload.push(child);
@@ -59,7 +94,7 @@ r5js.ast.Vector.prototype.convertVectorToArrayBacked = function() {
 
 /** @override */
 r5js.ast.Vector.prototype.stringForOutputMode = function(outputMode) {
-  if (this.isArrayBacked()) {
+  if (this.isArrayBacked_()) {
     var ans = '#(';
     if (this.getPayload().length > 0) {
       for (var i = 0; i < this.getPayload().length - 1; ++i)

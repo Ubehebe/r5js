@@ -86,9 +86,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
   } else if (p.isImproperList()) {
     return p === q;
   } else if (p instanceof r5js.ast.Vector) {
-    return (p.isArrayBacked() && q.isArrayBacked()) ?
-        p.getPayload() === q.getPayload() :
-        p === q;
+    return p === q;
   } else if (p instanceof r5js.ast.String) {
     return p === q;
   } else if (p instanceof r5js.ast.Lambda) {
@@ -539,15 +537,11 @@ PrimitiveProcedures['make-vector'] = _.varargsRange(
     }, 1, 2);
 
 PrimitiveProcedures['vector-length'] = _.unary(function(v) {
-  return v.isArrayBacked() ?
-      v.getPayload().length :
-      v.convertVectorToArrayBacked().getPayload().length;
+  return v.vectorLength();
 }, 'vector' /* TODO bl */);
 
 PrimitiveProcedures['vector-ref'] = _.binary(function(v, k) {
-  return v.isArrayBacked() ?
-      v.getPayload()[k] :
-      v.convertVectorToArrayBacked().getPayload()[k];
+  return v.vectorRef(k);
 }, 'vector' /* TODO bl */, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
@@ -566,11 +560,7 @@ PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
     throw new r5js.ImmutableError(v.toString());
   }
 
-  if (v.isArrayBacked()) {
-    v.getPayload()[k] = fill;
-  } else {
-    v.convertVectorToArrayBacked().getPayload()[k] = fill;
-  }
+  v.vectorSet(k, fill);
 
   // todo bl requires a cycle-labeling procedure like set-car! and set-cdr!
 
