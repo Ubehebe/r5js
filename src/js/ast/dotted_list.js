@@ -23,6 +23,10 @@ goog.inherits(r5js.ast.DottedList, r5js.Datum);
 
 
 /** @override */
+r5js.ast.DottedList.prototype.isImproperList = function() { return true; };
+
+
+/** @override */
 r5js.ast.DottedList.prototype.stringForOutputMode = function(outputMode) {
   var children = this.mapChildren(function(child) {
     return child.stringForOutputMode(outputMode);

@@ -44,8 +44,8 @@ r5js.ast.List.prototype.isDirty = function() {
 };
 
 
-/** @return {boolean} */
-r5js.ast.List.prototype.isDotted = function() {
+/** @override */
+r5js.ast.List.prototype.isImproperList = function() {
   return this.dotted_;
 };
 

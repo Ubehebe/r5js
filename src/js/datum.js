@@ -402,12 +402,16 @@ r5js.Datum.prototype.mapChildren = function(f, opt_context) {
     return ans;
 };
 
-/** @return {boolean} True if this datum represents an improper list. */
+/**
+ * @return {boolean} True if this datum represents an improper list.
+ * TODO bl: remove. Callers shouldn't be dispatching on this. Rather, the
+ * list/dotted list behavior differences should be built into the Datum
+ * subclasses.
+ */
 r5js.Datum.prototype.isImproperList = function() {
-    return this instanceof r5js.ast.DottedList ||
-        (this instanceof r5js.ast.List &&
-            (/** @type {!r5js.ast.List} */ (this)).isDotted());
+    return false;
 };
+
 
 /**
  * TODO bl: document why you would call this method.
