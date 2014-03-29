@@ -76,8 +76,7 @@ r5js.Datum = function() {
     /** @private {number} */
     this.nextDesugar_ = -1;
 
-    /** @type {boolean} */
-    this.immutable_ = false;
+    /** @private */ this.immutable_ = false;
 
     /** @protected {number|undefined} */
     this.qqLevel;
