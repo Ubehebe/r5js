@@ -14,7 +14,6 @@ goog.require('r5js.parse.Terminals');
  */
 r5js.ast.UnquoteSplicing = function(firstChild) {
   goog.base(this);
-  this.setType(r5js.parse.Terminals.COMMA_AT);
   if (firstChild) {
     this.setFirstChild(firstChild);
   }

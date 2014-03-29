@@ -14,7 +14,6 @@ goog.require('r5js.parse.Terminals');
  */
 r5js.ast.List = function(firstChild) {
   goog.base(this);
-  this.setType(r5js.parse.Terminals.LPAREN); // TODO bl remove
   if (firstChild) {
     this.setFirstChild(firstChild);
   }

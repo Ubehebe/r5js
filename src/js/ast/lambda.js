@@ -16,7 +16,6 @@ goog.require('r5js.parse.Terminals');
  */
 r5js.ast.Lambda = function(name, procedure) {
   goog.base(this);
-  this.setType(r5js.parse.Terminals.LAMBDA); // TODO bl remove
   this.setPayload(procedure);
 
   /** @const @private */ this.name_ = name;

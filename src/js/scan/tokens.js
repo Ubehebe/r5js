@@ -41,7 +41,6 @@ r5js.token.Base_ = function(payload, type) {
 r5js.token.Base_.prototype.toDatum = function() {
   var datum = new r5js.Datum();
   datum.setPayload(this.payload_);
-  datum.setType(this.type_);
   return datum;
 };
 

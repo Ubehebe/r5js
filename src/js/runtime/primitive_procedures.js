@@ -502,10 +502,8 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
 
   if (cdr instanceof r5js.ast.List) {
     p.getFirstChild().setNextSibling(cdr.getFirstChild());
-    p.setType(r5js.parse.Terminals.LPAREN);
   } else {
     p.getFirstChild().setNextSibling(cdr);
-    p.setType(r5js.parse.Terminals.LPAREN_DOT);
   }
 
   var helper = p.getCdrHelper();

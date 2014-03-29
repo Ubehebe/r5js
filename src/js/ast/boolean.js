@@ -15,7 +15,6 @@ goog.require('r5js.ast.SimpleDatum');
 r5js.ast.Boolean = function(val) {
   goog.base(this);
   this.setPayload(val);
-  this.setType(r5js.DatumType.BOOLEAN); // TODO bl remove
 };
 goog.inherits(r5js.ast.Boolean, r5js.ast.SimpleDatum);
 

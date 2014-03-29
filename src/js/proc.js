@@ -600,7 +600,6 @@ r5js.ProcCall.prototype.cpsify = function(
                  merely by switching the type of the datum from quasiquote (`)
                  to quote ('). evalArgs will see the quote and evaluate it
                  accordingly. */
-        arg.setType("'");
         finalArgs.appendSibling(arg);
       }
     } else if (arg instanceof r5js.ast.Lambda) {

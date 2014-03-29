@@ -64,12 +64,6 @@ r5js.Datum = function() {
      */
     this.parent_ = null;
 
-    /**
-     * @private {r5js.Type|null}
-     * TODO bl make non-nullable.
-     */
-    this.type_;
-
     /** @private {r5js.PayloadType} */
     this.payload_;
 
@@ -175,12 +169,6 @@ r5js.Datum.prototype.setPayload = function(payload) {
 };
 
 
-/** @param {!r5js.Type} type */
-r5js.Datum.prototype.setType = function(type) {
-    this.type_ = type;
-};
-
-
 /**
  * @return {boolean} True iff {@link r5js.Datum.setImmutable} has been called
  * on this Datum.
@@ -260,7 +248,6 @@ r5js.Datum.prototype.clone = function(parent) {
 
     var ans = new this.constructor();
 
-    ans.type_ = this.type_;
     ans.payload_ = this.payload_;
 
     if (this.parent_) {

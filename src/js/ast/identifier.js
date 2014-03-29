@@ -17,7 +17,6 @@ goog.require('r5js.parse.Terminals');
 r5js.ast.Identifier = function(name) {
   goog.base(this);
   this.setPayload(name);
-  this.setType(r5js.DatumType.IDENTIFIER); // TODO bl remove
 };
 goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
 

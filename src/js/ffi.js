@@ -100,7 +100,6 @@ r5js.ffiutil = {};
  */
 r5js.ast.Ffi = function(jsObj) {
   goog.base(this);
-    this.setType(r5js.DatumType.FFI); // TODO bl remove
     this.setPayload(jsObj);
 };
 goog.inherits(r5js.ast.Ffi, r5js.Datum);

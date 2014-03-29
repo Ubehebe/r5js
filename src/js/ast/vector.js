@@ -19,7 +19,6 @@ r5js.ast.Vector = function(firstChildOrArray) {
   } else {
     this.setFirstChild(firstChildOrArray);
   }
-  this.setType(r5js.DatumType.VECTOR); // TODO bl remove
 };
 goog.inherits(r5js.ast.Vector, r5js.Datum);
 

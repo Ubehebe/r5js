@@ -15,7 +15,6 @@ goog.require('r5js.ast.SimpleDatum');
  */
 r5js.ast.String = function(s) {
   goog.base(this);
-  this.setType(r5js.DatumType.STRING); // TODO bl remove
   this.setPayload(s);
 };
 goog.inherits(r5js.ast.String, r5js.ast.SimpleDatum);

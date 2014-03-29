@@ -19,7 +19,6 @@ goog.require('r5js.parse.Terminals');
  */
 r5js.ast.Quasiquote = function(firstChild) {
   goog.base(this);
-  this.setType(r5js.parse.Terminals.BACKTICK); // TODO bl remove
   if (firstChild) {
     this.setFirstChild(firstChild);
   }
