@@ -1,21 +1,20 @@
 goog.provide('r5js.ast.Macro');
 
 
-goog.require('r5js.Datum');
+goog.require('r5js.ast.SimpleDatum');
 
 
 
 /**
  * @param {!r5js.Macro} macro
- * @extends {r5js.Datum}
+ * @extends {r5js.ast.SimpleDatum.<!r5js.Macro>}
  * @struct
  * @constructor
  */
 r5js.ast.Macro = function(macro) {
-  goog.base(this);
-  this.setPayload(macro);
+  goog.base(this, macro);
 };
-goog.inherits(r5js.ast.Macro, r5js.Datum);
+goog.inherits(r5js.ast.Macro, r5js.ast.SimpleDatum);
 
 
 /** @override */

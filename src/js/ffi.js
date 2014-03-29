@@ -24,6 +24,7 @@ goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
+goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.FFIError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ProcCall');
@@ -94,15 +95,14 @@ r5js.ffiutil = {};
 
 /**
  * @param {!Object} jsObj A JavaScript object.
- * @extends {r5js.Datum}
+ * @extends {r5js.ast.SimpleDatum.<!Object>}
  * @struct
  * @constructor
  */
 r5js.ast.Ffi = function(jsObj) {
-  goog.base(this);
-    this.setPayload(jsObj);
+  goog.base(this, jsObj);
 };
-goog.inherits(r5js.ast.Ffi, r5js.Datum);
+goog.inherits(r5js.ast.Ffi, r5js.ast.SimpleDatum);
 
 
 /** @override */
