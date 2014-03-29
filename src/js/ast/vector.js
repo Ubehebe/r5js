@@ -11,6 +11,13 @@ goog.require('r5js.DatumType');
  * @extends {r5js.Datum}
  * @struct
  * @constructor
+ * TODO bl: this class illustrates the interpreter's confusion of abstract
+ * syntax, intermediate representation, and runtime representation.
+ * Having Scheme vectors be backed by JavaScript arrays is a reasonable
+ * runtime decision, but is independent of AST and IR decisions.
+ * This constructor cannot call {@link #convertVectorToArrayBacked_}
+ * on its argument; that changes the structure of the syntax tree,
+ * which affects parsing. Only the runtime primitive procedures can do this.
  */
 r5js.ast.Vector = function(firstChildOrArray) {
   goog.base(this);
