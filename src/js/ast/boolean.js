@@ -8,13 +8,12 @@ goog.require('r5js.ast.SimpleDatum');
 
 /**
  * @param {boolean} val
- * @extends {r5js.ast.SimpleDatum}
+ * @extends {r5js.ast.SimpleDatum.<boolean>}
  * @struct
  * @constructor
  */
 r5js.ast.Boolean = function(val) {
-  goog.base(this);
-  this.setPayload(val);
+  goog.base(this, val);
 };
 goog.inherits(r5js.ast.Boolean, r5js.ast.SimpleDatum);
 

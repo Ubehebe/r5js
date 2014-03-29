@@ -10,13 +10,12 @@ goog.require('r5js.parse.Terminals');
 
 /**
  * @param {string} name
- * @extends {r5js.ast.SimpleDatum}
+ * @extends {r5js.ast.SimpleDatum.<string>}
  * @struct
  * @constructor
  */
 r5js.ast.Identifier = function(name) {
-  goog.base(this);
-  this.setPayload(name);
+  goog.base(this, name);
 };
 goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
 

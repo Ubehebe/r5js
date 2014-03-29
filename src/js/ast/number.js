@@ -8,13 +8,12 @@ goog.require('r5js.ast.SimpleDatum');
 
 /**
  * @param {number} x
- * @extends {r5js.ast.SimpleDatum}
+ * @extends {r5js.ast.SimpleDatum.<number>}
  * @struct
  * @constructor
  */
 r5js.ast.Number = function(x) {
-  goog.base(this);
-  this.setPayload(x);
+  goog.base(this, x);
 };
 goog.inherits(r5js.ast.Number, r5js.ast.SimpleDatum);
 

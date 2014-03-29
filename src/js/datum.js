@@ -726,12 +726,15 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
 
 
 /**
+ * @param {T} payload
  * @extends {r5js.ast.Literal}
  * @struct
  * @constructor
+ * @template T
  */
-r5js.ast.SimpleDatum = function() {
+r5js.ast.SimpleDatum = function(payload) {
   goog.base(this);
+  this.setPayload(payload);
 };
 goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
 
