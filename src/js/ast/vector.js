@@ -94,23 +94,16 @@ r5js.ast.Vector.prototype.convertVectorToArrayBacked_ = function() {
 
 /** @override */
 r5js.ast.Vector.prototype.stringForOutputMode = function(outputMode) {
-  if (this.isArrayBacked_()) {
-    var ans = '#(';
-    if (this.getPayload().length > 0) {
-      for (var i = 0; i < this.getPayload().length - 1; ++i)
-        ans += this.getPayload()[i] + ' ';
-      ans += this.getPayload()[this.getPayload().length - 1];
-    }
-    return ans + ')';
-  }
-  // fallthrough for non-array-backed vectors
-  var children = this.mapChildren(function(child) {
-    return child.stringForOutputMode(outputMode);
-  });
-  // Insert the dot at the next-to-last location.
-  children.splice(-1, 0, r5js.parse.Terminals.DOT);
-  return r5js.parse.Terminals.LPAREN +
-      children.join(' ') +
+  var childStrings = this.isArrayBacked_() ?
+      this.getPayload().map(function(datum) {
+        return datum.stringForOutputMode(outputMode);
+          }) :
+      this.mapChildren(function(child) {
+        return child.stringForOutputMode(outputMode);
+      });
+
+  return r5js.parse.Terminals.LPAREN_VECTOR +
+      childStrings.join(' ') +
       r5js.parse.Terminals.RPAREN;
 };
 
