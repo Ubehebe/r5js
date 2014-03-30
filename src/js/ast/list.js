@@ -50,6 +50,14 @@ r5js.ast.List.prototype.isImproperList = function() {
 
 
 /** @override */
+r5js.ast.List.prototype.isEqual = function(other) {
+  return this.dotted_ ?
+      this === other :
+      goog.base(this, 'isEqual', other);
+};
+
+
+/** @override */
 r5js.ast.List.prototype.stringForOutputMode = function(outputMode) {
   /* Note: this will be an infinite loop for cyclical data
      structures created by the programmer through set-cdr!, etc.

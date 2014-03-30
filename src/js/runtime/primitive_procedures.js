@@ -80,7 +80,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
 
     return ans;
   } else if (p.isImproperList()) {
-    return p === q;
+    return p.isEqual(q);
   } else if (p instanceof r5js.ast.Vector) {
     return p === q;
   } else if (p instanceof r5js.ast.Lambda) {
