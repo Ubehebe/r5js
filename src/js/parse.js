@@ -784,7 +784,8 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
     _.seq(
         _.one(Nonterminals.PATTERN_IDENTIFIER)).
     desugar(function(node) {
-      return new r5js.PatternIdTransformer(node);
+      return new r5js.PatternIdTransformer(
+          /** @type {!r5js.ast.SimpleDatum} */ (node));
     }),
     _.list(_.zeroOrMore(Nonterminals.PATTERN)).
     desugar(function(node, env) {
@@ -827,7 +828,8 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
     _.seq(
         _.one(Nonterminals.PATTERN_DATUM)).
     desugar(function(node) {
-      return new r5js.PatternIdTransformer(node);
+      return new r5js.PatternIdTransformer(
+          /** @type {!r5js.ast.SimpleDatum} */ (node));
     }));
 
 
@@ -867,14 +869,16 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
     _.seq(
         _.one(Nonterminals.PATTERN_IDENTIFIER)).
     desugar(function(node) {
-      return new r5js.TemplateIdTransformer(node);
+      return new r5js.TemplateIdTransformer(
+          /** @type {!r5js.ast.SimpleDatum} */(node));
     }),
     _.seq(
         _.one(Terminals.ELLIPSIS)),
     _.seq(
         _.one(Nonterminals.TEMPLATE_DATUM)).
     desugar(function(node) {
-      return new r5js.TemplateIdTransformer(node);
+      return new r5js.TemplateIdTransformer(
+          /** @type {!r5js.ast.SimpleDatum} */ (node));
     }),
     _.dottedList(
         _.oneOrMore(Nonterminals.TEMPLATE),

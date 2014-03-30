@@ -23,14 +23,13 @@ goog.require('r5js.ast.Identifier');
 
 
 /**
- * @param {!r5js.Datum} datum
+ * @param {!r5js.ast.SimpleDatum} datum
  * @struct
  * @constructor
  * @private
  */
 r5js.MacroIdTransformer_ = function(datum) {
-  /** @const @protected {!r5js.Datum} */
-  this.datum = datum;
+  /** @const @protected */ this.datum = datum;
 };
 
 
@@ -122,7 +121,7 @@ r5js.MacroIdTransformer_.prototype.getDatum = function() {
 
 
 /**
- * @param {!r5js.Datum} datum
+ * @param {!r5js.ast.SimpleDatum} datum
  * @implements {r5js.ITransformer}
  * @extends {r5js.MacroIdTransformer_}
  * @struct
@@ -149,7 +148,7 @@ r5js.PatternIdTransformer.prototype.collectNestingLevels = function(
 
 
 /**
- * @param {!r5js.Datum} datum
+ * @param {!r5js.ast.SimpleDatum} datum
  * @implements {r5js.ITransformer}
  * @extends {r5js.MacroIdTransformer_}
  * @struct
