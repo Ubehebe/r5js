@@ -84,7 +84,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
   } else if (p instanceof r5js.ast.Vector) {
     return p.isEqual(q);
   } else if (p instanceof r5js.ast.Lambda) {
-    return p.getPayload() === q.getPayload();
+    return p.isEqual(q);
   } else if (p instanceof r5js.ast.Quasiquote) {
     /* todo bl: not sure this is the right thing to do.
     We can't just "unescape" the quasiquotations. Example:
