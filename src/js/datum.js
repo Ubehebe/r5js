@@ -482,6 +482,7 @@ goog.inherits(r5js.ast.Literal, r5js.Datum);
 /**
  * @param {!r5js.Datum} other
  * @return {boolean} Whether the two datums are equivalent in the sense of eqv?
+ * For most kinds of datum, this means reference equality.
  * @see R5RS 6.1
  */
 r5js.Datum.prototype.eqv = function(other) {
@@ -747,7 +748,10 @@ r5js.ast.SimpleDatum = function(payload) {
 goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
 
 
-/** @override */
+/**
+ * Booleans, characters, and numbers have value equality semantics.
+ * @override
+ */
 r5js.ast.SimpleDatum.prototype.eqv = function(other) {
     return this.constructor === other.constructor &&
         this.payload_ === other.payload_;

@@ -25,7 +25,7 @@ goog.inherits(r5js.ast.String, r5js.ast.SimpleDatum);
  * @override
  */
 r5js.ast.String.prototype.eqv = function(other) {
-    return this === other;
+  return this === other;
 };
 
 

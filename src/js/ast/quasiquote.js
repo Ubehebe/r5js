@@ -26,6 +26,28 @@ r5js.ast.Quasiquote = function(firstChild) {
 goog.inherits(r5js.ast.Quasiquote, r5js.Datum);
 
 
+/**
+ * TODO bl: not sure this is the right thing to do for quasiquotes.
+ * We can't just "unescape" the quasiquotations. Example:
+ *
+ * (equal? '(a `(b ,(+ 1 2))) '(a `(b ,(+ 1 2))))
+ *
+ * This will eventually call
+ *
+ * (eqv? `(b ,(+ 1 2)) `(b ,(+ 1 2)))
+ *
+ * From this procedure call, it looks as if we should unescape the quasiquotes,
+ * but that's incorrect; we've lost the surrounding quotation level.
+ * It may be possible to figure out what to do based on the qqLevels,
+ * but it's been a while since I've looked at that subsystem.
+ *
+ * @override
+ */
+r5js.ast.Quasiquote.prototype.eqv = function(other) {
+  return this.isEqual(other);
+};
+
+
 /** @override */
 r5js.ast.Quasiquote.prototype.stringForOutputMode = function(outputMode) {
   var children = this.mapChildren(function(child) {

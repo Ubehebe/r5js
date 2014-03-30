@@ -20,7 +20,6 @@ goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.OutputPort');
-goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
@@ -49,42 +48,7 @@ var PrimitiveProcedures = r5js.PrimitiveProcedures.registry_;
 /* From the description of eq? at R5RS 6.1, it looks like it is
      permissible for eq? to have exactly the same semantics as eqv?. */
 PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
-    _.binary(function(p, q) {
-  /* This implementation closely follows the description of eqv?
-  in R5RS 6.1, which explicitly leaves some comparisons undefined.
-  TODO bl: replace this type switch with a subclass equals() method. */
-
-  if (p instanceof r5js.ast.String) {
-    return p.eqv(q);
-  } else if (p instanceof r5js.ast.SimpleDatum) {
-    return p.eqv(q);
-  } else if (p instanceof r5js.ast.List) {
-    return p.eqv(q);
-  } else if (p.isImproperList()) {
-    return p.eqv(q);
-  } else if (p instanceof r5js.ast.Vector) {
-    return p.eqv(q);
-  } else if (p instanceof r5js.ast.Lambda) {
-    return p.eqv(q);
-  } else if (p instanceof r5js.ast.Quasiquote) {
-    /* todo bl: not sure this is the right thing to do.
-    We can't just "unescape" the quasiquotations. Example:
-
-    (equal? '(a `(b ,(+ 1 2))) '(a `(b ,(+ 1 2))))
-
-    This will eventually call
-
-    (eqv? `(b ,(+ 1 2)) `(b ,(+ 1 2)))
-
-    From this procedure call, it looks as if we should unescape
-    the quasiquotes, but that's incorrect; we've lost the surrounding
-    quotation level.
-
-    It may be possible to figure out what to do based on the qqLevels,
-    but it's been a while since I've looked at that subsystem. */
-    return p.isEqual(q);
-  } else return p.eqv(q);
-});
+    _.binary(function(p, q) { return p.eqv(q); });
 
 // Type-related procedures
 
