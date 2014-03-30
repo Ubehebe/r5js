@@ -49,11 +49,30 @@ r5js.ast.List.prototype.isImproperList = function() {
 };
 
 
-/** @override */
-r5js.ast.List.prototype.isEqual = function(other) {
-  return this.dotted_ ?
-      this === other :
-      goog.base(this, 'isEqual', other);
+/** @return {boolean} */
+r5js.ast.List.prototype.isEqualNoRecursion = function(other) {
+  if (this.dotted_) {
+    return this === other;
+  }
+
+  if (this === other ||
+      (other instanceof r5js.ast.List &&
+      !this.getFirstChild() &&
+      !other.getFirstChild())) {
+    return true;
+  }
+
+  var thisHelper = this.getCdrHelper();
+  var otherHelper = other.getCdrHelper();
+  if (thisHelper && otherHelper) {
+    return thisHelper.equals(otherHelper);
+  } else if (thisHelper) {
+    return thisHelper.resolvesTo(other);
+  } else if (otherHelper) {
+    return otherHelper.resolvesTo(this);
+  } else {
+    return false;
+  }
 };
 
 

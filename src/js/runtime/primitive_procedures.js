@@ -59,26 +59,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
   } else if (p instanceof r5js.ast.SimpleDatum) {
     return p.isEqual(q);
   } else if (p instanceof r5js.ast.List) {
-    var ans;
-    if (p === q ||
-        (p instanceof r5js.ast.List &&
-            q instanceof r5js.ast.List &&
-            !p.getFirstChild() &&
-            !q.getFirstChild()))
-      ans = true;
-    else {
-      var pHelper = p.getCdrHelper();
-      var qHelper = q.getCdrHelper();
-      if (pHelper && qHelper) {
-        ans = pHelper.equals(qHelper);
-      } else if (pHelper) {
-        ans = pHelper.resolvesTo(q);
-      } else if (qHelper) {
-        ans = qHelper.resolvesTo(p);
-      } else ans = false;
-    }
-
-    return ans;
+    return p.isEqualNoRecursion(q); // TODO bl fix name
   } else if (p.isImproperList()) {
     return p.isEqual(q);
   } else if (p instanceof r5js.ast.Vector) {
