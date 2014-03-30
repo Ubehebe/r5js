@@ -156,18 +156,6 @@ r5js.Datum.prototype.getQQLevel = function() {
 };
 
 
-/** @return {r5js.PayloadType} */
-r5js.Datum.prototype.getPayload = function() {
-    return this.payload_;
-};
-
-
-/** @param {!r5js.PayloadType} payload */
-r5js.Datum.prototype.setPayload = function(payload) {
-    this.payload_ = payload;
-};
-
-
 /**
  * @return {boolean} True iff {@link r5js.Datum.setImmutable} has been called
  * on this Datum.
@@ -743,7 +731,8 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
  */
 r5js.ast.SimpleDatum = function(payload) {
   goog.base(this);
-  this.setPayload(payload);
+
+    this.payload_ = payload;
 };
 goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
 
@@ -755,5 +744,17 @@ goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
 r5js.ast.SimpleDatum.prototype.eqv = function(other) {
     return this.constructor === other.constructor &&
         this.payload_ === other.payload_;
+};
+
+
+/** @return {T} */
+r5js.ast.SimpleDatum.prototype.getPayload = function() {
+    return this.payload_;
+};
+
+
+/** @param {T} payload */
+r5js.ast.SimpleDatum.prototype.setPayload = function(payload) {
+    this.payload_ = payload;
 };
 
