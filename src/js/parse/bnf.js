@@ -7,6 +7,7 @@ goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
+goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.ast.Vector');
@@ -87,7 +88,8 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
       match = next instanceof r5js.ast.UnquoteSplicing;
       break;
     default: // TODO bl where is this from?
-      if (next && next.getPayload() === this.terminal_) {
+      if (next instanceof r5js.ast.SimpleDatum &&
+          next.getPayload() === this.terminal_) {
         datumStream.advanceToNextSibling();
         return true;
       } else {

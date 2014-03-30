@@ -236,8 +236,8 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
 r5js.Parser.grammar[Nonterminals.VARIABLE] = _.seq(
     _.matchDatum(function(datum) {
       var isIdentifier = datum instanceof r5js.ast.Identifier;
-      if (isIdentifier &&
-          isParserSensitiveId(/** @type {string} */ (datum.getPayload()))) {
+      if (isIdentifier && isParserSensitiveId(
+          (/** @type {!r5js.ast.Identifier} */(datum)).getPayload())) {
         r5js.Parser.fixParserSensitiveIds_ = true;
       }
       return isIdentifier;
@@ -334,14 +334,16 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
       // (lambda (x y) ...)
       if (formalRoot instanceof r5js.ast.List) {
         formals = formalRoot.mapChildren(function(child) {
-          return /** @type {!r5js.Datum} */ (child.getPayload());
+          return /** @type {!r5js.Datum} */ (
+              (/** @type {!r5js.ast.SimpleDatum} */ (child)).getPayload());
             });
       }
 
     // (lambda (x y z . w) ...)
       else if (formalRoot.isImproperList()) {
         formals = formalRoot.mapChildren(function(child) {
-          return /** @type {!r5js.Datum} */ (child.getPayload());
+          return /** @type {!r5js.Datum} */ (
+              (/** @type {!r5js.ast.SimpleDatum} */ (child)).getPayload());
             });
         treatAsDotted = true;
       }
@@ -353,7 +355,8 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
              newly allocated list, and the list is stored in the binding of the
              <variable>." */
       else {
-        formals = [formalRoot.getPayload()];
+        formals = [(/** @type {!r5js.ast.SimpleDatum} */(formalRoot)).
+                  getPayload()];
         treatAsDotted = true;
       }
 
@@ -573,7 +576,8 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.list(
     _.one(Nonterminals.EXPRESSION)).
         desugar(function(node, env) {
       // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
-      var variable = node.at(Nonterminals.VARIABLE);
+      var variable = /** @type {!r5js.ast.SimpleDatum} */ (
+          node.at(Nonterminals.VARIABLE));
       var desugaredExpr = variable.getNextSibling().desugar(env, true);
       var lastContinuable = desugaredExpr.getLastContinuable();
       var cpsName = lastContinuable.continuation.lastResultName;
@@ -747,8 +751,9 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        if (cur.getNextSibling() &&
-            cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
+        var nextSibling = cur.getNextSibling();
+        if (nextSibling instanceof r5js.ast.SimpleDatum &&
+            nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new r5js.EllipsisTransformer(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
@@ -768,8 +773,9 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       for (var cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        if (cur.getNextSibling() &&
-            cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
+        var nextSibling = cur.getNextSibling();
+        if (nextSibling instanceof r5js.ast.Identifier &&
+            nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new r5js.EllipsisTransformer(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
@@ -888,8 +894,9 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
-        if (cur.getNextSibling() &&
-            cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
+        var nextSibling = cur.getNextSibling();
+        if (nextSibling instanceof r5js.ast.Identifier &&
+            nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new r5js.EllipsisTransformer(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
@@ -908,8 +915,9 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
-        if (cur.getNextSibling() &&
-            cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
+        var nextSibling = cur.getNextSibling();
+        if (nextSibling instanceof r5js.ast.Identifier &&
+            nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new r5js.EllipsisTransformer(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
@@ -927,8 +935,9 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
       for (var cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
-        if (cur.getNextSibling() &&
-            cur.getNextSibling().getPayload() === Terminals.ELLIPSIS) {
+        var nextSibling = cur.getNextSibling();
+        if (nextSibling instanceof r5js.ast.Identifier &&
+            nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new r5js.EllipsisTransformer(
                   /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
@@ -1000,7 +1009,8 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
     _.one(Nonterminals.TRANSFORMER_SPEC)).
         desugar(function(node, env) {
       var kw = /** @type {!r5js.parse.Nonterminal} */ (
-          node.at(Nonterminals.KEYWORD).getPayload());
+          (/** @type {!r5js.ast.Identifier} */ (node.at(Nonterminals.KEYWORD))).
+              getPayload());
       var macro = node.at(Nonterminals.TRANSFORMER_SPEC).
           desugar(env);
       if (!macro.allPatternsBeginWith(kw))

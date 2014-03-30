@@ -74,7 +74,7 @@ r5js.MacroIdTransformer_.prototype.matchInput = function(
 
 
 /**
- * @param {!r5js.Datum} inputDatum
+ * @param {!r5js.ast.Identifier} inputDatum
  * @param {!r5js.IEnvironment} definitionEnv
  * @param {!r5js.IEnvironment} useEnv
  * @return {boolean}
@@ -90,7 +90,7 @@ r5js.MacroIdTransformer_.prototype.datumsAreEqualAndUnbound_ = function(
 
 
 /**
- * @param {!r5js.Datum} inputDatum
+ * @param {!r5js.ast.Identifier} inputDatum
  * @param {!r5js.IEnvironment} definitionEnv
  * @param {!r5js.IEnvironment} useEnv
  * @return {boolean}

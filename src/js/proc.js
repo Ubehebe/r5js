@@ -42,6 +42,7 @@ goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.ast.Quote');
+goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.datumutil');
 goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
@@ -233,8 +234,9 @@ r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindings = function(
     for (var cur = bodyStart;
          cur && cur.peekParse() === r5js.parse.Nonterminals.DEFINITION;
          cur = cur.getNextSibling()) {
-        if (cur.getFirstChild() &&
-            cur.getFirstChild().getPayload() === r5js.parse.Terminals.DEFINE) {
+        var firstChild = cur.getFirstChild();
+        if (firstChild instanceof r5js.ast.Identifier &&
+            firstChild.getPayload() === r5js.parse.Terminals.DEFINE) {
                 this.bindings_.appendSibling(r5js.datumutil.extractDefinition(cur));
         } else {
             cur.forEachChild(this.collectLetrecBindingsForChild_, this);
@@ -252,8 +254,12 @@ r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindings = function(
 r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindingsForChild_ = function(node) {
     if (node instanceof r5js.ast.Quote) {
         return;
-    } else if (node.getFirstChild() &&
-        node.getFirstChild().getPayload() === r5js.parse.Terminals.DEFINE) {
+    }
+
+    var firstChild = node.getFirstChild();
+
+    if (firstChild instanceof r5js.ast.Identifier &&
+        firstChild.getPayload() === r5js.parse.Terminals.DEFINE) {
         this.bindings_.appendSibling(r5js.datumutil.extractDefinition(node));
     } else {
         node.forEachChild(this.collectLetrecBindingsForChild_, this);
@@ -417,7 +423,7 @@ r5js.ProcCall.prototype.debugString = function(
   var ans = '\n';
   for (var i = 0; i < indentLevel; ++i)
     ans += '\t';
-  ans += '(' + (this.operatorName instanceof r5js.Datum ?
+  ans += '(' + (this.operatorName instanceof r5js.ast.SimpleDatum ?
       this.operatorName.getPayload() :
       this.specialOps.names[this.operatorName]);
   if (this.env && !suppressEnv)
@@ -492,8 +498,9 @@ r5js.ProcCall.prototype.tryIdShim = function(
           return node instanceof r5js.ast.Identifier && node.shouldUnquote();
         },
         function(node) {
-          var ans = r5js.datumutil.maybeWrapResult(
-                  env.get(/** @type {string} */ (node.getPayload())));
+          var ans = r5js.datumutil.maybeWrapResult(env.get(
+              /** @type {string} */ ((/** @type {!r5js.ast.Identifier} */ (node)).
+                  getPayload())));
             // TODO bl document why we're doing this
             if (ans instanceof r5js.Ref) {
                 ans = ans.deref();

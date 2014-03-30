@@ -46,8 +46,8 @@ r5js.Macro = function(
   this.literalIdentifiers_ = {};
 
   for (var curId = literalIdentifiers; curId; curId = curId.getNextSibling()) {
-    this.literalIdentifiers_[curId.getPayload()] = true;
-
+    this.literalIdentifiers_[(/** @type {!r5js.ast.Identifier} */(
+        curId)).getPayload()] = true;
   }
 
   /** @const @private {!Array.<!r5js.Transformer>} */
@@ -239,6 +239,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
                   toRename[node.getPayload()];
             },
             function(node) {
+              node = /** @type {!r5js.ast.Identifier} */ (node);
               node.setPayload(toRename[node.getPayload()]);
               return node;
             }

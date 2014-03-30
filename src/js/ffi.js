@@ -51,7 +51,8 @@ r5js.ProcCall.prototype.tryFFI = function(
             && !this.firstOperand.getNextSibling()
             && this.firstOperand instanceof r5js.ast.Quote
             && this.firstOperand.getFirstChild() instanceof r5js.ast.Identifier) {
-            property = jsObjOrMethod.getObject()[this.firstOperand.getFirstChild().getPayload()];
+            property = jsObjOrMethod.getObject()[(/** @type {!r5js.ast.Identifier} */(
+                this.firstOperand.getFirstChild())).getPayload()];
         } else throw new r5js.FFIError();
 
         var ans;

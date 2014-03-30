@@ -30,7 +30,5 @@ r5js.ast.Lambda.prototype.getName = function() {
 
 /** @override */
 r5js.ast.Lambda.prototype.stringForOutputMode = function(outputMode) {
-  return r5js.PrimitiveProcedure.isImplementedBy(
-      this.getPayload()) ? this.name_ :
-      'proc:' + this.getPayload().name;
+  return this.name_;
 };

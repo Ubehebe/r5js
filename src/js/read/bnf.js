@@ -262,8 +262,12 @@ r5js.read.bnf.Seq_.maybeCanonicalize = function(datum) {
   if (!(datum instanceof r5js.ast.List) || !datum.getFirstChild()) {
     return datum;
   }
-  var realFirstChild = datum.getFirstChild().getNextSibling();
-  switch (datum.getFirstChild().getPayload()) {
+  var firstChildToStrip = datum.getFirstChild();
+  if (!(firstChildToStrip instanceof r5js.ast.SimpleDatum)) {
+    return datum;
+  }
+  var realFirstChild = firstChildToStrip.getNextSibling();
+  switch (firstChildToStrip.getPayload()) {
     case r5js.parse.Terminals.QUOTE:
       return new r5js.ast.Quote(realFirstChild);
     case r5js.parse.Terminals.QUASIQUOTE:
