@@ -482,8 +482,6 @@ goog.inherits(r5js.ast.Literal, r5js.Datum);
 /**
  * TODO bl: this is intended to have the exact semantics of the library
  * procedure equal?, but I'm not sure that it does.
- * (I put it in JavaScript for fast access from the macro subsystem,
- * which needs it in one case.)
  * @param {!r5js.Datum} other Datum to compare against.
  */
 r5js.Datum.prototype.isEqual = function(other) {
@@ -737,4 +735,11 @@ r5js.ast.SimpleDatum = function(payload) {
   this.setPayload(payload);
 };
 goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
+
+
+/** @override */
+r5js.ast.SimpleDatum.prototype.isEqual = function(other) {
+    return this.constructor === other.constructor &&
+        this.payload_ === other.payload_;
+};
 

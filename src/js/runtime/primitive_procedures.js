@@ -54,14 +54,10 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
   in R5RS 6.1, which explicitly leaves some comparisons undefined.
   TODO bl: replace this type switch with a subclass equals() method. */
 
-  if (p instanceof r5js.ast.Boolean) {
-    return p.getPayload() === q.getPayload();
-  } else if (p instanceof r5js.ast.Identifier) {
-    return p.getPayload() === q.getPayload();
-  } else if (p instanceof r5js.ast.Number) {
-    return p.getPayload() === q.getPayload(); // todo bl numerical precision...
-  } else if (p instanceof r5js.ast.Character) {
-    return p.getPayload() === q.getPayload();
+  if (p instanceof r5js.ast.String) {
+    return p === q;
+  } else if (p instanceof r5js.ast.SimpleDatum) {
+    return p.isEqual(q);
   } else if (p instanceof r5js.ast.List) {
     var ans;
     if (p === q ||
@@ -86,8 +82,6 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
   } else if (p.isImproperList()) {
     return p === q;
   } else if (p instanceof r5js.ast.Vector) {
-    return p === q;
-  } else if (p instanceof r5js.ast.String) {
     return p === q;
   } else if (p instanceof r5js.ast.Lambda) {
     return p.getPayload() === q.getPayload();
