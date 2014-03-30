@@ -57,15 +57,15 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
   if (p instanceof r5js.ast.String) {
     return p === q;
   } else if (p instanceof r5js.ast.SimpleDatum) {
-    return p.isEqual(q);
+    return p.eqv(q);
   } else if (p instanceof r5js.ast.List) {
-    return p.isEqualNoRecursion(q); // TODO bl fix name
+    return p.eqv(q);
   } else if (p.isImproperList()) {
-    return p.isEqual(q);
+    return p.eqv(q);
   } else if (p instanceof r5js.ast.Vector) {
-    return p.isEqual(q);
+    return p.eqv(q);
   } else if (p instanceof r5js.ast.Lambda) {
-    return p.isEqual(q);
+    return p.eqv(q);
   } else if (p instanceof r5js.ast.Quasiquote) {
     /* todo bl: not sure this is the right thing to do.
     We can't just "unescape" the quasiquotations. Example:
@@ -83,7 +83,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
     It may be possible to figure out what to do based on the qqLevels,
     but it's been a while since I've looked at that subsystem. */
     return p.isEqual(q);
-  } else return false;
+  } else return p.eqv(q);
 });
 
 // Type-related procedures

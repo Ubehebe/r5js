@@ -36,12 +36,6 @@ r5js.ast.Vector = function(firstChildOrArray) {
 goog.inherits(r5js.ast.Vector, r5js.Datum);
 
 
-/** @override */
-r5js.ast.Vector.prototype.isEqual = function(other) {
-  return this === other;
-};
-
-
 /** @return {number} */
 r5js.ast.Vector.prototype.vectorLength = function() {
   if (!this.arrayBacked_) {

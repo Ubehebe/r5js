@@ -480,6 +480,16 @@ goog.inherits(r5js.ast.Literal, r5js.Datum);
 
 
 /**
+ * @param {!r5js.Datum} other
+ * @return {boolean} Whether the two datums are equivalent in the sense of eqv?
+ * @see R5RS 6.1
+ */
+r5js.Datum.prototype.eqv = function(other) {
+    return this === other;
+};
+
+
+/**
  * TODO bl: this is intended to have the exact semantics of the library
  * procedure equal?, but I'm not sure that it does.
  * @param {!r5js.Datum} other Datum to compare against.
@@ -738,7 +748,7 @@ goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
 
 
 /** @override */
-r5js.ast.SimpleDatum.prototype.isEqual = function(other) {
+r5js.ast.SimpleDatum.prototype.eqv = function(other) {
     return this.constructor === other.constructor &&
         this.payload_ === other.payload_;
 };

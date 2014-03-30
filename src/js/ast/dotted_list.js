@@ -26,12 +26,6 @@ r5js.ast.DottedList.prototype.isImproperList = function() { return true; };
 
 
 /** @override */
-r5js.ast.DottedList.prototype.isEqual = function(other) {
-  return this === other;
-};
-
-
-/** @override */
 r5js.ast.DottedList.prototype.stringForOutputMode = function(outputMode) {
   var children = this.mapChildren(function(child) {
     return child.stringForOutputMode(outputMode);

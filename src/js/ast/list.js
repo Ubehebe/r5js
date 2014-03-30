@@ -49,8 +49,8 @@ r5js.ast.List.prototype.isImproperList = function() {
 };
 
 
-/** @return {boolean} */
-r5js.ast.List.prototype.isEqualNoRecursion = function(other) {
+/** @override */
+r5js.ast.List.prototype.eqv = function(other) {
   if (this.dotted_) {
     return this === other;
   }
