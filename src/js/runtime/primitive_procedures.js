@@ -816,10 +816,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   }
 
   var curProcCall = arguments[arguments.length - 3];
-  /* todo bl: very little idea what's going on here, but we seem to
-     use both sources of procName. */
-  var procName = new r5js.ast.Identifier(
-      curProcCall.firstOperand.getPayload() || mustBeProc.getName());
+  var procName = new r5js.ast.Identifier(mustBeProc.getName());
   var continuation = arguments[arguments.length - 2];
   var resultStruct = arguments[arguments.length - 1];
 
