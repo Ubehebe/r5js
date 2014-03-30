@@ -55,7 +55,7 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
   TODO bl: replace this type switch with a subclass equals() method. */
 
   if (p instanceof r5js.ast.String) {
-    return p === q;
+    return p.eqv(q);
   } else if (p instanceof r5js.ast.SimpleDatum) {
     return p.eqv(q);
   } else if (p instanceof r5js.ast.List) {

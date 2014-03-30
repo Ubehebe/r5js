@@ -19,6 +19,16 @@ r5js.ast.String = function(s) {
 goog.inherits(r5js.ast.String, r5js.ast.SimpleDatum);
 
 
+/**
+ * Unlike other simple datums, strings have reference equality semantics.
+ * @see R5RS 6.1
+ * @override
+ */
+r5js.ast.String.prototype.eqv = function(other) {
+    return this === other;
+};
+
+
 /** @override */
 r5js.ast.String.prototype.stringForOutputMode = function(outputMode) {
   var payload = this.getPayload();
