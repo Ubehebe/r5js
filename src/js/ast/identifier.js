@@ -22,7 +22,7 @@ goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
 
 /** @override */
 r5js.ast.Identifier.prototype.stringForOutputMode = function(outputMode) {
-  return /** @type {string} */ (this.getPayload());
+  return this.payload;
 };
 
 
@@ -31,7 +31,7 @@ r5js.ast.Identifier.prototype.stringForOutputMode = function(outputMode) {
  * unquoted (i.e. starts with a ,).
  */
 r5js.ast.Identifier.prototype.shouldUnquote = function() {
-  return this.getPayload().charAt(0) === r5js.parse.Terminals.COMMA;
+  return this.payload.charAt(0) === r5js.parse.Terminals.COMMA;
 };
 
 
@@ -42,15 +42,14 @@ r5js.ast.Identifier.prototype.shouldUnquote = function() {
  * @suppress {accessControls} for r5js.Datum.CPS_PREFIX_
  */
 r5js.ast.Identifier.prototype.shouldUnquoteSplice = function() {
-  return this.getPayload().charAt(1) === r5js.Datum.CPS_PREFIX_;
+  return this.payload.charAt(1) === r5js.Datum.CPS_PREFIX_;
 };
 
 
 /** @override */
 r5js.ast.Identifier.prototype.fixParserSensitiveIds = function(helper) {
-  var payload = this.getPayload();
-  if (isParserSensitiveId(this.getPayload())) {
-    var renamedAs = helper.getRenameBinding(payload);
+  if (isParserSensitiveId(this.payload)) {
+    var renamedAs = helper.getRenameBinding(this.payload);
     if (renamedAs) {
       this.setPayload(renamedAs);
     }

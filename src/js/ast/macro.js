@@ -25,6 +25,6 @@ r5js.ast.Macro.prototype.stringForOutputMode = function(outputMode) {
 
 /** @return {!r5js.Macro} */
 r5js.ast.Macro.prototype.getMacro = function() {
-  return this.getPayload().setIsLetOrLetrecSyntax();
+  return this.payload.setIsLetOrLetrecSyntax();
 };
 

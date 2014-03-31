@@ -21,11 +21,11 @@ goog.inherits(r5js.Ref, r5js.ast.SimpleDatum);
 
 /** @return {!r5js.Datum} */
 r5js.Ref.prototype.deref = function() {
-  return /** @type {!r5js.Datum} */ (this.getPayload());
+  return this.payload;
 };
 
 
 /** @override */
 r5js.Ref.prototype.stringForOutputMode = function(outputMode) {
-  return this.getPayload().stringForOutputMode(outputMode);
+  return this.payload.stringForOutputMode(outputMode);
 };

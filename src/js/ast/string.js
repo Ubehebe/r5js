@@ -31,10 +31,9 @@ r5js.ast.String.prototype.eqv = function(other) {
 
 /** @override */
 r5js.ast.String.prototype.stringForOutputMode = function(outputMode) {
-  var payload = this.getPayload();
   return /** @type {string} */ (outputMode === r5js.OutputMode.DISPLAY ?
-      payload :
-      '"' + payload.replace(/([\\"])/g, '\\$1') + '"');
+      this.payload :
+      '"' + this.payload.replace(/([\\"])/g, '\\$1') + '"');
 };
 
 

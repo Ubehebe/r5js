@@ -37,14 +37,14 @@ r5js.ast.Character.prototype.unwrap = function() {
 r5js.ast.Character.prototype.stringForOutputMode = function(outputMode) {
   switch (outputMode) {
     case r5js.OutputMode.WRITE:
-      if (this.getPayload() === ' ')
+      if (this.payload === ' ')
         return '#\\space';
-      else if (this.getPayload() === '\n')
+      else if (this.payload === '\n')
         return '#\\newline';
       else
         return '#\\' + this.getPayload();
     case r5js.OutputMode.DISPLAY:
     default:
-      return /** @type {string} */(this.getPayload());
+      return /** @type {string} */(this.payload);
   }
 };

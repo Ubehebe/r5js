@@ -20,7 +20,7 @@ goog.inherits(r5js.ast.Boolean, r5js.ast.SimpleDatum);
 
 /** @override */
 r5js.ast.Boolean.prototype.stringForOutputMode = function(outputMode) {
-  return this.getPayload() ?
+  return this.payload ?
       r5js.ast.Boolean.TRUE_STRING_ :
       r5js.ast.Boolean.FALSE_STRING_;
 };
