@@ -64,9 +64,6 @@ r5js.Datum = function() {
      */
     this.parent_ = null;
 
-    /** @private {r5js.PayloadType} */
-    this.payload_;
-
     /** @const @private {!Array.<!r5js.parse.Nonterminal>} */
     this.nonterminals_ = [];
 
@@ -234,8 +231,6 @@ r5js.Datum.prototype.clone = function(parent) {
      Environment, and once that happens, we never clone it again. */
 
     var ans = new this.constructor();
-
-    ans.payload_ = this.payload_;
 
     if (this.parent_) {
         ans.parent_ = this.parent_;
@@ -410,8 +405,8 @@ r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
     var ans;
     if (desugarFn) {
         ans = desugarFn(this, env);
-    } else if (this.firstChild_ &&
-        this.firstChild_.payload_ === r5js.parse.Terminals.BEGIN) {
+    } else if (this.firstChild_ instanceof r5js.ast.Identifier &&
+        this.firstChild_.getPayload() === r5js.parse.Terminals.BEGIN) {
         ans = this.firstChild_.nextSibling_ ? this.firstChild_.nextSibling_.sequence(env) : null;
     } else {
         ans = this;
@@ -484,7 +479,6 @@ r5js.Datum.prototype.eqv = function(other) {
  * @param {!r5js.Datum} other Datum to compare against.
  */
 r5js.Datum.prototype.isEqual = function(other) {
-    if (this.payload_ === other.payload_) {
         var thisChild, otherChild;
         for (thisChild = this.firstChild_,otherChild = other.firstChild_;
              thisChild && otherChild;
@@ -495,8 +489,6 @@ r5js.Datum.prototype.isEqual = function(other) {
         }
 
         return !(thisChild || otherChild);
-
-    } else return false;
 };
 
 
@@ -515,9 +507,7 @@ r5js.Datum.prototype.isEqual = function(other) {
  * Finally, the vector stuff may need to be overhauled.
  */
 r5js.Datum.prototype.unwrap = function() {
-    return this.payload_ !== undefined
-        ? this.payload_
-        : this;
+    return this;
 };
 
 /**
@@ -729,7 +719,7 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
 r5js.ast.SimpleDatum = function(payload) {
   goog.base(this);
 
-    this.payload_ = payload;
+    /** @private {T} */ this.payload_ = payload;
 };
 goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
 
@@ -739,8 +729,8 @@ goog.inherits(r5js.ast.SimpleDatum, r5js.ast.Literal);
  * @override
  */
 r5js.ast.SimpleDatum.prototype.eqv = function(other) {
-    return this.constructor === other.constructor &&
-        this.payload_ === other.payload_;
+    return this.constructor === other.constructor && this.payload_ ===
+        (/** @type {!r5js.ast.SimpleDatum} */ (other)).payload_;
 };
 
 
@@ -753,5 +743,27 @@ r5js.ast.SimpleDatum.prototype.getPayload = function() {
 /** @param {T} payload */
 r5js.ast.SimpleDatum.prototype.setPayload = function(payload) {
     this.payload_ = payload;
+};
+
+
+/** @override */
+r5js.ast.SimpleDatum.prototype.clone = function(parent) {
+    var clone = /** @type {!r5js.ast.SimpleDatum} */ (
+        goog.base(this, 'clone', parent));
+    clone.setPayload(this.payload_);
+    return clone;
+};
+
+
+/** @override */
+r5js.ast.SimpleDatum.prototype.isEqual = function(other) {
+    return other instanceof r5js.ast.SimpleDatum &&
+        this.payload_ === other.payload_;
+};
+
+
+/** @override */
+r5js.ast.SimpleDatum.prototype.unwrap = function() {
+    return this.payload_;
 };
 
