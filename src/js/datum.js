@@ -670,27 +670,30 @@ r5js.Datum.prototype.fixParserSensitiveIdsLambda_ = function(helper) {
  * @private
  */
 r5js.Datum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
-    var maybeVar = this.at(r5js.parse.Nonterminals.VARIABLE);
+    var maybeVar = /** @type {r5js.ast.Identifier} */ (
+        this.at(r5js.parse.Nonterminals.VARIABLE));
+    var id;
 
-    if (maybeVar) {
-        var id = /** @type {string} */ (maybeVar.payload_);
+    if (maybeVar) { // (define foo +)
+        id = maybeVar.getPayload();
         if (isParserSensitiveId(id)) {
-            maybeVar.payload_ =helper.addRenameBinding(id);
+            maybeVar.setPayload(helper.addRenameBinding(id));
         }
-    } else {
+    } else { // (define (foo x y) (+ x y))
         var vars = this.firstChild_.nextSibling_;
-        var name = vars.firstChild_;
+        var name = /** @type {!r5js.ast.Identifier} */ (vars.firstChild_);
         var newHelper = new r5js.RenameHelper(helper);
         for (var cur = name.nextSibling_; cur; cur = cur.nextSibling_) {
-            var payload = /** @type {string} */ (cur.payload_);
-            if (isParserSensitiveId(payload)) {
-                cur.payload_ = newHelper.addRenameBinding(payload);
+            cur = /** @type {!r5js.ast.Identifier} */ (cur);
+            id = cur.getPayload();
+            if (isParserSensitiveId(id)) {
+                cur.setPayload(newHelper.addRenameBinding(id));
             }
         }
         vars.nextSibling_.fixParserSensitiveIds(newHelper);
-        var namePayload = /** @type {string} */ (name.payload_);
+        var namePayload = name.getPayload();
         if (isParserSensitiveId(namePayload)) {
-            name.payload_ = helper.addRenameBinding(namePayload);
+            name.setPayload(helper.addRenameBinding(namePayload));
         }
     }
 };
