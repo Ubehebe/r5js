@@ -2,7 +2,7 @@ goog.provide('r5js.ast.Quasiquote');
 
 
 goog.require('r5js.ContinuableHelper');
-goog.require('r5js.Datum');
+goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
@@ -13,7 +13,7 @@ goog.require('r5js.parse.Terminals');
 
 /**
  * @param {r5js.Datum} firstChild
- * @extends {r5js.Datum}
+ * @extends {r5js.ast.CompoundDatum}
  * @struct
  * @constructor
  */
@@ -23,7 +23,7 @@ r5js.ast.Quasiquote = function(firstChild) {
     this.setFirstChild(firstChild);
   }
 };
-goog.inherits(r5js.ast.Quasiquote, r5js.Datum);
+goog.inherits(r5js.ast.Quasiquote, r5js.ast.CompoundDatum);
 
 
 /**
