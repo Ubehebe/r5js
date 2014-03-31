@@ -31,14 +31,6 @@ goog.require('r5js.RenameHelper');
 goog.require('r5js.SiblingBuffer');
 
 
-/**
- * TODO bl: this is out of control. Create an interface and have each
- * type implement it (or wrap them, in the case of JavaScript primitives).
- * @typedef {Array|boolean|Function|number|Object|r5js.Datum|r5js.Macro|r5js.Procedure|string}
- */
-r5js.PayloadType;
-
-
 /** @typedef {function(!r5js.Datum, !r5js.IEnvironment):
 * (!r5js.Datum|!r5js.Continuable|!r5js.ITransformer|!r5js.Macro|null)}
  * TODO bl: narrow this typedef.

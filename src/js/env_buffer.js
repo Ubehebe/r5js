@@ -49,7 +49,7 @@ r5js.EnvBuffer.prototype.setEnv = function(env) {
 
 /**
  * @param {string} name Name to look up.
- * @return {!r5js.PayloadType} The name's value.
+ * @return {?} The name's value. TODO bl: narrow return type.
  * TODO bl: this is really non-nullable?
  */
 r5js.EnvBuffer.prototype.get = function(name) {

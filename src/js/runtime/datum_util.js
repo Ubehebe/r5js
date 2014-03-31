@@ -79,10 +79,9 @@ r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
 
 
 /**
- * @param {!r5js.PayloadType} result The result to potentially wrap.
- * @param {!r5js.Type=} opt_type TODO bl.
- * @return {r5js.PayloadType} The result, wrapped in a {@link r5js.Datum}
- *         if necessary.
+ * @param {?} result The result to potentially wrap.
+ * @param {!r5js.Type=} opt_type
+ * @return {?} The result, wrapped in a {@link r5js.Datum} if necessary.
  * @suppress {accessControls} for result.name_.
  * TODO bl: remove. This whole method seems confused.
  */

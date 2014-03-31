@@ -537,8 +537,7 @@ r5js.ProcCall.prototype.tryIdShim = function(
   } else if (arg instanceof r5js.ast.String) {
       ans = arg;
   } else {
-    ans = r5js.datumutil.maybeWrapResult(
-        /** @type {!r5js.PayloadType} */ (arg.getPayload()));
+    ans = r5js.datumutil.maybeWrapResult(arg.getPayload());
     if (arg.isImmutable()) {
       ans.setImmutable();
     }
