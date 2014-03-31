@@ -643,24 +643,22 @@ function isParserSensitiveId(name) {
  */
 r5js.Datum.prototype.fixParserSensitiveIdsLambda_ = function(helper) {
     var formalRoot = this.at(r5js.parse.Nonterminals.FORMALS);
-
     var newHelper = new r5js.RenameHelper(helper);
-    var cur;
+    var id;
 
-    // (lambda (x y) ...) or (lambda (x . y) ...)
-    if (formalRoot.firstChild_) {
-        for (cur = formalRoot.firstChild_; cur; cur = cur.nextSibling_) {
-            var id = /** @type {string} */ (cur.payload_);
-            if (isParserSensitiveId(id)) {
-                cur.payload_ = newHelper.addRenameBinding(id);
-            }
+    if (formalRoot instanceof r5js.ast.Identifier) { // (lambda x ...)
+        id = formalRoot.getPayload();
+        if (isParserSensitiveId(id)) {
+            formalRoot.setPayload(newHelper.addRenameBinding(id));
         }
-    }
-
-    // (lambda x ...)
-    else if (cur && isParserSensitiveId(/** @type {string} */(formalRoot.payload_))) {
-        cur.payload_ = newHelper.addRenameBinding(
-            /** @type {string} */ (formalRoot.payload_));
+    } else { // (lambda (x y) ...) or (lambda (x . y) ...)
+        formalRoot.forEachChild(function(child) {
+            child = /** @type {!r5js.ast.Identifier} */ (child);
+            id = child.getPayload();
+            if (isParserSensitiveId(id)) {
+                child.setPayload(newHelper.addRenameBinding(id));
+            }
+        });
     }
 
     formalRoot.nextSibling_.fixParserSensitiveIds(newHelper);
