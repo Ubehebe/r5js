@@ -706,10 +706,6 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
         this.fixParserSensitiveIdsLambda_(helper);
     } else if (this.hasParse_(r5js.parse.Nonterminals.DEFINITION)) {
         this.fixParserSensitiveIdsDef_(helper);
-    } else if (isParserSensitiveId(/** @type {string} */ (this.payload_))) {
-        this.payload_ =
-            helper.getRenameBinding(/** @type {string} */(this.payload_)) ||
-                this.payload_;
     } else {
         for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
             cur.fixParserSensitiveIds(helper);

@@ -44,3 +44,15 @@ r5js.ast.Identifier.prototype.shouldUnquote = function() {
 r5js.ast.Identifier.prototype.shouldUnquoteSplice = function() {
   return this.getPayload().charAt(1) === r5js.Datum.CPS_PREFIX_;
 };
+
+
+/** @override */
+r5js.ast.Identifier.prototype.fixParserSensitiveIds = function(helper) {
+  var payload = this.getPayload();
+  if (isParserSensitiveId(this.getPayload())) {
+    var renamedAs = helper.getRenameBinding(payload);
+    if (renamedAs) {
+      this.setPayload(renamedAs);
+    }
+  }
+};
