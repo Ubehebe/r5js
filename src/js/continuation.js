@@ -165,7 +165,7 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
  * We just need to be sure that the SchemeMacro object inserted directly
  * into the parse tree plays well when the tree is transcribed and reparsed.
  *
- * @param {!r5js.Datum} datum Datum to desugar.
+ * @param {!r5js.ast.CompoundDatum} datum Datum to desugar.
  * @param {!r5js.IEnvironment} env TODO bl.
  * @param {string} operatorName TODO bl.
  * @return {!r5js.Continuable}

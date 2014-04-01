@@ -53,6 +53,20 @@ r5js.ast.CompoundDatum.prototype.clone = function(parent) {
 
 
 /**
+ * @return {r5js.ast.CompoundDatum} The first child of this datum that is
+ * itself a list, or null if no such datum exists.
+ */
+r5js.ast.CompoundDatum.prototype.firstSublist = function() {
+  for (var child = this.firstChild_; child; child = child.getNextSibling()) {
+    if (child instanceof r5js.ast.CompoundDatum) {
+      return child;
+    }
+  }
+  return null;
+};
+
+
+/**
  * @param {function(this: T, !r5js.Datum)} callback
  * @param {T=} opt_context
  * @template T

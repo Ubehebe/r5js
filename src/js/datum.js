@@ -207,20 +207,6 @@ r5js.Datum.prototype.at = function(type) {
 
 
 /**
- * @return {r5js.ast.CompoundDatum} The first child of this datum that is
- * itself a list, or null if no such datum exists.
- * TODO bl: move to list base class when it exists.
- */
-r5js.Datum.prototype.firstSublist = function() {
-    for (var child = this.firstChild_; child; child = child.nextSibling_) {
-        if (child instanceof r5js.ast.List) {
-            return child;
-        }
-    }
-    return null;
-};
-
-/**
  * @param {!r5js.Datum} sibling Sibling to append.
  */
 r5js.Datum.prototype.appendSibling = function(sibling) {
