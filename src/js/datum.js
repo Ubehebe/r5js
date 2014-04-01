@@ -322,23 +322,6 @@ r5js.Datum.prototype.appendChild = function(child) {
 
 
 /**
- * Map isn't the best word, since the function returns an array
- * but the children are represented as a linked list.
- * @param {function(this:SCOPE, !r5js.Datum):T} f Function for transforming
- * an individual child.
- * @param {SCOPE=} opt_context Optional receiver for f.
- * @return {!Array.<T>} Array of transformed children.
- * @template SCOPE,T
- */
-r5js.Datum.prototype.mapChildren = function(f, opt_context) {
-    var ans = [];
-    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
-        ans.push(f.call(opt_context, cur));
-    }
-    return ans;
-};
-
-/**
  * @return {boolean} True if this datum represents an improper list.
  * TODO bl: remove. Callers shouldn't be dispatching on this. Rather, the
  * list/dotted list behavior differences should be built into the Datum

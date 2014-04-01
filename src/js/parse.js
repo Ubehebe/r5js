@@ -343,7 +343,8 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
 
     // (lambda (x y z . w) ...)
       else if (formalRoot.isImproperList()) {
-        formals = formalRoot.mapChildren(function(child) {
+        formals = (/** @type {!r5js.ast.CompoundDatum} */ (formalRoot)).
+            mapChildren(function(child) {
           return /** @type {!r5js.Datum} */ (
               (/** @type {!r5js.ast.SimpleDatum} */ (child)).getPayload());
             });
