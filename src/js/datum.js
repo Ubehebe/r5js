@@ -108,12 +108,6 @@ r5js.Datum.prototype.getFirstChild = function() {
 };
 
 
-/** @param {!r5js.Datum} firstChild */
-r5js.Datum.prototype.setFirstChild = function(firstChild) {
-    this.firstChild_ = firstChild;
-};
-
-
 /** @return {r5js.Datum} */
 r5js.Datum.prototype.getNextSibling = function() {
     return this.nextSibling_;
