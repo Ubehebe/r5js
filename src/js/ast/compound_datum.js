@@ -2,6 +2,7 @@ goog.provide('r5js.ast.CompoundDatum');
 
 
 goog.require('r5js.Datum');
+goog.require('r5js.SiblingBuffer');
 
 
 
@@ -34,6 +35,20 @@ r5js.ast.CompoundDatum.prototype.setFirstChild = function(firstChild) {
  */
 r5js.ast.CompoundDatum.prototype.clearFirstChild = function() {
   this.firstChild_ = null;
+};
+
+
+/** @override */
+r5js.ast.CompoundDatum.prototype.clone = function(parent) {
+  var ans = goog.base(this, 'clone', parent);
+  if (this.firstChild_) {
+    var buf = new r5js.SiblingBuffer();
+    this.forEachChild(function(child) {
+      buf.appendSibling(child.clone(ans));
+    });
+    ans.firstChild_ = buf.toSiblings();
+  }
+  return ans;
 };
 
 

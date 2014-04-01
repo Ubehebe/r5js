@@ -145,13 +145,6 @@ r5js.Datum.prototype.clone = function(parent) {
     if (this.parent_) {
         ans.parent_ = this.parent_;
     }
-    if (this.firstChild_) {
-        var buf = new r5js.SiblingBuffer();
-        for (var child = this.firstChild_; child; child = child.nextSibling_) {
-            buf.appendSibling(child.clone(ans));
-        }
-        ans.firstChild_ = buf.toSiblings();
-    }
     // We only need the parent_ pointer on the last sibling.
     if (!this.nextSibling_) {
         ans.parent_ = parent;
