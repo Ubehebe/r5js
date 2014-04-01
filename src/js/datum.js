@@ -242,9 +242,6 @@ r5js.Datum.prototype.resetDesugars = function() {
     if (this.nextDesugar_ === -1) {
         this.nextDesugar_ += this.desugars_.length;
     }
-    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
-        cur.resetDesugars();
-    }
 };
 
 /**

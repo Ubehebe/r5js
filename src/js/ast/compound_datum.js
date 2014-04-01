@@ -66,6 +66,13 @@ r5js.ast.CompoundDatum.prototype.firstSublist = function() {
 };
 
 
+/** @override */
+r5js.ast.CompoundDatum.prototype.resetDesugars = function() {
+  goog.base(this, 'resetDesugars');
+  this.forEachChild(function(child) { child.resetDesugars(); });
+};
+
+
 /**
  * @param {function(this: T, !r5js.Datum)} callback
  * @param {T=} opt_context
