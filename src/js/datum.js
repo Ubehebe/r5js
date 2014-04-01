@@ -244,25 +244,6 @@ r5js.Datum.prototype.appendSibling = function(sibling) {
     }
 };
 
-/**
- * If we used this to append n children in a row, it would take time O(n^2).
- * But we don't actually use it like that. When building a list like (X*),
- * we build up the list of X's in linear time, then call appendChild
- * once to append the whole list as a child of the list root.
- * We do incur some overhead when building a list like (X+ . X): in this case,
- * the X+ list is appended in one go, and then we have to re-traverse that list
- * once to append the final X. I expect this to be rare enough not to matter
- * in practice, but if necessary we could keep track of the root's final child.
- * @param {!r5js.Datum} child Child to append.
- */
-r5js.Datum.prototype.appendChild = function(child) {
-    if (!this.firstChild_) {
-        this.firstChild_ = child;
-    } else {
-        this.firstChild_.appendSibling(child);
-    }
-};
-
 
 /**
  * @return {boolean} True if this datum represents an improper list.

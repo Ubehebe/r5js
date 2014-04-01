@@ -401,10 +401,10 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
     realCar.setNextSibling(oldFirstChild);
     return realCdr;
   } else {
-    var ans = new r5js.ast.DottedList(realCar);
-    ans.appendChild(realCdr);
-    // todo bl hmm the parent field isn't getting set...is that ok?
-    return ans;
+    return new r5js.SiblingBuffer().
+        appendSibling(realCar).
+        appendSibling(realCdr).
+        toList(r5js.ast.DottedList);
   }
 });
 
