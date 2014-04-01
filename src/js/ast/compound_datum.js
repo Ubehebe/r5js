@@ -69,6 +69,68 @@ r5js.ast.CompoundDatum.prototype.mapChildren = function(f, opt_context) {
 
 
 /**
+ * This penetrates quotations because it's used in quasiquote evaluation.
+ * @param {function(!r5js.Datum):boolean} predicate Children passing
+ * this predicate are transformed according to the transform parameter.
+ * @param {function(!r5js.Datum):r5js.Datum} transform Function
+ * that will transform children that pass the predicate.
+ * @return {!r5js.Datum} This object, for chaining.
+ * @suppress {checkTypes} for setNextSibling(null) TODO bl fix
+ */
+r5js.ast.CompoundDatum.prototype.replaceChildren = function(
+    predicate, transform) {
+
+  for (var cur = this.firstChild_, prev;
+       cur;
+       prev = cur, cur = cur.getNextSibling()) {
+    if (predicate(/** @type {!r5js.Datum} */(cur))) {
+      var tmp = cur.getNextSibling();
+      cur.setNextSibling(null);
+      /* We have to assign to cur so prev will be set correctly
+             in the next iteration. */
+      if (cur = transform(/** @type {!r5js.Datum} */(cur))) {
+
+        if (prev) {
+          prev.setNextSibling(cur);
+        } else {
+          this.firstChild_ = cur;
+        }
+
+        /* If cur suddenly has a sibling, it must have been inserted
+                 by the transform. That is, the transform wants to insert
+                 multiple siblings in place of the single node. (Use case: in
+
+                 `(1 ,@(list 2 3) 4)
+
+                 the members of the sublist (2 3), not the sublist itself,
+                 should be inserted into the main list.)
+
+                 In this case we should skip ahead to the last sibling inserted
+                 by the transform in order to avoid accidentally running the
+                 transform on those newly-inserted siblings, which would
+                 presumably not be wanted. */
+        if (cur.getNextSibling()) {
+          cur = cur.lastSibling();
+        }
+
+        cur.setNextSibling(/** @type {!r5js.Datum} */ (tmp));
+      }
+
+    /* If transform returned null, that means the current node
+             should be spliced out of the list. */
+      else {
+        prev.setNextSibling(/** @type {!r5js.Datum} */ (tmp));
+        cur = prev;
+      }
+    } else if (cur instanceof r5js.ast.CompoundDatum) {
+      cur.replaceChildren(predicate, transform);
+    }
+  }
+  return this;
+};
+
+
+/**
  * Example:
  *
  * `(a `(b ,(+ x y) ,(foo ,(+ z w) d) e) f)

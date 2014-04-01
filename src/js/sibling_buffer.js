@@ -64,9 +64,9 @@ r5js.SiblingBuffer.prototype.toSiblings = function() {
 
 
 /**
- * @param {function(new: r5js.Datum, !r5js.Datum)} ctor Constructor to use
- * for the returned list.
- * @return {!r5js.Datum}
+ * @param {function(new: r5js.ast.CompoundDatum, !r5js.Datum)} ctor
+ * Constructor to use for the returned list.
+ * @return {!r5js.ast.CompoundDatum}
  */
 r5js.SiblingBuffer.prototype.toList = function(ctor) {
   var ans = new ctor(/** @type {!r5js.Datum} */ (this.first_));
