@@ -25,14 +25,13 @@ goog.require('r5js.ast.List');
 /**
  * See the comment to {@link r5js.Datum.siblingsToList}
  * for an explanation of what this class does.
- * @param {!r5js.Datum} head
+ * @param {!r5js.ast.CompoundDatum} head
  * @param {!r5js.Datum} startOfCdr
  * @struct
  * @constructor
  */
 r5js.CdrHelper = function(head, startOfCdr) {
-  /** @const @private {!r5js.Datum} */
-  this.head_ = head;
+  /** @const @private */ this.head_ = head;
 
   /** @const @private {!r5js.Datum} */
   this.startOfCdr_ = startOfCdr;
@@ -83,7 +82,7 @@ r5js.CdrHelper.prototype.equals = function(cdrHelper) {
 
 
 /**
- * @param {r5js.Datum} datum The datum to test against.
+ * @param {r5js.ast.CompoundDatum} datum The datum to test against.
  * @return {boolean} True iff the CdrHelper points to the given list datum
  * and its offset is that list's first child.
  */

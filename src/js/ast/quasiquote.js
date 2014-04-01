@@ -81,6 +81,7 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
             node.getQQLevel() === qqLevel;
       },
       function(node) {
+          node = /** @type {!r5js.ast.CompoundDatum} */ (node); // TODO bl
         var asContinuable = /** @type {!r5js.Continuable} */ (parserProvider(
             /** @type {!r5js.Datum} */(node.getFirstChild())).
                 parse(r5js.parse.Nonterminals.EXPRESSION).

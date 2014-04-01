@@ -66,7 +66,7 @@ r5js.ast.List.prototype.eqv = function(other) {
   var otherHelper = other.getCdrHelper();
   if (thisHelper && otherHelper) {
     return thisHelper.equals(otherHelper);
-  } else if (thisHelper) {
+  } else if (thisHelper && other instanceof r5js.ast.CompoundDatum) {
     return thisHelper.resolvesTo(other);
   } else if (otherHelper) {
     return otherHelper.resolvesTo(this);

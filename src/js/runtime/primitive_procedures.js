@@ -368,7 +368,8 @@ PrimitiveProcedures['car'] = _.unary(function(p) {
   return p.getFirstChild();
 }, r5js.DatumType.PAIR);
 
-PrimitiveProcedures['cdr'] = _.unary(function(p) {
+PrimitiveProcedures['cdr'] = _.unary(/** @suppress {checkTypes} */ function(p) {
+  p = /** @type {!r5js.ast.CompoundDatum} */ (p); // TODO bl
   var startOfCdr = p.getFirstChild().getNextSibling();
   var ans;
   if (startOfCdr) {

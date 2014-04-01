@@ -23,6 +23,7 @@ goog.provide('r5js.VectorTransformer');
 
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Vector');
@@ -125,6 +126,8 @@ r5js.ListLikeTransformer.Base_.prototype.matchInput = function(
   if (!this.couldMatch(inputDatum)) {
     return false;
   }
+
+  inputDatum = /** @type {!r5js.ast.CompoundDatum} */ (inputDatum);
 
   /* R5RS 4.3.2: "an input form F matches a pattern P if and only if [...]
      - P is a list (P1 ... Pn) and F is a list of n forms match P1 through Pn,
@@ -284,6 +287,7 @@ r5js.DottedListTransformer.prototype.couldMatch = function(inputDatum) {
 /** @override */
 r5js.DottedListTransformer.prototype.matchInput = function(
     inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+  inputDatum = /** @type {!r5js.ast.CompoundDatum} */ (inputDatum);
   var len = this.subtransformers_.length;
   var maybeEllipsis =
       this.subtransformers_[len - 1] instanceof r5js.EllipsisTransformer &&

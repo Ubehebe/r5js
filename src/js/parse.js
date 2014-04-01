@@ -33,6 +33,7 @@ goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.TemplateIdTransformer');
 goog.require('r5js.VectorTransformer');
+goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Literal');
@@ -485,7 +486,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       var name = def.getFirstChild();
       var lambda = name.getNextSibling();
       var formalRoot = lambda.getFirstChild().getNextSibling();
-      var formals = formalRoot.getFirstChild() ?
+      var formals = formalRoot instanceof r5js.ast.CompoundDatum ?
           formalRoot.mapChildren(function(child) {
             return child.getPayload();
           }) :

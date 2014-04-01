@@ -236,11 +236,12 @@ r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindings = function(
     for (var cur = bodyStart;
          cur && cur.peekParse() === r5js.parse.Nonterminals.DEFINITION;
          cur = cur.getNextSibling()) {
+        cur = /** @type {!r5js.ast.CompoundDatum} */ (cur);
         var firstChild = cur.getFirstChild();
         if (firstChild instanceof r5js.ast.Identifier &&
             firstChild.getPayload() === r5js.parse.Terminals.DEFINE) {
                 this.bindings_.appendSibling(r5js.datumutil.extractDefinition(cur));
-        } else if (cur instanceof r5js.ast.CompoundDatum) {
+        } else {
             cur.forEachChild(this.collectLetrecBindingsForChild_, this);
         }
     }
@@ -254,7 +255,8 @@ r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindings = function(
  * @private
  */
 r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindingsForChild_ = function(node) {
-    if (node instanceof r5js.ast.Quote) {
+    if (!(node instanceof r5js.ast.CompoundDatum) ||
+        node instanceof r5js.ast.Quote) {
         return;
     }
 
@@ -522,7 +524,8 @@ r5js.ProcCall.prototype.tryIdShim = function(
         });
     // Now strip away the quote mark.
     // the newIdOrLiteral part is for (quote quote)
-    ans = ans.getFirstChild() ?
+    ans = (ans instanceof r5js.ast.CompoundDatum &&
+        ans.getFirstChild()) ?
         ans.getFirstChild() :
         new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
   }

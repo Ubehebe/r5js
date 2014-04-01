@@ -16,6 +16,12 @@ r5js.ast.CompoundDatum = function() {
 goog.inherits(r5js.ast.CompoundDatum, r5js.Datum);
 
 
+/** @return {r5js.Datum} */
+r5js.ast.CompoundDatum.prototype.getFirstChild = function() {
+  return this.firstChild_;
+};
+
+
 /** @param {!r5js.Datum} firstChild */
 r5js.ast.CompoundDatum.prototype.setFirstChild = function(firstChild) {
   this.firstChild_ = firstChild;
