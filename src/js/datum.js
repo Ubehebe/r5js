@@ -82,18 +82,6 @@ r5js.Datum.prototype.stringForOutputMode = goog.abstractMethod;
 
 
 /**
- * @param {function(this: T, !r5js.Datum)} callback
- * @param {T=} opt_context
- * @template T
- */
-r5js.Datum.prototype.forEachChild = function(callback, opt_context) {
-    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
-        callback.call(opt_context, cur);
-    }
-};
-
-
-/**
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.setImmutable = function() {
@@ -295,8 +283,8 @@ r5js.Datum.prototype.at = function(type) {
 
 
 /**
- * @return {r5js.Datum} The first child of this datum that is itself a list,
- * or null if no such datum exists.
+ * @return {r5js.ast.CompoundDatum} The first child of this datum that is
+ * itself a list, or null if no such datum exists.
  * TODO bl: move to list base class when it exists.
  */
 r5js.Datum.prototype.firstSublist = function() {
@@ -511,24 +499,6 @@ r5js.Datum.prototype.lastSibling = function() {
 
 
 /**
- * Example:
- *
- * `(a `(b ,(+ x y) ,(foo ,(+ z w) d) e) f)
- *
- * should be decorated as
- *
- * `1(a `2(b ,2(+ x y) ,2(foo ,1(+ z w) d) e) f)
- *
- * @param {number} qqLevel The level of quasiquotation.
- * @return {!r5js.Datum} This object, for chaining.
- */
-r5js.Datum.prototype.setQuasiquotationLevel = function(qqLevel) {
-    this.forEachChild(function(child) { child.setQuasiquotationLevel(qqLevel); });
-    return this;
-};
-
-
-/**
  * @param {!r5js.CdrHelper} cdrHelper A cdr helper.
  * @return {!r5js.Datum} This object, for chaining.
  */
@@ -633,7 +603,8 @@ r5js.Datum.prototype.fixParserSensitiveIdsLambda_ = function(helper) {
             formalRoot.setPayload(newHelper.addRenameBinding(id));
         }
     } else { // (lambda (x y) ...) or (lambda (x . y) ...)
-        formalRoot.forEachChild(function(child) {
+        (/** @type {!r5js.ast.CompoundDatum} */ (formalRoot)).forEachChild(
+            function(child) {
             child = /** @type {!r5js.ast.Identifier} */ (child);
             id = child.getPayload();
             if (isParserSensitiveId(id)) {

@@ -17,6 +17,8 @@
 goog.provide('r5js.TemplateBindings');
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ast.Identifier');
+goog.require('r5js.ast.CompoundDatum');
 // TODO bl circular dependency goog.require('r5js.ast.Macro');
 
 /**
@@ -127,7 +129,7 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
 
     if (val instanceof r5js.ast.Identifier) {
         this.maybeRenameId_(val);
-    } else {
+    } else if (val instanceof r5js.ast.CompoundDatum) {
         val.forEachChild(this.maybeRenameId_, this);
     }
 };
@@ -160,7 +162,7 @@ r5js.TemplateBindings.prototype.maybeRenameId_ = function(datum) {
         if (this.templateRenameCandidates_[id]) {
             this.renameInTemplate_[id] = true;
         }
-    } else {
+    } else if (datum instanceof r5js.ast.CompoundDatum) {
         datum.forEachChild(this.maybeRenameId_, this);
     }
 };

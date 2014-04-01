@@ -223,7 +223,8 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
     _.seq(
         _.one(Nonterminals.QUASIQUOTATION)).
             desugar(function(node, env) {
-      return node.setQuasiquotationLevel(1);
+      return (/** @type {!r5js.ast.CompoundDatum} */ (node)).
+          setQuasiquotationLevel(1);
             }),
     _.list(
             _.one(Terminals.BEGIN),

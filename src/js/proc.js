@@ -30,6 +30,7 @@ goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
+goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
@@ -238,7 +239,7 @@ r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindings = function(
         if (firstChild instanceof r5js.ast.Identifier &&
             firstChild.getPayload() === r5js.parse.Terminals.DEFINE) {
                 this.bindings_.appendSibling(r5js.datumutil.extractDefinition(cur));
-        } else {
+        } else if (cur instanceof r5js.ast.CompoundDatum) {
             cur.forEachChild(this.collectLetrecBindingsForChild_, this);
         }
     }
@@ -261,7 +262,7 @@ r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindingsForChild_ = 
     if (firstChild instanceof r5js.ast.Identifier &&
         firstChild.getPayload() === r5js.parse.Terminals.DEFINE) {
         this.bindings_.appendSibling(r5js.datumutil.extractDefinition(node));
-    } else {
+    } else if (node instanceof r5js.ast.CompoundDatum) {
         node.forEachChild(this.collectLetrecBindingsForChild_, this);
     }
 };
