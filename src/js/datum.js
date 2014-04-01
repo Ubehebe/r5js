@@ -252,16 +252,7 @@ r5js.Datum.prototype.resetDesugars = function() {
 r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
     var desugarFn = (this.desugars_ && this.nextDesugar_ >= 0) ?
         this.desugars_[this.nextDesugar_--] : null;
-    var ans;
-    if (desugarFn) {
-        ans = desugarFn(this, env);
-    } else if (this.firstChild_ instanceof r5js.ast.Identifier &&
-        this.firstChild_.getPayload() === r5js.parse.Terminals.BEGIN) {
-        ans = this.firstChild_.nextSibling_ ? this.firstChild_.nextSibling_.sequence(env) : null;
-    } else {
-        ans = this;
-    }
-
+    var ans = desugarFn ? desugarFn(this, env) : this;
     if (opt_forceContinuationWrapper && !(ans instanceof r5js.Continuable)) {
         ans = newIdShim(ans);
     }

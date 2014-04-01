@@ -229,7 +229,10 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
             }),
     _.list(
             _.one(Terminals.BEGIN),
-            _.oneOrMore(Nonterminals.EXPRESSION)),
+            _.oneOrMore(Nonterminals.EXPRESSION)).
+        desugar(function(node, env) {
+            return node.at(Nonterminals.EXPRESSION).sequence(env);
+        }),
     _.one(Nonterminals.MACRO_BLOCK),
     _.one(Nonterminals.PROCEDURE_CALL),
     _.one(Nonterminals.MACRO_USE));
@@ -505,7 +508,11 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
     }),
     _.list(
         _.one(Terminals.BEGIN),
-        _.zeroOrMore(Nonterminals.DEFINITION)));
+        _.zeroOrMore(Nonterminals.DEFINITION)).
+desugar(function(node, env) {
+            var def = node.at(Nonterminals.DEFINITION);
+            return def && def.sequence(env);
+        }));
 
 
 // <conditional> -> (if <test> <consequent> <alternate>)
@@ -999,7 +1006,11 @@ r5js.Parser.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
     _.one(Nonterminals.SYNTAX_DEFINITION),
     _.list(
         _.one(Terminals.BEGIN),
-        _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)),
+        _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
+    desugar(function(node, env) {
+            var firstCommand = node.at(Nonterminals.COMMAND_OR_DEFINITION);
+            return firstCommand && firstCommand.sequence(env);
+        }),
     _.one(Nonterminals.COMMAND));
 
 
