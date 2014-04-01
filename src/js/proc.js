@@ -40,6 +40,7 @@ goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.MacroError');
 goog.require('r5js.PrimitiveProcedure');
+goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.ast.Quote');
@@ -624,8 +625,10 @@ r5js.ProcCall.prototype.cpsify = function(
                   getLastContinuable().continuation.lastResultName));
       newCallChain.appendContinuable(maybeContinuable);
     } else {
-        var clonedArg = arg.clone(null /* parent */)
-        clonedArg.setFirstChild(null);
+        var clonedArg = arg.clone(null /* parent */);
+        if (clonedArg instanceof r5js.ast.CompoundDatum) {
+            clonedArg.clearFirstChild();
+        }
         clonedArg.setNextSibling(null);
       finalArgs.appendSibling(clonedArg);
     }
@@ -1055,7 +1058,9 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
       args.push(cur);
     } else if (cur.getPayload() !== undefined) {
         var clone = cur.clone(null /* parent */);
-        clone.setFirstChild(null);
+        if (clone instanceof r5js.ast.CompoundDatum) {
+            clone.clearFirstChild();
+        }
         clone.setNextSibling(null);
       args.push(clone);
     } else {

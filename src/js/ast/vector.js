@@ -77,14 +77,13 @@ r5js.ast.Vector.prototype.vectorSet = function(index, val) {
  * ones, we check in every primitive vector procedure if the vector
  * is array-backed, and mutate it in place if it isn't. There may
  * be bugs involving the lost child/sibling pointers.
- * @suppress {checkTypes} for setFirstChild(null). TODO bl remove.
  * @private
  */
 r5js.ast.Vector.prototype.convertVectorToArrayBacked_ = function() {
   this.forEachChild(function(child) {
     this.array_.push(child);
   }, this);
-  this.setFirstChild(null);
+  this.clearFirstChild();
   this.arrayBacked_ = true;
 };
 

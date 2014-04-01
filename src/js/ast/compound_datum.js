@@ -18,9 +18,17 @@ goog.inherits(r5js.ast.CompoundDatum, r5js.Datum);
 
 /** @param {!r5js.Datum} firstChild */
 r5js.ast.CompoundDatum.prototype.setFirstChild = function(firstChild) {
-    this.firstChild_ = firstChild;
+  this.firstChild_ = firstChild;
 };
 
+
+/**
+ * Clears the first child.
+ * TODO bl is this necessary?
+ */
+r5js.ast.CompoundDatum.prototype.clearFirstChild = function() {
+  this.firstChild_ = null;
+};
 
 
 /**
