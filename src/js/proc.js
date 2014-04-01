@@ -459,7 +459,8 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
     if (cur instanceof r5js.Datum) {
       if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
         throw new r5js.IllegalEmptyApplication(this.operatorName.getPayload());
-      } else if (!(cur instanceof r5js.ast.Literal)) {
+      } else if (!(cur instanceof r5js.ast.Literal ||
+          cur instanceof r5js.ast.Quote)) {
         return false;
       }
     }
