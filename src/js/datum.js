@@ -350,12 +350,6 @@ r5js.Datum.prototype.setCdrHelper = function(cdrHelper) {
     return this;
 };
 
-/**
- * @return {r5js.CdrHelper} The CdrHelper for this Datum, if one exists.
- */
-r5js.Datum.prototype.getCdrHelper = function() {
-    return this.cdrHelper_;
-};
 
 /** @return {string} */
 function newCpsName() {

@@ -420,7 +420,7 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
   car.setNextSibling(p.getFirstChild().getNextSibling());
   p.setFirstChild(car);
 
-  var helper = p.getCdrHelper();
+  var helper = (/** @type {!r5js.ast.CompoundDatum} */ (p)).getCdrHelper();
   if (helper) {
     helper.setCar(car);
   }
@@ -444,7 +444,7 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
     p.getFirstChild().setNextSibling(cdr);
   }
 
-  var helper = p.getCdrHelper();
+  var helper = (/** @type {!r5js.ast.CompoundDatum} */ (p)).getCdrHelper();
   if (helper) {
     helper.setCdr(cdr);
   }

@@ -74,6 +74,12 @@ r5js.ast.CompoundDatum.prototype.isEqual = function(other) {
 };
 
 
+/** @return {r5js.CdrHelper} The CdrHelper for this Datum, if one exists. */
+r5js.ast.CompoundDatum.prototype.getCdrHelper = function() {
+  return this.cdrHelper_;
+};
+
+
 /**
  * @return {r5js.ast.CompoundDatum} The first child of this datum that is
  * itself a list, or null if no such datum exists.

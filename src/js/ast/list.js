@@ -55,6 +55,10 @@ r5js.ast.List.prototype.eqv = function(other) {
     return this === other;
   }
 
+  if (!(other instanceof r5js.ast.CompoundDatum)) {
+    return false;
+  }
+
   if (this === other ||
       (other instanceof r5js.ast.List &&
       !this.getFirstChild() &&
