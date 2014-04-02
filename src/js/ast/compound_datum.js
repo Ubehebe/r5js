@@ -53,6 +53,28 @@ r5js.ast.CompoundDatum.prototype.clone = function(parent) {
 
 
 /**
+ * TODO bl: this is intended to have the exact semantics of the library
+ * procedure equal?, but I'm not sure that it does.
+ * @param {!r5js.Datum} other Datum to compare against.
+ * @return {boolean}
+ */
+r5js.ast.CompoundDatum.prototype.isEqual = function(other) {
+  var thisChild, otherChild;
+  for (thisChild = this.firstChild_, otherChild = other.firstChild_;
+      thisChild && otherChild;
+      thisChild = thisChild.getNextSibling(),
+      otherChild = otherChild.getNextSibling()) {
+    if (thisChild instanceof r5js.ast.CompoundDatum &&
+        !thisChild.isEqual(otherChild)) {
+      return false;
+    }
+  }
+
+  return !(thisChild || otherChild);
+};
+
+
+/**
  * @return {r5js.ast.CompoundDatum} The first child of this datum that is
  * itself a list, or null if no such datum exists.
  */

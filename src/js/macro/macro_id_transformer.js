@@ -34,7 +34,8 @@ r5js.MacroIdTransformer_ = function(datum) {
 
 
 /**
- * @param {!r5js.Datum} inputDatum The input datum.
+ * @param {!r5js.Datum} inputDatum
+ * The input datum. TODO bl: narrow type.
  * @param {!Object.<string, boolean>} literalIds Dictionary of literal ids.
  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
  * @param {!r5js.IEnvironment} useEnv Use environment.
@@ -44,6 +45,10 @@ r5js.MacroIdTransformer_ = function(datum) {
  */
 r5js.MacroIdTransformer_.prototype.matchInput = function(
     inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+
+  inputDatum = /** @type {!r5js.ast.SimpleDatum|!r5js.ast.CompoundDatum} */ (
+      inputDatum);
+
   /* R5RS 4.3.2: "An input form F matches a pattern P if and only if
      [...] P is a datum and F is equal to P in the sense of the equal?
      procedure." */

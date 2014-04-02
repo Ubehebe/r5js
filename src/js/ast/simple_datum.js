@@ -51,7 +51,12 @@ r5js.ast.SimpleDatum.prototype.clone = function(parent) {
 };
 
 
-/** @override */
+/**
+ * TODO bl: this is intended to have the exact semantics of the library
+ * procedure equal?, but I'm not sure that it does.
+ * @param {!r5js.Datum} other Datum to compare against.
+ * @return {boolean}
+ */
 r5js.ast.SimpleDatum.prototype.isEqual = function(other) {
   return other instanceof r5js.ast.SimpleDatum &&
       this.payload === other.payload;

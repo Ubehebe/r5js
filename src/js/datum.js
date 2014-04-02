@@ -315,25 +315,6 @@ r5js.Datum.prototype.eqv = function(other) {
 
 
 /**
- * TODO bl: this is intended to have the exact semantics of the library
- * procedure equal?, but I'm not sure that it does.
- * @param {!r5js.Datum} other Datum to compare against.
- */
-r5js.Datum.prototype.isEqual = function(other) {
-        var thisChild, otherChild;
-        for (thisChild = this.firstChild_,otherChild = other.firstChild_;
-             thisChild && otherChild;
-             thisChild = thisChild.nextSibling_,otherChild = otherChild.nextSibling_) {
-            if (!thisChild.isEqual(otherChild)) {
-                return false;
-            }
-        }
-
-        return !(thisChild || otherChild);
-};
-
-
-/**
  * Datums representing identifiers, strings, and characters
  * all have payloads of type string. If they all unwrapped as JavaScript
  * strings, it would be impossible to re-wrap them correctly
