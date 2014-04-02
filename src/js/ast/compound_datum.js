@@ -14,8 +14,9 @@ goog.require('r5js.SiblingBuffer');
 r5js.ast.CompoundDatum = function() {
   goog.base(this);
 
-  /** @private {r5js.CdrHelper} */
-  this.cdrHelper_;
+  /** @private {r5js.CdrHelper} */ this.cdrHelper_;
+
+  /** @protected {number|undefined} */ this.qqLevel;
 };
 goog.inherits(r5js.ast.CompoundDatum, r5js.Datum);
 
