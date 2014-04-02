@@ -32,6 +32,12 @@ r5js.ast.CompoundDatum.prototype.setFirstChild = function(firstChild) {
 };
 
 
+/** @return {number|undefined} */
+r5js.ast.CompoundDatum.prototype.getQQLevel = function() {
+  return this.qqLevel;
+};
+
+
 /**
  * Clears the first child.
  * TODO bl is this necessary?

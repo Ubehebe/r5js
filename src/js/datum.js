@@ -111,12 +111,6 @@ r5js.Datum.prototype.setNextSibling = function(nextSibling) {
 };
 
 
-/** @return {number|undefined} */
-r5js.Datum.prototype.getQQLevel = function() {
-    return this.qqLevel;
-};
-
-
 /**
  * @return {boolean} True iff {@link r5js.Datum.setImmutable} has been called
  * on this Datum.
