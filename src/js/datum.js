@@ -341,16 +341,6 @@ r5js.Datum.prototype.lastSibling = function() {
 };
 
 
-/**
- * @param {!r5js.CdrHelper} cdrHelper A cdr helper.
- * @return {!r5js.Datum} This object, for chaining.
- */
-r5js.Datum.prototype.setCdrHelper = function(cdrHelper) {
-    this.cdrHelper_ = cdrHelper;
-    return this;
-};
-
-
 /** @return {string} */
 function newCpsName() {
     /* TODO bl: goog.getUid requires an object parameter, so this method

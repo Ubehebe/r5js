@@ -74,6 +74,16 @@ r5js.ast.CompoundDatum.prototype.isEqual = function(other) {
 };
 
 
+/**
+ * @param {!r5js.CdrHelper} cdrHelper A cdr helper.
+ * @return {!r5js.Datum} This object, for chaining.
+ */
+r5js.ast.CompoundDatum.prototype.setCdrHelper = function(cdrHelper) {
+  this.cdrHelper_ = cdrHelper;
+  return this;
+};
+
+
 /** @return {r5js.CdrHelper} The CdrHelper for this Datum, if one exists. */
 r5js.ast.CompoundDatum.prototype.getCdrHelper = function() {
   return this.cdrHelper_;
