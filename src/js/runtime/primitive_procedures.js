@@ -13,6 +13,7 @@ goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
+goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.InputPort');
@@ -384,7 +385,10 @@ PrimitiveProcedures['cdr'] = _.unary(/** @suppress {checkTypes} */ function(p) {
     } else {
       ans = startOfCdr;
     }
-    return ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
+    if (ans instanceof r5js.ast.CompoundDatum) {
+      ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
+    }
+    return ans;
   } else {
     return new r5js.SiblingBuffer().toList(r5js.ast.List);
   }
