@@ -357,24 +357,6 @@ r5js.Datum.CPS_PREFIX_ = '@';
 r5js.Datum.PROC_PREFIX_ = 'proc';
 
 
-
-
-/**
- * TODO bl: document what this method does.
- * @return {r5js.Datum}
- */
-r5js.Datum.prototype.closestAncestorSibling = function() {
-    if (this.nextSibling_) {
-        return this.nextSibling_;
-    } else if (!this.parent_) {
-        return null;
-    } else {
-        return this.parent_.closestAncestorSibling();
-    }
-};
-
-
-
 /**
  * See comments at the top of Parser.
  * @param {string} name identifier name to check.

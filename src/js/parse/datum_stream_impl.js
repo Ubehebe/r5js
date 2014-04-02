@@ -129,7 +129,4 @@ r5js.DatumStreamImpl.prototype.maybeAdvanceToNextSiblingOfParent = function() {
 
 /** @override */
 r5js.DatumStreamImpl.prototype.maybeRecoverAfterDeeplyNestedList = function() {
-  if (!this.next_) {
-    this.next_ = this.prev_.closestAncestorSibling();
-  }
 };
