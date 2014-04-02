@@ -125,8 +125,3 @@ r5js.DatumStreamImpl.prototype.maybeAdvanceToNextSiblingOfParent = function() {
     return false;
   }
 };
-
-
-/** @override */
-r5js.DatumStreamImpl.prototype.maybeRecoverAfterDeeplyNestedList = function() {
-};

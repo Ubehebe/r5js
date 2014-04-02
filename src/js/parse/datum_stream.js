@@ -24,7 +24,3 @@ r5js.DatumStream.prototype.advanceToNextSibling = function() {};
 
 /** @return {boolean} True iff the advance worked. */
 r5js.DatumStream.prototype.maybeAdvanceToNextSiblingOfParent = function() {};
-
-
-/** TODO bl remove. */
-r5js.DatumStream.prototype.maybeRecoverAfterDeeplyNestedList = function() {};

@@ -164,29 +164,11 @@ r5js.parse.bnf.AtLeast_ = function(nonterminal, minRepetitions) {
 /** @override */
 r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream) {
   var numParsed = 0;
-
-  /* todo bl too hard to understand. Has to do with recovering the
-     next pointer after falling off the end of a deeply-nested list. However,
-     it only seems to be needed for the let-syntax and letrec-syntax
-     nonterminals. This is an indication that I don't understand how the
-     parser really works.
-
-     The parser would be much simpler if each parsing action returned
-     the datum it parsed on success and null on failure, rather than
-     tinkering with the state pointers prev and next. I haven't done this
-     so far because it would seem to require passing an additional
-     node parameter around. Currently, all the parameters in the parsing
-     functions are descriptions of the grammar. I probably need to
-     factor the parser into parser logic and a grammar that the parser
-     reads. */
-  datumStream.maybeRecoverAfterDeeplyNestedList();
-
   var parsed;
   while (parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream)) {
     parsed.setParse(this.nonterminal_);
     ++numParsed;
   }
-
   return numParsed >= this.minRepetitions_;
 };
 
