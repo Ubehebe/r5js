@@ -68,9 +68,6 @@ r5js.Datum = function() {
 
     /** @protected {number|undefined} */
     this.qqLevel;
-
-    /** @protected {r5js.CdrHelper} */
-    this.cdrHelper_;
 };
 
 
