@@ -221,9 +221,7 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
     _.one(Nonterminals.LAMBDA_EXPRESSION),
     _.one(Nonterminals.CONDITIONAL),
     _.one(Nonterminals.ASSIGNMENT),
-    _.seq(
-        _.one(Nonterminals.QUASIQUOTATION)).
-            desugar(function(node, env) {
+    _.one(Nonterminals.QUASIQUOTATION).desugar(function(node, env) {
       return (/** @type {!r5js.ast.CompoundDatum} */ (node)).
           setQuasiquotationLevel(1);
             }),
@@ -565,18 +563,15 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
 
 
 // <test> -> <expression>
-r5js.Parser.grammar[Nonterminals.TEST] = _.seq(
-    _.one(Nonterminals.EXPRESSION));
+r5js.Parser.grammar[Nonterminals.TEST] = _.one(Nonterminals.EXPRESSION);
 
 
 // <consequent> -> <expression>
-r5js.Parser.grammar[Nonterminals.CONSEQUENT] = _.seq(
-    _.one(Nonterminals.EXPRESSION));
+r5js.Parser.grammar[Nonterminals.CONSEQUENT] = _.one(Nonterminals.EXPRESSION);
 
 
 // <alternate> -> <expression> | <empty>
-r5js.Parser.grammar[Nonterminals.ALTERNATE] = _.seq(
-    _.one(Nonterminals.EXPRESSION));
+r5js.Parser.grammar[Nonterminals.ALTERNATE] = _.one(Nonterminals.EXPRESSION);
 
 
 // <assignment> -> (set! <variable> <expression>)
@@ -656,10 +651,8 @@ r5js.Parser.grammar[Nonterminals.UNQUOTATION] = _.seq(
 
 // <qq template or splice D> -> <qq template D> | <splicing unquotation D>
 r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
-    _.seq(
-        _.one(Nonterminals.QQ_TEMPLATE)),
-    _.seq(
-        _.one(Nonterminals.SPLICING_UNQUOTATION)));
+    _.seq(_.one(Nonterminals.QQ_TEMPLATE)), // TODO bl one-element sequence
+    _.one(Nonterminals.SPLICING_UNQUOTATION));
 
 
 /* <splicing unquotation D> -> ,@<qq template D-1>
@@ -800,9 +793,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       }
       return ans;
     }),
-    _.seq(
-        _.one(Nonterminals.PATTERN_IDENTIFIER)).
-    desugar(function(node) {
+    _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(function(node) {
       return new r5js.PatternIdTransformer(
           /** @type {!r5js.ast.SimpleDatum} */ (node));
     }),
@@ -844,9 +835,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
       }
       return ans;
     }),
-    _.seq(
-        _.one(Nonterminals.PATTERN_DATUM)).
-    desugar(function(node) {
+    _.one(Nonterminals.PATTERN_DATUM).desugar(function(node) {
       return new r5js.PatternIdTransformer(
           /** @type {!r5js.ast.SimpleDatum} */ (node));
     }));
@@ -885,17 +874,12 @@ r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
  (4.3.2: "It is an error if the output cannot be built up [from the template]
  as specified") and I can do this during evaluation of a macro if necessary. */
 r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
-    _.seq(
-        _.one(Nonterminals.PATTERN_IDENTIFIER)).
-    desugar(function(node) {
+        _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(function(node) {
       return new r5js.TemplateIdTransformer(
           /** @type {!r5js.ast.SimpleDatum} */(node));
     }),
-    _.seq(
-        _.one(Terminals.ELLIPSIS)),
-    _.seq(
-        _.one(Nonterminals.TEMPLATE_DATUM)).
-    desugar(function(node) {
+    _.seq(_.one(Terminals.ELLIPSIS)), // TODO bl one-element sequence
+    _.one(Nonterminals.TEMPLATE_DATUM).desugar(function(node) {
       return new r5js.TemplateIdTransformer(
           /** @type {!r5js.ast.SimpleDatum} */ (node));
     }),
