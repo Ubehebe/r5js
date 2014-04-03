@@ -21,23 +21,30 @@ r5js.parse.bnf.Rule = function() {};
 
 
 /**
- * @param {!r5js.parse.bnf.Rule} rule
- * @param {!r5js.Datum} datum
- * @private
- * TODO bl remove.
- */
-r5js.parse.bnf.Rule.maybeDesugar_ = function(rule, datum) {
-  if (rule.desugarFunc_) {
-    datum.setDesugar(rule.desugarFunc_);
-  }
-};
-
-
-/**
  * @param {!r5js.DatumStream} datumStream
  * @return {boolean|!r5js.Datum} True iff the parse succeeded.
  */
 r5js.parse.bnf.Rule.prototype.match = function(datumStream) {};
+
+
+
+/**
+ * A desugarable rule is a rule that has a {@link #desugar} method.
+ * This method allows the parser to specify post-parsing actions ("desugaring")
+ * on the successfully parsed AST. The generic type of the desugarable rule
+ * is the type of the datum passed to the desugar function.
+ * @interface
+ * @extends {r5js.parse.bnf.Rule}
+ * @template T
+ */
+r5js.parse.bnf.DesugarableRule = function() {};
+
+
+/**
+ * @param {function(T, !r5js.IEnvironment)} desugarFn
+ * @return {!r5js.parse.bnf.DesugarableRule.<T>} This rule, for chaining.
+ */
+r5js.parse.bnf.DesugarableRule.prototype.desugar = function(desugarFn) {};
 
 
 
@@ -106,21 +113,19 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
 
 /**
  * @param {!r5js.parse.Nonterminal} nonterminal
- * @implements {r5js.parse.bnf.Rule}
+ * @implements {r5js.parse.bnf.DesugarableRule.<!r5js.Datum>}
  * @struct
  * @constructor
  * @private
  */
 r5js.parse.bnf.OneNonterminal_ = function(nonterminal) {
   /** @const @private */ this.nonterminal_ = nonterminal;
-  /** @private {!r5js.DesugarFunc|null} */ this.desugarFunc_ = null;
+  /** @private {function(!r5js.Datum, !r5js.IEnvironment)|null} */
+  this.desugarFunc_ = null;
 };
 
 
-/**
- * @param {!r5js.DesugarFunc} desugarFunc
- * @return {!r5js.parse.bnf.Rule}
- */
+/** @override */
 r5js.parse.bnf.OneNonterminal_.prototype.desugar = function(desugarFunc) {
   this.desugarFunc_ = desugarFunc;
   return this;
@@ -132,7 +137,9 @@ r5js.parse.bnf.OneNonterminal_.prototype.match = function(datumStream) {
   var parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream);
   if (parsed instanceof r5js.Datum) {
     parsed.setParse(this.nonterminal_);
-    r5js.parse.bnf.Rule.maybeDesugar_(this, parsed);
+    if (this.desugarFunc_) {
+      parsed.setDesugar(this.desugarFunc_);
+    }
     datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.getNextSibling()));
   }
   return parsed;
@@ -248,9 +255,6 @@ r5js.parse.bnf.Choice_.prototype.match = function(datumStream) {
   for (var i = 0; i < this.rules_.length; ++i) {
     var rule = this.rules_[i];
     if (parsed = rule.match(datumStream)) {
-      if (parsed instanceof r5js.Datum) {
-        r5js.parse.bnf.Rule.maybeDesugar_(rule, parsed);
-      }
       return parsed;
     }
   }
@@ -271,7 +275,7 @@ r5js.parse.bnf.choice = function(var_args) {
 
 /**
  * @param {!Array.<!r5js.parse.bnf.Rule>} rules
- * @implements {r5js.parse.bnf.Rule}
+ * @implements {r5js.parse.bnf.DesugarableRule.<!r5js.ast.CompoundDatum>}
  * @struct
  * @constructor
  * @private
@@ -280,24 +284,23 @@ r5js.parse.bnf.Seq_ = function(rules) {
   /** @const @private {!Array.<!r5js.parse.bnf.Rule>} */
   this.rules_ = r5js.parse.bnf.Seq_.rewriteImproperList_(rules);
 
-  /** @private {function(!r5js.Datum, !r5js.IEnvironment)|null} */
+  /** @private {function(!r5js.ast.CompoundDatum, !r5js.IEnvironment)|null} */
   this.desugarFunc_ = null;
 };
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {checkTypes} for the type mismatch between this.desugarFunc_
+ * and {@link r5js.Datum#setDesugar}. TODO bl.
+ */
 r5js.parse.bnf.Seq_.prototype.match = function(datumStream) {
   var root = datumStream.getNextDatum();
 
   for (var i = 0; i < this.rules_.length; ++i) {
-    var rule = this.rules_[i];
-
-    // Process parsing actions
-    if (!rule.match(datumStream)) {
+    if (!this.rules_[i].match(datumStream)) {
       datumStream.advanceTo(/** @type {!r5js.Datum} */ (root));
       return false;
-    } else if (root instanceof r5js.Datum) {
-      r5js.parse.bnf.Rule.maybeDesugar_(rule, root);
     }
   }
 
@@ -313,10 +316,7 @@ r5js.parse.bnf.Seq_.prototype.match = function(datumStream) {
 };
 
 
-/**
- * @param {!r5js.DesugarFunc} desugarFunc
- * @return {!r5js.parse.bnf.Rule}
- */
+/** @override */
 r5js.parse.bnf.Seq_.prototype.desugar = function(desugarFunc) {
   this.desugarFunc_ = desugarFunc;
   return this;
