@@ -210,7 +210,8 @@ r5js.test.Parser.prototype['testAssignment'] = function() {
 
 
 r5js.test.Parser.prototype['testTransformerSpec'] = function() {
-  expect('(syntax-rules ())').to(parseAs('transformer-spec'));
+  expect('(syntax-rules ())').to(parseAs(
+      r5js.parse.Nonterminals.TRANSFORMER_SPEC));
   expect('(syntax-rules)').not().to(parseAs(
       r5js.parse.Nonterminals.TRANSFORMER_SPEC));
 };
