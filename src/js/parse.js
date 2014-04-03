@@ -1025,9 +1025,8 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
     _.one(Nonterminals.KEYWORD),
     _.one(Nonterminals.TRANSFORMER_SPEC)).
         desugar(function(node, env) {
-      var kw = /** @type {!r5js.parse.Nonterminal} */ (
-          (/** @type {!r5js.ast.Identifier} */ (node.at(Nonterminals.KEYWORD))).
-              getPayload());
+      var kw = (/** @type {!r5js.ast.Identifier} */ (node.at(
+          Nonterminals.KEYWORD))).getPayload();
       var macro = node.at(Nonterminals.TRANSFORMER_SPEC).
           desugar(env);
       if (!macro.allPatternsBeginWith(kw))

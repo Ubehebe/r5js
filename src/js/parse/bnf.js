@@ -134,10 +134,7 @@ r5js.parse.bnf.OneNonterminal_.prototype.match = function(datumStream) {
  * @return {!r5js.parse.bnf.Rule}
  */
 r5js.parse.bnf.one = function(symbol) {
-  // TODO bl: the symbol is a nonterminal iff it is in r5js.Parser.grammar.
-  // However, this function can't check that, because r5js.Parser is
-  // forward-defined.
-  return r5js.parse.isTerminal(symbol) ?
+  return goog.isString(symbol) ?
       new r5js.parse.bnf.OneTerminal_(symbol) :
       new r5js.parse.bnf.OneNonterminal_(symbol);
 };

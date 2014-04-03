@@ -22,7 +22,7 @@ goog.scope(function() {
 var _ = r5js.read.bnf;
 
 
-/** @type {!Object.<!r5js.parse.Nonterminal, !r5js.read.bnf.Rule>} */
+/** @type {!Object.<string, !r5js.read.bnf.Rule>} */
 r5js.read.grammar = {};
 
 
@@ -34,7 +34,7 @@ r5js.read.grammar = {};
 // <vector> -> #(<datum>*)
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
-r5js.read.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
+r5js.read.grammar[r5js.parse.Nonterminals.DATUM.toString()] = _.choice(
     _.onePrimitive(r5js.ast.Identifier),
     _.onePrimitive(r5js.ast.Boolean),
     _.onePrimitive(r5js.ast.Number),
@@ -75,6 +75,6 @@ r5js.read.grammar[r5js.parse.Nonterminals.DATUM] = _.choice(
     named(r5js.ast.UnquoteSplicing));
 
 
-r5js.read.grammar[r5js.parse.Nonterminals.DATUMS] = _.zeroOrMore(
+r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()] = _.zeroOrMore(
     r5js.parse.Nonterminals.DATUM);
 });  // goog.scope

@@ -38,11 +38,7 @@ r5js.read.bnf.Rule.prototype.match = function(tokenStream) {};
  * @private
  */
 r5js.read.bnf.One_ = function(type) {
-  /**
-     * @private {!r5js.parse.Terminal|!r5js.parse.Nonterminal}
-     * @const
-     */
-  this.type_ = type;
+  /** @const @private */ this.type_ = type.toString();
 };
 
 
@@ -89,11 +85,7 @@ r5js.read.bnf.One_.prototype.matchTerminal_ = function(tokenStream) {
  * @private
  */
 r5js.read.bnf.AtLeast_ = function(type, minRepetitions) {
-  /**
-   * @private {!r5js.parse.Terminal|!r5js.parse.Nonterminal}
-   * @const
-   */
-  this.type_ = type;
+  /** @const @private */ this.type_ = type.toString();
 
   /** @const @private {number} */
   this.repetition_ = minRepetitions;
