@@ -27,7 +27,7 @@ r5js.parse.bnf.Rule = function() {};
  * TODO bl remove.
  */
 r5js.parse.bnf.Rule.maybeDesugar_ = function(rule, datum) {
-  if (rule instanceof r5js.parse.bnf.Seq_ && rule.desugarFunc_) {
+  if (rule.desugarFunc_) {
     datum.setDesugar(rule.desugarFunc_);
   }
 };
@@ -115,6 +115,18 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
 r5js.parse.bnf.OneNonterminal_ = function(nonterminal) {
   /** @const @private {!r5js.parse.Nonterminal} */
   this.nonterminal_ = nonterminal;
+
+  /** @private {!r5js.DesugarFunc|null} */ this.desugarFunc_ = null;
+};
+
+
+/**
+ * @param {!r5js.DesugarFunc} desugarFunc
+ * @return {!r5js.parse.bnf.Rule}
+ */
+r5js.parse.bnf.OneNonterminal_.prototype.desugar = function(desugarFunc) {
+  this.desugarFunc_ = desugarFunc;
+  return this;
 };
 
 
@@ -123,6 +135,7 @@ r5js.parse.bnf.OneNonterminal_.prototype.match = function(datumStream) {
   var parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream);
   if (parsed instanceof r5js.Datum) {
     parsed.setParse(this.nonterminal_);
+    r5js.parse.bnf.Rule.maybeDesugar_(this, parsed);
     datumStream.advanceTo(/** @type {!r5js.Datum} */ (parsed.getNextSibling()));
   }
   return parsed;
