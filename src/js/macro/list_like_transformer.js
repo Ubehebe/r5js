@@ -195,7 +195,7 @@ r5js.ListLikeTransformer.Base_.prototype.toSiblingBuffer_ = function(bindings) {
         this.subtransformers_[i].toDatum(bindings));
     if (success === false) {
       return null;
-    } else {
+    } else if (success) {
       buf.appendSibling(/** @type {!r5js.Datum} */ (success));
     }
   }

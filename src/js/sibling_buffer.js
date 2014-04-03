@@ -44,14 +44,12 @@ r5js.SiblingBuffer.prototype.isEmpty = function() {
  * @return {!r5js.SiblingBuffer} This object, for chaining.
  */
 r5js.SiblingBuffer.prototype.appendSibling = function(node) {
-  if (node) {
-    if (!this.first_) {
-      this.first_ = node;
-      this.last_ = node.lastSibling();
-    } else {
-      this.last_.setNextSibling(node);
-      this.last_ = node.lastSibling();
-    }
+  if (!this.first_) {
+    this.first_ = node;
+    this.last_ = node.lastSibling();
+  } else {
+    this.last_.setNextSibling(node);
+    this.last_ = node.lastSibling();
   }
   return this;
 };
