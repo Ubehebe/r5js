@@ -49,8 +49,7 @@ r5js.parse.bnf.Rule.prototype.match = function(datumStream) {};
  * @private
  */
 r5js.parse.bnf.OneTerminal_ = function(terminal) {
-  /** @const @private {!r5js.parse.Terminal} */
-  this.terminal_ = terminal;
+  /** @const @private */ this.terminal_ = terminal;
 };
 
 
@@ -113,9 +112,7 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
  * @private
  */
 r5js.parse.bnf.OneNonterminal_ = function(nonterminal) {
-  /** @const @private {!r5js.parse.Nonterminal} */
-  this.nonterminal_ = nonterminal;
-
+  /** @const @private */ this.nonterminal_ = nonterminal;
   /** @private {!r5js.DesugarFunc|null} */ this.desugarFunc_ = null;
 };
 
@@ -163,11 +160,8 @@ r5js.parse.bnf.one = function(symbol) {
  * @private
  */
 r5js.parse.bnf.AtLeast_ = function(nonterminal, minRepetitions) {
-  /** @const @private {!r5js.parse.Nonterminal} */
-  this.nonterminal_ = nonterminal;
-
-  /** @const @private {number} */
-  this.minRepetitions_ = minRepetitions;
+  /** @const @private */ this.nonterminal_ = nonterminal;
+  /** @const @private */ this.minRepetitions_ = minRepetitions;
 };
 
 
@@ -210,8 +204,7 @@ r5js.parse.bnf.oneOrMore = function(nonterminal) {
  * @private
  */
 r5js.parse.bnf.MatchDatum_ = function(predicate) {
-  /** @const @private {function(!r5js.Datum):boolean} */
-  this.predicate_ = predicate;
+  /** @const @private */ this.predicate_ = predicate;
 };
 
 
@@ -245,8 +238,7 @@ r5js.parse.bnf.matchDatum = function(predicate) {
  * @private
  */
 r5js.parse.bnf.Choice_ = function(rules) {
-  /** @const @private {!Array.<!r5js.parse.bnf.Rule>} */
-  this.rules_ = rules;
+  /** @const @private */ this.rules_ = rules;
 };
 
 
