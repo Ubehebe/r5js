@@ -38,7 +38,7 @@ r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
     if (!token || scanner.nextToken()) {
       return false;
     }
-    return token.toDatum() instanceof this.expectedType_;
+    return token instanceof this.expectedType_;
   } catch (e) {
     return false; // some tests purposely cause scan errors
   }
