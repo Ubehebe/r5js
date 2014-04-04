@@ -325,7 +325,7 @@ r5js.parse.bnf.Seq_.prototype.desugar = function(desugarFunc) {
 
 /**
  * @param {...!r5js.parse.bnf.Rule} var_args
- * @return {!r5js.parse.bnf.Seq_}
+ * @return {!r5js.parse.bnf.DesugarableRule}
  */
 r5js.parse.bnf.seq = function(var_args) {
   // Copy the arguments into a real array so that rewriteImproperList_
@@ -340,7 +340,7 @@ r5js.parse.bnf.seq = function(var_args) {
 
 /**
  * @param {...!r5js.parse.bnf.Rule} var_args
- * @return {!r5js.parse.bnf.Seq_}
+ * @return {!r5js.parse.bnf.DesugarableRule.<!r5js.ast.CompoundDatum>}
  */
 r5js.parse.bnf.list = function(var_args) {
   var rules = [];
@@ -356,7 +356,7 @@ r5js.parse.bnf.list = function(var_args) {
 /**
  * @param {!r5js.parse.bnf.Rule} beforeDot
  * @param {!r5js.parse.bnf.Rule} afterDot
- * @return {!r5js.parse.bnf.Seq_}
+ * @return {!r5js.parse.bnf.DesugarableRule.<!r5js.ast.CompoundDatum>}
  */
 r5js.parse.bnf.dottedList = function(beforeDot, afterDot) {
   var rules = [
@@ -370,7 +370,7 @@ r5js.parse.bnf.dottedList = function(beforeDot, afterDot) {
 
 /**
  * @param {...!r5js.parse.bnf.Rule} var_args
- * @return {!r5js.parse.bnf.Seq_}
+ * @return {!r5js.parse.bnf.DesugarableRule.<!r5js.ast.CompoundDatum>}
  */
 r5js.parse.bnf.vector = function(var_args) {
   var rules = [];
