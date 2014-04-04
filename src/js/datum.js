@@ -18,16 +18,8 @@ goog.provide('r5js.ast.Literal');
 goog.provide('r5js.Datum');
 
 
-goog.require('r5js.ast.Node');
 goog.require('r5js.Continuable');
-goog.require('r5js.ContinuableHelper');
-goog.require('r5js.DatumType');
-goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
-goog.require('r5js.OutputMode');
-goog.require('r5js.RenameHelper');
-goog.require('r5js.SiblingBuffer');
 
 
 /** @typedef {function(!r5js.Datum, !r5js.IEnvironment):
