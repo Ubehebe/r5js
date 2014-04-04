@@ -169,6 +169,20 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
 
 
 /**
+ * @param {!r5js.parse.Nonterminal} type
+ * @return {r5js.Datum}
+ */
+r5js.ast.CompoundDatum.prototype.at = function(type) {
+  for (var cur = this.firstChild_; cur; cur = cur.getNextSibling()) {
+    if (cur.peekParse() === type) {
+      return cur;
+    }
+  }
+  return null;
+};
+
+
+/**
  * @param {!r5js.CdrHelper} cdrHelper A cdr helper.
  * @return {!r5js.Datum} This object, for chaining.
  */

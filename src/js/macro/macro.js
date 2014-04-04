@@ -55,6 +55,8 @@ r5js.Macro = function(
 
   if (!opt_transformers) {
     for (var rule = rules; rule; rule = rule.getNextSibling()) {
+      // TODO bl improve
+      rule = /** @type {!r5js.ast.CompoundDatum} */ (rule);
       var pattern = /** @type {!r5js.ListLikeTransformer} */(
           rule.at(r5js.parse.Nonterminals.PATTERN).desugar(definitionEnv));
       var template = /** @type {!r5js.ListLikeTransformer} */ (

@@ -180,19 +180,6 @@ r5js.Datum.prototype.hasParse = function(nonterminal) {
     return false;
 };
 
-/**
- * @param {!r5js.parse.Nonterminal} type
- * @return {r5js.Datum}
- */
-r5js.Datum.prototype.at = function(type) {
-    for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
-        if (cur.peekParse() === type) {
-            return cur;
-        }
-    }
-    return null;
-};
-
 
 /**
  * @param {!r5js.Datum} sibling Sibling to append.
