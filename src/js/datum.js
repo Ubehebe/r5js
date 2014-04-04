@@ -382,88 +382,12 @@ function isParserSensitiveId(name) {
     }
 }
 
-
-
-/**
- * TODO bl: document what this method does.
- * @param {!r5js.RenameHelper} helper A rename helper.
- * @private
- */
-r5js.Datum.prototype.fixParserSensitiveIdsLambda_ = function(helper) {
-    var formalRoot = this.at(r5js.parse.Nonterminals.FORMALS);
-    var newHelper = new r5js.RenameHelper(helper);
-    var id;
-
-    if (formalRoot instanceof r5js.ast.Identifier) { // (lambda x ...)
-        id = formalRoot.getPayload();
-        if (isParserSensitiveId(id)) {
-            formalRoot.setPayload(newHelper.addRenameBinding(id));
-        }
-    } else { // (lambda (x y) ...) or (lambda (x . y) ...)
-        (/** @type {!r5js.ast.CompoundDatum} */ (formalRoot)).forEachChild(
-            function(child) {
-            child = /** @type {!r5js.ast.Identifier} */ (child);
-            id = child.getPayload();
-            if (isParserSensitiveId(id)) {
-                child.setPayload(newHelper.addRenameBinding(id));
-            }
-        });
-    }
-
-    formalRoot.nextSibling_.fixParserSensitiveIds(newHelper);
-};
-
-/**
- * TODO bl: document what this method does.
- * @param {!r5js.RenameHelper} helper A rename helper.
- * @private
- */
-r5js.Datum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
-    var maybeVar = /** @type {r5js.ast.Identifier} */ (
-        this.at(r5js.parse.Nonterminals.VARIABLE));
-    var id;
-
-    if (maybeVar) { // (define foo +)
-        id = maybeVar.getPayload();
-        if (isParserSensitiveId(id)) {
-            maybeVar.setPayload(helper.addRenameBinding(id));
-        }
-    } else { // (define (foo x y) (+ x y))
-        var vars = this.firstChild_.nextSibling_;
-        var name = /** @type {!r5js.ast.Identifier} */ (vars.firstChild_);
-        var newHelper = new r5js.RenameHelper(helper);
-        for (var cur = name.nextSibling_; cur; cur = cur.nextSibling_) {
-            cur = /** @type {!r5js.ast.Identifier} */ (cur);
-            id = cur.getPayload();
-            if (isParserSensitiveId(id)) {
-                cur.setPayload(newHelper.addRenameBinding(id));
-            }
-        }
-        vars.nextSibling_.fixParserSensitiveIds(newHelper);
-        var namePayload = name.getPayload();
-        if (isParserSensitiveId(namePayload)) {
-            name.setPayload(helper.addRenameBinding(namePayload));
-        }
-    }
-};
-
 /**
  * TODO bl: document what this method does.
  * @param {!r5js.RenameHelper} helper A rename helper.
  */
 r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
-    if (this.hasParse(r5js.parse.Nonterminals.LAMBDA_EXPRESSION)) {
-        this.fixParserSensitiveIdsLambda_(helper);
-    } else if (this.hasParse(r5js.parse.Nonterminals.DEFINITION)) {
-        this.fixParserSensitiveIdsDef_(helper);
-    } else {
-        for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
-            cur.fixParserSensitiveIds(helper);
-        }
-    }
-
     if (this.nextSibling_) {
         this.nextSibling_.fixParserSensitiveIds(helper);
     }
 };
-
