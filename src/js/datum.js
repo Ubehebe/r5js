@@ -174,24 +174,6 @@ r5js.Datum.prototype.hasParse = function(nonterminal) {
 
 
 /**
- * @param {!r5js.Datum} sibling Sibling to append.
- */
-r5js.Datum.prototype.appendSibling = function(sibling) {
-    if (!this.nextSibling_) {
-        if (this.parent_) {
-            // Propagate the parent_ field
-            sibling.parent_ = this.parent_;
-            // Only the last sibling needs a link back to the parent_
-            this.parent_ = null;
-        }
-        this.nextSibling_ = sibling;
-    } else {
-        this.nextSibling_.appendSibling(sibling);
-    }
-};
-
-
-/**
  * @return {boolean} True if this datum represents an improper list.
  * TODO bl: remove. Callers shouldn't be dispatching on this. Rather, the
  * list/dotted list behavior differences should be built into the Datum
