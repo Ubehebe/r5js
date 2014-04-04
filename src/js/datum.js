@@ -166,9 +166,9 @@ r5js.Datum.prototype.peekParse = function() {
 /**
  * @param {!r5js.parse.Nonterminal} nonterminal
  * @return {boolean} True iff this Datum parses as the given nonterminal.
- * @private
+ * @protected
  */
-r5js.Datum.prototype.hasParse_ = function(nonterminal) {
+r5js.Datum.prototype.hasParse = function(nonterminal) {
     if (this.nonterminals_) {
         var len = this.nonterminals_.length;
         for (var i = 0; i < len; ++i) {
@@ -452,9 +452,9 @@ r5js.Datum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
  * @param {!r5js.RenameHelper} helper A rename helper.
  */
 r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
-    if (this.hasParse_(r5js.parse.Nonterminals.LAMBDA_EXPRESSION)) {
+    if (this.hasParse(r5js.parse.Nonterminals.LAMBDA_EXPRESSION)) {
         this.fixParserSensitiveIdsLambda_(helper);
-    } else if (this.hasParse_(r5js.parse.Nonterminals.DEFINITION)) {
+    } else if (this.hasParse(r5js.parse.Nonterminals.DEFINITION)) {
         this.fixParserSensitiveIdsDef_(helper);
     } else {
         for (var cur = this.firstChild_; cur; cur = cur.nextSibling_) {
