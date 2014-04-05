@@ -243,10 +243,7 @@ r5js.procspec.JustUnwrapArgs_ = function() {};
 /** @override */
 r5js.procspec.JustUnwrapArgs_.prototype.checkAndUnwrapArgs = function(
     args, nameToShowInErrorMessage) {
-  return goog.array.map(args, function(arg) {
-    return arg instanceof r5js.Datum ?
-        arg.unwrap() : arg;
-  });
+  return args;
 };
 
 
