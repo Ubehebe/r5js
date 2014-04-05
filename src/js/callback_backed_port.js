@@ -20,22 +20,19 @@ goog.provide('r5js.CallbackBackedPort');
 goog.require('r5js.InternalInterpreterError');
 
 /**
- * @param {Function} onOutput Callback that will be called whenever output
+ * @param {function(string)} onOutput Callback that will be called whenever output
  * is available.
  * @implements {r5js.Port}
+ * @struct
  * @constructor
  */
 r5js.CallbackBackedPort = function(onOutput) {
-    /**
-     * @type {Function}
-     * @private
-     */
-    this.onOutput_ = onOutput;
+    /** @const @private */ this.onOutput_ = onOutput;
 };
 
 
 /** @override */
-r5js.CallbackBackedPort.prototype.close = function() {};
+r5js.CallbackBackedPort.prototype.close = goog.nullFunction;
 
 
 /** @override */
