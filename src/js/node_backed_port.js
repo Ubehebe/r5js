@@ -20,12 +20,10 @@ goog.provide('r5js.NodeBackedPort');
 goog.require('r5js.IOError');
 
 /**
- * @suppress {missingProperties, undefinedVars} For this.fsModule.openSync,
- * this.fsModule.statSync, and require().
  * @implements {r5js.InputPort}
  * @implements {r5js.OutputPort}
+ * @struct
  * @constructor
- * TODO bl: remove the @suppress annotations when Node interop is better.
  */
 r5js.NodeBackedPort = function(filename, mode) {
 
@@ -50,60 +48,32 @@ r5js.NodeBackedPort = function(filename, mode) {
     this.offset = 0;
 };
 
-/* We name the functions with string literals, not properties, to
- prevent the Google Closure Compiler from renaming them. See comments
- at Port. */
 
-
-/**
- * @override
- * @suppress {missingProperties} For fsModule.closeSync.
- * TODO bl: remove @suppress once Node interop is better.
- */
+/** @override */
 r5js.NodeBackedPort.prototype.close = function() {
     this.fsModule.closeSync(this.fd);
 };
 
 
-/**
- * @override
-  */
+/** @override */
 r5js.NodeBackedPort.prototype.isCharReady = function() {
     return true;
 };
 
 
-/**
- * @override
- * @suppress {missingProperties} For this.fsModule.readSync.
- * TODO bl: remove @suppress once Node interop is better.
- */
+/** @override */
 r5js.NodeBackedPort.prototype.peekChar = function() {
     return this.fsModule.readSync(this.fd, 1, this.offset)[0];
 };
 
 
-/**
- * @override
- * @suppress {missingProperties} For this.fsModule.readSync.
- * TODO bl: remove @suppress once Node interop is better.
- */
+/** @override */
 r5js.NodeBackedPort.prototype.readChar = function() {
     return this.fsModule.readSync(this.fd, 1, this.offset++)[0];
 };
 
 
 /** @override */
-r5js.NodeBackedPort.prototype.toString = function() {
-    return String(this.fd);
-};
-
-
-/**
- * @override
- * @suppress {missingProperties} For this.fsModule.writeSync.
- * TODO bl: remove @suppress once Node interop is better.
- */
 r5js.NodeBackedPort.prototype.write = function(str) {
     this.fsModule.writeSync(this.fd, str, null);
 };
