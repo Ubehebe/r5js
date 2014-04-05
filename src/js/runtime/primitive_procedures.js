@@ -2,6 +2,7 @@ goog.provide('r5js.PrimitiveProcedures');
 
 
 goog.require('goog.log');
+goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
@@ -660,8 +661,8 @@ PrimitiveProcedures['eval'] = _.binary(
         var continuable = parsed.desugar(env).setStartingEnv(env);
         return r5js.trampoline(
             continuable,
-            null,
-            null,
+            r5js.CallbackBackedPort.DISCARD /* inputPort */,
+            r5js.CallbackBackedPort.DISCARD /* outputPort */,
             goog.log.getLogger('[embedded eval]'));
       }
     });

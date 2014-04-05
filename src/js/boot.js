@@ -21,6 +21,7 @@ goog.require('r5js.Environment');
 goog.require('r5js.js.Environment');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
+goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.RootEnvironment');
 goog.require('r5js.Scanner');
 goog.require('r5js.PrimitiveProcedures');
@@ -89,7 +90,7 @@ function install(lib, env, logger) {
       ).read())
       ).parse()
             .desugar(env).setStartingEnv(env),
-      null,
-      null,
+      r5js.CallbackBackedPort.DISCARD /* inputPort */,
+      r5js.CallbackBackedPort.DISCARD /* outputPort */,
       logger);
 }

@@ -70,3 +70,7 @@ r5js.CallbackBackedPort.prototype.writeChar = function(c) {
 r5js.CallbackBackedPort.prototype.write = function(str) {
     this.onOutput_(str);
 };
+
+
+/** @const {!r5js.Port} */
+r5js.CallbackBackedPort.DISCARD = new r5js.CallbackBackedPort(goog.nullFunction);

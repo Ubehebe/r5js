@@ -17,24 +17,21 @@
 goog.provide('r5js.TrampolineHelper');
 
 
-goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.ast.InputPort');
 goog.require('r5js.ast.OutputPort');
 
 
 /**
+ * @param {!r5js.Port} inputPort
+ * @param {!r5js.Port} outputPort
  * @constructor
  */
 r5js.TrampolineHelper = function(inputPort, outputPort) {
     /** @const @private {!r5js.ast.Node} */
-    this.inputPort_ = inputPort ?
-        new r5js.ast.InputPort(inputPort) :
-        this.discardInputPort_();
+    this.inputPort_ = new r5js.ast.InputPort(inputPort);
 
     /** @const @private {!r5js.ast.Node} */
-    this.outputPort_ = outputPort ?
-        new r5js.ast.OutputPort(outputPort) :
-        this.discardOutputPort_();
+    this.outputPort_ = new r5js.ast.OutputPort(outputPort);
 
     /*
      this.ans;
@@ -46,28 +43,6 @@ r5js.TrampolineHelper = function(inputPort, outputPort) {
 r5js.TrampolineHelper.prototype.clear = function() {
     this.ans = null;
     this.nextContinuable = null;
-};
-
-/**
- * @return {!r5js.ast.Node} New node representing a discard input port.
- * @private
- */
-r5js.TrampolineHelper.prototype.discardInputPort_ = function() {
-    return new r5js.ast.InputPort(
-        new r5js.CallbackBackedPort(
-            function() {
-            }));
-};
-
-/**
- * @return {!r5js.ast.Node} New node representing a discard output port.
- * @private
- */
-r5js.TrampolineHelper.prototype.discardOutputPort_ = function() {
-    return new r5js.ast.OutputPort(
-        new r5js.CallbackBackedPort(
-            function() {
-            }));
 };
 
 
