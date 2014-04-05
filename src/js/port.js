@@ -18,42 +18,48 @@ goog.provide('r5js.Port');
 
 
 
-/** @interface */
+/**
+ * @interface
+ * @see R5RS 6.6.1-2
+ */
 r5js.Port = function() {};
 
 
+/** @see R5RS 6.6.1 */
 r5js.Port.prototype.close = function() {};
 
 
-/**
- * @return {boolean} True iff the port has a character ready.
- */
-r5js.Port.prototype.isCharReady = function() {};
-
 
 /**
- * @return {?} TODO bl
+ * @interface
+ * @extends {r5js.Port}
  */
-r5js.Port.prototype.peekChar = function() {};
+r5js.InputPort = function() {};
 
 
-/**
- * @return {?} TODO bl
- */
-r5js.Port.prototype.readChar = function() {};
+/** @return {boolean} */
+r5js.InputPort.prototype.isCharReady = function() {};
 
 
-/** @override */
-r5js.Port.prototype.toString = function() {};
+/** @return {?string} */
+r5js.InputPort.prototype.peekChar = function() {};
 
 
-/**
- * @param {string} str String to write.
- */
-r5js.Port.prototype.write = function(str) {};
+/** @return {?string} */
+r5js.InputPort.prototype.readChar = function() {};
+
 
 
 /**
- * @param {string} c Character to write.
+ * @interface
+ * @extends {r5js.Port}
  */
-r5js.Port.prototype.writeChar = function(c) {};
+r5js.OutputPort = function() {};
+
+
+/** @param {string} str String to write. */
+r5js.OutputPort.prototype.write = function(str) {};
+
+
+/** @param {string} c Character to write. */
+r5js.OutputPort.prototype.writeChar = function(c) {};

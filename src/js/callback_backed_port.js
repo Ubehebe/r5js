@@ -19,15 +19,17 @@ goog.provide('r5js.CallbackBackedPort');
 
 goog.require('r5js.InternalInterpreterError');
 
+
+
 /**
- * @param {function(string)} onOutput Callback that will be called whenever output
- * is available.
- * @implements {r5js.Port}
+ * @param {function(string)} onOutput Callback that will be called
+ * whenever output is available.
+ * @implements {r5js.OutputPort}
  * @struct
  * @constructor
  */
 r5js.CallbackBackedPort = function(onOutput) {
-    /** @const @private */ this.onOutput_ = onOutput;
+  /** @const @private */ this.onOutput_ = onOutput;
 };
 
 
@@ -36,38 +38,17 @@ r5js.CallbackBackedPort.prototype.close = goog.nullFunction;
 
 
 /** @override */
-r5js.CallbackBackedPort.prototype.peekChar = function() {
-    return this; // = EOF
-};
-
-/** @override */
-r5js.CallbackBackedPort.prototype.readChar = function () {
-    return this; // i.e. an EOF object
-};
-
-
-/** @override */
-r5js.CallbackBackedPort.prototype.isCharReady = function() {
-    return true; // Because we're always at EOF
-};
-
-
-/** @override */
-r5js.CallbackBackedPort.prototype.toString = function() {
-    return '[javascript]';
-};
-
-
-/** @override */
 r5js.CallbackBackedPort.prototype.writeChar = function(c) {
-    this.onOutput_(c);
+  this.onOutput_(c);
 };
 
 
+/** @override */
 r5js.CallbackBackedPort.prototype.write = function(str) {
-    this.onOutput_(str);
+  this.onOutput_(str);
 };
 
 
 /** @const {!r5js.Port} */
-r5js.CallbackBackedPort.DISCARD = new r5js.CallbackBackedPort(goog.nullFunction);
+r5js.CallbackBackedPort.DISCARD = new r5js.CallbackBackedPort(
+    goog.nullFunction);

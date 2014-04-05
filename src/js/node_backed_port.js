@@ -22,7 +22,8 @@ goog.require('r5js.IOError');
 /**
  * @suppress {missingProperties, undefinedVars} For this.fsModule.openSync,
  * this.fsModule.statSync, and require().
- * @implements {r5js.Port}
+ * @implements {r5js.InputPort}
+ * @implements {r5js.OutputPort}
  * @constructor
  * TODO bl: remove the @suppress annotations when Node interop is better.
  */
