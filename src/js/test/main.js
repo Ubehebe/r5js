@@ -4,8 +4,8 @@ goog.setTestOnly('r5js.test.main');
 goog.setTestOnly('r5js.test.evalSandbox');
 
 
-goog.require('goog.labs.net.xhr');
 goog.require('goog.log');
+goog.require('r5js.js.Environment');
 goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
@@ -30,42 +30,20 @@ r5js.test.main = function(opt_argv) {
       tdd.RunnerConfig.DEFAULT;
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
-  var isNode = typeof XMLHttpRequest === 'undefined';
-  var urlFetcher = isNode ?
-      r5js.test.main.nodeFetchUrl_ :
-      goog.labs.net.xhr.get;
-  r5js.test.SchemeSources.get(urlFetcher).then(function(sources) {
-    var publicApi = r5js.test.getApi_(sources);
-    r5js.test.getTestSuites_(publicApi, sources).forEach(function(testSuite) {
-      runner.add(testSuite);
-    });
-    runner.run().then(function(result) {
-      console.log(result.toString());
-      if (isNode) {
-        process.exit(
-            result.getNumFailed() + result.getNumExceptions() === 0 ? 0 : 1);
-      }
-    });
-  });
-};
-
-
-/**
- * @param {string} url
- * @return {!goog.Promise.<string>}
- * @private
- */
-r5js.test.main.nodeFetchUrl_ = function(url) {
-  return new goog.Promise(function(resolve, reject) {
-    var fs = require('fs');
-    fs.readFile('.' + url, function(err, data) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data.toString());
-      }
-    });
-  });
+  var jsEnv = r5js.js.Environment.get();
+  r5js.test.SchemeSources.get(goog.bind(jsEnv.fetchUrl, jsEnv)).
+      then(function(sources) {
+        var publicApi = r5js.test.getApi_(sources);
+        r5js.test.getTestSuites_(publicApi, sources).
+            forEach(function(testSuite) {
+              runner.add(testSuite);
+            });
+        runner.run().then(function(result) {
+          console.log(result.toString());
+          jsEnv.exit(
+              result.getNumFailed() + result.getNumExceptions() === 0 ? 0 : 1);
+        });
+      });
 };
 
 
