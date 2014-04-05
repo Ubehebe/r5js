@@ -25,6 +25,20 @@ r5js.js.Environment.prototype.fetchUrl = function(url) {};
 r5js.js.Environment.prototype.exit = function(statusCode) {};
 
 
+/**
+ * @param {string} name
+ * @return {!r5js.Port}
+ */
+r5js.js.Environment.prototype.newInputPort = function(name) {};
+
+
+/**
+ * @param {string} name
+ * @return {!r5js.Port}
+ */
+r5js.js.Environment.prototype.newOutputPort = function(name) {};
+
+
 /** @return {!r5js.js.Environment} */
 r5js.js.Environment.get = function() {
   var isNode = typeof XMLHttpRequest === 'undefined';

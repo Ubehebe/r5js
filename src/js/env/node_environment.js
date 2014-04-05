@@ -2,6 +2,7 @@ goog.provide('r5js.js.NodeEnvironment');
 
 
 goog.require('goog.Promise');
+goog.require('r5js.NodeBackedPort');
 
 
 
@@ -29,4 +30,18 @@ r5js.js.NodeEnvironment.prototype.fetchUrl = function(url) {
 
 
 /** @override */
-r5js.js.NodeEnvironment.prototype.exit = process.exit;
+r5js.js.NodeEnvironment.prototype.exit = function(statusCode) {
+  process.exit(statusCode);
+};
+
+
+/** @override */
+r5js.js.NodeEnvironment.prototype.newInputPort = function(name) {
+  return new r5js.NodeBackedPort(name, 'r');
+};
+
+
+/** @override */
+r5js.js.NodeEnvironment.prototype.newOutputPort = function(name) {
+  return new r5js.NodeBackedPort(name, 'w');
+};

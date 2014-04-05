@@ -28,12 +28,11 @@ goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
 
 
-/** @private {r5js.IEnvironment} */
-r5js.PrimitiveProcedures.nullEnv_;
+/** @private {r5js.IEnvironment} */ r5js.PrimitiveProcedures.nullEnv_;
 
+/** @private {r5js.IEnvironment} */ r5js.PrimitiveProcedures.r5RSEnv_;
 
-/** @private {r5js.IEnvironment} */
-r5js.PrimitiveProcedures.r5RSEnv_;
+/** @private {r5js.js.Environment} */ r5js.PrimitiveProcedures.jsEnv_;
 
 
 /** @const @private {!Object.<string, !r5js.PrimitiveProcedure>} */
@@ -738,12 +737,12 @@ PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
 
 PrimitiveProcedures['open-input-file'] = _.unary(function(datum) {
   return new r5js.ast.InputPort(
-      new r5js.NodeBackedPort(datum.getPayload(), 'r'));
+      PrimitiveProcedures.jsEnv_.newInputPort(datum.getPayload()));
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['open-output-file'] = _.unary(function(datum) {
   return new r5js.ast.OutputPort(
-      new r5js.NodeBackedPort(datum.getPayload(), 'w'));
+      PrimitiveProcedures.jsEnv_.newOutputPort(datum.getPayload()));
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
@@ -1068,10 +1067,12 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
 /**
  * @param {!r5js.IEnvironment} nullEnv
  * @param {!r5js.IEnvironment} r5RSEnv
+ * @param {!r5js.js.Environment} jsEnv JavaScript execution environment.
  */
-r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv) {
+r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv, jsEnv) {
   r5js.PrimitiveProcedures.nullEnv_ = nullEnv;
   r5js.PrimitiveProcedures.r5RSEnv_ = r5RSEnv;
+  r5js.PrimitiveProcedures.jsEnv_ = jsEnv;
   for (var name in r5js.PrimitiveProcedures.registry_) {
     var proc = r5js.PrimitiveProcedures.registry_[name];
     proc.setDebugName(name);
