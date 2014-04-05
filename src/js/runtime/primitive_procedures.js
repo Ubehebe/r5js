@@ -719,16 +719,7 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
       var toWrite = datum instanceof r5js.Datum ?
           datum.stringForOutputMode(r5js.OutputMode.DISPLAY) :
           String(datum);
-      /* Port implementations aren't required to implement
-             write. If they don't, we just call writeChar (which they
-             must implement) on every single character. */
-      if (outputPort.getPayload().write) {
-        outputPort.getPayload().write(toWrite);
-      } else {
-        for (var i = 0; i < toWrite.length; ++i) {
-          outputPort.getPayload().writeChar(toWrite[i]);
-        }
-      }
+      outputPort.getPayload().write(toWrite);
       return null; // unspecified return value
     });
 
@@ -776,16 +767,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
       var toWrite = datum instanceof r5js.Datum ?
           datum.stringForOutputMode(r5js.OutputMode.WRITE) :
           String(datum);
-      /* Port implementations aren't required to implement
-            write. If they don't, we just call writeChar (which they
-            must implement) on every single character. */
-      if (outputPortToUse.getPayload().write) {
-        outputPortToUse.getPayload().write(toWrite);
-      } else {
-        for (var i = 0; i < toWrite.length; ++i) {
-          outputPortToUse.getPayload().writeChar(toWrite[i]);
-        }
-      }
+      outputPortToUse.getPayload().write(toWrite);
       return null; // unspecified return value
     });
 
@@ -800,7 +782,7 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
         throw new r5js.ArgumentTypeError(
             outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
       }
-      outputPort.getPayload().writeChar(charNode.getPayload());
+      outputPort.getPayload().write(charNode.getPayload());
       return null; // unspecified return value
     });
 

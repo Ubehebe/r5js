@@ -59,7 +59,3 @@ r5js.OutputPort = function() {};
 
 /** @param {string} str String to write. */
 r5js.OutputPort.prototype.write = function(str) {};
-
-
-/** @param {string} c Character to write. */
-r5js.OutputPort.prototype.writeChar = function(c) {};

@@ -107,13 +107,3 @@ r5js.NodeBackedPort.prototype.toString = function() {
 r5js.NodeBackedPort.prototype.write = function(str) {
     this.fsModule.writeSync(this.fd, str, null);
 };
-
-
-/**
- * @override
- * @suppress {missingProperties} For this.fsModule.writeSync.
- * TODO bl: remove @suppress once Node interop is better.
- */
-r5js.NodeBackedPort.prototype.writeChar = function(c) {
-    this.fsModule.writeSync(this.fd, c, null);
-};

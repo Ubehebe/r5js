@@ -27,14 +27,14 @@ r5js.js.Environment.prototype.exit = function(statusCode) {};
 
 /**
  * @param {string} name
- * @return {!r5js.Port}
+ * @return {!r5js.InputPort}
  */
 r5js.js.Environment.prototype.newInputPort = function(name) {};
 
 
 /**
  * @param {string} name
- * @return {!r5js.Port}
+ * @return {!r5js.OutputPort}
  */
 r5js.js.Environment.prototype.newOutputPort = function(name) {};
 
