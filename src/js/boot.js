@@ -18,13 +18,10 @@ goog.provide('r5js.boot');
 
 
 goog.require('r5js.Environment');
-goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
 goog.require('r5js.Scanner');
-goog.require('r5js.ffi');
-goog.require('r5js.ffiutil');
 goog.require('r5js.PrimitiveProcedures');
 goog.require('r5js.trampoline');
 
