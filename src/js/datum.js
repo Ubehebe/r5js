@@ -35,9 +35,6 @@ r5js.DesugarFunc;
  * @constructor
  */
 r5js.Datum = function() {
-    /** @protected {r5js.Datum} */
-    this.firstChild_ = null;
-
     /** @private {r5js.Datum} */
     this.nextSibling_ = null;
 

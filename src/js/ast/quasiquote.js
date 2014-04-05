@@ -44,7 +44,7 @@ goog.inherits(r5js.ast.Quasiquote, r5js.ast.CompoundDatum);
  * @override
  */
 r5js.ast.Quasiquote.prototype.eqv = function(other) {
-  return this.isEqual(other);
+  return this.isEqual(/** @type {!r5js.ast.CompoundDatum} */ (other));
 };
 
 
@@ -81,7 +81,7 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
             node.getQQLevel() === qqLevel;
       },
       function(node) {
-          node = /** @type {!r5js.ast.CompoundDatum} */ (node); // TODO bl
+        node = /** @type {!r5js.ast.CompoundDatum} */ (node); // TODO bl
         var asContinuable = /** @type {!r5js.Continuable} */ (parserProvider(
             /** @type {!r5js.Datum} */(node.getFirstChild())).
                 parse(r5js.parse.Nonterminals.EXPRESSION).

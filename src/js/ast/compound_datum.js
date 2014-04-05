@@ -17,6 +17,8 @@ goog.require('r5js.parse.Nonterminals');
 r5js.ast.CompoundDatum = function() {
   goog.base(this);
 
+  /** @private {r5js.Datum} */ this.firstChild_ = null;
+
   /** @private {r5js.CdrHelper} */ this.cdrHelper_;
 
   /** @protected {number|undefined} */ this.qqLevel;
@@ -53,7 +55,8 @@ r5js.ast.CompoundDatum.prototype.clearFirstChild = function() {
 
 /** @override */
 r5js.ast.CompoundDatum.prototype.clone = function(parent) {
-  var ans = goog.base(this, 'clone', parent);
+  var ans = /** @type {!r5js.ast.CompoundDatum} */ (
+      goog.base(this, 'clone', parent));
   if (this.firstChild_) {
     var buf = new r5js.SiblingBuffer();
     this.forEachChild(function(child) {
@@ -68,7 +71,7 @@ r5js.ast.CompoundDatum.prototype.clone = function(parent) {
 /**
  * TODO bl: this is intended to have the exact semantics of the library
  * procedure equal?, but I'm not sure that it does.
- * @param {!r5js.Datum} other Datum to compare against.
+ * @param {!r5js.ast.CompoundDatum} other Datum to compare against.
  * @return {boolean}
  */
 r5js.ast.CompoundDatum.prototype.isEqual = function(other) {
@@ -78,6 +81,7 @@ r5js.ast.CompoundDatum.prototype.isEqual = function(other) {
       thisChild = thisChild.getNextSibling(),
       otherChild = otherChild.getNextSibling()) {
     if (thisChild instanceof r5js.ast.CompoundDatum &&
+        otherChild instanceof r5js.ast.CompoundDatum &&
         !thisChild.isEqual(otherChild)) {
       return false;
     }
@@ -149,7 +153,8 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
       maybeVar.setPayload(helper.addRenameBinding(id));
     }
   } else { // (define (foo x y) (+ x y))
-    var vars = this.firstChild_.getNextSibling();
+    var vars = /** @type {!r5js.ast.CompoundDatum} */ (
+        this.firstChild_.getNextSibling());
     var name = /** @type {!r5js.ast.Identifier} */ (vars.firstChild_);
     var newHelper = new r5js.RenameHelper(helper);
     for (var cur = name.getNextSibling(); cur; cur = cur.getNextSibling()) {
