@@ -338,8 +338,8 @@ r5js.procspec.NeedsCurrentPorts_.prototype.Call = function(
       userArgs, this.debugName_);
   var args = goog.array.concat(
       goog.array.toArray(unwrappedArgs),
-      trampolineHelper.getInputPort().getPayload(),
-      trampolineHelper.getOutputPort().getPayload());
+      trampolineHelper.getInputPort(),
+      trampolineHelper.getOutputPort());
   var retval = this.fn_.apply(null, args);
   var ans = r5js.datumutil.maybeWrapResult(retval);
   procCall.bindResult(continuation, ans);
@@ -482,7 +482,7 @@ r5js.procspec.varargsRange = function(fn, minArgs, maxArgs) {
 
 
 /**
- * @param {function(!r5js.ast.InputPort, !r5js.ast.OutputPort): ?} fn
+ * @param {function(!r5js.InputPort, !r5js.OutputPort): ?} fn
  * @return {!r5js.PrimitiveProcedure}
  */
 r5js.procspec.nullaryWithCurrentPorts = function(fn) {

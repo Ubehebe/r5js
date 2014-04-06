@@ -1,7 +1,5 @@
 goog.provide('r5js.ast.EnvironmentSpecifier');
-goog.provide('r5js.ast.InputPort');
 goog.provide('r5js.ast.Node');
-goog.provide('r5js.ast.OutputPort');
 
 
 
@@ -22,9 +20,7 @@ r5js.ast.Node.prototype.getPayload = function() {};
  * TODO bl temporary shim. Remove.
  */
 r5js.ast.Node.isImplementedBy = function(obj) {
-  return obj instanceof r5js.ast.EnvironmentSpecifier ||
-      obj instanceof r5js.ast.InputPort ||
-      obj instanceof r5js.ast.OutputPort;
+  return obj instanceof r5js.ast.EnvironmentSpecifier;
 };
 
 
@@ -70,32 +66,4 @@ goog.inherits(r5js.ast.EnvironmentSpecifier, r5js.ast.BaseNode_);
 r5js.ast.EnvironmentSpecifier.prototype.toString = function() {
   return 'environment';
 };
-
-
-
-/**
- * @param {!r5js.InputPort} port
- * @implements {r5js.ast.Node.<!r5js.InputPort>}
- * @extends {r5js.ast.BaseNode_}
- * @struct
- * @constructor
- */
-r5js.ast.InputPort = function(port) {
-  goog.base(this, port);
-};
-goog.inherits(r5js.ast.InputPort, r5js.ast.BaseNode_);
-
-
-
-/**
- * @param {!r5js.OutputPort} port
- * @implements {r5js.ast.Node.<!r5js.OutputPort>}
- * @extends {r5js.ast.BaseNode_}
- * @struct
- * @constructor
- */
-r5js.ast.OutputPort = function(port) {
-  goog.base(this, port);
-};
-goog.inherits(r5js.ast.OutputPort, r5js.ast.BaseNode_);
 

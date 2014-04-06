@@ -17,21 +17,15 @@
 goog.provide('r5js.TrampolineHelper');
 
 
-goog.require('r5js.ast.InputPort');
-goog.require('r5js.ast.OutputPort');
-
-
 /**
  * @param {!r5js.InputPort} inputPort
  * @param {!r5js.OutputPort} outputPort
  * @constructor
  */
 r5js.TrampolineHelper = function(inputPort, outputPort) {
-    /** @const @private {!r5js.ast.Node} */
-    this.inputPort_ = new r5js.ast.InputPort(inputPort);
+    /** @const @private */ this.inputPort_ = inputPort;
 
-    /** @const @private {!r5js.ast.Node} */
-    this.outputPort_ = new r5js.ast.OutputPort(outputPort);
+    /** @const @private */ this.outputPort_ = outputPort;
 
     /*
      this.ans;
@@ -46,13 +40,13 @@ r5js.TrampolineHelper.prototype.clear = function() {
 };
 
 
-/** @return {!r5js.ast.Node} */
+/** @return {!r5js.InputPort} */
 r5js.TrampolineHelper.prototype.getInputPort = function() {
     return this.inputPort_;
 };
 
 
-/** @return {!r5js.ast.Node} */
+/** @return {!r5js.OutputPort} */
 r5js.TrampolineHelper.prototype.getOutputPort = function() {
     return this.outputPort_;
 };
