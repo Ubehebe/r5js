@@ -96,9 +96,7 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
     return result; // no-op, strictly for convenience
   }
 
-  if (opt_type === r5js.DatumType.BOOLEAN) {
-    return new r5js.ast.Boolean(/** @type {boolean} */ (result));
-  } else if (opt_type === r5js.DatumType.CHARACTER) {
+  if (opt_type === r5js.DatumType.CHARACTER) {
     return new r5js.ast.Character(/** @type {string} */ (result));
   } else if (opt_type === r5js.DatumType.NUMBER) {
     return new r5js.ast.Number(/** @type {number} */ (result));

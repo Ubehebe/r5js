@@ -14,12 +14,9 @@ r5js.Type;
  * functions.
  */
 r5js.DatumType = {
-  BOOLEAN: 'boolean',
   CHARACTER: 'char',
-  DOTTED_LIST: '.(',
   ENVIRONMENT_SPECIFIER: 'environment-specifier',
   FFI: 'ffi',
-  IDENTIFIER: 'identifier',
   INPUT_PORT: 'input-port',
   NUMBER: 'number',
   OUTPUT_PORT: 'output-port',
