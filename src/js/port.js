@@ -42,6 +42,25 @@ r5js.InputPort.prototype.readChar = function() {};
 r5js.InputPort.prototype.close = function() {};
 
 
+/** @const @private */ r5js.InputPort.IMPLEMENTED_BY_PROP_ = '$r5js.InputPort';
+
+
+/**
+ * @param {*} obj
+ * @return {boolean}
+ * TODO bl temporary shim. Remove.
+ */
+r5js.InputPort.isImplementedBy = function(obj) {
+  return !!(obj && obj[r5js.InputPort.IMPLEMENTED_BY_PROP_]);
+};
+
+
+/** @param {function(new: r5js.InputPort, ...)} ctor */
+r5js.InputPort.addImplementation = function(ctor) {
+  ctor.prototype[r5js.InputPort.IMPLEMENTED_BY_PROP_] = true;
+};
+
+
 
 /** @interface */
 r5js.OutputPort = function() {};
@@ -55,6 +74,26 @@ r5js.OutputPort.prototype.write = function(str) {};
 r5js.OutputPort.prototype.close = function() {};
 
 
+/** @const @private */
+r5js.OutputPort.IMPLEMENTED_BY_PROP_ = '$r5js.OutputPort';
+
+
+/**
+ * @param {*} obj
+ * @return {boolean}
+ * TODO bl temporary shim. Remove.
+ */
+r5js.OutputPort.isImplementedBy = function(obj) {
+  return !!(obj && obj[r5js.OutputPort.IMPLEMENTED_BY_PROP_]);
+};
+
+
+/** @param {function(new: r5js.OutputPort, ...)} ctor */
+r5js.OutputPort.addImplementation = function(ctor) {
+  ctor.prototype[r5js.OutputPort.IMPLEMENTED_BY_PROP_] = true;
+};
+
+
 
 /**
  * An input port that has no available input.
@@ -64,6 +103,7 @@ r5js.OutputPort.prototype.close = function() {};
  * @private
  */
 r5js.InputPort.Null_ = function() {};
+r5js.InputPort.addImplementation(r5js.InputPort.Null_);
 
 
 /** @override */
@@ -95,6 +135,7 @@ r5js.InputPort.NULL = new r5js.InputPort.Null_();
  * @private
  */
 r5js.OutputPort.Null_ = function() {};
+r5js.OutputPort.addImplementation(r5js.OutputPort.Null_);
 
 
 /** @override */
