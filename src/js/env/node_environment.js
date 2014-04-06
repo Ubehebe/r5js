@@ -2,6 +2,7 @@ goog.provide('r5js.js.NodeEnvironment');
 
 
 goog.require('goog.Promise');
+goog.require('r5js.IOError');
 
 
 
@@ -16,6 +17,9 @@ r5js.js.NodeEnvironment = function() {};
 /** @override */
 r5js.js.NodeEnvironment.prototype.fetchUrl = function(url) {
   return new goog.Promise(function(resolve, reject) {
+    // TODO bl: move this declaration to the top of this file, instead of
+    // repeating it in each method that needs it. This will require changing
+    // the build process to omit files not needed by a particular target.
     var fs = require('fs');
     fs.readFile('.' + url, function(err, data) {
       if (err) {
@@ -46,9 +50,6 @@ r5js.js.NodeEnvironment.prototype.newOutputPort = function(name) {
 };
 
 
-goog.require('r5js.IOError');
-
-
 
 /**
  * @param {string} filename
@@ -58,35 +59,23 @@ goog.require('r5js.IOError');
  * @struct
  * @constructor
  * @private
+ * @suppress {checkTypes} TODO bl the compiler complains that Buffer
+ * is non-instantiable.
  */
 r5js.js.NodeEnvironment.Port_ = function(filename, mode) {
+  var fs = require('fs');
 
-  /* We set this inside the constructor instead of the usual way
-     so that a ReferenceError isn't thrown during parsing. */
-  if (!r5js.js.NodeEnvironment.Port_.prototype.fsModule) {
-    try {
-      /* Of course, require might be defined but do something other
-             than what we expect, which is to import the filesystem module.
-             We don't check for that. */
-      r5js.js.NodeEnvironment.Port_.prototype.fsModule = require('fs');
-    } catch (re) {
-      if (re instanceof ReferenceError) {
-        throw new r5js.IOError('the JavaScript environment lacks ' +
-            'filesystem access required for this IO procedure. ' +
-                    '(This probably means you are running in a browser.)');
-      }
-    }
-  }
-
-  this.fd = this.fsModule.openSync(filename, mode);
-  this.size = this.fsModule.statSync(filename).size;
-  this.offset = 0;
+  /** @const @private */ this.fd_ = fs.openSync(filename, mode);
+  /** @const @private */ this.buf_ = new Buffer(1 << 10);
+  /** @private */ this.offset_ = 0;
+  /** @private */ this.position_ = 0;
 };
 
 
 /** @override */
 r5js.js.NodeEnvironment.Port_.prototype.close = function() {
-  this.fsModule.closeSync(this.fd);
+  var fs = require('fs');
+  fs.closeSync(this.fd_);
 };
 
 
@@ -98,17 +87,30 @@ r5js.js.NodeEnvironment.Port_.prototype.isCharReady = function() {
 
 /** @override */
 r5js.js.NodeEnvironment.Port_.prototype.peekChar = function() {
-  return this.fsModule.readSync(this.fd, 1, this.offset)[0];
+  var ans = this.readChar();
+  this.position_++;
+  return ans;
 };
 
 
 /** @override */
 r5js.js.NodeEnvironment.Port_.prototype.readChar = function() {
-  return this.fsModule.readSync(this.fd, 1, this.offset++)[0];
+  var fs = require('fs');
+  var nread = fs.readSync(this.fd_, this.buf_, this.offset_, 1, this.position_);
+  if (nread < 1) {
+    throw new r5js.IOError('readSync: read ' + nread);
+  }
+  return this.buf_[this.offset_++];
 };
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {checkTypes} The Node API docs say that a null position
+ * argument means the current position, but the Node externs give the type
+ * of that argument as number.
+ */
 r5js.js.NodeEnvironment.Port_.prototype.write = function(str) {
-  this.fsModule.writeSync(this.fd, str, null);
+  var fs = require('fs');
+  fs.writeSync(this.fd_, str, 0, str.length, null /* current position */);
 };
