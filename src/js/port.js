@@ -14,7 +14,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.Port');
+goog.provide('r5js.InputPort');
+goog.provide('r5js.OutputPort');
+
+
+goog.require('goog.functions');
 
 
 
@@ -59,3 +63,57 @@ r5js.OutputPort = function() {};
 
 /** @param {string} str String to write. */
 r5js.OutputPort.prototype.write = function(str) {};
+
+
+
+/**
+ * An input port that has no available input.
+ * @implements {r5js.InputPort}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.InputPort.Null_ = function() {};
+
+
+/** @override */
+r5js.InputPort.Null_.prototype.isCharReady = goog.functions.FALSE;
+
+
+/** @override */
+r5js.InputPort.Null_.prototype.peekChar = goog.functions.NULL;
+
+
+/** @override */
+r5js.InputPort.Null_.prototype.readChar = goog.functions.NULL;
+
+
+/** @override */
+r5js.InputPort.Null_.prototype.close = goog.nullFunction;
+
+
+/** @const {!r5js.InputPort} */
+r5js.InputPort.NULL = new r5js.InputPort.Null_();
+
+
+
+/**
+ * An output port that discards its output.
+ * @implements {r5js.OutputPort}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.OutputPort.Null_ = function() {};
+
+
+/** @override */
+r5js.OutputPort.Null_.prototype.close = goog.nullFunction;
+
+
+/** @override */
+r5js.OutputPort.Null_.prototype.write = goog.nullFunction;
+
+
+/** @const {!r5js.OutputPort} */
+r5js.OutputPort.NULL = new r5js.OutputPort.Null_();

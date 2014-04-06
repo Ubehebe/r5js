@@ -20,6 +20,7 @@ goog.provide('r5js.Pipeline');
 
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.Environment');
+goog.require('r5js.InputPort');
 goog.require('r5js.ParseError');
 goog.require('r5js.Parser');
 goog.require('r5js.Reader');
@@ -85,7 +86,7 @@ r5js.Pipeline.prototype.desugar = function(root, replMode) {
 r5js.Pipeline.prototype.Eval = function(continuable, onOutput, logger) {
   return r5js.trampoline(
       continuable,
-      r5js.CallbackBackedPort.DISCARD /* inputPort */,
+      r5js.InputPort.NULL,
       new r5js.CallbackBackedPort(onOutput),
       logger);
 };

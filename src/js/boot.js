@@ -17,14 +17,16 @@
 goog.provide('r5js.boot');
 
 
-goog.require('r5js.Environment');
-goog.require('r5js.js.Environment');
-goog.require('r5js.Parser');
-goog.require('r5js.Reader');
 goog.require('r5js.CallbackBackedPort');
+goog.require('r5js.Environment');
+goog.require('r5js.InputPort');
+goog.require('r5js.OutputPort');
+goog.require('r5js.Parser');
+goog.require('r5js.PrimitiveProcedures');
+goog.require('r5js.Reader');
 goog.require('r5js.RootEnvironment');
 goog.require('r5js.Scanner');
-goog.require('r5js.PrimitiveProcedures');
+goog.require('r5js.js.Environment');
 goog.require('r5js.trampoline');
 
 
@@ -90,7 +92,7 @@ function install(lib, env, logger) {
       ).read())
       ).parse()
             .desugar(env).setStartingEnv(env),
-      r5js.CallbackBackedPort.DISCARD /* inputPort */,
-      r5js.CallbackBackedPort.DISCARD /* outputPort */,
+      r5js.InputPort.NULL,
+      r5js.OutputPort.NULL,
       logger);
 }
