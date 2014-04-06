@@ -74,8 +74,8 @@ r5js.ast.EnvironmentSpecifier.prototype.toString = function() {
 
 
 /**
- * @param {!r5js.Port} port
- * @implements {r5js.ast.Node.<!r5js.Port>}
+ * @param {!r5js.InputPort} port
+ * @implements {r5js.ast.Node.<!r5js.InputPort>}
  * @extends {r5js.ast.BaseNode_}
  * @struct
  * @constructor
@@ -88,8 +88,8 @@ goog.inherits(r5js.ast.InputPort, r5js.ast.BaseNode_);
 
 
 /**
- * @param {!r5js.Port} port
- * @implements {r5js.ast.Node.<!r5js.Port>}
+ * @param {!r5js.OutputPort} port
+ * @implements {r5js.ast.Node.<!r5js.OutputPort>}
  * @extends {r5js.ast.BaseNode_}
  * @struct
  * @constructor

@@ -22,8 +22,8 @@ goog.require('r5js.ast.OutputPort');
 
 
 /**
- * @param {!r5js.Port} inputPort
- * @param {!r5js.Port} outputPort
+ * @param {!r5js.InputPort} inputPort
+ * @param {!r5js.OutputPort} outputPort
  * @constructor
  */
 r5js.TrampolineHelper = function(inputPort, outputPort) {

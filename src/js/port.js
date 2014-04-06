@@ -22,22 +22,7 @@ goog.require('goog.functions');
 
 
 
-/**
- * @interface
- * @see R5RS 6.6.1-2
- */
-r5js.Port = function() {};
-
-
-/** @see R5RS 6.6.1 */
-r5js.Port.prototype.close = function() {};
-
-
-
-/**
- * @interface
- * @extends {r5js.Port}
- */
+/** @interface */
 r5js.InputPort = function() {};
 
 
@@ -53,16 +38,21 @@ r5js.InputPort.prototype.peekChar = function() {};
 r5js.InputPort.prototype.readChar = function() {};
 
 
+/** @see R5RS 6.6.1 */
+r5js.InputPort.prototype.close = function() {};
 
-/**
- * @interface
- * @extends {r5js.Port}
- */
+
+
+/** @interface */
 r5js.OutputPort = function() {};
 
 
 /** @param {string} str String to write. */
 r5js.OutputPort.prototype.write = function(str) {};
+
+
+/** @see R5RS 6.6.1 */
+r5js.OutputPort.prototype.close = function() {};
 
 
 
