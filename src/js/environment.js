@@ -27,6 +27,8 @@ goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.Macro');
 goog.require('r5js.Procedure');
+goog.require('r5js.InputPort');
+goog.require('r5js.OutputPort');
 goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.Ref');
 goog.require('r5js.RootEnvironment');
@@ -258,7 +260,9 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              || typeof val === 'string'
              || val === true
              || val === false
-             || r5js.ast.Node.isImplementedBy(val)) {
+             || r5js.ast.Node.isImplementedBy(val)
+             || r5js.InputPort.isImplementedBy(val)
+             || r5js.OutputPort.isImplementedBy(val)) {
              this.bindings_[name] = val;
          } else if (val === null) {
             /* A value of null on the trampoline means an unspecified value.

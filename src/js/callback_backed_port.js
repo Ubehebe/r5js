@@ -18,6 +18,7 @@ goog.provide('r5js.CallbackBackedPort');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.OutputPort');
 
 
 
@@ -31,6 +32,7 @@ goog.require('r5js.InternalInterpreterError');
 r5js.CallbackBackedPort = function(onOutput) {
   /** @const @private */ this.onOutput_ = onOutput;
 };
+r5js.OutputPort.addImplementation(r5js.CallbackBackedPort);
 
 
 /** @override */

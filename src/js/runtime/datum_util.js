@@ -4,9 +4,11 @@ goog.provide('r5js.datumutil');
 // TODO bl circular dependency goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
+goog.require('r5js.InputPort');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
+goog.require('r5js.OutputPort');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
@@ -92,7 +94,9 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
       result instanceof r5js.Continuation ||
       result instanceof r5js.Macro ||
       result instanceof r5js.JsObjOrMethod /* JS interop (experimental) */ ||
-      r5js.ast.Node.isImplementedBy(result)) {
+      r5js.ast.Node.isImplementedBy(result) ||
+      r5js.InputPort.isImplementedBy(result) ||
+      r5js.OutputPort.isImplementedBy(result)) {
     return result; // no-op, strictly for convenience
   }
 

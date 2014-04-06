@@ -63,8 +63,8 @@ PrimitiveProcedures['char?'] = _.unary(function(node) {
   return node instanceof r5js.ast.Character;
 });
 
-PrimitiveProcedures['input-port?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.InputPort;
+PrimitiveProcedures['input-port?'] = _.unary(function(port) {
+  return r5js.InputPort.isImplementedBy(port);
 });
 
 PrimitiveProcedures['null?'] = _.unary(function(node) {
@@ -75,8 +75,8 @@ PrimitiveProcedures['number?'] = _.unary(function(node) {
   return node instanceof r5js.ast.Number;
 });
 
-PrimitiveProcedures['output-port?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.OutputPort;
+PrimitiveProcedures['output-port?'] = _.unary(function(port) {
+  return r5js.OutputPort.isImplementedBy(port);
 });
 
 PrimitiveProcedures['pair?'] = _.unary(function(node) {
@@ -86,9 +86,9 @@ PrimitiveProcedures['pair?'] = _.unary(function(node) {
       !!node.getFirstChild(); // 3.2: (pair? '()) => #f
 });
 
-PrimitiveProcedures['port?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.InputPort ||
-      node instanceof r5js.ast.OutputPort;
+PrimitiveProcedures['port?'] = _.unary(function(port) {
+  return r5js.InputPort.isImplementedBy(port) ||
+      r5js.OutputPort.isImplementedBy(port);
 });
 
 PrimitiveProcedures['procedure?'] = _.unary(function(node) {
@@ -685,11 +685,11 @@ PrimitiveProcedures['will-eval?'] = _.binary(function(expr, envSpec) {
 PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
     function(maybeUserSuppliedInputPort, inputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!(inputPortToUse instanceof r5js.ast.InputPort)) {
+      if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
             inputPortToUse, 0, 'char-ready?', r5js.DatumType.INPUT_PORT);
       }
-      return inputPortToUse.getPayload().isCharReady();
+      return inputPortToUse.isCharReady();
     });
 
 PrimitiveProcedures['close-input-port'] = _.unary(function(datum) {
@@ -714,14 +714,14 @@ PrimitiveProcedures['current-output-port'] = _.nullaryWithCurrentPorts(
      That's not too efficient, so I decided to write it in JavaScript. */
 PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
     function(datum, inputPort, outputPort) {
-      if (!(outputPort instanceof r5js.ast.OutputPort)) {
+      if (!r5js.OutputPort.isImplementedBy(outputPort)) {
         throw new r5js.ArgumentTypeError(
             outputPort, 1, 'display', r5js.DatumType.OUTPUT_PORT);
       }
       var toWrite = datum instanceof r5js.Datum ?
           datum.stringForOutputMode(r5js.OutputMode.DISPLAY) :
           String(datum);
-      outputPort.getPayload().write(toWrite);
+      outputPort.write(toWrite);
       return null; // unspecified return value
     });
 
@@ -730,46 +730,44 @@ PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
 });
 
 PrimitiveProcedures['open-input-file'] = _.unary(function(datum) {
-  return new r5js.ast.InputPort(
-      PrimitiveProcedures.jsEnv_.newInputPort(datum.getPayload()));
+  return PrimitiveProcedures.jsEnv_.newInputPort(datum.getPayload());
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['open-output-file'] = _.unary(function(datum) {
-  return new r5js.ast.OutputPort(
-      PrimitiveProcedures.jsEnv_.newOutputPort(datum.getPayload()));
+  return PrimitiveProcedures.jsEnv_.newOutputPort(datum.getPayload());
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
     function(maybeUserSuppliedInputPort, inputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!(inputPortToUse instanceof r5js.ast.InputPort)) {
+      if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
             inputPortToUse, 0, 'peek-char', r5js.DatumType.INPUT_PORT);
       }
-      return new r5js.ast.Character(inputPortToUse.getPayload().peekChar());
+      return new r5js.ast.Character(inputPortToUse.peekChar());
     });
 
 PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
     function(maybeUserSuppliedInputPort, inputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!(inputPortToUse instanceof r5js.ast.InputPort)) {
+      if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
             inputPortToUse, 0, 'read-char', r5js.DatumType.INPUT_PORT);
       }
-      return new r5js.ast.Character(inputPortToUse.getPayload().readChar());
+      return new r5js.ast.Character(inputPortToUse.readChar());
     });
 
 PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
     function(datum, maybeUserSuppliedOutputPort, inputPort, outputPort) {
       var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-      if (!(outputPortToUse instanceof r5js.ast.OutputPort)) {
+      if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw new r5js.ArgumentTypeError(
             outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT);
       }
       var toWrite = datum instanceof r5js.Datum ?
           datum.stringForOutputMode(r5js.OutputMode.WRITE) :
           String(datum);
-      outputPortToUse.getPayload().write(toWrite);
+      outputPortToUse.write(toWrite);
       return null; // unspecified return value
     });
 
@@ -780,11 +778,11 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
             charNode, 0, 'write-char', r5js.DatumType.CHARACTER);
       }
       var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-      if (!(outputPortToUse instanceof r5js.ast.OutputPort)) {
+      if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw new r5js.ArgumentTypeError(
             outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
       }
-      outputPort.getPayload().write(charNode.getPayload());
+      outputPort.write(charNode.getPayload());
       return null; // unspecified return value
     });
 
