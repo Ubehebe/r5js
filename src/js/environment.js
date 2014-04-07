@@ -149,7 +149,8 @@ r5js.Environment.prototype.get = function(name) {
     if (maybe != null) {
 
         // Redirects for free ids in macro transcriptions
-        if (maybe instanceof r5js.Environment)
+        if (r5js.IEnvironment.isImplementedBy(maybe) &&
+            maybe.hasBindingRecursive(name))
             return maybe.get(name);
         /* We store primitive and non-primitive procedures unwrapped,
          but wrap them in a Datum if they are requested through get.
@@ -262,6 +263,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              || typeof val === 'string'
              || val === true
              || val === false
+             || r5js.IEnvironment.isImplementedBy(val)
              || r5js.ast.Node.isImplementedBy(val)
              || r5js.InputPort.isImplementedBy(val)
              || r5js.OutputPort.isImplementedBy(val)) {
@@ -278,7 +280,6 @@ r5js.Environment.prototype.addBinding = function(name, val) {
             || val instanceof r5js.Continuation /* call-with-current-continuation etc. */
             || val instanceof Array /* values and call-with-values */
             || val instanceof r5js.Macro /* macros */
-            || val instanceof r5js.Environment /* Redirects for free ids in macro transcriptions */
             || val instanceof r5js.JsObjOrMethod /* JavaScript interop (experimental!) */) {
             this.bindings_[name] = val;
         } else if (val instanceof r5js.Datum) {

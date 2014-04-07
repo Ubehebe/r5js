@@ -7,6 +7,8 @@ goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
+goog.require('r5js.Environment');
+goog.require('r5js.IEnvironment');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputMode');
 goog.require('r5js.OutputPort');
@@ -620,9 +622,7 @@ PrimitiveProcedures['eval'] = _.binary(
       if (!(expr instanceof r5js.Datum))
         throw new r5js.ArgumentTypeError(
             expr, 0, 'eval', 'ref' /* TODO bl is this right? */);
-      var isEnvNode = r5js.ast.Node.isImplementedBy(envSpec) &&
-          envSpec instanceof r5js.ast.EnvironmentSpecifier;
-      if (!isEnvNode) {
+      if (!r5js.IEnvironment.isImplementedBy(envSpec)) {
         throw new r5js.ArgumentTypeError(
             envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER);
       }
@@ -651,7 +651,7 @@ PrimitiveProcedures['eval'] = _.binary(
     for some awkward forward references. Reasoning about this copy/pasted
     code is simpler than reasoning about the build process. */
 
-        var env = /** @type {!r5js.IEnvironment} */ (envSpec.getPayload());
+        var env = /** @type {!r5js.IEnvironment} */ (envSpec);
         // don't accidentally evaluate the next expr!
         expr.setNextSibling(null);
 
@@ -1028,8 +1028,7 @@ PrimitiveProcedures['null-environment'] = _.unary(function(num) {
     throw new r5js.InternalInterpreterError(
         'unsupported null environment ' + num);
   }
-  return new r5js.ast.EnvironmentSpecifier(
-      /** @type {!r5js.IEnvironment} */ (r5js.PrimitiveProcedures.nullEnv_));
+  return new r5js.Environment('', r5js.PrimitiveProcedures.nullEnv_);
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
@@ -1037,8 +1036,7 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
     throw new r5js.InternalInterpreterError(
         'unsupported scheme report environment ' + num);
   }
-  return new r5js.ast.EnvironmentSpecifier(
-      /** @type {!r5js.IEnvironment} */(r5js.PrimitiveProcedures.r5RSEnv_));
+  return new r5js.Environment('', r5js.PrimitiveProcedures.r5RSEnv_);
 }, r5js.DatumType.NUMBER);
 
 

@@ -30,6 +30,7 @@ goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
+goog.require('r5js.IEnvironment');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Lambda');
