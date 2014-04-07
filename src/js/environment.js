@@ -136,8 +136,8 @@ r5js.Environment.prototype.hasBinding = function(name) {
 r5js.Environment.prototype.hasBindingRecursive = function(
     name, searchClosures) {
     return this.hasBinding(name)
-        || (searchClosures && this.closures_[name])
-        || (this.enclosingEnv_ &&
+        || (!!searchClosures && name in this.closures_)
+        || (!!this.enclosingEnv_ &&
         this.enclosingEnv_.hasBindingRecursive(name, searchClosures));
 };
 
