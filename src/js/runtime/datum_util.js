@@ -16,7 +16,6 @@ goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
-goog.require('r5js.ast.Node');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
 goog.require('r5js.parse.Nonterminals');
@@ -95,7 +94,6 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
       result instanceof r5js.Continuation ||
       result instanceof r5js.Macro ||
       result instanceof r5js.JsObjOrMethod /* JS interop (experimental) */ ||
-      r5js.ast.Node.isImplementedBy(result) ||
       r5js.IEnvironment.isImplementedBy(result) ||
       r5js.InputPort.isImplementedBy(result) ||
       r5js.OutputPort.isImplementedBy(result)) {

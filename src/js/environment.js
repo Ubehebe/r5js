@@ -17,7 +17,6 @@
 goog.provide('r5js.Environment');
 
 
-goog.require('r5js.ast.Node');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
@@ -264,7 +263,6 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              || val === true
              || val === false
              || r5js.IEnvironment.isImplementedBy(val)
-             || r5js.ast.Node.isImplementedBy(val)
              || r5js.InputPort.isImplementedBy(val)
              || r5js.OutputPort.isImplementedBy(val)) {
              this.bindings_[name] = val;
