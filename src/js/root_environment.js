@@ -18,6 +18,7 @@ goog.provide('r5js.RootEnvironment');
 
 
 goog.require('r5js.UnboundVariable');
+goog.require('r5js.IEnvironment');
 
 /**
  * @param {!r5js.IEnvironment} delegate Environment used for most lookups.
@@ -31,6 +32,7 @@ r5js.RootEnvironment = function(delegate) {
      */
     this.delegate_ = delegate;
 };
+r5js.IEnvironment.addImplementation(r5js.RootEnvironment);
 
 /**
  * @type {r5js.IEnvironment}
@@ -103,4 +105,10 @@ r5js.RootEnvironment.prototype.hasBinding = function(name) {
 r5js.RootEnvironment.prototype.hasBindingRecursive = function(
     name, searchClosures) {
     return this.delegate_.hasBindingRecursive(name, false);
+};
+
+
+/** @override */
+r5js.RootEnvironment.prototype.newChildEnv = function(name) {
+    return new r5js.Environment(name, this);
 };

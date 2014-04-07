@@ -177,3 +177,23 @@ r5js.IEnvironment.prototype.seal = function() {};
  */
 r5js.IEnvironment.prototype.newChildEnv = function(name) {};
 
+
+/** @const @private */
+r5js.IEnvironment.IMPLEMENTED_BY_PROP_ = '$r5js.IEnvironment';
+
+
+/**
+ * @param {*} obj
+ * @return {boolean}
+ * TODO bl temporary shim. Remove.
+ */
+r5js.IEnvironment.isImplementedBy = function(obj) {
+  return !!(obj && obj[r5js.IEnvironment.IMPLEMENTED_BY_PROP_]);
+};
+
+
+/** @param {function(new: r5js.IEnvironment, ...)} ctor */
+r5js.IEnvironment.addImplementation = function(ctor) {
+  ctor.prototype[r5js.IEnvironment.IMPLEMENTED_BY_PROP_] = true;
+};
+

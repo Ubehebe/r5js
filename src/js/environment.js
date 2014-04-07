@@ -27,6 +27,7 @@ goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.Macro');
 goog.require('r5js.Procedure');
+goog.require('r5js.IEnvironment');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.PrimitiveProcedure');
@@ -80,6 +81,7 @@ r5js.Environment = function(name, enclosingEnv) {
      */
     this.redefsOk_ = false;
 };
+r5js.IEnvironment.addImplementation(r5js.Environment);
 
 /**
  * @type {r5js.IEnvironment}
@@ -347,14 +349,5 @@ r5js.Environment.prototype.setClosuresFrom = function(otherEnv) {
 
 /** @override */
 r5js.Environment.prototype.newChildEnv = function(name) {
-  return new r5js.Environment(name, this);
-};
-
-
-/** @override
- * TODO bl: this is here temporarily to avoid a circular dependency
- * between {@link r5js.Environment} and {@link r5js.RootEnvironment}.
- */
-r5js.RootEnvironment.prototype.newChildEnv = function(name) {
   return new r5js.Environment(name, this);
 };
