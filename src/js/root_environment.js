@@ -48,10 +48,11 @@ r5js.RootEnvironment.prototype.toString = function() {
 
 /** @override */
 r5js.RootEnvironment.prototype.get = function(name) {
-    if (this.delegate_.hasBindingRecursive(name, true)) {
+    if (this.delegate_.hasBindingRecursive(name, false /* searchClosures */) ||
+        this.delegate_.hasClosure(name)) {
         return this.delegate_.get(name);
     } else if (this.lookaside_ &&
-        this.lookaside_.hasBindingRecursive(name, true)) {
+        this.lookaside_.hasBindingRecursive(name, false /* searchClosures */)) {
         return this.lookaside_.get(name);
     } else {
         throw new r5js.UnboundVariable(name + ' in env ' + this.toString());

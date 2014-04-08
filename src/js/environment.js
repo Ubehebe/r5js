@@ -155,7 +155,7 @@ r5js.Environment.prototype.get = function(name) {
 
         // Redirects for free ids in macro transcriptions
         if (r5js.IEnvironment.isImplementedBy(maybe) &&
-            maybe.hasBindingRecursive(name))
+            maybe.hasBindingRecursive(name, false /* searchClosures */))
             return maybe.get(name);
         /* We store primitive and non-primitive procedures unwrapped,
          but wrap them in a Datum if they are requested through get.
