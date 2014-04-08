@@ -300,7 +300,8 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
 
     // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
       else {
-        var desugaredOp = operatorNode.desugar(env);
+        var desugaredOp = /** @type {!r5js.Continuable} */ (
+            operatorNode.desugar(env));
         var lastContinuation = desugaredOp.getLastContinuable().continuation;
         var opName = lastContinuation.lastResultName;
         lastContinuation.nextContinuable = r5js.procs.newProcCall(
@@ -521,7 +522,8 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
         _.one(Nonterminals.CONSEQUENT),
         _.one(Nonterminals.ALTERNATE)).
     desugar(function(node, env) {
-      var test = node.at(Nonterminals.TEST).desugar(env, true);
+      var test = /** @type {!r5js.Continuable} */ (
+          node.at(Nonterminals.TEST).desugar(env, true));
       var consequent = node.at(Nonterminals.CONSEQUENT).
           desugar(env, true);
       var alternate = node.at(Nonterminals.ALTERNATE).
@@ -544,7 +546,8 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
         _.one(Nonterminals.TEST),
         _.one(Nonterminals.CONSEQUENT)).
     desugar(function(node, env) {
-      var test = node.at(Nonterminals.TEST).desugar(env, true);
+      var test = /** @type {!r5js.Continuable} */ (
+          node.at(Nonterminals.TEST).desugar(env, true));
       var consequent = node.at(Nonterminals.CONSEQUENT).
           desugar(env, true);
 
@@ -583,8 +586,10 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.list(
       // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
       var variable = /** @type {!r5js.ast.SimpleDatum} */ (
           node.at(Nonterminals.VARIABLE));
-      var desugaredExpr = variable.getNextSibling().desugar(env, true);
-      var lastContinuable = desugaredExpr.getLastContinuable();
+      var desugaredExpr = /** @type {!r5js.Continuable} */ (
+          variable.getNextSibling().desugar(env, true));
+      var lastContinuable = /** @type {!r5js.Continuable} */ (
+          desugaredExpr.getLastContinuable());
       var cpsName = lastContinuable.continuation.lastResultName;
       lastContinuable.continuation.nextContinuable =
           r5js.procs.newAssignment(
@@ -1011,8 +1016,8 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
         desugar(function(node, env) {
       var kw = (/** @type {!r5js.ast.Identifier} */ (node.at(
           Nonterminals.KEYWORD))).getPayload();
-      var macro = node.at(Nonterminals.TRANSFORMER_SPEC).
-          desugar(env);
+      var macro = /** @type {!r5js.Macro} */ (node.at(Nonterminals.TRANSFORMER_SPEC).
+          desugar(env));
       if (!macro.allPatternsBeginWith(kw))
         throw new r5js.MacroError(kw, 'all patterns must begin with ' + kw);
       var anonymousName = newAnonymousLambdaName();

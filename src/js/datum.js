@@ -31,6 +31,9 @@ r5js.DesugarFunc;
 
 
 /**
+ * @implements {r5js.runtime.ObjectValue} TODO bl remove.
+ * This illustrates the fundamental confusion between runtime values
+ * and the AST.
  * @struct
  * @constructor
  */
@@ -194,6 +197,7 @@ r5js.Datum.prototype.resetDesugars = function() {
  * @param {!r5js.IEnvironment} env TODO bl
  * @param {boolean=} opt_forceContinuationWrapper TODO bl document
  * @return {!r5js.Datum|!r5js.Continuable|!r5js.ITransformer|!r5js.Macro|null}
+ * @suppress {checkTypes} TODO bl
  */
 r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
     var desugarFn = (this.desugars_ && this.nextDesugar_ >= 0) ?

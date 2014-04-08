@@ -31,6 +31,7 @@ goog.require('r5js.InternalInterpreterError');
  *
  * @param {?} subtype
  * @param {!r5js.Continuation} continuation The continuation.
+ * @implements {r5js.runtime.ObjectValue} TODO bl not appropriate?
  * @constructor
  */
 r5js.Continuable = function(subtype, continuation) {

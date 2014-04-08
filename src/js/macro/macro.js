@@ -34,6 +34,7 @@ goog.require('r5js.parse.Terminals');
  * @param {r5js.Datum} rules
  * @param {!r5js.IEnvironment} definitionEnv
  * @param {!Array.<!r5js.Transformer>=} opt_transformers
+ * @implements {r5js.runtime.ObjectValue}
  * @struct
  * @constructor
  */

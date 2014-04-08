@@ -81,7 +81,7 @@ r5js.ProcCall.prototype.tryFFI = function(
                 break;
         }
 
-        this.bindResult(continuation, ans);
+        this.bindResult(continuation, /** @type {!r5js.runtime.Value} */ (ans));
         resultStruct.ans = ans;
         resultStruct.nextContinuable = continuation.nextContinuable;
     }

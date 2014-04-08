@@ -19,6 +19,7 @@ goog.provide('r5js.ITransformer');
 
 
 /**
+ * @extends {r5js.runtime.ObjectValue} TODO bl not appropriate?
  * @interface
  */
 r5js.ITransformer = function() {};

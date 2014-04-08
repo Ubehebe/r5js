@@ -50,11 +50,7 @@ r5js.Environment = function(name, enclosingEnv) {
         // useful for debugging console.log('created env ' + this + ' referencing ' + enclosingEnv);
     }
 
-    /**
-     * @type {!Object.<string,*>}
-     * @private
-     * TODO bl: narrow the type of the value.
-     */
+    /** @const @private {!Object.<string,r5js.runtime.Value>} */
     this.bindings_ = {};
 
     /**

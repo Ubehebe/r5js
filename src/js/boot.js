@@ -84,12 +84,12 @@ r5js.boot = function(syntaxLib, procLib, logger) {
  */
 function install(lib, env, logger) {
   return r5js.trampoline(
-      new r5js.Parser(
+      /** @type {!r5js.Continuable} */ (new r5js.Parser(
       /** @type {!r5js.Datum} */ (new r5js.Reader(
       new r5js.Scanner(lib)
       ).read())
       ).parse()
-            .desugar(env).setStartingEnv(env),
+            .desugar(env)).setStartingEnv(env),
       r5js.InputPort.NULL,
       r5js.OutputPort.NULL,
       logger);

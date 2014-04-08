@@ -2,7 +2,10 @@ goog.provide('r5js.PrimitiveProcedure');
 
 
 
-/** @interface */
+/**
+ * @extends {r5js.runtime.ObjectValue}
+ * @interface
+ */
 r5js.PrimitiveProcedure = function() {};
 
 

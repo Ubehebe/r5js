@@ -719,7 +719,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
 /**
  * @param {!r5js.Continuation} continuation
- * @param {*} val TODO bl.
+ * @param {!r5js.runtime.Value} val
  */
 r5js.ProcCall.prototype.bindResult = function(continuation, val) {
 

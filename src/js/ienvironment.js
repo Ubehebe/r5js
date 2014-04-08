@@ -45,6 +45,7 @@ goog.provide('r5js.IEnvironment');
  * function, you can use {@link r5js.IEnvironment.getProcedure} to avoid the
  * wrapping and unwrapping.
  *
+ * @extends {r5js.runtime.ObjectValue}
  * @interface
  */
 r5js.IEnvironment = function() {};
@@ -52,8 +53,7 @@ r5js.IEnvironment = function() {};
 
 /**
  * @param {string} name Name of the binding.
- * @param {*} val Value of the binding.
- * TODO bl: tighten the type of the value.
+ * @param {!r5js.runtime.Value} val Value of the binding.
  */
 r5js.IEnvironment.prototype.addBinding = function(name, val) {};
 
@@ -153,7 +153,7 @@ r5js.IEnvironment.prototype.hasBindingRecursive = function(name) {};
  * We use the isTopLevel parameter to perform the override mentioned.
  *
  * @param {string} name Name of the binding.
- * @param {*} newVal New value of the binding.
+ * @param {!r5js.runtime.Value} newVal New value of the binding.
  * @param {boolean} isTopLevel True iff the binding should be top-level.
  */
 r5js.IEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {};
