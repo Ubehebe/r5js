@@ -64,7 +64,7 @@ r5js.boot = function(syntaxLib, procLib, logger) {
      (remembering to clone the macros and set their backlinks correctly).
      Ugh. */
 
-  var r5RSEnv = nullEnv.clone('scheme-report-environment-5');
+  var r5RSEnv = nullEnv.clone();
   r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, r5js.js.Environment.get());
   logger.info('installed primitive procedures ok');
   install(procLib, r5RSEnv, logger);

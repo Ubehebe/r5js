@@ -88,11 +88,8 @@ r5js.Environment.prototype.allowRedefs = function() {
     return this;
 };
 
-/**
- * @param {string} name Name for the cloned environment.
- * @return {!r5js.Environment} A clone of this environment.
- */
-r5js.Environment.prototype.clone = function(name) {
+/** @return {!r5js.Environment} A clone of this environment. */
+r5js.Environment.prototype.clone = function() {
 
       if (this.enclosingEnv_) {
         throw new r5js.InternalInterpreterError('clone should only be used during '
