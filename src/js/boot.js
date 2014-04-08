@@ -36,7 +36,7 @@ goog.require('r5js.trampoline');
  * @return {!r5js.IEnvironment} The R5RS environment.
  */
 r5js.boot = function(syntaxLib, procLib, logger) {
-  var nullEnv = new r5js.Environment('null-environment-5', null);
+  var nullEnv = new r5js.Environment(null /* enclosingEnv */);
   install(syntaxLib, nullEnv, logger);
   nullEnv.seal();
 

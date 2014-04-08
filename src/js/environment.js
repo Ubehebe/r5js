@@ -35,16 +35,11 @@ goog.require('r5js.UnboundVariable');
 
 
 /**
- * @param {string|null} name The environment's name. Just for pretty-printing.
- *     If null, one is created.
  * @param {r5js.IEnvironment} enclosingEnv The enclosing environment, if any.
  * @constructor
  * @implements {r5js.IEnvironment}
  */
-r5js.Environment = function(name, enclosingEnv) {
-    /** @const @private {string} */
-    this.name_ = goog.isNull(name) ? ('' + goog.getUid(this)) : name;
-
+r5js.Environment = function(enclosingEnv) {
     if (enclosingEnv) {
         this.enclosingEnv_ = enclosingEnv;
         // useful for debugging console.log('created env ' + this + ' referencing ' + enclosingEnv);
@@ -104,7 +99,7 @@ r5js.Environment.prototype.clone = function(name) {
         + 'interpreter bootstrapping');
       }
 
-    var cloned = new r5js.Environment(name, null);
+    var cloned = new r5js.Environment(null /* enclosingEnv */);
 
     for (var name_ in this.bindings_) {
         var val = this.bindings_[name_];
@@ -169,7 +164,7 @@ r5js.Environment.prototype.get = function(name) {
     else if (this.enclosingEnv_) {
         return this.enclosingEnv_.get(name);
     } else {
-        throw new r5js.UnboundVariable(name + ' in env ' + this.name_);
+        throw new r5js.UnboundVariable(name + ' in env');
     }
 };
 
@@ -216,8 +211,7 @@ r5js.Environment.prototype.addClosure = function(name, proc) {
     if (this.sealed) {
         throw new r5js.InternalInterpreterError('tried to bind '
             + name
-            + ' in sealed environment '
-            + this.name_);
+            + ' in sealed environment');
     } else if (!(proc instanceof r5js.Procedure)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     } else if (this.closures_[name]) {
@@ -301,11 +295,6 @@ r5js.Environment.prototype.addBinding = function(name, val) {
             + name
             + ' in same env, not allowed');
     }
-};
-
-/** @override */
-r5js.Environment.prototype.toString = function() {
-    return this.name_;
 };
 
 

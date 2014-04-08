@@ -39,7 +39,7 @@ r5js.Pipeline = function() {};
 /** @override */
 r5js.Pipeline.prototype.setRootEnv = function(rootEnv) {
   this.rootEnv = rootEnv;
-  this.env = new r5js.Environment('global', rootEnv);
+  this.env = new r5js.Environment(rootEnv);
 };
 
 
@@ -76,7 +76,7 @@ r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
 /** @override */
 r5js.Pipeline.prototype.desugar = function(root, replMode) {
   if (!replMode) {
-    this.env = new r5js.Environment('global', this.rootEnv);
+    this.env = new r5js.Environment(this.rootEnv);
   }
   return root.desugar(this.env, false).setStartingEnv(this.env);
 };

@@ -79,7 +79,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
   /**
      * @type {!r5js.IEnvironment}
      */
-  this.env = new r5js.Environment(this.name_, env);
+  this.env = new r5js.Environment(env);
 
   /** @const @private {!Array.<string>} */
   this.formalsArray_ = formalsArray;
@@ -874,8 +874,7 @@ r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
          Otherwise create a new environment pointing back to the current one. */
     var newEnv = proc.isTailCall(continuation) ?
         this.env.allowRedefs() :
-        new r5js.Environment(null /* name */, proc.env).
-            addClosuresFrom(proc.env);
+        new r5js.Environment(proc.env).addClosuresFrom(proc.env);
 
     /* Remember to discard the new environment
          at the end of the procedure call. */
@@ -905,7 +904,7 @@ r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
 r5js.ProcCall.prototype.tryMacroUse = function(
     macro, continuation, resultStruct, parserProvider) {
 
-  var newEnv = new r5js.Environment(null /* name */, this.env);
+  var newEnv = new r5js.Environment(this.env);
   var newParseTree = macro.transcribe(
       this.reconstructDatum(),
       newEnv,

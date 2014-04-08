@@ -1028,7 +1028,7 @@ PrimitiveProcedures['null-environment'] = _.unary(function(num) {
     throw new r5js.InternalInterpreterError(
         'unsupported null environment ' + num);
   }
-  return new r5js.Environment('', r5js.PrimitiveProcedures.nullEnv_);
+  return new r5js.Environment(r5js.PrimitiveProcedures.nullEnv_);
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
@@ -1036,7 +1036,7 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
     throw new r5js.InternalInterpreterError(
         'unsupported scheme report environment ' + num);
   }
-  return new r5js.Environment('', r5js.PrimitiveProcedures.r5RSEnv_);
+  return new r5js.Environment(r5js.PrimitiveProcedures.r5RSEnv_);
 }, r5js.DatumType.NUMBER);
 
 
