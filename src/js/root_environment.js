@@ -101,6 +101,12 @@ r5js.RootEnvironment.prototype.hasBinding = function(name) {
     return this.delegate_.hasBinding(name);
 };
 
+
+/** @override */
+r5js.RootEnvironment.prototype.hasClosure = function(name) {
+    return this.delegate_.hasClosure(name);
+};
+
 /** @override */
 r5js.RootEnvironment.prototype.hasBindingRecursive = function(
     name, searchClosures) {
