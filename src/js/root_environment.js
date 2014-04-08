@@ -34,12 +34,6 @@ r5js.RootEnvironment = function(delegate) {
 };
 r5js.IEnvironment.addImplementation(r5js.RootEnvironment);
 
-/**
- * @type {r5js.IEnvironment}
- * @private
- * TODO bl: what the heck is a lookaside environment?
- */
-r5js.RootEnvironment.prototype.lookaside_;
 
 /** @override */
 r5js.RootEnvironment.prototype.toString = function() {
@@ -51,9 +45,6 @@ r5js.RootEnvironment.prototype.get = function(name) {
     if (this.delegate_.hasBindingRecursive(name) ||
         this.delegate_.hasClosure(name)) {
         return this.delegate_.get(name);
-    } else if (this.lookaside_ &&
-        this.lookaside_.hasBindingRecursive(name)) {
-        return this.lookaside_.get(name);
     } else {
         throw new r5js.UnboundVariable(name + ' in env ' + this.toString());
     }
@@ -63,8 +54,6 @@ r5js.RootEnvironment.prototype.get = function(name) {
 r5js.RootEnvironment.prototype.getProcedure = function(name) {
     if (this.delegate_.hasBinding(name)) {
         return this.delegate_.getProcedure(name);
-    } else if (this.lookaside_ && this.lookaside_.hasBinding(name)) {
-        return this.lookaside_.getProcedure(name);
     } else {
         return null;
     }
@@ -85,12 +74,6 @@ r5js.RootEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {
     this.delegate_.mutate(name, newVal, isTopLevel);
 };
 
-/**
- * @param {!r5js.Environment} lookaside Lookaside environment.
- */
-r5js.RootEnvironment.prototype.setLookaside = function(lookaside) {
-    this.lookaside_ = lookaside;
-};
 
 /** @override */
 r5js.RootEnvironment.prototype.seal = function() {
