@@ -89,8 +89,8 @@ r5js.MacroIdTransformer_.prototype.datumsAreEqualAndUnbound_ = function(
     inputDatum, definitionEnv, useEnv) {
   var name = /** @type {string} */ (inputDatum.getPayload());
   return name === this.datum.getPayload() &&
-      !definitionEnv.hasBindingRecursive(name, false /* searchClosures */) &&
-      !useEnv.hasBindingRecursive(name, false /* searchClosures */);
+      !definitionEnv.hasBindingRecursive(name) &&
+      !useEnv.hasBindingRecursive(name);
 };
 
 

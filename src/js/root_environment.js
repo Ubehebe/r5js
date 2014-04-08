@@ -48,11 +48,11 @@ r5js.RootEnvironment.prototype.toString = function() {
 
 /** @override */
 r5js.RootEnvironment.prototype.get = function(name) {
-    if (this.delegate_.hasBindingRecursive(name, false /* searchClosures */) ||
+    if (this.delegate_.hasBindingRecursive(name) ||
         this.delegate_.hasClosure(name)) {
         return this.delegate_.get(name);
     } else if (this.lookaside_ &&
-        this.lookaside_.hasBindingRecursive(name, false /* searchClosures */)) {
+        this.lookaside_.hasBindingRecursive(name)) {
         return this.lookaside_.get(name);
     } else {
         throw new r5js.UnboundVariable(name + ' in env ' + this.toString());
@@ -109,9 +109,8 @@ r5js.RootEnvironment.prototype.hasClosure = function(name) {
 };
 
 /** @override */
-r5js.RootEnvironment.prototype.hasBindingRecursive = function(
-    name, searchClosures) {
-    return this.delegate_.hasBindingRecursive(name, false);
+r5js.RootEnvironment.prototype.hasBindingRecursive = function(name) {
+    return this.delegate_.hasBindingRecursive(name);
 };
 
 

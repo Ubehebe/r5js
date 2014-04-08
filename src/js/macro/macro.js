@@ -203,7 +203,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
       var toRename = {};
       var candidates = transformer.getTemplateRenameCandidates();
       for (var id in candidates) {
-        if (this.definitionEnv_.hasBindingRecursive(id, false))
+        if (this.definitionEnv_.hasBindingRecursive(id))
           useEnv.addBinding(id, this.definitionEnv_);
         else if (!isParserSensitiveId(id)) {
           var tmpName = newCpsName();
@@ -214,7 +214,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
              the binding here. See the logic at the end of
              TemplateBindings.prototype.addTemplateBinding. */
           if (bindings.wasRenamed(id) &&
-              useEnv.hasBindingRecursive(id, false)) {
+              useEnv.hasBindingRecursive(id)) {
             useEnv.addBinding(tmpName, useEnv.get(id));
           }
         }

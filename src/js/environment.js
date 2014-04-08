@@ -138,12 +138,10 @@ r5js.Environment.prototype.hasClosure = function(name) {
 };
 
 /** @override */
-r5js.Environment.prototype.hasBindingRecursive = function(
-    name, searchClosures) {
+r5js.Environment.prototype.hasBindingRecursive = function(name) {
     return this.hasBinding(name)
-        || (!!searchClosures && name in this.closures_)
         || (!!this.enclosingEnv_ &&
-        this.enclosingEnv_.hasBindingRecursive(name, searchClosures));
+        this.enclosingEnv_.hasBindingRecursive(name));
 };
 
 /** @override */
@@ -155,7 +153,7 @@ r5js.Environment.prototype.get = function(name) {
 
         // Redirects for free ids in macro transcriptions
         if (r5js.IEnvironment.isImplementedBy(maybe) &&
-            maybe.hasBindingRecursive(name, false /* searchClosures */))
+            maybe.hasBindingRecursive(name))
             return maybe.get(name);
         /* We store primitive and non-primitive procedures unwrapped,
          but wrap them in a Datum if they are requested through get.

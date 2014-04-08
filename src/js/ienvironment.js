@@ -138,12 +138,10 @@ r5js.IEnvironment.prototype.hasClosure = function(name) {};
 
 /**
  * @param {string} name Name of the binding to look up.
- * @param {boolean} searchClosures True iff closures should be searched.
  * @return {boolean} True iff the environment, or any of its enclosing
  * environments, has a binding for the name.
  */
-r5js.IEnvironment.prototype.hasBindingRecursive = function(
-    name, searchClosures) {};
+r5js.IEnvironment.prototype.hasBindingRecursive = function(name) {};
 
 
 /**
