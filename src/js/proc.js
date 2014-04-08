@@ -24,6 +24,7 @@ goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
+// TODO bl circular dependency goog.require('r5js.Environment');
 goog.require('r5js.EvalError');
 goog.require('r5js.FFIError');
 goog.require('r5js.IllegalEmptyApplication');
@@ -78,7 +79,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
   /**
      * @type {!r5js.IEnvironment}
      */
-  this.env = env.newChildEnv(this.name_);
+  this.env = new r5js.Environment(this.name_, env);
 
   /** @const @private {!Array.<string>} */
   this.formalsArray_ = formalsArray;

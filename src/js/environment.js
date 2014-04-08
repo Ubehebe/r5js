@@ -338,9 +338,3 @@ r5js.Environment.prototype.mutate = function(name, newVal, isTopLevel) {
 r5js.Environment.prototype.setClosuresFrom = function(otherEnv) {
   this.closures_ = otherEnv.closures_;
 };
-
-
-/** @override */
-r5js.Environment.prototype.newChildEnv = function(name) {
-  return new r5js.Environment(name, this);
-};
