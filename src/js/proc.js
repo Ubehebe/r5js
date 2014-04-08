@@ -53,6 +53,7 @@ goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Literal');
+goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 goog.require('r5js.datumutil');
 
 
@@ -783,7 +784,7 @@ r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
       this.firstOperand.getPayload()), src, this.isTopLevelAssignment);
   /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
-  this.bindResult(continuation, null);
+  this.bindResult(continuation, r5js.runtime.UNSPECIFIED_VALUE);
   resultStruct.nextContinuable = continuation.nextContinuable;
 };
 

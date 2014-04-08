@@ -20,6 +20,7 @@ goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
 /**
@@ -89,7 +90,10 @@ r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
  */
 r5js.datumutil.maybeWrapResult = function(result, opt_type) {
 
-  if (result === null ||
+  if (result === null) {
+    // TODO bl don't allow passing in null
+    return r5js.runtime.UNSPECIFIED_VALUE;
+  } else if (result === r5js.runtime.UNSPECIFIED_VALUE ||
       result instanceof r5js.Datum ||
       result instanceof r5js.Continuation ||
       result instanceof r5js.Macro ||
@@ -98,9 +102,7 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
       r5js.InputPort.isImplementedBy(result) ||
       r5js.OutputPort.isImplementedBy(result)) {
     return result; // no-op, strictly for convenience
-  }
-
-  if (opt_type === r5js.DatumType.CHARACTER) {
+  } else if (opt_type === r5js.DatumType.CHARACTER) {
     return new r5js.ast.Character(/** @type {string} */ (result));
   } else if (opt_type === r5js.DatumType.NUMBER) {
     return new r5js.ast.Number(/** @type {number} */ (result));

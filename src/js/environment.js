@@ -25,6 +25,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.Macro');
+goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 goog.require('r5js.Procedure');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.InputPort');
@@ -45,7 +46,7 @@ r5js.Environment = function(enclosingEnv) {
         // useful for debugging console.log('created env ' + this + ' referencing ' + enclosingEnv);
     }
 
-    /** @const @private {!Object.<string,r5js.runtime.Value>} */
+    /** @const @private {!Object.<string,!r5js.runtime.Value>} */
     this.bindings_ = {};
 
     /**
@@ -53,12 +54,6 @@ r5js.Environment = function(enclosingEnv) {
      * @private
      */
     this.closures_ = {};
-
-    /**
-     * @type {!r5js.Datum}
-     * @private
-     */
-    this.unspecifiedSentinel_ = new r5js.Datum();
 
     /**
      * @type {boolean}
@@ -142,7 +137,7 @@ r5js.Environment.prototype.get = function(name) {
             return new r5js.ast.Lambda(name,
                 /** @type {!r5js.PrimitiveProcedure|!r5js.Procedure} */ (
                     maybe));
-        else if (maybe === this.unspecifiedSentinel_)
+        else if (maybe === r5js.runtime.UNSPECIFIED_VALUE)
             return maybe;
         else if (maybe instanceof r5js.Datum)
             return new r5js.Ref(maybe);
@@ -247,13 +242,8 @@ r5js.Environment.prototype.addBinding = function(name, val) {
              || r5js.InputPort.isImplementedBy(val)
              || r5js.OutputPort.isImplementedBy(val)) {
              this.bindings_[name] = val;
-         } else if (val === null) {
-            /* A value of null on the trampoline means an unspecified value.
-             For example, the JavaScript implementation of display returns null.
-             In order to distinguish between an unbound variable (error) and
-             a variable bound to an unspecified value (not an error), we use
-             r5js.Environment.prototype.unspecifiedSentinel_. */
-            this.bindings_[name] = this.unspecifiedSentinel_;
+         } else if (val === r5js.runtime.UNSPECIFIED_VALUE) {
+            this.bindings_[name] = val;
         } else if (r5js.PrimitiveProcedure.isImplementedBy(val)
             || val instanceof r5js.Procedure /* non-primitive procedure */
             || val instanceof r5js.Continuation /* call-with-current-continuation etc. */
@@ -303,7 +293,7 @@ r5js.Environment.prototype.mutate = function(name, newVal, isTopLevel) {
         if (r5js.IEnvironment.isImplementedBy(maybeBinding)) {
             maybeBinding.mutate(name, newVal, isTopLevel);
         } else {
-            this.bindings_[name] = null;
+            delete this.bindings_[name];
             this.addBinding(name, newVal);
         }
     } else if (this.enclosingEnv_) {

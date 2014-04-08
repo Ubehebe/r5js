@@ -29,6 +29,7 @@ goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
+goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
 /** @private {r5js.IEnvironment} */ r5js.PrimitiveProcedures.nullEnv_;
@@ -431,7 +432,7 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
     helper.setCar(car);
   }
 
-  return null; // unspecified return value
+  return r5js.runtime.UNSPECIFIED_VALUE;
 });
 
 PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
@@ -459,7 +460,7 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
     p.markDirty();
   }
 
-  return null; // unspecified return value
+  return r5js.runtime.UNSPECIFIED_VALUE;
 });
 
 // Vector-related procedures
@@ -510,7 +511,7 @@ PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
 
   // todo bl requires a cycle-labeling procedure like set-car! and set-cdr!
 
-  return null;
+  return r5js.runtime.UNSPECIFIED_VALUE;
 });
 
 // Symbol-related procedures
@@ -610,7 +611,7 @@ PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
 
   str.setPayload(s.substr(0, kNum) + c.getPayload() + s.substr(kNum + 1));
 
-  return null; // unspecified return value
+  return r5js.runtime.UNSPECIFIED_VALUE;
 });
 
 // Vector-related procedures
@@ -692,12 +693,12 @@ PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
 
 PrimitiveProcedures['close-input-port'] = _.unary(function(datum) {
   datum.getPayload().close();
-  return null;
+  return r5js.runtime.UNSPECIFIED_VALUE;
 }, r5js.DatumType.INPUT_PORT);
 
 PrimitiveProcedures['close-output-port'] = _.unary(function(datum) {
   datum.getPayload().close();
-  return null;
+  return r5js.runtime.UNSPECIFIED_VALUE;
 }, r5js.DatumType.OUTPUT_PORT);
 
 PrimitiveProcedures['current-input-port'] = _.nullaryWithCurrentPorts(
@@ -720,7 +721,7 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
           datum.stringForOutputMode(r5js.OutputMode.DISPLAY) :
           String(datum);
       outputPort.write(toWrite);
-      return null; // unspecified return value
+      return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
 PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
@@ -766,7 +767,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
           datum.stringForOutputMode(r5js.OutputMode.WRITE) :
           String(datum);
       outputPortToUse.write(toWrite);
-      return null; // unspecified return value
+      return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
 PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
@@ -781,7 +782,7 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
             outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
       }
       outputPort.write(charNode.getPayload());
-      return null; // unspecified return value
+      return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
 // Control flow related procedures
@@ -837,7 +838,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     resultStruct.nextContinuable = actualProcCall;
   }
 
-  return null;
+  return r5js.runtime.UNSPECIFIED_VALUE;
 });
 
 
@@ -915,7 +916,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
           procCall.firstOperand,
           null,
           new r5js.Continuation(before2));
-      return null;
+      return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
 
@@ -944,7 +945,7 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
           /** @type {!r5js.IEnvironment} */ (procCall.env));
       producerContinuation.nextContinuable = consumerCall;
       resultStruct.nextContinuable = producerCall;
-      return null;
+      return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
 
@@ -981,7 +982,7 @@ PrimitiveProcedures['call-with-current-continuation'] =
       dummyProcCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.env));
       resultStruct.nextContinuable = dummyProcCall;
-      return null;
+      return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
 PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
@@ -1017,7 +1018,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
     continuation.nextContinuable.setStartingEnv(procCall.env);
   }
   resultStruct.nextContinuable = continuation.nextContinuable;
-  return null;
+  return r5js.runtime.UNSPECIFIED_VALUE;
 });
 
 
