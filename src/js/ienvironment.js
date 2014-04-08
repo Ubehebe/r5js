@@ -129,14 +129,6 @@ r5js.IEnvironment.prototype.hasBinding = function(name) {};
 
 
 /**
- * @param {string} name
- * @return {boolean} True iff the environment has a closure for the name.
- * TODO bl: temporary shim. Remove.
- */
-r5js.IEnvironment.prototype.hasClosure = function(name) {};
-
-
-/**
  * @param {string} name Name of the binding to look up.
  * @return {boolean} True iff the environment, or any of its enclosing
  * environments, has a binding for the name.

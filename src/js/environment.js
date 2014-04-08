@@ -128,11 +128,6 @@ r5js.Environment.prototype.hasBinding = function(name) {
 
 
 /** @override */
-r5js.Environment.prototype.hasClosure = function(name) {
-    return name in this.closures_;
-};
-
-/** @override */
 r5js.Environment.prototype.hasBindingRecursive = function(name) {
     return this.hasBinding(name)
         || (!!this.enclosingEnv_ &&
