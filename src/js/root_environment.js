@@ -42,21 +42,12 @@ r5js.RootEnvironment.prototype.toString = function() {
 
 /** @override */
 r5js.RootEnvironment.prototype.get = function(name) {
-    if (this.delegate_.hasBindingRecursive(name) ||
-        this.delegate_.hasClosure(name)) {
-        return this.delegate_.get(name);
-    } else {
-        throw new r5js.UnboundVariable(name + ' in env ' + this.toString());
-    }
+    return this.delegate_.get(name);
 };
 
 /** @override */
 r5js.RootEnvironment.prototype.getProcedure = function(name) {
-    if (this.delegate_.hasBinding(name)) {
-        return this.delegate_.getProcedure(name);
-    } else {
-        return null;
-    }
+  return this.delegate_.getProcedure(name);
 };
 
 /** @override */
@@ -99,5 +90,5 @@ r5js.RootEnvironment.prototype.hasBindingRecursive = function(name) {
 
 /** @override */
 r5js.RootEnvironment.prototype.newChildEnv = function(name) {
-    return new r5js.Environment(name, this);
+    return this.delegate_.newChildEnv(name);
 };
