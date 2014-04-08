@@ -187,7 +187,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
     var maybe = this.bindings_[name];
 
     if (maybe != null) {
-        if (maybe instanceof r5js.Environment) {
+        if (r5js.IEnvironment.isImplementedBy(maybe)) {
             return maybe.getProcedure(name);
         } else if (r5js.PrimitiveProcedure.isImplementedBy(maybe)
             || maybe instanceof r5js.Procedure
@@ -323,7 +323,7 @@ r5js.Environment.prototype.toString = function() {
 r5js.Environment.prototype.mutate = function(name, newVal, isTopLevel) {
     var maybeBinding = this.bindings_[name];
     if (maybeBinding != null || isTopLevel) {
-        if (maybeBinding instanceof r5js.Environment) {
+        if (r5js.IEnvironment.isImplementedBy(maybeBinding)) {
             maybeBinding.mutate(name, newVal, isTopLevel);
         } else {
             this.bindings_[name] = null;
