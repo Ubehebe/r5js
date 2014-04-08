@@ -93,7 +93,7 @@ r5js.test.getApi_ = function(sources) {
               sources.syntax,
               sources.procedures,
               goog.log.getLogger('r5js'));
-          pipeline.setRootEnv(/** @type {!r5js.RootEnvironment} */ (r5RSEnv));
+          pipeline.setRootEnv(r5RSEnv);
         });
     r5js.test.api_ = new r5js.PublicApi(pipeline);
   }
