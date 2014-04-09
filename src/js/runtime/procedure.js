@@ -26,29 +26,28 @@ goog.require('r5js.parse.Terminals');
  * @param {string=} opt_name The procedure's name. It has no semantic
  *     importance; it's just used for pretty-printing debugs and messages
  *     to the user. If not given, one will be created.
+ * @struct
  * @constructor
  */
 r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
-  /** @const @private {boolean} */
-  this.isDotted_ = isDotted;
-
-  /** @const @private {string} */
-  this.name_ = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
-
-  /**
-     * @type {!r5js.IEnvironment}
-     */
-  this.env = new r5js.Environment(env);
 
   /** @const @private {!Array.<string>} */
   this.formalsArray_ = formalsArray;
+
+  /** @const @private */ this.isDotted_ = isDotted;
+
+  /** @const @private */ this.name_ =
+      goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
+
+  /** @const @private {!r5js.IEnvironment} */
+  this.env_ = new r5js.Environment(env);
 
   if (bodyStart) {
     var helper = new r5js.Procedure.LetrecBindingsHelper_();
     var letrecBindings = helper.collectLetrecBindings(bodyStart);
 
     if (letrecBindings.isEmpty()) {
-      this.body = helper.getLast().sequence(this.env);
+      this.body = helper.getLast().sequence(this.env_);
     } else {
       var letrec = new r5js.ast.List(letrecBindings.toSiblings());
       letrec.setNextSibling(/** @type {!r5js.Datum} */ (helper.getLast()));
@@ -69,7 +68,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
  */
 r5js.Procedure.prototype.cloneWithEnv = function(env) {
   var ans = new r5js.Procedure(this.formalsArray_, this.isDotted_, null, env);
-  ans.env.setClosuresFrom(this.env); // non-cloning ok?
+  ans.env_.setClosuresFrom(this.env_); // non-cloning ok?
   ans.body = this.body;
   ans.lastContinuable = this.lastContinuable;
   return ans;

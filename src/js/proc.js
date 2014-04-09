@@ -632,6 +632,7 @@ r5js.ProcCall.prototype.tryPrimitiveProcedure = function(
  * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum.
+ * @suppress {accessControls} for {@link r5js.Procedure.env_}
  */
 r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
     proc, continuation, resultStruct, parserProvider) {
@@ -652,7 +653,7 @@ r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
          Otherwise create a new environment pointing back to the current one. */
     var newEnv = proc.isTailCall(continuation) ?
         this.env.allowRedefs() :
-        new r5js.Environment(proc.env).addClosuresFrom(proc.env);
+        new r5js.Environment(proc.env_).addClosuresFrom(proc.env_);
 
     /* Remember to discard the new environment
          at the end of the procedure call. */
