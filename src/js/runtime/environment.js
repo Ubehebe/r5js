@@ -35,8 +35,9 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 /**
  * @param {r5js.IEnvironment} enclosingEnv The enclosing environment, if any.
- * @constructor
  * @implements {r5js.IEnvironment}
+ * @struct
+ * @constructor
  */
 r5js.Environment = function(enclosingEnv) {
 
@@ -48,13 +49,15 @@ r5js.Environment = function(enclosingEnv) {
   /** @private {!Object.<string, !r5js.Procedure>} */ this.closures_ = {};
 
   /** @private */ this.redefsOk_ = false;
+
+  /** @private */ this.sealed_ = false;
 };
 r5js.IEnvironment.addImplementation(r5js.Environment);
 
 
 /** @override */
 r5js.Environment.prototype.seal = function() {
-  this.sealed = true;
+  this.sealed_ = true;
 };
 
 
@@ -185,7 +188,7 @@ r5js.Environment.prototype.addClosuresFrom = function(other) {
 
 /** @override */
 r5js.Environment.prototype.addClosure = function(name, proc) {
-  if (this.sealed) {
+  if (this.sealed_) {
     throw new r5js.InternalInterpreterError('tried to bind ' +
         name +
         ' in sealed environment');
@@ -216,7 +219,7 @@ r5js.Environment.prototype.bindingIsAcceptable_ = function(name) {
  * @override
  */
 r5js.Environment.prototype.addBinding = function(name, val) {
-  if (this.sealed) {
+  if (this.sealed_) {
     throw new r5js.InternalInterpreterError(
         'tried to bind ' +
             name +
