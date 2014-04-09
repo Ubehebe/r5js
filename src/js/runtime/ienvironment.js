@@ -16,8 +16,10 @@
 
 goog.provide('r5js.IEnvironment');
 
+
+
 /**
- * Interface abstracted from {@link r5js.Environment} and {@link RootEnvironment}.
+ * Interface abstracted from {@link r5js.Environment}.
  *
  * An Environment stores three common kinds of objects:
  * - Datums (most Scheme values: numbers, identifiers, etc.)
@@ -89,7 +91,8 @@ r5js.IEnvironment.prototype.addBinding = function(name, val) {};
  *   {@link r5js.IEnvironment} hanging off fooEnv (say, tmp-fooEnv).
  *   (We have to do this to support multiple active calls to the same
  *   procedure.) We copy all of fooEnv's closures into tmp-fooEnv as actual
- *   bound {@link r5js.Procedure}s, using {@link r5js.Environment.addClosuresFrom}.
+ *   bound {@link r5js.Procedure}s, using
+ *   {@link r5js.Environment.addClosuresFrom}.
  *   We also bind the arguments (in this case x = 10) in tmp-fooEnv,
  *   then advance to foo's body.
  *
