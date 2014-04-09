@@ -123,13 +123,6 @@ r5js.IEnvironment.prototype.getProcedure = function(name) {};
 
 /**
  * @param {string} name Name of the binding to look up.
- * @return {boolean} True iff the environment has a binding for the name.
- */
-r5js.IEnvironment.prototype.hasBinding = function(name) {};
-
-
-/**
- * @param {string} name Name of the binding to look up.
  * @return {boolean} True iff the environment, or any of its enclosing
  * environments, has a binding for the name.
  */

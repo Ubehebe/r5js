@@ -93,14 +93,8 @@ r5js.Environment.prototype.clone = function() {
 
 
 /** @override */
-r5js.Environment.prototype.hasBinding = function(name) {
-  return name in this.bindings_;
-};
-
-
-/** @override */
 r5js.Environment.prototype.hasBindingRecursive = function(name) {
-  return this.hasBinding(name) ||
+  return name in this.bindings_ ||
       (!!this.enclosingEnv_ && this.enclosingEnv_.hasBindingRecursive(name));
 };
 
