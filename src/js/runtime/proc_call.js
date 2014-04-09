@@ -346,8 +346,9 @@ r5js.ProcCall.prototype.cpsify = function(
  * the small integers in {@link r5js.ProcCall.specialOps}
  * rather than Datum objects.
  * @return {boolean}
+ * @private
  */
-r5js.ProcCall.prototype.isSpecialOperator = function() {
+r5js.ProcCall.prototype.isSpecialOperator_ = function() {
   return !(this.operatorName instanceof r5js.Datum);
 };
 
@@ -405,7 +406,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
     this.setEnv(/** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()));
   }
 
-  var specialOp = this.isSpecialOperator();
+  var specialOp = this.isSpecialOperator_();
   var proc = specialOp ?
       this.operatorName :
       this.env.getProcedure(/** @type {string} */ (
