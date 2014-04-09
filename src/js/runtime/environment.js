@@ -21,11 +21,9 @@ goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.IEnvironment');
-goog.require('r5js.InputPort');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
-goog.require('r5js.OutputPort');
 goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
@@ -240,48 +238,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
     val.setDefinitionEnv(this);
   }
 
-  // Store primitive values directly.
-  if (typeof val === 'number' ||
-      typeof val === 'string' ||
-      val === true ||
-      val === false ||
-      val === r5js.runtime.UNSPECIFIED_VALUE ||
-      r5js.IEnvironment.isImplementedBy(val) ||
-      r5js.InputPort.isImplementedBy(val) ||
-      r5js.OutputPort.isImplementedBy(val) ||
-      r5js.PrimitiveProcedure.isImplementedBy(val) ||
-      val instanceof r5js.Procedure /* non-primitive procedure */ ||
-      val instanceof r5js.Continuation /* call/cc, etc. */ ||
-      val instanceof Array /* values and call-with-values */ ||
-      val instanceof r5js.Macro /* macros */ ||
-      val instanceof r5js.JsObjOrMethod /* JavaScript interop */) {
-    this.bindings_[name] = val;
-  } else if (val instanceof r5js.Datum) {
-    // lots of stuff, including wrapped procedures
-    /* r5js.Environment.prototype.get should honor requests to store
-             both unwrapped procedures (= JavaScript functions and
-             SchemeProcedure objects) and those things wrapped in a Datum.
-             In the latter case, we should store the unwrapped thing.
-
-             We can see the first pathway in the desugar functions
-             for procedures: they explicitly call addBinding with
-             a SchemeProcedure as the second argument. The second pathway
-             happens on the trampoline, for example:
-
-             (define foo +)
-
-             r5js.Environment.protoype.get will return + wrapped in a Datum,
-             then the trampoline will call
-             r5js.Environment.prototype.addBinding with this wrapped procedure
-             as the second argument. */
-    this.bindings_[name] = val.unwrap();
-  } else {
-    throw new r5js.InternalInterpreterError('tried to store ' +
-        name +
-        ' = ' +
-        val +
-        ', which is not an acceptable value');
-  }
+  this.bindings_[name] = val instanceof r5js.Datum ? val.unwrap() : val;
 };
 
 
