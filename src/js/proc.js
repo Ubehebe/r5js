@@ -17,50 +17,10 @@
 goog.provide('r5js.procs');
 
 
-goog.require('r5js.Continuable');
-goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
-goog.require('r5js.Datum');
-goog.require('r5js.DatumType');
-// TODO bl circular dependency goog.require('r5js.Environment');
-goog.require('r5js.EvalError');
-goog.require('r5js.FFIError');
-goog.require('r5js.IllegalEmptyApplication');
-goog.require('r5js.IncorrectNumArgs');
-goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.JsObjOrMethod');
-goog.require('r5js.IEnvironment');
-goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.Lambda');
-goog.require('r5js.ast.List');
-goog.require('r5js.ast.Quote');
-goog.require('r5js.Macro');
-goog.require('r5js.parse.Nonterminals');
-goog.require('r5js.parse.Terminals');
-goog.require('r5js.MacroError');
-goog.require('r5js.Procedure');
-goog.require('r5js.PrimitiveProcedure');
-goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.ast.Quasiquote');
-goog.require('r5js.QuasiquoteError');
 goog.require('r5js.ProcCall');
-goog.require('r5js.ast.Quote');
-goog.require('r5js.ast.SimpleDatum');
-goog.require('r5js.datumutil');
-goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
-goog.require('r5js.TooFewArgs');
 goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.Literal');
-goog.require('r5js.runtime.UNSPECIFIED_VALUE');
-goog.require('r5js.datumutil');
-
-
-/**
- * Utility functions for dealing with procedures and procedure calls.
- */
-r5js.procs = {};
 
 
 /**
@@ -92,8 +52,7 @@ r5js.procs.newAssignment = function(dstName, srcName, continuation) {
 r5js.procs.newProcCall = function(operatorName, firstOperand, continuation) {
   return new r5js.Continuable(
       new r5js.ProcCall(operatorName, firstOperand),
-      continuation
-  );
+      continuation);
 };
 
 
