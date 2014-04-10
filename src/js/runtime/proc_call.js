@@ -134,8 +134,9 @@ r5js.ProcCall.prototype.debugString = function(
 
 /**
  * @return {!r5js.Datum}
+ * @private
  */
-r5js.ProcCall.prototype.reconstructDatum = function() {
+r5js.ProcCall.prototype.reconstructDatum_ = function() {
   var op = new r5js.ast.Identifier(this.operatorName_.getPayload());
   op.setNextSibling(this.firstOperand);
   return new r5js.SiblingBuffer().appendSibling(op).toList(r5js.ast.List);
@@ -260,7 +261,7 @@ r5js.ProcCall.prototype.tryMacroUse = function(
 
   var newEnv = new r5js.Environment(this.env);
   var newParseTree = macro.transcribe(
-      this.reconstructDatum(),
+      this.reconstructDatum_(),
       newEnv,
       parserProvider
       );
@@ -273,7 +274,7 @@ r5js.ProcCall.prototype.tryMacroUse = function(
 
   // useful for debugging
   // console.log('transcribed ' +
-  // this.reconstructDatum() +
+  // this.reconstructDatum_() +
   // ' => ' + newDatumTree);
 
   var newContinuable = newParseTree.desugar(newEnv, true).
