@@ -33,6 +33,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  * @param {?} firstOperand
  * TODO bl: operatorName is an identifier _datum_...I think
  * some call sites might be passing in strings...
+ * @struct
  * @constructor
  */
 r5js.ProcCall = function(operatorName, firstOperand) {
@@ -48,6 +49,10 @@ r5js.ProcCall = function(operatorName, firstOperand) {
      * @type {?}
      */
   this.firstOperand = firstOperand;
+
+  /** @type {boolean} */ this.isTopLevelAssignment = false;
+    
+  /** @type {boolean} */ this.isSyntaxAssignment = false;
 };
 
 
