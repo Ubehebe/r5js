@@ -26,21 +26,6 @@ goog.require('r5js.ast.Identifier');
 
 
 /**
- * @param {string} dstName
- * @param {string} srcName
- * @param {!r5js.Continuation} continuation
- * @return {!r5js.Continuable}
- */
-r5js.procs.newAssignment = function(dstName, srcName, continuation) {
-  var operands = new r5js.SiblingBuffer()
-        .appendSibling(new r5js.ast.Identifier(dstName))
-        .appendSibling(new r5js.ast.Identifier(srcName))
-        .toSiblings();
-  return new r5js.Continuable(new r5js.Assignment(operands), continuation);
-};
-
-
-/**
  * @param {?} operatorName
  * @param {?} firstOperand
  * @param {!r5js.Continuation} continuation A continuation.

@@ -1,9 +1,12 @@
 goog.provide('r5js.Assignment');
 
 
+goog.require('r5js.Continuable');
 goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.Macro');
 goog.require('r5js.ProcCall');
+goog.require('r5js.SiblingBuffer');
+goog.require('r5js.ast.Identifier');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
@@ -85,4 +88,20 @@ r5js.Assignment.prototype.tryAssignment_ = function(
   this.bindResult(continuation, r5js.runtime.UNSPECIFIED_VALUE);
   resultStruct.nextContinuable = continuation.nextContinuable;
 };
+
+
+/**
+ * @param {string} dstName
+ * @param {string} srcName
+ * @param {!r5js.Continuation} continuation
+ * @return {!r5js.Continuable}
+ */
+r5js.Assignment.newContinuable = function(dstName, srcName, continuation) {
+  var operands = new r5js.SiblingBuffer()
+        .appendSibling(new r5js.ast.Identifier(dstName))
+        .appendSibling(new r5js.ast.Identifier(srcName))
+        .toSiblings();
+  return new r5js.Continuable(new r5js.Assignment(operands), continuation);
+};
+
 
