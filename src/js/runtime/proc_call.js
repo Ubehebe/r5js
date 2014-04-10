@@ -32,8 +32,6 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 /**
  * @param {!r5js.ast.Identifier} operatorName
  * @param {?} firstOperand
- * TODO bl: operatorName is an identifier _datum_...I think
- * some call sites might be passing in strings...
  * @struct
  * @constructor
  */
