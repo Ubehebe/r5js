@@ -39,10 +39,7 @@ r5js.ProcCall = function(operatorName, firstOperand) {
 
   /** @const @private */ this.operatorName_ = operatorName;
 
-  /**
-     * Identifiers or self-evaluating forms.
-     * @type {?}
-     */
+  /** @const @protected {?} */
   this.firstOperand = firstOperand;
 };
 
@@ -51,6 +48,12 @@ r5js.ProcCall = function(operatorName, firstOperand) {
  * @type {r5js.IEnvironment}
  */
 r5js.ProcCall.prototype.env;
+
+
+/** @return {?} TODO bl. */
+r5js.ProcCall.prototype.getFirstOperand = function() {
+  return this.firstOperand;
+};
 
 
 /**

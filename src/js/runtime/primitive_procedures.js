@@ -886,12 +886,12 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       // todo bl use a ContinuableBuffer for efficiency
 
       var procCallBefore = r5js.newProcCall(
-          procCall.firstOperand,
+          procCall.getFirstOperand(),
           null, // no arguments
           new r5js.Continuation(before2));
 
       var procCallAfter = r5js.newProcCall(
-          procCall.firstOperand.getNextSibling().getNextSibling(),
+          procCall.getFirstOperand().getNextSibling().getNextSibling(),
           null, // no arguments
           new r5js.Continuation());
 
@@ -901,7 +901,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       procCallAfter.getLastContinuable().continuation = continuation;
 
       var procCallThunk = r5js.newProcCall(
-          procCall.firstOperand.getNextSibling(),
+          procCall.getFirstOperand().getNextSibling(),
           null, // no arguments
           new r5js.Continuation(result)
           );
@@ -915,7 +915,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
          who writes to it, and call/cc is the only one who reads it.
          todo bl document why we cannot reuse procCallBefore. */
       resultStruct.beforeThunk = r5js.newProcCall(
-          procCall.firstOperand,
+          procCall.getFirstOperand(),
           null,
           new r5js.Continuation(before2));
       return r5js.runtime.UNSPECIFIED_VALUE;
@@ -934,13 +934,13 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
       var valuesName = newCpsName();
       var producerContinuation = new r5js.Continuation(valuesName);
       var producerCall = r5js.newProcCall(
-          procCall.firstOperand,
+          procCall.getFirstOperand(),
           null, // no arguments
           producerContinuation);
       producerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.env));
       var consumerCall = r5js.newProcCall(
-          procCall.firstOperand.getNextSibling(),
+          procCall.getFirstOperand().getNextSibling(),
           new r5js.ast.Identifier(valuesName),
           continuation);
       consumerCall.setStartingEnv(
@@ -980,7 +980,7 @@ PrimitiveProcedures['call-with-current-continuation'] =
         resultStruct.beforeThunk = null;
       }
       var dummyProcCall = r5js.newProcCall(
-          procCall.firstOperand, continuation, continuation);
+          procCall.getFirstOperand(), continuation, continuation);
       dummyProcCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.env));
       resultStruct.nextContinuable = dummyProcCall;
