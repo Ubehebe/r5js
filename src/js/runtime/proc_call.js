@@ -308,7 +308,8 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   var args = [proc, continuation, resultStruct, parserProvider];
 
   if (r5js.PrimitiveProcedure.isImplementedBy(proc)) {
-    this.tryPrimitiveProcedure.apply(this, args);
+    this.tryPrimitiveProcedure_(
+        proc, continuation, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Procedure) {
     this.tryNonPrimitiveProcedure.apply(this, args);
   } else if (proc instanceof r5js.Macro) {
@@ -373,8 +374,9 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
+ * @private
  */
-r5js.ProcCall.prototype.tryPrimitiveProcedure = function(
+r5js.ProcCall.prototype.tryPrimitiveProcedure_ = function(
     proc, continuation, resultStruct, parserProvider) {
 
   /* If the operands aren't simple, we'll have to take a detour to
