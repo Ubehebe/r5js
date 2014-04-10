@@ -19,6 +19,7 @@ goog.provide('r5js.procs');
 
 goog.require('r5js.Assignment');
 goog.require('r5js.Continuation');
+goog.require('r5js.IdShim');
 goog.require('r5js.ProcCall');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Identifier');
@@ -67,8 +68,7 @@ r5js.procs.newProcCall = function(operatorName, firstOperand, continuation) {
  * @return {!r5js.Continuable} The new procedure call.
  */
 function newIdShim(payload, opt_continuationName) {
-  return r5js.procs.newProcCall(
-      r5js.ProcCall.prototype.specialOps._id,
-      payload,
-      new r5js.Continuation(opt_continuationName));
+    return new r5js.Continuable(
+        new r5js.IdShim(payload),
+        new r5js.Continuation(opt_continuationName));
 }

@@ -120,9 +120,7 @@ r5js.ProcCall.prototype.debugString = function(
   var ans = '\n';
   for (var i = 0; i < indentLevel; ++i)
     ans += '\t';
-  ans += '(' + (this.operatorName instanceof r5js.ast.SimpleDatum ?
-      this.operatorName.getPayload() :
-      this.specialOps.names[this.operatorName]);
+  ans += '(' + this.operatorName.getPayload();
   if (this.env && !suppressEnv)
     ans += '|' + this.env;
   if (this.operatorName) {
@@ -163,98 +161,6 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
     }
   }
   return true;
-};
-
-
-/**
- * @param {!r5js.Continuation} continuation A continuation.
- * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
- * that will return a new Parser for the given Datum when called.
- * TODO bl too long.
- */
-r5js.ProcCall.prototype.tryIdShim = function(
-    continuation, resultStruct, parserProvider) {
-  var ans;
-
-  var arg = this.firstOperand;
-
-  /* todo bl: id shims have become quite popular for passing through
-     disparate objects on the trampoline. The logic could be made clearer. */
-  if (arg instanceof r5js.Macro)
-    ans = arg;
-  else if (r5js.PrimitiveProcedure.isImplementedBy(arg) ||
-      arg instanceof r5js.ast.Lambda)
-    ans = arg;
-  else if (arg instanceof r5js.ast.Identifier)
-    ans = this.env.get(/** @type {string} */ (arg.getPayload()));
-  else if (arg instanceof r5js.ast.Quote) {
-    var env = this.env;
-    // Do the appropriate substitutions.
-    ans = arg.replaceChildren(
-        function(node) {
-          return node instanceof r5js.ast.Identifier && node.shouldUnquote();
-        },
-        function(node) {
-          var ans = r5js.datumutil.maybeWrapResult(env.get(
-              /** @type {string} */ ((
-              /** @type {!r5js.ast.Identifier} */ (node)).
-              getPayload())));
-          // TODO bl document why we're doing this
-          if (ans instanceof r5js.Ref) {
-            ans = ans.deref();
-          }
-          if (node instanceof r5js.ast.Identifier &&
-              node.shouldUnquoteSplice()) {
-            if (ans instanceof r5js.ast.List) {
-              if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
-                ans = ans.getFirstChild();
-              } else { // `(1 ,@(list) 2) => (1 2)
-                ans = null;
-              }
-            } else throw new r5js.QuasiquoteError(ans + ' is not a list');
-          }
-          return /** @type {r5js.Datum} */ (ans);
-        });
-    // Now strip away the quote mark.
-    // the newIdOrLiteral part is for (quote quote)
-    ans = (ans instanceof r5js.ast.CompoundDatum &&
-            ans.getFirstChild()) ?
-            ans.getFirstChild() :
-            new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
-  }
-  else if (arg instanceof r5js.ast.Quasiquote) {
-    resultStruct.nextContinuable = arg.processQuasiquote(
-        /** @type {!r5js.IEnvironment} */ (this.env),
-        continuation.lastResultName,
-        parserProvider
-        ).appendContinuable(continuation.nextContinuable);
-    return;
-  } else if (arg.isImproperList()) {
-    throw new r5js.GeneralSyntaxError(arg);
-  } else if (arg instanceof r5js.ast.List) {
-    ans = arg;
-  } else if (arg instanceof r5js.ast.String) {
-    ans = arg;
-  } else {
-    ans = r5js.datumutil.maybeWrapResult(arg.getPayload());
-    if (arg.isImmutable()) {
-      ans.setImmutable();
-    }
-  }
-
-  this.bindResult(continuation, ans);
-
-  /* If we're at the end of the continuable-continuation chain and we're
-     trying to return a macro object off the trampoline, that's an error.
-     The input was a bare macro name. */
-  if (!continuation.nextContinuable && ans instanceof r5js.Macro)
-    throw new r5js.MacroError(
-        /** @type {string} */ (this.firstOperand.getPayload()),
-        'bad macro syntax');
-
-  resultStruct.ans = ans;
-  resultStruct.nextContinuable = continuation.nextContinuable;
 };
 
 
@@ -347,18 +253,6 @@ r5js.ProcCall.prototype.cpsify = function(
 
 
 /**
- * Things like set! are represented as ProcCalls whose operators are
- * the small integers in {@link r5js.ProcCall.specialOps}
- * rather than Datum objects.
- * @return {boolean}
- * @private
- */
-r5js.ProcCall.prototype.isSpecialOperator_ = function() {
-  return !(this.operatorName instanceof r5js.Datum);
-};
-
-
-/**
  * @param {!r5js.Macro} macro The macro.
  * @param {!r5js.Continuation} continuation A continuation.
  * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
@@ -411,16 +305,11 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
     this.setEnv(/** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()));
   }
 
-  var specialOp = this.isSpecialOperator_();
-  var proc = specialOp ?
-      this.operatorName :
-      this.env.getProcedure(/** @type {string} */ (
+  var proc = this.env.getProcedure(/** @type {string} */ (
       this.operatorName.getPayload()));
   var args = [proc, continuation, resultStruct, parserProvider];
 
-  if (specialOp) {
-    this.specialOps.logic[args.shift()].apply(this, args);
-  } else if (r5js.PrimitiveProcedure.isImplementedBy(proc)) {
+  if (r5js.PrimitiveProcedure.isImplementedBy(proc)) {
     this.tryPrimitiveProcedure.apply(this, args);
   } else if (proc instanceof r5js.Procedure) {
     this.tryNonPrimitiveProcedure.apply(this, args);
@@ -637,17 +526,6 @@ r5js.ProcCall.prototype.tryContinuation = function(
       break;
     }
   }
-};
-
-
-/**
- * This is my attempt at a JavaScript enum idiom. Is there a better way
- * to get guaranteed constant-time lookup given an ordinal?
- */
-r5js.ProcCall.prototype.specialOps = {
-  _id: 0,
-  names: ['id'],
-  logic: [r5js.ProcCall.prototype.tryIdShim]
 };
 
 
