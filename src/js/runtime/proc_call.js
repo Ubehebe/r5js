@@ -37,7 +37,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  */
 r5js.ProcCall = function(operatorName, firstOperand) {
 
-  /** @const */ this.operatorName = operatorName;
+  /** @const @private */ this.operatorName_ = operatorName;
 
   /**
      * Identifiers or self-evaluating forms.
@@ -111,10 +111,10 @@ r5js.ProcCall.prototype.debugString = function(
   var ans = '\n';
   for (var i = 0; i < indentLevel; ++i)
     ans += '\t';
-  ans += '(' + this.operatorName.getPayload();
+  ans += '(' + this.operatorName_.getPayload();
   if (this.env && !suppressEnv)
     ans += '|' + this.env;
-  if (this.operatorName) {
+  if (this.operatorName_) {
     for (var cur = this.firstOperand; cur; cur = cur.getNextSibling()) {
       ans += ' ' + cur.toString();
     }
@@ -131,7 +131,7 @@ r5js.ProcCall.prototype.debugString = function(
  * @return {!r5js.Datum}
  */
 r5js.ProcCall.prototype.reconstructDatum = function() {
-  var op = new r5js.ast.Identifier(this.operatorName.getPayload());
+  var op = new r5js.ast.Identifier(this.operatorName_.getPayload());
   op.setNextSibling(this.firstOperand);
   return new r5js.SiblingBuffer().appendSibling(op).toList(r5js.ast.List);
 };
@@ -144,7 +144,7 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.Datum) {
       if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
-        throw new r5js.IllegalEmptyApplication(this.operatorName.getPayload());
+        throw new r5js.IllegalEmptyApplication(this.operatorName_.getPayload());
       } else if (!(cur instanceof r5js.ast.Literal ||
           cur instanceof r5js.ast.Quote)) {
         return false;
@@ -231,7 +231,7 @@ r5js.ProcCall.prototype.cpsify = function(
 
   newCallChain.appendContinuable(
       r5js.newProcCall(
-      this.operatorName,
+      this.operatorName_,
       finalArgs.toSiblings(),
       new r5js.Continuation()));
 
@@ -297,7 +297,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   }
 
   var proc = this.env.getProcedure(/** @type {string} */ (
-      this.operatorName.getPayload()));
+      this.operatorName_.getPayload()));
   var args = [proc, continuation, resultStruct, parserProvider];
 
   if (r5js.PrimitiveProcedure.isImplementedBy(proc)) {
@@ -313,7 +313,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   } else {
     throw new r5js.EvalError(
         'procedure application: expected procedure, given ' +
-        this.operatorName);
+        this.operatorName_);
   }
 
   /* Save the environment we used in case the next action on the trampoline
