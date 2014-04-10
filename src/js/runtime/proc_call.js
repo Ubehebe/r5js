@@ -305,7 +305,6 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
   var proc = this.env.getProcedure(/** @type {string} */ (
       this.operatorName_.getPayload()));
-  var args = [proc, continuation, resultStruct, parserProvider];
 
   if (r5js.PrimitiveProcedure.isImplementedBy(proc)) {
     this.tryPrimitiveProcedure_(
@@ -318,7 +317,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   } else if (proc instanceof r5js.Continuation) {
     this.tryContinuation_(proc, continuation, resultStruct);
   } else if (proc instanceof r5js.JsObjOrMethod) {
-    this.tryFFI.apply(this, args);
+    this.tryFFI_(proc, continuation, resultStruct, parserProvider);
   } else {
     throw new r5js.EvalError(
         'procedure application: expected procedure, given ' +

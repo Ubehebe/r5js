@@ -37,8 +37,9 @@ goog.require('r5js.ast.Quote');
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum.
+ * @private
  */
-r5js.ProcCall.prototype.tryFFI = function(
+r5js.ProcCall.prototype.tryFFI_ = function(
     jsObjOrMethod, continuation, resultStruct, parserProvider) {
     if (!this.operandsInCpsStyle()) {
         this.cpsify(continuation, resultStruct, parserProvider);
