@@ -41,18 +41,20 @@ r5js.ProcCall = function(operatorName, firstOperand) {
 
   /** @const @protected {?} */
   this.firstOperand = firstOperand;
+
+  /** @protected {r5js.IEnvironment} */ this.env = null;
 };
-
-
-/**
- * @type {r5js.IEnvironment}
- */
-r5js.ProcCall.prototype.env;
 
 
 /** @return {?} TODO bl. */
 r5js.ProcCall.prototype.getFirstOperand = function() {
   return this.firstOperand;
+};
+
+
+/** @return {r5js.IEnvironment} */
+r5js.ProcCall.prototype.getEnv = function() {
+  return this.env;
 };
 
 
