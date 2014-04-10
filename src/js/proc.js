@@ -17,7 +17,6 @@
 goog.provide('r5js.procs');
 
 
-goog.require('r5js.Assignment');
 goog.require('r5js.Continuation');
 goog.require('r5js.IdShim');
 goog.require('r5js.ProcCall');

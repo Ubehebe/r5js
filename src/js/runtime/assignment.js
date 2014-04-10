@@ -1,4 +1,4 @@
-goog.provide('r5js.Assignment');
+goog.provide('r5js.newAssignment');
 
 
 goog.require('r5js.Continuable');
@@ -96,7 +96,7 @@ r5js.Assignment.prototype.tryAssignment_ = function(
  * @param {!r5js.Continuation} continuation
  * @return {!r5js.Continuable}
  */
-r5js.Assignment.newContinuable = function(dstName, srcName, continuation) {
+r5js.newAssignment = function(dstName, srcName, continuation) {
   var operands = new r5js.SiblingBuffer()
         .appendSibling(new r5js.ast.Identifier(dstName))
         .appendSibling(new r5js.ast.Identifier(srcName))

@@ -22,7 +22,7 @@ goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DatumType');
 goog.require('r5js.DottedListTransformer');
-goog.require('r5js.Assignment');
+goog.require('r5js.newAssignment');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListTransformer');
@@ -433,7 +433,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       var lastContinuable = desugaredExpr.getLastContinuable();
       var cpsName = lastContinuable.continuation.lastResultName;
       lastContinuable.continuation.nextContinuable =
-          r5js.Assignment.newContinuable(
+          r5js.newAssignment(
           variable.getPayload(),
           cpsName,
           new r5js.Continuation()).
@@ -465,7 +465,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
           anonymousName,
           new r5js.Procedure(
               formals, false, formalRoot.getNextSibling(), env, name));
-      return r5js.Assignment.newContinuable(
+      return r5js.newAssignment(
           name.getPayload(),
           anonymousName,
           new r5js.Continuation()).
@@ -500,7 +500,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
           anonymousName,
           new r5js.Procedure(
               formals, true, formalRoot.getNextSibling(), env, name));
-      return r5js.Assignment.newContinuable(
+      return r5js.newAssignment(
           /** @type {string} */(name.getPayload()), // TODO bl
           anonymousName,
           new r5js.Continuation()).
@@ -593,7 +593,7 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.list(
           desugaredExpr.getLastContinuable());
       var cpsName = lastContinuable.continuation.lastResultName;
       lastContinuable.continuation.nextContinuable =
-          r5js.Assignment.newContinuable(
+          r5js.newAssignment(
           /** @type {string} */ (variable.getPayload()),
           cpsName,
           new r5js.Continuation());
@@ -1023,7 +1023,7 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
         throw new r5js.MacroError(kw, 'all patterns must begin with ' + kw);
       var anonymousName = newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
-      return r5js.Assignment.newContinuable(
+      return r5js.newAssignment(
           kw,
           anonymousName,
           new r5js.Continuation()).
