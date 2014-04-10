@@ -49,10 +49,6 @@ r5js.ProcCall = function(operatorName, firstOperand) {
      * @type {?}
      */
   this.firstOperand = firstOperand;
-
-  /** @type {boolean} */ this.isTopLevelAssignment = false;
-
-  /** @type {boolean} */ this.isSyntaxAssignment = false;
 };
 
 

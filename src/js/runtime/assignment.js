@@ -19,6 +19,10 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  */
 r5js.Assignment = function(firstOperand) {
   goog.base(this, 'bsldfkj' /* name */, firstOperand);
+
+  /** @type {boolean} */ this.isSyntaxAssignment = false;
+
+  /** @type {boolean} */ this.isTopLevelAssignment = false;
 };
 goog.inherits(r5js.Assignment, r5js.ProcCall);
 
