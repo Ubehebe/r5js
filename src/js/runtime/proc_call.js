@@ -311,7 +311,8 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
     this.tryPrimitiveProcedure_(
         proc, continuation, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Procedure) {
-    this.tryNonPrimitiveProcedure.apply(this, args);
+    this.tryNonPrimitiveProcedure_(
+        proc, continuation, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Macro) {
     this.tryMacroUse_(proc, continuation, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Continuation) {
@@ -432,8 +433,9 @@ r5js.ProcCall.prototype.tryPrimitiveProcedure_ = function(
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum.
  * @suppress {accessControls} for {@link r5js.Procedure.env_}
+ * @private
  */
-r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
+r5js.ProcCall.prototype.tryNonPrimitiveProcedure_ = function(
     proc, continuation, resultStruct, parserProvider) {
 
   /* If the operands aren't simple, we'll have to take a detour to
