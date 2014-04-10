@@ -27,6 +27,7 @@ goog.require('r5js.ast.Number');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
+goog.require('r5js.newIdShim');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
@@ -895,7 +896,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
 
       var result = newCpsName();
       procCallAfter.appendContinuable(
-          r5js.procs.newIdShim(new r5js.ast.Identifier(result)));
+          r5js.newIdShim(new r5js.ast.Identifier(result)));
       procCallAfter.getLastContinuable().continuation = continuation;
 
       var procCallThunk = r5js.procs.newProcCall(

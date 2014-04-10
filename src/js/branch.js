@@ -21,6 +21,7 @@ goog.require('r5js.Continuable');
 goog.require('r5js.ast.Number');
 goog.require('r5js.datumutil');
 goog.require('r5js.DatumType');
+// TODO bl circular dependency goog.require('r5js.newIdShim');
 
 
 function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
@@ -53,7 +54,7 @@ r5js.Branch = function(
      would activate the default type, identifier, which would change the
      semantics. */
     this.alternate = alternateContinuable
-        || r5js.procs.newIdShim(new r5js.ast.Number(null));
+        || r5js.newIdShim(new r5js.ast.Number(null));
     this.consequentLastContinuable = this.consequent.getLastContinuable();
     this.alternateLastContinuable = this.alternate.getLastContinuable();
 };

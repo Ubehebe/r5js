@@ -8,6 +8,7 @@ goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
+// TODO bl circular dependency goog.require('r5js.newIdShim');
 
 
 
@@ -99,7 +100,7 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
 
   var newDatum = new r5js.ast.Quote(this.getFirstChild());
 
-  newCalls.appendContinuable(r5js.procs.newIdShim(newDatum, cpsName));
+  newCalls.appendContinuable(r5js.newIdShim(newDatum, cpsName));
   var ans = newCalls.toContinuable();
   return ans && ans.setStartingEnv(env);
 };

@@ -39,6 +39,7 @@ goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Literal');
 goog.require('r5js.ast.SimpleDatum');
+goog.require('r5js.newIdShim');
 goog.require('r5js.ast.String');
 goog.require('r5js.datumutil');
 goog.require('r5js.parse.Nonterminals');
@@ -371,7 +372,7 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
           name,
           new r5js.Procedure(
               formals, treatAsDotted, formalRoot.getNextSibling(), env, name));
-      return r5js.procs.newIdShim(new r5js.ast.Identifier(name));
+      return r5js.newIdShim(new r5js.ast.Identifier(name));
         });
 
 

@@ -20,6 +20,7 @@ goog.provide('r5js.Datum');
 
 goog.require('r5js.Continuable');
 goog.require('r5js.parse.Terminals');
+// TODO bl circular dependency goog.require('r5js.newIdShim');
 
 
 /** @typedef {function(!r5js.Datum, !r5js.IEnvironment):
@@ -204,7 +205,7 @@ r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
         this.desugars_[this.nextDesugar_--] : null;
     var ans = desugarFn ? desugarFn(this, env) : this;
     if (opt_forceContinuationWrapper && !(ans instanceof r5js.Continuable)) {
-        ans = r5js.procs.newIdShim(ans);
+        ans = r5js.newIdShim(ans);
     }
     return ans;
 };
@@ -225,7 +226,7 @@ r5js.Datum.prototype.sequence = function(env) {
              able to connect the Continuable objects correctly, so we
              wrap them. */
             if (!(tmp instanceof r5js.Continuable)) {
-                tmp = r5js.procs.newIdShim(tmp);
+                tmp = r5js.newIdShim(tmp);
             }
 
             if (!first) {

@@ -17,11 +17,8 @@
 goog.provide('r5js.procs');
 
 
-goog.require('r5js.Continuation');
-goog.require('r5js.IdShim');
+goog.require('r5js.Continuable');
 goog.require('r5js.ProcCall');
-goog.require('r5js.SiblingBuffer');
-goog.require('r5js.ast.Identifier');
 
 
 /**
@@ -34,25 +31,4 @@ r5js.procs.newProcCall = function(operatorName, firstOperand, continuation) {
   return new r5js.Continuable(
       new r5js.ProcCall(operatorName, firstOperand),
       continuation);
-};
-
-
-/**
- * If a nonterminal in the grammar has no associated desugar function,
- * desugaring it will be a no-op. That is often the right behavior,
- * but sometimes we would like to wrap the datum in a Continuable
- * object for convenience on the trampoline. For example, the program
- * "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]).
- *
- * We represent these id shims as ProcCalls whose operatorNames are null
- * and whose firstOperand is the payload.
- *
- * @param {?} payload
- * @param {string=} opt_continuationName Optional name of the continuation.
- * @return {!r5js.Continuable} The new procedure call.
- */
-r5js.procs.newIdShim = function(payload, opt_continuationName) {
-    return new r5js.Continuable(
-        new r5js.IdShim(payload),
-        new r5js.Continuation(opt_continuationName));
 };
