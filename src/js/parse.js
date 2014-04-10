@@ -45,7 +45,7 @@ goog.require('r5js.datumutil');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.bnf');
-goog.require('r5js.procs');
+goog.require('r5js.newProcCall');
 
 
 /* todo bl: this file should not exist.
@@ -294,7 +294,7 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
       var operands = node.at(Nonterminals.OPERAND);
 
       if (operatorNode instanceof r5js.ast.Literal) {
-        return r5js.procs.newProcCall(
+        return r5js.newProcCall(
             operatorNode,
             operands,
             new r5js.Continuation());
@@ -306,7 +306,7 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
             operatorNode.desugar(env));
         var lastContinuation = desugaredOp.getLastContinuable().continuation;
         var opName = lastContinuation.lastResultName;
-        lastContinuation.nextContinuable = r5js.procs.newProcCall(
+        lastContinuation.nextContinuable = r5js.newProcCall(
             new r5js.ast.Identifier(opName),
             operands,
             new r5js.Continuation());
@@ -680,7 +680,7 @@ r5js.Parser.grammar[Nonterminals.MACRO_USE] = _.list(
                 datums as-is for the macro pattern matching facility to use.
                 The trampoline knows what to do with raw datums in such a
                 context. */
-      return r5js.procs.newProcCall(
+      return r5js.newProcCall(
           node.at(Nonterminals.KEYWORD),
           node.at(Nonterminals.DATUM),
           new r5js.Continuation());

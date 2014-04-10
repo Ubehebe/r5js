@@ -1,4 +1,5 @@
 goog.provide('r5js.ProcCall');
+goog.provide('r5js.newProcCall');
 
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
@@ -231,7 +232,7 @@ r5js.ProcCall.prototype.cpsify = function(
   }
 
   newCallChain.appendContinuable(
-      r5js.procs.newProcCall(
+      r5js.newProcCall(
       this.operatorName,
       finalArgs.toSiblings(),
       new r5js.Continuation()));
@@ -593,6 +594,17 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
 };
 
 
+/**
+ * @param {?} operatorName
+ * @param {?} firstOperand
+ * @param {!r5js.Continuation} continuation A continuation.
+ * @return {!r5js.Continuable} The new procedure call.
+ */
+r5js.newProcCall = function(operatorName, firstOperand, continuation) {
+  return new r5js.Continuable(
+      new r5js.ProcCall(operatorName, firstOperand),
+      continuation);
+};
 
 
 

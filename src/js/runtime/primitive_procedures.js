@@ -28,6 +28,7 @@ goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
 goog.require('r5js.newIdShim');
+goog.require('r5js.newProcCall');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
@@ -820,7 +821,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     // todo bl document why we are quoting the arguments
     for (var arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling())
       newArgs.appendSibling(new r5js.ast.Quote(arg));
-    var actualProcCall = r5js.procs.newProcCall(
+    var actualProcCall = r5js.newProcCall(
         procName, newArgs.toSiblings(), continuation);
     actualProcCall.setStartingEnv(curProcCall.env);
     resultStruct.nextContinuable = actualProcCall;
@@ -834,7 +835,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     var newArgs = new r5js.SiblingBuffer().
         appendSibling(arguments[1]).
         toSiblings();
-    var actualProcCall = r5js.procs.newProcCall(
+    var actualProcCall = r5js.newProcCall(
         procName, newArgs, continuation);
     resultStruct.nextContinuable = actualProcCall;
   }
@@ -884,12 +885,12 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
 
       // todo bl use a ContinuableBuffer for efficiency
 
-      var procCallBefore = r5js.procs.newProcCall(
+      var procCallBefore = r5js.newProcCall(
           procCall.firstOperand,
           null, // no arguments
           new r5js.Continuation(before2));
 
-      var procCallAfter = r5js.procs.newProcCall(
+      var procCallAfter = r5js.newProcCall(
           procCall.firstOperand.getNextSibling().getNextSibling(),
           null, // no arguments
           new r5js.Continuation());
@@ -899,7 +900,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
           r5js.newIdShim(new r5js.ast.Identifier(result)));
       procCallAfter.getLastContinuable().continuation = continuation;
 
-      var procCallThunk = r5js.procs.newProcCall(
+      var procCallThunk = r5js.newProcCall(
           procCall.firstOperand.getNextSibling(),
           null, // no arguments
           new r5js.Continuation(result)
@@ -913,7 +914,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
          This should be okay because dynamic-wind is the only one
          who writes to it, and call/cc is the only one who reads it.
          todo bl document why we cannot reuse procCallBefore. */
-      resultStruct.beforeThunk = r5js.procs.newProcCall(
+      resultStruct.beforeThunk = r5js.newProcCall(
           procCall.firstOperand,
           null,
           new r5js.Continuation(before2));
@@ -932,13 +933,13 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
     function(producer, consumer, procCall, continuation, resultStruct) {
       var valuesName = newCpsName();
       var producerContinuation = new r5js.Continuation(valuesName);
-      var producerCall = r5js.procs.newProcCall(
+      var producerCall = r5js.newProcCall(
           procCall.firstOperand,
           null, // no arguments
           producerContinuation);
       producerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.env));
-      var consumerCall = r5js.procs.newProcCall(
+      var consumerCall = r5js.newProcCall(
           procCall.firstOperand.getNextSibling(),
           new r5js.ast.Identifier(valuesName),
           continuation);
@@ -978,7 +979,7 @@ PrimitiveProcedures['call-with-current-continuation'] =
         continuation.installBeforeThunk(resultStruct.beforeThunk);
         resultStruct.beforeThunk = null;
       }
-      var dummyProcCall = r5js.procs.newProcCall(
+      var dummyProcCall = r5js.newProcCall(
           procCall.firstOperand, continuation, continuation);
       dummyProcCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.env));

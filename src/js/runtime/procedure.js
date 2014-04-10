@@ -4,7 +4,7 @@ goog.provide('r5js.Procedure');
 goog.require('r5js.Continuation');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.SiblingBuffer');
-// TODO bl circular dependency goog.require('r5js.procs');
+// TODO bl circular dependency goog.require('r5js.newProcCall');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 // TODO bl circular dependency goog.require('r5js.Environment');
@@ -51,7 +51,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
     } else {
       var letrec = new r5js.ast.List(letrecBindings.toSiblings());
       letrec.setNextSibling(/** @type {!r5js.Datum} */ (helper.getLast()));
-      this.body = r5js.procs.newProcCall(
+      this.body = r5js.newProcCall(
           new r5js.ast.Identifier('letrec'),
           letrec,
           new r5js.Continuation());

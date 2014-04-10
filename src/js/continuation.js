@@ -22,7 +22,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Macro');
 goog.require('r5js.ast.Identifier');
-// TODO bl cyclic dependency goog.require('r5js.procs');
+// TODO bl cyclic dependency goog.require('r5js.newProcCall');
 
 
 
@@ -191,7 +191,7 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
   _let.appendSibling(letBindings.toList(r5js.ast.List));
   _let.appendSibling(/** @type {!r5js.Datum} */ (datum.firstSublist().getNextSibling()));
 
-  return r5js.procs.newProcCall(
+  return r5js.newProcCall(
       new r5js.ast.Identifier(operatorName),
       _let.toSiblings(),
       new r5js.Continuation());
