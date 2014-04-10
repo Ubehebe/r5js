@@ -314,7 +314,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   } else if (proc instanceof r5js.Macro) {
     this.tryMacroUse_(proc, continuation, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Continuation) {
-    this.tryContinuation.apply(this, args);
+    this.tryContinuation_(proc, continuation, resultStruct);
   } else if (proc instanceof r5js.JsObjOrMethod) {
     this.tryFFI.apply(this, args);
   } else {
@@ -474,8 +474,9 @@ r5js.ProcCall.prototype.tryNonPrimitiveProcedure = function(
  * @param {!r5js.Continuation} proc The continuation.
  * @param {!r5js.Continuation} continuation The following continuation.
  * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
+ * @private
  */
-r5js.ProcCall.prototype.tryContinuation = function(
+r5js.ProcCall.prototype.tryContinuation_ = function(
     proc, continuation, resultStruct) {
   var arg = this.evalArgs(false)[0]; // there will only be 1 arg
   this.env.addBinding(proc.lastResultName, arg);
