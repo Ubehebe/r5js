@@ -370,7 +370,7 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
           name,
           new r5js.Procedure(
               formals, treatAsDotted, formalRoot.getNextSibling(), env, name));
-      return newIdShim(new r5js.ast.Identifier(name));
+      return r5js.procs.newIdShim(new r5js.ast.Identifier(name));
         });
 
 

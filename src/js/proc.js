@@ -67,8 +67,8 @@ r5js.procs.newProcCall = function(operatorName, firstOperand, continuation) {
  * @param {string=} opt_continuationName Optional name of the continuation.
  * @return {!r5js.Continuable} The new procedure call.
  */
-function newIdShim(payload, opt_continuationName) {
+r5js.procs.newIdShim = function(payload, opt_continuationName) {
     return new r5js.Continuable(
         new r5js.IdShim(payload),
         new r5js.Continuation(opt_continuationName));
-}
+};
