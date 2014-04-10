@@ -22,9 +22,12 @@ goog.require('r5js.ast.String');
  * @constructor
  */
 r5js.IdShim = function(payload) {
-  goog.base(this, 'slfgkj', payload);
+  goog.base(this, r5js.IdShim.NAME_, payload);
 };
 goog.inherits(r5js.IdShim, r5js.ProcCall);
+
+
+/** @const @private */ r5js.IdShim.NAME_ = new r5js.ast.Identifier('id');
 
 
 /** @override */
