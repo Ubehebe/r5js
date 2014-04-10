@@ -255,8 +255,9 @@ r5js.ProcCall.prototype.cpsify = function(
  * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
+ * @private
  */
-r5js.ProcCall.prototype.tryMacroUse = function(
+r5js.ProcCall.prototype.tryMacroUse_ = function(
     macro, continuation, resultStruct, parserProvider) {
 
   var newEnv = new r5js.Environment(this.env);
@@ -311,7 +312,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   } else if (proc instanceof r5js.Procedure) {
     this.tryNonPrimitiveProcedure.apply(this, args);
   } else if (proc instanceof r5js.Macro) {
-    this.tryMacroUse.apply(this, args);
+    this.tryMacroUse_(proc, continuation, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Continuation) {
     this.tryContinuation.apply(this, args);
   } else if (proc instanceof r5js.JsObjOrMethod) {
