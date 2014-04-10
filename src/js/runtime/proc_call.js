@@ -51,7 +51,7 @@ r5js.ProcCall = function(operatorName, firstOperand) {
   this.firstOperand = firstOperand;
 
   /** @type {boolean} */ this.isTopLevelAssignment = false;
-    
+
   /** @type {boolean} */ this.isSyntaxAssignment = false;
 };
 
@@ -477,48 +477,6 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
 
 
 /**
- * @param {!r5js.Continuation} continuation
- * @param {!r5js.TrampolineHelper} resultStruct
- */
-r5js.ProcCall.prototype.tryAssignment = function(continuation, resultStruct) {
-  var src = this.env.get(/** @type {string} */ (
-      this.firstOperand.getNextSibling().getPayload()));
-  /* In Scheme, macros can be bound to identifiers but they are not really
-     first-class citizens; you cannot say
-
-     (define x let)
-
-     because the text "let" does not parse as an expression
-     (at least if it has its normal binding). In this implementation, however,
-     SchemeMacros are objects that go into and come out of Environments
-     like any other kind of objects. All kinds of assignments -- top-level,
-     internal, syntax, non-syntax -- go through this function, so we
-     have to make sure we don't accidentally permit some illegal behavior.
-
-     If we're trying to assign a SchemeMacro object but the isSyntaxAssignment
-     flag on the ProcCall object hasn't been set, then the programmer is
-     requesting this assignment and we ought to signal an error.
-
-     The situation is complicated a bit because internally, we use let and
-     letrec to implement let-syntax and letrec-syntax. In other words,
-     we as the implementer do exactly what we forbid the programmer to do.
-     We tell the difference between the two parties via the isLetOrLetrecSyntax
-     flag on the SchemeMacro object, which only the implementation can set. */
-  if (src instanceof r5js.Macro &&
-      !src.isLetOrLetrecSyntax() &&
-      !this.isSyntaxAssignment) {
-    throw new r5js.GeneralSyntaxError(this);
-  }
-  this.env.mutate(/** @type {string} */ (
-      this.firstOperand.getPayload()), src, this.isTopLevelAssignment);
-  /* The return value of an assignment is unspecified,
-     but this is not the same as no binding. */
-  this.bindResult(continuation, r5js.runtime.UNSPECIFIED_VALUE);
-  resultStruct.nextContinuable = continuation.nextContinuable;
-};
-
-
-/**
  * Primitive procedure, represented by JavaScript function:
  * (+ x y [ans ...]). We perform the action ("+"), bind the
  * result to the continuation's result name ("ans"), and advance
@@ -687,15 +645,9 @@ r5js.ProcCall.prototype.tryContinuation = function(
  * to get guaranteed constant-time lookup given an ordinal?
  */
 r5js.ProcCall.prototype.specialOps = {
-
   _id: 0,
-  _set: 1,
-
-  names: ['id', 'set!'],
-  logic: [
-    r5js.ProcCall.prototype.tryIdShim,
-    r5js.ProcCall.prototype.tryAssignment
-  ]
+  names: ['id'],
+  logic: [r5js.ProcCall.prototype.tryIdShim]
 };
 
 

@@ -18,7 +18,7 @@ goog.provide('r5js.Continuable');
 
 
 goog.require('r5js.InternalInterpreterError');
-// TODO bl circular dependency -- see below goog.require('r5js.ProcCall');
+// TODO bl circular dependency goog.require('r5js.Assignment');
 
 /**
  * TODO bl: This constructor is only called twice, once with a
@@ -58,8 +58,7 @@ r5js.Continuable.prototype.setStartingEnv = function(env) {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.setTopLevelAssignment = function() {
-    if (!(this.subtype instanceof r5js.ProcCall &&
-        this.subtype.operatorName === r5js.ProcCall.prototype.specialOps._set)) {
+    if (!(this.subtype instanceof r5js.Assignment)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     }
     this.subtype.isTopLevelAssignment = true;
@@ -71,8 +70,7 @@ r5js.Continuable.prototype.setTopLevelAssignment = function() {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.setSyntaxAssignment = function() {
-    if (!(this.subtype instanceof r5js.ProcCall &&
-        this.subtype.operatorName === r5js.ProcCall.prototype.specialOps._set)) {
+    if (!(this.subtype instanceof r5js.Assignment)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     }
     this.subtype.isSyntaxAssignment = true;

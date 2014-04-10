@@ -17,6 +17,7 @@
 goog.provide('r5js.procs');
 
 
+goog.require('r5js.Assignment');
 goog.require('r5js.Continuation');
 goog.require('r5js.ProcCall');
 goog.require('r5js.SiblingBuffer');
@@ -34,12 +35,7 @@ r5js.procs.newAssignment = function(dstName, srcName, continuation) {
         .appendSibling(new r5js.ast.Identifier(dstName))
         .appendSibling(new r5js.ast.Identifier(srcName))
         .toSiblings();
-
-  return r5js.procs.newProcCall(
-      r5js.ProcCall.prototype.specialOps._set,
-      operands,
-      continuation
-  );
+  return new r5js.Continuable(new r5js.Assignment(operands), continuation);
 };
 
 
