@@ -5,6 +5,7 @@ goog.require('goog.array');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.PrimitiveProcedure');
+goog.require('r5js.ProcedureLike');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.datumutil');
@@ -257,6 +258,7 @@ r5js.procspec.JUST_UNWRAP_ARGS_ = new r5js.procspec.JustUnwrapArgs_();
  * @param {!r5js.procspec.NumArgChecker_} numArgChecker
  * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
  * @implements {r5js.PrimitiveProcedure}
+ * @implements {r5js.ProcedureLike}
  * @struct
  * @constructor
  * @private
@@ -276,6 +278,7 @@ r5js.procspec.PrimitiveProcedure_ = function(
   this.debugName_ = '';
 };
 r5js.PrimitiveProcedure.addImplementation(r5js.procspec.PrimitiveProcedure_);
+r5js.ProcedureLike.addImplementation(r5js.procspec.PrimitiveProcedure_);
 
 
 /** @override */
@@ -295,6 +298,36 @@ r5js.procspec.PrimitiveProcedure_.prototype.Call = function(
   procCall.bindResult(continuation, ans);
   trampolineHelper.ans = ans;
   trampolineHelper.nextContinuable = continuation.nextContinuable;
+};
+
+
+/**
+ * Primitive procedure, represented by JavaScript function:
+ * (+ x y [ans ...]). We perform the action ("+"), bind the
+ * result to the continuation's result name ("ans"), and advance
+ * to the next continuable ("...").
+ * @override
+ */
+r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
+    function(procCall, continuation, trampolineHelper, parserProvider) {
+  /* If the operands aren't simple, we'll have to take a detour to
+             restructure them. Example:
+
+             (+ (* 1 2) (/ 3 4)) => (* 1 2 [_0 (/ 3 4 [_1 (+ _0 _1 ...)])]) */
+  if (!procCall.operandsInCpsStyle()) {
+    procCall.cpsify(continuation, trampolineHelper, parserProvider);
+  }
+
+  else {
+    var args = procCall.evalArgs(true);
+    // todo bl document why we're doing this...
+    for (var i = 0; i < args.length; ++i) {
+      if (args[i] instanceof r5js.Ref) {
+        args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
+      }
+    }
+    this.Call(args, procCall, continuation, trampolineHelper);
+  }
 };
 
 
