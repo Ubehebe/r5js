@@ -1,0 +1,37 @@
+goog.provide('r5js.ProcedureLike');
+
+
+
+/** @interface */
+r5js.ProcedureLike = function() {};
+
+
+/**
+ * @param {!r5js.ProcCall} procCall
+ * @param {!r5js.Continuation} continuation
+ * @param {!r5js.TrampolineHelper} trampolineHelper
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * that will return a new Parser for the given Datum when called.
+ */
+r5js.ProcedureLike.prototype.evalAndAdvance = function(
+    procCall, continuation, trampolineHelper, parserProvider) {};
+
+
+/** @const @private */
+r5js.ProcedureLike.IMPLEMENTED_BY_PROP_ = '$r5js.ProcedureLike';
+
+
+/**
+ * @param {*} obj
+ * @return {boolean}
+ * TODO bl temporary shim, remove.
+ */
+r5js.ProcedureLike.isImplementedBy = function(obj) {
+  return !!(obj && obj[r5js.ProcedureLike.IMPLEMENTED_BY_PROP_]);
+};
+
+
+/** @param {function(new: r5js.ProcedureLike, ...)} ctor */
+r5js.ProcedureLike.addImplementation = function(ctor) {
+  ctor.prototype[r5js.ProcedureLike.IMPLEMENTED_BY_PROP_] = true;
+};
