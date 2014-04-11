@@ -337,30 +337,17 @@ r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
  * @param {!r5js.procspec.NumArgChecker_} numArgChecker
  * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
  * @implements {r5js.PrimitiveProcedure}
+ * @extends {r5js.procspec.PrimitiveProcedure_}
  * @struct
  * @constructor
  * @private
  */
 r5js.procspec.NeedsCurrentPorts_ = function(fn, numArgChecker, typeChecker) {
-  /** @const @private {function(!r5js.Datum):?} */
-  this.fn_ = fn;
-
-  /** @const @private {!r5js.procspec.NumArgChecker_} */
-  this.numArgChecker_ = numArgChecker;
-
-  /** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
-  this.typeChecker_ = typeChecker;
-
-  /** @private {string} */
-  this.debugName_ = '';
+  goog.base(this, fn, numArgChecker, typeChecker);
 };
+goog.inherits(
+    r5js.procspec.NeedsCurrentPorts_, r5js.procspec.PrimitiveProcedure_);
 r5js.PrimitiveProcedure.addImplementation(r5js.procspec.NeedsCurrentPorts_);
-
-
-/** @override */
-r5js.procspec.NeedsCurrentPorts_.prototype.setDebugName = function(debugName) {
-  this.debugName_ = debugName;
-};
 
 
 /** @override */
@@ -387,31 +374,17 @@ r5js.procspec.NeedsCurrentPorts_.prototype.Call = function(
  * @param {!r5js.procspec.NumArgChecker_} numArgChecker
  * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
  * @implements {r5js.PrimitiveProcedure}
+ * @extends {r5js.procspec.PrimitiveProcedure_}
  * @struct
  * @constructor
  * @private
  */
 r5js.procspec.HasSpecialEvalLogic_ = function(fn, numArgChecker, typeChecker) {
-  /** @const @private {function(!r5js.Datum):?} */
-  this.fn_ = fn;
-
-  /** @const @private {!r5js.procspec.NumArgChecker_} */
-  this.numArgChecker_ = numArgChecker;
-
-  /** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
-  this.typeChecker_ = typeChecker;
-
-  /** @private {string} */
-  this.debugName_ = '';
+  goog.base(this, fn, numArgChecker, typeChecker);
 };
+goog.inherits(
+    r5js.procspec.HasSpecialEvalLogic_, r5js.procspec.PrimitiveProcedure_);
 r5js.PrimitiveProcedure.addImplementation(r5js.procspec.HasSpecialEvalLogic_);
-
-
-/** @override */
-r5js.procspec.HasSpecialEvalLogic_.prototype.setDebugName =
-    function(debugName) {
-  this.debugName_ = debugName;
-};
 
 
 /** @override */
