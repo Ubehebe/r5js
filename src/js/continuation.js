@@ -20,6 +20,7 @@ goog.provide('r5js.Continuation');
 goog.require('r5js.Branch');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ast.List');
+goog.require('r5js.ProcedureLike');
 goog.require('r5js.ast.Macro');
 goog.require('r5js.ast.Identifier');
 // TODO bl cyclic dependency goog.require('r5js.newProcCall');
@@ -39,6 +40,7 @@ goog.require('r5js.ast.Identifier');
  *
  * @param {string=} opt_lastResultName Optional name to use for the last result.
  *     If not given, a unique name will be created.
+ *     @implements {r5js.ProcedureLike}
  * @constructor
  * @suppress {const} See {@link r5js.ast.Quasiquote#processQuasiquote}.
  */
@@ -48,6 +50,7 @@ r5js.Continuation = function(opt_lastResultName) {
       opt_lastResultName :
       ('@' /* TODO bl document */ + goog.getUid(this));
 };
+r5js.ProcedureLike.addImplementation(r5js.Continuation);
 
 
 /**
@@ -145,6 +148,66 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
     } else throw new r5js.InternalInterpreterError('invariant incorrect');
   }
 };
+
+
+/**
+ * @override
+ * @suppress {accessControls}
+ */
+r5js.Continuation.prototype.evalAndAdvance = function(
+    procCall, continuation, trampolineHelper, parserProvider) {
+    var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
+    procCall.env.addBinding(this.lastResultName, arg);
+    trampolineHelper.ans = arg;
+    trampolineHelper.nextContinuable = this.nextContinuable;
+
+    if (this.beforeThunk) {
+        var before = this.beforeThunk;
+        var cur = this.nextContinuable;
+        before.appendContinuable(cur);
+        trampolineHelper.nextContinuable = before;
+        // todo bl is it safe to leave proc.beforeThunk defined?
+    }
+
+    /* Cut out the current proc call from the continuation chain to
+     avoid an infinite loop. Example:
+
+     (define cont #f)
+     (display
+     (call-with-current-continuation
+     (lambda (c)
+     (set! cont c)
+     "inside continuation")))
+     (cont "outside continuation")
+     42
+
+     This should display "inside continuation", then "outside continuation",
+     then return 42. When the trampoline is at
+
+     (cont "outside continuation")
+
+     proc.nextContinuable will be something like
+
+     (cont "outside continuation" _0 [_0 (id 42 [_1 ...])])
+
+     We clearly have to cut out the first part of this chain to avoid an
+     infinite loop. */
+    for (var tmp = trampolineHelper.nextContinuable, prev;
+         tmp;
+         prev = tmp, tmp = tmp.continuation.nextContinuable) {
+        if (tmp.subtype === procCall) {
+            if (prev)
+                prev.continuation.nextContinuable = tmp.continuation.nextContinuable;
+            else
+                trampolineHelper.nextContinuable = tmp.continuation.nextContinuable;
+            break;
+        }
+    }
+};
+
+
+
+
 
 
 /**
