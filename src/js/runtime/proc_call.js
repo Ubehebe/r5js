@@ -248,43 +248,6 @@ r5js.ProcCall.prototype.cpsify = function(
 
 
 /**
- * @param {!r5js.Macro} macro The macro.
- * @param {!r5js.Continuation} continuation A continuation.
- * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
- * that will return a new Parser for the given Datum when called.
- * @private
- */
-r5js.ProcCall.prototype.tryMacroUse_ = function(
-    macro, continuation, resultStruct, parserProvider) {
-
-  var newEnv = new r5js.Environment(this.env);
-  var newParseTree = macro.transcribe(
-      this.reconstructDatum_(),
-      newEnv,
-      parserProvider
-      );
-
-  /* Just like with tryNonPrimitiveProcedures, we have to remember when
-     to jump back to the old environment. */
-  if (this.env) {
-    continuation.rememberEnv(this.env);
-  }
-
-  // useful for debugging
-  // console.log('transcribed ' +
-  // this.reconstructDatum_() +
-  // ' => ' + newDatumTree);
-
-  var newContinuable = newParseTree.desugar(newEnv, true).
-      setStartingEnv(newEnv);
-
-  newContinuable.getLastContinuable().continuation = continuation;
-  resultStruct.nextContinuable = newContinuable;
-};
-
-
-/**
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {!r5js.EnvBuffer} envBuffer
@@ -306,8 +269,6 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
   if (r5js.ProcedureLike.isImplementedBy(proc)) {
     proc.evalAndAdvance(this, continuation, resultStruct, parserProvider);
-  } else if (proc instanceof r5js.Macro) {
-    this.tryMacroUse_(proc, continuation, resultStruct, parserProvider);
   } else {
     throw new r5js.EvalError(
         'procedure application: expected procedure, given ' +

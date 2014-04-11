@@ -105,6 +105,8 @@ r5js.Environment.prototype.get = function(name) {
             binding.hasBindingRecursive(name)) {
       // Redirects for free ids in macro transcriptions
       return binding.get(name);
+    } else if (binding instanceof r5js.Macro) {
+      return binding;
     } else if (r5js.ProcedureLike.isImplementedBy(binding)) {
       /* We store primitive and non-primitive procedures unwrapped,
              but wrap them in a Datum if they are requested through get.

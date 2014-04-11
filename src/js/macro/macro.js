@@ -19,6 +19,7 @@ goog.provide('r5js.Macro');
 
 goog.require('r5js.MacroError');
 goog.require('r5js.ParseError');
+goog.require('r5js.ProcedureLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
@@ -34,7 +35,7 @@ goog.require('r5js.parse.Terminals');
  * @param {r5js.Datum} rules
  * @param {!r5js.IEnvironment} definitionEnv
  * @param {!Array.<!r5js.Transformer>=} opt_transformers
- * @implements {r5js.runtime.ObjectValue}
+ * @implements {r5js.ProcedureLike}
  * @struct
  * @constructor
  */
@@ -70,6 +71,7 @@ r5js.Macro = function(
   /** @private {boolean} */
   this.isLetOrLetrecSyntax_ = false;
 };
+r5js.ProcedureLike.addImplementation(r5js.Macro);
 
 
 /**
@@ -257,3 +259,36 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
   throw new r5js.MacroError(
       this.transformers_[0].getName(), 'no pattern match for input ' + datum);
 };
+
+
+/**
+ * @override
+ * @suppress {accessControls} TODO bl fix
+ */
+r5js.Macro.prototype.evalAndAdvance = function(
+    procCall, continuation, resultStruct, parserProvider) {
+
+  var newEnv = new r5js.Environment(procCall.env);
+  var newParseTree = this.transcribe(
+      procCall.reconstructDatum_(),
+      newEnv,
+      parserProvider);
+
+  /* Just like with tryNonPrimitiveProcedures, we have to remember when
+     to jump back to the old environment. */
+  if (procCall.env) {
+    continuation.rememberEnv(procCall.env);
+  }
+
+  // useful for debugging
+  // console.log('transcribed ' +
+  // this.reconstructDatum_() +
+  // ' => ' + newDatumTree);
+
+  var newContinuable = newParseTree.desugar(newEnv, true).
+      setStartingEnv(newEnv);
+
+  newContinuable.getLastContinuable().continuation = continuation;
+  resultStruct.nextContinuable = newContinuable;
+};
+
