@@ -33,16 +33,12 @@ goog.require('r5js.parse.Terminals');
  */
 r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
 
-  /** @const @private {!Array.<string>} */
-  this.formalsArray_ = formalsArray;
-
+  /** @const @private */ this.formalsArray_ = formalsArray;
   /** @const @private */ this.isDotted_ = isDotted;
-
   /** @const @private */ this.name_ =
       goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
-
-  /** @const @private {!r5js.IEnvironment} */
-  this.env_ = new r5js.Environment(env);
+  /** @const @private {!r5js.IEnvironment} */ this.env_ =
+      new r5js.Environment(env);
 
   if (bodyStart) {
     var helper = new r5js.Procedure.LetrecBindingsHelper_();
@@ -80,8 +76,9 @@ r5js.Procedure.prototype.cloneWithEnv = function(env) {
 
 /**
  * @param {!r5js.Continuation} c A continuation.
+ * @private
  */
-r5js.Procedure.prototype.setContinuation = function(c) {
+r5js.Procedure.prototype.setContinuation_ = function(c) {
   /* This will be a vacuous write for a tail call. But that is
      probably still faster than checking if we are in tail position and,
      if so, explicitly doing nothing. */
@@ -94,9 +91,10 @@ r5js.Procedure.prototype.setContinuation = function(c) {
 /**
  * @param {!r5js.Continuation} c A continuation.
  * @return {boolean} True iff this procedure is in tail position.
+ * @private
  * TODO bl are we sure this covers all forms of tail recursion in R5RS?
  */
-r5js.Procedure.prototype.isTailCall = function(c) {
+r5js.Procedure.prototype.isTailCall_ = function(c) {
   if (this.lastContinuable && this.lastContinuable.continuation === c) {
     // a good place to see if tail recursion is actually working :)
     // console.log('TAIL RECURSION!!!');
@@ -113,8 +111,9 @@ r5js.Procedure.prototype.toString = function() {
 
 /**
  * @param {!r5js.IEnvironment} env The environment to set.
+ * @private
  */
-r5js.Procedure.prototype.setEnv = function(env) {
+r5js.Procedure.prototype.setEnv_ = function(env) {
   /* todo bl is it possible to have a procedure body whose first
      continuable is a branch? hopefully not, and I can remove
      the second check. */
@@ -132,9 +131,10 @@ r5js.Procedure.prototype.setEnv = function(env) {
 
 /**
  * @param {number} numActuals The number of arguments passed to the procedure
- *        during evaluation.
+ * during evaluation.
+ * @private
  */
-r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
+r5js.Procedure.prototype.checkNumArgs_ = function(numActuals) {
 
   if (!this.isDotted_) {
     if (numActuals !== this.formalsArray_.length)
@@ -151,8 +151,9 @@ r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
 /**
  * @param {!Array.<!r5js.Datum>} args
  * @param {!r5js.IEnvironment} env
+ * @private
  */
-r5js.Procedure.prototype.bindArgs = function(args, env) {
+r5js.Procedure.prototype.bindArgs_ = function(args, env) {
 
   var name, i;
 
@@ -223,7 +224,7 @@ r5js.Procedure.prototype.evalAndAdvance = function(
 
     /* If we're at a tail call we can reuse the existing environment.
          Otherwise create a new environment pointing back to the current one. */
-    var newEnv = this.isTailCall(continuation) ?
+    var newEnv = this.isTailCall_(continuation) ?
             procCall.env.allowRedefs() :
             new r5js.Environment(this.env_).addClosuresFrom(this.env_);
 
@@ -234,10 +235,10 @@ r5js.Procedure.prototype.evalAndAdvance = function(
     }
 
     // Do some bookkeepping to prepare for jumping into the procedure
-    this.setContinuation(continuation);
-    this.checkNumArgs(args.length);
-    this.bindArgs(args, newEnv);
-    this.setEnv(newEnv);
+    this.setContinuation_(continuation);
+    this.checkNumArgs_(args.length);
+    this.bindArgs_(args, newEnv);
+    this.setEnv_(newEnv);
 
     // And away we go
     trampolineHelper.nextContinuable = this.body;
