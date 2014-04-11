@@ -140,7 +140,7 @@ r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
 
 
 /**
- * @param {!Array.<!r5js.Datum>} args
+ * @param {!Array.<!r5js.runtime.Value>} args
  * @param {!r5js.IEnvironment} env
  * @protected
  */

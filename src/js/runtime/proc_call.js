@@ -317,9 +317,8 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
 
 /**
  * @param {boolean} wrapArgs
- * @return {!Array.<!r5js.Datum>}
+ * @return {!Array.<!r5js.runtime.Value>}
  * TODO bl: this method is too long.
- * @suppress {accessControls} for the raw access to nextSibling_.
  */
 r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
   var args = [];

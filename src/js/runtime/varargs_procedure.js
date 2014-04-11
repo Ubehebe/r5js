@@ -6,6 +6,7 @@ goog.require('r5js.ProcedureLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.ast.List');
+goog.require('r5js.datumutil');
 
 
 
@@ -51,7 +52,7 @@ r5js.VarargsProcedure.prototype.bindArgs = function(args, env) {
     // Roll up the remaining arguments into a list
     var siblingBuffer = new r5js.SiblingBuffer();
     for (var j = this.formalsArray.length - 1; j < args.length; ++j) {
-      siblingBuffer.appendSibling(/** @type {!r5js.Datum} */ (args[j]));
+      siblingBuffer.appendSibling(r5js.datumutil.maybeWrapResult(args[j]));
     }
     env.addBinding(name, siblingBuffer.toList(r5js.ast.List));
   }
