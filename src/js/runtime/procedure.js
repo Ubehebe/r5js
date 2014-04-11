@@ -3,6 +3,7 @@ goog.provide('r5js.Procedure');
 
 goog.require('r5js.Continuation');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ProcedureLike');
 goog.require('r5js.SiblingBuffer');
 // TODO bl circular dependency goog.require('r5js.newProcCall');
 goog.require('r5js.ast.CompoundDatum');
@@ -26,6 +27,7 @@ goog.require('r5js.parse.Terminals');
  * @param {string=} opt_name The procedure's name. It has no semantic
  *     importance; it's just used for pretty-printing debugs and messages
  *     to the user. If not given, one will be created.
+ *     @implements {r5js.ProcedureLike}
  * @struct
  * @constructor
  */
@@ -59,6 +61,7 @@ r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
     this.lastContinuable = this.body.getLastContinuable();
   }
 };
+r5js.ProcedureLike.addImplementation(r5js.Procedure);
 
 
 /**
@@ -171,6 +174,73 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
       }
       env.addBinding(name, siblingBuffer.toList(r5js.ast.List));
     }
+  }
+};
+
+
+/**
+ * Non-primitive procedure, represented by {@link r5js.Procedure} object.
+ * Example: suppose we have
+ *
+ * (define (foo x y) (+ x (* 2 y)))
+ *
+ * The body of this procedure is desugared as
+ *
+ * (* 2 y [_0 (+ x _0 [_1 ...])])
+ *
+ * Then we have the (nested) procedure call
+ *
+ * (+ 1 (foo 3 4))
+ *
+ * which is desugared as
+ *
+ * (foo 3 4 [foo' (+ 1 foo' [_2 ...])])
+ *
+ * We bind the arguments ("1" and "2") to the formal parameters ("x" and "y"),
+ * append the ProcCall's continuation to the end of the Procedure's
+ * continuation, and advance to the beginning of the Procedure's body.
+ * Thus, on the next iteration of the trampoline loop, we will have
+ * the following:
+ *
+ * (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
+ * @override
+ * @suppress {accessControls} for procCall.env
+ */
+r5js.Procedure.prototype.evalAndAdvance = function(
+    procCall, continuation, trampolineHelper, parserProvider) {
+
+  /* If the operands aren't simple, we'll have to take a detour to
+     restructure them. */
+  if (!procCall.operandsInCpsStyle()) {
+    procCall.cpsify(continuation, trampolineHelper, parserProvider);
+  }
+
+  else {
+
+    // todo bl we should be able to pass false as the last parameter.
+    // need to resolve some bugs.
+    var args = procCall.evalArgs(true);
+
+    /* If we're at a tail call we can reuse the existing environment.
+         Otherwise create a new environment pointing back to the current one. */
+    var newEnv = this.isTailCall(continuation) ?
+            procCall.env.allowRedefs() :
+            new r5js.Environment(this.env_).addClosuresFrom(this.env_);
+
+    /* Remember to discard the new environment
+         at the end of the procedure call. */
+    if (procCall.env) {
+      continuation.rememberEnv(procCall.env);
+    }
+
+    // Do some bookkeepping to prepare for jumping into the procedure
+    this.setContinuation(continuation);
+    this.checkNumArgs(args.length);
+    this.bindArgs(args, newEnv);
+    this.setEnv(newEnv);
+
+    // And away we go
+    trampolineHelper.nextContinuable = this.body;
   }
 };
 

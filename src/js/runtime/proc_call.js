@@ -307,9 +307,6 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
   if (r5js.ProcedureLike.isImplementedBy(proc)) {
     proc.evalAndAdvance(this, continuation, resultStruct, parserProvider);
-  } else if (proc instanceof r5js.Procedure) {
-    this.tryNonPrimitiveProcedure_(
-        proc, continuation, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Macro) {
     this.tryMacroUse_(proc, continuation, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Continuation) {
@@ -358,79 +355,6 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
      call's environment, so just bind the result here. */
   else {
     this.env.addBinding(name, val);
-  }
-};
-
-
-/**
- * Non-primitive procedure, represented by {@link r5js.Procedure} object.
- * Example: suppose we have
- *
- * (define (foo x y) (+ x (* 2 y)))
- *
- * The body of this procedure is desugared as
- *
- * (* 2 y [_0 (+ x _0 [_1 ...])])
- *
- * Then we have the (nested) procedure call
- *
- * (+ 1 (foo 3 4))
- *
- * which is desugared as
- *
- * (foo 3 4 [foo' (+ 1 foo' [_2 ...])])
- *
- * We bind the arguments ("1" and "2") to the formal parameters ("x" and "y"),
- * append the ProcCall's continuation to the end of the Procedure's
- * continuation, and advance to the beginning of the Procedure's body.
- * Thus, on the next iteration of the trampoline loop, we will have
- * the following:
- *
- * (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
- *
- * @param {!r5js.Procedure} proc The procedure.
- * @param {!r5js.Continuation} continuation A continuation.
- * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
- * that will return a new Parser for the given Datum.
- * @suppress {accessControls} for {@link r5js.Procedure.env_}
- * @private
- */
-r5js.ProcCall.prototype.tryNonPrimitiveProcedure_ = function(
-    proc, continuation, resultStruct, parserProvider) {
-
-  /* If the operands aren't simple, we'll have to take a detour to
-     restructure them. */
-  if (!this.operandsInCpsStyle()) {
-    this.cpsify(continuation, resultStruct, parserProvider);
-  }
-
-  else {
-
-    // todo bl we should be able to pass false as the last parameter.
-    // need to resolve some bugs.
-    var args = this.evalArgs(true);
-
-    /* If we're at a tail call we can reuse the existing environment.
-         Otherwise create a new environment pointing back to the current one. */
-    var newEnv = proc.isTailCall(continuation) ?
-            this.env.allowRedefs() :
-            new r5js.Environment(proc.env_).addClosuresFrom(proc.env_);
-
-    /* Remember to discard the new environment
-         at the end of the procedure call. */
-    if (this.env) {
-      continuation.rememberEnv(this.env);
-    }
-
-    // Do some bookkeepping to prepare for jumping into the procedure
-    proc.setContinuation(continuation);
-    proc.checkNumArgs(args.length);
-    proc.bindArgs(args, newEnv);
-    proc.setEnv(newEnv);
-
-    // And away we go
-    resultStruct.nextContinuable = proc.body;
   }
 };
 
