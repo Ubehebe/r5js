@@ -24,7 +24,6 @@ goog.require('r5js.IEnvironment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
-goog.require('r5js.Procedure');
 goog.require('r5js.ProcedureLike');
 goog.require('r5js.Ref');
 goog.require('r5js.UnboundVariable');
@@ -107,8 +106,7 @@ r5js.Environment.prototype.get = function(name) {
             binding.hasBindingRecursive(name)) {
       // Redirects for free ids in macro transcriptions
       return binding.get(name);
-    } else if (r5js.ProcedureLike.isImplementedBy(binding) ||
-            binding instanceof r5js.Procedure) {
+    } else if (r5js.ProcedureLike.isImplementedBy(binding)) {
       /* We store primitive and non-primitive procedures unwrapped,
              but wrap them in a Datum if they are requested through get.
              (getProcedure, which is intended just for evaluating the operator
@@ -147,7 +145,6 @@ r5js.Environment.prototype.getProcedure = function(name) {
     if (r5js.IEnvironment.isImplementedBy(binding)) {
       return binding.getProcedure(name);
     } else if (r5js.ProcedureLike.isImplementedBy(binding) ||
-            binding instanceof r5js.Procedure ||
             binding instanceof r5js.Macro ||
             binding instanceof r5js.Continuation ||
             binding instanceof r5js.JsObjOrMethod) {
@@ -186,8 +183,6 @@ r5js.Environment.prototype.addClosure = function(name, proc) {
     throw new r5js.InternalInterpreterError('tried to bind ' +
         name +
         ' in sealed environment');
-  } else if (!(proc instanceof r5js.Procedure)) {
-    throw new r5js.InternalInterpreterError('invariant incorrect');
   } else if (this.closures_[name]) {
     throw new r5js.InternalInterpreterError('invariant incorrect');
   } else {

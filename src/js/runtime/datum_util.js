@@ -10,6 +10,7 @@ goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
 goog.require('r5js.OutputPort');
+goog.require('r5js.ProcedureLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
@@ -118,7 +119,7 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
       case 'string':
         return new r5js.ast.Identifier(result);
       case 'object':
-        if (result instanceof r5js.Procedure) {
+        if (r5js.ProcedureLike.isImplementedBy(result)) {
           return new r5js.ast.Lambda(result.name_, result);
         }
       default:
