@@ -28,24 +28,3 @@ r5js.PrimitiveProcedure.prototype.Call = function(
 r5js.PrimitiveProcedure.prototype.setDebugName = function(name) {};
 
 
-/** @const @private {string} */
-r5js.PrimitiveProcedure.IMPLEMENTED_BY_PROP_ = '$r5js.PrimitiveProcedure';
-
-
-/**
- * @param {*} obj
- * @return {boolean}
- * TODO temporary shim. Remove.
- */
-r5js.PrimitiveProcedure.isImplementedBy = function(obj) {
-  return !!obj && !!obj[r5js.PrimitiveProcedure.IMPLEMENTED_BY_PROP_];
-};
-
-
-/** @param {function(new: r5js.PrimitiveProcedure,...)} ctor */
-r5js.PrimitiveProcedure.addImplementation = function(ctor) {
-  ctor.prototype[r5js.PrimitiveProcedure.IMPLEMENTED_BY_PROP_] = true;
-};
-
-
-

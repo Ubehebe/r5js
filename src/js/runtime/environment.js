@@ -24,8 +24,8 @@ goog.require('r5js.IEnvironment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
-goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.Procedure');
+goog.require('r5js.ProcedureLike');
 goog.require('r5js.Ref');
 goog.require('r5js.UnboundVariable');
 goog.require('r5js.ast.Lambda');
@@ -107,7 +107,7 @@ r5js.Environment.prototype.get = function(name) {
             binding.hasBindingRecursive(name)) {
       // Redirects for free ids in macro transcriptions
       return binding.get(name);
-    } else if (r5js.PrimitiveProcedure.isImplementedBy(binding) ||
+    } else if (r5js.ProcedureLike.isImplementedBy(binding) ||
             binding instanceof r5js.Procedure) {
       /* We store primitive and non-primitive procedures unwrapped,
              but wrap them in a Datum if they are requested through get.
@@ -146,7 +146,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
     var binding = this.bindings_[name];
     if (r5js.IEnvironment.isImplementedBy(binding)) {
       return binding.getProcedure(name);
-    } else if (r5js.PrimitiveProcedure.isImplementedBy(binding) ||
+    } else if (r5js.ProcedureLike.isImplementedBy(binding) ||
             binding instanceof r5js.Procedure ||
             binding instanceof r5js.Macro ||
             binding instanceof r5js.Continuation ||

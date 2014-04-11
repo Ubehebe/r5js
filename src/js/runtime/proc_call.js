@@ -308,9 +308,6 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
   if (r5js.ProcedureLike.isImplementedBy(proc)) {
     proc.evalAndAdvance(this, continuation, resultStruct, parserProvider);
-  } else if (r5js.PrimitiveProcedure.isImplementedBy(proc)) {
-    this.tryPrimitiveProcedure_(
-        proc, continuation, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Procedure) {
     this.tryNonPrimitiveProcedure_(
         proc, continuation, resultStruct, parserProvider);

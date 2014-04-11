@@ -71,7 +71,7 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
      disparate objects on the trampoline. The logic could be made clearer. */
   if (arg instanceof r5js.Macro)
     ans = arg;
-  else if (r5js.PrimitiveProcedure.isImplementedBy(arg) ||
+  else if (r5js.ProcedureLike.isImplementedBy(arg) ||
       arg instanceof r5js.ast.Lambda)
     ans = arg;
   else if (arg instanceof r5js.ast.Identifier)

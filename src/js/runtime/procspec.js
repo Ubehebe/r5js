@@ -4,7 +4,6 @@ goog.provide('r5js.procspec');
 goog.require('goog.array');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
-goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.ProcedureLike');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
@@ -277,7 +276,6 @@ r5js.procspec.PrimitiveProcedure_ = function(
   /** @private {string} */
   this.debugName_ = '';
 };
-r5js.PrimitiveProcedure.addImplementation(r5js.procspec.PrimitiveProcedure_);
 r5js.ProcedureLike.addImplementation(r5js.procspec.PrimitiveProcedure_);
 
 
@@ -348,7 +346,6 @@ r5js.procspec.NeedsCurrentPorts_ = function(fn, numArgChecker, typeChecker) {
 };
 goog.inherits(
     r5js.procspec.NeedsCurrentPorts_, r5js.procspec.PrimitiveProcedure_);
-r5js.PrimitiveProcedure.addImplementation(r5js.procspec.NeedsCurrentPorts_);
 r5js.ProcedureLike.addImplementation(r5js.procspec.NeedsCurrentPorts_);
 
 
@@ -388,7 +385,6 @@ r5js.procspec.HasSpecialEvalLogic_ = function(fn, numArgChecker, typeChecker) {
 goog.inherits(
     r5js.procspec.HasSpecialEvalLogic_, r5js.procspec.PrimitiveProcedure_);
 r5js.ProcedureLike.addImplementation(r5js.procspec.HasSpecialEvalLogic_);
-r5js.PrimitiveProcedure.addImplementation(r5js.procspec.HasSpecialEvalLogic_);
 
 
 /** @override */
