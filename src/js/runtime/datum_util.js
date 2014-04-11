@@ -1,7 +1,6 @@
 goog.provide('r5js.datumutil');
 
 
-// TODO bl circular dependency goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.IEnvironment');
@@ -96,9 +95,9 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
     return r5js.runtime.UNSPECIFIED_VALUE;
   } else if (result === r5js.runtime.UNSPECIFIED_VALUE ||
       result instanceof r5js.Datum ||
-      result instanceof r5js.Continuation ||
       result instanceof r5js.Macro ||
       result instanceof r5js.JsObjOrMethod /* JS interop (experimental) */ ||
+      r5js.ProcedureLike.isImplementedBy(result) ||
       r5js.IEnvironment.isImplementedBy(result) ||
       r5js.InputPort.isImplementedBy(result) ||
       r5js.OutputPort.isImplementedBy(result)) {
@@ -118,10 +117,6 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
         return new r5js.ast.Number(result);
       case 'string':
         return new r5js.ast.Identifier(result);
-      case 'object':
-        if (r5js.ProcedureLike.isImplementedBy(result)) {
-          return new r5js.ast.Lambda(result.name_, result);
-        }
       default:
         throw new r5js.InternalInterpreterError(
             'cannot deduce type from value ' +
