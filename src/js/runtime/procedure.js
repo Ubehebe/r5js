@@ -27,7 +27,7 @@ goog.require('r5js.parse.Terminals');
  * @param {string=} opt_name The procedure's name. It has no semantic
  *     importance; it's just used for pretty-printing debugs and messages
  *     to the user. If not given, one will be created.
- *     @implements {r5js.ProcedureLike}
+ * @implements {r5js.ProcedureLike}
  * @struct
  * @constructor
  */

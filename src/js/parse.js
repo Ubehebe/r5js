@@ -46,6 +46,7 @@ goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.bnf');
 goog.require('r5js.newProcCall');
+goog.require('r5js.VarargsProcedure');
 
 
 /* todo bl: this file should not exist.
@@ -368,10 +369,10 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
       }
 
       var name = newAnonymousLambdaName();
-      env.addClosure(
-          name,
-          new r5js.Procedure(
-              formals, treatAsDotted, formalRoot.getNextSibling(), env, name));
+      var proc = treatAsDotted ?
+          new r5js.VarargsProcedure(formals, formalRoot.getNextSibling(), env, name) :
+          new r5js.Procedure(formals, false, formalRoot.getNextSibling(), env, name);
+      env.addClosure(name, proc);
       return r5js.newIdShim(new r5js.ast.Identifier(name));
         });
 
@@ -499,8 +500,8 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       var anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
-          new r5js.Procedure(
-              formals, true, formalRoot.getNextSibling(), env, name));
+          new r5js.VarargsProcedure(
+              formals, formalRoot.getNextSibling(), env, name));
       return r5js.newAssignment(
           /** @type {string} */(name.getPayload()), // TODO bl
           anonymousName,
