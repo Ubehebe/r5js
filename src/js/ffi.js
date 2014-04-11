@@ -24,7 +24,6 @@ goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
-goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.FFIError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.ProcCall');
@@ -60,13 +59,12 @@ r5js.ProcCall.prototype.tryFFI_ = function(
 
         switch (typeof property) {
             case 'function':
-                ans = new r5js.ast.Ffi(
-                    new r5js.JsObjOrMethod(
+                ans = new r5js.JsObjOrMethod(
                         jsObjOrMethod.getObject(),
-                        property));
+                        property);
                 break;
             case 'object':
-                ans = new r5js.ast.Ffi(new r5js.JsObjOrMethod(property));
+                ans = new r5js.JsObjOrMethod(property);
                 break;
             case 'undefined':
                 ans = null;
@@ -93,33 +91,6 @@ r5js.ProcCall.prototype.tryFFI_ = function(
  * Convenience functions for working with the foreign-function interface.
  */
 r5js.ffiutil = {};
-
-
-/**
- * @param {!Object} jsObj A JavaScript object.
- * @extends {r5js.ast.SimpleDatum.<!Object>}
- * @struct
- * @constructor
- */
-r5js.ast.Ffi = function(jsObj) {
-  goog.base(this, jsObj);
-};
-goog.inherits(r5js.ast.Ffi, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.Ffi.prototype.stringForOutputMode = function(outputMode) {
-    return this.getPayload().toString();
-};
-
-
-/**
- * @param {!Object} jsObj A JavaScript object.
- * @return {!r5js.Datum} A new datum representing the given JavaScript object.
- */
-r5js.ffiutil.newFFIDatum = function(jsObj) {
-    return new r5js.ast.Ffi(jsObj);
-};
 
 
 /**
