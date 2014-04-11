@@ -22,7 +22,6 @@ goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
 goog.require('r5js.ProcedureLike');
 goog.require('r5js.Ref');
@@ -145,9 +144,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
     if (r5js.IEnvironment.isImplementedBy(binding)) {
       return binding.getProcedure(name);
     } else if (r5js.ProcedureLike.isImplementedBy(binding) ||
-            binding instanceof r5js.Macro ||
-            binding instanceof r5js.Continuation ||
-            binding instanceof r5js.JsObjOrMethod) {
+            binding instanceof r5js.Macro) {
       return binding;
     } else {
       throw new r5js.EvalError('expected procedure, given ' + name);

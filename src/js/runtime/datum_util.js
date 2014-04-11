@@ -6,7 +6,6 @@ goog.require('r5js.DatumType');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.InputPort');
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
 goog.require('r5js.OutputPort');
 goog.require('r5js.ProcedureLike');
@@ -96,7 +95,6 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
   } else if (result === r5js.runtime.UNSPECIFIED_VALUE ||
       result instanceof r5js.Datum ||
       result instanceof r5js.Macro ||
-      result instanceof r5js.JsObjOrMethod /* JS interop (experimental) */ ||
       r5js.ProcedureLike.isImplementedBy(result) ||
       r5js.IEnvironment.isImplementedBy(result) ||
       r5js.InputPort.isImplementedBy(result) ||
