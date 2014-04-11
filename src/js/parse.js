@@ -371,7 +371,7 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
       var name = newAnonymousLambdaName();
       var proc = treatAsDotted ?
           new r5js.VarargsProcedure(formals, formalRoot.getNextSibling(), env, name) :
-          new r5js.Procedure(formals, false, formalRoot.getNextSibling(), env, name);
+          new r5js.Procedure(formals, formalRoot.getNextSibling(), env, name);
       env.addClosure(name, proc);
       return r5js.newIdShim(new r5js.ast.Identifier(name));
         });
@@ -466,7 +466,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       env.addBinding(
           anonymousName,
           new r5js.Procedure(
-              formals, false, formalRoot.getNextSibling(), env, name));
+              formals, formalRoot.getNextSibling(), env, name));
       return r5js.newAssignment(
           name.getPayload(),
           anonymousName,

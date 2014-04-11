@@ -20,8 +20,6 @@ goog.require('r5js.parse.Terminals');
 /**
  * @param {!Array.<string>} formalsArray The procedure's formal parameters,
  *        in order.
- * @param {boolean} isDotted True iff this is a dotted procedure, such as
- *        (define (head x . y) x).
  * @param {?} bodyStart
  * @param {!r5js.IEnvironment} env An environment.
  * @param {string=} opt_name The procedure's name. It has no semantic
@@ -31,10 +29,9 @@ goog.require('r5js.parse.Terminals');
  * @struct
  * @constructor
  */
-r5js.Procedure = function(formalsArray, isDotted, bodyStart, env, opt_name) {
+r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
 
-  /** @const @private */ this.formalsArray_ = formalsArray;
-  /** @const @private */ this.isDotted_ = isDotted;
+  /** @const @protected */ this.formalsArray = formalsArray;
   /** @const @private */ this.name_ =
       goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
   /** @const @private {!r5js.IEnvironment} */ this.env_ =
@@ -66,7 +63,7 @@ r5js.ProcedureLike.addImplementation(r5js.Procedure);
  *         environment.
  */
 r5js.Procedure.prototype.cloneWithEnv = function(env) {
-  var ans = new r5js.Procedure(this.formalsArray_, this.isDotted_, null, env);
+  var ans = new this.constructor(this.formalsArray, null /* bodyStart */, env);
   ans.env_.setClosuresFrom(this.env_); // non-cloning ok?
   ans.body = this.body;
   ans.lastContinuable = this.lastContinuable;
@@ -132,18 +129,12 @@ r5js.Procedure.prototype.setEnv_ = function(env) {
 /**
  * @param {number} numActuals The number of arguments passed to the procedure
  * during evaluation.
- * @private
+ * @protected
  */
-r5js.Procedure.prototype.checkNumArgs_ = function(numActuals) {
-
-  if (!this.isDotted_) {
-    if (numActuals !== this.formalsArray_.length)
-      throw new r5js.IncorrectNumArgs(
-          this.toString(), this.formalsArray_.length, numActuals);
-  } else {
-    var minNumArgs = this.formalsArray_.length - 1;
-    if (numActuals < minNumArgs)
-      throw new r5js.TooFewArgs(this.toString(), minNumArgs, numActuals);
+r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
+  if (numActuals !== this.formalsArray.length) {
+    throw new r5js.IncorrectNumArgs(
+        this.toString(), this.formalsArray.length, numActuals);
   }
 };
 
@@ -151,30 +142,11 @@ r5js.Procedure.prototype.checkNumArgs_ = function(numActuals) {
 /**
  * @param {!Array.<!r5js.Datum>} args
  * @param {!r5js.IEnvironment} env
- * @private
+ * @protected
  */
-r5js.Procedure.prototype.bindArgs_ = function(args, env) {
-
-  var name, i;
-
-  for (i = 0; i < this.formalsArray_.length - 1; ++i) {
-    name = this.formalsArray_[i];
-    env.addBinding(name, args[i]);
-  }
-
-  if (this.formalsArray_.length > 0) {
-
-    name = this.formalsArray_[i];
-    if (!this.isDotted_) {
-      env.addBinding(name, args[i]);
-    } else {
-      // Roll up the remaining arguments into a list
-      var siblingBuffer = new r5js.SiblingBuffer();
-      for (var j = this.formalsArray_.length - 1; j < args.length; ++j) {
-        siblingBuffer.appendSibling(/** @type {!r5js.Datum} */ (args[j]));
-      }
-      env.addBinding(name, siblingBuffer.toList(r5js.ast.List));
-    }
+r5js.Procedure.prototype.bindArgs = function(args, env) {
+  for (var i = 0; i < this.formalsArray.length; ++i) {
+    env.addBinding(this.formalsArray[i], args[i]);
   }
 };
 
@@ -236,8 +208,8 @@ r5js.Procedure.prototype.evalAndAdvance = function(
 
     // Do some bookkeepping to prepare for jumping into the procedure
     this.setContinuation_(continuation);
-    this.checkNumArgs_(args.length);
-    this.bindArgs_(args, newEnv);
+    this.checkNumArgs(args.length);
+    this.bindArgs(args, newEnv);
     this.setEnv_(newEnv);
 
     // And away we go
