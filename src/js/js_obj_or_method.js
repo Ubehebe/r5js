@@ -19,50 +19,46 @@ goog.provide('r5js.JsObjOrMethod');
 
 goog.require('r5js.InternalInterpreterError');
 
-/* It's kind of silly to have an object representing an object.
- I did this to avoid dispatching on typeof x === 'object' in the
- evaluator, which in my experience is error-prone. */
+
 
 /**
  * @param {*} receiver The receiver.
- * @param {*=} msg The message to send.
+ * @param {*=} opt_msg The message to send.
+ * @struct
  * @constructor
  * TODO bl: narrow the types of the parameters.
  */
-r5js.JsObjOrMethod = function(receiver, msg) {
-    /**
-     * @type {*}
-     */
-    this.receiver = receiver;
+r5js.JsObjOrMethod = function(receiver, opt_msg) {
+  /** @const @private */ this.receiver_ = receiver;
+  /** @const @private */ this.msg_ = opt_msg;
+};
 
-    /**
-     * @type {*}
-     */
-    this.msg = msg;
+
+/** @return {boolean} True iff the object represents a bound method. */
+r5js.JsObjOrMethod.prototype.isBoundMethod = function() {
+  return !!this.msg_;
+};
+
+
+/** @return {*} */
+r5js.JsObjOrMethod.prototype.getObject = function() {
+  if (this.isBoundMethod()) {
+    throw new r5js.InternalInterpreterError('invariant incorrect');
+  }
+  return this.receiver_;
 };
 
 
 /**
- * @return {boolean} True iff the object represents a bound method.
+ * @param {*} args TODO bl document.
+ * @return {*} TODO bl.
  */
-r5js.JsObjOrMethod.prototype.isBoundMethod = function() {
-    return !!this.msg;
-};
-
-
-r5js.JsObjOrMethod.prototype.getObject = function() {
-    if (this.isBoundMethod()) {
-        throw new r5js.InternalInterpreterError('invariant incorrect');
-    }
-    return this.receiver;
-};
-
-
 r5js.JsObjOrMethod.prototype.callWith = function(args) {
-    return this.msg.apply(this.receiver, args);
+  return this.msg_.apply(this.receiver_, args);
 };
+
 
 /** @override */
 r5js.JsObjOrMethod.prototype.toString = function() {
-    return this.receiver.toString();
+  return this.receiver_.toString();
 };
