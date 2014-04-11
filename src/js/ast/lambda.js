@@ -1,7 +1,6 @@
 goog.provide('r5js.ast.Lambda');
 
 
-goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.parse.Terminals');
 
@@ -9,8 +8,8 @@ goog.require('r5js.parse.Terminals');
 
 /**
  * @param {string} name Name of the procedure.
- * @param {!r5js.PrimitiveProcedure|!r5js.Procedure} procedure TODO bl.
- * @extends {r5js.ast.SimpleDatum.<!r5js.PrimitiveProcedure|!r5js.Procedure>}
+ * @param {!r5js.ProcedureLike|!r5js.Procedure} procedure TODO bl.
+ * @extends {r5js.ast.SimpleDatum.<!r5js.ProcedureLike|!r5js.Procedure>}
  * @struct
  * @constructor
  */

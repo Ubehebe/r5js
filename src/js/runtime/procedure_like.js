@@ -2,7 +2,10 @@ goog.provide('r5js.ProcedureLike');
 
 
 
-/** @interface */
+/**
+ * @interface
+ * @extends {r5js.runtime.ObjectValue}
+ */
 r5js.ProcedureLike = function() {};
 
 

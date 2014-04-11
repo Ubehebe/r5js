@@ -114,7 +114,7 @@ r5js.Environment.prototype.get = function(name) {
              (getProcedure, which is intended just for evaluating the operator
              on the trampoline, will return the unwrapped procedures.) */
       return new r5js.ast.Lambda(name,
-          /** @type {!r5js.PrimitiveProcedure|!r5js.Procedure} */ (
+          /** @type {!r5js.ProcedureLike|!r5js.Procedure} */ (
           binding));
     } else if (binding === r5js.runtime.UNSPECIFIED_VALUE) {
       return binding;

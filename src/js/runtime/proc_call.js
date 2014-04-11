@@ -10,7 +10,6 @@ goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.JsObjOrMethod');
 goog.require('r5js.Macro');
-goog.require('r5js.PrimitiveProcedure');
 goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
@@ -359,42 +358,6 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
      call's environment, so just bind the result here. */
   else {
     this.env.addBinding(name, val);
-  }
-};
-
-
-/**
- * Primitive procedure, represented by JavaScript function:
- * (+ x y [ans ...]). We perform the action ("+"), bind the
- * result to the continuation's result name ("ans"), and advance
- * to the next continuable ("...").
- * @param {!r5js.PrimitiveProcedure} proc
- * @param {!r5js.Continuation} continuation
- * @param {!r5js.TrampolineHelper} resultStruct
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
- * that will return a new Parser for the given Datum when called.
- * @private
- */
-r5js.ProcCall.prototype.tryPrimitiveProcedure_ = function(
-    proc, continuation, resultStruct, parserProvider) {
-
-  /* If the operands aren't simple, we'll have to take a detour to
-     restructure them. Example:
-
-     (+ (* 1 2) (/ 3 4)) => (* 1 2 [_0 (/ 3 4 [_1 (+ _0 _1 ...)])]) */
-  if (!this.operandsInCpsStyle()) {
-    this.cpsify(continuation, resultStruct, parserProvider);
-  }
-
-  else {
-    var args = this.evalArgs(true);
-    // todo bl document why we're doing this...
-    for (var i = 0; i < args.length; ++i) {
-      if (args[i] instanceof r5js.Ref) {
-        args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
-      }
-    }
-    proc.Call(args, this, continuation, resultStruct);
   }
 };
 

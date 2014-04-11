@@ -41,7 +41,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 /** @private {r5js.js.Environment} */ r5js.PrimitiveProcedures.jsEnv_;
 
 
-/** @const @private {!Object.<string, !r5js.PrimitiveProcedure>} */
+/** @const @private {!Object.<string, !r5js.ProcedureLike>} */
 r5js.PrimitiveProcedures.registry_ = {};
 
 
