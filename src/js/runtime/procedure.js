@@ -80,7 +80,7 @@ r5js.Procedure.prototype.setContinuation_ = function(c) {
      probably still faster than checking if we are in tail position and,
      if so, explicitly doing nothing. */
   if (this.lastContinuable) {
-    this.lastContinuable.continuation = c;
+    this.lastContinuable.setContinuation(c);
   }
 };
 
@@ -92,7 +92,7 @@ r5js.Procedure.prototype.setContinuation_ = function(c) {
  * TODO bl are we sure this covers all forms of tail recursion in R5RS?
  */
 r5js.Procedure.prototype.isTailCall_ = function(c) {
-  if (this.lastContinuable && this.lastContinuable.continuation === c) {
+  if (this.lastContinuable && this.lastContinuable.getContinuation() === c) {
     // a good place to see if tail recursion is actually working :)
     // console.log('TAIL RECURSION!!!');
     return true;
@@ -115,7 +115,7 @@ r5js.Procedure.prototype.setEnv_ = function(env) {
      continuable is a branch? hopefully not, and I can remove
      the second check. */
   if (this.body) {
-      var bodySubtype = this.body.getSubtype();
+    var bodySubtype = this.body.getSubtype();
     if (bodySubtype.setEnv) {
       bodySubtype.setEnv(env, true);
     } else {

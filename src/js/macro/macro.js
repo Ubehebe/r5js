@@ -288,7 +288,7 @@ r5js.Macro.prototype.evalAndAdvance = function(
   var newContinuable = newParseTree.desugar(newEnv, true).
       setStartingEnv(newEnv);
 
-  newContinuable.getLastContinuable().continuation = continuation;
+  newContinuable.getLastContinuable().setContinuation(continuation);
   resultStruct.nextContinuable = newContinuable;
 };
 

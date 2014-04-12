@@ -87,7 +87,7 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
             /** @type {!r5js.Datum} */(node.getFirstChild())).
                 parse(r5js.parse.Nonterminals.EXPRESSION).
                 desugar(env, true));
-        var continuation = asContinuable.getLastContinuable().continuation;
+        var continuation = asContinuable.getLastContinuable().getContinuation();
         /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */

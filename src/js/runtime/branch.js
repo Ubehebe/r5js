@@ -67,7 +67,7 @@ r5js.Branch_.prototype.evalAndAdvance = function(
     on the trampoline. */
   var testResult = envBuffer.get(this.testResultName_);
   if (testResult === false) {
-    this.alternateLastContinuable_.continuation = continuation;
+    this.alternateLastContinuable_.setContinuation(continuation);
     resultStruct.nextContinuable = this.alternate_;
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}.
@@ -76,7 +76,7 @@ r5js.Branch_.prototype.evalAndAdvance = function(
          is insufficient or that I don't understand the type of subtype. */
     this.consequent_.getSubtype().clearEnv();
   } else {
-    this.consequentLastContinuable_.continuation = continuation;
+    this.consequentLastContinuable_.setContinuation(continuation);
     resultStruct.nextContinuable = this.consequent_;
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}, and above. */

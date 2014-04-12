@@ -307,7 +307,7 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
       else {
         var desugaredOp = /** @type {!r5js.Continuable} */ (
             operatorNode.desugar(env));
-        var lastContinuation = desugaredOp.getLastContinuable().continuation;
+        var lastContinuation = desugaredOp.getLastContinuable().getContinuation();
         var opName = lastContinuation.lastResultName;
         lastContinuation.nextContinuable = r5js.newProcCall(
             new r5js.ast.Identifier(opName),
@@ -435,8 +435,8 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       var variable = node.at(Nonterminals.VARIABLE);
       var desugaredExpr = variable.getNextSibling().desugar(env, true);
       var lastContinuable = desugaredExpr.getLastContinuable();
-      var cpsName = lastContinuable.continuation.lastResultName;
-      lastContinuable.continuation.nextContinuable =
+      var cpsName = lastContinuable.getContinuation().lastResultName;
+      lastContinuable.getContinuation().nextContinuable =
           r5js.newAssignment(
           variable.getPayload(),
           cpsName,
@@ -535,13 +535,14 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
           node.at(Nonterminals.ALTERNATE).desugar(env, true));
 
       var testEndpoint = test.getLastContinuable();
+      var testEndpointContinuation = testEndpoint.getContinuation();
 
       var branch = r5js.newBranch(
-          testEndpoint.continuation.lastResultName,
+          testEndpointContinuation.lastResultName,
           consequent,
           alternate,
           new r5js.Continuation());
-      testEndpoint.continuation.nextContinuable = branch;
+      testEndpointContinuation.nextContinuable = branch;
       return test;
     }),
     _.list(
@@ -555,6 +556,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
       var testEndpoint = test.getLastContinuable();
+            var testEndpointContinuation = testEndpoint.getContinuation();
 
             /* If there's no alternate given, we create a shim that will return
             an undefined value. Example: (display (if #f 42)).
@@ -564,11 +566,11 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
             TODO bl improve.
             */
       var branch = r5js.newBranch(
-          testEndpoint.continuation.lastResultName,
+          testEndpointContinuation.lastResultName,
           consequent,
           r5js.newIdShim(new r5js.ast.Number(null)),
           new r5js.Continuation());
-      testEndpoint.continuation.nextContinuable = branch;
+      testEndpointContinuation.nextContinuable = branch;
       return test;
     }));
 
@@ -598,8 +600,8 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.list(
           variable.getNextSibling().desugar(env, true));
       var lastContinuable = /** @type {!r5js.Continuable} */ (
           desugaredExpr.getLastContinuable());
-      var cpsName = lastContinuable.continuation.lastResultName;
-      lastContinuable.continuation.nextContinuable =
+      var cpsName = lastContinuable.getContinuation().lastResultName;
+      lastContinuable.getContinuation().nextContinuable =
           r5js.newAssignment(
           /** @type {string} */ (variable.getPayload()),
           cpsName,

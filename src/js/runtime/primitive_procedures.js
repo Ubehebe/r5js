@@ -898,7 +898,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       var result = newCpsName();
       procCallAfter.appendContinuable(
           r5js.newIdShim(new r5js.ast.Identifier(result)));
-      procCallAfter.getLastContinuable().continuation = continuation;
+      procCallAfter.getLastContinuable().setContinuation(continuation);
 
       var procCallThunk = r5js.newProcCall(
           procCall.getFirstOperand().getNextSibling(),

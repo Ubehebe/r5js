@@ -39,7 +39,7 @@ r5js.Continuable = function(subtype, continuation) {
     /** @const @private {!r5js.Branch_|!r5js.ProcCall} */
     this.subtype_ = subtype;
 
-    /** @type {!r5js.Continuation} */ this.continuation = continuation;
+    /** @private {!r5js.Continuation} */ this.continuation_ = continuation;
 
     // todo bl caching problems
     /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
@@ -49,6 +49,18 @@ r5js.Continuable = function(subtype, continuation) {
 /** @return {!r5js.Branch_|!r5js.ProcCall} */
 r5js.Continuable.prototype.getSubtype = function() {
     return this.subtype_;
+};
+
+
+/** @return {!r5js.Continuation} */
+r5js.Continuable.prototype.getContinuation = function() {
+    return this.continuation_;
+};
+
+
+/** @param {!r5js.Continuation} continuation */
+r5js.Continuable.prototype.setContinuation = function(continuation) {
+    this.continuation_ = continuation;
 };
 
 /**
@@ -92,11 +104,11 @@ r5js.Continuable.prototype.setSyntaxAssignment = function() {
  * @return {!r5js.Continuable}
  */
 r5js.Continuable.prototype.getLastContinuable = function() {
-    if (!this.continuation) {
+    if (!this.continuation_) {
         throw new r5js.InternalInterpreterError('invariant violated');
     }
-    return this.continuation.nextContinuable
-        ? this.continuation.nextContinuable.getLastContinuable()
+    return this.continuation_.nextContinuable
+        ? this.continuation_.nextContinuable.getLastContinuable()
         : this;
 };
 
@@ -105,6 +117,6 @@ r5js.Continuable.prototype.getLastContinuable = function() {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.appendContinuable = function(next) {
-    this.getLastContinuable().continuation.nextContinuable = next;
+    this.getLastContinuable().continuation_.nextContinuable = next;
     return this;
 };

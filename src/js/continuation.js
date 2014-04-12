@@ -169,12 +169,12 @@ r5js.Continuation.prototype.evalAndAdvance = function(
      infinite loop. */
     for (var tmp = trampolineHelper.nextContinuable, prev;
          tmp;
-         prev = tmp, tmp = tmp.continuation.nextContinuable) {
+         prev = tmp, tmp = tmp.getContinuation().nextContinuable) {
         if (tmp.getSubtype() === procCall) {
             if (prev)
-                prev.continuation.nextContinuable = tmp.continuation.nextContinuable;
+                prev.getContinuation().nextContinuable = tmp.getContinuation().nextContinuable;
             else
-                trampolineHelper.nextContinuable = tmp.continuation.nextContinuable;
+                trampolineHelper.nextContinuable = tmp.getContinuation().nextContinuable;
             break;
         }
     }
