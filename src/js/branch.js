@@ -13,6 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+goog.provide('r5js.newBranch');
 goog.provide('r5js.Branch');
 
 
@@ -24,21 +25,30 @@ goog.require('r5js.DatumType');
 // TODO bl circular dependency goog.require('r5js.newIdShim');
 
 
-function newBranch(testIdOrLiteral, consequentContinuable, alternateContinuable, continuation) {
+/**
+ * @param {?} testIdOrLiteral TODO bl
+ * @param {?} consequentContinuable TODO bl
+ * @param {?} alternateContinuable TODO bl
+ * @param {!r5js.Continuation} continuation
+ * @return {!r5js.Continuable}
+ */
+r5js.newBranch = function(
+    testIdOrLiteral,
+    consequentContinuable,
+    alternateContinuable,
+    continuation) {
     return new r5js.Continuable(
         new r5js.Branch(
-            testIdOrLiteral,
-            consequentContinuable,
-            alternateContinuable
-        ),
-        continuation
-    );
-}
+            testIdOrLiteral, consequentContinuable, alternateContinuable),
+        continuation);
+};
 
 
 /**
+ * @param {?} testIdOrLiteral TODO bl
+ * @param {?} consequentContinuable TODO bl
+ * @param {?} alternateContinuable TODO bl
  * @constructor
- * @private
  * @suppress {checkTypes} for the null argument to r5js.ast.Number ctor.
  */
 r5js.Branch = function(

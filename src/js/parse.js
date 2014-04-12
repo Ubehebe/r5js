@@ -18,6 +18,7 @@ goog.provide('r5js.Parser');
 
 goog.require('goog.array');
 goog.require('r5js.Continuation');
+goog.require('r5js.newBranch');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DatumType');
@@ -536,7 +537,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
 
       var testName = new r5js.ast.Identifier(
           testEndpoint.continuation.lastResultName);
-      var branch = newBranch(
+      var branch = r5js.newBranch(
           testName,
           consequent,
           alternate,
@@ -558,7 +559,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
 
       var testName = new r5js.ast.Identifier(
           testEndpoint.continuation.lastResultName);
-      var branch = newBranch(
+      var branch = r5js.newBranch(
           testName,
           consequent,
           null,
