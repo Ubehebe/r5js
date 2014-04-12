@@ -23,9 +23,9 @@ goog.require('r5js.InternalInterpreterError');
 /**
  * TODO bl: This constructor is only called twice, once with a
  * {@link r5js.ProcCall} as subtype, the other time with a
- * {@link r5js.Branch} as subtype. Thus this class should be turned into
+ * {@link r5js.Branch_} as subtype. Thus this class should be turned into
  * a base class or interface, with {@link r5js.ProcCall}
- * and {@link r5js.Branch} extending or implementing it.
+ * and {@link r5js.Branch_} extending or implementing it.
  * This would break the circular dependency caused by the
  * goog.require('r5js.ProcCall') commented out above.
  *

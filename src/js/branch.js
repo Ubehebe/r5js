@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 goog.provide('r5js.newBranch');
-goog.provide('r5js.Branch');
 
 
 goog.require('r5js.Continuable');
@@ -30,7 +29,7 @@ goog.require('r5js.ProcCall');
  */
 r5js.newBranch = function(testResultName, consequent, alternate, continuation) {
     return new r5js.Continuable(
-        new r5js.Branch(testResultName, consequent, alternate),
+        new r5js.Branch_(testResultName, consequent, alternate),
         continuation);
 };
 
@@ -39,10 +38,11 @@ r5js.newBranch = function(testResultName, consequent, alternate, continuation) {
  * @param {string} testResultName
  * @param {!r5js.Continuable} consequent
  * @param {!r5js.Continuable} alternate
+ * @struct
  * @constructor
- * @suppress {checkTypes} for the null argument to r5js.ast.Number ctor.
+ * @private
  */
-r5js.Branch = function(testResultName, consequent, alternate) {
+r5js.Branch_ = function(testResultName, consequent, alternate) {
     /** @const @private */ this.testResultName_ = testResultName;
     /** @const @private */ this.consequent_ = consequent;
     /** @const @private */ this.alternate_ = alternate;
@@ -58,7 +58,7 @@ r5js.Branch = function(testResultName, consequent, alternate) {
  * @param {!r5js.EnvBuffer} envBuffer
  * @returns {*}
  */
-r5js.Branch.prototype.evalAndAdvance = function(
+r5js.Branch_.prototype.evalAndAdvance = function(
     continuation, resultStruct, envBuffer) {
 
     /* Branches always use the old environment left by the previous action
@@ -101,7 +101,7 @@ r5js.Branch.prototype.evalAndAdvance = function(
  *
  * @param {!r5js.IEnvironment} env
  */
-r5js.Branch.prototype.maybeSetEnv = function(env) {
+r5js.Branch_.prototype.maybeSetEnv = function(env) {
     if (this.consequent_.subtype instanceof r5js.ProcCall) {
         this.consequent_.subtype.maybeSetEnv(env);
     }

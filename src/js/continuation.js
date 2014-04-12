@@ -102,7 +102,7 @@ r5js.Continuation.prototype.debugString = function(indentLevel) {
  * @return {?}
  * TODO bl: previously, this did an instanceof check on
  * this.nextContinuable.subtype and returned null if it wasn't
- * a {@link r5js.ProcCall} (in particular, if it was a {@link r5js.Branch}).
+ * a {@link r5js.ProcCall} (in particular, if it was a {@link r5js.Branch_}).
  * The instanceof check caused an indirect circular dependency between
  * {@link r5js.Continuation} and {@link r5js.ProcCall}. This method
  * was the easiest way to break the cycle, as it had only one caller:
