@@ -1027,11 +1027,10 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
         throw new r5js.MacroError(kw, 'all patterns must begin with ' + kw);
       var anonymousName = newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
-      return r5js.newTopLevelAssignment(
+      return r5js.newTopLevelSyntaxAssignment(
           kw,
           anonymousName,
-          new r5js.Continuation()).
-          setSyntaxAssignment();
+          new r5js.Continuation());
     });
 
 });  // goog.scope

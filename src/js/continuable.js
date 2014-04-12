@@ -76,17 +76,6 @@ r5js.Continuable.prototype.setStartingEnv = function(env) {
 
 
 /**
- * @return {!r5js.Continuable} This object, for chaining.
- */
-r5js.Continuable.prototype.setSyntaxAssignment = function() {
-    if (!(this.subtype_ instanceof r5js.Assignment)) {
-        throw new r5js.InternalInterpreterError('invariant incorrect');
-    }
-    this.subtype_.isSyntaxAssignment = true;
-    return this;
-};
-
-/**
  * The last continuable of a continuable-continuation chain is the first
  * continuable c such that c.continuation.nextContinuable is null.
  * @return {!r5js.Continuable}
