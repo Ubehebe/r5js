@@ -22,8 +22,6 @@ r5js.Assignment = function(firstOperand) {
   goog.base(this, r5js.Assignment.NAME_, firstOperand);
 
   /** @type {boolean} */ this.isSyntaxAssignment = false;
-
-  /** @type {boolean} */ this.isTopLevelAssignment = false;
 };
 goog.inherits(r5js.Assignment, r5js.ProcCall);
 
@@ -90,12 +88,21 @@ r5js.Assignment.prototype.tryAssignment_ = function(
       !this.isSyntaxAssignment) {
     throw new r5js.GeneralSyntaxError(this);
   }
-  this.env.mutate(/** @type {string} */ (
-      this.firstOperand.getPayload()), src, this.isTopLevelAssignment);
+  this.mutateEnv(/** @type {string} */ (this.firstOperand.getPayload()), src);
   /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
   this.bindResult(continuation, r5js.runtime.UNSPECIFIED_VALUE);
   resultStruct.nextContinuable = continuation.nextContinuable;
+};
+
+
+/**
+ * @param {string} name
+ * @param {?} val TODO bl.
+ * @protected
+ */
+r5js.Assignment.prototype.mutateEnv = function(name, val) {
+  this.env.mutate(name, val, false /* isTopLevel */);
 };
 
 
@@ -108,9 +115,14 @@ r5js.Assignment.prototype.tryAssignment_ = function(
  */
 r5js.TopLevelAssignment = function(firstOperand) {
   goog.base(this, firstOperand);
-  this.isTopLevelAssignment = true;
 };
 goog.inherits(r5js.TopLevelAssignment, r5js.Assignment);
+
+
+/** @override */
+r5js.TopLevelAssignment.prototype.mutateEnv = function(name, val) {
+  this.env.mutate(name, val, true /* isTopLevel */);
+};
 
 
 /**
