@@ -17,9 +17,6 @@
 goog.provide('r5js.Continuable');
 
 
-goog.require('r5js.InternalInterpreterError');
-// TODO bl circular dependency goog.require('r5js.Assignment');
-
 /**
  * TODO bl: This constructor is only called twice, once with a
  * {@link r5js.ProcCall} as subtype, the other time with a
@@ -81,9 +78,6 @@ r5js.Continuable.prototype.setStartingEnv = function(env) {
  * @return {!r5js.Continuable}
  */
 r5js.Continuable.prototype.getLastContinuable = function() {
-    if (!this.continuation_) {
-        throw new r5js.InternalInterpreterError('invariant violated');
-    }
     return this.continuation_.nextContinuable
         ? this.continuation_.nextContinuable.getLastContinuable()
         : this;
