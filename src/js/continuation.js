@@ -117,6 +117,8 @@ r5js.Continuation.prototype.getAdjacentProcCall = function() {
 
 /**
  * @param {!r5js.IEnvironment} env Environment to remember.
+ * @suppress {accessControls} for access to {@link r5js.Branch.consequent_}
+ * and {@link r5js.Branch.alternate_}. TODO bl easy to remove.
  */
 r5js.Continuation.prototype.rememberEnv = function(env) {
   /* In general, we need to remember to jump out of the newEnv at
@@ -139,11 +141,11 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
          my command of prototypal inheritance wasn't great when I wrote
          this code.) */
     else if (next instanceof r5js.Branch) {
-      if (next.consequent.subtype instanceof r5js.ProcCall) {
-        next.consequent.subtype.maybeSetEnv(env);
+      if (next.consequent_.subtype instanceof r5js.ProcCall) {
+        next.consequent_.subtype.maybeSetEnv(env);
       }
-      if (next.alternate.subtype instanceof r5js.ProcCall) {
-        next.alternate.subtype.maybeSetEnv(env);
+      if (next.alternate_.subtype instanceof r5js.ProcCall) {
+        next.alternate_.subtype.maybeSetEnv(env);
       }
     } else throw new r5js.InternalInterpreterError('invariant incorrect');
   }

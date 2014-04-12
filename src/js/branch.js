@@ -46,8 +46,11 @@ r5js.newBranch = function(testResultName, consequent, alternate, continuation) {
  * @suppress {checkTypes} for the null argument to r5js.ast.Number ctor.
  */
 r5js.Branch = function(testResultName, consequent, alternate) {
-    /** @const */ this.test = testResultName;
-    this.consequent = consequent;
+
+    /** @const @private */ this.testResultName_ = testResultName;
+
+    /** @const @private */ this.consequent_ = consequent;
+
     /* If there's no alternate given, we create a shim that will return
      an undefined value. Example:
 
@@ -56,10 +59,14 @@ r5js.Branch = function(testResultName, consequent, alternate) {
      We give a type of "number" for the shim because passing in a null type
      would activate the default type, identifier, which would change the
      semantics. */
-    this.alternate = alternate
-        || r5js.newIdShim(new r5js.ast.Number(null));
-    this.consequentLastContinuable = this.consequent.getLastContinuable();
-    this.alternateLastContinuable = this.alternate.getLastContinuable();
+    /** @const @private */ this.alternate_ = alternate ||
+        r5js.newIdShim(new r5js.ast.Number(null));
+
+    /** @const @private */
+    this.consequentLastContinuable_ = this.consequent_.getLastContinuable();
+
+    /** @const @private */
+    this.alternateLastContinuable_ = this.alternate_.getLastContinuable();
 };
 
 /**
@@ -73,22 +80,22 @@ r5js.Branch.prototype.evalAndAdvance = function(
 
     /* Branches always use the old environment left by the previous action
     on the trampoline. */
-    var testResult = envBuffer.get(this.test);
+    var testResult = envBuffer.get(this.testResultName_);
     if (testResult === false) {
-        this.alternateLastContinuable.continuation = continuation;
-        resultStruct.nextContinuable = this.alternate;
+        this.alternateLastContinuable_.continuation = continuation;
+        resultStruct.nextContinuable = this.alternate_;
         /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}.
          TODO bl: clearEnv is defined only on {@link r5js.ProcCall},
          yet all of the tests pass. This suggests either test coverage
          is insufficient or that I don't understand the type of subtype. */
-        this.consequent.subtype.clearEnv();
+        this.consequent_.subtype.clearEnv();
     } else {
-        this.consequentLastContinuable.continuation = continuation;
-        resultStruct.nextContinuable = this.consequent;
+        this.consequentLastContinuable_.continuation = continuation;
+        resultStruct.nextContinuable = this.consequent_;
         /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}, and above. */
-        this.alternate.subtype.clearEnv();
+        this.alternate_.subtype.clearEnv();
     }
 
     return resultStruct;
