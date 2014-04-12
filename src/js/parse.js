@@ -528,10 +528,10 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
     desugar(function(node, env) {
       var test = /** @type {!r5js.Continuable} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
-      var consequent = node.at(Nonterminals.CONSEQUENT).
-          desugar(env, true);
-      var alternate = node.at(Nonterminals.ALTERNATE).
-          desugar(env, true);
+      var consequent = /** @type {!r5js.Continuable} */ (
+          node.at(Nonterminals.CONSEQUENT).desugar(env, true));
+      var alternate = /** @type {!r5js.Continuable} */ (
+          node.at(Nonterminals.ALTERNATE).desugar(env, true));
 
       var testEndpoint = test.getLastContinuable();
 
@@ -550,15 +550,15 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
     desugar(function(node, env) {
       var test = /** @type {!r5js.Continuable} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
-      var consequent = node.at(Nonterminals.CONSEQUENT).
-          desugar(env, true);
+      var consequent = /** @type {!r5js.Continuable} */ (
+          node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
       var testEndpoint = test.getLastContinuable();
 
       var branch = r5js.newBranch(
           testEndpoint.continuation.lastResultName,
           consequent,
-          null,
+          null /* alternate */,
           new r5js.Continuation());
       testEndpoint.continuation.nextContinuable = branch;
       return test;

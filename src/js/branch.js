@@ -26,34 +26,28 @@ goog.require('r5js.DatumType');
 
 /**
  * @param {string} testResultName
- * @param {?} consequentContinuable TODO bl
- * @param {?} alternateContinuable TODO bl
+ * @param {!r5js.Continuable} consequent
+ * @param {r5js.Continuable} alternate
  * @param {!r5js.Continuation} continuation
  * @return {!r5js.Continuable}
  */
-r5js.newBranch = function(
-    testResultName,
-    consequentContinuable,
-    alternateContinuable,
-    continuation) {
+r5js.newBranch = function(testResultName, consequent, alternate, continuation) {
     return new r5js.Continuable(
-        new r5js.Branch(
-            testResultName, consequentContinuable, alternateContinuable),
+        new r5js.Branch(testResultName, consequent, alternate),
         continuation);
 };
 
 
 /**
  * @param {string} testResultName
- * @param {?} consequentContinuable TODO bl
- * @param {?} alternateContinuable TODO bl
+ * @param {!r5js.Continuable} consequent
+ * @param {r5js.Continuable} alternate
  * @constructor
  * @suppress {checkTypes} for the null argument to r5js.ast.Number ctor.
  */
-r5js.Branch = function(
-    testResultName, consequentContinuable, alternateContinuable) {
+r5js.Branch = function(testResultName, consequent, alternate) {
     /** @const */ this.test = testResultName;
-    this.consequent = consequentContinuable;
+    this.consequent = consequent;
     /* If there's no alternate given, we create a shim that will return
      an undefined value. Example:
 
@@ -62,7 +56,7 @@ r5js.Branch = function(
      We give a type of "number" for the shim because passing in a null type
      would activate the default type, identifier, which would change the
      semantics. */
-    this.alternate = alternateContinuable
+    this.alternate = alternate
         || r5js.newIdShim(new r5js.ast.Number(null));
     this.consequentLastContinuable = this.consequent.getLastContinuable();
     this.alternateLastContinuable = this.alternate.getLastContinuable();
