@@ -28,10 +28,11 @@ goog.require('r5js.ProcCall');
  * @return {!r5js.Continuable}
  */
 r5js.newBranch = function(testResultName, consequent, alternate, continuation) {
-    return new r5js.Continuable(
-        new r5js.Branch_(testResultName, consequent, alternate),
-        continuation);
+  return new r5js.Continuable(
+      new r5js.Branch_(testResultName, consequent, alternate),
+      continuation);
 };
+
 
 
 /**
@@ -43,45 +44,46 @@ r5js.newBranch = function(testResultName, consequent, alternate, continuation) {
  * @private
  */
 r5js.Branch_ = function(testResultName, consequent, alternate) {
-    /** @const @private */ this.testResultName_ = testResultName;
-    /** @const @private */ this.consequent_ = consequent;
-    /** @const @private */ this.alternate_ = alternate;
-    /** @const @private */
-    this.consequentLastContinuable_ = this.consequent_.getLastContinuable();
-    /** @const @private */
-    this.alternateLastContinuable_ = this.alternate_.getLastContinuable();
+  /** @const @private */ this.testResultName_ = testResultName;
+  /** @const @private */ this.consequent_ = consequent;
+  /** @const @private */ this.alternate_ = alternate;
+  /** @const @private */
+  this.consequentLastContinuable_ = this.consequent_.getLastContinuable();
+  /** @const @private */
+  this.alternateLastContinuable_ = this.alternate_.getLastContinuable();
 };
+
 
 /**
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {!r5js.EnvBuffer} envBuffer
- * @returns {*}
+ * @return {*}
  */
 r5js.Branch_.prototype.evalAndAdvance = function(
     continuation, resultStruct, envBuffer) {
 
-    /* Branches always use the old environment left by the previous action
+  /* Branches always use the old environment left by the previous action
     on the trampoline. */
-    var testResult = envBuffer.get(this.testResultName_);
-    if (testResult === false) {
-        this.alternateLastContinuable_.continuation = continuation;
-        resultStruct.nextContinuable = this.alternate_;
-        /* We must clear the environment off the non-taken branch.
+  var testResult = envBuffer.get(this.testResultName_);
+  if (testResult === false) {
+    this.alternateLastContinuable_.continuation = continuation;
+    resultStruct.nextContinuable = this.alternate_;
+    /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}.
          TODO bl: clearEnv is defined only on {@link r5js.ProcCall},
          yet all of the tests pass. This suggests either test coverage
          is insufficient or that I don't understand the type of subtype. */
-        this.consequent_.subtype.clearEnv();
-    } else {
-        this.consequentLastContinuable_.continuation = continuation;
-        resultStruct.nextContinuable = this.consequent_;
-        /* We must clear the environment off the non-taken branch.
+    this.consequent_.subtype.clearEnv();
+  } else {
+    this.consequentLastContinuable_.continuation = continuation;
+    resultStruct.nextContinuable = this.consequent_;
+    /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}, and above. */
-        this.alternate_.subtype.clearEnv();
-    }
+    this.alternate_.subtype.clearEnv();
+  }
 
-    return resultStruct;
+  return resultStruct;
 };
 
 
@@ -102,10 +104,10 @@ r5js.Branch_.prototype.evalAndAdvance = function(
  * @param {!r5js.IEnvironment} env
  */
 r5js.Branch_.prototype.maybeSetEnv = function(env) {
-    if (this.consequent_.subtype instanceof r5js.ProcCall) {
-        this.consequent_.subtype.maybeSetEnv(env);
-    }
-    if (this.alternate_.subtype instanceof r5js.ProcCall) {
-        this.alternate_.subtype.maybeSetEnv(env);
-    }
+  if (this.consequent_.subtype instanceof r5js.ProcCall) {
+    this.consequent_.subtype.maybeSetEnv(env);
+  }
+  if (this.alternate_.subtype instanceof r5js.ProcCall) {
+    this.alternate_.subtype.maybeSetEnv(env);
+  }
 };
