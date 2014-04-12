@@ -535,10 +535,8 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
 
       var testEndpoint = test.getLastContinuable();
 
-      var testName = new r5js.ast.Identifier(
-          testEndpoint.continuation.lastResultName);
       var branch = r5js.newBranch(
-          testName,
+          testEndpoint.continuation.lastResultName,
           consequent,
           alternate,
           new r5js.Continuation());
@@ -557,10 +555,8 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
 
       var testEndpoint = test.getLastContinuable();
 
-      var testName = new r5js.ast.Identifier(
-          testEndpoint.continuation.lastResultName);
       var branch = r5js.newBranch(
-          testName,
+          testEndpoint.continuation.lastResultName,
           consequent,
           null,
           new r5js.Continuation());

@@ -25,34 +25,34 @@ goog.require('r5js.DatumType');
 
 
 /**
- * @param {!r5js.ast.Identifier} testId TODO bl no need for AST here
+ * @param {string} testResultName
  * @param {?} consequentContinuable TODO bl
  * @param {?} alternateContinuable TODO bl
  * @param {!r5js.Continuation} continuation
  * @return {!r5js.Continuable}
  */
 r5js.newBranch = function(
-    testId,
+    testResultName,
     consequentContinuable,
     alternateContinuable,
     continuation) {
     return new r5js.Continuable(
         new r5js.Branch(
-            testId, consequentContinuable, alternateContinuable),
+            testResultName, consequentContinuable, alternateContinuable),
         continuation);
 };
 
 
 /**
- * @param {!r5js.ast.Identifier} testId TODO bl no need for AST here
+ * @param {string} testResultName
  * @param {?} consequentContinuable TODO bl
  * @param {?} alternateContinuable TODO bl
  * @constructor
  * @suppress {checkTypes} for the null argument to r5js.ast.Number ctor.
  */
 r5js.Branch = function(
-    testId, consequentContinuable, alternateContinuable) {
-    /** @const */ this.test = testId;
+    testResultName, consequentContinuable, alternateContinuable) {
+    /** @const */ this.test = testResultName;
     this.consequent = consequentContinuable;
     /* If there's no alternate given, we create a shim that will return
      an undefined value. Example:
@@ -79,7 +79,7 @@ r5js.Branch.prototype.evalAndAdvance = function(
 
     /* Branches always use the old environment left by the previous action
     on the trampoline. */
-    var testResult = envBuffer.get(this.test.getPayload());
+    var testResult = envBuffer.get(this.test);
     if (testResult === false) {
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;
