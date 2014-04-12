@@ -17,6 +17,7 @@
 goog.provide('r5js.Continuable');
 
 
+
 /**
  * TODO bl: This constructor is only called twice, once with a
  * {@link r5js.ProcCall} as subtype, the other time with a
@@ -33,42 +34,43 @@ goog.provide('r5js.Continuable');
  * @constructor
  */
 r5js.Continuable = function(subtype, continuation) {
-    /** @const @private {!r5js.Branch_|!r5js.ProcCall} */
-    this.subtype_ = subtype;
+  /** @const @private {!r5js.Branch_|!r5js.ProcCall} */
+  this.subtype_ = subtype;
 
-    /** @private {!r5js.Continuation} */ this.continuation_ = continuation;
+  /** @private {!r5js.Continuation} */ this.continuation_ = continuation;
 
-    // todo bl caching problems
-    /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
+  // todo bl caching problems
+  /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
 };
 
 
 /** @return {!r5js.Branch_|!r5js.ProcCall} */
 r5js.Continuable.prototype.getSubtype = function() {
-    return this.subtype_;
+  return this.subtype_;
 };
 
 
 /** @return {!r5js.Continuation} */
 r5js.Continuable.prototype.getContinuation = function() {
-    return this.continuation_;
+  return this.continuation_;
 };
 
 
 /** @param {!r5js.Continuation} continuation */
 r5js.Continuable.prototype.setContinuation = function(continuation) {
-    this.continuation_ = continuation;
+  this.continuation_ = continuation;
 };
+
 
 /**
  * @param {!r5js.IEnvironment} env The starting environment.
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.setStartingEnv = function(env) {
-    if (this.subtype_ instanceof r5js.ProcCall) {
-        this.subtype_.setEnv(env, true);
-    }
-    return this;
+  if (this.subtype_ instanceof r5js.ProcCall) {
+    this.subtype_.setEnv(env, true);
+  }
+  return this;
 };
 
 
@@ -78,16 +80,17 @@ r5js.Continuable.prototype.setStartingEnv = function(env) {
  * @return {!r5js.Continuable}
  */
 r5js.Continuable.prototype.getLastContinuable = function() {
-    return this.continuation_.nextContinuable
-        ? this.continuation_.nextContinuable.getLastContinuable()
-        : this;
+  return this.continuation_.nextContinuable ?
+      this.continuation_.nextContinuable.getLastContinuable() :
+      this;
 };
+
 
 /**
  * @param {!r5js.Continuable} next The next continuable.
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.appendContinuable = function(next) {
-    this.getLastContinuable().continuation_.nextContinuable = next;
-    return this;
+  this.getLastContinuable().continuation_.nextContinuable = next;
+  return this;
 };
