@@ -103,34 +103,6 @@ r5js.ProcCall.prototype.clearEnv = function() {
 
 
 /**
- * Just for debugging.
- * @param {!r5js.Continuation} continuation
- * @param {number} indentLevel
- * @param {boolean} suppressEnv
- * @return {string}
- */
-r5js.ProcCall.prototype.debugString = function(
-    continuation, indentLevel, suppressEnv) {
-  var ans = '\n';
-  for (var i = 0; i < indentLevel; ++i)
-    ans += '\t';
-  ans += '(' + this.operatorName_.getPayload();
-  if (this.env && !suppressEnv)
-    ans += '|' + this.env;
-  if (this.operatorName_) {
-    for (var cur = this.firstOperand; cur; cur = cur.getNextSibling()) {
-      ans += ' ' + cur.toString();
-    }
-  } else {
-    ans += ' ' + this.firstOperand;
-  }
-  if (continuation)
-    ans += ' ' + continuation.debugString(indentLevel + 1);
-  return ans + ')';
-};
-
-
-/**
  * @return {!r5js.Datum}
  * @private
  */

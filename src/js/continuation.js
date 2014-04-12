@@ -65,40 +65,6 @@ r5js.Continuation.prototype.installBeforeThunk = function(before) {
 
 
 /**
- * Just for debugging.
- * @param {?number} indentLevel Indentation level for output.
- * @return {string} A textual representation of the continuation.
- */
-r5js.Continuation.prototype.debugString = function(indentLevel) {
-
-  if (indentLevel == null) {
-    /* If no indent level is given, this function is being used to
-         construct an external representation, so we should hide all the
-         implementation details. It's legal to return continuations directly,
-         as in
-
-         (define x 3)
-         (call-with-current-continuation (lambda (c) (set! x c)))
-         x
-         */
-    return '[continuation]';
-  } else {
-
-    // Otherwise this is being used for debugging, show all the things.
-
-    var ans = '[' + this.lastResultName;
-
-    if (this.nextContinuable) {
-      for (var i = 0; i < indentLevel; ++i)
-        ans += '\t';
-      ans += ' ' + this.nextContinuable.debugString(indentLevel + 1);
-    }
-    return ans + ']';
-  }
-};
-
-
-/**
  * @return {?}
  * TODO bl: previously, this did an instanceof check on
  * this.nextContinuable.subtype and returned null if it wasn't
