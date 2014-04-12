@@ -78,18 +78,6 @@ r5js.Continuable.prototype.setStartingEnv = function(env) {
 /**
  * @return {!r5js.Continuable} This object, for chaining.
  */
-r5js.Continuable.prototype.setTopLevelAssignment = function() {
-    if (!(this.subtype_ instanceof r5js.Assignment)) {
-        throw new r5js.InternalInterpreterError('invariant incorrect');
-    }
-    this.subtype_.isTopLevelAssignment = true;
-    return this;
-};
-
-
-/**
- * @return {!r5js.Continuable} This object, for chaining.
- */
 r5js.Continuable.prototype.setSyntaxAssignment = function() {
     if (!(this.subtype_ instanceof r5js.Assignment)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');

@@ -437,11 +437,10 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       var lastContinuable = desugaredExpr.getLastContinuable();
       var cpsName = lastContinuable.getContinuation().lastResultName;
       lastContinuable.getContinuation().nextContinuable =
-          r5js.newAssignment(
+          r5js.newTopLevelAssignment(
           variable.getPayload(),
           cpsName,
-          new r5js.Continuation()).
-          setTopLevelAssignment();
+          new r5js.Continuation());
       return desugaredExpr;
     }),
     _.list(
@@ -469,11 +468,10 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
           anonymousName,
           new r5js.Procedure(
               formals, formalRoot.getNextSibling(), env, name));
-      return r5js.newAssignment(
+      return r5js.newTopLevelAssignment(
           name.getPayload(),
           anonymousName,
-          new r5js.Continuation()).
-          setTopLevelAssignment();
+          new r5js.Continuation());
     }),
     _.list(
         _.one(Terminals.DEFINE),
@@ -504,11 +502,10 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
           anonymousName,
           new r5js.VarargsProcedure(
               formals, formalRoot.getNextSibling(), env, name));
-      return r5js.newAssignment(
+      return r5js.newTopLevelAssignment(
           /** @type {string} */(name.getPayload()), // TODO bl
           anonymousName,
-          new r5js.Continuation()).
-          setTopLevelAssignment();
+          new r5js.Continuation());
     }),
     _.list(
         _.one(Terminals.BEGIN),
@@ -1030,11 +1027,10 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
         throw new r5js.MacroError(kw, 'all patterns must begin with ' + kw);
       var anonymousName = newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
-      return r5js.newAssignment(
+      return r5js.newTopLevelAssignment(
           kw,
           anonymousName,
           new r5js.Continuation()).
-          setTopLevelAssignment().
           setSyntaxAssignment();
     });
 
