@@ -1,5 +1,6 @@
 goog.provide('r5js.newAssignment');
 goog.provide('r5js.newTopLevelAssignment');
+goog.provide('r5js.newTopLevelSyntaxAssignment');
 
 
 goog.require('r5js.Continuable');
@@ -125,6 +126,20 @@ r5js.TopLevelAssignment.prototype.mutateEnv = function(name, val) {
 };
 
 
+
+/**
+ * @param {?} firstOperand
+ * @extends {r5js.TopLevelAssignment}
+ * @struct
+ * @constructor
+ */
+r5js.TopLevelSyntaxAssignment = function(firstOperand) {
+  goog.base(this, firstOperand);
+  this.isSyntaxAssignment = true;
+};
+goog.inherits(r5js.TopLevelSyntaxAssignment, r5js.TopLevelAssignment);
+
+
 /**
  * @param {string} dstName
  * @param {string} srcName
@@ -154,6 +169,26 @@ r5js.newTopLevelAssignment = function(dstName, srcName, continuation) {
   return new r5js.Continuable(
       new r5js.TopLevelAssignment(operands), continuation);
 };
+
+
+/**
+ * @param {string} dstName
+ * @param {string} srcName
+ * @param {!r5js.Continuation} continuation
+ * @return {!r5js.Continuable}
+ */
+r5js.newTopLevelSyntaxAssignment = function(dstName, srcName, continuation) {
+  var operands = new r5js.SiblingBuffer()
+        .appendSibling(new r5js.ast.Identifier(dstName))
+        .appendSibling(new r5js.ast.Identifier(srcName))
+        .toSiblings();
+  return new r5js.Continuable(
+      new r5js.TopLevelSyntaxAssignment(operands), continuation);
+};
+
+
+
+
 
 
 
