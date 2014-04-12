@@ -1,4 +1,5 @@
 goog.provide('r5js.newAssignment');
+goog.provide('r5js.newTopLevelAssignment');
 
 
 goog.require('r5js.Continuable');
@@ -98,6 +99,20 @@ r5js.Assignment.prototype.tryAssignment_ = function(
 };
 
 
+
+/**
+ * @param {?} firstOperand
+ * @extends {r5js.Assignment}
+ * @struct
+ * @constructor
+ */
+r5js.TopLevelAssignment = function(firstOperand) {
+  goog.base(this, firstOperand);
+  this.isTopLevelAssignment = true;
+};
+goog.inherits(r5js.TopLevelAssignment, r5js.Assignment);
+
+
 /**
  * @param {string} dstName
  * @param {string} srcName
@@ -111,5 +126,24 @@ r5js.newAssignment = function(dstName, srcName, continuation) {
         .toSiblings();
   return new r5js.Continuable(new r5js.Assignment(operands), continuation);
 };
+
+
+/**
+ * @param {string} dstName
+ * @param {string} srcName
+ * @param {!r5js.Continuation} continuation
+ * @return {!r5js.Continuable}
+ */
+r5js.newTopLevelAssignment = function(dstName, srcName, continuation) {
+  var operands = new r5js.SiblingBuffer()
+        .appendSibling(new r5js.ast.Identifier(dstName))
+        .appendSibling(new r5js.ast.Identifier(srcName))
+        .toSiblings();
+  return new r5js.Continuable(
+      new r5js.TopLevelAssignment(operands), continuation);
+};
+
+
+
 
 
