@@ -29,17 +29,19 @@ goog.require('r5js.InternalInterpreterError');
  * This would break the circular dependency caused by the
  * goog.require('r5js.ProcCall') commented out above.
  *
- * @param {?} subtype
+ * @param {!r5js.Branch_|!r5js.ProcCall} subtype
  * @param {!r5js.Continuation} continuation The continuation.
  * @implements {r5js.runtime.ObjectValue} TODO bl not appropriate?
+ * @struct
  * @constructor
  */
 r5js.Continuable = function(subtype, continuation) {
-    if (!subtype || !continuation) // todo bl take out after testing
-        throw new r5js.InternalInterpreterError('invariant incorrect');
-    this.subtype = subtype;
-    this.continuation = continuation;
-    //this.lastContinuable = this.getLastContinuable(); // todo bl caching problems
+    /** @const {!r5js.Branch_|!r5js.ProcCall} */ this.subtype = subtype;
+
+    /** @type {!r5js.Continuation} */ this.continuation = continuation;
+
+    // todo bl caching problems
+    /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
 };
 
 /**
@@ -98,14 +100,4 @@ r5js.Continuable.prototype.getLastContinuable = function() {
 r5js.Continuable.prototype.appendContinuable = function(next) {
     this.getLastContinuable().continuation.nextContinuable = next;
     return this;
-};
-
-/**
- * Delegates to subtype, passing in the continuation for debugging.
- */
-r5js.Continuable.prototype.debugString = function(indentLevel) {
-    return this.subtype.debugString(
-        this.continuation,
-        indentLevel || 0
-    );
 };
