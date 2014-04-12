@@ -115,37 +115,16 @@ r5js.trampoline = function(continuable, inputPort, outputPort, logger) {
   var savedEnv = new r5js.EnvBuffer();
   var ans;
 
-  /* The debug check is hoisted out of the while loop because this
-     is expected to be hot code. */
-  if (false /* TODO bl: replace with goog.DEBUG */) {
-
-    while (cur) {
-      // a good first step for debugging:
-      logger.fine('boing: ' + cur);
-      resultStruct = cur.subtype.evalAndAdvance(
-          cur.continuation,
-          resultStruct,
-          savedEnv,
-          parserProvider
-          );
-      ans = resultStruct.ans;
-      cur = resultStruct.nextContinuable;
-      resultStruct.clear();
-    }
-
-  } else {
     while (cur) {
       resultStruct = cur.subtype.evalAndAdvance(
           cur.continuation,
           resultStruct,
           savedEnv,
-          parserProvider
-          );
+          parserProvider);
       ans = resultStruct.ans;
       cur = resultStruct.nextContinuable;
       resultStruct.clear();
     }
-  }
 
   return ans;
 };
