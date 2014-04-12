@@ -21,8 +21,6 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  */
 r5js.Assignment = function(firstOperand) {
   goog.base(this, r5js.Assignment.NAME_, firstOperand);
-
-  /** @type {boolean} */ this.isSyntaxAssignment = false;
 };
 goog.inherits(r5js.Assignment, r5js.ProcCall);
 
@@ -63,37 +61,37 @@ r5js.Assignment.prototype.tryAssignment_ = function(
     continuation, resultStruct) {
   var src = this.env.get(/** @type {string} */ (
       this.firstOperand.getNextSibling().getPayload()));
-  /* In Scheme, macros can be bound to identifiers but they are not really
-     first-class citizens; you cannot say
-
-     (define x let)
-
-     because the text "let" does not parse as an expression
-     (at least if it has its normal binding). In this implementation, however,
-     SchemeMacros are objects that go into and come out of Environments
-     like any other kind of objects. All kinds of assignments -- top-level,
-     internal, syntax, non-syntax -- go through this function, so we
-     have to make sure we don't accidentally permit some illegal behavior.
-
-     If we're trying to assign a SchemeMacro object but the isSyntaxAssignment
-     flag on the ProcCall object hasn't been set, then the programmer is
-     requesting this assignment and we ought to signal an error.
-
-     The situation is complicated a bit because internally, we use let and
-     letrec to implement let-syntax and letrec-syntax. In other words,
-     we as the implementer do exactly what we forbid the programmer to do.
-     We tell the difference between the two parties via the isLetOrLetrecSyntax
-     flag on the SchemeMacro object, which only the implementation can set. */
-  if (src instanceof r5js.Macro &&
-      !src.isLetOrLetrecSyntax() &&
-      !this.isSyntaxAssignment) {
-    throw new r5js.GeneralSyntaxError(this);
-  }
+  this.checkForImproperSyntaxAssignment(src);
   this.mutateEnv(/** @type {string} */ (this.firstOperand.getPayload()), src);
   /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
   this.bindResult(continuation, r5js.runtime.UNSPECIFIED_VALUE);
   resultStruct.nextContinuable = continuation.nextContinuable;
+};
+
+
+/**
+ * In Scheme, macros can be bound to identifiers but they are not really
+ * first-class citizens; you cannot say (define x let) because the text "let"
+ * does not parse as an expression (at least if it has its normal binding).
+ * In this implementation, however, macros are objects that go into and come
+ * out of environments like any other kind of objects. All kinds of assignments
+ * -- top-level, internal, syntax, non-syntax -- go through this method,
+ * so we have to make sure we don't accidentally permit some illegal behavior.
+ *
+ * If we're trying to assign a {@link r5js.Macro} here, the programmer is
+ * requesting this assignment and we ought to signal an error.
+ *
+ * @see {r5js.TopLevelSyntaxAssignment#checkForImproperSyntaxAssignment},
+ * which bypasses this check.
+ *
+ * @param {?} val TODO bl.
+ * @protected
+ */
+r5js.Assignment.prototype.checkForImproperSyntaxAssignment = function(val) {
+  if (val instanceof r5js.Macro && !val.isLetOrLetrecSyntax()) {
+    throw new r5js.GeneralSyntaxError(this);
+  }
 };
 
 
@@ -135,9 +133,13 @@ r5js.TopLevelAssignment.prototype.mutateEnv = function(name, val) {
  */
 r5js.TopLevelSyntaxAssignment = function(firstOperand) {
   goog.base(this, firstOperand);
-  this.isSyntaxAssignment = true;
 };
 goog.inherits(r5js.TopLevelSyntaxAssignment, r5js.TopLevelAssignment);
+
+
+/** @override */
+r5js.TopLevelSyntaxAssignment.prototype.checkForImproperSyntaxAssignment =
+    goog.nullFunction;
 
 
 /**
