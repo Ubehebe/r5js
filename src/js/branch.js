@@ -17,7 +17,6 @@ goog.provide('r5js.newBranch');
 goog.provide('r5js.Branch');
 
 
-goog.require('r5js.ast.Identifier');
 goog.require('r5js.Continuable');
 goog.require('r5js.ast.Number');
 goog.require('r5js.datumutil');
@@ -26,34 +25,34 @@ goog.require('r5js.DatumType');
 
 
 /**
- * @param {?} testIdOrLiteral TODO bl
+ * @param {!r5js.ast.Identifier} testId TODO bl no need for AST here
  * @param {?} consequentContinuable TODO bl
  * @param {?} alternateContinuable TODO bl
  * @param {!r5js.Continuation} continuation
  * @return {!r5js.Continuable}
  */
 r5js.newBranch = function(
-    testIdOrLiteral,
+    testId,
     consequentContinuable,
     alternateContinuable,
     continuation) {
     return new r5js.Continuable(
         new r5js.Branch(
-            testIdOrLiteral, consequentContinuable, alternateContinuable),
+            testId, consequentContinuable, alternateContinuable),
         continuation);
 };
 
 
 /**
- * @param {?} testIdOrLiteral TODO bl
+ * @param {!r5js.ast.Identifier} testId TODO bl no need for AST here
  * @param {?} consequentContinuable TODO bl
  * @param {?} alternateContinuable TODO bl
  * @constructor
  * @suppress {checkTypes} for the null argument to r5js.ast.Number ctor.
  */
 r5js.Branch = function(
-    testIdOrLiteral, consequentContinuable, alternateContinuable) {
-    this.test = testIdOrLiteral;
+    testId, consequentContinuable, alternateContinuable) {
+    /** @const */ this.test = testId;
     this.consequent = consequentContinuable;
     /* If there's no alternate given, we create a shim that will return
      an undefined value. Example:
@@ -80,9 +79,7 @@ r5js.Branch.prototype.evalAndAdvance = function(
 
     /* Branches always use the old environment left by the previous action
     on the trampoline. */
-    var testResult = this.test instanceof r5js.ast.Identifier ?
-        envBuffer.get(/** @type {string} */ (this.test.getPayload())) :
-        this.test.getPayload();
+    var testResult = envBuffer.get(this.test.getPayload());
     if (testResult === false) {
         this.alternateLastContinuable.continuation = continuation;
         resultStruct.nextContinuable = this.alternate;
