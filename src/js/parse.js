@@ -39,6 +39,7 @@ goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Literal');
+goog.require('r5js.ast.Number');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.newIdShim');
 goog.require('r5js.ast.String');
@@ -547,7 +548,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
         _.one(Terminals.IF),
         _.one(Nonterminals.TEST),
         _.one(Nonterminals.CONSEQUENT)).
-    desugar(function(node, env) {
+    desugar(/** @suppress {checkTypes} */function(node, env) {
       var test = /** @type {!r5js.Continuable} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
       var consequent = /** @type {!r5js.Continuable} */ (
@@ -555,10 +556,17 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
 
       var testEndpoint = test.getLastContinuable();
 
+            /* If there's no alternate given, we create a shim that will return
+            an undefined value. Example: (display (if #f 42)).
+            We give a type of "number" for the shim because passing in a null type
+            would activate the default type, identifier, which would change the
+            semantics.
+            TODO bl improve.
+            */
       var branch = r5js.newBranch(
           testEndpoint.continuation.lastResultName,
           consequent,
-          null /* alternate */,
+          r5js.newIdShim(new r5js.ast.Number(null)),
           new r5js.Continuation());
       testEndpoint.continuation.nextContinuable = branch;
       return test;

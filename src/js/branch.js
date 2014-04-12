@@ -18,17 +18,13 @@ goog.provide('r5js.Branch');
 
 
 goog.require('r5js.Continuable');
-goog.require('r5js.ast.Number');
-goog.require('r5js.datumutil');
-goog.require('r5js.DatumType');
 goog.require('r5js.ProcCall');
-// TODO bl circular dependency goog.require('r5js.newIdShim');
 
 
 /**
  * @param {string} testResultName
  * @param {!r5js.Continuable} consequent
- * @param {r5js.Continuable} alternate
+ * @param {!r5js.Continuable} alternate
  * @param {!r5js.Continuation} continuation
  * @return {!r5js.Continuable}
  */
@@ -42,30 +38,16 @@ r5js.newBranch = function(testResultName, consequent, alternate, continuation) {
 /**
  * @param {string} testResultName
  * @param {!r5js.Continuable} consequent
- * @param {r5js.Continuable} alternate
+ * @param {!r5js.Continuable} alternate
  * @constructor
  * @suppress {checkTypes} for the null argument to r5js.ast.Number ctor.
  */
 r5js.Branch = function(testResultName, consequent, alternate) {
-
     /** @const @private */ this.testResultName_ = testResultName;
-
     /** @const @private */ this.consequent_ = consequent;
-
-    /* If there's no alternate given, we create a shim that will return
-     an undefined value. Example:
-
-     (display (if #f 42))
-
-     We give a type of "number" for the shim because passing in a null type
-     would activate the default type, identifier, which would change the
-     semantics. */
-    /** @const @private */ this.alternate_ = alternate ||
-        r5js.newIdShim(new r5js.ast.Number(null));
-
+    /** @const @private */ this.alternate_ = alternate;
     /** @const @private */
     this.consequentLastContinuable_ = this.consequent_.getLastContinuable();
-
     /** @const @private */
     this.alternateLastContinuable_ = this.alternate_.getLastContinuable();
 };
