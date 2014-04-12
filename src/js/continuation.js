@@ -17,7 +17,6 @@
 goog.provide('r5js.Continuation');
 
 
-goog.require('r5js.Branch');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ast.List');
 goog.require('r5js.ProcedureLike');
@@ -115,39 +114,14 @@ r5js.Continuation.prototype.getAdjacentProcCall = function() {
 };
 
 
-/**
- * @param {!r5js.IEnvironment} env Environment to remember.
- * @suppress {accessControls} for access to {@link r5js.Branch.consequent_}
- * and {@link r5js.Branch.alternate_}. TODO bl easy to remove.
- */
+/** @param {!r5js.IEnvironment} env Environment to remember. */
 r5js.Continuation.prototype.rememberEnv = function(env) {
   /* In general, we need to remember to jump out of the newEnv at
      the end of the procedure body. See ProcCall.prototype.maybeSetEnv
      for detailed logic (and maybe bugs). */
   if (this.nextContinuable) {
     var next = this.nextContinuable.subtype;
-    if (next instanceof r5js.ProcCall)
       next.maybeSetEnv(env);
-  /* Somewhat tricky. We can't know in advance which branch we'll take,
-         so we set the environment on both branches. Later, when we actually
-         decide which branch to take, we must clear the environment on the
-         non-taken branch to prevent old environments from hanging around.
-
-         todo bl: it would probably be better to remember the environment on
-         the Branch directly. Then Branch.prototype.evalAndAdvance can set the
-         environment on the taken branch without having to remember to clear
-         it off the non-taken branch. I'll save this for the next time
-         I refactor ProcCalls and Branches. (The explicit "subtypes" suggest
-         my command of prototypal inheritance wasn't great when I wrote
-         this code.) */
-    else if (next instanceof r5js.Branch) {
-      if (next.consequent_.subtype instanceof r5js.ProcCall) {
-        next.consequent_.subtype.maybeSetEnv(env);
-      }
-      if (next.alternate_.subtype instanceof r5js.ProcCall) {
-        next.alternate_.subtype.maybeSetEnv(env);
-      }
-    } else throw new r5js.InternalInterpreterError('invariant incorrect');
   }
 };
 

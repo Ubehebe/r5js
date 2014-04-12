@@ -21,6 +21,7 @@ goog.require('r5js.Continuable');
 goog.require('r5js.ast.Number');
 goog.require('r5js.datumutil');
 goog.require('r5js.DatumType');
+goog.require('r5js.ProcCall');
 // TODO bl circular dependency goog.require('r5js.newIdShim');
 
 
@@ -99,4 +100,30 @@ r5js.Branch.prototype.evalAndAdvance = function(
     }
 
     return resultStruct;
+};
+
+
+/**
+ * Somewhat tricky. We can't know in advance which branch we'll take,
+ * so we set the environment on both branches. Later, when we actually
+ * decide which branch to take, we must clear the environment on the
+ * non-taken branch to prevent old environments from hanging around.
+ *
+ * TODO bl: it would probably be better to remember the environment on
+ * the Branch directly. Then Branch.prototype.evalAndAdvance can set the
+ * environment on the taken branch without having to remember to clear
+ * it off the non-taken branch. I'll save this for the next time
+ * I refactor ProcCalls and Branches. (The explicit "subtypes" suggest
+ * my command of prototypal inheritance wasn't great when I wrote
+ * this code.)
+ *
+ * @param {!r5js.IEnvironment} env
+ */
+r5js.Branch.prototype.maybeSetEnv = function(env) {
+    if (this.consequent_.subtype instanceof r5js.ProcCall) {
+        this.consequent_.subtype.maybeSetEnv(env);
+    }
+    if (this.alternate_.subtype instanceof r5js.ProcCall) {
+        this.alternate_.subtype.maybeSetEnv(env);
+    }
 };
