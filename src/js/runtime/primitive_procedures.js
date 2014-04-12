@@ -987,6 +987,8 @@ PrimitiveProcedures['call-with-current-continuation'] =
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
+
+// TODO bl: This can be implemented as a macro. See R5RS p. 34.
 PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
   // Varargs procedures that also have special eval logic are a pain.
   var resultStruct = arguments[arguments.length - 1];
