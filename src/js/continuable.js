@@ -36,7 +36,8 @@ goog.require('r5js.InternalInterpreterError');
  * @constructor
  */
 r5js.Continuable = function(subtype, continuation) {
-    /** @const {!r5js.Branch_|!r5js.ProcCall} */ this.subtype = subtype;
+    /** @const @private {!r5js.Branch_|!r5js.ProcCall} */
+    this.subtype_ = subtype;
 
     /** @type {!r5js.Continuation} */ this.continuation = continuation;
 
@@ -44,13 +45,19 @@ r5js.Continuable = function(subtype, continuation) {
     /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
 };
 
+
+/** @return {!r5js.Branch_|!r5js.ProcCall} */
+r5js.Continuable.prototype.getSubtype = function() {
+    return this.subtype_;
+};
+
 /**
  * @param {!r5js.IEnvironment} env The starting environment.
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.setStartingEnv = function(env) {
-    if (this.subtype instanceof r5js.ProcCall) {
-        this.subtype.setEnv(env, true);
+    if (this.subtype_ instanceof r5js.ProcCall) {
+        this.subtype_.setEnv(env, true);
     }
     return this;
 };
@@ -60,10 +67,10 @@ r5js.Continuable.prototype.setStartingEnv = function(env) {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.setTopLevelAssignment = function() {
-    if (!(this.subtype instanceof r5js.Assignment)) {
+    if (!(this.subtype_ instanceof r5js.Assignment)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     }
-    this.subtype.isTopLevelAssignment = true;
+    this.subtype_.isTopLevelAssignment = true;
     return this;
 };
 
@@ -72,10 +79,10 @@ r5js.Continuable.prototype.setTopLevelAssignment = function() {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.setSyntaxAssignment = function() {
-    if (!(this.subtype instanceof r5js.Assignment)) {
+    if (!(this.subtype_ instanceof r5js.Assignment)) {
         throw new r5js.InternalInterpreterError('invariant incorrect');
     }
-    this.subtype.isSyntaxAssignment = true;
+    this.subtype_.isSyntaxAssignment = true;
     return this;
 };
 

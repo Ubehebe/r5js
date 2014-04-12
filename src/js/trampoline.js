@@ -116,7 +116,7 @@ r5js.trampoline = function(continuable, inputPort, outputPort, logger) {
   var ans;
 
     while (cur) {
-      resultStruct = cur.subtype.evalAndAdvance(
+      resultStruct = cur.getSubtype().evalAndAdvance(
           cur.continuation,
           resultStruct,
           savedEnv,

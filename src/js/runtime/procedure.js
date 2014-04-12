@@ -115,9 +115,9 @@ r5js.Procedure.prototype.setEnv_ = function(env) {
      continuable is a branch? hopefully not, and I can remove
      the second check. */
   if (this.body) {
-    //        if (this.body.subtype instanceof r5js.ProcCall) {
-    if (this.body.subtype.setEnv) {
-      this.body.subtype.setEnv(env, true);
+      var bodySubtype = this.body.getSubtype();
+    if (bodySubtype.setEnv) {
+      bodySubtype.setEnv(env, true);
     } else {
       throw new r5js.InternalInterpreterError(
           'invariant incorrect -- procedure does not begin with proc call');

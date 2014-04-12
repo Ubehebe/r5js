@@ -74,13 +74,13 @@ r5js.Branch_.prototype.evalAndAdvance = function(
          TODO bl: clearEnv is defined only on {@link r5js.ProcCall},
          yet all of the tests pass. This suggests either test coverage
          is insufficient or that I don't understand the type of subtype. */
-    this.consequent_.subtype.clearEnv();
+    this.consequent_.getSubtype().clearEnv();
   } else {
     this.consequentLastContinuable_.continuation = continuation;
     resultStruct.nextContinuable = this.consequent_;
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}, and above. */
-    this.alternate_.subtype.clearEnv();
+    this.alternate_.getSubtype().clearEnv();
   }
 
   return resultStruct;
@@ -104,10 +104,14 @@ r5js.Branch_.prototype.evalAndAdvance = function(
  * @param {!r5js.IEnvironment} env
  */
 r5js.Branch_.prototype.maybeSetEnv = function(env) {
-  if (this.consequent_.subtype instanceof r5js.ProcCall) {
-    this.consequent_.subtype.maybeSetEnv(env);
+
+  var consequentSubtype = this.consequent_.getSubtype();
+  var alternateSubtype = this.alternate_.getSubtype();
+
+  if (consequentSubtype instanceof r5js.ProcCall) {
+    consequentSubtype.maybeSetEnv(env);
   }
-  if (this.alternate_.subtype instanceof r5js.ProcCall) {
-    this.alternate_.subtype.maybeSetEnv(env);
+  if (alternateSubtype instanceof r5js.ProcCall) {
+    alternateSubtype.maybeSetEnv(env);
   }
 };

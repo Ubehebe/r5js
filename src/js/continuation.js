@@ -110,7 +110,7 @@ r5js.Continuation.prototype.debugString = function(indentLevel) {
  * to the call site.
  */
 r5js.Continuation.prototype.getAdjacentProcCall = function() {
-  return this.nextContinuable && this.nextContinuable.subtype;
+  return this.nextContinuable && this.nextContinuable.getSubtype();
 };
 
 
@@ -120,8 +120,7 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
      the end of the procedure body. See ProcCall.prototype.maybeSetEnv
      for detailed logic (and maybe bugs). */
   if (this.nextContinuable) {
-    var next = this.nextContinuable.subtype;
-      next.maybeSetEnv(env);
+    this.nextContinuable.getSubtype().maybeSetEnv(env);
   }
 };
 
@@ -171,7 +170,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
     for (var tmp = trampolineHelper.nextContinuable, prev;
          tmp;
          prev = tmp, tmp = tmp.continuation.nextContinuable) {
-        if (tmp.subtype === procCall) {
+        if (tmp.getSubtype() === procCall) {
             if (prev)
                 prev.continuation.nextContinuable = tmp.continuation.nextContinuable;
             else
