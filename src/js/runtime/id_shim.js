@@ -114,7 +114,7 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
   else if (arg instanceof r5js.ast.Quasiquote) {
     resultStruct.nextContinuable = arg.processQuasiquote(
         /** @type {!r5js.IEnvironment} */ (this.env),
-        continuation.lastResultName,
+        continuation.getLastResultName(),
         parserProvider
         ).appendContinuable(continuation.nextContinuable);
     return;

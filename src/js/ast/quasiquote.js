@@ -91,11 +91,12 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
         /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */
-        continuation.lastResultName = (node instanceof r5js.ast.Unquote ?
+        var name = (node instanceof r5js.ast.Unquote ?
                 r5js.parse.Terminals.COMMA :
                 r5js.parse.Terminals.COMMA_AT) + '' + goog.getUid(new Object());
+        continuation.setLastResultName(name);
         newCalls.appendContinuable(asContinuable);
-        return new r5js.ast.Identifier(continuation.lastResultName);
+        return new r5js.ast.Identifier(name);
       });
 
   var newDatum = new r5js.ast.Quote(this.getFirstChild());

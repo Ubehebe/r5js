@@ -163,13 +163,13 @@ r5js.ProcCall.prototype.cpsify = function(
       if ((maybeContinuable =
           arg.processQuasiquote(
           /** @type {!r5js.IEnvironment} */ (this.env),
-          continuation.lastResultName,
+          continuation.getLastResultName(),
           parserProvider)) instanceof r5js.Continuable) {
         finalArgs.appendSibling(
             new r5js.ast.Identifier(maybeContinuable
                         .getLastContinuable()
                         .getContinuation()
-                        .lastResultName));
+                        .getLastResultName()));
         newCallChain.appendContinuable(
             /** @type {!r5js.Continuable} */(maybeContinuable));
       } else {
@@ -193,7 +193,7 @@ r5js.ProcCall.prototype.cpsify = function(
              and not to desugar to a Continuable? */
       finalArgs.appendSibling(
           new r5js.ast.Identifier(maybeContinuable.
-          getLastContinuable().getContinuation().lastResultName));
+          getLastContinuable().getContinuation().getLastResultName()));
       newCallChain.appendContinuable(maybeContinuable);
     } else {
       var clonedArg = arg.clone(null /* parent */);
@@ -264,7 +264,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
  */
 r5js.ProcCall.prototype.bindResult = function(continuation, val) {
 
-  var name = continuation.lastResultName;
+  var name = continuation.getLastResultName();
   var nextProcCall = continuation.getAdjacentProcCall();
 
   if (nextProcCall instanceof r5js.ProcCall) {

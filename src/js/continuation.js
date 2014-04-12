@@ -17,7 +17,6 @@
 goog.provide('r5js.Continuation');
 
 
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ast.List');
 goog.require('r5js.ProcedureLike');
 goog.require('r5js.ast.Macro');
@@ -41,15 +40,29 @@ goog.require('r5js.ast.Identifier');
  *     If not given, a unique name will be created.
  *     @implements {r5js.ProcedureLike}
  * @constructor
- * @suppress {const} See {@link r5js.ast.Quasiquote#processQuasiquote}.
  */
 r5js.Continuation = function(opt_lastResultName) {
-  /** @const {string} */
-  this.lastResultName = goog.isDef(opt_lastResultName) ?
+  /** @private {string} */
+  this.lastResultName_ = goog.isDef(opt_lastResultName) ?
       opt_lastResultName :
       ('@' /* TODO bl document */ + goog.getUid(this));
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
+
+
+/** @return {string} */
+r5js.Continuation.prototype.getLastResultName = function() {
+    return this.lastResultName_;
+};
+
+
+/**
+ * @param {string} name
+ * TODO bl This setter doesn't make sense. lastResultName should be const.
+ */
+r5js.Continuation.prototype.setLastResultName = function(name) {
+    this.lastResultName_ = name;
+};
 
 
 /**
@@ -98,7 +111,7 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
 r5js.Continuation.prototype.evalAndAdvance = function(
     procCall, continuation, trampolineHelper, parserProvider) {
     var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
-    procCall.env.addBinding(this.lastResultName, arg);
+    procCall.env.addBinding(this.lastResultName_, arg);
     trampolineHelper.ans = arg;
     trampolineHelper.nextContinuable = this.nextContinuable;
 

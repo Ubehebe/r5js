@@ -1003,7 +1003,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
 
      should just bind 1 to _0 and continue. */
   if (numUserArgs === 1) {
-    procCall.env.addBinding(continuation.lastResultName, arguments[0]);
+    procCall.env.addBinding(continuation.getLastResultName(), arguments[0]);
   } else {
     /* If there's more than one argument, we bind the whole array
        to the continuation's lastResultName. This means later, when we're
@@ -1016,7 +1016,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
       userArgs.push(arguments[i]);
     }
 
-    procCall.env.addBinding(continuation.lastResultName, userArgs);
+    procCall.env.addBinding(continuation.getLastResultName(), userArgs);
   }
   if (continuation.nextContinuable) {
     continuation.nextContinuable.setStartingEnv(procCall.env);

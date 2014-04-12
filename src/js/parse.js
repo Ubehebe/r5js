@@ -308,7 +308,7 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
         var desugaredOp = /** @type {!r5js.Continuable} */ (
             operatorNode.desugar(env));
         var lastContinuation = desugaredOp.getLastContinuable().getContinuation();
-        var opName = lastContinuation.lastResultName;
+        var opName = lastContinuation.getLastResultName();
         lastContinuation.nextContinuable = r5js.newProcCall(
             new r5js.ast.Identifier(opName),
             operands,
@@ -435,7 +435,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       var variable = node.at(Nonterminals.VARIABLE);
       var desugaredExpr = variable.getNextSibling().desugar(env, true);
       var lastContinuable = desugaredExpr.getLastContinuable();
-      var cpsName = lastContinuable.getContinuation().lastResultName;
+      var cpsName = lastContinuable.getContinuation().getLastResultName();
       lastContinuable.getContinuation().nextContinuable =
           r5js.newTopLevelAssignment(
           variable.getPayload(),
@@ -535,7 +535,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var testEndpointContinuation = testEndpoint.getContinuation();
 
       var branch = r5js.newBranch(
-          testEndpointContinuation.lastResultName,
+          testEndpointContinuation.getLastResultName(),
           consequent,
           alternate,
           new r5js.Continuation());
@@ -563,7 +563,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
             TODO bl improve.
             */
       var branch = r5js.newBranch(
-          testEndpointContinuation.lastResultName,
+          testEndpointContinuation.getLastResultName(),
           consequent,
           r5js.newIdShim(new r5js.ast.Number(null)),
           new r5js.Continuation());
@@ -597,7 +597,7 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.list(
           variable.getNextSibling().desugar(env, true));
       var lastContinuable = /** @type {!r5js.Continuable} */ (
           desugaredExpr.getLastContinuable());
-      var cpsName = lastContinuable.getContinuation().lastResultName;
+      var cpsName = lastContinuable.getContinuation().getLastResultName();
       lastContinuable.getContinuation().nextContinuable =
           r5js.newAssignment(
           /** @type {string} */ (variable.getPayload()),
