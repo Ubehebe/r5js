@@ -321,35 +321,19 @@ r5js.ProcCall.prototype.bindResult = function(continuation, val) {
  * TODO bl: this method is too long.
  */
 r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
-  var args = [];
-
-  /* Special logic for values and call-with-values. Example:
-
-     (call-with-values (lambda () (values 1 2 3)) +)
-
-     The "producer" procedure, (lambda () (values 1 2 3)), will desugar to
-     something like
-
-     (values 1 2 3 [_0 ...])
-
-     In this implementation, this will bind the JavaScript array [1, 2, 3]
-     to _0. Later on the trampoline, we reach (+ _0). We have to know that
-     _0 refers to an array of values, not a single value. */
-  if (this.firstOperand instanceof r5js.ast.Identifier &&
-      !this.firstOperand.getNextSibling()) {
-    var maybeArray = this.env.get(
-        /** @type {string} */ (this.firstOperand.getPayload()));
-    if (maybeArray instanceof Array)
-      return maybeArray;
-    // Otherwise, fall through to normal logic.
+  var maybeArray;
+  if (maybeArray = this.evalArgsCallWithValues_()) {
+    return maybeArray;
   }
+
+  var args = [];
 
   // todo bl too much logic
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.Continuation) {
       args.push(cur);
     } else if (cur instanceof r5js.ast.Identifier) {
-      var name = /** @type {string} */ (cur.getPayload());
+      var name = cur.getPayload();
       var toPush = wrapArgs ?
           r5js.datumutil.maybeWrapResult(this.env.get(name)) :
           this.env.get(name);
@@ -383,6 +367,36 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
   }
 
   return args;
+};
+
+
+/**
+ * Special logic for values and call-with-values. Example:
+ *
+ * (call-with-values (lambda () (values 1 2 3)) +)
+ *
+ * The "producer" procedure, (lambda () (values 1 2 3)), will desugar to
+ * something like
+ *
+ * (values 1 2 3 [_0 ...])
+ *
+ * In this implementation, this will bind the JavaScript array [1, 2, 3] to _0.
+ * Later on the trampoline, we reach (+ _0). We have to know that _0 refers
+ * to an array of values, not a single value.
+ *
+ * @return {Array.<!r5js.runtime.Value>}
+ * @private
+ */
+r5js.ProcCall.prototype.evalArgsCallWithValues_ = function() {
+  if (this.firstOperand instanceof r5js.ast.Identifier &&
+      !this.firstOperand.getNextSibling()) {
+    var maybeArray = this.env.get(
+        /** @type {string} */ (this.firstOperand.getPayload()));
+    if (maybeArray instanceof Array) {
+      return maybeArray;
+    }
+  }
+  return null;
 };
 
 
