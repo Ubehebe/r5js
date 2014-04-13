@@ -16,6 +16,8 @@
 
 goog.provide('r5js.ContinuableHelper');
 
+
+
 /**
  * A buffer to accumulate a Continuable-Continuation chain
  * without the caller having to do the pointer arithmetic.
@@ -23,23 +25,24 @@ goog.provide('r5js.ContinuableHelper');
  * @constructor
  */
 r5js.ContinuableHelper = function() {
-    /** @private {r5js.Continuable} */ this.firstContinuable_ = null;
-    /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
+  /** @private {r5js.Continuable} */ this.firstContinuable_ = null;
+  /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
 };
 
 
 /** @param {!r5js.Continuable} continuable A continuable object. */
 r5js.ContinuableHelper.prototype.appendContinuable = function(continuable) {
-    if (!this.firstContinuable_) {
-        this.firstContinuable_ = continuable;
-        this.lastContinuable_ = continuable.getLastContinuable();
-    } else {
-        this.lastContinuable_.getContinuation().setNextContinuable(continuable);
-        this.lastContinuable_ = continuable.getLastContinuable();
-    }
+  if (!this.firstContinuable_) {
+    this.firstContinuable_ = continuable;
+    this.lastContinuable_ = continuable.getLastContinuable();
+  } else {
+    this.lastContinuable_.getContinuation().setNextContinuable(continuable);
+    this.lastContinuable_ = continuable.getLastContinuable();
+  }
 };
+
 
 /** @return {r5js.Continuable} */
 r5js.ContinuableHelper.prototype.toContinuable = function() {
-    return this.firstContinuable_;
+  return this.firstContinuable_;
 };
