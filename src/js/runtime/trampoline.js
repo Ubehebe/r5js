@@ -37,7 +37,7 @@ goog.require('r5js.TrampolineHelper');
  *
  * (fac 3 [_0 ...]) ; create new env A where n = 3
  *
- * [jump to procedure body, choose consequent]
+ * [jump to procedure body, choose alternate]
  *
  * (*{env A} n (fac (- n 1)) [_0 ...]) ; this needs to be CPSified
  *
@@ -50,7 +50,7 @@ goog.require('r5js.TrampolineHelper');
  * (fac{env A} _1 [_2
  *     (*{env A} n _2 [_0 ...])]) ; create new env B where n = 2
  *
- * [jump to procedure body, choose consequent]
+ * [jump to procedure body, choose alternate]
  *
  * (*{env B} n (fac (- n 1)) [_2
  *     (*{env A} n _2 [_0 ...])]) ; this needs to be CPSified
@@ -66,7 +66,7 @@ goog.require('r5js.TrampolineHelper');
  *     (*{env B} n _4 [_2
  *         (*{env A} n _2 [_0 ...])])]) ; create new env C where n = 1
  *
- * [jump to procedure body, choose consequent]
+ * [jump to procedure body, choose alternate]
  *
  * (*{env C} n (fac (- n 1)) [_4
  *     (*{env B} n _4 [_2
@@ -85,7 +85,7 @@ goog.require('r5js.TrampolineHelper');
  *         (*{env B} n _4 [_2
  *             (*{env A} n _2 [_0 ...])])])]) ; create new env D where n = 0
  *
- * [jump to procedure body, choose alternate]
+ * [jump to procedure body, choose consequent]
  *
  * (id{env D} 1 [_6
  *     (*{env C} n _6 [_4
@@ -101,7 +101,7 @@ goog.require('r5js.TrampolineHelper');
  *
  * (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  *
- *  @param {!r5js.Continuable} continuable The continuable object to evaluate.
+ * @param {!r5js.Continuable} continuable The continuable object to evaluate.
  * @param {!r5js.InputPort} inputPort Input port.
  * @param {!r5js.OutputPort} outputPort Output port.
  * @param {goog.log.Logger} logger Logger, for debugging messages.
