@@ -87,6 +87,5 @@ r5js.Pipeline.prototype.Eval = function(continuable, onOutput, logger) {
   return r5js.trampoline(
       continuable,
       r5js.InputPort.NULL,
-      new r5js.CallbackBackedPort(onOutput),
-      logger);
+      new r5js.CallbackBackedPort(onOutput));
 };

@@ -91,6 +91,5 @@ function install(lib, env, logger) {
       ).parse()
             .desugar(env)).setStartingEnv(env),
       r5js.InputPort.NULL,
-      r5js.OutputPort.NULL,
-      logger);
+      r5js.OutputPort.NULL);
 }

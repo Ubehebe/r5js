@@ -663,10 +663,7 @@ PrimitiveProcedures['eval'] = _.binary(
           throw new r5js.ParseError(expr);
         var continuable = parsed.desugar(env).setStartingEnv(env);
         return r5js.trampoline(
-            continuable,
-            r5js.InputPort.NULL,
-            r5js.OutputPort.NULL,
-            goog.log.getLogger('[embedded eval]'));
+            continuable, r5js.InputPort.NULL, r5js.OutputPort.NULL);
       }
     });
 
