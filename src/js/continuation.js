@@ -49,7 +49,7 @@ r5js.Continuation = function(opt_lastResultName) {
       ('@' /* TODO bl document */ + goog.getUid(this));
 
     /** @private {r5js.Continuable} */ this.nextContinuable_ = null;
-    /** @type {r5js.Continuable} */ this.beforeThunk = null;
+    /** @private {r5js.Continuable} */ this.beforeThunk_ = null;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
 
@@ -87,10 +87,10 @@ r5js.Continuation.prototype.setNextContinuable = function(continuable) {
  * TODO bl: document why we don't have to install the "after" thunk.
  * (I'm pretty sure the reason is it's already in the continuable chain
  * somewhere.)
- * @param {?} before
+ * @param {!r5js.Continuable} before
  */
 r5js.Continuation.prototype.installBeforeThunk = function(before) {
-  this.beforeThunk = before;
+  this.beforeThunk_ = before;
 };
 
 
@@ -132,8 +132,8 @@ r5js.Continuation.prototype.evalAndAdvance = function(
     trampolineHelper.setValue(arg);
     trampolineHelper.setNextContinuable(this.nextContinuable_);
 
-    if (this.beforeThunk) {
-        var before = this.beforeThunk;
+    if (this.beforeThunk_) {
+        var before = this.beforeThunk_;
         var cur = this.nextContinuable_;
         if (cur) {
             before.appendContinuable(cur);
