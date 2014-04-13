@@ -289,6 +289,6 @@ r5js.Macro.prototype.evalAndAdvance = function(
       setStartingEnv(newEnv);
 
   newContinuable.getLastContinuable().setContinuation(continuation);
-  resultStruct.nextContinuable = newContinuable;
+  resultStruct.setNextContinuable(newContinuable);
 };
 

@@ -117,7 +117,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
     var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
     procCall.env.addBinding(this.lastResultName_, arg);
     trampolineHelper.ans = arg;
-    trampolineHelper.nextContinuable = this.nextContinuable;
+    trampolineHelper.setNextContinuable(this.nextContinuable);
 
     if (this.beforeThunk) {
         var before = this.beforeThunk;
@@ -125,7 +125,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
         if (cur) {
             before.appendContinuable(cur);
         }
-        trampolineHelper.nextContinuable = before;
+        trampolineHelper.setNextContinuable(before);
         // todo bl is it safe to leave proc.beforeThunk defined?
     }
 
@@ -152,14 +152,14 @@ r5js.Continuation.prototype.evalAndAdvance = function(
 
      We clearly have to cut out the first part of this chain to avoid an
      infinite loop. */
-    for (var tmp = trampolineHelper.nextContinuable, prev;
+    for (var tmp = trampolineHelper.getNextContinuable(), prev;
          tmp;
          prev = tmp, tmp = tmp.getContinuation().nextContinuable) {
         if (tmp.getSubtype() === procCall) {
             if (prev)
                 prev.getContinuation().nextContinuable = tmp.getContinuation().nextContinuable;
             else
-                trampolineHelper.nextContinuable = tmp.getContinuation().nextContinuable;
+                trampolineHelper.setNextContinuable(tmp.getContinuation().nextContinuable);
             break;
         }
     }

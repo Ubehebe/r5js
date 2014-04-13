@@ -213,7 +213,7 @@ r5js.Procedure.prototype.evalAndAdvance = function(
     this.setEnv_(newEnv);
 
     // And away we go
-    trampolineHelper.nextContinuable = this.body;
+    trampolineHelper.setNextContinuable(this.body);
   }
 };
 

@@ -112,11 +112,11 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
             new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
   }
   else if (arg instanceof r5js.ast.Quasiquote) {
-    resultStruct.nextContinuable = arg.processQuasiquote(
+    resultStruct.setNextContinuable(arg.processQuasiquote(
         /** @type {!r5js.IEnvironment} */ (this.env),
         continuation.getLastResultName(),
         parserProvider
-        ).appendContinuable(continuation.nextContinuable);
+        ).appendContinuable(continuation.nextContinuable));
     return;
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
@@ -142,7 +142,7 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
         'bad macro syntax');
 
   resultStruct.ans = ans;
-  resultStruct.nextContinuable = continuation.nextContinuable;
+  resultStruct.setNextContinuable(continuation.nextContinuable);
 };
 
 

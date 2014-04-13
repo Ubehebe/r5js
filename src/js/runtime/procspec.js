@@ -305,7 +305,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.call_ = function(
   var ans = r5js.datumutil.maybeWrapResult(retval);
   procCall.bindResult(continuation, ans);
   trampolineHelper.ans = ans;
-  trampolineHelper.nextContinuable = continuation.nextContinuable;
+  trampolineHelper.setNextContinuable(continuation.nextContinuable);
 };
 
 
@@ -372,7 +372,7 @@ r5js.procspec.NeedsCurrentPorts_.prototype.call_ = function(
   var ans = r5js.datumutil.maybeWrapResult(retval);
   procCall.bindResult(continuation, ans);
   trampolineHelper.ans = ans;
-  trampolineHelper.nextContinuable = continuation.nextContinuable;
+  trampolineHelper.setNextContinuable(continuation.nextContinuable);
 };
 
 

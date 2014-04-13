@@ -122,7 +122,7 @@ r5js.trampoline = function(continuable, inputPort, outputPort, logger) {
           savedEnv,
           parserProvider);
       ans = resultStruct.ans;
-      cur = resultStruct.nextContinuable;
+      cur = resultStruct.getNextContinuable();
       resultStruct.clear();
     }
 

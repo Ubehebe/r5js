@@ -824,7 +824,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     var actualProcCall = r5js.newProcCall(
         procName, newArgs.toSiblings(), continuation);
     actualProcCall.setStartingEnv(curProcCall.env);
-    resultStruct.nextContinuable = actualProcCall;
+    resultStruct.setNextContinuable(actualProcCall);
   } else {
     // (apply foo a b c '(1 2 3))
     for (var i = 1; i < lastRealArgIndex - 1; ++i) {
@@ -837,7 +837,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
         toSiblings();
     var actualProcCall = r5js.newProcCall(
         procName, newArgs, continuation);
-    resultStruct.nextContinuable = actualProcCall;
+    resultStruct.setNextContinuable(actualProcCall);
   }
 
   return r5js.runtime.UNSPECIFIED_VALUE;
@@ -909,7 +909,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       procCallThunk.appendContinuable(procCallAfter);
       procCallBefore.appendContinuable(procCallThunk);
 
-      resultStruct.nextContinuable = procCallBefore;
+      resultStruct.setNextContinuable(procCallBefore);
       /* We use the TrampolineResultStruct to store the thunk.
          This should be okay because dynamic-wind is the only one
          who writes to it, and call/cc is the only one who reads it.
@@ -946,7 +946,7 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
       consumerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       producerContinuation.nextContinuable = consumerCall;
-      resultStruct.nextContinuable = producerCall;
+      resultStruct.setNextContinuable(producerCall);
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
@@ -984,7 +984,7 @@ PrimitiveProcedures['call-with-current-continuation'] =
           procCall.getFirstOperand(), continuation, continuation);
       dummyProcCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
-      resultStruct.nextContinuable = dummyProcCall;
+      resultStruct.setNextContinuable(dummyProcCall);
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
@@ -1022,7 +1022,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
   if (continuation.nextContinuable) {
     continuation.nextContinuable.setStartingEnv(procCall.env);
   }
-  resultStruct.nextContinuable = continuation.nextContinuable;
+  resultStruct.setNextContinuable(continuation.nextContinuable);
   return r5js.runtime.UNSPECIFIED_VALUE;
 });
 
