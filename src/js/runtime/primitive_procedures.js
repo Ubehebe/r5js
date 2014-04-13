@@ -914,10 +914,10 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
          This should be okay because dynamic-wind is the only one
          who writes to it, and call/cc is the only one who reads it.
          todo bl document why we cannot reuse procCallBefore. */
-      resultStruct.beforeThunk = r5js.newProcCall(
+      resultStruct.setBeforeThunk(r5js.newProcCall(
           procCall.getFirstOperand(),
           null,
-          new r5js.Continuation(before2));
+          new r5js.Continuation(before2)));
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
@@ -972,12 +972,13 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
 PrimitiveProcedures['call-with-current-continuation'] =
     _.unaryWithSpecialEvalLogic(function(
         procedure, procCall, continuation, resultStruct) {
-      if (resultStruct.beforeThunk) {
+      var beforeThunk = resultStruct.getBeforeThunk();
+      if (beforeThunk) {
         /* If this continuation is inside a call to dynamic-wind but
            escapes and then is later re-called, we have to remember
            to execute the associated before and after thunks. */
-        continuation.installBeforeThunk(resultStruct.beforeThunk);
-        resultStruct.beforeThunk = null;
+        continuation.installBeforeThunk(beforeThunk);
+        resultStruct.setBeforeThunk(null);
       }
       var dummyProcCall = r5js.newProcCall(
           procCall.getFirstOperand(), continuation, continuation);

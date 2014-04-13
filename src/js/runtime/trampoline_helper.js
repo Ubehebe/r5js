@@ -27,7 +27,7 @@ goog.provide('r5js.TrampolineHelper');
 r5js.TrampolineHelper = function(inputPort, outputPort) {
   /** @const @private */ this.inputPort_ = inputPort;
   /** @const @private */ this.outputPort_ = outputPort;
-  /** @type {r5js.Continuable} */ this.beforeThunk = null;
+  /** @private {r5js.Continuable} */ this.beforeThunk_ = null;
   /** @type {r5js.Continuable} */ this.nextContinuable = null;
   /** @type {!r5js.runtime.Value|null} */ this.ans = null;
 };
@@ -37,6 +37,18 @@ r5js.TrampolineHelper = function(inputPort, outputPort) {
 r5js.TrampolineHelper.prototype.clear = function() {
   this.ans = null;
   this.nextContinuable = null;
+};
+
+
+/** @return {r5js.Continuable} */
+r5js.TrampolineHelper.prototype.getBeforeThunk = function() {
+  return this.beforeThunk_;
+};
+
+
+/** @param {r5js.Continuable} beforeThunk */
+r5js.TrampolineHelper.prototype.setBeforeThunk = function(beforeThunk) {
+  this.beforeThunk_ = beforeThunk;
 };
 
 
