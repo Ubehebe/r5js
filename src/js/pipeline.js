@@ -83,7 +83,7 @@ r5js.Pipeline.prototype.desugar = function(root, replMode) {
 
 
 /** @override */
-r5js.Pipeline.prototype.Eval = function(continuable, onOutput, logger) {
+r5js.Pipeline.prototype.Eval = function(continuable, onOutput) {
   return r5js.trampoline(
       continuable,
       r5js.InputPort.NULL,

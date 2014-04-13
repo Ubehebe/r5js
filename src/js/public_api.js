@@ -99,11 +99,10 @@ r5js.PublicApi.prototype.willParse = function(logicalLine) {
 /**
  * @param {string} string The source text to evaluate.
  * @param {function()} sideEffectHandler A side effect handler.
- * @param {goog.log.Logger} logger Logger.
  * @return {string} A string representation of the value of the evaluation.
  * TODO bl: narrow the type of sideEffectHandler.
  */
-r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler, logger) {
+r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
@@ -111,7 +110,7 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler, logger) {
                     this.pipeline_.read(
                         this.pipeline_.scan(string)))),
                 false /* replMode */),
-            sideEffectHandler, logger);
+            sideEffectHandler);
     return ans instanceof r5js.Datum ?
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :
@@ -122,21 +121,17 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler, logger) {
  * Just like {@link r5js.PublicApi.eval}, but reuses the old environment.
  * @param {string} string The source text to evaluate.
  * @param {*} sideEffectHandler A side effect handler.
- * @param {goog.log.Logger} logger Logger.
  * TODO bl: tighten the type of sideEffectHandler.
  */
-r5js.PublicApi.prototype.repl = function (string, sideEffectHandler, logger) {
+r5js.PublicApi.prototype.repl = function (string, sideEffectHandler) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
                     this.pipeline_.parse(
                     /** @type {!r5js.Datum} */ (this.pipeline_.read(
                         this.pipeline_.scan(string)))),
-                true
-            ),
-            goog.nullFunction,
-            logger
-        );
+                true),
+            goog.nullFunction /* onOutput */);
     return ans instanceof r5js.Datum ?
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :

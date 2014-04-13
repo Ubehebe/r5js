@@ -3,7 +3,6 @@ goog.setTestOnly('r5js.test.Interpreter');
 
 
 goog.require('expect');
-goog.require('goog.log');
 
 
 
@@ -20,9 +19,6 @@ r5js.test.Interpreter = function(publicApi, sources) {
 
   /** @const @private */
   this.sources_ = sources;
-
-  /** @const @private {goog.log.Logger} */
-  this.logger_ = goog.log.getLogger('r5js.test.Interpreter');
 };
 
 
@@ -40,18 +36,18 @@ r5js.test.Interpreter.prototype.toString = function() {
 
 r5js.test.Interpreter.prototype['testR5RSTests'] = function() {
   this.publicApi_.Eval(this.sources_.testFramework + this.sources_.r5RSTests,
-      goog.bind(console.log, console), this.logger_);
+      goog.bind(console.log, console));
 };
 
 
 r5js.test.Interpreter.prototype['testNegativeTests'] = function() {
   this.publicApi_.Eval(
       this.sources_.negativeTestFramework + this.sources_.negativeTests,
-      goog.bind(console.log, console), this.logger_);
+      goog.bind(console.log, console));
 };
 
 
 r5js.test.Interpreter.prototype['testOtherTests'] = function() {
   this.publicApi_.Eval(this.sources_.testFramework + this.sources_.otherTests,
-      goog.bind(console.log, console), this.logger_);
+      goog.bind(console.log, console));
 };
