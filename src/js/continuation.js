@@ -17,10 +17,10 @@
 goog.provide('r5js.Continuation');
 
 
-goog.require('r5js.ast.List');
 goog.require('r5js.ProcedureLike');
-goog.require('r5js.ast.Macro');
 goog.require('r5js.ast.Identifier');
+goog.require('r5js.ast.List');
+goog.require('r5js.ast.Macro');
 // TODO bl cyclic dependency goog.require('r5js.newProcCall');
 
 
@@ -48,15 +48,15 @@ r5js.Continuation = function(opt_lastResultName) {
       opt_lastResultName :
       ('@' /* TODO bl document */ + goog.getUid(this));
 
-    /** @private {r5js.Continuable} */ this.nextContinuable_ = null;
-    /** @private {r5js.Continuable} */ this.beforeThunk_ = null;
+  /** @private {r5js.Continuable} */ this.nextContinuable_ = null;
+  /** @private {r5js.Continuable} */ this.beforeThunk_ = null;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
 
 
 /** @return {string} */
 r5js.Continuation.prototype.getLastResultName = function() {
-    return this.lastResultName_;
+  return this.lastResultName_;
 };
 
 
@@ -65,21 +65,20 @@ r5js.Continuation.prototype.getLastResultName = function() {
  * TODO bl This setter doesn't make sense. lastResultName should be const.
  */
 r5js.Continuation.prototype.setLastResultName = function(name) {
-    this.lastResultName_ = name;
+  this.lastResultName_ = name;
 };
 
 
 /** @return {r5js.Continuable} */
 r5js.Continuation.prototype.getNextContinuable = function() {
-    return this.nextContinuable_;
+  return this.nextContinuable_;
 };
 
 
 /** @param {!r5js.Continuable} continuable */
 r5js.Continuation.prototype.setNextContinuable = function(continuable) {
-    this.nextContinuable_ = continuable;
+  this.nextContinuable_ = continuable;
 };
-
 
 
 /**
@@ -127,22 +126,22 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
  */
 r5js.Continuation.prototype.evalAndAdvance = function(
     procCall, continuation, trampolineHelper, parserProvider) {
-    var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
-    procCall.env.addBinding(this.lastResultName_, arg);
-    trampolineHelper.setValue(arg);
-    trampolineHelper.setNextContinuable(this.nextContinuable_);
+  var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
+  procCall.env.addBinding(this.lastResultName_, arg);
+  trampolineHelper.setValue(arg);
+  trampolineHelper.setNextContinuable(this.nextContinuable_);
 
-    if (this.beforeThunk_) {
-        var before = this.beforeThunk_;
-        var cur = this.nextContinuable_;
-        if (cur) {
-            before.appendContinuable(cur);
-        }
-        trampolineHelper.setNextContinuable(before);
-        // todo bl is it safe to leave proc.beforeThunk defined?
+  if (this.beforeThunk_) {
+    var before = this.beforeThunk_;
+    var cur = this.nextContinuable_;
+    if (cur) {
+      before.appendContinuable(cur);
     }
+    trampolineHelper.setNextContinuable(before);
+    // todo bl is it safe to leave proc.beforeThunk defined?
+  }
 
-    /* Cut out the current proc call from the continuation chain to
+  /* Cut out the current proc call from the continuation chain to
      avoid an infinite loop. Example:
 
      (define cont #f)
@@ -165,22 +164,20 @@ r5js.Continuation.prototype.evalAndAdvance = function(
 
      We clearly have to cut out the first part of this chain to avoid an
      infinite loop. */
-    for (var tmp = trampolineHelper.getNextContinuable(), prev;
-         tmp;
-         prev = tmp, tmp = tmp.getContinuation().nextContinuable_) {
-        if (tmp.getSubtype() === procCall) {
-            if (prev)
-                prev.getContinuation().nextContinuable_ = tmp.getContinuation().nextContinuable_;
-            else
-                trampolineHelper.setNextContinuable(tmp.getContinuation().nextContinuable_);
-            break;
-        }
+  for (var tmp = trampolineHelper.getNextContinuable(), prev;
+      tmp;
+      prev = tmp, tmp = tmp.getContinuation().nextContinuable_) {
+    if (tmp.getSubtype() === procCall) {
+      if (prev)
+        prev.getContinuation().nextContinuable_ =
+            tmp.getContinuation().nextContinuable_;
+      else
+        trampolineHelper.setNextContinuable(
+            tmp.getContinuation().nextContinuable_);
+      break;
     }
+  }
 };
-
-
-
-
 
 
 /**
@@ -210,8 +207,8 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
 
   var letBindings = new r5js.SiblingBuffer();
 
-    datum.firstSublist().forEachChild(function(spec) {
-        spec = /** @type {!r5js.ast.CompoundDatum} */ (spec); // TODO bl
+  datum.firstSublist().forEachChild(function(spec) {
+    spec = /** @type {!r5js.ast.CompoundDatum} */ (spec); // TODO bl
     var kw = spec.at(r5js.parse.Nonterminals.KEYWORD).clone(null /* parent */);
     var macro = /** @type {!r5js.Macro} */ (
         spec.at(r5js.parse.Nonterminals.TRANSFORMER_SPEC).desugar(env));
@@ -224,8 +221,10 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
   });
 
   var _let = new r5js.SiblingBuffer();
-  _let.appendSibling(letBindings.toList(r5js.ast.List));
-  _let.appendSibling(/** @type {!r5js.Datum} */ (datum.firstSublist().getNextSibling()));
+  _let.appendSibling(
+      letBindings.toList(r5js.ast.List)
+  ).appendSibling(
+      /** @type {!r5js.Datum} */ (datum.firstSublist().getNextSibling()));
 
   return r5js.newProcCall(
       new r5js.ast.Identifier(operatorName),
