@@ -39,6 +39,7 @@ goog.require('r5js.ast.Identifier');
  * @param {string=} opt_lastResultName Optional name to use for the last result.
  *     If not given, a unique name will be created.
  *     @implements {r5js.ProcedureLike}
+ *     @struct
  * @constructor
  */
 r5js.Continuation = function(opt_lastResultName) {
@@ -46,6 +47,9 @@ r5js.Continuation = function(opt_lastResultName) {
   this.lastResultName_ = goog.isDef(opt_lastResultName) ?
       opt_lastResultName :
       ('@' /* TODO bl document */ + goog.getUid(this));
+
+    /** @type {r5js.Continuable} */ this.nextContinuable = null;
+    /** @type {r5js.Continuable} */ this.beforeThunk = null;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
 
@@ -118,7 +122,9 @@ r5js.Continuation.prototype.evalAndAdvance = function(
     if (this.beforeThunk) {
         var before = this.beforeThunk;
         var cur = this.nextContinuable;
-        before.appendContinuable(cur);
+        if (cur) {
+            before.appendContinuable(cur);
+        }
         trampolineHelper.nextContinuable = before;
         // todo bl is it safe to leave proc.beforeThunk defined?
     }
