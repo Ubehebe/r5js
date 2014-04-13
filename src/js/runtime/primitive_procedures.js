@@ -945,7 +945,7 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
           continuation);
       consumerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
-      producerContinuation.nextContinuable = consumerCall;
+      producerContinuation.setNextContinuable(consumerCall);
       resultStruct.setNextContinuable(producerCall);
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
@@ -1019,10 +1019,11 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
 
     procCall.env.addBinding(continuation.getLastResultName(), userArgs);
   }
-  if (continuation.nextContinuable) {
-    continuation.nextContinuable.setStartingEnv(procCall.env);
+    var nextContinuable = continuation.getNextContinuable();
+  if (nextContinuable) {
+    nextContinuable.setStartingEnv(procCall.env);
   }
-  resultStruct.setNextContinuable(continuation.nextContinuable);
+  resultStruct.setNextContinuable(nextContinuable);
   return r5js.runtime.UNSPECIFIED_VALUE;
 });
 

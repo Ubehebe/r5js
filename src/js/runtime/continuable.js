@@ -80,8 +80,8 @@ r5js.Continuable.prototype.setStartingEnv = function(env) {
  * @return {!r5js.Continuable}
  */
 r5js.Continuable.prototype.getLastContinuable = function() {
-  return this.continuation_.nextContinuable ?
-      this.continuation_.nextContinuable.getLastContinuable() :
+  return this.continuation_.getNextContinuable() ?
+      this.continuation_.getNextContinuable().getLastContinuable() :
       this;
 };
 
@@ -91,6 +91,6 @@ r5js.Continuable.prototype.getLastContinuable = function() {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.appendContinuable = function(next) {
-  this.getLastContinuable().continuation_.nextContinuable = next;
+  this.getLastContinuable().continuation_.setNextContinuable(next);
   return this;
 };

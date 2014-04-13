@@ -232,7 +232,7 @@ r5js.Datum.prototype.sequence = function(env) {
             if (!first) {
                 first = tmp;
             } else if (curEnd) {
-                curEnd.nextContinuable = tmp;
+                curEnd.setNextContinuable(tmp);
             }
 
             curEnd = tmp.getLastContinuable().getContinuation();

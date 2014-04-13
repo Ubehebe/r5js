@@ -116,7 +116,7 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
         /** @type {!r5js.IEnvironment} */ (this.env),
         continuation.getLastResultName(),
         parserProvider
-        ).appendContinuable(continuation.nextContinuable));
+        ).appendContinuable(continuation.getNextContinuable()));
     return;
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
@@ -133,16 +133,18 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
 
   this.bindResult(continuation, ans);
 
+  var nextContinuable = continuation.getNextContinuable();
+
   /* If we're at the end of the continuable-continuation chain and we're
      trying to return a macro object off the trampoline, that's an error.
      The input was a bare macro name. */
-  if (!continuation.nextContinuable && ans instanceof r5js.Macro)
+  if (!nextContinuable && ans instanceof r5js.Macro)
     throw new r5js.MacroError(
         /** @type {string} */ (this.firstOperand.getPayload()),
         'bad macro syntax');
 
   resultStruct.setValue(ans);
-  resultStruct.setNextContinuable(continuation.nextContinuable);
+  resultStruct.setNextContinuable(nextContinuable);
 };
 
 

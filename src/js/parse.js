@@ -309,10 +309,10 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
             operatorNode.desugar(env));
         var lastContinuation = desugaredOp.getLastContinuable().getContinuation();
         var opName = lastContinuation.getLastResultName();
-        lastContinuation.nextContinuable = r5js.newProcCall(
+        lastContinuation.setNextContinuable(r5js.newProcCall(
             new r5js.ast.Identifier(opName),
             operands,
-            new r5js.Continuation());
+            new r5js.Continuation()));
         return desugaredOp;
       }
         });
@@ -436,11 +436,11 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
       var desugaredExpr = variable.getNextSibling().desugar(env, true);
       var lastContinuable = desugaredExpr.getLastContinuable();
       var cpsName = lastContinuable.getContinuation().getLastResultName();
-      lastContinuable.getContinuation().nextContinuable =
+      lastContinuable.getContinuation().setNextContinuable(
           r5js.newTopLevelAssignment(
           variable.getPayload(),
           cpsName,
-          new r5js.Continuation());
+          new r5js.Continuation()));
       return desugaredExpr;
     }),
     _.list(
@@ -539,7 +539,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
           consequent,
           alternate,
           new r5js.Continuation());
-      testEndpointContinuation.nextContinuable = branch;
+      testEndpointContinuation.setNextContinuable(branch);
       return test;
     }),
     _.list(
@@ -567,7 +567,7 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
           consequent,
           r5js.newIdShim(new r5js.ast.Number(null)),
           new r5js.Continuation());
-      testEndpointContinuation.nextContinuable = branch;
+      testEndpointContinuation.setNextContinuable(branch);
       return test;
     }));
 
@@ -598,11 +598,11 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.list(
       var lastContinuable = /** @type {!r5js.Continuable} */ (
           desugaredExpr.getLastContinuable());
       var cpsName = lastContinuable.getContinuation().getLastResultName();
-      lastContinuable.getContinuation().nextContinuable =
+      lastContinuable.getContinuation().setNextContinuable(
           r5js.newAssignment(
           /** @type {string} */ (variable.getPayload()),
           cpsName,
-          new r5js.Continuation());
+          new r5js.Continuation()));
       return desugaredExpr;
         });
 

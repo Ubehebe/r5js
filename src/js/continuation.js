@@ -48,7 +48,7 @@ r5js.Continuation = function(opt_lastResultName) {
       opt_lastResultName :
       ('@' /* TODO bl document */ + goog.getUid(this));
 
-    /** @type {r5js.Continuable} */ this.nextContinuable = null;
+    /** @private {r5js.Continuable} */ this.nextContinuable_ = null;
     /** @type {r5js.Continuable} */ this.beforeThunk = null;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
@@ -67,6 +67,19 @@ r5js.Continuation.prototype.getLastResultName = function() {
 r5js.Continuation.prototype.setLastResultName = function(name) {
     this.lastResultName_ = name;
 };
+
+
+/** @return {r5js.Continuable} */
+r5js.Continuation.prototype.getNextContinuable = function() {
+    return this.nextContinuable_;
+};
+
+
+/** @param {!r5js.Continuable} continuable */
+r5js.Continuation.prototype.setNextContinuable = function(continuable) {
+    this.nextContinuable_ = continuable;
+};
+
 
 
 /**
@@ -93,7 +106,7 @@ r5js.Continuation.prototype.installBeforeThunk = function(before) {
  * to the call site.
  */
 r5js.Continuation.prototype.getAdjacentProcCall = function() {
-  return this.nextContinuable && this.nextContinuable.getSubtype();
+  return this.nextContinuable_ && this.nextContinuable_.getSubtype();
 };
 
 
@@ -102,8 +115,8 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
   /* In general, we need to remember to jump out of the newEnv at
      the end of the procedure body. See ProcCall.prototype.maybeSetEnv
      for detailed logic (and maybe bugs). */
-  if (this.nextContinuable) {
-    this.nextContinuable.getSubtype().maybeSetEnv(env);
+  if (this.nextContinuable_) {
+    this.nextContinuable_.getSubtype().maybeSetEnv(env);
   }
 };
 
@@ -117,11 +130,11 @@ r5js.Continuation.prototype.evalAndAdvance = function(
     var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
     procCall.env.addBinding(this.lastResultName_, arg);
     trampolineHelper.setValue(arg);
-    trampolineHelper.setNextContinuable(this.nextContinuable);
+    trampolineHelper.setNextContinuable(this.nextContinuable_);
 
     if (this.beforeThunk) {
         var before = this.beforeThunk;
-        var cur = this.nextContinuable;
+        var cur = this.nextContinuable_;
         if (cur) {
             before.appendContinuable(cur);
         }
@@ -154,12 +167,12 @@ r5js.Continuation.prototype.evalAndAdvance = function(
      infinite loop. */
     for (var tmp = trampolineHelper.getNextContinuable(), prev;
          tmp;
-         prev = tmp, tmp = tmp.getContinuation().nextContinuable) {
+         prev = tmp, tmp = tmp.getContinuation().nextContinuable_) {
         if (tmp.getSubtype() === procCall) {
             if (prev)
-                prev.getContinuation().nextContinuable = tmp.getContinuation().nextContinuable;
+                prev.getContinuation().nextContinuable_ = tmp.getContinuation().nextContinuable_;
             else
-                trampolineHelper.setNextContinuable(tmp.getContinuation().nextContinuable);
+                trampolineHelper.setNextContinuable(tmp.getContinuation().nextContinuable_);
             break;
         }
     }
