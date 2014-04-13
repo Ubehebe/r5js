@@ -116,7 +116,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
     procCall, continuation, trampolineHelper, parserProvider) {
     var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
     procCall.env.addBinding(this.lastResultName_, arg);
-    trampolineHelper.ans = arg;
+    trampolineHelper.setValue(arg);
     trampolineHelper.setNextContinuable(this.nextContinuable);
 
     if (this.beforeThunk) {

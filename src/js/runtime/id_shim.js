@@ -141,7 +141,7 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
         /** @type {string} */ (this.firstOperand.getPayload()),
         'bad macro syntax');
 
-  resultStruct.ans = ans;
+  resultStruct.setValue(ans);
   resultStruct.setNextContinuable(continuation.nextContinuable);
 };
 

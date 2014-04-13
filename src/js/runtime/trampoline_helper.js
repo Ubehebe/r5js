@@ -29,13 +29,13 @@ r5js.TrampolineHelper = function(inputPort, outputPort) {
   /** @const @private */ this.outputPort_ = outputPort;
   /** @private {r5js.Continuable} */ this.beforeThunk_ = null;
   /** @private {r5js.Continuable} */ this.nextContinuable_ = null;
-  /** @type {!r5js.runtime.Value|null} */ this.ans = null;
+  /** @private {!r5js.runtime.Value|null} */ this.value_ = null;
 };
 
 
 /** Clears the object's state. TODO bl: not {@link beforeThunk}? */
 r5js.TrampolineHelper.prototype.clear = function() {
-  this.ans = null;
+  this.value_ = null;
   this.nextContinuable_ = null;
 };
 
@@ -61,6 +61,18 @@ r5js.TrampolineHelper.prototype.getNextContinuable = function() {
 /** @param {r5js.Continuable} continuable */
 r5js.TrampolineHelper.prototype.setNextContinuable = function(continuable) {
   this.nextContinuable_ = continuable;
+};
+
+
+/** @return {!r5js.runtime.Value|null} */
+r5js.TrampolineHelper.prototype.getValue = function() {
+  return this.value_;
+};
+
+
+/** @param {!r5js.runtime.Value} value */
+r5js.TrampolineHelper.prototype.setValue = function(value) {
+  this.value_ = value;
 };
 
 
