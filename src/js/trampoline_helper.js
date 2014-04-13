@@ -20,18 +20,15 @@ goog.provide('r5js.TrampolineHelper');
 /**
  * @param {!r5js.InputPort} inputPort
  * @param {!r5js.OutputPort} outputPort
+ * @struct
  * @constructor
  */
 r5js.TrampolineHelper = function(inputPort, outputPort) {
     /** @const @private */ this.inputPort_ = inputPort;
-
     /** @const @private */ this.outputPort_ = outputPort;
-
-    /*
-     this.ans;
-     this.nextContinuable;
-     this.beforeThunk;
-     */
+    /** @type {r5js.Continuable} */ this.beforeThunk = null;
+    /** @type {r5js.Continuable} */ this.nextContinuable = null;
+    /** @type {!r5js.runtime.Value|null} */ this.ans = null;
 };
 
 r5js.TrampolineHelper.prototype.clear = function() {
