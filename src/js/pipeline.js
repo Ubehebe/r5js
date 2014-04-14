@@ -30,16 +30,12 @@ goog.require('r5js.trampoline');
 
 
 /**
+ * @param {!r5js.IEnvironment} rootEnv The root environment.
  * @implements {r5js.IPipeline}
  * @constructor
  */
-r5js.Pipeline = function() {};
-
-
-/** @override */
-r5js.Pipeline.prototype.setRootEnv = function(rootEnv) {
-  this.rootEnv = rootEnv;
-  this.env = new r5js.Environment(rootEnv);
+r5js.Pipeline = function(rootEnv) {
+    this.rootEnv = rootEnv;
 };
 
 

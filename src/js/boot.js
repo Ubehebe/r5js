@@ -69,9 +69,7 @@ r5js.boot = function(syntaxLib, procLib) {
   r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, r5js.js.Environment.get());
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
-  var pipeline = new r5js.Pipeline();
-  pipeline.setRootEnv(r5RSEnv);
-  return new r5js.PublicApi(pipeline);
+  return new r5js.PublicApi(new r5js.Pipeline(r5RSEnv));
 };
 
 

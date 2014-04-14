@@ -22,10 +22,6 @@ goog.provide('r5js.IPipeline');
 r5js.IPipeline = function() {};
 
 
-/** @param {!r5js.IEnvironment} rootEnv The root environment to use. */
-r5js.IPipeline.prototype.setRootEnv = function(rootEnv) {};
-
-
 /**
  * @param {string} string The string to scan.
  * @return {!r5js.TokenStream} A token stream representing the input string.
