@@ -6,7 +6,6 @@ goog.setTestOnly('r5js.test.evalSandbox');
 
 goog.require('goog.log');
 goog.require('r5js.js.Environment');
-goog.require('r5js.LazyBoot');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PublicApi');
 goog.require('r5js.Reader');
@@ -83,12 +82,9 @@ r5js.test.api_ = null;
  */
 r5js.test.getApi_ = function(sources) {
   if (!r5js.test.api_) {
-    var pipeline = new r5js.LazyBoot(
-        new r5js.Pipeline(),
-        function() {
-          var r5RSEnv = r5js.boot(sources.syntax, sources.procedures);
-          pipeline.setRootEnv(r5RSEnv);
-        });
+    var pipeline = new r5js.Pipeline();
+    var r5RSEnv = r5js.boot(sources.syntax, sources.procedures);
+    pipeline.setRootEnv(r5RSEnv);
     r5js.test.api_ = new r5js.PublicApi(pipeline);
   }
   return r5js.test.api_;
