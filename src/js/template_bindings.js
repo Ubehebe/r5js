@@ -17,9 +17,11 @@
 goog.provide('r5js.TemplateBindings');
 
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.CompoundDatum');
+goog.require('r5js.ast.Identifier');
 // TODO bl circular dependency goog.require('r5js.ast.Macro');
+
+
 
 /**
  * My approach for supporting nested ellipses in macro transcriptions
@@ -69,45 +71,48 @@ goog.require('r5js.ast.CompoundDatum');
  * 11. Transcribe y with chid1.child1 => f
  * 12. Transcribe y with [no more children] => false. Reset cur child.
  * [6 completes as ((c e) (d f))]
- * 13. Transcribe ((x ...) (y ...)) with [no more children] => false. Reset cur child.
+ * 13. Transcribe ((x ...) (y ...)) with [no more children] => false.
+ * Reset cur child.
  * [13 completes as (((a) (b)) ((c e) (d f)))]
  *
  * TODO bl: explain -- or ideally remove -- all the crazy logic dealing
  * with "incorporation". Do we even need it?
  *
- * @param {!r5js.IEnvironment} letSyntaxEnv TODO bl
- * @param {!Object.<string, number>} patternIds TODO bl
- * @param {!Object.<string, boolean>} templateRenameCandidates TODO bl
+ * @param {!r5js.IEnvironment} letSyntaxEnv TODO bl.
+ * @param {!Object.<string, number>} patternIds TODO bl.
+ * @param {!Object.<string, boolean>} templateRenameCandidates TODO bl.
  * @struct
  * @constructor
  */
-r5js.TemplateBindings = function(letSyntaxEnv, patternIds, templateRenameCandidates) {
-    /** @const @private {!Object.<string,!r5js.Datum>} */
-    this.bindings_ = {};
+r5js.TemplateBindings = function(
+    letSyntaxEnv, patternIds, templateRenameCandidates) {
+  /** @const @private {!Object.<string,!r5js.Datum>} */
+  this.bindings_ = {};
 
-    /** @const @private {!Array.<!r5js.TemplateBindings>} */
-    this.children_ = [];
+  /** @const @private {!Array.<!r5js.TemplateBindings>} */
+  this.children_ = [];
 
-    /** @private {number} */
-    this.curChild_ = 0;
+  /** @private {number} */
+  this.curChild_ = 0;
 
-    /** @const @private {!r5js.IEnvironment} */
-    this.letSyntaxEnv_ = letSyntaxEnv;
+  /** @const @private {!r5js.IEnvironment} */
+  this.letSyntaxEnv_ = letSyntaxEnv;
 
-    /** @const @private {!Object.<string, number>} */
-    this.patternIds_ = patternIds;
+  /** @const @private {!Object.<string, number>} */
+  this.patternIds_ = patternIds;
 
-    /** @const {!Object.<string, boolean>} */
-    this.templateRenameCandidates_ = templateRenameCandidates;
+  /** @const @private {!Object.<string, boolean>} */
+  this.templateRenameCandidates_ = templateRenameCandidates;
 
-    /** @const @private {!Object.<*,*>} */
-    this.renameInTemplate_ = {};
+  /** @const @private {!Object.<*,*>} */
+  this.renameInTemplate_ = {};
 };
+
 
 /** @return {!r5js.TemplateBindings} This object, for chaining. */
 r5js.TemplateBindings.prototype.resetCurChild = function() {
-    this.curChild_ = 0;
-    return this;
+  this.curChild_ = 0;
+  return this;
 };
 
 
@@ -116,22 +121,22 @@ r5js.TemplateBindings.prototype.resetCurChild = function() {
  * @param {!r5js.Datum} val
  */
 r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
-    if (name in this.bindings_) {
-        throw new r5js.InternalInterpreterError('invariant incorrect');
-    } else if (val instanceof r5js.ast.Macro) {
-        // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
-        var fakeName = newCpsName();
-        this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
-        this.bindings_[name] = new r5js.ast.Identifier(fakeName);
-    } else {
-        this.bindings_[name] = val;
-    }
+  if (name in this.bindings_) {
+    throw new r5js.InternalInterpreterError('invariant incorrect');
+  } else if (val instanceof r5js.ast.Macro) {
+    // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
+    var fakeName = newCpsName();
+    this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
+    this.bindings_[name] = new r5js.ast.Identifier(fakeName);
+  } else {
+    this.bindings_[name] = val;
+  }
 
-    if (val instanceof r5js.ast.Identifier) {
-        this.maybeRenameId_(val);
-    } else if (val instanceof r5js.ast.CompoundDatum) {
-        val.forEachChild(this.maybeRenameId_, this);
-    }
+  if (val instanceof r5js.ast.Identifier) {
+    this.maybeRenameId_(val);
+  } else if (val instanceof r5js.ast.CompoundDatum) {
+    val.forEachChild(this.maybeRenameId_, this);
+  }
 };
 
 
@@ -157,14 +162,14 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
  * @private
  */
 r5js.TemplateBindings.prototype.maybeRenameId_ = function(datum) {
-    if (datum instanceof r5js.ast.Identifier) {
-        var id = /** @type {string} */ (datum.getPayload());
-        if (this.templateRenameCandidates_[id]) {
-            this.renameInTemplate_[id] = true;
-        }
-    } else if (datum instanceof r5js.ast.CompoundDatum) {
-        datum.forEachChild(this.maybeRenameId_, this);
+  if (datum instanceof r5js.ast.Identifier) {
+    var id = /** @type {string} */ (datum.getPayload());
+    if (this.templateRenameCandidates_[id]) {
+      this.renameInTemplate_[id] = true;
     }
+  } else if (datum instanceof r5js.ast.CompoundDatum) {
+    datum.forEachChild(this.maybeRenameId_, this);
+  }
 };
 
 
@@ -173,9 +178,10 @@ r5js.TemplateBindings.prototype.maybeRenameId_ = function(datum) {
  * @return {!r5js.TemplateBindings} This object, for chaining.
  */
 r5js.TemplateBindings.prototype.addChildBindings = function(child) {
-    this.children_.push(child);
-    return this;
+  this.children_.push(child);
+  return this;
 };
+
 
 /**
  * @param {!r5js.TemplateBindings} other Other template bindings.
@@ -183,13 +189,14 @@ r5js.TemplateBindings.prototype.addChildBindings = function(child) {
  * @private
  */
 r5js.TemplateBindings.prototype.hasNoneOf_ = function(other) {
-    for (var name in other.bindings_) {
-        if (name in this.bindings_) {
-            return false;
-        }
+  for (var name in other.bindings_) {
+    if (name in this.bindings_) {
+      return false;
     }
-    return true;
+  }
+  return true;
 };
+
 
 /**
  * Try to incorporate the child's bindings in an existing child
@@ -198,8 +205,9 @@ r5js.TemplateBindings.prototype.hasNoneOf_ = function(other) {
  * @return {r5js.TemplateBindings}
  */
 r5js.TemplateBindings.prototype.addOrIncorporateChild = function(child) {
-    return this.incorporateChild(child) || this.addChildBindings(child);
+  return this.incorporateChild(child) || this.addChildBindings(child);
 };
+
 
 /**
  * @param {!r5js.TemplateBindings} child Child bindings.
@@ -207,36 +215,37 @@ r5js.TemplateBindings.prototype.addOrIncorporateChild = function(child) {
  */
 r5js.TemplateBindings.prototype.incorporateChild = function(child) {
 
-    // We only incorporate flat TemplateBindings objects.
-    if (child.children_.length > 0) {
-        return null;
-    }
+  // We only incorporate flat TemplateBindings objects.
+  if (child.children_.length > 0) {
+    return null;
+  }
 
-    /* Dump all the child's bindings in the first child that doesn't
+  /* Dump all the child's bindings in the first child that doesn't
      have any of the bindings.
 
      todo bl: i have no idea why this heuristic seems to work. */
-    for (var i = 0; i < this.children_.length; ++i) {
-        var candidate = this.children_[i];
-        if (candidate.hasNoneOf_(child)) {
-            for (var name in child.bindings_) {
-                candidate.addTemplateBinding(name, child.bindings_[name]);
-            }
-            return this;
-        }
+  for (var i = 0; i < this.children_.length; ++i) {
+    var candidate = this.children_[i];
+    if (candidate.hasNoneOf_(child)) {
+      for (var name in child.bindings_) {
+        candidate.addTemplateBinding(name, child.bindings_[name]);
+      }
+      return this;
     }
+  }
 
-    return null;
+  return null;
 };
+
 
 /** @return {r5js.TemplateBindings} */
 r5js.TemplateBindings.prototype.getNextChild = function() {
-    if (this.curChild_ < this.children_.length) {
-        return this.children_[this.curChild_++];
-    } else {
-        this.curChild_ = 0;   // reset for next time
-        return null;
-    }
+  if (this.curChild_ < this.children_.length) {
+    return this.children_[this.curChild_++];
+  } else {
+    this.curChild_ = 0;   // reset for next time
+    return null;
+  }
 };
 
 
@@ -246,53 +255,56 @@ r5js.TemplateBindings.prototype.getNextChild = function() {
  * TODO bl document what this does.
  */
 r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
-    if (!this.patternIds_)
-        throw new r5js.InternalInterpreterError('invariant incorrect');
+  if (!this.patternIds_)
+    throw new r5js.InternalInterpreterError('invariant incorrect');
 
-    if (datum instanceof r5js.ast.Identifier) {
-        var name = /** @type {string} */(datum.getPayload());
+  if (datum instanceof r5js.ast.Identifier) {
+    var name = /** @type {string} */(datum.getPayload());
 
-        var maybe = this.bindings_[name];
-        if (maybe) {
-            return maybe.clone(null /* parent */);
-        } else if (this.patternIds_[name] !== undefined) {
-            /* It's important to return false here, instead of some other
-             "falsey" value like null. This value is immediately returned by
-             IdOrLiteralTransformer.prototype.matchInput. Meanwhile,
-             EllipsisTransformer.prototype.matchInput returns
-             new r5js.SiblingBuffer().toList() when it has successfully matched the
-             ellipsis zero times, which is not a failure. And if you look at
-             the implementation, you will see there is a good reason that
+    var maybe = this.bindings_[name];
+    if (maybe) {
+      return maybe.clone(null /* parent */);
+    } else if (this.patternIds_[name] !== undefined) {
+      /* It's important to return false here, instead of some other
+         "falsey" value like null. This value is immediately returned by
+         IdOrLiteralTransformer.prototype.matchInput. Meanwhile,
+         EllipsisTransformer.prototype.matchInput returns
+         new r5js.SiblingBuffer().toList() when it has successfully matched the
+         ellipsis zero times, which is not a failure. And if you look at
+         the implementation, you will see there is a good reason that
 
-             new r5js.SiblingBuffer().toList() === null.
+         new r5js.SiblingBuffer().toList() === null.
 
-             So we have to return something different.
+         So we have to return something different.
 
-             Static types would be useful here. */
-            return false;
-        } else {
-            return datum.clone(null /* parent */);
-        }
-
+         Static types would be useful here. */
+      return false;
     } else {
-        return datum.clone(null /* parent */);
+      return datum.clone(null /* parent */);
     }
+
+  } else {
+    return datum.clone(null /* parent */);
+  }
 };
+
 
 /** @return {!Object.<string, number>} */
 r5js.TemplateBindings.prototype.getPatternIds = function() {
-    return this.patternIds_;
+  return this.patternIds_;
 };
+
 
 /** @return {!Object.<string, boolean>} */
 r5js.TemplateBindings.prototype.getTemplateRenameCandidates = function() {
-    return this.templateRenameCandidates_;
+  return this.templateRenameCandidates_;
 };
+
 
 /**
  * @param {string} id
- * @return {*} TODO bl
+ * @return {*} TODO bl.
  */
 r5js.TemplateBindings.prototype.wasRenamed = function(id) {
-    return this.renameInTemplate_[id];
+  return this.renameInTemplate_[id];
 };
