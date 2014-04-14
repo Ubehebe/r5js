@@ -164,7 +164,7 @@ r5js.Parser.maybeFixParserSensitiveIds_ = function(root) {
     return root;
   }
   r5js.Parser.fixParserSensitiveIds_ = false;
-  var helper = new r5js.RenameHelper(null);
+  var helper = new r5js.RenameHelper(null /* parent */);
   root.fixParserSensitiveIds(helper);
   return helper.wasUsed() ? new r5js.Parser(root).parse() : root;
 };
