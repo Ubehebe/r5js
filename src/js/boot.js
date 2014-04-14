@@ -22,7 +22,9 @@ goog.require('r5js.Environment');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.Parser');
+goog.require('r5js.Pipeline');
 goog.require('r5js.PrimitiveProcedures');
+goog.require('r5js.PublicApi');
 goog.require('r5js.Reader');
 goog.require('r5js.Scanner');
 goog.require('r5js.js.Environment');
@@ -30,9 +32,11 @@ goog.require('r5js.trampoline');
 
 
 /**
+ * The main bootstrap function. Given Scheme source code for R5RS syntax and
+ * procedures, returns an interpreter that is ready to run on user input.
  * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
  * @param {string} procLib Scheme source code for the R5RS procedure library.
- * @return {!r5js.IEnvironment} The R5RS environment.
+ * @return {!r5js.PublicApi}
  */
 r5js.boot = function(syntaxLib, procLib) {
   var nullEnv = new r5js.Environment(null /* enclosingEnv */);
@@ -65,7 +69,9 @@ r5js.boot = function(syntaxLib, procLib) {
   r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, r5js.js.Environment.get());
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
-  return r5RSEnv;
+  var pipeline = new r5js.Pipeline();
+  pipeline.setRootEnv(r5RSEnv);
+  return new r5js.PublicApi(pipeline);
 };
 
 
