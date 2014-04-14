@@ -32,15 +32,12 @@ goog.require('r5js.trampoline');
 /**
  * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
  * @param {string} procLib Scheme source code for the R5RS procedure library.
- * @param {goog.log.Logger} logger Logger for debug output.
  * @return {!r5js.IEnvironment} The R5RS environment.
  */
-r5js.boot = function(syntaxLib, procLib, logger) {
+r5js.boot = function(syntaxLib, procLib) {
   var nullEnv = new r5js.Environment(null /* enclosingEnv */);
-  install(syntaxLib, nullEnv, logger);
+  r5js.boot.installSchemeSource_(syntaxLib, nullEnv);
   nullEnv.seal();
-
-  logger.info('installed syntax lib ok');
 
   /* r5RSEnv is the normal "root" environment. But we also have to
      support the "null environment", which is just the R5RS required syntax
@@ -66,11 +63,8 @@ r5js.boot = function(syntaxLib, procLib, logger) {
 
   var r5RSEnv = nullEnv.clone();
   r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, r5js.js.Environment.get());
-  logger.info('installed primitive procedures ok');
-  install(procLib, r5RSEnv, logger);
-  logger.info('installed library procedures ok');
+  r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
-  logger.info('interpreter is ready');
   return r5RSEnv;
 };
 
@@ -79,11 +73,10 @@ r5js.boot = function(syntaxLib, procLib, logger) {
  * @param {string} lib Scheme source code.
  * @param {!r5js.IEnvironment} env Environment to install the source code's
  * definitions into.
- * @param {goog.log.Logger} logger Logger.
- * @return {?}
+ * @private
  */
-function install(lib, env, logger) {
-  return r5js.trampoline(
+r5js.boot.installSchemeSource_ = function(lib, env) {
+  r5js.trampoline(
       /** @type {!r5js.Continuable} */ (new r5js.Parser(
       /** @type {!r5js.Datum} */ (new r5js.Reader(
       new r5js.Scanner(lib)
@@ -92,4 +85,4 @@ function install(lib, env, logger) {
             .desugar(env)).setStartingEnv(env),
       r5js.InputPort.NULL,
       r5js.OutputPort.NULL);
-}
+};

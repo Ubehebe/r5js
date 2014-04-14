@@ -86,10 +86,7 @@ r5js.test.getApi_ = function(sources) {
     var pipeline = new r5js.LazyBoot(
         new r5js.Pipeline(),
         function() {
-          var r5RSEnv = r5js.boot(
-              sources.syntax,
-              sources.procedures,
-              goog.log.getLogger('r5js'));
+          var r5RSEnv = r5js.boot(sources.syntax, sources.procedures);
           pipeline.setRootEnv(r5RSEnv);
         });
     r5js.test.api_ = new r5js.PublicApi(pipeline);
