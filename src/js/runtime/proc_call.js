@@ -225,7 +225,7 @@ r5js.ProcCall.prototype.cpsify = function(
  * @param {!r5js.EnvBuffer} envBuffer
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
- * @return {*}
+ * @return {!r5js.TrampolineHelper}
  */
 r5js.ProcCall.prototype.evalAndAdvance = function(
     continuation, resultStruct, envBuffer, parserProvider) {

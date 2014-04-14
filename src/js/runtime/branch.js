@@ -58,7 +58,7 @@ r5js.Branch_ = function(testResultName, consequent, alternate) {
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {!r5js.EnvBuffer} envBuffer
- * @return {*}
+ * @return {!r5js.TrampolineHelper}
  */
 r5js.Branch_.prototype.evalAndAdvance = function(
     continuation, resultStruct, envBuffer) {
