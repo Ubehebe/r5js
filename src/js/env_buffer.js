@@ -16,42 +16,36 @@
 
 goog.provide('r5js.EnvBuffer');
 
-/* Just a pointer to an environment. It's separate from the
- TrampolineResultStruct to make it clear that old environments are only
- reused in a few situations. */
+
 
 /**
+ * Just a pointer to an environment. It's separate from
+ * {@link r5js.TrampolineHelper} to make it clear that old environments are only
+ * reused in a few situations.
+ * @struct
  * @constructor
  */
-r5js.EnvBuffer = function() {};
-
-/**
- * @type {r5js.IEnvironment}
- * @private
- */
-r5js.EnvBuffer.prototype.env_;
+r5js.EnvBuffer = function() {
+  /** @private {r5js.IEnvironment} */ this.env_ = null;
+};
 
 
-/**
- * @return {r5js.IEnvironment} The environment, if any was set.
- */
+/** @return {r5js.IEnvironment} The environment, if any was set. */
 r5js.EnvBuffer.prototype.getEnv = function() {
-    return this.env_;
+  return this.env_;
 };
 
 
-/**
- * @param {!r5js.IEnvironment} env Environment to set.
- */
+/** @param {!r5js.IEnvironment} env Environment to set. */
 r5js.EnvBuffer.prototype.setEnv = function(env) {
-    this.env_ = env;
+  this.env_ = env;
 };
+
 
 /**
  * @param {string} name Name to look up.
- * @return {?} The name's value. TODO bl: narrow return type.
- * TODO bl: this is really non-nullable?
+ * @return {!r5js.runtime.Value|null} The name's value.
  */
 r5js.EnvBuffer.prototype.get = function(name) {
-    return this.env_.get(name);
+  return this.env_.get(name);
 };
