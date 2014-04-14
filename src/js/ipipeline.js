@@ -17,10 +17,8 @@
 goog.provide('r5js.IPipeline');
 
 
-/**
- * Interface abstracted from {@link r5js.Pipeline}.
- * @interface
- */
+
+/** @interface */
 r5js.IPipeline = function() {};
 
 
@@ -30,16 +28,16 @@ r5js.IPipeline.prototype.setRootEnv = function(rootEnv) {};
 
 /**
  * @param {string} string The string to scan.
- * @return {!r5js.TokenStream} A new scanner to scan the given string.
+ * @return {!r5js.TokenStream} A token stream representing the input string.
  */
 r5js.IPipeline.prototype.scan = function(string) {};
 
 
 /**
- * @param {!r5js.TokenStream} scanner The scanner to read from.
- * @return {r5js.Datum} The root of the parse tree, or null if reading failed.
+ * @param {!r5js.TokenStream} tokenStream A token input stream.
+ * @return {r5js.Datum} The root of the datum tree, or null if reading failed.
  */
-r5js.IPipeline.prototype.read = function(scanner) {};
+r5js.IPipeline.prototype.read = function(tokenStream) {};
 
 
 /**
@@ -55,7 +53,6 @@ r5js.IPipeline.prototype.parse = function(root, opt_nonterminal) {};
  * @param {!r5js.Datum} root The root to desugar.
  * @param {boolean} replMode If true, desugar in repl mode.
  * @return {!r5js.Continuable}
- * TODO bl: figure out what repl mode is.
  */
 r5js.IPipeline.prototype.desugar = function(root, replMode) {};
 
@@ -63,7 +60,6 @@ r5js.IPipeline.prototype.desugar = function(root, replMode) {};
 /**
  * @param {!r5js.Continuable} continuable The continuable to evaluate.
  * @param {function()} onOutput Output callback.
- * @return {*} TODO bl what does this return?
- * TODO bl: tighten the types of onOutput and the return param.
+ * @return {!r5js.runtime.Value}
  */
 r5js.IPipeline.prototype.Eval = function(continuable, onOutput) {};
