@@ -16,32 +16,27 @@
 
 goog.provide('r5js.RenameHelper');
 
+
+
 /**
  * @param {r5js.RenameHelper} parent The parent helper, if any.
+ * @struct
  * @constructor
- * TODO bl: narrow the type of the parameter.
  */
 r5js.RenameHelper = function(parent) {
-    /**
-     * @type {!Object.<string, string>}
-     * @private
-     */
-    this.bindings_ = {};
-
-    /**
-     * @type {?}
-     */
-    this.parent = parent;
+  /** @const @private {!Object.<string, string>} */ this.bindings_ = {};
+  /** @const @private */ this.parent_ = parent;
 };
+
 
 /**
  * @param {string} from Name to add a renaming for.
  * @return {string} A new name for the given name.
  */
 r5js.RenameHelper.prototype.addRenameBinding = function(from) {
-    var to = newCpsName();
-    this.bindings_[from] = to;
-    return to;
+  var to = newCpsName();
+  this.bindings_[from] = to;
+  return to;
 };
 
 
@@ -51,23 +46,21 @@ r5js.RenameHelper.prototype.addRenameBinding = function(from) {
  * has no such binding.
  */
 r5js.RenameHelper.prototype.getRenameBinding = function(name) {
-    var maybe = this.bindings_[name];
-    if (maybe) {
-        return maybe;
-    } else if (this.parent) {
-        return this.parent.getRenameBinding(name);
-    } else {
-        return null;
-    }
+  var maybe = this.bindings_[name];
+  if (maybe) {
+    return maybe;
+  } else if (this.parent_) {
+    return this.parent_.getRenameBinding(name);
+  } else {
+    return null;
+  }
 };
 
 
-/**
- * @return {boolean} True iff the helper was used.
- */
+/** @return {boolean} True iff the helper was used. */
 r5js.RenameHelper.prototype.wasUsed = function() {
-    for (var name in this.bindings_) {
-        return true;
-    }
-    return false;
+  for (var name in this.bindings_) {
+    return true;
+  }
+  return false;
 };
