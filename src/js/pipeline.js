@@ -32,10 +32,12 @@ goog.require('r5js.trampoline');
 /**
  * @param {!r5js.IEnvironment} rootEnv The root environment.
  * @implements {r5js.IPipeline}
+ * @struct
  * @constructor
  */
 r5js.Pipeline = function(rootEnv) {
-    this.rootEnv = rootEnv;
+  /** @const @private */ this.rootEnv_ = rootEnv;
+  /** @private {r5js.Environment} */ this.env_ = null;
 };
 
 
@@ -55,7 +57,7 @@ r5js.Pipeline.prototype.read = function(scanner) {
  * @param {!r5js.Datum} root
  * @param {!r5js.parse.Nonterminal=} opt_nonterminal
  * @return {!r5js.Datum}
- * TODO bl: why does the compiler not accept an @override here?
+ * TODO bl: why does the compiler not accept an. @override here?
  */
 r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
   var parser = new r5js.Parser(root);
@@ -63,7 +65,7 @@ r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
       parser.parse(opt_nonterminal) :
       parser.parse();
   if (!ans) {
-      throw new r5js.ParseError(root);
+    throw new r5js.ParseError(root);
   }
   return ans;
 };
@@ -72,9 +74,9 @@ r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
 /** @override */
 r5js.Pipeline.prototype.desugar = function(root, replMode) {
   if (!replMode) {
-    this.env = new r5js.Environment(this.rootEnv);
+    this.env_ = new r5js.Environment(this.rootEnv_);
   }
-  return root.desugar(this.env, false).setStartingEnv(this.env);
+  return root.desugar(this.env_, false).setStartingEnv(this.env_);
 };
 
 
