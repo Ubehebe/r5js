@@ -1,5 +1,5 @@
+goog.provide('r5js.Reader');
 goog.provide('r5js.read.grammar');
-
 
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
@@ -15,7 +15,6 @@ goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.read.bnf');
-
 
 
 goog.scope(function() {
@@ -78,3 +77,23 @@ r5js.read.grammar[r5js.parse.Nonterminals.DATUM.toString()] = _.choice(
 r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()] = _.zeroOrMore(
     r5js.parse.Nonterminals.DATUM);
 });  // goog.scope
+
+
+
+/**
+ * @param {!r5js.TokenStream} scanner
+ * @implements {r5js.IReader}
+ * @struct
+ * @constructor
+ */
+r5js.Reader = function(scanner) {
+  /** @const @private {!r5js.TokenStream} */
+  this.scanner_ = scanner;
+};
+
+
+/** @override */
+r5js.Reader.prototype.read = function() {
+  return r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()].
+      match(this.scanner_);
+};
