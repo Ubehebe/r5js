@@ -167,21 +167,6 @@ r5js.TemplateBindings.prototype.maybeRenameId_ = function(datum) {
     }
 };
 
-/**
- * Purely for debugging.
- * @return {string}
- */
-r5js.TemplateBindings.prototype.debugString = function(tabs) {
-    tabs = tabs || '';
-    var ans = '';
-    for (var name in this.bindings_) {
-        ans += tabs + name + ' = ' + this.bindings_[name].toString() + '\n';
-    }
-    for (var i = 0; i < this.children_.length; ++i) {
-        ans += tabs + 'child ' + i + ':\n' + this.children_[i].debugString(tabs+'\t');
-    }
-    return ans;
-};
 
 /**
  * @param {!r5js.TemplateBindings} child Child bindings.
