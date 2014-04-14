@@ -18,32 +18,14 @@ goog.provide('r5js.PublicApi');
 
 
 goog.require('r5js.OutputMode');
-goog.require('r5js.Scanner');
 
 /**
- *
  * @param {!r5js.IPipeline} pipeline A pipeline object.
  * @struct
  * @constructor
  */
 r5js.PublicApi = function(pipeline) {
-    /** @const @private {!r5js.IPipeline} */
-    this.pipeline_ = pipeline;
-};
-
-
-/** @param {string} string The string to read. */
-r5js.PublicApi.prototype.read = function(string) {
-    return this.pipeline_.read(
-        this.pipeline_.scan(string));
-};
-
-
-/** @param {string} string The string to parse. */
-r5js.PublicApi.prototype.parse = function(string) {
-    return this.pipeline_.parse(
-        /** @type {!r5js.Datum} */ (this.pipeline_.read(
-            this.pipeline_.scan(string))));
+    /** @const @private */ this.pipeline_ = pipeline;
 };
 
 
@@ -57,7 +39,9 @@ r5js.PublicApi.prototype.parse = function(string) {
  */
 r5js.PublicApi.prototype.willParse = function(logicalLine) {
     try {
-        this.parse(logicalLine);
+        this.pipeline_.parse(/** @type {!r5js.Datum} */ (
+                this.pipeline_.read(
+                this.pipeline_.scan(logicalLine))));
         return true;
     } catch (x) {
         /* If parsing failed, we usually want to wait for another line
@@ -120,10 +104,8 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler) {
 /**
  * Just like {@link r5js.PublicApi.eval}, but reuses the old environment.
  * @param {string} string The source text to evaluate.
- * @param {*} sideEffectHandler A side effect handler.
- * TODO bl: tighten the type of sideEffectHandler.
  */
-r5js.PublicApi.prototype.repl = function (string, sideEffectHandler) {
+r5js.PublicApi.prototype.repl = function (string) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
@@ -136,14 +118,4 @@ r5js.PublicApi.prototype.repl = function (string, sideEffectHandler) {
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :
         (ans ? ans.toString() : '');
-};
-
-
-/**
- * @return {{banner: string}}
- */
-r5js.PublicApi.prototype.getMetadata = function() {
-    return {
-        'banner': '[GAY LISP BANNER HERE]'
-    };
 };
