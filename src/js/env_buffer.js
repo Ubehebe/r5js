@@ -40,12 +40,3 @@ r5js.EnvBuffer.prototype.getEnv = function() {
 r5js.EnvBuffer.prototype.setEnv = function(env) {
   this.env_ = env;
 };
-
-
-/**
- * @param {string} name Name to look up.
- * @return {!r5js.runtime.Value|null} The name's value.
- */
-r5js.EnvBuffer.prototype.get = function(name) {
-  return this.env_.get(name);
-};

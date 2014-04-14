@@ -65,7 +65,7 @@ r5js.Branch_.prototype.evalAndAdvance = function(
 
   /* Branches always use the old environment left by the previous action
     on the trampoline. */
-  var testResult = envBuffer.get(this.testResultName_);
+  var testResult = envBuffer.getEnv().get(this.testResultName_);
   if (testResult === false) {
     this.alternateLastContinuable_.setContinuation(continuation);
     resultStruct.setNextContinuable(this.alternate_);
