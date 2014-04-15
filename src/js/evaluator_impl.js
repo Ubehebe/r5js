@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.PublicApi');
+goog.provide('r5js.EvaluatorImpl');
 
 
 goog.require('r5js.OutputMode');
@@ -25,7 +25,7 @@ goog.require('r5js.OutputMode');
  * @struct
  * @constructor
  */
-r5js.PublicApi = function(pipeline) {
+r5js.EvaluatorImpl = function(pipeline) {
     /** @const @private */ this.pipeline_ = pipeline;
 };
 
@@ -38,7 +38,7 @@ r5js.PublicApi = function(pipeline) {
  * @param {string} logicalLine The logical line.
  * @return {boolean} True iff the logical line has a parse.
  */
-r5js.PublicApi.prototype.willParse = function(logicalLine) {
+r5js.EvaluatorImpl.prototype.willParse = function(logicalLine) {
     try {
         this.pipeline_.parse(/** @type {!r5js.Datum} */ (
                 this.pipeline_.read(
@@ -85,7 +85,7 @@ r5js.PublicApi.prototype.willParse = function(logicalLine) {
  * @param {string} string The source text to evaluate.
  * @return {string} A string representation of the value of the evaluation.
  */
-r5js.PublicApi.prototype.evaluate = function(string) {
+r5js.EvaluatorImpl.prototype.evaluate = function(string) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
@@ -99,10 +99,10 @@ r5js.PublicApi.prototype.evaluate = function(string) {
 };
 
 /**
- * Just like {@link r5js.PublicApi.eval}, but reuses the old environment.
+ * Just like {@link r5js.EvaluatorImpl.eval}, but reuses the old environment.
  * @param {string} string The source text to evaluate.
  */
-r5js.PublicApi.prototype.repl = function (string) {
+r5js.EvaluatorImpl.prototype.repl = function (string) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugarRepl(

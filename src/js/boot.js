@@ -19,12 +19,12 @@ goog.provide('r5js.boot');
 
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.Environment');
+goog.require('r5js.EvaluatorImpl');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.Parser');
 goog.require('r5js.Pipeline');
 goog.require('r5js.PrimitiveProcedures');
-goog.require('r5js.PublicApi');
 goog.require('r5js.Reader');
 goog.require('r5js.Scanner');
 goog.require('r5js.js.Environment');
@@ -69,7 +69,7 @@ r5js.boot = function(syntaxLib, procLib) {
   r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, r5js.js.Environment.get());
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
-  return new r5js.PublicApi(new r5js.Pipeline(r5RSEnv));
+  return new r5js.EvaluatorImpl(new r5js.Pipeline(r5RSEnv));
 };
 
 
