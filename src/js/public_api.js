@@ -90,8 +90,7 @@ r5js.PublicApi.prototype.Eval = function(string) {
             this.pipeline_.desugar(
                 this.pipeline_.parse(/** @type {!r5js.Datum} */ (
                     this.pipeline_.read(
-                        this.pipeline_.scan(string)))),
-                false /* replMode */));
+                        this.pipeline_.scan(string))))));
     return ans instanceof r5js.Datum ?
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :
@@ -105,11 +104,10 @@ r5js.PublicApi.prototype.Eval = function(string) {
 r5js.PublicApi.prototype.repl = function (string) {
     var ans =
         this.pipeline_.Eval(
-            this.pipeline_.desugar(
-                    this.pipeline_.parse(
-                    /** @type {!r5js.Datum} */ (this.pipeline_.read(
-                        this.pipeline_.scan(string)))),
-                true /* replMode */));
+            this.pipeline_.desugarRepl(
+                    this.pipeline_.parse(/** @type {!r5js.Datum} */ (
+                            this.pipeline_.read(
+                        this.pipeline_.scan(string))))));
     return ans instanceof r5js.Datum ?
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :

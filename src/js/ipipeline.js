@@ -47,10 +47,17 @@ r5js.IPipeline.prototype.parse = function(root, opt_nonterminal) {};
 
 /**
  * @param {!r5js.Datum} root The root to desugar.
- * @param {boolean} replMode If true, desugar in repl mode.
  * @return {!r5js.Continuable}
  */
-r5js.IPipeline.prototype.desugar = function(root, replMode) {};
+r5js.IPipeline.prototype.desugar = function(root) {};
+
+
+/**
+ * @param {!r5js.Datum} root The root to desugar.
+ * @return {!r5js.Continuable}
+ * TODO bl temporary shim. Remove.
+ */
+r5js.IPipeline.prototype.desugarRepl = function(root) {};
 
 
 /**

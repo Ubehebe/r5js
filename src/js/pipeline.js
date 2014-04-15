@@ -72,10 +72,14 @@ r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
 
 
 /** @override */
-r5js.Pipeline.prototype.desugar = function(root, replMode) {
-  if (!replMode) {
-    this.env_ = new r5js.Environment(this.rootEnv_);
-  }
+r5js.Pipeline.prototype.desugar = function(root) {
+  this.env_ = new r5js.Environment(this.rootEnv_);
+  return root.desugar(this.env_, false).setStartingEnv(this.env_);
+};
+
+
+/** @override */
+r5js.Pipeline.prototype.desugarRepl = function(root) {
   return root.desugar(this.env_, false).setStartingEnv(this.env_);
 };
 
