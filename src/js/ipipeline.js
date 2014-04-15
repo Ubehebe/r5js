@@ -55,7 +55,6 @@ r5js.IPipeline.prototype.desugar = function(root, replMode) {};
 
 /**
  * @param {!r5js.Continuable} continuable The continuable to evaluate.
- * @param {function()} onOutput Output callback.
  * @return {!r5js.runtime.Value}
  */
-r5js.IPipeline.prototype.Eval = function(continuable, onOutput) {};
+r5js.IPipeline.prototype.Eval = function(continuable) {};

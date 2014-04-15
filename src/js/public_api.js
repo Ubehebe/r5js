@@ -93,8 +93,7 @@ r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler) {
                 this.pipeline_.parse(/** @type {!r5js.Datum} */ (
                     this.pipeline_.read(
                         this.pipeline_.scan(string)))),
-                false /* replMode */),
-            sideEffectHandler);
+                false /* replMode */));
     return ans instanceof r5js.Datum ?
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :
@@ -112,8 +111,7 @@ r5js.PublicApi.prototype.repl = function (string) {
                     this.pipeline_.parse(
                     /** @type {!r5js.Datum} */ (this.pipeline_.read(
                         this.pipeline_.scan(string)))),
-                true),
-            goog.nullFunction /* onOutput */);
+                true /* replMode */));
     return ans instanceof r5js.Datum ?
         (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
             r5js.OutputMode.DISPLAY) :
