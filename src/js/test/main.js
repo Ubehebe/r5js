@@ -63,8 +63,7 @@ r5js.test.parseSandbox = function(text) {
 r5js.test.evalSandbox = function(text) {
   r5js.test.SchemeSources.get(goog.labs.net.xhr.get).then(function(sources) {
     var publicApi = r5js.test.getApi_(sources);
-    console.log(
-        publicApi.Eval(text, goog.nullFunction /* sideEffectHandler */));
+    console.log(publicApi.Eval(text));
   });
 };
 

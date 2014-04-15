@@ -82,11 +82,9 @@ r5js.PublicApi.prototype.willParse = function(logicalLine) {
 
 /**
  * @param {string} string The source text to evaluate.
- * @param {function()} sideEffectHandler A side effect handler.
  * @return {string} A string representation of the value of the evaluation.
- * TODO bl: narrow the type of sideEffectHandler.
  */
-r5js.PublicApi.prototype.Eval = function(string, sideEffectHandler) {
+r5js.PublicApi.prototype.Eval = function(string) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(

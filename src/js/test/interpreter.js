@@ -35,19 +35,16 @@ r5js.test.Interpreter.prototype.toString = function() {
 
 
 r5js.test.Interpreter.prototype['testR5RSTests'] = function() {
-  this.publicApi_.Eval(this.sources_.testFramework + this.sources_.r5RSTests,
-      goog.bind(console.log, console));
+  this.publicApi_.Eval(this.sources_.testFramework + this.sources_.r5RSTests);
 };
 
 
 r5js.test.Interpreter.prototype['testNegativeTests'] = function() {
   this.publicApi_.Eval(
-      this.sources_.negativeTestFramework + this.sources_.negativeTests,
-      goog.bind(console.log, console));
+      this.sources_.negativeTestFramework + this.sources_.negativeTests);
 };
 
 
 r5js.test.Interpreter.prototype['testOtherTests'] = function() {
-  this.publicApi_.Eval(this.sources_.testFramework + this.sources_.otherTests,
-      goog.bind(console.log, console));
+  this.publicApi_.Eval(this.sources_.testFramework + this.sources_.otherTests);
 };
