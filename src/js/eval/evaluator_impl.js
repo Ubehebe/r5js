@@ -19,6 +19,8 @@ goog.provide('r5js.EvaluatorImpl');
 
 goog.require('r5js.OutputMode');
 
+
+
 /**
  * @param {!r5js.IPipeline} pipeline A pipeline object.
  * @implements {r5js.Evaluator}
@@ -26,7 +28,7 @@ goog.require('r5js.OutputMode');
  * @constructor
  */
 r5js.EvaluatorImpl = function(pipeline) {
-    /** @const @private */ this.pipeline_ = pipeline;
+  /** @const @private */ this.pipeline_ = pipeline;
 };
 
 
@@ -39,13 +41,13 @@ r5js.EvaluatorImpl = function(pipeline) {
  * @return {boolean} True iff the logical line has a parse.
  */
 r5js.EvaluatorImpl.prototype.willParse = function(logicalLine) {
-    try {
-        this.pipeline_.parse(/** @type {!r5js.Datum} */ (
-                this.pipeline_.read(
-                this.pipeline_.scan(logicalLine))));
-        return true;
-    } catch (x) {
-        /* If parsing failed, we usually want to wait for another line
+  try {
+    this.pipeline_.parse(/** @type {!r5js.Datum} */ (
+        this.pipeline_.read(
+        this.pipeline_.scan(logicalLine))));
+    return true;
+  } catch (x) {
+    /* If parsing failed, we usually want to wait for another line
          of input. There's one common exception: unquoted empty lists
          () and nested versions of the same. If a programmer types ()
          at the terminal and presses enter, she will be stuck forever:
@@ -70,14 +72,10 @@ r5js.EvaluatorImpl.prototype.willParse = function(logicalLine) {
          we should not wait for more input, it might be a better idea
          to equip the programmer with a button or key to flush the
          line buffer. */
-        var lparens = logicalLine.match(/\(/g);
-        var rparens = logicalLine.match(/\)/g);
-        return /** @type {boolean}*/ (
-            lparens
-                && rparens
-                && lparens.length === rparens.length
-            );
-    }
+    var lparens = logicalLine.match(/\(/g);
+    var rparens = logicalLine.match(/\)/g);
+    return !!(lparens && rparens && lparens.length === rparens.length);
+  }
 };
 
 
@@ -86,31 +84,33 @@ r5js.EvaluatorImpl.prototype.willParse = function(logicalLine) {
  * @return {string} A string representation of the value of the evaluation.
  */
 r5js.EvaluatorImpl.prototype.evaluate = function(string) {
-    var ans =
-        this.pipeline_.Eval(
+  var ans =
+      this.pipeline_.Eval(
             this.pipeline_.desugar(
                 this.pipeline_.parse(/** @type {!r5js.Datum} */ (
                     this.pipeline_.read(
                         this.pipeline_.scan(string))))));
-    return ans instanceof r5js.Datum ?
-        (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
-            r5js.OutputMode.DISPLAY) :
-        (ans ? ans.toString() : '');
+  return ans instanceof r5js.Datum ?
+      (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
+      r5js.OutputMode.DISPLAY) :
+      (ans ? ans.toString() : '');
 };
+
 
 /**
  * Just like {@link r5js.EvaluatorImpl.eval}, but reuses the old environment.
  * @param {string} string The source text to evaluate.
+ * @return {string} A string representation of the value of the evaluation.
  */
-r5js.EvaluatorImpl.prototype.repl = function (string) {
-    var ans =
-        this.pipeline_.Eval(
+r5js.EvaluatorImpl.prototype.repl = function(string) {
+  var ans =
+      this.pipeline_.Eval(
             this.pipeline_.desugarRepl(
                     this.pipeline_.parse(/** @type {!r5js.Datum} */ (
-                            this.pipeline_.read(
+      this.pipeline_.read(
                         this.pipeline_.scan(string))))));
-    return ans instanceof r5js.Datum ?
-        (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
-            r5js.OutputMode.DISPLAY) :
-        (ans ? ans.toString() : '');
+  return ans instanceof r5js.Datum ?
+      (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
+      r5js.OutputMode.DISPLAY) :
+      (ans ? ans.toString() : '');
 };
