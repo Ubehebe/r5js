@@ -21,6 +21,7 @@ goog.require('r5js.OutputMode');
 
 /**
  * @param {!r5js.IPipeline} pipeline A pipeline object.
+ * @implements {r5js.Evaluator}
  * @struct
  * @constructor
  */

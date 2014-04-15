@@ -7,15 +7,15 @@ goog.require('expect');
 
 
 /**
- * @param {!r5js.PublicApi} publicApi
+ * @param {!r5js.Evaluator} evaluator
  * @param {!r5js.test.SchemeSources} sources
  * @implements {tdd.TestSuite}
  * @struct
  * @constructor
  */
-r5js.test.Interpreter = function(publicApi, sources) {
+r5js.test.Interpreter = function(evaluator, sources) {
   /** @const @private */
-  this.publicApi_ = publicApi;
+  this.evaluator_ = evaluator;
 
   /** @const @private */
   this.sources_ = sources;
@@ -35,18 +35,18 @@ r5js.test.Interpreter.prototype.toString = function() {
 
 
 r5js.test.Interpreter.prototype['testR5RSTests'] = function() {
-  this.publicApi_.evaluate(
+  this.evaluator_.evaluate(
       this.sources_.testFramework + this.sources_.r5RSTests);
 };
 
 
 r5js.test.Interpreter.prototype['testNegativeTests'] = function() {
-  this.publicApi_.evaluate(
+  this.evaluator_.evaluate(
       this.sources_.negativeTestFramework + this.sources_.negativeTests);
 };
 
 
 r5js.test.Interpreter.prototype['testOtherTests'] = function() {
-  this.publicApi_.evaluate(
+  this.evaluator_.evaluate(
       this.sources_.testFramework + this.sources_.otherTests);
 };

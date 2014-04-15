@@ -36,7 +36,7 @@ goog.require('r5js.trampoline');
  * procedures, returns an interpreter that is ready to run on user input.
  * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
  * @param {string} procLib Scheme source code for the R5RS procedure library.
- * @return {!r5js.PublicApi}
+ * @return {!r5js.Evaluator}
  */
 r5js.boot = function(syntaxLib, procLib) {
   var nullEnv = new r5js.Environment(null /* enclosingEnv */);

@@ -30,7 +30,7 @@ r5js.test.main = function(opt_argv) {
   var jsEnv = r5js.js.Environment.get();
   r5js.test.SchemeSources.get(goog.bind(jsEnv.fetchUrl, jsEnv)).
       then(function(sources) {
-        var publicApi = r5js.test.getApi_(sources);
+        var publicApi = r5js.test.getEvaluator_(sources);
         r5js.test.getTestSuites_(publicApi, sources).
             forEach(function(testSuite) {
               runner.add(testSuite);
@@ -62,40 +62,40 @@ r5js.test.parseSandbox = function(text) {
 /** @param {string} text Text to parse. */
 r5js.test.evalSandbox = function(text) {
   r5js.test.SchemeSources.get(goog.labs.net.xhr.get).then(function(sources) {
-    var publicApi = r5js.test.getApi_(sources);
+    var publicApi = r5js.test.getEvaluator_(sources);
     console.log(publicApi.evaluate(text));
   });
 };
 
 
-/** @private {r5js.PublicApi} */
-r5js.test.api_ = null;
+/** @private {r5js.Evaluator} */
+r5js.test.evaluator_ = null;
 
 
 /**
  * @param {!r5js.test.SchemeSources} sources
- * @return {!r5js.PublicApi}
+ * @return {!r5js.Evaluator}
  * @private
  */
-r5js.test.getApi_ = function(sources) {
-  if (!r5js.test.api_) {
-    r5js.test.api_ = r5js.boot(sources.syntax, sources.procedures);
+r5js.test.getEvaluator_ = function(sources) {
+  if (!r5js.test.evaluator_) {
+    r5js.test.evaluator_ = r5js.boot(sources.syntax, sources.procedures);
   }
-  return r5js.test.api_;
+  return r5js.test.evaluator_;
 };
 
 
 /**
- * @param {!r5js.PublicApi} publicApi
+ * @param {!r5js.Evaluator} evaluator
  * @param {!r5js.test.SchemeSources} sources
  * @return {!Array.<!tdd.TestSuite>}
  * @private
  */
-r5js.test.getTestSuites_ = function(publicApi, sources) {
+r5js.test.getTestSuites_ = function(evaluator, sources) {
   return [
     new r5js.test.Scanner(),
     new r5js.test.Parser(),
-    new r5js.test.Interpreter(publicApi, sources)
+    new r5js.test.Interpreter(evaluator, sources)
   ];
 };
 
