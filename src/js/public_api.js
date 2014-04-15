@@ -84,7 +84,7 @@ r5js.PublicApi.prototype.willParse = function(logicalLine) {
  * @param {string} string The source text to evaluate.
  * @return {string} A string representation of the value of the evaluation.
  */
-r5js.PublicApi.prototype.Eval = function(string) {
+r5js.PublicApi.prototype.evaluate = function(string) {
     var ans =
         this.pipeline_.Eval(
             this.pipeline_.desugar(
