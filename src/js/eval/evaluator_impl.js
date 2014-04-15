@@ -79,10 +79,7 @@ r5js.EvaluatorImpl.prototype.willParse = function(logicalLine) {
 };
 
 
-/**
- * @param {string} string The source text to evaluate.
- * @return {string} A string representation of the value of the evaluation.
- */
+/** @override */
 r5js.EvaluatorImpl.prototype.evaluate = function(string) {
   var ans =
       this.pipeline_.Eval(
