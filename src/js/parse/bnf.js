@@ -12,7 +12,7 @@ goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.ast.Vector');
 goog.require('r5js.parse.Terminals');
-// TODO bl circular dependency goog.require('r5js.Parser');
+// TODO bl circular dependency goog.require('r5js.ParserImpl');
 
 
 
@@ -134,7 +134,7 @@ r5js.parse.bnf.OneNonterminal_.prototype.desugar = function(desugarFunc) {
 
 /** @override */
 r5js.parse.bnf.OneNonterminal_.prototype.match = function(datumStream) {
-  var parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream);
+  var parsed = r5js.ParserImpl.grammar[this.nonterminal_].match(datumStream);
   if (parsed instanceof r5js.Datum) {
     parsed.setParse(this.nonterminal_);
     if (this.desugarFunc_) {
@@ -176,7 +176,8 @@ r5js.parse.bnf.AtLeast_ = function(nonterminal, minRepetitions) {
 r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream) {
   var numParsed = 0;
   var parsed;
-  while (parsed = r5js.Parser.grammar[this.nonterminal_].match(datumStream)) {
+  while (parsed = r5js.ParserImpl.grammar[this.nonterminal_].
+      match(datumStream)) {
     parsed.setParse(this.nonterminal_);
     ++numParsed;
   }

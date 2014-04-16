@@ -145,7 +145,7 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
  *
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * @param {function(!r5js.Datum):!r5js.IParser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  */
 r5js.ProcCall.prototype.cpsify = function(
@@ -223,7 +223,7 @@ r5js.ProcCall.prototype.cpsify = function(
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {!r5js.EnvBuffer} envBuffer
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * @param {function(!r5js.Datum):!r5js.IParser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  */
 r5js.ProcCall.prototype.evalAndAdvance = function(

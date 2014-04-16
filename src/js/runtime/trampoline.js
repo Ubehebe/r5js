@@ -18,7 +18,7 @@ goog.provide('r5js.trampoline');
 
 
 goog.require('r5js.EnvBuffer');
-goog.require('r5js.Parser');
+goog.require('r5js.ParserImpl');
 goog.require('r5js.TrampolineHelper');
 
 
@@ -130,8 +130,8 @@ r5js.trampoline = function(continuable, inputPort, outputPort) {
 
 /**
  * @param {!r5js.Datum} datum Root of the parse tree.
- * @return {!r5js.Parser} New parser that will parse the given datum.
+ * @return {!r5js.IParser} New parser that will parse the given datum.
  */
 function parserProvider(datum) {
-  return new r5js.Parser(datum);
+  return new r5js.ParserImpl(datum);
 }

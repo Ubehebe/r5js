@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.Parser');
+goog.provide('r5js.ParserImpl');
 
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
@@ -129,7 +129,7 @@ goog.require('r5js.parse.bnf');
  * @struct
  * @constructor
  */
-r5js.Parser = function(root) {
+r5js.ParserImpl = function(root) {
   /** @const @private {!r5js.DatumStream} */
   this.datumStream_ = new r5js.DatumStreamImpl(root);
 };
@@ -139,16 +139,16 @@ r5js.Parser = function(root) {
  * @param {!r5js.parse.Nonterminal=} opt_nonterminal
  * @return {r5js.Datum}
  */
-r5js.Parser.prototype.parse = function(opt_nonterminal) {
+r5js.ParserImpl.prototype.parse = function(opt_nonterminal) {
   var nonterminal = opt_nonterminal ||
       r5js.parse.Nonterminals.PROGRAM;
   var parsedRoot = /** @type {!r5js.Datum} */ (
-      r5js.Parser.grammar[nonterminal].match(this.datumStream_));
+      r5js.ParserImpl.grammar[nonterminal].match(this.datumStream_));
   if (parsedRoot) {
     parsedRoot.setParse(nonterminal);
   }
   return (nonterminal === r5js.parse.Nonterminals.PROGRAM) ?
-      r5js.Parser.maybeFixParserSensitiveIds_(parsedRoot) :
+      r5js.ParserImpl.maybeFixParserSensitiveIds_(parsedRoot) :
       parsedRoot;
 };
 
@@ -158,23 +158,23 @@ r5js.Parser.prototype.parse = function(opt_nonterminal) {
  * @return {r5js.Datum}
  * @private
  */
-r5js.Parser.maybeFixParserSensitiveIds_ = function(root) {
-  if (!root || !r5js.Parser.fixParserSensitiveIds_) {
+r5js.ParserImpl.maybeFixParserSensitiveIds_ = function(root) {
+  if (!root || !r5js.ParserImpl.fixParserSensitiveIds_) {
     return root;
   }
-  r5js.Parser.fixParserSensitiveIds_ = false;
+  r5js.ParserImpl.fixParserSensitiveIds_ = false;
   var helper = new r5js.RenameHelper(null /* parent */);
   root.fixParserSensitiveIds(helper);
-  return helper.wasUsed() ? new r5js.Parser(root).parse() : root;
+  return helper.wasUsed() ? new r5js.ParserImpl(root).parse() : root;
 };
 
 
 /** @private {boolean} */
-r5js.Parser.fixParserSensitiveIds_;
+r5js.ParserImpl.fixParserSensitiveIds_;
 
 
 /** @const {!Object.<!r5js.parse.Nonterminal, !r5js.parse.bnf.Rule>} */
-r5js.Parser.grammar = {};
+r5js.ParserImpl.grammar = {};
 
 
 goog.scope(function() {
@@ -193,7 +193,7 @@ var Nonterminals = r5js.parse.Nonterminals;
  | <macro use>
  | <macro block>
  */
-r5js.Parser.grammar[Nonterminals.EXPRESSION] =
+r5js.ParserImpl.grammar[Nonterminals.EXPRESSION] =
     /* In order to support shadowing of syntactic keywords,
     the order of the following rules is important. Consider:
 
@@ -240,38 +240,38 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
     _.one(Nonterminals.MACRO_USE));
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
-r5js.Parser.grammar[Nonterminals.VARIABLE] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.VARIABLE] = _.seq(
     _.matchDatum(function(datum) {
       var isIdentifier = datum instanceof r5js.ast.Identifier;
       if (isIdentifier && isParserSensitiveId(
           (/** @type {!r5js.ast.Identifier} */(datum)).getPayload())) {
-        r5js.Parser.fixParserSensitiveIds_ = true;
+        r5js.ParserImpl.fixParserSensitiveIds_ = true;
       }
       return isIdentifier;
     }));
 
 // <literal> -> <quotation> | <self-evaluating>
-r5js.Parser.grammar[Nonterminals.LITERAL] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.LITERAL] = _.choice(
     _.one(Nonterminals.SELF_EVALUATING),
     _.one(Nonterminals.QUOTATION));
 
 
 // <quotation> -> '<datum> | (quote <datum>)
-r5js.Parser.grammar[Nonterminals.QUOTATION] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.QUOTATION] = _.seq(
     // Terminals.QUOTE has already been canonicalized as Terminals.TICK
     // (see r5js.read.bnf.Seq_#maybeCanonicalize).
     _.one(Terminals.TICK),
     _.one(Nonterminals.DATUM));
 
 
-r5js.Parser.grammar[Nonterminals.DATUM] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.DATUM] = _.seq(
     _.matchDatum(function(datum) {
       return true;
     }));
 
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
-r5js.Parser.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
     _.matchDatum(function(datum) {
       var ans = datum instanceof r5js.ast.SimpleDatum &&
           !(datum instanceof r5js.ast.Identifier);
@@ -286,7 +286,7 @@ r5js.Parser.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
 // <procedure call> -> (<operator> <operand>*)
 // <operator> -> <expression>
 // <operand> -> <expression>
-r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
+r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
     _.one(Nonterminals.OPERATOR),
     _.zeroOrMore(Nonterminals.OPERAND)).
         desugar(function(node, env) {
@@ -318,11 +318,11 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
         });
 
 
-r5js.Parser.grammar[Nonterminals.OPERATOR] = _.one(
+r5js.ParserImpl.grammar[Nonterminals.OPERATOR] = _.one(
     Nonterminals.EXPRESSION);
 
 
-r5js.Parser.grammar[Nonterminals.OPERAND] = _.one(
+r5js.ParserImpl.grammar[Nonterminals.OPERAND] = _.one(
     Nonterminals.EXPRESSION);
 
 
@@ -330,7 +330,7 @@ r5js.Parser.grammar[Nonterminals.OPERAND] = _.one(
 // <body> -> <definition>* <sequence>
 // <sequence> -> <command>* <expression>
 // <command> -> <expression>
-r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
+r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
     _.one(Terminals.LAMBDA),
     _.one(Nonterminals.FORMALS),
     _.zeroOrMore(Nonterminals.DEFINITION),
@@ -407,7 +407,7 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
  */
 
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
-r5js.Parser.grammar[Nonterminals.FORMALS] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.FORMALS] = _.choice(
     _.list(_.zeroOrMore(Nonterminals.VARIABLE)),
     _.one(Nonterminals.VARIABLE),
     _.dottedList(
@@ -421,7 +421,7 @@ r5js.Parser.grammar[Nonterminals.FORMALS] = _.choice(
  * | (begin <definition>*)
  * | <def formals> -> <variable>* | <variable>* . <variable>
  */
-r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
     _.list(
         _.one(Terminals.DEFINE),
         _.one(Nonterminals.VARIABLE),
@@ -519,7 +519,7 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
 
 
 // <conditional> -> (if <test> <consequent> <alternate>)
-r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
     _.list(
         _.one(Terminals.IF),
         _.one(Nonterminals.TEST),
@@ -574,19 +574,22 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
 
 
 // <test> -> <expression>
-r5js.Parser.grammar[Nonterminals.TEST] = _.one(Nonterminals.EXPRESSION);
+r5js.ParserImpl.grammar[Nonterminals.TEST] = _.one(
+    Nonterminals.EXPRESSION);
 
 
 // <consequent> -> <expression>
-r5js.Parser.grammar[Nonterminals.CONSEQUENT] = _.one(Nonterminals.EXPRESSION);
+r5js.ParserImpl.grammar[Nonterminals.CONSEQUENT] = _.one(
+    Nonterminals.EXPRESSION);
 
 
 // <alternate> -> <expression> | <empty>
-r5js.Parser.grammar[Nonterminals.ALTERNATE] = _.one(Nonterminals.EXPRESSION);
+r5js.ParserImpl.grammar[Nonterminals.ALTERNATE] = _.one(
+    Nonterminals.EXPRESSION);
 
 
 // <assignment> -> (set! <variable> <expression>)
-r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.list(
+r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
     _.one(Terminals.SET),
     _.one(Nonterminals.VARIABLE),
     _.one(Nonterminals.EXPRESSION)).
@@ -610,7 +613,7 @@ r5js.Parser.grammar[Nonterminals.ASSIGNMENT] = _.list(
 
 // <quasiquotation> -> <quasiquotation 1>
 // <quasiquotation D> -> `<qq template D> | (quasiquote <qq template D>)
-r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.QUASIQUOTATION] = _.seq(
     // Terminals.QUASIQUOTE has already been canonicalized as
     // Terminals.BACKTICK (see r5js.read.bnf.Seq_#maybeCanonicalize)
     _.one(Terminals.BACKTICK),
@@ -623,7 +626,7 @@ r5js.Parser.grammar[Nonterminals.QUASIQUOTATION] = _.seq(
  | <vector qq template D>
  | <unquotation D>
  */
-r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
     _.matchDatum(function(datum) {
       return datum instanceof r5js.ast.SimpleDatum;
     }),
@@ -637,7 +640,7 @@ r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
  | '<qq template D>
  | <quasiquotation D+1>
  */
-r5js.Parser.grammar[Nonterminals.LIST_QQ_TEMPLATE] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.LIST_QQ_TEMPLATE] = _.choice(
     _.list(_.zeroOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE)),
     _.dottedList(
         _.oneOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE),
@@ -649,13 +652,13 @@ r5js.Parser.grammar[Nonterminals.LIST_QQ_TEMPLATE] = _.choice(
 
 
 // <vector qq template D> -> #(<qq template or splice D>*)
-r5js.Parser.grammar[Nonterminals.VECTOR_QQ_TEMPLATE] =
+r5js.ParserImpl.grammar[Nonterminals.VECTOR_QQ_TEMPLATE] =
     _.vector(
         _.zeroOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE));
 
 
 // <unquotation D> -> ,<qq template D-1> | (unquote <qq template D-1>)
-r5js.Parser.grammar[Nonterminals.UNQUOTATION] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.UNQUOTATION] = _.seq(
     // Terminals.QUOTE has already been canonicalized as Terminals.COMMA
     // (see r5js.read.bnf.Seq_.#maybeCanonicalize).
     _.one(Terminals.COMMA),
@@ -663,7 +666,7 @@ r5js.Parser.grammar[Nonterminals.UNQUOTATION] = _.seq(
 
 
 // <qq template or splice D> -> <qq template D> | <splicing unquotation D>
-r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
     _.seq(_.one(Nonterminals.QQ_TEMPLATE)), // TODO bl one-element sequence
     _.one(Nonterminals.SPLICING_UNQUOTATION));
 
@@ -671,14 +674,14 @@ r5js.Parser.grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
 /* <splicing unquotation D> -> ,@<qq template D-1>
  | (unquote-splicing <qq template D-1>)
  */
-r5js.Parser.grammar[Nonterminals.SPLICING_UNQUOTATION] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.SPLICING_UNQUOTATION] = _.seq(
     // Terminals.UNQUOTE_SPLICING has already been canonicalized as
     // Terminals.COMMA_AT (see r5js.read.bnf.Seq_#maybeCanonicalize).
     _.one(Terminals.COMMA_AT),
     _.one(Nonterminals.QQ_TEMPLATE));
 
 // <macro use> -> (<keyword> <datum>*)
-r5js.Parser.grammar[Nonterminals.MACRO_USE] = _.list(
+r5js.ParserImpl.grammar[Nonterminals.MACRO_USE] = _.list(
     _.one(Nonterminals.KEYWORD),
     _.zeroOrMore(Nonterminals.DATUM)).
         desugar(function(node, env) {
@@ -694,7 +697,7 @@ r5js.Parser.grammar[Nonterminals.MACRO_USE] = _.list(
 
 
 // <keyword> -> <identifier>
-r5js.Parser.grammar[Nonterminals.KEYWORD] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.KEYWORD] = _.seq(
     _.matchDatum(function(datum) {
       return datum instanceof r5js.ast.Identifier;
     }));
@@ -702,7 +705,7 @@ r5js.Parser.grammar[Nonterminals.KEYWORD] = _.seq(
 
 /* <macro block> -> (let-syntax (<syntax spec>*) <body>)
  | (letrec-syntax (<syntax-spec>*) <body>) */
-r5js.Parser.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
     _.list(
         _.one(Terminals.LET_SYNTAX),
         _.list(_.zeroOrMore(Nonterminals.SYNTAX_SPEC)),
@@ -722,13 +725,13 @@ r5js.Parser.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
 
 
 // <syntax spec> -> (<keyword> <transformer spec>)
-r5js.Parser.grammar[Nonterminals.SYNTAX_SPEC] = _.list(
+r5js.ParserImpl.grammar[Nonterminals.SYNTAX_SPEC] = _.list(
     _.one(Nonterminals.KEYWORD),
     _.one(Nonterminals.TRANSFORMER_SPEC));
 
 
 // <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
-r5js.Parser.grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
+r5js.ParserImpl.grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
     _.one(Terminals.SYNTAX_RULES),
     _.list(_.zeroOrMore(Nonterminals.PATTERN_IDENTIFIER)),
     _.zeroOrMore(Nonterminals.SYNTAX_RULE)).
@@ -746,7 +749,7 @@ r5js.Parser.grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
 
 
 // <syntax rule> -> (<pattern> <template>)
-r5js.Parser.grammar[Nonterminals.SYNTAX_RULE] = _.list(
+r5js.ParserImpl.grammar[Nonterminals.SYNTAX_RULE] = _.list(
     _.one(Nonterminals.PATTERN),
     _.one(Nonterminals.TEMPLATE));
 
@@ -759,7 +762,7 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_RULE] = _.list(
  | #(<pattern>+ <ellipsis>)
  | <pattern datum>
  */
-r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.PATTERN] = _.choice(
     _.list(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS)).
@@ -853,7 +856,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN] = _.choice(
 
 
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
-r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
     _.matchDatum(function(datum) {
       return datum instanceof r5js.ast.SimpleDatum &&
           !(datum instanceof r5js.ast.Identifier);
@@ -884,7 +887,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
  Anyway, the rules for validating templates with ellipses in them are vague
  (4.3.2: "It is an error if the output cannot be built up [from the template]
  as specified") and I can do this during evaluation of a macro if necessary. */
-r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.TEMPLATE] = _.choice(
     _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(function(node) {
       return new r5js.TemplateIdTransformer(
           /** @type {!r5js.ast.SimpleDatum} */(node));
@@ -969,12 +972,12 @@ r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
 
 
 // <template datum> -> <pattern datum>
-r5js.Parser.grammar[Nonterminals.TEMPLATE_DATUM] = _.one(
+r5js.ParserImpl.grammar[Nonterminals.TEMPLATE_DATUM] = _.one(
     Nonterminals.PATTERN_DATUM);
 
 
 // <pattern identifier> -> <any identifier except ...>
-r5js.Parser.grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
     _.matchDatum(function(datum) {
       return datum instanceof r5js.ast.Identifier &&
           datum.getPayload() !== Terminals.ELLIPSIS;
@@ -982,7 +985,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
 
 
 // <program> -> <command or definition>*
-r5js.Parser.grammar[Nonterminals.PROGRAM] = _.seq(
+r5js.ParserImpl.grammar[Nonterminals.PROGRAM] = _.seq(
     _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
         desugar(function(node, env) {
       return node.sequence(env);
@@ -994,7 +997,7 @@ r5js.Parser.grammar[Nonterminals.PROGRAM] = _.seq(
  | <syntax definition>
  | (begin <command or definition>*)
  */
-r5js.Parser.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
+r5js.ParserImpl.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
     _.one(Nonterminals.DEFINITION),
     _.one(Nonterminals.SYNTAX_DEFINITION),
     _.one(Nonterminals.DEFINITION),
@@ -1010,12 +1013,12 @@ r5js.Parser.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
 
 
 // <command> -> <expression>
-r5js.Parser.grammar[Nonterminals.COMMAND] = _.one(
+r5js.ParserImpl.grammar[Nonterminals.COMMAND] = _.one(
     Nonterminals.EXPRESSION);
 
 
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
-r5js.Parser.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
+r5js.ParserImpl.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
     _.one(Terminals.DEFINE_SYNTAX),
     _.one(Nonterminals.KEYWORD),
     _.one(Nonterminals.TRANSFORMER_SPEC)).

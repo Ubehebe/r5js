@@ -150,7 +150,7 @@ r5js.Macro.prototype.allPatternsBeginWith = function(kw) {
 /**
  * @param {!r5js.Datum} datum Datum to transcribe.
  * @param {!r5js.IEnvironment} useEnv Environment to use for the transcription.
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * @param {function(!r5js.Datum):!r5js.IParser} parserProvider Function
  * that will return a new Parser for the given Datum. This is a hack to avoid
  * instantiating a Parser directly in this file, which would cause
  * a cyclic dependency between macro.js and parse.js.

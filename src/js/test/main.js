@@ -7,6 +7,7 @@ goog.setTestOnly('r5js.test.evalSandbox');
 goog.require('goog.log');
 goog.require('r5js.js.Environment');
 goog.require('r5js.Reader');
+goog.require('r5js.ParserImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.boot');
 goog.require('r5js.test.Interpreter');
@@ -54,7 +55,7 @@ r5js.test.readSandbox = function(text) {
 r5js.test.parseSandbox = function(text) {
   var datumRoot = new r5js.Reader(new r5js.Scanner(text)).read();
   if (datumRoot) {
-    new r5js.Parser(datumRoot).parse();
+    new r5js.ParserImpl(datumRoot).parse();
   }
 };
 

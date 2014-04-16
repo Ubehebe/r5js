@@ -54,7 +54,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
 /**
  * @param {!r5js.Continuation} continuation A continuation.
  * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * @param {function(!r5js.Datum):!r5js.IParser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  * @private
  * TODO bl too long.

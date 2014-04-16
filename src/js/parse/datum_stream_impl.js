@@ -16,7 +16,8 @@ r5js.DatumStreamImpl = function(root) {
      *
      * 1. EOF
      * 2. Advancing past the end of a nonempty list. (The empty-list
-     * corner case is handled by {@link r5js.Parser.EMPTY_LIST_SENTINEL_}.)
+     * corner case is handled by
+     * {@link r5js.DatumStreamImpl#EMPTY_LIST_SENTINEL_}.)
      *
      * @private {r5js.Datum|Object}
      */

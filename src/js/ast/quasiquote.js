@@ -62,7 +62,7 @@ r5js.ast.Quasiquote.prototype.stringForOutputMode = function(outputMode) {
  * Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
  * @param {!r5js.IEnvironment} env TODO bl.
  * @param {string} cpsName TODO bl.
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+ * @param {function(!r5js.Datum):!r5js.IParser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  * @return {*} TODO bl.
  * @suppress {const} for the assignment to continuation.lastResultName,

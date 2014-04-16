@@ -22,7 +22,7 @@ goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.Environment');
 goog.require('r5js.InputPort');
 goog.require('r5js.ParseError');
-goog.require('r5js.Parser');
+goog.require('r5js.ParserImpl');
 goog.require('r5js.Reader');
 goog.require('r5js.Scanner');
 goog.require('r5js.trampoline');
@@ -60,7 +60,7 @@ r5js.Pipeline.prototype.read = function(scanner) {
  * TODO bl: why does the compiler not accept an. @override here?
  */
 r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
-  var parser = new r5js.Parser(root);
+  var parser = new r5js.ParserImpl(root);
   var ans = goog.isDef(opt_nonterminal) ?
       parser.parse(opt_nonterminal) :
       parser.parse();

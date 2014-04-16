@@ -658,7 +658,7 @@ PrimitiveProcedures['eval'] = _.binary(
         // don't accidentally evaluate the next expr!
         expr.setNextSibling(null);
 
-        var parsed = new r5js.Parser(expr).parse();
+        var parsed = new r5js.ParserImpl(expr).parse();
         if (!parsed)
           throw new r5js.ParseError(expr);
         var continuable = parsed.desugar(env).setStartingEnv(env);
@@ -1016,7 +1016,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
 
     procCall.env.addBinding(continuation.getLastResultName(), userArgs);
   }
-    var nextContinuable = continuation.getNextContinuable();
+  var nextContinuable = continuation.getNextContinuable();
   if (nextContinuable) {
     nextContinuable.setStartingEnv(procCall.env);
   }
