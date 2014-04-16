@@ -76,6 +76,7 @@ typecheck:
 		--externs=externs/events.js \
 		--externs=externs/fs.js \
 		--externs=externs/process.js \
+		--externs=externs/readline.js \
 		--externs=externs/stream.js \
 		--warning_level VERBOSE \
 		--jscomp_error accessControls \
