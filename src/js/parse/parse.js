@@ -16,11 +16,9 @@
 
 goog.provide('r5js.Parser');
 
-goog.require('goog.array');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
-goog.require('r5js.DatumType');
 goog.require('r5js.DottedListTransformer');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.InternalInterpreterError');
@@ -128,6 +126,7 @@ goog.require('r5js.parse.bnf');
 /**
  * @param {!r5js.Datum} root The root of the tree to parse.
  * @implements {r5js.IParser}
+ * @struct
  * @constructor
  */
 r5js.Parser = function(root) {
