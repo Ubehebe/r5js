@@ -31,6 +31,10 @@ test_outfile = $(outdir)/test-all.js
 # make test test_opts="type=integration verbose"
 test_opts = type=unit
 
+# Node-related paths.
+node_repl_main_class = r5js.repl.node.main
+node_repl_outfile = $(outdir)/node-repl.js
+
 .PHONY: deps
 deps:
 	@mkdir -p $(outdir)
@@ -103,6 +107,26 @@ typecheck:
 		--jscomp_error uselessCode \
 		--jscomp_error visibility \
 		> /dev/null
+
+.PHONY: compile-node-repl
+compile-node-repl:
+	@mkdir -p $(outdir)
+	@find $(src) -name "*\.js" \
+	| xargs printf "\-\-input %s " \
+	| xargs $(builder) --root=$(src) --root=$(closure_root) \
+	| xargs printf "\-\-js %s " \
+	| xargs $(compiler) \
+		--js $(closure_root)/closure/goog/deps.js \
+		--closure_entry_point=$(node_repl_main_class) \
+		--externs=externs/buffer.js \
+		--externs=externs/core.js \
+		--externs=externs/events.js \
+		--externs=externs/fs.js \
+		--externs=externs/process.js \
+		--externs=externs/readline.js \
+		--externs=externs/stream.js \
+		--compilation_level ADVANCED_OPTIMIZATIONS \
+		> $(node_repl_outfile)
 
 .PHONY: compile-tests
 compile-tests:
@@ -181,6 +205,13 @@ test:
 	@command -v node > /dev/null 2>&1 || \
 		{ echo >&2 "node is required for testing."; exit 1; }
 	@node -e "require('./build/test-all').r5js.test.main(process.argv);" $(test_opts)
+
+.PHONY: node-repl
+node-repl: compile-node-repl
+node-repl:
+	@command -v node > /dev/null 2>&1 || \
+		{ echo >&2 "node is required for testing."; exit 1; }
+	@node -e "require('./build/node-repl').r5js.repl.node.main();"
 
 .PHONY: test-server
 test-server: deps
