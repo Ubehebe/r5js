@@ -1,9 +1,9 @@
-goog.provide('r5js.IParser');
+goog.provide('r5js.Parser');
 
 
 
 /** @interface */
-r5js.IParser = function() {};
+r5js.Parser = function() {};
 
 
 /**
@@ -13,4 +13,4 @@ r5js.IParser = function() {};
  * @return {r5js.Datum} The root of the parse tree, or null if parsing
  * was unsuccessful.
  */
-r5js.IParser.prototype.parse = function(opt_nonterminal) {};
+r5js.Parser.prototype.parse = function(opt_nonterminal) {};

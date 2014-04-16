@@ -125,7 +125,7 @@ goog.require('r5js.parse.bnf');
 
 /**
  * @param {!r5js.Datum} root The root of the tree to parse.
- * @implements {r5js.IParser}
+ * @implements {r5js.Parser}
  * @struct
  * @constructor
  */

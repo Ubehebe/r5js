@@ -130,7 +130,7 @@ r5js.trampoline = function(continuable, inputPort, outputPort) {
 
 /**
  * @param {!r5js.Datum} datum Root of the parse tree.
- * @return {!r5js.IParser} New parser that will parse the given datum.
+ * @return {!r5js.Parser} New parser that will parse the given datum.
  */
 function parserProvider(datum) {
   return new r5js.ParserImpl(datum);
