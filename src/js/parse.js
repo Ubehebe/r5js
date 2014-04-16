@@ -18,12 +18,10 @@ goog.provide('r5js.Parser');
 
 goog.require('goog.array');
 goog.require('r5js.Continuation');
-goog.require('r5js.newBranch');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DatumType');
 goog.require('r5js.DottedListTransformer');
-goog.require('r5js.newAssignment');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListTransformer');
@@ -34,6 +32,7 @@ goog.require('r5js.Procedure');
 goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.TemplateIdTransformer');
+goog.require('r5js.VarargsProcedure');
 goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
@@ -41,14 +40,15 @@ goog.require('r5js.ast.List');
 goog.require('r5js.ast.Literal');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.SimpleDatum');
-goog.require('r5js.newIdShim');
 goog.require('r5js.ast.String');
 goog.require('r5js.datumutil');
+goog.require('r5js.newAssignment');
+goog.require('r5js.newBranch');
+goog.require('r5js.newIdShim');
+goog.require('r5js.newProcCall');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.bnf');
-goog.require('r5js.newProcCall');
-goog.require('r5js.VarargsProcedure');
 
 
 /* todo bl: this file should not exist.
@@ -218,7 +218,7 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
      todo bl: the real solution is to simplify the grammar even more
      so that (lambda () 1) parses as something like a macro use, then
      install a "super-macro" for lambda that contains custom logic in
-     JavaScript. That way, the syntactic keyword could be shadowed
+     JavaScript. That way,  the syntactic keyword could be shadowed
      appropriately. */
     _.choice(
     _.one(Nonterminals.VARIABLE),
@@ -229,12 +229,12 @@ r5js.Parser.grammar[Nonterminals.EXPRESSION] =
     _.one(Nonterminals.QUASIQUOTATION).desugar(function(node, env) {
       return (/** @type {!r5js.ast.CompoundDatum} */ (node)).
           setQuasiquotationLevel(1);
-            }),
+    }),
     _.list(
             _.one(Terminals.BEGIN),
             _.oneOrMore(Nonterminals.EXPRESSION)).
         desugar(function(node, env) {
-            return node.at(Nonterminals.EXPRESSION).sequence(env);
+      return node.at(Nonterminals.EXPRESSION).sequence(env);
         }),
     _.one(Nonterminals.MACRO_BLOCK),
     _.one(Nonterminals.PROCEDURE_CALL),
@@ -307,7 +307,8 @@ r5js.Parser.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
       else {
         var desugaredOp = /** @type {!r5js.Continuable} */ (
             operatorNode.desugar(env));
-        var lastContinuation = desugaredOp.getLastContinuable().getContinuation();
+        var lastContinuation =
+            desugaredOp.getLastContinuable().getContinuation();
         var opName = lastContinuation.getLastResultName();
         lastContinuation.setNextContinuable(r5js.newProcCall(
             new r5js.ast.Identifier(opName),
@@ -352,8 +353,8 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
       else if (formalRoot.isImproperList()) {
         formals = (/** @type {!r5js.ast.CompoundDatum} */ (formalRoot)).
             mapChildren(function(child) {
-          return /** @type {!r5js.Datum} */ (
-              (/** @type {!r5js.ast.SimpleDatum} */ (child)).getPayload());
+              return /** @type {!r5js.Datum} */ (
+                  (/** @type {!r5js.ast.SimpleDatum} */ (child)).getPayload());
             });
         treatAsDotted = true;
       }
@@ -372,8 +373,10 @@ r5js.Parser.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
 
       var name = newAnonymousLambdaName();
       var proc = treatAsDotted ?
-          new r5js.VarargsProcedure(formals, formalRoot.getNextSibling(), env, name) :
-          new r5js.Procedure(formals, formalRoot.getNextSibling(), env, name);
+          new r5js.VarargsProcedure(
+              formals, formalRoot.getNextSibling(), env, name) :
+          new r5js.Procedure(
+              formals, formalRoot.getNextSibling(), env, name);
       env.addClosure(name, proc);
       return r5js.newIdShim(new r5js.ast.Identifier(name));
         });
@@ -510,9 +513,9 @@ r5js.Parser.grammar[Nonterminals.DEFINITION] = _.choice(
     _.list(
         _.one(Terminals.BEGIN),
         _.zeroOrMore(Nonterminals.DEFINITION)).
-desugar(function(node, env) {
-            var def = node.at(Nonterminals.DEFINITION);
-            return def && def.sequence(env);
+    desugar(function(node, env) {
+      var def = node.at(Nonterminals.DEFINITION);
+      return def && def.sequence(env);
         }));
 
 
@@ -553,15 +556,14 @@ r5js.Parser.grammar[Nonterminals.CONDITIONAL] = _.choice(
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
       var testEndpoint = test.getLastContinuable();
-            var testEndpointContinuation = testEndpoint.getContinuation();
+      var testEndpointContinuation = testEndpoint.getContinuation();
 
-            /* If there's no alternate given, we create a shim that will return
-            an undefined value. Example: (display (if #f 42)).
-            We give a type of "number" for the shim because passing in a null type
-            would activate the default type, identifier, which would change the
-            semantics.
-            TODO bl improve.
-            */
+      /* If there's no alternate given, we create a shim that will return
+         an undefined value. Example: (display (if #f 42)).
+         We give a type of "number" for the shim because passing in
+         a null type would activate the default type, identifier, which would
+         change the semantics.
+         TODO bl improve. */
       var branch = r5js.newBranch(
           testEndpointContinuation.getLastResultName(),
           consequent,
@@ -884,7 +886,7 @@ r5js.Parser.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
  (4.3.2: "It is an error if the output cannot be built up [from the template]
  as specified") and I can do this during evaluation of a macro if necessary. */
 r5js.Parser.grammar[Nonterminals.TEMPLATE] = _.choice(
-        _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(function(node) {
+    _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(function(node) {
       return new r5js.TemplateIdTransformer(
           /** @type {!r5js.ast.SimpleDatum} */(node));
     }),
@@ -1002,8 +1004,8 @@ r5js.Parser.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
         _.one(Terminals.BEGIN),
         _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
     desugar(function(node, env) {
-            var firstCommand = node.at(Nonterminals.COMMAND_OR_DEFINITION);
-            return firstCommand && firstCommand.sequence(env);
+      var firstCommand = node.at(Nonterminals.COMMAND_OR_DEFINITION);
+      return firstCommand && firstCommand.sequence(env);
         }),
     _.one(Nonterminals.COMMAND));
 
@@ -1021,8 +1023,8 @@ r5js.Parser.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
         desugar(function(node, env) {
       var kw = (/** @type {!r5js.ast.Identifier} */ (node.at(
           Nonterminals.KEYWORD))).getPayload();
-      var macro = /** @type {!r5js.Macro} */ (node.at(Nonterminals.TRANSFORMER_SPEC).
-          desugar(env));
+      var macro = /** @type {!r5js.Macro} */ (
+          node.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
       if (!macro.allPatternsBeginWith(kw))
         throw new r5js.MacroError(kw, 'all patterns must begin with ' + kw);
       var anonymousName = newAnonymousLambdaName();
