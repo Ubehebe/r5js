@@ -47,8 +47,6 @@ r5js.Assignment.prototype.evalAndAdvance = function(
 
   // We shouldn't leave the environment pointer hanging around.
   this.clearEnv();
-
-  return resultStruct;
 };
 
 
