@@ -285,8 +285,8 @@ r5js.Macro.prototype.evalAndAdvance = function(
   // this.reconstructDatum_() +
   // ' => ' + newDatumTree);
 
-  var newContinuable = newParseTree.desugar(newEnv, true).
-      setStartingEnv(newEnv);
+  var newContinuable = newParseTree.desugar(newEnv, true);
+  newContinuable.setStartingEnv(newEnv);
 
   newContinuable.
       getLastContinuable().

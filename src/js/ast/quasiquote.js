@@ -106,7 +106,10 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
 
   newCalls.appendContinuable(r5js.newIdShim(newDatum, cpsName));
   var ans = newCalls.toContinuable();
-  return ans && ans.setStartingEnv(env);
+  if (ans) {
+    ans.setStartingEnv(env);
+  }
+  return ans;
 };
 
 

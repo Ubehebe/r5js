@@ -47,13 +47,11 @@ r5js.Continuable.prototype.getSubtype = function() {
 
 /**
  * @param {!r5js.IEnvironment} env The starting environment.
- * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.setStartingEnv = function(env) {
   if (this.subtype_ instanceof r5js.ProcCall) {
     this.subtype_.setEnv(env, true);
   }
-  return this;
 };
 
 
