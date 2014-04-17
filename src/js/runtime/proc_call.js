@@ -30,6 +30,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 /**
  * @param {!r5js.ast.Identifier} operatorName
  * @param {?} firstOperand
+ * @implements {r5js.ProcCallLike}
  * @struct
  * @constructor
  */
@@ -219,13 +220,7 @@ r5js.ProcCall.prototype.cpsify = function(
 };
 
 
-/**
- * @param {!r5js.Continuation} continuation
- * @param {!r5js.TrampolineHelper} resultStruct
- * @param {!r5js.EnvBuffer} envBuffer
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
- * that will return a new Parser for the given Datum when called.
- */
+/** @override */
 r5js.ProcCall.prototype.evalAndAdvance = function(
     continuation, resultStruct, envBuffer, parserProvider) {
 

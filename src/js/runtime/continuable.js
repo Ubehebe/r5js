@@ -27,24 +27,20 @@ goog.provide('r5js.Continuable');
  * This would break the circular dependency caused by the
  * goog.require('r5js.ProcCall') commented out above.
  *
- * @param {!r5js.Branch_|!r5js.ProcCall} subtype
+ * @param {!r5js.ProcCallLike} subtype
  * @param {!r5js.Continuation} continuation The continuation.
  * @implements {r5js.runtime.ObjectValue} TODO bl not appropriate?
  * @struct
  * @constructor
  */
 r5js.Continuable = function(subtype, continuation) {
-  /** @const @private {!r5js.Branch_|!r5js.ProcCall} */
-  this.subtype_ = subtype;
-
+  /** @const @private */ this.subtype_ = subtype;
   /** @private {!r5js.Continuation} */ this.continuation_ = continuation;
-
-  // todo bl caching problems
   /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
 };
 
 
-/** @return {!r5js.Branch_|!r5js.ProcCall} */
+/** @return {!r5js.ProcCallLike} */
 r5js.Continuable.prototype.getSubtype = function() {
   return this.subtype_;
 };

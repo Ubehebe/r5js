@@ -39,6 +39,7 @@ r5js.newBranch = function(testResultName, consequent, alternate, continuation) {
  * @param {string} testResultName
  * @param {!r5js.Continuable} consequent
  * @param {!r5js.Continuable} alternate
+ * @implements {r5js.ProcCallLike}
  * @struct
  * @constructor
  * @private
@@ -54,13 +55,9 @@ r5js.Branch_ = function(testResultName, consequent, alternate) {
 };
 
 
-/**
- * @param {!r5js.Continuation} continuation
- * @param {!r5js.TrampolineHelper} resultStruct
- * @param {!r5js.EnvBuffer} envBuffer
- */
+/** @override */
 r5js.Branch_.prototype.evalAndAdvance = function(
-    continuation, resultStruct, envBuffer) {
+    continuation, resultStruct, envBuffer, parserProvider) {
 
   /* Branches always use the old environment left by the previous action
     on the trampoline. */
