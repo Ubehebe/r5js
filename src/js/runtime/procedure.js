@@ -51,7 +51,7 @@ r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
           letrec,
           new r5js.Continuation());
     }
-    this.lastContinuable = this.body.getLastContinuable();
+    this.lastContinuable = this.body.getLastProcCallLike();
   }
 };
 r5js.ProcedureLike.addImplementation(r5js.Procedure);
@@ -80,7 +80,7 @@ r5js.Procedure.prototype.setContinuation_ = function(c) {
      probably still faster than checking if we are in tail position and,
      if so, explicitly doing nothing. */
   if (this.lastContinuable) {
-    this.lastContinuable.getSubtype().setContinuation(c);
+    this.lastContinuable.setContinuation(c);
   }
 };
 
@@ -93,7 +93,7 @@ r5js.Procedure.prototype.setContinuation_ = function(c) {
  */
 r5js.Procedure.prototype.isTailCall_ = function(c) {
   if (this.lastContinuable &&
-      this.lastContinuable.getSubtype().getContinuation() === c) {
+      this.lastContinuable.getContinuation() === c) {
     // a good place to see if tail recursion is actually working :)
     // console.log('TAIL RECURSION!!!');
     return true;

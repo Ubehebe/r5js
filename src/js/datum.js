@@ -235,7 +235,7 @@ r5js.Datum.prototype.sequence = function(env) {
                 curEnd.setNextContinuable(tmp);
             }
 
-            curEnd = tmp.getLastContinuable().getSubtype().getContinuation();
+            curEnd = tmp.getLastProcCallLike().getContinuation();
         }
     }
 

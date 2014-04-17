@@ -307,7 +307,7 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
         var desugaredOp = /** @type {!r5js.Continuable} */ (
             operatorNode.desugar(env));
         var lastContinuation =
-            desugaredOp.getLastContinuable().getSubtype().getContinuation();
+            desugaredOp.getLastProcCallLike().getContinuation();
         var opName = lastContinuation.getLastResultName();
         lastContinuation.setNextContinuable(r5js.newProcCall(
             new r5js.ast.Identifier(opName),
@@ -436,10 +436,11 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 todo bl: make this flow of control explicit. */
       var variable = node.at(Nonterminals.VARIABLE);
       var desugaredExpr = variable.getNextSibling().desugar(env, true);
-      var lastContinuable = desugaredExpr.getLastContinuable();
-      var cpsName =
-          lastContinuable.getSubtype().getContinuation().getLastResultName();
-      lastContinuable.getSubtype().getContinuation().setNextContinuable(
+      var lastContinuation = desugaredExpr.
+          getLastProcCallLike().
+          getContinuation();
+      var cpsName = lastContinuation.getLastResultName();
+      lastContinuation.setNextContinuable(
           r5js.newTopLevelAssignment(
           variable.getPayload(),
           cpsName,
@@ -534,9 +535,8 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var alternate = /** @type {!r5js.Continuable} */ (
           node.at(Nonterminals.ALTERNATE).desugar(env, true));
 
-      var testEndpoint = test.getLastContinuable();
-      var testEndpointContinuation =
-          testEndpoint.getSubtype().getContinuation();
+      var testEndpoint = test.getLastProcCallLike();
+      var testEndpointContinuation = testEndpoint.getContinuation();
 
       var branch = r5js.newBranch(
           testEndpointContinuation.getLastResultName(),
@@ -556,9 +556,8 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var consequent = /** @type {!r5js.Continuable} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
-      var testEndpoint = test.getLastContinuable();
-      var testEndpointContinuation =
-          testEndpoint.getSubtype().getContinuation();
+      var testEndpoint = test.getLastProcCallLike();
+      var testEndpointContinuation = testEndpoint.getContinuation();
 
       /* If there's no alternate given, we create a shim that will return
          an undefined value. Example: (display (if #f 42)).
@@ -602,14 +601,12 @@ r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
           node.at(Nonterminals.VARIABLE));
       var desugaredExpr = /** @type {!r5js.Continuable} */ (
           variable.getNextSibling().desugar(env, true));
-      var lastContinuable = /** @type {!r5js.Continuable} */ (
-          desugaredExpr.getLastContinuable());
+      var lastContinuable = /** @type {!r5js.ProcCallLike} */ (
+          desugaredExpr.getLastProcCallLike());
       var cpsName = lastContinuable.
-          getSubtype().
           getContinuation().
           getLastResultName();
       lastContinuable.
-          getSubtype().
           getContinuation().
           setNextContinuable(
           r5js.newAssignment(

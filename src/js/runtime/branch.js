@@ -49,9 +49,9 @@ r5js.Branch_ = function(testResultName, consequent, alternate) {
   /** @const @private */ this.consequent_ = consequent;
   /** @const @private */ this.alternate_ = alternate;
   /** @const @private */
-  this.consequentLastContinuable_ = this.consequent_.getLastContinuable();
+  this.consequentLastContinuable_ = this.consequent_.getLastProcCallLike();
   /** @const @private */
-  this.alternateLastContinuable_ = this.alternate_.getLastContinuable();
+  this.alternateLastContinuable_ = this.alternate_.getLastProcCallLike();
 
   /** @private {r5js.Continuation} */ this.continuation_ = null;
 };
@@ -83,7 +83,7 @@ r5js.Branch_.prototype.evalAndAdvance = function(
     on the trampoline. */
   var testResult = envBuffer.getEnv().get(this.testResultName_);
   if (testResult === false) {
-    this.alternateLastContinuable_.getSubtype().setContinuation(continuation);
+    this.alternateLastContinuable_.setContinuation(continuation);
     resultStruct.setNextContinuable(this.alternate_);
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}.
@@ -92,7 +92,7 @@ r5js.Branch_.prototype.evalAndAdvance = function(
          is insufficient or that I don't understand the type of subtype. */
     this.consequent_.getSubtype().clearEnv();
   } else {
-    this.consequentLastContinuable_.getSubtype().setContinuation(continuation);
+    this.consequentLastContinuable_.setContinuation(continuation);
     resultStruct.setNextContinuable(this.consequent_);
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}, and above. */

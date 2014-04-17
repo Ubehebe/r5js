@@ -188,8 +188,7 @@ r5js.ProcCall.prototype.cpsify = function(
           parserProvider)) instanceof r5js.Continuable) {
         finalArgs.appendSibling(
             new r5js.ast.Identifier(maybeContinuable
-                        .getLastContinuable()
-                        .getSubtype()
+                        .getLastProcCallLike()
                         .getContinuation()
                         .getLastResultName()));
         newCallChain.appendContinuable(
@@ -215,8 +214,7 @@ r5js.ProcCall.prototype.cpsify = function(
              and not to desugar to a Continuable? */
       finalArgs.appendSibling(
           new r5js.ast.Identifier(maybeContinuable.
-              getLastContinuable().
-              getSubtype().
+              getLastProcCallLike().
               getContinuation().
               getLastResultName()));
       newCallChain.appendContinuable(maybeContinuable);
@@ -238,8 +236,8 @@ r5js.ProcCall.prototype.cpsify = function(
 
   var ans = newCallChain.toContinuable();
   ans.getSubtype().setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
-  var lastContinuable = ans.getLastContinuable();
-  lastContinuable.getSubtype().setContinuation(continuation);
+  var lastContinuable = ans.getLastProcCallLike();
+  lastContinuable.setContinuation(continuation);
   resultStruct.setNextContinuable(ans);
 };
 

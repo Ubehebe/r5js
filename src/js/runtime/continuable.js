@@ -46,7 +46,19 @@ r5js.Continuable.prototype.getSubtype = function() {
 /**
  * The last continuable of a continuable-continuation chain is the first
  * continuable c such that c.continuation.nextContinuable is null.
+ * @return {!r5js.ProcCallLike}
+ */
+r5js.Continuable.prototype.getLastProcCallLike = function() {
+  var continuation = this.subtype_.getContinuation();
+  return continuation.getNextContinuable() ?
+      continuation.getNextContinuable().getLastProcCallLike() :
+      this.subtype_;
+};
+
+
+/**
  * @return {!r5js.Continuable}
+ * TODO bl temporary shim, remove.
  */
 r5js.Continuable.prototype.getLastContinuable = function() {
   var continuation = this.subtype_.getContinuation();
@@ -61,8 +73,7 @@ r5js.Continuable.prototype.getLastContinuable = function() {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.appendContinuable = function(next) {
-  this.getLastContinuable().
-      getSubtype().
+  this.getLastProcCallLike().
       getContinuation().
       setNextContinuable(next);
   return this;
