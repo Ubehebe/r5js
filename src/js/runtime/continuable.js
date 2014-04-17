@@ -36,7 +36,6 @@ goog.provide('r5js.Continuable');
 r5js.Continuable = function(subtype, continuation) {
   /** @const @private */ this.subtype_ = subtype;
   this.subtype_.setContinuation(continuation);
-  /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
 };
 
 
