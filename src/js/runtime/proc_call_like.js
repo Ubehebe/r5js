@@ -15,3 +15,11 @@ r5js.ProcCallLike = function() {};
  */
 r5js.ProcCallLike.prototype.evalAndAdvance = function(
     continuation, trampolineHelper, envBuffer, parserProvider) {};
+
+
+/** @return {r5js.Continuation} */
+r5js.ProcCallLike.prototype.getContinuation = function() {};
+
+
+/** @param {!r5js.Continuation} continuation */
+r5js.ProcCallLike.prototype.setContinuation = function(continuation) {};

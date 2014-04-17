@@ -45,6 +45,18 @@ r5js.ProcCall = function(operatorName, firstOperand) {
 };
 
 
+/** @override */
+r5js.ProcCall.prototype.getContinuation = function() {
+  return null; // TODO bl
+};
+
+
+/** @override */
+r5js.ProcCall.prototype.setContinuation = function(continuation) {
+  // TODO bl
+};
+
+
 /** @return {?} TODO bl. */
 r5js.ProcCall.prototype.getFirstOperand = function() {
   return this.firstOperand;

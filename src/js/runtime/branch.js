@@ -56,6 +56,18 @@ r5js.Branch_ = function(testResultName, consequent, alternate) {
 
 
 /** @override */
+r5js.Branch_.prototype.getContinuation = function() {
+  return null; // TODO bl
+};
+
+
+/** @override */
+r5js.Branch_.prototype.setContinuation = function(continuation) {
+  // TODO bl
+};
+
+
+/** @override */
 r5js.Branch_.prototype.evalAndAdvance = function(
     continuation, resultStruct, envBuffer, parserProvider) {
 
