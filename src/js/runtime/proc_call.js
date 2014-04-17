@@ -183,6 +183,7 @@ r5js.ProcCall.prototype.cpsify = function(
         finalArgs.appendSibling(
             new r5js.ast.Identifier(maybeContinuable
                         .getLastContinuable()
+                        .getSubtype()
                         .getContinuation()
                         .getLastResultName()));
         newCallChain.appendContinuable(
@@ -208,7 +209,10 @@ r5js.ProcCall.prototype.cpsify = function(
              and not to desugar to a Continuable? */
       finalArgs.appendSibling(
           new r5js.ast.Identifier(maybeContinuable.
-          getLastContinuable().getContinuation().getLastResultName()));
+              getLastContinuable().
+              getSubtype().
+              getContinuation().
+              getLastResultName()));
       newCallChain.appendContinuable(maybeContinuable);
     } else {
       var clonedArg = arg.clone(null /* parent */);

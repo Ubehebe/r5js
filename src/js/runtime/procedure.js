@@ -92,7 +92,8 @@ r5js.Procedure.prototype.setContinuation_ = function(c) {
  * TODO bl are we sure this covers all forms of tail recursion in R5RS?
  */
 r5js.Procedure.prototype.isTailCall_ = function(c) {
-  if (this.lastContinuable && this.lastContinuable.getContinuation() === c) {
+  if (this.lastContinuable &&
+      this.lastContinuable.getSubtype().getContinuation() === c) {
     // a good place to see if tail recursion is actually working :)
     // console.log('TAIL RECURSION!!!');
     return true;

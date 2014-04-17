@@ -36,7 +36,10 @@ r5js.ContinuableHelper.prototype.appendContinuable = function(continuable) {
     this.firstContinuable_ = continuable;
     this.lastContinuable_ = continuable.getLastContinuable();
   } else {
-    this.lastContinuable_.getContinuation().setNextContinuable(continuable);
+    this.lastContinuable_.
+        getSubtype().
+        getContinuation().
+        setNextContinuable(continuable);
     this.lastContinuable_ = continuable.getLastContinuable();
   }
 };

@@ -46,12 +46,6 @@ r5js.Continuable.prototype.getSubtype = function() {
 };
 
 
-/** @return {!r5js.Continuation} */
-r5js.Continuable.prototype.getContinuation = function() {
-  return this.subtype_.getContinuation();
-};
-
-
 /** @param {!r5js.Continuation} continuation */
 r5js.Continuable.prototype.setContinuation = function(continuation) {
   this.subtype_.setContinuation(continuation);
@@ -88,6 +82,9 @@ r5js.Continuable.prototype.getLastContinuable = function() {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.appendContinuable = function(next) {
-  this.getLastContinuable().getContinuation().setNextContinuable(next);
+  this.getLastContinuable().
+      getSubtype().
+      getContinuation().
+      setNextContinuable(next);
   return this;
 };
