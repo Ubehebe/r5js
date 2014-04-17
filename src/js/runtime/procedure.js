@@ -80,7 +80,7 @@ r5js.Procedure.prototype.setContinuation_ = function(c) {
      probably still faster than checking if we are in tail position and,
      if so, explicitly doing nothing. */
   if (this.lastContinuable) {
-    this.lastContinuable.setContinuation(c);
+    this.lastContinuable.getSubtype().setContinuation(c);
   }
 };
 

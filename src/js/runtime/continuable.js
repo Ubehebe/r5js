@@ -45,12 +45,6 @@ r5js.Continuable.prototype.getSubtype = function() {
 };
 
 
-/** @param {!r5js.Continuation} continuation */
-r5js.Continuable.prototype.setContinuation = function(continuation) {
-  this.subtype_.setContinuation(continuation);
-};
-
-
 /**
  * @param {!r5js.IEnvironment} env The starting environment.
  * @return {!r5js.Continuable} This object, for chaining.
