@@ -42,18 +42,20 @@ r5js.ProcCall = function(operatorName, firstOperand) {
   this.firstOperand = firstOperand;
 
   /** @protected {r5js.IEnvironment} */ this.env = null;
+
+  /** @private {r5js.Continuation} */ this.continuation_ = null;
 };
 
 
 /** @override */
 r5js.ProcCall.prototype.getContinuation = function() {
-  return null; // TODO bl
+  return this.continuation_;
 };
 
 
 /** @override */
 r5js.ProcCall.prototype.setContinuation = function(continuation) {
-  // TODO bl
+  this.continuation_ = continuation;
 };
 
 

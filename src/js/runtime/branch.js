@@ -52,18 +52,20 @@ r5js.Branch_ = function(testResultName, consequent, alternate) {
   this.consequentLastContinuable_ = this.consequent_.getLastContinuable();
   /** @const @private */
   this.alternateLastContinuable_ = this.alternate_.getLastContinuable();
+
+  /** @private {r5js.Continuation} */ this.continuation_ = null;
 };
 
 
 /** @override */
 r5js.Branch_.prototype.getContinuation = function() {
-  return null; // TODO bl
+  return this.continuation_;
 };
 
 
 /** @override */
 r5js.Branch_.prototype.setContinuation = function(continuation) {
-  // TODO bl
+  this.continuation_ = continuation;
 };
 
 

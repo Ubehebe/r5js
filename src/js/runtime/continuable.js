@@ -35,7 +35,7 @@ goog.provide('r5js.Continuable');
  */
 r5js.Continuable = function(subtype, continuation) {
   /** @const @private */ this.subtype_ = subtype;
-  /** @private {!r5js.Continuation} */ this.continuation_ = continuation;
+  this.subtype_.setContinuation(continuation);
   /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
 };
 
@@ -48,13 +48,13 @@ r5js.Continuable.prototype.getSubtype = function() {
 
 /** @return {!r5js.Continuation} */
 r5js.Continuable.prototype.getContinuation = function() {
-  return this.continuation_;
+  return this.subtype_.getContinuation();
 };
 
 
 /** @param {!r5js.Continuation} continuation */
 r5js.Continuable.prototype.setContinuation = function(continuation) {
-  this.continuation_ = continuation;
+  this.subtype_.setContinuation(continuation);
 };
 
 
@@ -76,8 +76,9 @@ r5js.Continuable.prototype.setStartingEnv = function(env) {
  * @return {!r5js.Continuable}
  */
 r5js.Continuable.prototype.getLastContinuable = function() {
-  return this.continuation_.getNextContinuable() ?
-      this.continuation_.getNextContinuable().getLastContinuable() :
+  var continuation = this.subtype_.getContinuation();
+  return continuation.getNextContinuable() ?
+      continuation.getNextContinuable().getLastContinuable() :
       this;
 };
 
@@ -87,6 +88,6 @@ r5js.Continuable.prototype.getLastContinuable = function() {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.appendContinuable = function(next) {
-  this.getLastContinuable().continuation_.setNextContinuable(next);
+  this.getLastContinuable().getContinuation().setNextContinuable(next);
   return this;
 };
