@@ -662,7 +662,7 @@ PrimitiveProcedures['eval'] = _.binary(
         if (!parsed)
           throw new r5js.ParseError(expr);
         var continuable = parsed.desugar(env);
-        continuable.setStartingEnv(env);
+        continuable.getSubtype().setStartingEnv(env);
         return r5js.trampoline(
             continuable, r5js.InputPort.NULL, r5js.OutputPort.NULL);
       }
@@ -821,7 +821,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
       newArgs.appendSibling(new r5js.ast.Quote(arg));
     var actualProcCall = r5js.newProcCall(
         procName, newArgs.toSiblings(), continuation);
-    actualProcCall.setStartingEnv(curProcCall.env);
+    actualProcCall.getSubtype().setStartingEnv(curProcCall.env);
     resultStruct.setNextContinuable(actualProcCall);
   } else {
     // (apply foo a b c '(1 2 3))
@@ -938,13 +938,13 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
           procCall.getFirstOperand(),
           null, // no arguments
           producerContinuation);
-      producerCall.setStartingEnv(
+      producerCall.getSubtype().setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       var consumerCall = r5js.newProcCall(
           procCall.getFirstOperand().getNextSibling(),
           new r5js.ast.Identifier(valuesName),
           continuation);
-      consumerCall.setStartingEnv(
+      consumerCall.getSubtype().setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       producerContinuation.setNextContinuable(consumerCall);
       resultStruct.setNextContinuable(producerCall);
@@ -983,7 +983,7 @@ PrimitiveProcedures['call-with-current-continuation'] =
       }
       var dummyProcCall = r5js.newProcCall(
           procCall.getFirstOperand(), continuation, continuation);
-      dummyProcCall.setStartingEnv(
+      dummyProcCall.getSubtype().setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       resultStruct.setNextContinuable(dummyProcCall);
       return r5js.runtime.UNSPECIFIED_VALUE;
@@ -1022,7 +1022,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
   }
   var nextContinuable = continuation.getNextContinuable();
   if (nextContinuable) {
-    nextContinuable.setStartingEnv(procCall.env);
+    nextContinuable.getSubtype().setStartingEnv(procCall.env);
   }
   resultStruct.setNextContinuable(nextContinuable);
   return r5js.runtime.UNSPECIFIED_VALUE;

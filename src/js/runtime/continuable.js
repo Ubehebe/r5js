@@ -44,14 +44,6 @@ r5js.Continuable.prototype.getSubtype = function() {
 
 
 /**
- * @param {!r5js.IEnvironment} env The starting environment.
- */
-r5js.Continuable.prototype.setStartingEnv = function(env) {
-  this.subtype_.setStartingEnv(env);
-};
-
-
-/**
  * The last continuable of a continuable-continuation chain is the first
  * continuable c such that c.continuation.nextContinuable is null.
  * @return {!r5js.Continuable}

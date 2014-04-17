@@ -86,6 +86,6 @@ r5js.boot.installSchemeSource_ = function(lib, env) {
       ).read())
       ).parse()
         .desugar(env));
-  continuable.setStartingEnv(env);
+  continuable.getSubtype().setStartingEnv(env);
   r5js.trampoline(continuable, r5js.InputPort.NULL, r5js.OutputPort.NULL);
 };

@@ -75,7 +75,7 @@ r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
 r5js.Pipeline.prototype.desugar = function(root) {
   this.env_ = new r5js.Environment(this.rootEnv_);
   var continuable = root.desugar(this.env_, false);
-  continuable.setStartingEnv(this.env_);
+  continuable.getSubtype().setStartingEnv(this.env_);
   return continuable;
 };
 
@@ -83,7 +83,7 @@ r5js.Pipeline.prototype.desugar = function(root) {
 /** @override */
 r5js.Pipeline.prototype.desugarRepl = function(root) {
   var continuable = root.desugar(this.env_, false);
-  continuable.setStartingEnv(this.env_);
+  continuable.getSubtype().setStartingEnv(this.env_);
   return continuable;
 };
 
