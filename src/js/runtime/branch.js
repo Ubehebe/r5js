@@ -70,6 +70,12 @@ r5js.Branch_.prototype.setContinuation = function(continuation) {
 
 
 /** @override */
+r5js.Branch_.prototype.setStartingEnv = function(env) {
+  // TODO bl unify with maybeSetEnv
+};
+
+
+/** @override */
 r5js.Branch_.prototype.evalAndAdvance = function(
     continuation, resultStruct, envBuffer, parserProvider) {
 

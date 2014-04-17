@@ -24,8 +24,6 @@ goog.provide('r5js.Continuable');
  * {@link r5js.Branch_} as subtype. Thus this class should be turned into
  * a base class or interface, with {@link r5js.ProcCall}
  * and {@link r5js.Branch_} extending or implementing it.
- * This would break the circular dependency caused by the
- * goog.require('r5js.ProcCall') commented out above.
  *
  * @param {!r5js.ProcCallLike} subtype
  * @param {!r5js.Continuation} continuation The continuation.
@@ -49,9 +47,7 @@ r5js.Continuable.prototype.getSubtype = function() {
  * @param {!r5js.IEnvironment} env The starting environment.
  */
 r5js.Continuable.prototype.setStartingEnv = function(env) {
-  if (this.subtype_ instanceof r5js.ProcCall) {
-    this.subtype_.setEnv(env, true);
-  }
+  this.subtype_.setStartingEnv(env);
 };
 
 

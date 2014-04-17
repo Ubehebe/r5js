@@ -83,6 +83,12 @@ r5js.ProcCall.prototype.setEnv = function(env, opt_override) {
 };
 
 
+/** @override */
+r5js.ProcCall.prototype.setStartingEnv = function(env) {
+  this.setEnv(env, true /* opt_override */);
+};
+
+
 /**
  * If the ProcCall already has an environment, don't overwrite it.
  * Exception: if this is a continuation "escape call", we do overwrite it.
