@@ -27,3 +27,16 @@ r5js.ProcCallLike.prototype.setContinuation = function(continuation) {};
 
 /** @param {!r5js.IEnvironment} env */
 r5js.ProcCallLike.prototype.setStartingEnv = function(env) {};
+
+
+/**
+ * @param {!r5js.ProcCallLike} procCallLike
+ * @return {!r5js.ProcCallLike}
+ */
+r5js.ProcCallLike.getLast = function(procCallLike) {
+  var continuation = procCallLike.getContinuation();
+  return continuation.getNextContinuable() ?
+      r5js.ProcCallLike.getLast(
+          continuation.getNextContinuable().getSubtype()) :
+      procCallLike;
+};
