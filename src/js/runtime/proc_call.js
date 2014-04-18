@@ -9,6 +9,7 @@ goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
+goog.require('r5js.ProcCallLike');
 goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
@@ -187,8 +188,8 @@ r5js.ProcCall.prototype.cpsify = function(
           continuation.getLastResultName(),
           parserProvider)) instanceof r5js.Continuable) {
         finalArgs.appendSibling(
-            new r5js.ast.Identifier(maybeContinuable
-                        .getLastProcCallLike()
+            new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
+                maybeContinuable.getSubtype())
                         .getContinuation()
                         .getLastResultName()));
         newCallChain.appendContinuable(
@@ -213,8 +214,8 @@ r5js.ProcCall.prototype.cpsify = function(
       /* todo bl is it an invariant violation to be a list
              and not to desugar to a Continuable? */
       finalArgs.appendSibling(
-          new r5js.ast.Identifier(maybeContinuable.
-              getLastProcCallLike().
+          new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
+              maybeContinuable.getSubtype()).
               getContinuation().
               getLastResultName()));
       newCallChain.appendContinuable(maybeContinuable);
@@ -236,7 +237,7 @@ r5js.ProcCall.prototype.cpsify = function(
 
   var ans = newCallChain.toContinuable();
   ans.getSubtype().setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
-  var lastContinuable = ans.getLastProcCallLike();
+  var lastContinuable = r5js.ProcCallLike.getLast(ans.getSubtype());
   lastContinuable.setContinuation(continuation);
   resultStruct.setNextContinuable(ans);
 };

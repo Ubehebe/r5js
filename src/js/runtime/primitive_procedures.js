@@ -13,6 +13,7 @@ goog.require('r5js.InputPort');
 goog.require('r5js.OutputMode');
 goog.require('r5js.OutputPort');
 goog.require('r5js.PrimitiveProcedureError');
+goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.UnimplementedOptionError');
@@ -896,8 +897,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       var result = newCpsName();
       procCallAfter.appendContinuable(
           r5js.newIdShim(new r5js.ast.Identifier(result)));
-      procCallAfter.
-          getLastProcCallLike().
+      r5js.ProcCallLike.getLast(procCallAfter.getSubtype()).
           setContinuation(continuation);
 
       var procCallThunk = r5js.newProcCall(

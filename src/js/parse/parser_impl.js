@@ -26,6 +26,7 @@ goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.PatternIdTransformer');
+goog.require('r5js.ProcCallLike');
 goog.require('r5js.Procedure');
 goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
@@ -306,8 +307,8 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
       else {
         var desugaredOp = /** @type {!r5js.Continuable} */ (
             operatorNode.desugar(env));
-        var lastContinuation =
-            desugaredOp.getLastProcCallLike().getContinuation();
+        var lastContinuation = r5js.ProcCallLike.getLast(
+            desugaredOp.getSubtype()).getContinuation();
         var opName = lastContinuation.getLastResultName();
         lastContinuation.setNextContinuable(r5js.newProcCall(
             new r5js.ast.Identifier(opName),
@@ -436,9 +437,8 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 todo bl: make this flow of control explicit. */
       var variable = node.at(Nonterminals.VARIABLE);
       var desugaredExpr = variable.getNextSibling().desugar(env, true);
-      var lastContinuation = desugaredExpr.
-          getLastProcCallLike().
-          getContinuation();
+      var lastContinuation = r5js.ProcCallLike.getLast(
+          desugaredExpr.getSubtype()).getContinuation();
       var cpsName = lastContinuation.getLastResultName();
       lastContinuation.setNextContinuable(
           r5js.newTopLevelAssignment(
@@ -535,7 +535,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var alternate = /** @type {!r5js.Continuable} */ (
           node.at(Nonterminals.ALTERNATE).desugar(env, true));
 
-      var testEndpoint = test.getLastProcCallLike();
+      var testEndpoint = r5js.ProcCallLike.getLast(test.getSubtype());
       var testEndpointContinuation = testEndpoint.getContinuation();
 
       var branch = r5js.newBranch(
@@ -556,7 +556,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var consequent = /** @type {!r5js.Continuable} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
-      var testEndpoint = test.getLastProcCallLike();
+      var testEndpoint = r5js.ProcCallLike.getLast(test.getSubtype());
       var testEndpointContinuation = testEndpoint.getContinuation();
 
       /* If there's no alternate given, we create a shim that will return
@@ -601,8 +601,8 @@ r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
           node.at(Nonterminals.VARIABLE));
       var desugaredExpr = /** @type {!r5js.Continuable} */ (
           variable.getNextSibling().desugar(env, true));
-      var lastContinuable = /** @type {!r5js.ProcCallLike} */ (
-          desugaredExpr.getLastProcCallLike());
+      var lastContinuable = r5js.ProcCallLike.getLast(
+          desugaredExpr.getSubtype());
       var cpsName = lastContinuable.
           getContinuation().
           getLastResultName();

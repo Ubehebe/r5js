@@ -19,6 +19,7 @@ goog.provide('r5js.Macro');
 
 goog.require('r5js.MacroError');
 goog.require('r5js.ParseError');
+goog.require('r5js.ProcCallLike');
 goog.require('r5js.ProcedureLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
@@ -288,8 +289,7 @@ r5js.Macro.prototype.evalAndAdvance = function(
   var newContinuable = newParseTree.desugar(newEnv, true);
   newContinuable.getSubtype().setStartingEnv(newEnv);
 
-  newContinuable.
-      getLastProcCallLike().
+  r5js.ProcCallLike.getLast(newContinuable.getSubtype()).
       setContinuation(continuation);
   resultStruct.setNextContinuable(newContinuable);
 };

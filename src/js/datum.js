@@ -20,6 +20,7 @@ goog.provide('r5js.Datum');
 
 goog.require('r5js.Continuable');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.ProcCallLike');
 // TODO bl circular dependency goog.require('r5js.newIdShim');
 
 
@@ -235,7 +236,7 @@ r5js.Datum.prototype.sequence = function(env) {
                 curEnd.setNextContinuable(tmp);
             }
 
-            curEnd = tmp.getLastProcCallLike().getContinuation();
+            curEnd = r5js.ProcCallLike.getLast(tmp.getSubtype()).getContinuation();
         }
     }
 

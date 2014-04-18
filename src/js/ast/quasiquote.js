@@ -2,6 +2,7 @@ goog.provide('r5js.ast.Quasiquote');
 
 
 goog.require('r5js.ContinuableHelper');
+goog.require('r5js.ProcCallLike');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Unquote');
@@ -87,9 +88,8 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
             /** @type {!r5js.Datum} */(node.getFirstChild())).
                 parse(r5js.parse.Nonterminals.EXPRESSION).
                 desugar(env, true));
-        var continuation = asContinuable.
-            getLastProcCallLike().
-            getContinuation();
+        var continuation = r5js.ProcCallLike.getLast(
+            asContinuable.getSubtype()).getContinuation();
         /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */

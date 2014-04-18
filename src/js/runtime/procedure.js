@@ -3,6 +3,7 @@ goog.provide('r5js.Procedure');
 
 goog.require('r5js.Continuation');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ProcCallLike');
 goog.require('r5js.ProcedureLike');
 goog.require('r5js.SiblingBuffer');
 // TODO bl circular dependency goog.require('r5js.newProcCall');
@@ -51,7 +52,7 @@ r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
           letrec,
           new r5js.Continuation());
     }
-    this.lastContinuable = this.body.getLastProcCallLike();
+    this.lastContinuable = r5js.ProcCallLike.getLast(this.body.getSubtype());
   }
 };
 r5js.ProcedureLike.addImplementation(r5js.Procedure);

@@ -17,6 +17,9 @@
 goog.provide('r5js.Continuable');
 
 
+goog.require('r5js.ProcCallLike');
+
+
 
 /**
  * TODO bl: This constructor is only called twice, once with a
@@ -44,19 +47,6 @@ r5js.Continuable.prototype.getSubtype = function() {
 
 
 /**
- * The last continuable of a continuable-continuation chain is the first
- * continuable c such that c.continuation.nextContinuable is null.
- * @return {!r5js.ProcCallLike}
- */
-r5js.Continuable.prototype.getLastProcCallLike = function() {
-  var continuation = this.subtype_.getContinuation();
-  return continuation.getNextContinuable() ?
-      continuation.getNextContinuable().getLastProcCallLike() :
-      this.subtype_;
-};
-
-
-/**
  * @return {!r5js.Continuable}
  * TODO bl temporary shim, remove.
  */
@@ -73,7 +63,7 @@ r5js.Continuable.prototype.getLastContinuable = function() {
  * @return {!r5js.Continuable} This object, for chaining.
  */
 r5js.Continuable.prototype.appendContinuable = function(next) {
-  this.getLastProcCallLike().
+  r5js.ProcCallLike.getLast(this.getSubtype()).
       getContinuation().
       setNextContinuable(next);
   return this;
