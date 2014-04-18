@@ -895,7 +895,8 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
           new r5js.Continuation());
 
       var result = newCpsName();
-      procCallAfter.appendContinuable(
+      r5js.ProcCallLike.appendContinuable(
+          procCallAfter.getSubtype(),
           r5js.newIdShim(new r5js.ast.Identifier(result)));
       r5js.ProcCallLike.getLast(procCallAfter.getSubtype()).
           setContinuation(continuation);
@@ -906,8 +907,10 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
           new r5js.Continuation(result)
           );
 
-      procCallThunk.appendContinuable(procCallAfter);
-      procCallBefore.appendContinuable(procCallThunk);
+      r5js.ProcCallLike.appendContinuable(
+          procCallThunk.getSubtype(), procCallAfter);
+      r5js.ProcCallLike.appendContinuable(
+          procCallBefore.getSubtype(), procCallThunk);
 
       resultStruct.setNextContinuable(procCallBefore);
       /* We use the TrampolineResultStruct to store the thunk.
