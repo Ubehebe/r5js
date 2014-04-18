@@ -44,15 +44,3 @@ r5js.Continuable = function(subtype, continuation) {
 r5js.Continuable.prototype.getSubtype = function() {
   return this.subtype_;
 };
-
-
-/**
- * @return {!r5js.Continuable}
- * TODO bl temporary shim, remove.
- */
-r5js.Continuable.prototype.getLastContinuable = function() {
-  var continuation = this.subtype_.getContinuation();
-  return continuation.getNextContinuable() ?
-      continuation.getNextContinuable().getLastContinuable() :
-      this;
-};
