@@ -17,6 +17,10 @@
 goog.provide('r5js.ContinuableHelper');
 
 
+goog.require('r5js.Continuable');
+goog.require('r5js.ProcCallLike');
+
+
 
 /**
  * A buffer to accumulate a Continuable-Continuation chain
@@ -25,27 +29,31 @@ goog.provide('r5js.ContinuableHelper');
  * @constructor
  */
 r5js.ContinuableHelper = function() {
-  /** @private {r5js.Continuable} */ this.firstContinuable_ = null;
-  /** @private {r5js.Continuable} */ this.lastContinuable_ = null;
+  /** @private {r5js.ProcCallLike} */ this.firstProcCallLike_ = null;
+  /** @private {r5js.ProcCallLike} */ this.lastProcCallLike_ = null;
+  /** @private {r5js.Continuation} */ this.firstContinuation_ = null;
 };
 
 
 /** @param {!r5js.Continuable} continuable A continuable object. */
 r5js.ContinuableHelper.prototype.appendContinuable = function(continuable) {
-  if (!this.firstContinuable_) {
-    this.firstContinuable_ = continuable;
-    this.lastContinuable_ = continuable.getLastContinuable();
+  var procCallLike = continuable.getSubtype();
+  if (!this.firstProcCallLike_) {
+    this.firstProcCallLike_ = procCallLike;
+    this.firstContinuation_ = procCallLike.getContinuation();
+    this.lastProcCallLike_ = r5js.ProcCallLike.getLast(procCallLike);
   } else {
-    this.lastContinuable_.
-        getSubtype().
+    this.lastProcCallLike_.
         getContinuation().
         setNextContinuable(continuable);
-    this.lastContinuable_ = continuable.getLastContinuable();
+    this.lastProcCallLike_ = r5js.ProcCallLike.getLast(procCallLike);
   }
 };
 
 
 /** @return {r5js.Continuable} */
 r5js.ContinuableHelper.prototype.toContinuable = function() {
-  return this.firstContinuable_;
+  return new r5js.Continuable(
+      /** @type {!r5js.ProcCallLike} */ (this.firstProcCallLike_),
+      /** @type {!r5js.Continuation} */ (this.firstContinuation_));
 };
