@@ -110,11 +110,15 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
             new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
   }
   else if (arg instanceof r5js.ast.Quasiquote) {
-    resultStruct.setNextContinuable(arg.processQuasiquote(
+    var continuable = /** @type {!r5js.Continuable} */ (arg.processQuasiquote(
         /** @type {!r5js.IEnvironment} */ (this.env),
         continuation.getLastResultName(),
-        parserProvider
-        ).appendContinuable(continuation.getNextContinuable()));
+        parserProvider));
+    var nextContinuable = continuation.getNextContinuable();
+    if (nextContinuable) {
+      continuable.appendContinuable(nextContinuable);
+    }
+    resultStruct.setNextContinuable(continuable);
     return;
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);

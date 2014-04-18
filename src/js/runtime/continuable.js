@@ -58,13 +58,9 @@ r5js.Continuable.prototype.getLastContinuable = function() {
 };
 
 
-/**
- * @param {!r5js.Continuable} next The next continuable.
- * @return {!r5js.Continuable} This object, for chaining.
- */
+/** @param {!r5js.Continuable} next The next continuable. */
 r5js.Continuable.prototype.appendContinuable = function(next) {
   r5js.ProcCallLike.getLast(this.getSubtype()).
       getContinuation().
       setNextContinuable(next);
-  return this;
 };
