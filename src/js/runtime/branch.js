@@ -17,6 +17,7 @@ goog.provide('r5js.newBranch');
 
 
 goog.require('r5js.Continuable');
+goog.require('r5js.Continuation');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 
@@ -25,13 +26,12 @@ goog.require('r5js.ProcCallLike');
  * @param {string} testResultName
  * @param {!r5js.Continuable} consequent
  * @param {!r5js.Continuable} alternate
- * @param {!r5js.Continuation} continuation
- * @return {!r5js.Continuable}
+ * @return {!r5js.ProcCallLike}
  */
-r5js.newBranch = function(testResultName, consequent, alternate, continuation) {
-  return new r5js.Continuable(
-      new r5js.Branch_(testResultName, consequent, alternate),
-      continuation);
+r5js.newBranch = function(testResultName, consequent, alternate) {
+  var branch = new r5js.Branch_(testResultName, consequent, alternate);
+   branch.setContinuation(new r5js.Continuation());
+    return branch;
 };
 
 

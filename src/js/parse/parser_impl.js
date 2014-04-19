@@ -538,11 +538,8 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var testEndpoint = r5js.ProcCallLike.getLast(test.getSubtype());
       var testEndpointContinuation = testEndpoint.getContinuation();
 
-      var branch = r5js.newBranch(
-          testEndpointContinuation.getLastResultName(),
-          consequent,
-          alternate,
-          new r5js.Continuation()).getSubtype();
+      var branch = r5js.newBranch(testEndpointContinuation.getLastResultName(),
+          consequent, alternate);
       testEndpointContinuation.setNextContinuable(branch);
       return test;
     }),
@@ -568,8 +565,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var branch = r5js.newBranch(
           testEndpointContinuation.getLastResultName(),
           consequent,
-          r5js.newIdShim(new r5js.ast.Number(null)),
-          new r5js.Continuation()).getSubtype();
+          r5js.newIdShim(new r5js.ast.Number(null)));
       testEndpointContinuation.setNextContinuable(branch);
       return test;
     }));
