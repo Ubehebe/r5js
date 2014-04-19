@@ -896,7 +896,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
           new r5js.Continuation());
 
       var result = newCpsName();
-      r5js.ProcCallLike.appendContinuable(
+      r5js.ProcCallLike.appendProcCallLike(
           procCallAfter.getSubtype(),
           r5js.newIdShim(new r5js.ast.Identifier(result)).getSubtype());
       r5js.ProcCallLike.getLast(procCallAfter.getSubtype()).
@@ -908,9 +908,9 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
           new r5js.Continuation(result)
           );
 
-      r5js.ProcCallLike.appendContinuable(
+      r5js.ProcCallLike.appendProcCallLike(
           procCallThunk.getSubtype(), procCallAfter.getSubtype());
-      r5js.ProcCallLike.appendContinuable(
+      r5js.ProcCallLike.appendProcCallLike(
           procCallBefore.getSubtype(), procCallThunk.getSubtype());
 
       resultStruct.setNextProcCallLike(procCallBefore.getSubtype());

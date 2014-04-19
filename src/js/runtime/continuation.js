@@ -137,7 +137,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
     var before = this.beforeThunk_;
     var cur = this.nextContinuable_;
     if (cur) {
-      r5js.ProcCallLike.appendContinuable(before, cur);
+      r5js.ProcCallLike.appendProcCallLike(before, cur);
     }
     trampolineHelper.setNextProcCallLike(before);
     // todo bl is it safe to leave proc.beforeThunk defined?

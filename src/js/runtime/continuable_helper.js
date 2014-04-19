@@ -36,7 +36,7 @@ r5js.ContinuableHelper = function() {
 
 
 /** @param {!r5js.ProcCallLike} procCallLike A continuable object. */
-r5js.ContinuableHelper.prototype.appendContinuable = function(procCallLike) {
+r5js.ContinuableHelper.prototype.appendProcCallLike = function(procCallLike) {
   if (!this.firstProcCallLike_) {
     this.firstProcCallLike_ = procCallLike;
     this.firstContinuation_ = procCallLike.getContinuation();

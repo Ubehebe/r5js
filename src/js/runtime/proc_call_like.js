@@ -46,7 +46,7 @@ r5js.ProcCallLike.getLast = function(procCallLike) {
  * @param {!r5js.ProcCallLike} procCallLike
  * @param {!r5js.ProcCallLike} next The next continuable.
  */
-r5js.ProcCallLike.appendContinuable = function(procCallLike, next) {
+r5js.ProcCallLike.appendProcCallLike = function(procCallLike, next) {
   r5js.ProcCallLike.getLast(procCallLike).
       getContinuation().
       setNextContinuable(next);

@@ -97,13 +97,13 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
                 r5js.parse.Terminals.COMMA :
                 r5js.parse.Terminals.COMMA_AT) + '' + goog.getUid(new Object());
         continuation.setLastResultName(name);
-        newCalls.appendContinuable(asContinuable);
+        newCalls.appendProcCallLike(asContinuable);
         return new r5js.ast.Identifier(name);
       });
 
   var newDatum = new r5js.ast.Quote(this.getFirstChild());
 
-  newCalls.appendContinuable(r5js.newIdShim(newDatum, cpsName).getSubtype());
+  newCalls.appendProcCallLike(r5js.newIdShim(newDatum, cpsName).getSubtype());
   var ans = newCalls.toContinuable();
   if (ans) {
     ans.getSubtype().setStartingEnv(env);
