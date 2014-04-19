@@ -173,11 +173,6 @@ r5js.Continuation.prototype.evalAndAdvance = function(
       if (prev) {
         prev.getContinuation().nextContinuable_ =
             tmp.getContinuation().nextContinuable_;
-      } else {
-        var nextContinuable = tmp.getContinuation().nextContinuable_;
-        if (nextContinuable) {
-          trampolineHelper.setNextProcCallLike(nextContinuable);
-        }
       }
       break;
     }
