@@ -378,7 +378,7 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
           new r5js.Procedure(
               formals, formalRoot.getNextSibling(), env, name);
       env.addClosure(name, proc);
-      return r5js.newIdShim(new r5js.ast.Identifier(name)).getSubtype();
+      return r5js.newIdShim(new r5js.ast.Identifier(name));
         });
 
 
@@ -565,7 +565,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var branch = r5js.newBranch(
           testEndpointContinuation.getLastResultName(),
           consequent,
-          r5js.newIdShim(new r5js.ast.Number(null)).getSubtype());
+          r5js.newIdShim(new r5js.ast.Number(null)));
       testEndpointContinuation.setNextContinuable(branch);
       return test;
     }));

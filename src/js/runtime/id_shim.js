@@ -1,6 +1,7 @@
 goog.provide('r5js.newIdShim');
 
 
+goog.require('r5js.Continuation');
 goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
@@ -165,11 +166,11 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
  *
  * @param {?} payload
  * @param {string=} opt_continuationName Optional name of the continuation.
- * @return {!r5js.Continuable} The new procedure call.
+ * @return {!r5js.ProcCallLike} The new procedure call.
  */
 r5js.newIdShim = function(payload, opt_continuationName) {
-  return new r5js.Continuable(
-      new r5js.IdShim(payload),
-      new r5js.Continuation(opt_continuationName));
+  var idShim = new r5js.IdShim(payload);
+  idShim.setContinuation(new r5js.Continuation(opt_continuationName));
+  return idShim;
 };
 
