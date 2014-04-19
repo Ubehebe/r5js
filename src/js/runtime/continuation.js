@@ -49,7 +49,7 @@ r5js.Continuation = function(opt_lastResultName) {
       ('@' /* TODO bl document */ + goog.getUid(this));
 
   /** @private {r5js.Continuable} */ this.nextContinuable_ = null;
-  /** @private {r5js.Continuable} */ this.beforeThunk_ = null;
+  /** @private {r5js.ProcCallLike} */ this.beforeThunk_ = null;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
 
@@ -86,7 +86,7 @@ r5js.Continuation.prototype.setNextContinuable = function(continuable) {
  * TODO bl: document why we don't have to install the "after" thunk.
  * (I'm pretty sure the reason is it's already in the continuable chain
  * somewhere.)
- * @param {!r5js.Continuable} before
+ * @param {!r5js.ProcCallLike} before
  */
 r5js.Continuation.prototype.installBeforeThunk = function(before) {
   this.beforeThunk_ = before;
@@ -137,9 +137,9 @@ r5js.Continuation.prototype.evalAndAdvance = function(
     var before = this.beforeThunk_;
     var cur = this.nextContinuable_;
     if (cur) {
-      r5js.ProcCallLike.appendContinuable(before.getSubtype(), cur);
+      r5js.ProcCallLike.appendContinuable(before, cur);
     }
-    trampolineHelper.setNextProcCallLike(before.getSubtype());
+    trampolineHelper.setNextProcCallLike(before);
     // todo bl is it safe to leave proc.beforeThunk defined?
   }
 

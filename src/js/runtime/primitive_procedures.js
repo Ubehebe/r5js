@@ -920,7 +920,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       resultStruct.setBeforeThunk(r5js.newProcCall(
           procCall.getFirstOperand(),
           null,
-          new r5js.Continuation(before2)));
+          new r5js.Continuation(before2)).getSubtype());
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
