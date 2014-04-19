@@ -711,7 +711,7 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
     desugar(function(node, env) {
-      return r5js.Continuation.desugarMacroBlock(node, env, 'let').getSubtype();
+      return r5js.Continuation.desugarMacroBlock(node, env, 'let');
     }),
     _.list(
         _.one(Terminals.LETREC_SYNTAX),
@@ -719,8 +719,7 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
     desugar(function(node, env) {
-      return r5js.Continuation.desugarMacroBlock(node, env, 'letrec').
-          getSubtype();
+      return r5js.Continuation.desugarMacroBlock(node, env, 'letrec');
     }));
 
 

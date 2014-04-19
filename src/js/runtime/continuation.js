@@ -201,7 +201,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
  * @param {!r5js.ast.CompoundDatum} datum Datum to desugar.
  * @param {!r5js.IEnvironment} env TODO bl.
  * @param {string} operatorName TODO bl.
- * @return {!r5js.Continuable}
+ * @return {!r5js.ProcCallLike}
  */
 r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
 
@@ -229,5 +229,5 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
   return r5js.newProcCall(
       new r5js.ast.Identifier(operatorName),
       _let.toSiblings(),
-      new r5js.Continuation());
+      new r5js.Continuation()).getSubtype();
 };
