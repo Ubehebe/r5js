@@ -91,7 +91,7 @@ r5js.Pipeline.prototype.desugarRepl = function(root) {
 /** @override */
 r5js.Pipeline.prototype.Eval = function(continuable) {
   return r5js.trampoline(
-      continuable,
+      continuable.getSubtype(),
       r5js.InputPort.NULL,
       new r5js.CallbackBackedPort(function(output) {
         console.log(output);

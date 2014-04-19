@@ -80,12 +80,12 @@ r5js.boot = function(syntaxLib, procLib) {
  * @private
  */
 r5js.boot.installSchemeSource_ = function(lib, env) {
-  var continuable = /** @type {!r5js.Continuable} */ (new r5js.ParserImpl(
+  var continuable = (/** @type {!r5js.Continuable} */ (new r5js.ParserImpl(
       /** @type {!r5js.Datum} */ (new r5js.Reader(
       new r5js.Scanner(lib)
       ).read())
       ).parse()
-        .desugar(env));
-  continuable.getSubtype().setStartingEnv(env);
+        .desugar(env)).getSubtype());
+  continuable.setStartingEnv(env);
   r5js.trampoline(continuable, r5js.InputPort.NULL, r5js.OutputPort.NULL);
 };

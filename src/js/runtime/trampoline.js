@@ -101,14 +101,14 @@ goog.require('r5js.TrampolineHelper');
  *
  * (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  *
- * @param {!r5js.Continuable} continuable The continuable object to evaluate.
+ * @param {!r5js.ProcCallLike} procCallLike The continuable object to evaluate.
  * @param {!r5js.InputPort} inputPort Input port.
  * @param {!r5js.OutputPort} outputPort Output port.
  * @return {!r5js.runtime.Value}
  */
-r5js.trampoline = function(continuable, inputPort, outputPort) {
+r5js.trampoline = function(procCallLike, inputPort, outputPort) {
 
-  var cur = continuable.getSubtype();
+  var cur = procCallLike;
   var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
   var savedEnv = new r5js.EnvBuffer();
   var ans;
