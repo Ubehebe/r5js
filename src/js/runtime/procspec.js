@@ -294,9 +294,9 @@ r5js.procspec.PrimitiveProcedure_.prototype.setDebugName = function(name) {
  * @param {!r5js.ProcCall} procCall
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} trampolineHelper
- * @private
+ * @protected
  */
-r5js.procspec.PrimitiveProcedure_.prototype.call_ = function(
+r5js.procspec.PrimitiveProcedure_.prototype.call = function(
     userArgs, procCall, continuation, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
@@ -337,7 +337,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
         args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
       }
     }
-    this.call_(args, procCall, continuation, trampolineHelper);
+    this.call(args, procCall, continuation, trampolineHelper);
   }
 };
 
@@ -362,7 +362,7 @@ r5js.ProcedureLike.addImplementation(r5js.procspec.NeedsCurrentPorts_);
 
 
 /** @override */
-r5js.procspec.NeedsCurrentPorts_.prototype.call_ = function(
+r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
     userArgs, procCall, continuation, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
@@ -402,7 +402,7 @@ r5js.ProcedureLike.addImplementation(r5js.procspec.HasSpecialEvalLogic_);
 
 
 /** @override */
-r5js.procspec.HasSpecialEvalLogic_.prototype.call_ = function(
+r5js.procspec.HasSpecialEvalLogic_.prototype.call = function(
     userArgs, procCall, continuation, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
