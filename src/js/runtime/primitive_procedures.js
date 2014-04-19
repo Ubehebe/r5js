@@ -912,7 +912,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       r5js.ProcCallLike.appendContinuable(
           procCallBefore.getSubtype(), procCallThunk);
 
-      resultStruct.setNextContinuable(procCallBefore.getSubtype());
+      resultStruct.setNextProcCallLike(procCallBefore.getSubtype());
       /* We use the TrampolineResultStruct to store the thunk.
          This should be okay because dynamic-wind is the only one
          who writes to it, and call/cc is the only one who reads it.
@@ -949,7 +949,7 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
       consumerCall.getSubtype().setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       producerContinuation.setNextContinuable(consumerCall);
-      resultStruct.setNextContinuable(producerCall.getSubtype());
+      resultStruct.setNextProcCallLike(producerCall.getSubtype());
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
@@ -987,7 +987,7 @@ PrimitiveProcedures['call-with-current-continuation'] =
           procCall.getFirstOperand(), continuation, continuation);
       dummyProcCall.getSubtype().setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
-      resultStruct.setNextContinuable(dummyProcCall.getSubtype());
+      resultStruct.setNextProcCallLike(dummyProcCall.getSubtype());
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 

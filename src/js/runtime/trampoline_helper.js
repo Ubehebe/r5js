@@ -53,14 +53,14 @@ r5js.TrampolineHelper.prototype.setBeforeThunk = function(beforeThunk) {
 
 
 /** @return {r5js.ProcCallLike} */
-r5js.TrampolineHelper.prototype.getNextContinuable = function() {
+r5js.TrampolineHelper.prototype.getNextProcCallLike = function() {
   return this.nextContinuable_;
 };
 
 
-/** @param {!r5js.ProcCallLike} continuable */
-r5js.TrampolineHelper.prototype.setNextContinuable = function(continuable) {
-  this.nextContinuable_ = continuable;
+/** @param {!r5js.ProcCallLike} procCallLike */
+r5js.TrampolineHelper.prototype.setNextProcCallLike = function(procCallLike) {
+  this.nextContinuable_ = procCallLike;
 };
 
 

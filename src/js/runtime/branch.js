@@ -84,7 +84,7 @@ r5js.Branch_.prototype.evalAndAdvance = function(
   var testResult = envBuffer.getEnv().get(this.testResultName_);
   if (testResult === false) {
     this.alternateLastContinuable_.setContinuation(continuation);
-    resultStruct.setNextContinuable(this.alternate_.getSubtype());
+    resultStruct.setNextProcCallLike(this.alternate_.getSubtype());
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}.
          TODO bl: clearEnv is defined only on {@link r5js.ProcCall},
@@ -93,7 +93,7 @@ r5js.Branch_.prototype.evalAndAdvance = function(
     this.consequent_.getSubtype().clearEnv();
   } else {
     this.consequentLastContinuable_.setContinuation(continuation);
-    resultStruct.setNextContinuable(this.consequent_.getSubtype());
+    resultStruct.setNextProcCallLike(this.consequent_.getSubtype());
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}, and above. */
     this.alternate_.getSubtype().clearEnv();

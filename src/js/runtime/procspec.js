@@ -307,7 +307,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.call_ = function(
   trampolineHelper.setValue(ans);
   var nextContinuable = continuation.getNextContinuable();
   if (nextContinuable) {
-    trampolineHelper.setNextContinuable(nextContinuable.getSubtype());
+    trampolineHelper.setNextProcCallLike(nextContinuable.getSubtype());
   }
 };
 
@@ -377,7 +377,7 @@ r5js.procspec.NeedsCurrentPorts_.prototype.call_ = function(
   trampolineHelper.setValue(ans);
   var nextContinuable = continuation.getNextContinuable();
   if (nextContinuable) {
-    trampolineHelper.setNextContinuable(nextContinuable.getSubtype());
+    trampolineHelper.setNextProcCallLike(nextContinuable.getSubtype());
   }
 };
 

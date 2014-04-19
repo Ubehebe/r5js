@@ -290,6 +290,6 @@ r5js.Macro.prototype.evalAndAdvance = function(
   newContinuable.setStartingEnv(newEnv);
 
   r5js.ProcCallLike.getLast(newContinuable).setContinuation(continuation);
-  resultStruct.setNextContinuable(newContinuable);
+  resultStruct.setNextProcCallLike(newContinuable);
 };
 
