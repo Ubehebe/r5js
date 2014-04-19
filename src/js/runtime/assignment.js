@@ -164,15 +164,16 @@ r5js.newAssignment = function(dstName, srcName) {
  * @param {string} dstName
  * @param {string} srcName
  * @param {!r5js.Continuation} continuation
- * @return {!r5js.Continuable}
+ * @return {!r5js.ProcCallLike}
  */
 r5js.newTopLevelAssignment = function(dstName, srcName, continuation) {
   var operands = new r5js.SiblingBuffer()
         .appendSibling(new r5js.ast.Identifier(dstName))
         .appendSibling(new r5js.ast.Identifier(srcName))
         .toSiblings();
-  return new r5js.Continuable(
-      new r5js.TopLevelAssignment(operands), continuation);
+  var assignment = new r5js.TopLevelAssignment(operands);
+  assignment.setContinuation(continuation);
+  return assignment;
 };
 
 

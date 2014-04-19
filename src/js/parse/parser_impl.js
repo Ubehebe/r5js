@@ -444,7 +444,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
           r5js.newTopLevelAssignment(
           variable.getPayload(),
           cpsName,
-          new r5js.Continuation()).getSubtype());
+          new r5js.Continuation()));
       return desugaredExpr;
     }),
     _.list(
@@ -475,7 +475,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
       return r5js.newTopLevelAssignment(
           name.getPayload(),
           anonymousName,
-          new r5js.Continuation()).getSubtype();
+          new r5js.Continuation());
     }),
     _.list(
         _.one(Terminals.DEFINE),
@@ -509,7 +509,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
       return r5js.newTopLevelAssignment(
           /** @type {string} */(name.getPayload()), // TODO bl
           anonymousName,
-          new r5js.Continuation()).getSubtype();
+          new r5js.Continuation());
     }),
     _.list(
         _.one(Terminals.BEGIN),
