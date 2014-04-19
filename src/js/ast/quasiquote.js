@@ -65,7 +65,7 @@ r5js.ast.Quasiquote.prototype.stringForOutputMode = function(outputMode) {
  * @param {string} cpsName TODO bl.
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
- * @return {*} TODO bl.
+ * @return {!r5js.Continuable}
  * @suppress {const} for the assignment to continuation.lastResultName,
  * which may indicate a bug. TODO bl investigate.
  */

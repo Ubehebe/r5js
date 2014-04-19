@@ -50,7 +50,7 @@ r5js.ContinuableHelper.prototype.appendProcCallLike = function(procCallLike) {
 };
 
 
-/** @return {r5js.Continuable} */
+/** @return {!r5js.Continuable} */
 r5js.ContinuableHelper.prototype.toContinuable = function() {
   return new r5js.Continuable(
       /** @type {!r5js.ProcCallLike} */ (this.firstProcCallLike_),
