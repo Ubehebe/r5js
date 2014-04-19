@@ -84,10 +84,10 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
       },
       function(node) {
         node = /** @type {!r5js.ast.CompoundDatum} */ (node); // TODO bl
-        var asContinuable = (/** @type {!r5js.Continuable} */ (parserProvider(
+        var asContinuable = (/** @type {!r5js.ProcCallLike} */ (parserProvider(
             /** @type {!r5js.Datum} */(node.getFirstChild())).
                 parse(r5js.parse.Nonterminals.EXPRESSION).
-                desugar(env, true)).getSubtype());
+                desugar(env, true)));
         var continuation = r5js.ProcCallLike.getLast(asContinuable).
             getContinuation();
         /* Throw out the last result name and replace it with another

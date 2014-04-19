@@ -208,16 +208,15 @@ r5js.ProcCall.prototype.cpsify = function(
     } else if (arg.isImproperList()) {
       throw new r5js.GeneralSyntaxError(arg);
     } else if ((maybeContinuable = arg.desugar(
-        /** @type {!r5js.IEnvironment} */ (this.env))) instanceof
-            r5js.Continuable) {
+        /** @type {!r5js.IEnvironment} */ (this.env))).evalAndAdvance) {
       /* todo bl is it an invariant violation to be a list
              and not to desugar to a Continuable? */
       finalArgs.appendSibling(
           new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
-              maybeContinuable.getSubtype()).
+              maybeContinuable).
               getContinuation().
               getLastResultName()));
-      newCallChain.appendProcCallLike(maybeContinuable.getSubtype());
+      newCallChain.appendProcCallLike(maybeContinuable);
     } else {
       var clonedArg = arg.clone(null /* parent */);
       if (clonedArg instanceof r5js.ast.CompoundDatum) {

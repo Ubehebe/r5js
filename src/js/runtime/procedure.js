@@ -50,9 +50,10 @@ r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
       this.body = r5js.newProcCall(
           new r5js.ast.Identifier('letrec'),
           letrec,
-          new r5js.Continuation());
+          new r5js.Continuation()).getSubtype();
     }
-    this.lastContinuable = r5js.ProcCallLike.getLast(this.body.getSubtype());
+    this.lastContinuable = r5js.ProcCallLike.getLast(
+        /** @type {!r5js.ProcCallLike} */ (this.body));
   }
 };
 r5js.ProcedureLike.addImplementation(r5js.Procedure);
@@ -113,17 +114,8 @@ r5js.Procedure.prototype.toString = function() {
  * @private
  */
 r5js.Procedure.prototype.setEnv_ = function(env) {
-  /* todo bl is it possible to have a procedure body whose first
-     continuable is a branch? hopefully not, and I can remove
-     the second check. */
   if (this.body) {
-    var bodySubtype = this.body.getSubtype();
-    if (bodySubtype.setEnv) {
-      bodySubtype.setEnv(env, true);
-    } else {
-      throw new r5js.InternalInterpreterError(
-          'invariant incorrect -- procedure does not begin with proc call');
-    }
+    (/** @type {!r5js.ProcCall} */ (this.body).setEnv(env, true));
   }
 };
 
@@ -215,7 +207,8 @@ r5js.Procedure.prototype.evalAndAdvance = function(
     this.setEnv_(newEnv);
 
     // And away we go
-    trampolineHelper.setNextProcCallLike(this.body.getSubtype());
+    trampolineHelper.setNextProcCallLike(
+        /** @type {!r5js.ProcCallLike} */ (this.body));
   }
 };
 

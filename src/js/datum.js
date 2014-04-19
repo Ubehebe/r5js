@@ -25,7 +25,7 @@ goog.require('r5js.ProcCallLike');
 
 
 /** @typedef {function(!r5js.Datum, !r5js.IEnvironment):
-* (!r5js.Datum|!r5js.Continuable|!r5js.ITransformer|!r5js.Macro|null)}
+* (!r5js.Datum|!r5js.ProcCallLike|!r5js.ITransformer|!r5js.Macro|null)}
  * TODO bl: narrow this typedef.
  */
 r5js.DesugarFunc;
@@ -198,15 +198,15 @@ r5js.Datum.prototype.resetDesugars = function() {
 /**
  * @param {!r5js.IEnvironment} env TODO bl
  * @param {boolean=} opt_forceContinuationWrapper TODO bl document
- * @return {!r5js.Datum|!r5js.Continuable|!r5js.ITransformer|!r5js.Macro|null}
+ * @return {!r5js.Datum|!r5js.ProcCallLike|!r5js.ITransformer|!r5js.Macro|null}
  * @suppress {checkTypes} TODO bl
  */
 r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
     var desugarFn = (this.desugars_ && this.nextDesugar_ >= 0) ?
         this.desugars_[this.nextDesugar_--] : null;
     var ans = desugarFn ? desugarFn(this, env) : this;
-    if (opt_forceContinuationWrapper && !(ans instanceof r5js.Continuable)) {
-        ans = r5js.newIdShim(ans);
+    if (opt_forceContinuationWrapper && (ans instanceof r5js.Datum)) {
+        ans = r5js.newIdShim(ans).getSubtype();
     }
     return ans;
 };
@@ -215,6 +215,7 @@ r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
 /**
  * @param {!r5js.IEnvironment} env TODO bl
  * @return {r5js.Continuable}
+ * @suppress {checkTypes} TODO bl this method is a mess.
  */
 r5js.Datum.prototype.sequence = function(env) {
     var first = null, tmp, curEnd;
@@ -226,17 +227,17 @@ r5js.Datum.prototype.sequence = function(env) {
              (for example in Datum.sequenceOperands), but here we need to be
              able to connect the Continuable objects correctly, so we
              wrap them. */
-            if (!(tmp instanceof r5js.Continuable)) {
-                tmp = r5js.newIdShim(tmp);
+            if (tmp instanceof r5js.Datum) {
+                tmp = r5js.newIdShim(tmp).getSubtype();
             }
 
             if (!first) {
                 first = tmp;
             } else if (curEnd) {
-                curEnd.setNextContinuable(tmp.getSubtype());
+                curEnd.setNextContinuable(tmp);
             }
 
-            curEnd = r5js.ProcCallLike.getLast(tmp.getSubtype()).getContinuation();
+            curEnd = r5js.ProcCallLike.getLast(tmp).getContinuation();
         }
     }
 

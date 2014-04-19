@@ -300,15 +300,15 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
         return r5js.newProcCall(
             operatorNode,
             operands,
-            new r5js.Continuation());
+            new r5js.Continuation()).getSubtype();
       }
 
     // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
       else {
-        var desugaredOp = /** @type {!r5js.Continuable} */ (
+        var desugaredOp = /** @type {!r5js.ProcCallLike} */ (
             operatorNode.desugar(env));
         var lastContinuation = r5js.ProcCallLike.getLast(
-            desugaredOp.getSubtype()).getContinuation();
+            desugaredOp).getContinuation();
         var opName = lastContinuation.getLastResultName();
         lastContinuation.setNextContinuable(r5js.newProcCall(
             new r5js.ast.Identifier(opName),
@@ -378,7 +378,7 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
           new r5js.Procedure(
               formals, formalRoot.getNextSibling(), env, name);
       env.addClosure(name, proc);
-      return r5js.newIdShim(new r5js.ast.Identifier(name));
+      return r5js.newIdShim(new r5js.ast.Identifier(name)).getSubtype();
         });
 
 
@@ -437,8 +437,8 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 todo bl: make this flow of control explicit. */
       var variable = node.at(Nonterminals.VARIABLE);
       var desugaredExpr = variable.getNextSibling().desugar(env, true);
-      var lastContinuation = r5js.ProcCallLike.getLast(
-          desugaredExpr.getSubtype()).getContinuation();
+      var lastContinuation = r5js.ProcCallLike.getLast(desugaredExpr).
+          getContinuation();
       var cpsName = lastContinuation.getLastResultName();
       lastContinuation.setNextContinuable(
           r5js.newTopLevelAssignment(
@@ -475,7 +475,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
       return r5js.newTopLevelAssignment(
           name.getPayload(),
           anonymousName,
-          new r5js.Continuation());
+          new r5js.Continuation()).getSubtype();
     }),
     _.list(
         _.one(Terminals.DEFINE),
@@ -509,7 +509,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
       return r5js.newTopLevelAssignment(
           /** @type {string} */(name.getPayload()), // TODO bl
           anonymousName,
-          new r5js.Continuation());
+          new r5js.Continuation()).getSubtype();
     }),
     _.list(
         _.one(Terminals.BEGIN),
@@ -528,19 +528,18 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
         _.one(Nonterminals.CONSEQUENT),
         _.one(Nonterminals.ALTERNATE)).
     desugar(function(node, env) {
-      var test = /** @type {!r5js.Continuable} */ (
+      var test = /** @type {!r5js.ProcCallLike} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
-      var consequent = /** @type {!r5js.Continuable} */ (
+      var consequent = /** @type {!r5js.ProcCall} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
-      var alternate = /** @type {!r5js.Continuable} */ (
+      var alternate = /** @type {!r5js.ProcCall} */ (
           node.at(Nonterminals.ALTERNATE).desugar(env, true));
 
-      var testEndpoint = r5js.ProcCallLike.getLast(test.getSubtype());
+      var testEndpoint = r5js.ProcCallLike.getLast(test);
       var testEndpointContinuation = testEndpoint.getContinuation();
 
       var branch = r5js.newBranch(testEndpointContinuation.getLastResultName(),
-          /** @type {!r5js.ProcCall} */ (consequent.getSubtype()),
-          /** @type {!r5js.ProcCall} */ (alternate.getSubtype()));
+          consequent, alternate);
       testEndpointContinuation.setNextContinuable(branch);
       return test;
     }),
@@ -549,12 +548,12 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
         _.one(Nonterminals.TEST),
         _.one(Nonterminals.CONSEQUENT)).
     desugar(/** @suppress {checkTypes} */function(node, env) {
-      var test = /** @type {!r5js.Continuable} */ (
+      var test = /** @type {!r5js.ProcCallLike} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
-      var consequent = /** @type {!r5js.Continuable} */ (
+      var consequent = /** @type {!r5js.ProcCallLike} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
-      var testEndpoint = r5js.ProcCallLike.getLast(test.getSubtype());
+      var testEndpoint = r5js.ProcCallLike.getLast(test);
       var testEndpointContinuation = testEndpoint.getContinuation();
 
       /* If there's no alternate given, we create a shim that will return
@@ -565,7 +564,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
          TODO bl improve. */
       var branch = r5js.newBranch(
           testEndpointContinuation.getLastResultName(),
-          consequent.getSubtype(),
+          consequent,
           r5js.newIdShim(new r5js.ast.Number(null)).getSubtype());
       testEndpointContinuation.setNextContinuable(branch);
       return test;
@@ -596,10 +595,9 @@ r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
       // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
       var variable = /** @type {!r5js.ast.SimpleDatum} */ (
           node.at(Nonterminals.VARIABLE));
-      var desugaredExpr = /** @type {!r5js.Continuable} */ (
+      var desugaredExpr = /** @type {!r5js.ProcCallLike} */ (
           variable.getNextSibling().desugar(env, true));
-      var lastContinuable = r5js.ProcCallLike.getLast(
-          desugaredExpr.getSubtype());
+      var lastContinuable = r5js.ProcCallLike.getLast(desugaredExpr);
       var cpsName = lastContinuable.
           getContinuation().
           getLastResultName();
@@ -693,7 +691,7 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_USE] = _.list(
       return r5js.newProcCall(
           node.at(Nonterminals.KEYWORD),
           node.at(Nonterminals.DATUM),
-          new r5js.Continuation());
+          new r5js.Continuation()).getSubtype();
     });
 
 
@@ -713,7 +711,7 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
     desugar(function(node, env) {
-      return r5js.Continuation.desugarMacroBlock(node, env, 'let');
+      return r5js.Continuation.desugarMacroBlock(node, env, 'let').getSubtype();
     }),
     _.list(
         _.one(Terminals.LETREC_SYNTAX),
@@ -721,7 +719,8 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
     desugar(function(node, env) {
-      return r5js.Continuation.desugarMacroBlock(node, env, 'letrec');
+      return r5js.Continuation.desugarMacroBlock(node, env, 'letrec').
+          getSubtype();
     }));
 
 
@@ -1035,7 +1034,7 @@ r5js.ParserImpl.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
       return r5js.newTopLevelSyntaxAssignment(
           kw,
           anonymousName,
-          new r5js.Continuation());
+          new r5js.Continuation()).getSubtype();
     });
 
 });  // goog.scope

@@ -47,21 +47,21 @@ r5js.IPipeline.prototype.parse = function(root, opt_nonterminal) {};
 
 /**
  * @param {!r5js.Datum} root The root to desugar.
- * @return {!r5js.Continuable}
+ * @return {!r5js.ProcCallLike}
  */
 r5js.IPipeline.prototype.desugar = function(root) {};
 
 
 /**
  * @param {!r5js.Datum} root The root to desugar.
- * @return {!r5js.Continuable}
+ * @return {!r5js.ProcCallLike}
  * TODO bl temporary shim. Remove.
  */
 r5js.IPipeline.prototype.desugarRepl = function(root) {};
 
 
 /**
- * @param {!r5js.Continuable} continuable The continuable to evaluate.
+ * @param {!r5js.ProcCallLike} continuable The continuable to evaluate.
  * @return {!r5js.runtime.Value}
  */
 r5js.IPipeline.prototype.Eval = function(continuable) {};
