@@ -313,7 +313,7 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
         lastContinuation.setNextContinuable(r5js.newProcCall(
             new r5js.ast.Identifier(opName),
             operands,
-            new r5js.Continuation()));
+            new r5js.Continuation()).getSubtype());
         return desugaredOp;
       }
         });
@@ -444,7 +444,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
           r5js.newTopLevelAssignment(
           variable.getPayload(),
           cpsName,
-          new r5js.Continuation()));
+          new r5js.Continuation()).getSubtype());
       return desugaredExpr;
     }),
     _.list(
@@ -542,7 +542,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
           testEndpointContinuation.getLastResultName(),
           consequent,
           alternate,
-          new r5js.Continuation());
+          new r5js.Continuation()).getSubtype();
       testEndpointContinuation.setNextContinuable(branch);
       return test;
     }),
@@ -569,7 +569,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
           testEndpointContinuation.getLastResultName(),
           consequent,
           r5js.newIdShim(new r5js.ast.Number(null)),
-          new r5js.Continuation());
+          new r5js.Continuation()).getSubtype();
       testEndpointContinuation.setNextContinuable(branch);
       return test;
     }));
@@ -612,7 +612,7 @@ r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
           r5js.newAssignment(
           /** @type {string} */ (variable.getPayload()),
           cpsName,
-          new r5js.Continuation()));
+          new r5js.Continuation()).getSubtype());
       return desugaredExpr;
         });
 

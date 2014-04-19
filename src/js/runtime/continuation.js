@@ -48,7 +48,7 @@ r5js.Continuation = function(opt_lastResultName) {
       opt_lastResultName :
       ('@' /* TODO bl document */ + goog.getUid(this));
 
-  /** @private {r5js.Continuable} */ this.nextContinuable_ = null;
+  /** @private {r5js.ProcCallLike} */ this.nextContinuable_ = null;
   /** @private {r5js.ProcCallLike} */ this.beforeThunk_ = null;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
@@ -69,13 +69,13 @@ r5js.Continuation.prototype.setLastResultName = function(name) {
 };
 
 
-/** @return {r5js.Continuable} */
+/** @return {r5js.ProcCallLike} */
 r5js.Continuation.prototype.getNextContinuable = function() {
   return this.nextContinuable_;
 };
 
 
-/** @param {!r5js.Continuable} continuable */
+/** @param {!r5js.ProcCallLike} continuable */
 r5js.Continuation.prototype.setNextContinuable = function(continuable) {
   this.nextContinuable_ = continuable;
 };
@@ -105,7 +105,7 @@ r5js.Continuation.prototype.installBeforeThunk = function(before) {
  * to the call site.
  */
 r5js.Continuation.prototype.getAdjacentProcCall = function() {
-  return this.nextContinuable_ && this.nextContinuable_.getSubtype();
+  return this.nextContinuable_;
 };
 
 
@@ -115,7 +115,7 @@ r5js.Continuation.prototype.rememberEnv = function(env) {
      the end of the procedure body. See ProcCall.prototype.maybeSetEnv
      for detailed logic (and maybe bugs). */
   if (this.nextContinuable_) {
-    this.nextContinuable_.getSubtype().maybeSetEnv(env);
+    this.nextContinuable_.maybeSetEnv(env);
   }
 };
 
@@ -130,7 +130,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
   procCall.env.addBinding(this.lastResultName_, arg);
   trampolineHelper.setValue(arg);
   if (this.nextContinuable_) {
-    trampolineHelper.setNextProcCallLike(this.nextContinuable_.getSubtype());
+    trampolineHelper.setNextProcCallLike(this.nextContinuable_);
   }
 
   if (this.beforeThunk_) {
@@ -168,8 +168,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
      infinite loop. */
   for (var tmp = trampolineHelper.getNextProcCallLike(), prev;
       tmp;
-      prev = tmp, tmp = tmp.getContinuation().nextContinuable_ &&
-              tmp.getContinuation().nextContinuable_.getSubtype()) {
+      prev = tmp, tmp = tmp.getContinuation().nextContinuable_) {
     if (tmp === procCall) {
       if (prev) {
         prev.getContinuation().nextContinuable_ =
@@ -177,8 +176,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
       } else {
         var nextContinuable = tmp.getContinuation().nextContinuable_;
         if (nextContinuable) {
-          trampolineHelper.setNextProcCallLike(
-              nextContinuable.getSubtype());
+          trampolineHelper.setNextProcCallLike(nextContinuable);
         }
       }
       break;

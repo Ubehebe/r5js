@@ -148,7 +148,7 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
 
   resultStruct.setValue(ans);
   if (nextContinuable) {
-    resultStruct.setNextProcCallLike(nextContinuable.getSubtype());
+    resultStruct.setNextProcCallLike(nextContinuable);
   }
 };
 

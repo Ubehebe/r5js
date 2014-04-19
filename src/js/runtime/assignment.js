@@ -66,7 +66,7 @@ r5js.Assignment.prototype.tryAssignment_ = function(
   this.bindResult(continuation, r5js.runtime.UNSPECIFIED_VALUE);
   var nextContinuable = continuation.getNextContinuable();
   if (nextContinuable) {
-    resultStruct.setNextProcCallLike(nextContinuable.getSubtype());
+    resultStruct.setNextProcCallLike(nextContinuable);
   }
 };
 

@@ -45,7 +45,7 @@ r5js.ContinuableHelper.prototype.appendContinuable = function(continuable) {
   } else {
     this.lastProcCallLike_.
         getContinuation().
-        setNextContinuable(continuable);
+        setNextContinuable(procCallLike);
     this.lastProcCallLike_ = r5js.ProcCallLike.getLast(procCallLike);
   }
 };

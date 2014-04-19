@@ -805,7 +805,8 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var curProcCall = arguments[arguments.length - 3];
   var procName = new r5js.ast.Identifier(mustBeProc.getName());
   var continuation = arguments[arguments.length - 2];
-  var resultStruct = arguments[arguments.length - 1];
+  var resultStruct = /** @type {!r5js.TrampolineHelper} */ (
+      arguments[arguments.length - 1]);
 
   var lastRealArgIndex = arguments.length - 4;
   var mustBeList = arguments[lastRealArgIndex];
@@ -823,7 +824,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     var actualProcCall = r5js.newProcCall(
         procName, newArgs.toSiblings(), continuation).getSubtype();
     actualProcCall.setStartingEnv(curProcCall.env);
-    resultStruct.setNextContinuable(actualProcCall);
+    resultStruct.setNextProcCallLike(actualProcCall);
   } else {
     // (apply foo a b c '(1 2 3))
     for (var i = 1; i < lastRealArgIndex - 1; ++i) {
@@ -836,7 +837,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
         toSiblings();
     var actualProcCall = r5js.newProcCall(
         procName, newArgs, continuation).getSubtype();
-    resultStruct.setNextContinuable(actualProcCall);
+    resultStruct.setNextProcCallLike(actualProcCall);
   }
 
   return r5js.runtime.UNSPECIFIED_VALUE;
@@ -897,7 +898,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       var result = newCpsName();
       r5js.ProcCallLike.appendContinuable(
           procCallAfter.getSubtype(),
-          r5js.newIdShim(new r5js.ast.Identifier(result)));
+          r5js.newIdShim(new r5js.ast.Identifier(result)).getSubtype());
       r5js.ProcCallLike.getLast(procCallAfter.getSubtype()).
           setContinuation(continuation);
 
@@ -908,9 +909,9 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
           );
 
       r5js.ProcCallLike.appendContinuable(
-          procCallThunk.getSubtype(), procCallAfter);
+          procCallThunk.getSubtype(), procCallAfter.getSubtype());
       r5js.ProcCallLike.appendContinuable(
-          procCallBefore.getSubtype(), procCallThunk);
+          procCallBefore.getSubtype(), procCallThunk.getSubtype());
 
       resultStruct.setNextProcCallLike(procCallBefore.getSubtype());
       /* We use the TrampolineResultStruct to store the thunk.
@@ -945,8 +946,8 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
       var consumerCall = r5js.newProcCall(
           procCall.getFirstOperand().getNextSibling(),
           new r5js.ast.Identifier(valuesName),
-          continuation);
-      consumerCall.getSubtype().setStartingEnv(
+          continuation).getSubtype();
+      consumerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       producerContinuation.setNextContinuable(consumerCall);
       resultStruct.setNextProcCallLike(producerCall.getSubtype());
@@ -1022,11 +1023,11 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
 
     procCall.env.addBinding(continuation.getLastResultName(), userArgs);
   }
-  var nextContinuable = continuation.getNextContinuable().getSubtype();
+  var nextContinuable = continuation.getNextContinuable();
   if (nextContinuable) {
     nextContinuable.setStartingEnv(procCall.env);
   }
-  resultStruct.setNextContinuable(nextContinuable);
+  resultStruct.setNextProcCallLike(nextContinuable);
   return r5js.runtime.UNSPECIFIED_VALUE;
 });
 

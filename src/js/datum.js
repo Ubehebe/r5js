@@ -233,7 +233,7 @@ r5js.Datum.prototype.sequence = function(env) {
             if (!first) {
                 first = tmp;
             } else if (curEnd) {
-                curEnd.setNextContinuable(tmp);
+                curEnd.setNextContinuable(tmp.getSubtype());
             }
 
             curEnd = r5js.ProcCallLike.getLast(tmp.getSubtype()).getContinuation();
