@@ -239,7 +239,7 @@ r5js.ProcCall.prototype.cpsify = function(
   ans.getSubtype().setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
   var lastContinuable = r5js.ProcCallLike.getLast(ans.getSubtype());
   lastContinuable.setContinuation(continuation);
-  resultStruct.setNextContinuable(ans);
+  resultStruct.setNextContinuable(ans.getSubtype());
 };
 
 

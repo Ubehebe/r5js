@@ -119,7 +119,7 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
       r5js.ProcCallLike.appendContinuable(
           continuable.getSubtype(), nextContinuable);
     }
-    resultStruct.setNextContinuable(continuable);
+    resultStruct.setNextContinuable(continuable.getSubtype());
     return;
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
@@ -147,7 +147,9 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
         'bad macro syntax');
 
   resultStruct.setValue(ans);
-  resultStruct.setNextContinuable(nextContinuable);
+  if (nextContinuable) {
+    resultStruct.setNextContinuable(nextContinuable.getSubtype());
+  }
 };
 
 

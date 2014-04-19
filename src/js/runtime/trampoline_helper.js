@@ -28,7 +28,7 @@ r5js.TrampolineHelper = function(inputPort, outputPort) {
   /** @const @private */ this.inputPort_ = inputPort;
   /** @const @private */ this.outputPort_ = outputPort;
   /** @private {r5js.Continuable} */ this.beforeThunk_ = null;
-  /** @private {r5js.Continuable} */ this.nextContinuable_ = null;
+  /** @private {r5js.ProcCallLike} */ this.nextContinuable_ = null;
   /** @private {!r5js.runtime.Value|null} */ this.value_ = null;
 };
 
@@ -52,13 +52,13 @@ r5js.TrampolineHelper.prototype.setBeforeThunk = function(beforeThunk) {
 };
 
 
-/** @return {r5js.Continuable} */
+/** @return {r5js.ProcCallLike} */
 r5js.TrampolineHelper.prototype.getNextContinuable = function() {
   return this.nextContinuable_;
 };
 
 
-/** @param {r5js.Continuable} continuable */
+/** @param {!r5js.ProcCallLike} continuable */
 r5js.TrampolineHelper.prototype.setNextContinuable = function(continuable) {
   this.nextContinuable_ = continuable;
 };

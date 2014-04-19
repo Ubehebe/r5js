@@ -286,11 +286,10 @@ r5js.Macro.prototype.evalAndAdvance = function(
   // this.reconstructDatum_() +
   // ' => ' + newDatumTree);
 
-  var newContinuable = newParseTree.desugar(newEnv, true);
-  newContinuable.getSubtype().setStartingEnv(newEnv);
+  var newContinuable = newParseTree.desugar(newEnv, true).getSubtype();
+  newContinuable.setStartingEnv(newEnv);
 
-  r5js.ProcCallLike.getLast(newContinuable.getSubtype()).
-      setContinuation(continuation);
+  r5js.ProcCallLike.getLast(newContinuable).setContinuation(continuation);
   resultStruct.setNextContinuable(newContinuable);
 };
 

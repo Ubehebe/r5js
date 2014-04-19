@@ -129,7 +129,9 @@ r5js.Continuation.prototype.evalAndAdvance = function(
   var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
   procCall.env.addBinding(this.lastResultName_, arg);
   trampolineHelper.setValue(arg);
-  trampolineHelper.setNextContinuable(this.nextContinuable_);
+  if (this.nextContinuable_) {
+    trampolineHelper.setNextContinuable(this.nextContinuable_.getSubtype());
+  }
 
   if (this.beforeThunk_) {
     var before = this.beforeThunk_;
@@ -137,7 +139,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
     if (cur) {
       r5js.ProcCallLike.appendContinuable(before.getSubtype(), cur);
     }
-    trampolineHelper.setNextContinuable(before);
+    trampolineHelper.setNextContinuable(before.getSubtype());
     // todo bl is it safe to leave proc.beforeThunk defined?
   }
 
@@ -166,14 +168,19 @@ r5js.Continuation.prototype.evalAndAdvance = function(
      infinite loop. */
   for (var tmp = trampolineHelper.getNextContinuable(), prev;
       tmp;
-      prev = tmp, tmp = tmp.getSubtype().getContinuation().nextContinuable_) {
-    if (tmp.getSubtype() === procCall) {
-      if (prev)
-        prev.getSubtype().getContinuation().nextContinuable_ =
-            tmp.getSubtype().getContinuation().nextContinuable_;
-      else
-        trampolineHelper.setNextContinuable(
-            tmp.getSubtype().getContinuation().nextContinuable_);
+      prev = tmp, tmp = tmp.getContinuation().nextContinuable_ &&
+              tmp.getContinuation().nextContinuable_.getSubtype()) {
+    if (tmp === procCall) {
+      if (prev) {
+        prev.getContinuation().nextContinuable_ =
+            tmp.getContinuation().nextContinuable_;
+      } else {
+        var nextContinuable = tmp.getContinuation().nextContinuable_;
+        if (nextContinuable) {
+          trampolineHelper.setNextContinuable(
+              nextContinuable.getSubtype());
+        }
+      }
       break;
     }
   }

@@ -108,14 +108,14 @@ goog.require('r5js.TrampolineHelper');
  */
 r5js.trampoline = function(continuable, inputPort, outputPort) {
 
-  var cur = continuable;
+  var cur = continuable.getSubtype();
   var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
   var savedEnv = new r5js.EnvBuffer();
   var ans;
 
   while (cur) {
-    cur.getSubtype().evalAndAdvance(
-        /** @type {!r5js.Continuation} */ (cur.getSubtype().getContinuation()),
+    cur.evalAndAdvance(
+        /** @type {!r5js.Continuation} */ (cur.getContinuation()),
         resultStruct,
         savedEnv,
         parserProvider);

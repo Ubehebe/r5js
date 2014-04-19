@@ -64,7 +64,10 @@ r5js.Assignment.prototype.tryAssignment_ = function(
   /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
   this.bindResult(continuation, r5js.runtime.UNSPECIFIED_VALUE);
-  resultStruct.setNextContinuable(continuation.getNextContinuable());
+  var nextContinuable = continuation.getNextContinuable();
+  if (nextContinuable) {
+    resultStruct.setNextContinuable(nextContinuable.getSubtype());
+  }
 };
 
 
