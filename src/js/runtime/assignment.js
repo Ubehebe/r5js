@@ -4,6 +4,7 @@ goog.provide('r5js.newTopLevelSyntaxAssignment');
 
 
 goog.require('r5js.Continuable');
+goog.require('r5js.Continuation');
 goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.Macro');
 goog.require('r5js.ProcCall');
@@ -146,15 +147,16 @@ r5js.TopLevelSyntaxAssignment.prototype.checkForImproperSyntaxAssignment =
 /**
  * @param {string} dstName
  * @param {string} srcName
- * @param {!r5js.Continuation} continuation
- * @return {!r5js.Continuable}
+ * @return {!r5js.ProcCallLike}
  */
-r5js.newAssignment = function(dstName, srcName, continuation) {
+r5js.newAssignment = function(dstName, srcName) {
   var operands = new r5js.SiblingBuffer()
         .appendSibling(new r5js.ast.Identifier(dstName))
         .appendSibling(new r5js.ast.Identifier(srcName))
         .toSiblings();
-  return new r5js.Continuable(new r5js.Assignment(operands), continuation);
+  var assignment = new r5js.Assignment(operands);
+  assignment.setContinuation(new r5js.Continuation());
+  return assignment;
 };
 
 

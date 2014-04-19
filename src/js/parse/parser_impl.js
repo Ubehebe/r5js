@@ -610,9 +610,7 @@ r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
           getContinuation().
           setNextContinuable(
           r5js.newAssignment(
-          /** @type {string} */ (variable.getPayload()),
-          cpsName,
-          new r5js.Continuation()).getSubtype());
+          /** @type {string} */ (variable.getPayload()), cpsName));
       return desugaredExpr;
         });
 
