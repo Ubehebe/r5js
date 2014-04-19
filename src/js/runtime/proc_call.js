@@ -192,8 +192,7 @@ r5js.ProcCall.prototype.cpsify = function(
                 maybeContinuable.getSubtype())
                         .getContinuation()
                         .getLastResultName()));
-        newCallChain.appendContinuable(
-            /** @type {!r5js.Continuable} */(maybeContinuable));
+        newCallChain.appendContinuable(maybeContinuable.getSubtype());
       } else {
         /* R5RS 4.2.6: "If no commas appear within the <qq template>,
                  the result of evaluating `<qq template> is equivalent to
@@ -218,7 +217,7 @@ r5js.ProcCall.prototype.cpsify = function(
               maybeContinuable.getSubtype()).
               getContinuation().
               getLastResultName()));
-      newCallChain.appendContinuable(maybeContinuable);
+      newCallChain.appendContinuable(maybeContinuable.getSubtype());
     } else {
       var clonedArg = arg.clone(null /* parent */);
       if (clonedArg instanceof r5js.ast.CompoundDatum) {
@@ -233,7 +232,7 @@ r5js.ProcCall.prototype.cpsify = function(
       r5js.newProcCall(
       this.operatorName_,
       finalArgs.toSiblings(),
-      new r5js.Continuation()));
+      new r5js.Continuation()).getSubtype());
 
   var ans = newCallChain.toContinuable();
   ans.getSubtype().setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));

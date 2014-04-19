@@ -84,12 +84,12 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
       },
       function(node) {
         node = /** @type {!r5js.ast.CompoundDatum} */ (node); // TODO bl
-        var asContinuable = /** @type {!r5js.Continuable} */ (parserProvider(
+        var asContinuable = (/** @type {!r5js.Continuable} */ (parserProvider(
             /** @type {!r5js.Datum} */(node.getFirstChild())).
                 parse(r5js.parse.Nonterminals.EXPRESSION).
-                desugar(env, true));
-        var continuation = r5js.ProcCallLike.getLast(
-            asContinuable.getSubtype()).getContinuation();
+                desugar(env, true)).getSubtype());
+        var continuation = r5js.ProcCallLike.getLast(asContinuable).
+            getContinuation();
         /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */
@@ -103,7 +103,7 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
 
   var newDatum = new r5js.ast.Quote(this.getFirstChild());
 
-  newCalls.appendContinuable(r5js.newIdShim(newDatum, cpsName));
+  newCalls.appendContinuable(r5js.newIdShim(newDatum, cpsName).getSubtype());
   var ans = newCalls.toContinuable();
   if (ans) {
     ans.getSubtype().setStartingEnv(env);
