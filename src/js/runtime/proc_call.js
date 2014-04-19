@@ -231,7 +231,7 @@ r5js.ProcCall.prototype.cpsify = function(
       r5js.newProcCall(
       this.operatorName_,
       finalArgs.toSiblings(),
-      new r5js.Continuation()).getSubtype());
+      new r5js.Continuation()));
 
   var ans = newCallChain.toContinuable();
   ans.getSubtype().setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
@@ -389,12 +389,12 @@ r5js.ProcCall.prototype.evalArgsCallWithValues_ = function() {
  * @param {?} operatorName
  * @param {?} firstOperand
  * @param {!r5js.Continuation} continuation A continuation.
- * @return {!r5js.Continuable} The new procedure call.
+ * @return {!r5js.ProcCallLike} The new procedure call.
  */
 r5js.newProcCall = function(operatorName, firstOperand, continuation) {
-  return new r5js.Continuable(
-      new r5js.ProcCall(operatorName, firstOperand),
-      continuation);
+  var procCall = new r5js.ProcCall(operatorName, firstOperand);
+  procCall.setContinuation(continuation);
+  return procCall;
 };
 
 

@@ -50,7 +50,7 @@ r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
       this.body = r5js.newProcCall(
           new r5js.ast.Identifier('letrec'),
           letrec,
-          new r5js.Continuation()).getSubtype();
+          new r5js.Continuation());
     }
     this.lastContinuable = r5js.ProcCallLike.getLast(
         /** @type {!r5js.ProcCallLike} */ (this.body));

@@ -300,7 +300,7 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
         return r5js.newProcCall(
             operatorNode,
             operands,
-            new r5js.Continuation()).getSubtype();
+            new r5js.Continuation());
       }
 
     // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
@@ -313,7 +313,7 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
         lastContinuation.setNextContinuable(r5js.newProcCall(
             new r5js.ast.Identifier(opName),
             operands,
-            new r5js.Continuation()).getSubtype());
+            new r5js.Continuation()));
         return desugaredOp;
       }
         });
@@ -691,7 +691,7 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_USE] = _.list(
       return r5js.newProcCall(
           node.at(Nonterminals.KEYWORD),
           node.at(Nonterminals.DATUM),
-          new r5js.Continuation()).getSubtype();
+          new r5js.Continuation());
     });
 
 

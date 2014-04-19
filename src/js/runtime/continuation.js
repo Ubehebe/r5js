@@ -229,5 +229,5 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
   return r5js.newProcCall(
       new r5js.ast.Identifier(operatorName),
       _let.toSiblings(),
-      new r5js.Continuation()).getSubtype();
+      new r5js.Continuation());
 };
