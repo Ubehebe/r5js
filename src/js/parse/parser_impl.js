@@ -1034,7 +1034,7 @@ r5js.ParserImpl.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
       return r5js.newTopLevelSyntaxAssignment(
           kw,
           anonymousName,
-          new r5js.Continuation()).getSubtype();
+          new r5js.Continuation());
     });
 
 });  // goog.scope
