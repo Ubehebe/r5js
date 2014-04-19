@@ -539,7 +539,8 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var testEndpointContinuation = testEndpoint.getContinuation();
 
       var branch = r5js.newBranch(testEndpointContinuation.getLastResultName(),
-          consequent, alternate);
+          /** @type {!r5js.ProcCall} */ (consequent.getSubtype()),
+          /** @type {!r5js.ProcCall} */ (alternate.getSubtype()));
       testEndpointContinuation.setNextContinuable(branch);
       return test;
     }),
@@ -564,8 +565,8 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
          TODO bl improve. */
       var branch = r5js.newBranch(
           testEndpointContinuation.getLastResultName(),
-          consequent,
-          r5js.newIdShim(new r5js.ast.Number(null)));
+          consequent.getSubtype(),
+          r5js.newIdShim(new r5js.ast.Number(null)).getSubtype());
       testEndpointContinuation.setNextContinuable(branch);
       return test;
     }));

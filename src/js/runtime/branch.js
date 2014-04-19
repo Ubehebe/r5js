@@ -24,22 +24,26 @@ goog.require('r5js.ProcCallLike');
 
 /**
  * @param {string} testResultName
- * @param {!r5js.Continuable} consequent
- * @param {!r5js.Continuable} alternate
+ * @param {!r5js.ProcCall} consequent
+ * @param {!r5js.ProcCall} alternate
  * @return {!r5js.ProcCallLike}
+ * TODO bl: {@link r5js.ProcCall}s are required instead of
+ * {@link r5js.ProcCallLike}s by the calls to {@link r5js.ProcCall#clearEnv} in
+ * {@link r5js.Branch_#evalAndAdvance}. But it doesn't seem like branches
+ * should have to start with procedure calls. Figure out the discrepancy.
  */
 r5js.newBranch = function(testResultName, consequent, alternate) {
   var branch = new r5js.Branch_(testResultName, consequent, alternate);
-   branch.setContinuation(new r5js.Continuation());
-    return branch;
+  branch.setContinuation(new r5js.Continuation());
+  return branch;
 };
 
 
 
 /**
  * @param {string} testResultName
- * @param {!r5js.Continuable} consequent
- * @param {!r5js.Continuable} alternate
+ * @param {!r5js.ProcCall} consequent
+ * @param {!r5js.ProcCall} alternate
  * @implements {r5js.ProcCallLike}
  * @struct
  * @constructor
@@ -50,9 +54,9 @@ r5js.Branch_ = function(testResultName, consequent, alternate) {
   /** @const @private */ this.consequent_ = consequent;
   /** @const @private */ this.alternate_ = alternate;
   /** @const @private */ this.consequentLastContinuable_ =
-      r5js.ProcCallLike.getLast(this.consequent_.getSubtype());
+      r5js.ProcCallLike.getLast(this.consequent_);
   /** @const @private */ this.alternateLastContinuable_ =
-      r5js.ProcCallLike.getLast(this.alternate_.getSubtype());
+      r5js.ProcCallLike.getLast(this.alternate_);
   /** @private {r5js.Continuation} */ this.continuation_ = null;
 };
 
@@ -84,19 +88,19 @@ r5js.Branch_.prototype.evalAndAdvance = function(
   var testResult = envBuffer.getEnv().get(this.testResultName_);
   if (testResult === false) {
     this.alternateLastContinuable_.setContinuation(continuation);
-    resultStruct.setNextProcCallLike(this.alternate_.getSubtype());
+    resultStruct.setNextProcCallLike(this.alternate_);
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}.
          TODO bl: clearEnv is defined only on {@link r5js.ProcCall},
          yet all of the tests pass. This suggests either test coverage
          is insufficient or that I don't understand the type of subtype. */
-    this.consequent_.getSubtype().clearEnv();
+    this.consequent_.clearEnv();
   } else {
     this.consequentLastContinuable_.setContinuation(continuation);
-    resultStruct.setNextProcCallLike(this.consequent_.getSubtype());
+    resultStruct.setNextProcCallLike(this.consequent_);
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}, and above. */
-    this.alternate_.getSubtype().clearEnv();
+    this.alternate_.clearEnv();
   }
 };
 
@@ -118,14 +122,6 @@ r5js.Branch_.prototype.evalAndAdvance = function(
  * @param {!r5js.IEnvironment} env
  */
 r5js.Branch_.prototype.maybeSetEnv = function(env) {
-
-  var consequentSubtype = this.consequent_.getSubtype();
-  var alternateSubtype = this.alternate_.getSubtype();
-
-  if (consequentSubtype instanceof r5js.ProcCall) {
-    consequentSubtype.maybeSetEnv(env);
-  }
-  if (alternateSubtype instanceof r5js.ProcCall) {
-    alternateSubtype.maybeSetEnv(env);
-  }
+  this.consequent_.maybeSetEnv(env);
+  this.alternate_.maybeSetEnv(env);
 };
