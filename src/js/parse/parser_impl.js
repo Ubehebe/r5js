@@ -16,6 +16,7 @@
 
 goog.provide('r5js.ParserImpl');
 
+goog.require('r5js.Branch');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
@@ -42,7 +43,6 @@ goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
 goog.require('r5js.datumutil');
 goog.require('r5js.newAssignment');
-goog.require('r5js.newBranch');
 goog.require('r5js.newIdShim');
 goog.require('r5js.newProcCall');
 goog.require('r5js.parse.Nonterminals');
@@ -526,7 +526,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var testEndpoint = r5js.ProcCallLike.getLast(test);
       var testEndpointContinuation = testEndpoint.getContinuation();
 
-      var branch = r5js.newBranch(testEndpointContinuation.getLastResultName(),
+      var branch = new r5js.Branch(testEndpointContinuation.getLastResultName(),
           consequent, alternate);
       testEndpointContinuation.setNextContinuable(branch);
       return test;
@@ -550,7 +550,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
          a null type would activate the default type, identifier, which would
          change the semantics.
          TODO bl improve. */
-      var branch = r5js.newBranch(
+      var branch = new r5js.Branch(
           testEndpointContinuation.getLastResultName(),
           consequent,
           r5js.newIdShim(new r5js.ast.Number(null)));

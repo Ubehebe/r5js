@@ -13,29 +13,12 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.newBranch');
+goog.provide('r5js.Branch');
 
 
 goog.require('r5js.Continuation');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
-
-
-/**
- * @param {string} testResultName
- * @param {!r5js.ProcCall} consequent
- * @param {!r5js.ProcCall} alternate
- * @return {!r5js.ProcCallLike}
- * TODO bl: {@link r5js.ProcCall}s are required instead of
- * {@link r5js.ProcCallLike}s by the calls to {@link r5js.ProcCall#clearEnv} in
- * {@link r5js.Branch_#evalAndAdvance}. But it doesn't seem like branches
- * should have to start with procedure calls. Figure out the discrepancy.
- */
-r5js.newBranch = function(testResultName, consequent, alternate) {
-  var branch = new r5js.Branch_(testResultName, consequent, alternate);
-  branch.setContinuation(new r5js.Continuation());
-  return branch;
-};
 
 
 
@@ -46,9 +29,8 @@ r5js.newBranch = function(testResultName, consequent, alternate) {
  * @implements {r5js.ProcCallLike}
  * @struct
  * @constructor
- * @private
  */
-r5js.Branch_ = function(testResultName, consequent, alternate) {
+r5js.Branch = function(testResultName, consequent, alternate) {
   /** @const @private */ this.testResultName_ = testResultName;
   /** @const @private */ this.consequent_ = consequent;
   /** @const @private */ this.alternate_ = alternate;
@@ -56,30 +38,30 @@ r5js.Branch_ = function(testResultName, consequent, alternate) {
       r5js.ProcCallLike.getLast(this.consequent_);
   /** @const @private */ this.alternateLastContinuable_ =
       r5js.ProcCallLike.getLast(this.alternate_);
-  /** @private {r5js.Continuation} */ this.continuation_ = null;
+  /** @private */ this.continuation_ = new r5js.Continuation();
 };
 
 
 /** @override */
-r5js.Branch_.prototype.getContinuation = function() {
+r5js.Branch.prototype.getContinuation = function() {
   return this.continuation_;
 };
 
 
 /** @override */
-r5js.Branch_.prototype.setContinuation = function(continuation) {
+r5js.Branch.prototype.setContinuation = function(continuation) {
   this.continuation_ = continuation;
 };
 
 
 /** @override */
-r5js.Branch_.prototype.setStartingEnv = function(env) {
+r5js.Branch.prototype.setStartingEnv = function(env) {
   // TODO bl unify with maybeSetEnv
 };
 
 
 /** @override */
-r5js.Branch_.prototype.evalAndAdvance = function(
+r5js.Branch.prototype.evalAndAdvance = function(
     continuation, resultStruct, envBuffer, parserProvider) {
 
   /* Branches always use the old environment left by the previous action
@@ -120,7 +102,7 @@ r5js.Branch_.prototype.evalAndAdvance = function(
  *
  * @param {!r5js.IEnvironment} env
  */
-r5js.Branch_.prototype.maybeSetEnv = function(env) {
+r5js.Branch.prototype.maybeSetEnv = function(env) {
   this.consequent_.maybeSetEnv(env);
   this.alternate_.maybeSetEnv(env);
 };
