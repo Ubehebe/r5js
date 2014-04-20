@@ -65,7 +65,7 @@ r5js.ast.Quasiquote.prototype.stringForOutputMode = function(outputMode) {
  * @param {string} cpsName TODO bl.
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
- * @return {!r5js.Continuable}
+ * @return {!r5js.ProcCallLike}
  */
 r5js.ast.Quasiquote.prototype.processQuasiquote = function(
     env, cpsName, parserProvider) {
@@ -102,8 +102,8 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
   var newDatum = new r5js.ast.Quote(this.getFirstChild());
 
   newCalls.appendProcCallLike(r5js.newIdShim(newDatum, cpsName));
-  var ans = newCalls.toContinuable();
-  ans.getSubtype().setStartingEnv(env);
+  var ans = newCalls.toContinuable().getSubtype();
+  ans.setStartingEnv(env);
   return ans;
 };
 

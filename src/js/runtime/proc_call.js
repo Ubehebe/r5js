@@ -182,26 +182,16 @@ r5js.ProcCall.prototype.cpsify = function(
     if (arg instanceof r5js.ast.Quote) {
       finalArgs.appendSibling(arg.clone(null /* parent */));
     } else if (arg instanceof r5js.ast.Quasiquote) {
-      if ((maybeContinuable =
-          arg.processQuasiquote(
+      maybeContinuable = arg.processQuasiquote(
           /** @type {!r5js.IEnvironment} */ (this.env),
           continuation.getLastResultName(),
-          parserProvider)) instanceof r5js.Continuable) {
-        finalArgs.appendSibling(
-            new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
-                maybeContinuable.getSubtype())
+          parserProvider);
+      finalArgs.appendSibling(
+          new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
+          maybeContinuable)
                         .getContinuation()
                         .getLastResultName()));
-        newCallChain.appendProcCallLike(maybeContinuable.getSubtype());
-      } else {
-        /* R5RS 4.2.6: "If no commas appear within the <qq template>,
-                 the result of evaluating `<qq template> is equivalent to
-                 the result of evaluating '<qq template>." We implement this
-                 merely by switching the type of the datum from quasiquote (`)
-                 to quote ('). evalArgs will see the quote and evaluate it
-                 accordingly. */
-        finalArgs.appendSibling(arg);
-      }
+      newCallChain.appendProcCallLike(maybeContinuable);
     } else if (arg instanceof r5js.ast.Lambda) {
       finalArgs.appendSibling(
           new r5js.ast.Identifier(/** @type {string} */ (arg.getName())));

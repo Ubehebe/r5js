@@ -111,16 +111,16 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
             new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
   }
   else if (arg instanceof r5js.ast.Quasiquote) {
-    var continuable = /** @type {!r5js.Continuable} */ (arg.processQuasiquote(
+    var continuable = arg.processQuasiquote(
         /** @type {!r5js.IEnvironment} */ (this.env),
         continuation.getLastResultName(),
-        parserProvider));
+        parserProvider);
     var nextContinuable = continuation.getNextContinuable();
     if (nextContinuable) {
       r5js.ProcCallLike.appendProcCallLike(
-          continuable.getSubtype(), nextContinuable);
+          continuable, nextContinuable);
     }
-    resultStruct.setNextProcCallLike(continuable.getSubtype());
+    resultStruct.setNextProcCallLike(continuable);
     return;
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
