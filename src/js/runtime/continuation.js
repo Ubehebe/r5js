@@ -38,8 +38,8 @@ goog.require('r5js.ast.Macro');
  *
  * @param {string=} opt_lastResultName Optional name to use for the last result.
  *     If not given, a unique name will be created.
- *     @implements {r5js.ProcedureLike}
- *     @struct
+ * @implements {r5js.ProcedureLike}
+ * @struct
  * @constructor
  */
 r5js.Continuation = function(opt_lastResultName) {
@@ -90,22 +90,6 @@ r5js.Continuation.prototype.setNextContinuable = function(continuable) {
  */
 r5js.Continuation.prototype.installBeforeThunk = function(before) {
   this.beforeThunk_ = before;
-};
-
-
-/**
- * @return {?}
- * TODO bl: previously, this did an instanceof check on
- * this.nextContinuable.subtype and returned null if it wasn't
- * a {@link r5js.ProcCall} (in particular, if it was a {@link r5js.Branch_}).
- * The instanceof check caused an indirect circular dependency between
- * {@link r5js.Continuation} and {@link r5js.ProcCall}. This method
- * was the easiest way to break the cycle, as it had only one caller:
- * {@link r5js.ProcCall.bindResult}. So I moved the instanceof check
- * to the call site.
- */
-r5js.Continuation.prototype.getAdjacentProcCall = function() {
-  return this.nextContinuable_;
 };
 
 

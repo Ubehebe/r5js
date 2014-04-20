@@ -265,7 +265,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 r5js.ProcCall.prototype.bindResult = function(continuation, val) {
 
   var name = continuation.getLastResultName();
-  var nextProcCall = continuation.getAdjacentProcCall();
+  var nextProcCall = continuation.getNextContinuable();
 
   if (nextProcCall instanceof r5js.ProcCall) {
     var maybeEnv = nextProcCall.env;
