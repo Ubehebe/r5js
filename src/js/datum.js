@@ -18,7 +18,6 @@ goog.provide('r5js.ast.Literal');
 goog.provide('r5js.Datum');
 
 
-goog.require('r5js.Continuable');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.ProcCallLike');
 // TODO bl circular dependency goog.require('r5js.newIdShim');
@@ -214,7 +213,7 @@ r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
 
 /**
  * @param {!r5js.IEnvironment} env TODO bl
- * @return {r5js.Continuable}
+ * @return {r5js.ProcCallLike}
  * @suppress {checkTypes} TODO bl this method is a mess.
  */
 r5js.Datum.prototype.sequence = function(env) {

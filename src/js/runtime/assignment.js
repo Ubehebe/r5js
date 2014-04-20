@@ -3,7 +3,6 @@ goog.provide('r5js.newTopLevelAssignment');
 goog.provide('r5js.newTopLevelSyntaxAssignment');
 
 
-goog.require('r5js.Continuable');
 goog.require('r5js.Continuation');
 goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.Macro');

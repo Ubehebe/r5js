@@ -17,7 +17,6 @@
 goog.provide('r5js.ContinuableHelper');
 
 
-goog.require('r5js.Continuable');
 goog.require('r5js.ProcCallLike');
 
 
@@ -52,7 +51,7 @@ r5js.ContinuableHelper.prototype.appendProcCallLike = function(procCallLike) {
 
 /** @return {!r5js.ProcCallLike} */
 r5js.ContinuableHelper.prototype.toContinuable = function() {
-  return new r5js.Continuable(
-      /** @type {!r5js.ProcCallLike} */ (this.firstProcCallLike_),
-      /** @type {!r5js.Continuation} */ (this.firstContinuation_)).getSubtype();
+  this.firstProcCallLike_.setContinuation(
+      /** @type {!r5js.Continuation} */ (this.firstContinuation_));
+  return this.firstProcCallLike_;
 };
