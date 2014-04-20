@@ -43,39 +43,5 @@ r5js.DynamicWindContinuation.prototype.evalAndAdvance = function(
   if (this.nextContinuable_) {
     r5js.ProcCallLike.appendProcCallLike(this.thunk_, this.nextContinuable_);
   }
-
-  /* Cut out the current proc call from the continuation chain to
-     avoid an infinite loop. Example:
-
-     (define cont #f)
-     (display
-     (call-with-current-continuation
-     (lambda (c)
-     (set! cont c)
-     "inside continuation")))
-     (cont "outside continuation")
-     42
-
-     This should display "inside continuation", then "outside continuation",
-     then return 42. When the trampoline is at
-
-     (cont "outside continuation")
-
-     proc.nextContinuable will be something like
-
-     (cont "outside continuation" _0 [_0 (id 42 [_1 ...])])
-
-     We clearly have to cut out the first part of this chain to avoid an
-     infinite loop. */
-  for (var tmp = trampolineHelper.getNextProcCallLike(), prev;
-      tmp;
-      prev = tmp, tmp = tmp.getContinuation().nextContinuable_) {
-    if (tmp === procCall) {
-      if (prev) {
-        prev.getContinuation().nextContinuable_ =
-            tmp.getContinuation().nextContinuable_;
-      }
-      break;
-    }
-  }
+  r5js.Continuation.repairInfiniteLoop(procCall, trampolineHelper);
 };
