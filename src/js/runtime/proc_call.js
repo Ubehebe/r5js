@@ -375,13 +375,13 @@ r5js.ProcCall.prototype.evalArgsCallWithValues_ = function() {
 /**
  * @param {?} operatorName
  * @param {?} firstOperand
- * @param {!r5js.Continuation=} opt_continuation Optional continuation. If not
- * given, a new Continuation is created.
+ * @param {string=} opt_lastResultName Optional name to use for the last result.
+ *     If not given, a unique name will be created.
  * @return {!r5js.ProcCallLike} The new procedure call.
  */
-r5js.newProcCall = function(operatorName, firstOperand, opt_continuation) {
+r5js.newProcCall = function(operatorName, firstOperand, opt_lastResultName) {
   var procCall = new r5js.ProcCall(operatorName, firstOperand);
-  procCall.setContinuation(opt_continuation || new r5js.Continuation());
+  procCall.setContinuation(new r5js.Continuation(opt_lastResultName));
   return procCall;
 };
 

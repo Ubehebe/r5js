@@ -822,7 +822,8 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     for (var arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling())
       newArgs.appendSibling(new r5js.ast.Quote(arg));
     var actualProcCall = r5js.newProcCall(
-        procName, newArgs.toSiblings(), continuation);
+        procName, newArgs.toSiblings());
+    actualProcCall.setContinuation(continuation);
     actualProcCall.setStartingEnv(curProcCall.env);
     resultStruct.setNextProcCallLike(actualProcCall);
   } else {
@@ -835,8 +836,8 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     var newArgs = new r5js.SiblingBuffer().
         appendSibling(arguments[1]).
         toSiblings();
-    var actualProcCall = r5js.newProcCall(
-        procName, newArgs, continuation);
+    var actualProcCall = r5js.newProcCall(procName, newArgs);
+    actualProcCall.setContinuation(continuation);
     resultStruct.setNextProcCallLike(actualProcCall);
   }
 
@@ -886,9 +887,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       // todo bl use a ContinuableBuffer for efficiency
 
       var procCallBefore = r5js.newProcCall(
-          procCall.getFirstOperand(),
-          null, // no arguments
-          new r5js.Continuation(before2));
+          procCall.getFirstOperand(), null /* no arguments */, before2);
 
       var procCallAfter = r5js.newProcCall(
           procCall.getFirstOperand().getNextSibling().getNextSibling(),
@@ -903,8 +902,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
 
       var procCallThunk = r5js.newProcCall(
           procCall.getFirstOperand().getNextSibling(),
-          null, // no arguments
-          new r5js.Continuation(result));
+          null /* no arguments */, result);
 
       r5js.ProcCallLike.appendProcCallLike(
           procCallThunk, procCallAfter);
@@ -918,8 +916,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
          todo bl document why we cannot reuse procCallBefore. */
       resultStruct.setBeforeThunk(r5js.newProcCall(
           procCall.getFirstOperand(),
-          null,
-          new r5js.Continuation(before2)));
+          null /* no arguments */, before2));
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
@@ -934,20 +931,17 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
 PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
     function(producer, consumer, procCall, continuation, resultStruct) {
       var valuesName = newCpsName();
-      var producerContinuation = new r5js.Continuation(valuesName);
       var producerCall = r5js.newProcCall(
-          procCall.getFirstOperand(),
-          null, // no arguments
-          producerContinuation);
+          procCall.getFirstOperand(), null /* no arguments */, valuesName);
       producerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       var consumerCall = r5js.newProcCall(
           procCall.getFirstOperand().getNextSibling(),
-          new r5js.ast.Identifier(valuesName),
-          continuation);
+          new r5js.ast.Identifier(valuesName));
+      consumerCall.setContinuation(continuation);
       consumerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
-      producerContinuation.setNextContinuable(consumerCall);
+      producerCall.getContinuation().setNextContinuable(consumerCall);
       resultStruct.setNextProcCallLike(producerCall);
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
@@ -983,7 +977,8 @@ PrimitiveProcedures['call-with-current-continuation'] =
         resultStruct.setBeforeThunk(null);
       }
       var dummyProcCall = r5js.newProcCall(
-          procCall.getFirstOperand(), continuation, continuation);
+          procCall.getFirstOperand(), continuation);
+      dummyProcCall.setContinuation(continuation);
       dummyProcCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       resultStruct.setNextProcCallLike(dummyProcCall);
