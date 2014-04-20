@@ -441,10 +441,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
           getContinuation();
       var cpsName = lastContinuation.getLastResultName();
       lastContinuation.setNextContinuable(
-          r5js.newTopLevelAssignment(
-          variable.getPayload(),
-          cpsName,
-          new r5js.Continuation()));
+          r5js.newTopLevelAssignment(variable.getPayload(), cpsName));
       return desugaredExpr;
     }),
     _.list(
@@ -472,10 +469,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
           anonymousName,
           new r5js.Procedure(
               formals, formalRoot.getNextSibling(), env, name));
-      return r5js.newTopLevelAssignment(
-          name.getPayload(),
-          anonymousName,
-          new r5js.Continuation());
+      return r5js.newTopLevelAssignment(name.getPayload(), anonymousName);
     }),
     _.list(
         _.one(Terminals.DEFINE),
@@ -508,8 +502,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
               formals, formalRoot.getNextSibling(), env, name));
       return r5js.newTopLevelAssignment(
           /** @type {string} */(name.getPayload()), // TODO bl
-          anonymousName,
-          new r5js.Continuation());
+          anonymousName);
     }),
     _.list(
         _.one(Terminals.BEGIN),
@@ -1030,10 +1023,7 @@ r5js.ParserImpl.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
         throw new r5js.MacroError(kw, 'all patterns must begin with ' + kw);
       var anonymousName = newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
-      return r5js.newTopLevelSyntaxAssignment(
-          kw,
-          anonymousName,
-          new r5js.Continuation());
+      return r5js.newTopLevelSyntaxAssignment(kw, anonymousName);
     });
 
 });  // goog.scope
