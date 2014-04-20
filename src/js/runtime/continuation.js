@@ -48,7 +48,6 @@ r5js.Continuation = function(opt_lastResultName) {
       ('@' /* TODO bl document */ + goog.getUid(this));
 
   /** @private {r5js.ProcCallLike} */ this.nextContinuable_ = null;
-  /** @private {r5js.ProcCallLike} */ this.beforeThunk_ = null;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
 
@@ -80,18 +79,6 @@ r5js.Continuation.prototype.setNextContinuable = function(continuable) {
 };
 
 
-/**
- * Just for call/ccs inside dynamic-winds.
- * TODO bl: document why we don't have to install the "after" thunk.
- * (I'm pretty sure the reason is it's already in the continuable chain
- * somewhere.)
- * @param {!r5js.ProcCallLike} before
- */
-r5js.Continuation.prototype.installBeforeThunk = function(before) {
-  this.beforeThunk_ = before;
-};
-
-
 /** @param {!r5js.IEnvironment} env Environment to remember. */
 r5js.Continuation.prototype.rememberEnv = function(env) {
   /* In general, we need to remember to jump out of the newEnv at
@@ -114,16 +101,6 @@ r5js.Continuation.prototype.evalAndAdvance = function(
   trampolineHelper.setValue(arg);
   if (this.nextContinuable_) {
     trampolineHelper.setNextProcCallLike(this.nextContinuable_);
-  }
-
-  if (this.beforeThunk_) {
-    var before = this.beforeThunk_;
-    var cur = this.nextContinuable_;
-    if (cur) {
-      r5js.ProcCallLike.appendProcCallLike(before, cur);
-    }
-    trampolineHelper.setNextProcCallLike(before);
-    // todo bl is it safe to leave proc.beforeThunk defined?
   }
 
   /* Cut out the current proc call from the continuation chain to

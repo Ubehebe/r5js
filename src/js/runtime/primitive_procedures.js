@@ -7,6 +7,7 @@ goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
+goog.require('r5js.DynamicWindContinuation');
 goog.require('r5js.Environment');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.IdShim');
@@ -973,7 +974,10 @@ PrimitiveProcedures['call-with-current-continuation'] =
         /* If this continuation is inside a call to dynamic-wind but
            escapes and then is later re-called, we have to remember
            to execute the associated before and after thunks. */
-        continuation.installBeforeThunk(beforeThunk);
+        continuation = new r5js.DynamicWindContinuation(
+            beforeThunk,
+            continuation.getNextContinuable(),
+            continuation.getLastResultName());
         resultStruct.setBeforeThunk(null);
       }
       var dummyProcCall = new r5js.ProcCall(
