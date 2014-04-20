@@ -22,6 +22,7 @@ goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DottedListTransformer');
 goog.require('r5js.EllipsisTransformer');
+goog.require('r5js.IdShim');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
@@ -43,7 +44,6 @@ goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
 goog.require('r5js.datumutil');
 goog.require('r5js.newAssignment');
-goog.require('r5js.newIdShim');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.bnf');
@@ -372,7 +372,7 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
           new r5js.Procedure(
               formals, formalRoot.getNextSibling(), env, name);
       env.addClosure(name, proc);
-      return r5js.newIdShim(new r5js.ast.Identifier(name));
+      return new r5js.IdShim(new r5js.ast.Identifier(name));
         });
 
 
@@ -552,7 +552,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var branch = new r5js.Branch(
           testEndpointContinuation.getLastResultName(),
           consequent,
-          r5js.newIdShim(new r5js.ast.Number(null)));
+          new r5js.IdShim(new r5js.ast.Number(null)));
       testEndpointContinuation.setNextContinuable(branch);
       return test;
     }));

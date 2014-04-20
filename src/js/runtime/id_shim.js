@@ -1,4 +1,4 @@
-goog.provide('r5js.newIdShim');
+goog.provide('r5js.IdShim');
 
 
 goog.require('r5js.Continuation');
@@ -17,13 +17,22 @@ goog.require('r5js.ast.String');
 
 
 /**
+ * If a nonterminal in the grammar has no associated desugar function,
+ * desugaring it will be a no-op. That is often the right behavior,
+ * but sometimes we would like to wrap the datum in a Continuable
+ * object for convenience on the trampoline. For example, the program
+ * "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]).
+ *
+ * We represent these id shims as ProcCalls whose operatorNames are null
+ * and whose firstOperand is the payload.
  * @param {?} payload
+ * @param {string=} opt_continuationName Optional name of the continuation.
  * @extends {r5js.ProcCall}
  * @struct
  * @constructor
  */
-r5js.IdShim = function(payload) {
-  goog.base(this, r5js.IdShim.NAME_, payload);
+r5js.IdShim = function(payload, opt_continuationName) {
+  goog.base(this, r5js.IdShim.NAME_, payload, opt_continuationName);
 };
 goog.inherits(r5js.IdShim, r5js.ProcCall);
 
@@ -152,25 +161,3 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
     resultStruct.setNextProcCallLike(nextContinuable);
   }
 };
-
-
-/**
- * If a nonterminal in the grammar has no associated desugar function,
- * desugaring it will be a no-op. That is often the right behavior,
- * but sometimes we would like to wrap the datum in a Continuable
- * object for convenience on the trampoline. For example, the program
- * "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]).
- *
- * We represent these id shims as ProcCalls whose operatorNames are null
- * and whose firstOperand is the payload.
- *
- * @param {?} payload
- * @param {string=} opt_continuationName Optional name of the continuation.
- * @return {!r5js.ProcCallLike} The new procedure call.
- */
-r5js.newIdShim = function(payload, opt_continuationName) {
-  var idShim = new r5js.IdShim(payload);
-  idShim.setContinuation(new r5js.Continuation(opt_continuationName));
-  return idShim;
-};
-

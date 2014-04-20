@@ -9,6 +9,7 @@ goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.Environment');
 goog.require('r5js.IEnvironment');
+goog.require('r5js.IdShim');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputMode');
 goog.require('r5js.OutputPort');
@@ -29,7 +30,6 @@ goog.require('r5js.ast.Number');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
-goog.require('r5js.newIdShim');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
@@ -896,7 +896,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       var result = newCpsName();
       r5js.ProcCallLike.appendProcCallLike(
           procCallAfter,
-          r5js.newIdShim(new r5js.ast.Identifier(result)));
+          new r5js.IdShim(new r5js.ast.Identifier(result)));
       r5js.ProcCallLike.getLast(procCallAfter).
           setContinuation(continuation);
 

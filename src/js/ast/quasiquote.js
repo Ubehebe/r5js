@@ -9,7 +9,7 @@ goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
-// TODO bl circular dependency goog.require('r5js.newIdShim');
+// TODO bl circular dependency goog.require('r5js.IdShim');
 
 
 
@@ -101,7 +101,7 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
 
   var newDatum = new r5js.ast.Quote(this.getFirstChild());
 
-  newCalls.appendProcCallLike(r5js.newIdShim(newDatum, cpsName));
+  newCalls.appendProcCallLike(new r5js.IdShim(newDatum, cpsName));
   var ans = newCalls.toContinuable();
   ans.setStartingEnv(env);
   return ans;
