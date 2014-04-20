@@ -173,6 +173,58 @@ r5js.ParserImpl.maybeFixParserSensitiveIds_ = function(root) {
 r5js.ParserImpl.fixParserSensitiveIds_;
 
 
+/**
+ * R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
+ * but they bind syntactic keywords to macro transformers instead of binding
+ * variables to locations that contain values."
+ *
+ * In this implementation, a macro is just another kind of object that can
+ * be stored in an environment, so we reuse the existing let machinery.
+ * For example:
+ *
+ * (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
+ *
+ * desugars as
+ *
+ * (let ((foo [SchemeMacro object])) ...)
+ *
+ * We just need to be sure that the SchemeMacro object inserted directly
+ * into the parse tree plays well when the tree is transcribed and reparsed.
+ *
+ * @param {!r5js.ast.CompoundDatum} datum Datum to desugar.
+ * @param {!r5js.IEnvironment} env TODO bl.
+ * @param {string} operatorName TODO bl.
+ * @return {!r5js.ProcCallLike}
+ * @private
+ */
+r5js.ParserImpl.desugarMacroBlock_ = function(datum, env, operatorName) {
+
+  var letBindings = new r5js.SiblingBuffer();
+
+  datum.firstSublist().forEachChild(function(spec) {
+    spec = /** @type {!r5js.ast.CompoundDatum} */ (spec); // TODO bl
+    var kw = spec.at(r5js.parse.Nonterminals.KEYWORD).clone(null /* parent */);
+    var macro = /** @type {!r5js.Macro} */ (
+        spec.at(r5js.parse.Nonterminals.TRANSFORMER_SPEC).desugar(env));
+    var buf = new r5js.SiblingBuffer();
+    /* We have to wrap the SchemeMacro object in a Datum to get it into
+         the parse tree. */
+    buf.appendSibling(kw);
+    buf.appendSibling(new r5js.ast.Macro(macro));
+    letBindings.appendSibling(buf.toList(r5js.ast.List));
+  });
+
+  var _let = new r5js.SiblingBuffer();
+  _let.appendSibling(
+      letBindings.toList(r5js.ast.List)
+  ).appendSibling(
+      /** @type {!r5js.Datum} */ (datum.firstSublist().getNextSibling()));
+
+  return new r5js.ProcCall(
+      new r5js.ast.Identifier(operatorName), _let.toSiblings());
+};
+
+
 /** @const {!Object.<!r5js.parse.Nonterminal, !r5js.parse.bnf.Rule>} */
 r5js.ParserImpl.grammar = {};
 
@@ -697,7 +749,7 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
     desugar(function(node, env) {
-      return r5js.Continuation.desugarMacroBlock(node, env, 'let');
+      return r5js.ParserImpl.desugarMacroBlock_(node, env, 'let');
     }),
     _.list(
         _.one(Terminals.LETREC_SYNTAX),
@@ -705,7 +757,7 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
     desugar(function(node, env) {
-      return r5js.Continuation.desugarMacroBlock(node, env, 'letrec');
+      return r5js.ParserImpl.desugarMacroBlock_(node, env, 'letrec');
     }));
 
 
