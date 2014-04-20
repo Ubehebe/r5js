@@ -13,6 +13,7 @@ goog.require('r5js.InputPort');
 goog.require('r5js.OutputMode');
 goog.require('r5js.OutputPort');
 goog.require('r5js.PrimitiveProcedureError');
+goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooManyArgs');
@@ -29,7 +30,6 @@ goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
 goog.require('r5js.newIdShim');
-goog.require('r5js.newProcCall');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
@@ -821,7 +821,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     // todo bl document why we are quoting the arguments
     for (var arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling())
       newArgs.appendSibling(new r5js.ast.Quote(arg));
-    var actualProcCall = r5js.newProcCall(
+    var actualProcCall = new r5js.ProcCall(
         procName, newArgs.toSiblings());
     actualProcCall.setContinuation(continuation);
     actualProcCall.setStartingEnv(curProcCall.env);
@@ -836,7 +836,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     var newArgs = new r5js.SiblingBuffer().
         appendSibling(arguments[1]).
         toSiblings();
-    var actualProcCall = r5js.newProcCall(procName, newArgs);
+    var actualProcCall = new r5js.ProcCall(procName, newArgs);
     actualProcCall.setContinuation(continuation);
     resultStruct.setNextProcCallLike(actualProcCall);
   }
@@ -886,10 +886,10 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
 
       // todo bl use a ContinuableBuffer for efficiency
 
-      var procCallBefore = r5js.newProcCall(
+      var procCallBefore = new r5js.ProcCall(
           procCall.getFirstOperand(), null /* no arguments */, before2);
 
-      var procCallAfter = r5js.newProcCall(
+      var procCallAfter = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling().getNextSibling(),
           null /* no arguments */);
 
@@ -900,7 +900,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       r5js.ProcCallLike.getLast(procCallAfter).
           setContinuation(continuation);
 
-      var procCallThunk = r5js.newProcCall(
+      var procCallThunk = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling(),
           null /* no arguments */, result);
 
@@ -914,7 +914,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
          This should be okay because dynamic-wind is the only one
          who writes to it, and call/cc is the only one who reads it.
          todo bl document why we cannot reuse procCallBefore. */
-      resultStruct.setBeforeThunk(r5js.newProcCall(
+      resultStruct.setBeforeThunk(new r5js.ProcCall(
           procCall.getFirstOperand(),
           null /* no arguments */, before2));
       return r5js.runtime.UNSPECIFIED_VALUE;
@@ -931,11 +931,11 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
 PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
     function(producer, consumer, procCall, continuation, resultStruct) {
       var valuesName = newCpsName();
-      var producerCall = r5js.newProcCall(
+      var producerCall = new r5js.ProcCall(
           procCall.getFirstOperand(), null /* no arguments */, valuesName);
       producerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
-      var consumerCall = r5js.newProcCall(
+      var consumerCall = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling(),
           new r5js.ast.Identifier(valuesName));
       consumerCall.setContinuation(continuation);
@@ -976,7 +976,7 @@ PrimitiveProcedures['call-with-current-continuation'] =
         continuation.installBeforeThunk(beforeThunk);
         resultStruct.setBeforeThunk(null);
       }
-      var dummyProcCall = r5js.newProcCall(
+      var dummyProcCall = new r5js.ProcCall(
           procCall.getFirstOperand(), continuation);
       dummyProcCall.setContinuation(continuation);
       dummyProcCall.setStartingEnv(

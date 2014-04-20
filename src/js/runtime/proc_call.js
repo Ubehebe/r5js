@@ -1,5 +1,4 @@
 goog.provide('r5js.ProcCall');
-goog.provide('r5js.newProcCall');
 
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
@@ -31,11 +30,13 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 /**
  * @param {!r5js.ast.Identifier} operatorName
  * @param {?} firstOperand
+ * @param {string=} opt_lastResultName Optional name to use for the last result.
+ *     If not given, a unique name will be created.
  * @implements {r5js.ProcCallLike}
  * @struct
  * @constructor
  */
-r5js.ProcCall = function(operatorName, firstOperand) {
+r5js.ProcCall = function(operatorName, firstOperand, opt_lastResultName) {
 
   /** @const @private */ this.operatorName_ = operatorName;
 
@@ -44,7 +45,8 @@ r5js.ProcCall = function(operatorName, firstOperand) {
 
   /** @protected {r5js.IEnvironment} */ this.env = null;
 
-  /** @private {r5js.Continuation} */ this.continuation_ = null;
+  /** @private */
+  this.continuation_ = new r5js.Continuation(opt_lastResultName);
 };
 
 
@@ -218,7 +220,7 @@ r5js.ProcCall.prototype.cpsify = function(
   }
 
   newCallChain.appendProcCallLike(
-      r5js.newProcCall(this.operatorName_, finalArgs.toSiblings()));
+      new r5js.ProcCall(this.operatorName_, finalArgs.toSiblings()));
 
   var ans = newCallChain.toContinuable();
   ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
@@ -370,20 +372,5 @@ r5js.ProcCall.prototype.evalArgsCallWithValues_ = function() {
   }
   return null;
 };
-
-
-/**
- * @param {?} operatorName
- * @param {?} firstOperand
- * @param {string=} opt_lastResultName Optional name to use for the last result.
- *     If not given, a unique name will be created.
- * @return {!r5js.ProcCallLike} The new procedure call.
- */
-r5js.newProcCall = function(operatorName, firstOperand, opt_lastResultName) {
-  var procCall = new r5js.ProcCall(operatorName, firstOperand);
-  procCall.setContinuation(new r5js.Continuation(opt_lastResultName));
-  return procCall;
-};
-
 
 

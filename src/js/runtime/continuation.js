@@ -21,7 +21,7 @@ goog.require('r5js.ProcedureLike');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Macro');
-// TODO bl cyclic dependency goog.require('r5js.newProcCall');
+// TODO bl cyclic dependency goog.require('r5js.ProcCall');
 
 
 
@@ -210,6 +210,6 @@ r5js.Continuation.desugarMacroBlock = function(datum, env, operatorName) {
   ).appendSibling(
       /** @type {!r5js.Datum} */ (datum.firstSublist().getNextSibling()));
 
-  return r5js.newProcCall(
+  return new r5js.ProcCall(
       new r5js.ast.Identifier(operatorName), _let.toSiblings());
 };

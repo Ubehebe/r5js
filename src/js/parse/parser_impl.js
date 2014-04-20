@@ -27,6 +27,7 @@ goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.PatternIdTransformer');
+goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.Procedure');
 goog.require('r5js.QuoteTransformer');
@@ -37,14 +38,12 @@ goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
-goog.require('r5js.ast.Literal');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
 goog.require('r5js.datumutil');
 goog.require('r5js.newAssignment');
 goog.require('r5js.newIdShim');
-goog.require('r5js.newProcCall');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.bnf');
@@ -296,8 +295,8 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
       // will be null if 0 operands
       var operands = node.at(Nonterminals.OPERAND);
 
-      if (operatorNode instanceof r5js.ast.Literal) {
-        return r5js.newProcCall(operatorNode, operands);
+      if (operatorNode instanceof r5js.ast.Identifier) {
+        return new r5js.ProcCall(operatorNode, operands);
       }
 
     // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
@@ -307,7 +306,7 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
         var lastContinuation = r5js.ProcCallLike.getLast(
             desugaredOp).getContinuation();
         var opName = lastContinuation.getLastResultName();
-        lastContinuation.setNextContinuable(r5js.newProcCall(
+        lastContinuation.setNextContinuable(new r5js.ProcCall(
             new r5js.ast.Identifier(opName), operands));
         return desugaredOp;
       }
@@ -676,8 +675,9 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_USE] = _.list(
                 datums as-is for the macro pattern matching facility to use.
                 The trampoline knows what to do with raw datums in such a
                 context. */
-      return r5js.newProcCall(
-          node.at(Nonterminals.KEYWORD), node.at(Nonterminals.DATUM));
+      return new r5js.ProcCall(
+          /** @type {!r5js.ast.Identifier} */ (node.at(Nonterminals.KEYWORD)),
+          node.at(Nonterminals.DATUM));
     });
 
 
