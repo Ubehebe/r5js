@@ -47,10 +47,7 @@ r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
     } else {
       var letrec = new r5js.ast.List(letrecBindings.toSiblings());
       letrec.setNextSibling(/** @type {!r5js.Datum} */ (helper.getLast()));
-      this.body = r5js.newProcCall(
-          new r5js.ast.Identifier('letrec'),
-          letrec,
-          new r5js.Continuation());
+      this.body = r5js.newProcCall(new r5js.ast.Identifier('letrec'), letrec);
     }
     this.lastContinuable = r5js.ProcCallLike.getLast(
         /** @type {!r5js.ProcCallLike} */ (this.body));

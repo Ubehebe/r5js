@@ -892,8 +892,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
 
       var procCallAfter = r5js.newProcCall(
           procCall.getFirstOperand().getNextSibling().getNextSibling(),
-          null, // no arguments
-          new r5js.Continuation());
+          null /* no arguments */);
 
       var result = newCpsName();
       r5js.ProcCallLike.appendProcCallLike(
@@ -905,8 +904,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       var procCallThunk = r5js.newProcCall(
           procCall.getFirstOperand().getNextSibling(),
           null, // no arguments
-          new r5js.Continuation(result)
-          );
+          new r5js.Continuation(result));
 
       r5js.ProcCallLike.appendProcCallLike(
           procCallThunk, procCallAfter);

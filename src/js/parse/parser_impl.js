@@ -297,10 +297,7 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
       var operands = node.at(Nonterminals.OPERAND);
 
       if (operatorNode instanceof r5js.ast.Literal) {
-        return r5js.newProcCall(
-            operatorNode,
-            operands,
-            new r5js.Continuation());
+        return r5js.newProcCall(operatorNode, operands);
       }
 
     // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
@@ -311,9 +308,7 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
             desugaredOp).getContinuation();
         var opName = lastContinuation.getLastResultName();
         lastContinuation.setNextContinuable(r5js.newProcCall(
-            new r5js.ast.Identifier(opName),
-            operands,
-            new r5js.Continuation()));
+            new r5js.ast.Identifier(opName), operands));
         return desugaredOp;
       }
         });
@@ -682,9 +677,7 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_USE] = _.list(
                 The trampoline knows what to do with raw datums in such a
                 context. */
       return r5js.newProcCall(
-          node.at(Nonterminals.KEYWORD),
-          node.at(Nonterminals.DATUM),
-          new r5js.Continuation());
+          node.at(Nonterminals.KEYWORD), node.at(Nonterminals.DATUM));
     });
 
 
