@@ -102,7 +102,7 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
   var newDatum = new r5js.ast.Quote(this.getFirstChild());
 
   newCalls.appendProcCallLike(r5js.newIdShim(newDatum, cpsName));
-  var ans = newCalls.toContinuable().getSubtype();
+  var ans = newCalls.toContinuable();
   ans.setStartingEnv(env);
   return ans;
 };
