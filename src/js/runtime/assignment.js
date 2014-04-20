@@ -3,7 +3,6 @@ goog.provide('r5js.newTopLevelAssignment');
 goog.provide('r5js.newTopLevelSyntaxAssignment');
 
 
-goog.require('r5js.Continuation');
 goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.Macro');
 goog.require('r5js.ProcCall');
@@ -21,7 +20,6 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  */
 r5js.Assignment = function(firstOperand) {
   goog.base(this, r5js.Assignment.NAME_, firstOperand);
-  this.setContinuation(new r5js.Continuation());
 };
 goog.inherits(r5js.Assignment, r5js.ProcCall);
 
