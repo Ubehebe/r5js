@@ -61,6 +61,12 @@ r5js.Branch.prototype.setContinuation = function(continuation) {
 
 
 /** @override */
+r5js.Branch.prototype.setNext = function(next) {
+  this.continuation_.setNextContinuable(next);
+};
+
+
+/** @override */
 r5js.Branch.prototype.setStartingEnv = function(env) {
   // TODO bl unify with maybeSetEnv
 };

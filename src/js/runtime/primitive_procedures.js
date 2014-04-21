@@ -942,7 +942,7 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
       consumerCall.setContinuation(continuation);
       consumerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
-      producerCall.getContinuation().setNextContinuable(consumerCall);
+      producerCall.setNext(consumerCall);
       resultStruct.setNextProcCallLike(producerCall);
       return r5js.runtime.UNSPECIFIED_VALUE;
     });

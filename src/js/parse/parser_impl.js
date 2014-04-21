@@ -357,8 +357,7 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
             operatorNode.desugar(env));
         var last = r5js.ProcCallLike.getLast(desugaredOp);
         var opName = last.getResultName();
-        var lastContinuation = last.getContinuation();
-        lastContinuation.setNextContinuable(new r5js.ProcCall(
+        last.setNext(new r5js.ProcCall(
             new r5js.ast.Identifier(opName), operands));
         return desugaredOp;
       }
@@ -485,8 +484,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
       var desugaredExpr = variable.getNextSibling().desugar(env, true);
       var last = r5js.ProcCallLike.getLast(desugaredExpr);
       var cpsName = last.getResultName();
-      var lastContinuation = last.getContinuation();
-      lastContinuation.setNextContinuable(
+      last.setNext(
           r5js.newTopLevelAssignment(variable.getPayload(), cpsName));
       return desugaredExpr;
     }),
@@ -573,13 +571,10 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
       var alternate = /** @type {!r5js.ProcCall} */ (
           node.at(Nonterminals.ALTERNATE).desugar(env, true));
-
       var testEndpoint = r5js.ProcCallLike.getLast(test);
-      var testEndpointContinuation = testEndpoint.getContinuation();
-
       var branch = new r5js.Branch(testEndpoint.getResultName(),
           consequent, alternate);
-      testEndpointContinuation.setNextContinuable(branch);
+      testEndpoint.setNext(branch);
       return test;
     }),
     _.list(
@@ -593,8 +588,6 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
       var testEndpoint = r5js.ProcCallLike.getLast(test);
-      var testEndpointContinuation = testEndpoint.getContinuation();
-
       /* If there's no alternate given, we create a shim that will return
          an undefined value. Example: (display (if #f 42)).
          We give a type of "number" for the shim because passing in
@@ -605,7 +598,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
           testEndpoint.getResultName(),
           consequent,
           new r5js.IdShim(new r5js.ast.Number(null)));
-      testEndpointContinuation.setNextContinuable(branch);
+      testEndpoint.setNext(branch);
       return test;
     }));
 
@@ -638,10 +631,7 @@ r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
           variable.getNextSibling().desugar(env, true));
       var lastContinuable = r5js.ProcCallLike.getLast(desugaredExpr);
       var cpsName = lastContinuable.getResultName();
-      lastContinuable.
-          getContinuation().
-          setNextContinuable(
-          r5js.newAssignment(
+      lastContinuable.setNext(r5js.newAssignment(
           /** @type {string} */ (variable.getPayload()), cpsName));
       return desugaredExpr;
         });

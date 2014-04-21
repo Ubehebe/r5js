@@ -33,6 +33,10 @@ r5js.ProcCallLike.prototype.setContinuation = function(continuation) {};
 r5js.ProcCallLike.prototype.setStartingEnv = function(env) {};
 
 
+/** @param {!r5js.ProcCallLike} next */
+r5js.ProcCallLike.prototype.setNext = function(next) {};
+
+
 /**
  * @param {!r5js.ProcCallLike} procCallLike
  * @return {!r5js.ProcCallLike}
@@ -51,8 +55,6 @@ r5js.ProcCallLike.getLast = function(procCallLike) {
  * @param {!r5js.ProcCallLike} next The next continuable.
  */
 r5js.ProcCallLike.appendProcCallLike = function(procCallLike, next) {
-  r5js.ProcCallLike.getLast(procCallLike).
-      getContinuation().
-      setNextContinuable(next);
+  r5js.ProcCallLike.getLast(procCallLike).setNext(next);
 };
 
