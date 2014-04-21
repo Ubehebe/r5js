@@ -21,6 +21,10 @@ r5js.ProcCallLike.prototype.evalAndAdvance = function(
 r5js.ProcCallLike.prototype.getContinuation = function() {};
 
 
+/** @return {string} */
+r5js.ProcCallLike.prototype.getResultName = function() {};
+
+
 /** @param {!r5js.Continuation} continuation */
 r5js.ProcCallLike.prototype.setContinuation = function(continuation) {};
 

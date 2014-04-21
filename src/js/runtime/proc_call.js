@@ -190,9 +190,7 @@ r5js.ProcCall.prototype.cpsify = function(
           parserProvider);
       finalArgs.appendSibling(
           new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
-          maybeContinuable)
-                        .getContinuation()
-                        .getLastResultName()));
+          maybeContinuable).getResultName()));
       newCallChain.appendProcCallLike(maybeContinuable);
     } else if (arg instanceof r5js.ast.Lambda) {
       finalArgs.appendSibling(
@@ -205,9 +203,7 @@ r5js.ProcCall.prototype.cpsify = function(
              and not to desugar to a Continuable? */
       finalArgs.appendSibling(
           new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
-              maybeContinuable).
-              getContinuation().
-              getLastResultName()));
+              maybeContinuable).getResultName()));
       newCallChain.appendProcCallLike(maybeContinuable);
     } else {
       var clonedArg = arg.clone(null /* parent */);
@@ -257,6 +253,12 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
   // We shouldn't leave the environment pointer hanging around.
   this.clearEnv();
+};
+
+
+/** @override */
+r5js.ProcCall.prototype.getResultName = function() {
+  return this.continuation_.getLastResultName();
 };
 
 

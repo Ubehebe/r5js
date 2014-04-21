@@ -355,9 +355,9 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
       else {
         var desugaredOp = /** @type {!r5js.ProcCallLike} */ (
             operatorNode.desugar(env));
-        var lastContinuation = r5js.ProcCallLike.getLast(
-            desugaredOp).getContinuation();
-        var opName = lastContinuation.getLastResultName();
+        var last = r5js.ProcCallLike.getLast(desugaredOp);
+        var opName = last.getResultName();
+        var lastContinuation = last.getContinuation();
         lastContinuation.setNextContinuable(new r5js.ProcCall(
             new r5js.ast.Identifier(opName), operands));
         return desugaredOp;
@@ -483,9 +483,9 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 todo bl: make this flow of control explicit. */
       var variable = node.at(Nonterminals.VARIABLE);
       var desugaredExpr = variable.getNextSibling().desugar(env, true);
-      var lastContinuation = r5js.ProcCallLike.getLast(desugaredExpr).
-          getContinuation();
-      var cpsName = lastContinuation.getLastResultName();
+      var last = r5js.ProcCallLike.getLast(desugaredExpr);
+      var cpsName = last.getResultName();
+      var lastContinuation = last.getContinuation();
       lastContinuation.setNextContinuable(
           r5js.newTopLevelAssignment(variable.getPayload(), cpsName));
       return desugaredExpr;
@@ -577,7 +577,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       var testEndpoint = r5js.ProcCallLike.getLast(test);
       var testEndpointContinuation = testEndpoint.getContinuation();
 
-      var branch = new r5js.Branch(testEndpointContinuation.getLastResultName(),
+      var branch = new r5js.Branch(testEndpoint.getResultName(),
           consequent, alternate);
       testEndpointContinuation.setNextContinuable(branch);
       return test;
@@ -602,7 +602,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
          change the semantics.
          TODO bl improve. */
       var branch = new r5js.Branch(
-          testEndpointContinuation.getLastResultName(),
+          testEndpoint.getResultName(),
           consequent,
           new r5js.IdShim(new r5js.ast.Number(null)));
       testEndpointContinuation.setNextContinuable(branch);
@@ -637,9 +637,7 @@ r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
       var desugaredExpr = /** @type {!r5js.ProcCallLike} */ (
           variable.getNextSibling().desugar(env, true));
       var lastContinuable = r5js.ProcCallLike.getLast(desugaredExpr);
-      var cpsName = lastContinuable.
-          getContinuation().
-          getLastResultName();
+      var cpsName = lastContinuable.getResultName();
       lastContinuable.
           getContinuation().
           setNextContinuable(
