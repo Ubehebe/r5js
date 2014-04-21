@@ -86,13 +86,16 @@ r5js.Branch.prototype.setStartingEnv = function(env) {
 
 /** @override */
 r5js.Branch.prototype.evalAndAdvance = function(
-    continuation, resultStruct, envBuffer, parserProvider) {
+    resultStruct, envBuffer, parserProvider) {
 
   /* Branches always use the old environment left by the previous action
     on the trampoline. */
   var testResult = envBuffer.getEnv().get(this.testResultName_);
+  var continuation = this.getContinuation();
   if (testResult === false) {
-    this.alternateLastContinuable_.setContinuation(continuation);
+    if (continuation) {
+      this.alternateLastContinuable_.setContinuation(continuation);
+    }
     resultStruct.setNextProcCallLike(this.alternate_);
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}.
@@ -101,7 +104,9 @@ r5js.Branch.prototype.evalAndAdvance = function(
          is insufficient or that I don't understand the type of subtype. */
     this.consequent_.clearEnv();
   } else {
-    this.consequentLastContinuable_.setContinuation(continuation);
+    if (continuation) {
+      this.consequentLastContinuable_.setContinuation(continuation);
+    }
     resultStruct.setNextProcCallLike(this.consequent_);
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}, and above. */

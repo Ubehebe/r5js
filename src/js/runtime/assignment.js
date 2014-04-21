@@ -30,7 +30,7 @@ r5js.Assignment.NAME_ = new r5js.ast.Identifier('set!');
 
 /** @override */
 r5js.Assignment.prototype.evalAndAdvance = function(
-    continuation, resultStruct, envBuffer, parserProvider) {
+    resultStruct, envBuffer, parserProvider) {
 
   /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
@@ -38,7 +38,7 @@ r5js.Assignment.prototype.evalAndAdvance = function(
     this.setEnv(/** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()));
   }
 
-  this.tryAssignment_(continuation, resultStruct);
+  this.tryAssignment_(resultStruct);
 
   /* Save the environment we used in case the next action on the trampoline
      needs it (for example branches, which have no environment of their own). */
@@ -50,20 +50,21 @@ r5js.Assignment.prototype.evalAndAdvance = function(
 
 
 /**
- * @param {!r5js.Continuation} continuation
  * @param {!r5js.TrampolineHelper} resultStruct
  * @private
  */
-r5js.Assignment.prototype.tryAssignment_ = function(
-    continuation, resultStruct) {
+r5js.Assignment.prototype.tryAssignment_ = function(resultStruct) {
   var src = this.env.get(/** @type {string} */ (
       this.firstOperand.getNextSibling().getPayload()));
   this.checkForImproperSyntaxAssignment(src);
   this.mutateEnv(/** @type {string} */ (this.firstOperand.getPayload()), src);
   /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
-  this.bindResult(continuation, r5js.runtime.UNSPECIFIED_VALUE);
-  var nextContinuable = continuation.getNextContinuable();
+  var continuation = this.getContinuation();
+  if (continuation) {
+    this.bindResult(continuation, r5js.runtime.UNSPECIFIED_VALUE);
+  }
+  var nextContinuable = this.getNext();
   if (nextContinuable) {
     resultStruct.setNextProcCallLike(nextContinuable);
   }

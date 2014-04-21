@@ -114,11 +114,7 @@ r5js.trampoline = function(procCallLike, inputPort, outputPort) {
   var ans;
 
   while (cur) {
-    cur.evalAndAdvance(
-        /** @type {!r5js.Continuation} */ (cur.getContinuation()),
-        resultStruct,
-        savedEnv,
-        parserProvider);
+    cur.evalAndAdvance(resultStruct, savedEnv, parserProvider);
     ans = resultStruct.getValue();
     cur = resultStruct.getNextProcCallLike();
     resultStruct.clear();

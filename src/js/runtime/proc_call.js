@@ -228,7 +228,7 @@ r5js.ProcCall.prototype.cpsify = function(
 
 /** @override */
 r5js.ProcCall.prototype.evalAndAdvance = function(
-    continuation, resultStruct, envBuffer, parserProvider) {
+    resultStruct, envBuffer, parserProvider) {
 
   /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
@@ -240,7 +240,8 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
       this.operatorName_.getPayload()));
 
   if (r5js.ProcedureLike.isImplementedBy(proc)) {
-    proc.evalAndAdvance(this, continuation, resultStruct, parserProvider);
+    proc.evalAndAdvance(
+        this, this.getContinuation(), resultStruct, parserProvider);
   } else {
     throw new r5js.EvalError(
         'procedure application: expected procedure, given ' +

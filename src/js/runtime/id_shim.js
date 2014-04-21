@@ -42,7 +42,7 @@ goog.inherits(r5js.IdShim, r5js.ProcCall);
 
 /** @override */
 r5js.IdShim.prototype.evalAndAdvance = function(
-    continuation, resultStruct, envBuffer, parserProvider) {
+    resultStruct, envBuffer, parserProvider) {
 
   /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
@@ -50,7 +50,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
     this.setEnv(/** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()));
   }
 
-  this.tryIdShim_(continuation, resultStruct, parserProvider);
+  this.tryIdShim_(resultStruct, parserProvider);
 
   /* Save the environment we used in case the next action on the trampoline
      needs it (for example branches, which have no environment of their own). */
@@ -62,15 +62,13 @@ r5js.IdShim.prototype.evalAndAdvance = function(
 
 
 /**
- * @param {!r5js.Continuation} continuation A continuation.
  * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  * @private
  * TODO bl too long.
  */
-r5js.ProcCall.prototype.tryIdShim_ = function(
-    continuation, resultStruct, parserProvider) {
+r5js.ProcCall.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
   var ans;
 
   var arg = this.firstOperand;
@@ -122,9 +120,9 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
   else if (arg instanceof r5js.ast.Quasiquote) {
     var continuable = arg.processQuasiquote(
         /** @type {!r5js.IEnvironment} */ (this.env),
-        continuation.getLastResultName(),
+        this.getResultName(),
         parserProvider);
-    var nextContinuable = continuation.getNextContinuable();
+    var nextContinuable = this.getNext();
     if (nextContinuable) {
       r5js.ProcCallLike.appendProcCallLike(
           continuable, nextContinuable);
@@ -144,9 +142,12 @@ r5js.ProcCall.prototype.tryIdShim_ = function(
     }
   }
 
-  this.bindResult(continuation, ans);
+  var continuation = this.getContinuation();
+  if (continuation) {
+    this.bindResult(continuation, ans);
+  }
 
-  var nextContinuable = continuation.getNextContinuable();
+  var nextContinuable = this.getNext();
 
   /* If we're at the end of the continuable-continuation chain and we're
      trying to return a macro object off the trampoline, that's an error.
