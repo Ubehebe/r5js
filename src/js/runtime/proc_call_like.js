@@ -41,6 +41,10 @@ r5js.ProcCallLike.prototype.setContinuation = function(continuation) {};
 r5js.ProcCallLike.prototype.setStartingEnv = function(env) {};
 
 
+/** @return {r5js.ProcCallLike} */
+r5js.ProcCallLike.prototype.getNext = function() {};
+
+
 /** @param {!r5js.ProcCallLike} next */
 r5js.ProcCallLike.prototype.setNext = function(next) {};
 
@@ -50,11 +54,8 @@ r5js.ProcCallLike.prototype.setNext = function(next) {};
  * @return {!r5js.ProcCallLike}
  */
 r5js.ProcCallLike.getLast = function(procCallLike) {
-  var continuation = procCallLike.getContinuation();
-  var nextContinuable = continuation.getNextContinuable();
-  return nextContinuable ?
-      r5js.ProcCallLike.getLast(nextContinuable) :
-      procCallLike;
+  var maybeNext = procCallLike.getNext();
+  return maybeNext ? r5js.ProcCallLike.getLast(maybeNext) : procCallLike;
 };
 
 

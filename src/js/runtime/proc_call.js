@@ -257,6 +257,12 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
 
 /** @override */
+r5js.ProcCall.prototype.getNext = function() {
+  return this.continuation_.getNextContinuable();
+};
+
+
+/** @override */
 r5js.ProcCall.prototype.setNext = function(next) {
   this.continuation_.setNextContinuable(next);
 };

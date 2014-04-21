@@ -214,33 +214,35 @@ r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
 /**
  * @param {!r5js.IEnvironment} env TODO bl
  * @return {r5js.ProcCallLike}
- * @suppress {checkTypes} TODO bl this method is a mess.
  */
 r5js.Datum.prototype.sequence = function(env) {
-    var first = null, tmp, curEnd;
+    /** @type {r5js.ProcCallLike} */ var first = null;
+    var desugared;
+    /** @type {r5js.ProcCallLike} */ var curEnd;
     for (var cur = this; cur; cur = cur.nextSibling_) {
-        if (tmp = cur.desugar(env)) {
+        if (desugared = cur.desugar(env)) {
 
             /* Nodes that have no desugar functions (for example, variables
              and literals) desugar as themselves. Sometimes this is OK
              (for example in Datum.sequenceOperands), but here we need to be
              able to connect the Continuable objects correctly, so we
              wrap them. */
-            if (tmp instanceof r5js.Datum) {
-                tmp = new r5js.IdShim(tmp);
-            }
+            var desugaredProcCallLike = /**@type {!r5js.ProcCallLike} */ (
+                desugared instanceof r5js.Datum ?
+                    new r5js.IdShim(desugared) :
+                    desugared);
 
             if (!first) {
-                first = tmp;
+                first = desugaredProcCallLike;
             } else if (curEnd) {
-                curEnd.setNextContinuable(tmp);
+                curEnd.setNext(desugaredProcCallLike);
             }
 
-            curEnd = r5js.ProcCallLike.getLast(tmp).getContinuation();
+            curEnd = r5js.ProcCallLike.getLast(desugaredProcCallLike);
         }
     }
 
-    return first; // can be undefined
+    return first;
 };
 
 

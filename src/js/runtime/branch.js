@@ -67,6 +67,12 @@ r5js.Branch.prototype.setContinuation = function(continuation) {
 
 
 /** @override */
+r5js.Branch.prototype.getNext = function() {
+  return this.continuation_.getNextContinuable();
+};
+
+
+/** @override */
 r5js.Branch.prototype.setNext = function(next) {
   this.continuation_.setNextContinuable(next);
 };

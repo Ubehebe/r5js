@@ -138,11 +138,12 @@ r5js.Continuation.prototype.evalAndAdvance = function(
 r5js.Continuation.repairInfiniteLoop = function(procCall, trampolineHelper) {
   for (var tmp = trampolineHelper.getNextProcCallLike(), prev;
       tmp;
-      prev = tmp, tmp = tmp.getContinuation().nextContinuable_) {
+      prev = tmp, tmp = tmp.getNext()) {
     if (tmp === procCall) {
       if (prev) {
-        prev.getContinuation().nextContinuable_ =
-            tmp.getContinuation().nextContinuable_;
+        // TODO bl remove cast. At least one test relies on
+        // setNext(null) here.
+        prev.setNext(/** @type {!r5js.ProcCallLike} */ (tmp.getNext()));
       }
       return;
     }
