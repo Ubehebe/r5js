@@ -268,6 +268,12 @@ r5js.ProcCall.prototype.getResultName = function() {
 };
 
 
+/** @override */
+r5js.ProcCall.prototype.setResultName = function(resultName) {
+  this.continuation_.setLastResultName(resultName);
+};
+
+
 /**
  * @param {!r5js.Continuation} continuation
  * @param {!r5js.runtime.Value} val

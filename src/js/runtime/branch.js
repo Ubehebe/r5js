@@ -55,6 +55,12 @@ r5js.Branch.prototype.getResultName = function() {
 
 
 /** @override */
+r5js.Branch.prototype.setResultName = function(resultName) {
+  this.continuation_.setLastResultName(resultName);
+};
+
+
+/** @override */
 r5js.Branch.prototype.setContinuation = function(continuation) {
   this.continuation_ = continuation;
 };

@@ -25,6 +25,14 @@ r5js.ProcCallLike.prototype.getContinuation = function() {};
 r5js.ProcCallLike.prototype.getResultName = function() {};
 
 
+/**
+ * @param {string} resultName
+ * TODO bl remove.
+ * @see {r5js.Continuation#setLastResultName}
+ */
+r5js.ProcCallLike.prototype.setResultName = function(resultName) {};
+
+
 /** @param {!r5js.Continuation} continuation */
 r5js.ProcCallLike.prototype.setContinuation = function(continuation) {};
 

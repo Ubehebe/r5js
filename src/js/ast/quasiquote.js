@@ -86,15 +86,13 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
             /** @type {!r5js.Datum} */(node.getFirstChild())).
                 parse(r5js.parse.Nonterminals.EXPRESSION).
                 desugar(env, true)));
-        var continuation = r5js.ProcCallLike.getLast(asContinuable).
-            getContinuation();
         /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */
         var name = (node instanceof r5js.ast.Unquote ?
                 r5js.parse.Terminals.COMMA :
                 r5js.parse.Terminals.COMMA_AT) + '' + goog.getUid(new Object());
-        continuation.setLastResultName(name);
+        r5js.ProcCallLike.getLast(asContinuable).setResultName(name);
         newCalls.appendProcCallLike(asContinuable);
         return new r5js.ast.Identifier(name);
       });
