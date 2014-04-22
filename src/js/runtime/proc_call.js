@@ -167,13 +167,13 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
  * (We do _not_ do this if the operator resolves as a macro. Macros
  * get their arguments as unevaluated datums.)
  *
- * @param {!r5js.Continuation} continuation
+ * @param {!r5js.ProcCallLike} procCallLike
  * @param {!r5js.TrampolineHelper} resultStruct
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  */
 r5js.ProcCall.prototype.cpsify = function(
-    continuation, resultStruct, parserProvider) {
+    procCallLike, resultStruct, parserProvider) {
 
   var newCallChain = new r5js.ContinuableHelper();
   var finalArgs = new r5js.SiblingBuffer();
@@ -186,7 +186,7 @@ r5js.ProcCall.prototype.cpsify = function(
     } else if (arg instanceof r5js.ast.Quasiquote) {
       maybeContinuable = arg.processQuasiquote(
           /** @type {!r5js.IEnvironment} */ (this.env),
-          continuation.getLastResultName(),
+          procCallLike.getResultName(),
           parserProvider);
       finalArgs.appendSibling(
           new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
@@ -221,7 +221,8 @@ r5js.ProcCall.prototype.cpsify = function(
   var ans = newCallChain.toContinuable();
   ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
   var lastContinuable = r5js.ProcCallLike.getLast(ans);
-  lastContinuable.setContinuation(continuation);
+  lastContinuable.setContinuation(/** @type {!r5js.Continuation} */ (
+      procCallLike.getContinuation()));
   resultStruct.setNextProcCallLike(ans);
 };
 

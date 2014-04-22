@@ -179,7 +179,7 @@ r5js.Procedure.prototype.evalAndAdvance = function(
   /* If the operands aren't simple, we'll have to take a detour to
      restructure them. */
   if (!procCall.operandsInCpsStyle()) {
-    procCall.cpsify(continuation, trampolineHelper, parserProvider);
+    procCall.cpsify(procCallLike, trampolineHelper, parserProvider);
   }
 
   else {

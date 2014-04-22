@@ -329,7 +329,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
 
              (+ (* 1 2) (/ 3 4)) => (* 1 2 [_0 (/ 3 4 [_1 (+ _0 _1 ...)])]) */
   if (!procCall.operandsInCpsStyle()) {
-    procCall.cpsify(continuation, trampolineHelper, parserProvider);
+    procCall.cpsify(procCallLike, trampolineHelper, parserProvider);
   }
 
   else {
