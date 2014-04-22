@@ -43,5 +43,5 @@ r5js.DynamicWindContinuation.prototype.evalAndAdvance = function(
   if (this.nextContinuable_) {
     r5js.ProcCallLike.appendProcCallLike(this.thunk_, this.nextContinuable_);
   }
-  r5js.Continuation.repairInfiniteLoop(procCall, trampolineHelper);
+  r5js.Continuation.repairInfiniteLoop(procCallLike, trampolineHelper);
 };

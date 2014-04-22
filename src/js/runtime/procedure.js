@@ -85,14 +85,13 @@ r5js.Procedure.prototype.setContinuation_ = function(c) {
 
 
 /**
- * @param {!r5js.Continuation} c A continuation.
+ * @param {!r5js.ProcCallLike} procCallLike
  * @return {boolean} True iff this procedure is in tail position.
  * @private
  * TODO bl are we sure this covers all forms of tail recursion in R5RS?
  */
-r5js.Procedure.prototype.isTailCall_ = function(c) {
-  if (this.lastContinuable &&
-      this.lastContinuable.getContinuation() === c) {
+r5js.Procedure.prototype.isTailCall_ = function(procCallLike) {
+  if (this.lastContinuable === procCallLike) {
     // a good place to see if tail recursion is actually working :)
     // console.log('TAIL RECURSION!!!');
     return true;
@@ -190,7 +189,7 @@ r5js.Procedure.prototype.evalAndAdvance = function(
 
     /* If we're at a tail call we can reuse the existing environment.
          Otherwise create a new environment pointing back to the current one. */
-    var newEnv = this.isTailCall_(continuation) ?
+    var newEnv = this.isTailCall_(procCallLike) ?
             procCall.env.allowRedefs() :
             new r5js.Environment(this.env_).addClosuresFrom(this.env_);
 

@@ -102,7 +102,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
   if (this.nextContinuable_) {
     trampolineHelper.setNextProcCallLike(this.nextContinuable_);
   }
-  r5js.Continuation.repairInfiniteLoop(procCall, trampolineHelper);
+  r5js.Continuation.repairInfiniteLoop(procCallLike, trampolineHelper);
 };
 
 
