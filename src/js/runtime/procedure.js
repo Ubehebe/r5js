@@ -2,14 +2,14 @@ goog.provide('r5js.Procedure');
 
 
 goog.require('r5js.Continuation');
+goog.require('r5js.Environment');
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.ProcedureLike');
 goog.require('r5js.SiblingBuffer');
-// TODO bl circular dependency goog.require('r5js.ProcCall');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
-// TODO bl circular dependency goog.require('r5js.Environment');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.datumutil');
@@ -31,29 +31,37 @@ goog.require('r5js.parse.Terminals');
  * @constructor
  */
 r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
-
-  /** @const @protected */ this.formalsArray = formalsArray;
-  /** @const @private */ this.name_ =
-      goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
+  /** @const @protected */ this.formalsArray =
+      formalsArray;
   /** @const @private {!r5js.IEnvironment} */ this.env_ =
       new r5js.Environment(env);
-
-  if (bodyStart) {
-    var helper = new r5js.Procedure.LetrecBindingsHelper_();
-    var letrecBindings = helper.collectLetrecBindings(bodyStart);
-
-    if (letrecBindings.isEmpty()) {
-      this.body = helper.getLast().sequence(this.env_);
-    } else {
-      var letrec = new r5js.ast.List(letrecBindings.toSiblings());
-      letrec.setNextSibling(/** @type {!r5js.Datum} */ (helper.getLast()));
-      this.body = new r5js.ProcCall(new r5js.ast.Identifier('letrec'), letrec);
-    }
-    this.lastContinuable = r5js.ProcCallLike.getLast(
-        /** @type {!r5js.ProcCallLike} */ (this.body));
-  }
+  /** @const @private {r5js.ProcCallLike}*/ this.body =
+      bodyStart ? this.setupBody_(bodyStart) : null;
+  /** @const @private {r5js.ProcCallLike} */ this.lastContinuable =
+      this.body ? r5js.ProcCallLike.getLast(this.body) : null;
+  /** @const @private */ this.name_ =
+      goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
 };
 r5js.ProcedureLike.addImplementation(r5js.Procedure);
+
+
+/**
+ * @param {!r5js.Datum} bodyStart
+ * @return {!r5js.ProcCallLike}
+ * @private
+ */
+r5js.Procedure.prototype.setupBody_ = function(bodyStart) {
+  var helper = new r5js.Procedure.LetrecBindingsHelper_();
+  var letrecBindings = helper.collectLetrecBindings(bodyStart);
+  if (letrecBindings.isEmpty()) {
+    return /** @type {!r5js.ProcCallLike} */ (
+        helper.getLast().sequence(this.env_));
+  } else {
+    var letrec = new r5js.ast.List(letrecBindings.toSiblings());
+    letrec.setNextSibling(/** @type {!r5js.Datum} */ (helper.getLast()));
+    return new r5js.ProcCall(new r5js.ast.Identifier('letrec'), letrec);
+  }
+};
 
 
 /**
@@ -71,15 +79,16 @@ r5js.Procedure.prototype.cloneWithEnv = function(env) {
 
 
 /**
- * @param {!r5js.Continuation} c A continuation.
+ * @param {!r5js.ProcCallLike} procCallLike
  * @private
  */
-r5js.Procedure.prototype.setContinuation_ = function(c) {
+r5js.Procedure.prototype.setContinuation_ = function(procCallLike) {
+  var continuation = procCallLike.getContinuation();
   /* This will be a vacuous write for a tail call. But that is
-     probably still faster than checking if we are in tail position and,
-     if so, explicitly doing nothing. */
-  if (this.lastContinuable) {
-    this.lastContinuable.setContinuation(c);
+       probably still faster than checking if we are in tail position and,
+       if so, explicitly doing nothing. */
+  if (this.lastContinuable && continuation) {
+    this.lastContinuable.setContinuation(continuation);
   }
 };
 
@@ -199,8 +208,8 @@ r5js.Procedure.prototype.evalAndAdvance = function(
       continuation.rememberEnv(procCall.env);
     }
 
-    // Do some bookkeepping to prepare for jumping into the procedure
-    this.setContinuation_(continuation);
+    // Do some bookkeeping to prepare for jumping into the procedure
+    this.setContinuation_(procCallLike);
     this.checkNumArgs(args.length);
     this.bindArgs(args, newEnv);
     this.setEnv_(newEnv);

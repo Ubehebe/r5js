@@ -9,7 +9,6 @@ goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
 goog.require('r5js.ProcCallLike');
-goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.CompoundDatum');
