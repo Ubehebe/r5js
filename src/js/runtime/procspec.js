@@ -292,12 +292,14 @@ r5js.procspec.PrimitiveProcedure_.prototype.setDebugName = function(name) {
 /**
  * @param {!goog.array.ArrayLike} userArgs
  * @param {!r5js.ProcCall} procCall
- * @param {!r5js.Continuation} continuation
+ * @param {!r5js.ProcCallLike} procCallLike
  * @param {!r5js.TrampolineHelper} trampolineHelper
  * @protected
  */
 r5js.procspec.PrimitiveProcedure_.prototype.call = function(
-    userArgs, procCall, continuation, trampolineHelper) {
+    userArgs, procCall, procCallLike, trampolineHelper) {
+    var continuation = /** @type {!r5js.Continuation} */ (
+        procCallLike.getContinuation());
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
@@ -321,9 +323,6 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
  */
 r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
     function(procCall, procCallLike, trampolineHelper, parserProvider) {
-
-  var continuation = /** @type {!r5js.Continuation} */ (
-      procCallLike.getContinuation());
   /* If the operands aren't simple, we'll have to take a detour to
              restructure them. Example:
 
@@ -340,7 +339,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
         args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
       }
     }
-    this.call(args, procCall, continuation, trampolineHelper);
+    this.call(args, procCall, procCallLike, trampolineHelper);
   }
 };
 
@@ -366,7 +365,9 @@ r5js.ProcedureLike.addImplementation(r5js.procspec.NeedsCurrentPorts_);
 
 /** @override */
 r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
-    userArgs, procCall, continuation, trampolineHelper) {
+    userArgs, procCall, procCallLike, trampolineHelper) {
+    var continuation = /** @type {!r5js.Continuation} */ (
+        procCallLike.getContinuation());
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
@@ -406,7 +407,8 @@ r5js.ProcedureLike.addImplementation(r5js.procspec.HasSpecialEvalLogic_);
 
 /** @override */
 r5js.procspec.HasSpecialEvalLogic_.prototype.call = function(
-    userArgs, procCall, continuation, trampolineHelper) {
+    userArgs, procCall, procCallLike, trampolineHelper) {
+    var continuation = procCallLike.getContinuation();
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
