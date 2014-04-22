@@ -805,7 +805,8 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
 
   var curProcCall = arguments[arguments.length - 3];
   var procName = new r5js.ast.Identifier(mustBeProc.getName());
-  var continuation = arguments[arguments.length - 2];
+  var procCallLike = arguments[arguments.length - 2];
+  var continuation = procCallLike.getContinuation();
   var resultStruct = /** @type {!r5js.TrampolineHelper} */ (
       arguments[arguments.length - 1]);
 
@@ -878,7 +879,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
  * 42 to).
  */
 PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
-    function(before, thunk, after, procCall, continuation, resultStruct) {
+    function(before, thunk, after, procCall, procCallLike, resultStruct) {
       // TODO bl: the compiler thinks there's already a variable named
       // "before" in scope here. Figure out why.
       var before2 = newCpsName();
@@ -899,7 +900,8 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
           procCallAfter,
           new r5js.IdShim(new r5js.ast.Identifier(result)));
       r5js.ProcCallLike.getLast(procCallAfter).
-          setContinuation(continuation);
+          setContinuation(/** @type {!r5js.Continuation} */ (
+              procCallLike.getContinuation()));
 
       var procCallThunk = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling(),
@@ -930,7 +932,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
  * of the call to call-with-values."
  */
 PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
-    function(producer, consumer, procCall, continuation, resultStruct) {
+    function(producer, consumer, procCall, procCallLike, resultStruct) {
       var valuesName = newCpsName();
       var producerCall = new r5js.ProcCall(
           procCall.getFirstOperand(), null /* no arguments */, valuesName);
@@ -939,7 +941,8 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
       var consumerCall = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling(),
           new r5js.ast.Identifier(valuesName));
-      consumerCall.setContinuation(continuation);
+      consumerCall.setContinuation(/** @type {!r5js.Continuation} */ (
+          procCallLike.getContinuation()));
       consumerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       producerCall.setNext(consumerCall);
@@ -968,17 +971,19 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
  */
 PrimitiveProcedures['call-with-current-continuation'] =
     _.unaryWithSpecialEvalLogic(function(
-        procedure, procCall, continuation, resultStruct) {
+        procedure, procCall, procCallLike, resultStruct) {
+      var continuation = /** @type {!r5js.Continuation} */ (
+          procCallLike.getContinuation());
       var beforeThunk = resultStruct.getBeforeThunk();
       if (beforeThunk) {
-        /* If this continuation is inside a call to dynamic-wind but
-           escapes and then is later re-called, we have to remember
-           to execute the associated before and after thunks. */
-        continuation = new r5js.DynamicWindContinuation(
+            /* If this continuation is inside a call to dynamic-wind but
+               escapes and then is later re-called, we have to remember
+               to execute the associated before and after thunks. */
+            continuation = new r5js.DynamicWindContinuation(
             beforeThunk,
-            continuation.getNextContinuable(),
-            continuation.getLastResultName());
-        resultStruct.setBeforeThunk(null);
+            procCallLike.getNext(),
+            procCallLike.getResultName());
+            resultStruct.setBeforeThunk(null);
       }
       var dummyProcCall = new r5js.ProcCall(
           procCall.getFirstOperand(), continuation);
@@ -994,7 +999,7 @@ PrimitiveProcedures['call-with-current-continuation'] =
 PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
   // Varargs procedures that also have special eval logic are a pain.
   var resultStruct = arguments[arguments.length - 1];
-  var continuation = arguments[arguments.length - 2];
+  var procCallLike = arguments[arguments.length - 2];
   var procCall = arguments[arguments.length - 3];
   var numUserArgs = arguments.length - 3;
 
@@ -1005,7 +1010,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
 
      should just bind 1 to _0 and continue. */
   if (numUserArgs === 1) {
-    procCall.env.addBinding(continuation.getLastResultName(), arguments[0]);
+    procCall.env.addBinding(procCallLike.getResultName(), arguments[0]);
   } else {
     /* If there's more than one argument, we bind the whole array
        to the continuation's lastResultName. This means later, when we're
@@ -1018,9 +1023,9 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
       userArgs.push(arguments[i]);
     }
 
-    procCall.env.addBinding(continuation.getLastResultName(), userArgs);
+    procCall.env.addBinding(procCallLike.getResultName(), userArgs);
   }
-  var nextContinuable = continuation.getNextContinuable();
+  var nextContinuable = procCallLike.getNext();
   if (nextContinuable) {
     nextContinuable.setStartingEnv(procCall.env);
   }
