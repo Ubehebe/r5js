@@ -31,16 +31,20 @@ goog.require('r5js.parse.Terminals');
  * @constructor
  */
 r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
-  /** @const @protected */ this.formalsArray =
-      formalsArray;
-  /** @const @private {!r5js.IEnvironment} */ this.env_ =
-      new r5js.Environment(env);
-  /** @const @private {r5js.ProcCallLike}*/ this.body_ =
-      bodyStart ? this.setupBody_(bodyStart) : null;
-  /** @const @private {r5js.ProcCallLike} */ this.last_ =
-      this.body_ ? r5js.ProcCallLike.getLast(this.body_) : null;
-  /** @const @private */ this.name_ =
-      goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
+  /** @const @protected */
+  this.formalsArray = formalsArray;
+
+  /** @const @private {!r5js.IEnvironment} */
+  this.env_ = new r5js.Environment(env);
+
+  /** @const @private {r5js.ProcCallLike}*/
+  this.body_ = bodyStart ? this.setupBody_(bodyStart) : null;
+
+  /** @const @private {r5js.ProcCallLike} */
+  this.last_ = this.body_ ? r5js.ProcCallLike.getLast(this.body_) : null;
+
+  /** @const @private */
+  this.name_ = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
 };
 r5js.ProcedureLike.addImplementation(r5js.Procedure);
 
