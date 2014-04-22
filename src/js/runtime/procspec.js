@@ -320,7 +320,10 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
  * @override
  */
 r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
-    function(procCall, continuation, trampolineHelper, parserProvider) {
+    function(procCall, procCallLike, trampolineHelper, parserProvider) {
+
+  var continuation = /** @type {!r5js.Continuation} */ (
+      procCallLike.getContinuation());
   /* If the operands aren't simple, we'll have to take a detour to
              restructure them. Example:
 

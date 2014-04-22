@@ -171,7 +171,10 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
  * @suppress {accessControls} for procCall.env
  */
 r5js.Procedure.prototype.evalAndAdvance = function(
-    procCall, continuation, trampolineHelper, parserProvider) {
+    procCall, procCallLike, trampolineHelper, parserProvider) {
+
+  var continuation = /** @type {!r5js.Continuation} */ (
+      procCallLike.getContinuation());
 
   /* If the operands aren't simple, we'll have to take a detour to
      restructure them. */

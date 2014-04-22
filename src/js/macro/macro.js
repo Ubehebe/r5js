@@ -267,7 +267,10 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
  * @suppress {accessControls} TODO bl fix
  */
 r5js.Macro.prototype.evalAndAdvance = function(
-    procCall, continuation, resultStruct, parserProvider) {
+    procCall, procCallLike, resultStruct, parserProvider) {
+
+  var continuation = /** @type {!r5js.Continuation} */ (
+      procCallLike.getContinuation());
 
   var newEnv = new r5js.Environment(procCall.env);
   var newParseTree = this.transcribe(

@@ -75,14 +75,14 @@ r5js.ProcCall.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
 
   /* todo bl: id shims have become quite popular for passing through
      disparate objects on the trampoline. The logic could be made clearer. */
-  if (arg instanceof r5js.Macro)
+  if (arg instanceof r5js.Macro) {
     ans = arg;
-  else if (r5js.ProcedureLike.isImplementedBy(arg) ||
-      arg instanceof r5js.ast.Lambda)
+  } else if (r5js.ProcedureLike.isImplementedBy(arg) ||
+      arg instanceof r5js.ast.Lambda) {
     ans = arg;
-  else if (arg instanceof r5js.ast.Identifier)
+  } else if (arg instanceof r5js.ast.Identifier) {
     ans = this.env.get(/** @type {string} */ (arg.getPayload()));
-  else if (arg instanceof r5js.ast.Quote) {
+  } else if (arg instanceof r5js.ast.Quote) {
     var env = this.env;
     // Do the appropriate substitutions.
     ans = arg.replaceChildren(
@@ -116,8 +116,7 @@ r5js.ProcCall.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
             ans.getFirstChild()) ?
             ans.getFirstChild() :
             new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
-  }
-  else if (arg instanceof r5js.ast.Quasiquote) {
+  } else if (arg instanceof r5js.ast.Quasiquote) {
     var continuable = arg.processQuasiquote(
         /** @type {!r5js.IEnvironment} */ (this.env),
         this.getResultName(),

@@ -11,13 +11,13 @@ r5js.ProcedureLike = function() {};
 
 /**
  * @param {!r5js.ProcCall} procCall
- * @param {!r5js.Continuation} continuation
+ * @param {!r5js.ProcCallLike} procCallLike
  * @param {!r5js.TrampolineHelper} trampolineHelper
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  */
 r5js.ProcedureLike.prototype.evalAndAdvance = function(
-    procCall, continuation, trampolineHelper, parserProvider) {};
+    procCall, procCallLike, trampolineHelper, parserProvider) {};
 
 
 /** @const @private */

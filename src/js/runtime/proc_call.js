@@ -240,8 +240,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
       this.operatorName_.getPayload()));
 
   if (r5js.ProcedureLike.isImplementedBy(proc)) {
-    proc.evalAndAdvance(
-        this, this.getContinuation(), resultStruct, parserProvider);
+    proc.evalAndAdvance(this, this, resultStruct, parserProvider);
   } else {
     throw new r5js.EvalError(
         'procedure application: expected procedure, given ' +
