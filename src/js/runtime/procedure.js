@@ -35,10 +35,10 @@ r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
       formalsArray;
   /** @const @private {!r5js.IEnvironment} */ this.env_ =
       new r5js.Environment(env);
-  /** @const @private {r5js.ProcCallLike}*/ this.body =
+  /** @const @private {r5js.ProcCallLike}*/ this.body_ =
       bodyStart ? this.setupBody_(bodyStart) : null;
-  /** @const @private {r5js.ProcCallLike} */ this.lastContinuable =
-      this.body ? r5js.ProcCallLike.getLast(this.body) : null;
+  /** @const @private {r5js.ProcCallLike} */ this.last_ =
+      this.body_ ? r5js.ProcCallLike.getLast(this.body_) : null;
   /** @const @private */ this.name_ =
       goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
 };
@@ -72,8 +72,8 @@ r5js.Procedure.prototype.setupBody_ = function(bodyStart) {
 r5js.Procedure.prototype.cloneWithEnv = function(env) {
   var ans = new this.constructor(this.formalsArray, null /* bodyStart */, env);
   ans.env_.setClosuresFrom(this.env_); // non-cloning ok?
-  ans.body = this.body;
-  ans.lastContinuable = this.lastContinuable;
+  ans.body_ = this.body_;
+  ans.last_ = this.last_;
   return ans;
 };
 
@@ -87,8 +87,8 @@ r5js.Procedure.prototype.setContinuation_ = function(procCallLike) {
   /* This will be a vacuous write for a tail call. But that is
        probably still faster than checking if we are in tail position and,
        if so, explicitly doing nothing. */
-  if (this.lastContinuable && continuation) {
-    this.lastContinuable.setContinuation(continuation);
+  if (this.last_ && continuation) {
+    this.last_.setContinuation(continuation);
   }
 };
 
@@ -100,7 +100,7 @@ r5js.Procedure.prototype.setContinuation_ = function(procCallLike) {
  * TODO bl are we sure this covers all forms of tail recursion in R5RS?
  */
 r5js.Procedure.prototype.isTailCall_ = function(procCallLike) {
-  if (this.lastContinuable === procCallLike) {
+  if (this.last_ === procCallLike) {
     // a good place to see if tail recursion is actually working :)
     // console.log('TAIL RECURSION!!!');
     return true;
@@ -119,8 +119,8 @@ r5js.Procedure.prototype.toString = function() {
  * @private
  */
 r5js.Procedure.prototype.setEnv_ = function(env) {
-  if (this.body) {
-    (/** @type {!r5js.ProcCall} */ (this.body).setEnv(env, true));
+  if (this.body_) {
+    (/** @type {!r5js.ProcCall} */ (this.body_).setEnv(env, true));
   }
 };
 
@@ -216,7 +216,7 @@ r5js.Procedure.prototype.evalAndAdvance = function(
 
     // And away we go
     trampolineHelper.setNextProcCallLike(
-        /** @type {!r5js.ProcCallLike} */ (this.body));
+        /** @type {!r5js.ProcCallLike} */ (this.body_));
   }
 };
 
