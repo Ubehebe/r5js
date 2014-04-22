@@ -282,13 +282,13 @@ r5js.ProcCall.prototype.setResultName = function(resultName) {
 
 
 /**
- * @param {!r5js.Continuation} continuation
+ * @param {!r5js.ProcCallLike} procCallLike
  * @param {!r5js.runtime.Value} val
  */
-r5js.ProcCall.prototype.bindResult = function(continuation, val) {
+r5js.ProcCall.prototype.bindResult = function(procCallLike, val) {
 
-  var name = continuation.getLastResultName();
-  var nextProcCall = continuation.getNextContinuable();
+  var name = procCallLike.getResultName();
+  var nextProcCall = procCallLike.getNext();
 
   if (nextProcCall instanceof r5js.ProcCall) {
     var maybeEnv = nextProcCall.env;

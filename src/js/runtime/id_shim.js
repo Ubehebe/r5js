@@ -141,10 +141,7 @@ r5js.ProcCall.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
     }
   }
 
-  var continuation = this.getContinuation();
-  if (continuation) {
-    this.bindResult(continuation, ans);
-  }
+  this.bindResult(this, ans);
 
   var nextContinuable = this.getNext();
 

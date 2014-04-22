@@ -298,16 +298,14 @@ r5js.procspec.PrimitiveProcedure_.prototype.setDebugName = function(name) {
  */
 r5js.procspec.PrimitiveProcedure_.prototype.call = function(
     userArgs, procCall, procCallLike, trampolineHelper) {
-    var continuation = /** @type {!r5js.Continuation} */ (
-        procCallLike.getContinuation());
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
   var retval = this.fn_.apply(null, unwrappedArgs);
   var ans = r5js.datumutil.maybeWrapResult(retval);
-  procCall.bindResult(continuation, ans);
+  procCall.bindResult(procCallLike, ans);
   trampolineHelper.setValue(ans);
-  var nextContinuable = continuation.getNextContinuable();
+  var nextContinuable = procCallLike.getNext();
   if (nextContinuable) {
     trampolineHelper.setNextProcCallLike(nextContinuable);
   }
@@ -366,8 +364,6 @@ r5js.ProcedureLike.addImplementation(r5js.procspec.NeedsCurrentPorts_);
 /** @override */
 r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
     userArgs, procCall, procCallLike, trampolineHelper) {
-    var continuation = /** @type {!r5js.Continuation} */ (
-        procCallLike.getContinuation());
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
@@ -377,9 +373,9 @@ r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
       trampolineHelper.getOutputPort());
   var retval = this.fn_.apply(null, args);
   var ans = r5js.datumutil.maybeWrapResult(retval);
-  procCall.bindResult(continuation, ans);
+  procCall.bindResult(procCallLike, ans);
   trampolineHelper.setValue(ans);
-  var nextContinuable = continuation.getNextContinuable();
+  var nextContinuable = procCallLike.getNext();
   if (nextContinuable) {
     trampolineHelper.setNextProcCallLike(nextContinuable);
   }
@@ -408,7 +404,7 @@ r5js.ProcedureLike.addImplementation(r5js.procspec.HasSpecialEvalLogic_);
 /** @override */
 r5js.procspec.HasSpecialEvalLogic_.prototype.call = function(
     userArgs, procCall, procCallLike, trampolineHelper) {
-    var continuation = procCallLike.getContinuation();
+  var continuation = procCallLike.getContinuation();
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
