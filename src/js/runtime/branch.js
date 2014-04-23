@@ -61,7 +61,6 @@ r5js.Branch.prototype.getResultName = function() {
 /** @override */
 r5js.Branch.prototype.setResultName = function(resultName) {
   this.resultName_ = resultName;
-  this.continuation_.setLastResultName(resultName);
 };
 
 

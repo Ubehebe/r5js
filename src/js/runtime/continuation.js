@@ -42,19 +42,10 @@ goog.require('r5js.ast.Macro');
  * @constructor
  */
 r5js.Continuation = function(resultName) {
-  /** @private */ this.lastResultName_ = resultName;
+  /** @const @private */ this.lastResultName_ = resultName;
   /** @private {r5js.ProcCallLike} */ this.nextContinuable_ = null;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
-
-
-/**
- * @param {string} name
- * TODO bl This setter doesn't make sense. lastResultName should be const.
- */
-r5js.Continuation.prototype.setLastResultName = function(name) {
-  this.lastResultName_ = name;
-};
 
 
 /** @return {r5js.ProcCallLike} */
