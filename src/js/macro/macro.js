@@ -293,7 +293,9 @@ r5js.Macro.prototype.evalAndAdvance = function(
   var newContinuable = newParseTree.desugar(newEnv, true);
   newContinuable.setStartingEnv(newEnv);
 
-  r5js.ProcCallLike.getLast(newContinuable).setContinuation(continuation);
+  var last = r5js.ProcCallLike.getLast(newContinuable);
+  last.setContinuation(continuation);
+  last.setResultName(procCallLike.getResultName());
   resultStruct.setNextProcCallLike(newContinuable);
 };
 

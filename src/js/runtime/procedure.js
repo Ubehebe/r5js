@@ -93,6 +93,7 @@ r5js.Procedure.prototype.setContinuation_ = function(procCallLike) {
        if so, explicitly doing nothing. */
   if (this.last_ && continuation) {
     this.last_.setContinuation(continuation);
+    this.last_.setResultName(procCallLike.getResultName());
   }
 };
 

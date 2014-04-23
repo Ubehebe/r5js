@@ -38,7 +38,11 @@ r5js.Branch = function(testResultName, consequent, alternate) {
       r5js.ProcCallLike.getLast(this.consequent_);
   /** @const @private */ this.alternateLastContinuable_ =
       r5js.ProcCallLike.getLast(this.alternate_);
-  /** @private */ this.continuation_ = new r5js.Continuation();
+
+  /** @private */
+  this.resultName_ = '@' /* TODO bl document */ + goog.getUid(this);
+
+  /** @private */ this.continuation_ = new r5js.Continuation(this.resultName_);
 };
 
 
@@ -50,12 +54,13 @@ r5js.Branch.prototype.getContinuation = function() {
 
 /** @override */
 r5js.Branch.prototype.getResultName = function() {
-  return this.continuation_.getLastResultName();
+  return this.resultName_;
 };
 
 
 /** @override */
 r5js.Branch.prototype.setResultName = function(resultName) {
+  this.resultName_ = resultName;
   this.continuation_.setLastResultName(resultName);
 };
 
@@ -95,6 +100,7 @@ r5js.Branch.prototype.evalAndAdvance = function(
   if (testResult === false) {
     if (continuation) {
       this.alternateLastContinuable_.setContinuation(continuation);
+      this.alternateLastContinuable_.setResultName(this.resultName_);
     }
     resultStruct.setNextProcCallLike(this.alternate_);
     /* We must clear the environment off the non-taken branch.
@@ -106,6 +112,7 @@ r5js.Branch.prototype.evalAndAdvance = function(
   } else {
     if (continuation) {
       this.consequentLastContinuable_.setContinuation(continuation);
+      this.consequentLastContinuable_.setResultName(this.resultName_);
     }
     resultStruct.setNextProcCallLike(this.consequent_);
     /* We must clear the environment off the non-taken branch.

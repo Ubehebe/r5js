@@ -52,12 +52,6 @@ r5js.Continuation = function(opt_lastResultName) {
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
 
 
-/** @return {string} */
-r5js.Continuation.prototype.getLastResultName = function() {
-  return this.lastResultName_;
-};
-
-
 /**
  * @param {string} name
  * TODO bl This setter doesn't make sense. lastResultName should be const.

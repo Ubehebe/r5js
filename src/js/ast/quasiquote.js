@@ -92,7 +92,9 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
         var name = (node instanceof r5js.ast.Unquote ?
                 r5js.parse.Terminals.COMMA :
                 r5js.parse.Terminals.COMMA_AT) + '' + goog.getUid(new Object());
-        r5js.ProcCallLike.getLast(asContinuable).setResultName(name);
+        var last = r5js.ProcCallLike.getLast(asContinuable);
+        last.setResultName(name);
+        last.getContinuation().setLastResultName(name);
         newCalls.appendProcCallLike(asContinuable);
         return new r5js.ast.Identifier(name);
       });
