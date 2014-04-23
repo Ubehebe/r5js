@@ -79,17 +79,6 @@ r5js.Continuation.prototype.setNextContinuable = function(continuable) {
 };
 
 
-/** @param {!r5js.IEnvironment} env Environment to remember. */
-r5js.Continuation.prototype.rememberEnv = function(env) {
-  /* In general, we need to remember to jump out of the newEnv at
-     the end of the procedure body. See ProcCall.prototype.maybeSetEnv
-     for detailed logic (and maybe bugs). */
-  if (this.nextContinuable_) {
-    this.nextContinuable_.maybeSetEnv(env);
-  }
-};
-
-
 /**
  * @override
  * @suppress {accessControls}

@@ -278,10 +278,11 @@ r5js.Macro.prototype.evalAndAdvance = function(
       newEnv,
       parserProvider);
 
+  var next = procCallLike.getNext();
   /* Just like with tryNonPrimitiveProcedures, we have to remember when
      to jump back to the old environment. */
-  if (procCall.env) {
-    continuation.rememberEnv(procCall.env);
+  if (procCall.env && next) {
+    next.maybeSetEnv(procCall.env);
   }
 
   // useful for debugging

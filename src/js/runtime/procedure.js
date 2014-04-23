@@ -206,10 +206,11 @@ r5js.Procedure.prototype.evalAndAdvance = function(
             procCall.env.allowRedefs() :
             new r5js.Environment(this.env_).addClosuresFrom(this.env_);
 
+    var next = procCallLike.getNext();
     /* Remember to discard the new environment
          at the end of the procedure call. */
-    if (procCall.env) {
-      continuation.rememberEnv(procCall.env);
+    if (procCall.env && next) {
+      next.maybeSetEnv(procCall.env);
     }
 
     // Do some bookkeeping to prepare for jumping into the procedure
