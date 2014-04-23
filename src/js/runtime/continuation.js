@@ -35,18 +35,14 @@ goog.require('r5js.ast.Macro');
  * c.nextContinuable is (g f' z ...)
  *
  *
- * @param {string=} opt_lastResultName Optional name to use for the last result.
+ * @param {string} resultName Optional name to use for the last result.
  *     If not given, a unique name will be created.
  * @implements {r5js.ProcedureLike}
  * @struct
  * @constructor
  */
-r5js.Continuation = function(opt_lastResultName) {
-  /** @private {string} */
-  this.lastResultName_ = goog.isDef(opt_lastResultName) ?
-      opt_lastResultName :
-      ('@' /* TODO bl document */ + goog.getUid(this));
-
+r5js.Continuation = function(resultName) {
+  /** @private */ this.lastResultName_ = resultName;
   /** @private {r5js.ProcCallLike} */ this.nextContinuable_ = null;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);

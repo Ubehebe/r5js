@@ -20,12 +20,11 @@ goog.require('r5js.ProcCallLike');
  */
 r5js.DynamicWindContinuation = function(
     thunk, nextProcCallLike, lastResultName) {
-  goog.base(this);
+  goog.base(this, lastResultName);
   /** @const @private */ this.thunk_ = thunk;
   if (nextProcCallLike) {
     this.setNextContinuable(nextProcCallLike);
   }
-  this.setLastResultName(lastResultName);
 };
 goog.inherits(r5js.DynamicWindContinuation, r5js.Continuation);
 
