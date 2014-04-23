@@ -899,9 +899,8 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
       r5js.ProcCallLike.appendProcCallLike(
           procCallAfter,
           new r5js.IdShim(new r5js.ast.Identifier(result)));
-      r5js.ProcCallLike.getLast(procCallAfter).
-          setContinuation(/** @type {!r5js.Continuation} */ (
-              procCallLike.getContinuation()));
+      r5js.ProcCallLike.getLast(procCallAfter).setNext(
+          /** @type {!r5js.ProcCallLike} */ (procCallLike.getNext()));
 
       var procCallThunk = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling(),
@@ -941,8 +940,8 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
       var consumerCall = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling(),
           new r5js.ast.Identifier(valuesName));
-      consumerCall.setContinuation(/** @type {!r5js.Continuation} */ (
-          procCallLike.getContinuation()));
+      consumerCall.setNext(/** @type {!r5js.ProcCallLike} */ (
+          procCallLike.getNext()));
       consumerCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       producerCall.setNext(consumerCall);
