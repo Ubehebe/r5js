@@ -269,9 +269,6 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
 r5js.Macro.prototype.evalAndAdvance = function(
     procCall, procCallLike, resultStruct, parserProvider) {
 
-  var continuation = /** @type {!r5js.Continuation} */ (
-      procCallLike.getContinuation());
-
   var newEnv = new r5js.Environment(procCall.env);
   var newParseTree = this.transcribe(
       procCall.reconstructDatum_(),
@@ -294,7 +291,9 @@ r5js.Macro.prototype.evalAndAdvance = function(
   newContinuable.setStartingEnv(newEnv);
 
   var last = r5js.ProcCallLike.getLast(newContinuable);
-  last.setContinuation(continuation);
+  if (next) {
+    last.setNext(next);
+  }
   last.setResultName(procCallLike.getResultName());
   resultStruct.setNextProcCallLike(newContinuable);
 };

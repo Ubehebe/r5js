@@ -806,7 +806,6 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var curProcCall = arguments[arguments.length - 3];
   var procName = new r5js.ast.Identifier(mustBeProc.getName());
   var procCallLike = arguments[arguments.length - 2];
-  var continuation = procCallLike.getContinuation();
   var resultStruct = /** @type {!r5js.TrampolineHelper} */ (
       arguments[arguments.length - 1]);
 
@@ -825,7 +824,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
       newArgs.appendSibling(new r5js.ast.Quote(arg));
     var actualProcCall = new r5js.ProcCall(
         procName, newArgs.toSiblings());
-    actualProcCall.setContinuation(continuation);
+    actualProcCall.setNext(procCallLike.getNext());
     actualProcCall.setResultName(procCallLike.getResultName());
     actualProcCall.setStartingEnv(curProcCall.env);
     resultStruct.setNextProcCallLike(actualProcCall);
@@ -840,7 +839,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
         appendSibling(arguments[1]).
         toSiblings();
     var actualProcCall = new r5js.ProcCall(procName, newArgs);
-    actualProcCall.setContinuation(continuation);
+    actualProcCall.setNext(procCallLike.getNext());
     actualProcCall.setResultName(procCallLike.getResultName());
     resultStruct.setNextProcCallLike(actualProcCall);
   }
@@ -988,7 +987,10 @@ PrimitiveProcedures['call-with-current-continuation'] =
       }
       var dummyProcCall = new r5js.ProcCall(
           procCall.getFirstOperand(), continuation);
-      dummyProcCall.setContinuation(continuation);
+      var next = procCallLike.getNext();
+      if (next) {
+            dummyProcCall.setNext(next);
+      }
       dummyProcCall.setResultName(procCallLike.getResultName());
       dummyProcCall.setStartingEnv(
           /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));

@@ -30,7 +30,6 @@ goog.require('r5js.ProcCallLike');
 r5js.ContinuableHelper = function() {
   /** @private {r5js.ProcCallLike} */ this.firstProcCallLike_ = null;
   /** @private {r5js.ProcCallLike} */ this.lastProcCallLike_ = null;
-  /** @private {r5js.Continuation} */ this.firstContinuation_ = null;
 };
 
 
@@ -38,18 +37,14 @@ r5js.ContinuableHelper = function() {
 r5js.ContinuableHelper.prototype.appendProcCallLike = function(procCallLike) {
   if (!this.firstProcCallLike_) {
     this.firstProcCallLike_ = procCallLike;
-    this.firstContinuation_ = procCallLike.getContinuation();
-    this.lastProcCallLike_ = r5js.ProcCallLike.getLast(procCallLike);
   } else {
     this.lastProcCallLike_.setNext(procCallLike);
-    this.lastProcCallLike_ = r5js.ProcCallLike.getLast(procCallLike);
   }
+  this.lastProcCallLike_ = r5js.ProcCallLike.getLast(procCallLike);
 };
 
 
-/** @return {!r5js.ProcCallLike} */
+/** @return {r5js.ProcCallLike} */
 r5js.ContinuableHelper.prototype.toContinuable = function() {
-  this.firstProcCallLike_.setContinuation(
-      /** @type {!r5js.Continuation} */ (this.firstContinuation_));
   return this.firstProcCallLike_;
 };
