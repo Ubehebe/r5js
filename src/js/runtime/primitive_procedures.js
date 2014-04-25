@@ -2,6 +2,7 @@ goog.provide('r5js.PrimitiveProcedures');
 
 
 goog.require('goog.log');
+goog.require('r5js.CallWithCurrentContinuation');
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.CdrHelper');
 goog.require('r5js.Continuation');
@@ -985,7 +986,7 @@ PrimitiveProcedures['call-with-current-continuation'] =
           new r5js.DynamicWindContinuation(
               beforeThunk, next, resultName) :
           new r5js.Continuation(resultName, next);
-      var dummyProcCall = new r5js.ProcCall(
+      var dummyProcCall = new r5js.CallWithCurrentContinuation(
           procCall.getFirstOperand(), continuation);
       if (next) {
             dummyProcCall.setNext(next);

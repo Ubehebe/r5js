@@ -1,7 +1,6 @@
 goog.provide('r5js.ProcCall');
 
 goog.require('r5js.ContinuableHelper');
-goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.Environment');
 goog.require('r5js.GeneralSyntaxError');
@@ -320,9 +319,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
   var args = [];
 
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
-    if (cur instanceof r5js.Continuation) {
-      args.push(cur);
-    } else if (cur instanceof r5js.ast.Identifier) {
+    if (cur instanceof r5js.ast.Identifier) {
       var name = cur.getPayload();
       var toPush = wrapArgs ?
           r5js.datumutil.maybeWrapResult(this.env.get(name)) :
