@@ -17,7 +17,6 @@
 goog.provide('r5js.Environment');
 
 
-goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.IEnvironment');

@@ -16,7 +16,6 @@
 goog.provide('r5js.Branch');
 
 
-goog.require('r5js.Continuation');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 

@@ -1,7 +1,6 @@
 goog.provide('r5js.Procedure');
 
 
-goog.require('r5js.Continuation');
 goog.require('r5js.Environment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ProcCall');

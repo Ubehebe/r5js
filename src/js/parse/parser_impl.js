@@ -17,7 +17,6 @@
 goog.provide('r5js.ParserImpl');
 
 goog.require('r5js.Branch');
-goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DottedListTransformer');

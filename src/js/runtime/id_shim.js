@@ -1,7 +1,6 @@
 goog.provide('r5js.IdShim');
 
 
-goog.require('r5js.Continuation');
 goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
