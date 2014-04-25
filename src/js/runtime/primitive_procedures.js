@@ -973,19 +973,15 @@ PrimitiveProcedures['call-with-current-continuation'] =
     _.unaryWithSpecialEvalLogic(function(
         procedure, procCall, procCallLike, resultStruct) {
       var next = procCallLike.getNext();
-      var continuation = new r5js.Continuation(
-          procCallLike.getResultName(), next);
+      var resultName = procCallLike.getResultName();
       var beforeThunk = resultStruct.getBeforeThunk();
-      if (beforeThunk) {
-            /* If this continuation is inside a call to dynamic-wind but
-               escapes and then is later re-called, we have to remember
-               to execute the associated before and after thunks. */
-            continuation = new r5js.DynamicWindContinuation(
-            beforeThunk,
-            procCallLike.getNext(),
-            procCallLike.getResultName());
-            resultStruct.setBeforeThunk(null);
-      }
+      /* If this continuation is inside a call to dynamic-wind but
+         escapes and then is later re-called, we have to remember
+         to execute the associated before and after thunks. */
+      var continuation = beforeThunk ?
+          new r5js.DynamicWindContinuation(
+              beforeThunk, next, resultName) :
+          new r5js.Continuation(resultName, next);
       var dummyProcCall = new r5js.ProcCall(
           procCall.getFirstOperand(), continuation);
       if (next) {
