@@ -972,11 +972,9 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
 PrimitiveProcedures['call-with-current-continuation'] =
     _.unaryWithSpecialEvalLogic(function(
         procedure, procCall, procCallLike, resultStruct) {
-      var continuation = new r5js.Continuation(procCallLike.getResultName());
       var next = procCallLike.getNext();
-      if (next) {
-            continuation.setNextContinuable(next);
-      }
+      var continuation = new r5js.Continuation(
+          procCallLike.getResultName(), next);
       var beforeThunk = resultStruct.getBeforeThunk();
       if (beforeThunk) {
             /* If this continuation is inside a call to dynamic-wind but

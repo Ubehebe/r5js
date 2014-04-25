@@ -37,21 +37,16 @@ goog.require('r5js.ast.Macro');
  *
  * @param {string} resultName Optional name to use for the last result.
  *     If not given, a unique name will be created.
+ * @param {r5js.ProcCallLike} next
  * @implements {r5js.ProcedureLike}
  * @struct
  * @constructor
  */
-r5js.Continuation = function(resultName) {
+r5js.Continuation = function(resultName, next) {
   /** @const @private */ this.lastResultName_ = resultName;
-  /** @private {r5js.ProcCallLike} */ this.nextContinuable_ = null;
+  /** @const @private */ this.nextContinuable_ = next;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
-
-
-/** @param {!r5js.ProcCallLike} continuable */
-r5js.Continuation.prototype.setNextContinuable = function(continuable) {
-  this.nextContinuable_ = continuable;
-};
 
 
 /**
