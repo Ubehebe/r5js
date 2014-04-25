@@ -48,9 +48,6 @@ r5js.ProcCall = function(operatorName, firstOperand, opt_lastResultName) {
   this.resultName_ = opt_lastResultName ||
       ('@' /* TODO bl document */ + goog.getUid(this));
 
-  /** @private */
-  this.continuation_ = new r5js.Continuation(this.resultName_);
-
   /** @private {r5js.ProcCallLike} */ this.next_ = null;
 };
 
@@ -262,7 +259,6 @@ r5js.ProcCall.prototype.getNext = function() {
 /** @override */
 r5js.ProcCall.prototype.setNext = function(next) {
   this.next_ = next;
-  this.continuation_.setNextContinuable(next);
 };
 
 
@@ -278,7 +274,6 @@ r5js.ProcCall.prototype.getResultName = function() {
  */
 r5js.ProcCall.prototype.setResultName = function(resultName) {
   this.resultName_ = resultName;
-  this.continuation_.lastResultName_ = resultName;
 };
 
 

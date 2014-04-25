@@ -42,8 +42,6 @@ r5js.Branch = function(testResultName, consequent, alternate) {
   /** @private */
   this.resultName_ = '@' /* TODO bl document */ + goog.getUid(this);
 
-  /** @private */ this.continuation_ = new r5js.Continuation(this.resultName_);
-
   /** @private {r5js.ProcCallLike} */ this.next_ = null;
 };
 
@@ -69,7 +67,6 @@ r5js.Branch.prototype.getNext = function() {
 /** @override */
 r5js.Branch.prototype.setNext = function(next) {
   this.next_ = next;
-  this.continuation_.setNextContinuable(next);
 };
 
 
