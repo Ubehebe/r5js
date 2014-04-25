@@ -48,12 +48,6 @@ r5js.Continuation = function(resultName) {
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
 
 
-/** @return {r5js.ProcCallLike} */
-r5js.Continuation.prototype.getNextContinuable = function() {
-  return this.nextContinuable_;
-};
-
-
 /** @param {!r5js.ProcCallLike} continuable */
 r5js.Continuation.prototype.setNextContinuable = function(continuable) {
   this.nextContinuable_ = continuable;
