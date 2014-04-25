@@ -7,7 +7,6 @@ goog.require('r5js.MacroError');
 goog.require('r5js.ProcCall');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
@@ -24,7 +23,7 @@ goog.require('r5js.ast.String');
  *
  * We represent these id shims as ProcCalls whose operatorNames are null
  * and whose firstOperand is the payload.
- * @param {?} payload
+ * @param {r5js.Datum} payload
  * @param {string=} opt_continuationName Optional name of the continuation.
  * @extends {r5js.ProcCall}
  * @struct
@@ -75,12 +74,7 @@ r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
 
   /* todo bl: id shims have become quite popular for passing through
      disparate objects on the trampoline. The logic could be made clearer. */
-  if (arg instanceof r5js.Macro) {
-    ans = arg;
-  } else if (r5js.ProcedureLike.isImplementedBy(arg) ||
-      arg instanceof r5js.ast.Lambda) {
-    ans = arg;
-  } else if (arg instanceof r5js.ast.Identifier) {
+  if (arg instanceof r5js.ast.Identifier) {
     ans = this.env.get(/** @type {string} */ (arg.getPayload()));
   } else if (arg instanceof r5js.ast.Quote) {
     var env = this.env;
@@ -130,15 +124,10 @@ r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
     return;
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
-  } else if (arg instanceof r5js.ast.List) {
-    ans = arg;
   } else if (arg instanceof r5js.ast.String) {
     ans = arg;
   } else {
     ans = r5js.datumutil.maybeWrapResult(arg.getPayload());
-    if (arg.isImmutable()) {
-      ans.setImmutable();
-    }
   }
 
   this.bindResult(this, ans);
