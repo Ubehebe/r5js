@@ -52,6 +52,7 @@ r5js.Assignment.prototype.evalAndAdvance = function(
 /**
  * @param {!r5js.TrampolineHelper} resultStruct
  * @private
+ * @suppress {checkTypes} TODO bl remove
  */
 r5js.Assignment.prototype.tryAssignment_ = function(resultStruct) {
   var src = this.env.get(/** @type {string} */ (

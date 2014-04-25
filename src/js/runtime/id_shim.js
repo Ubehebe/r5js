@@ -65,9 +65,10 @@ r5js.IdShim.prototype.evalAndAdvance = function(
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  * @private
+ * @suppress {checkTypes} TODO bl
  * TODO bl too long.
  */
-r5js.ProcCall.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
+r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
   var ans;
 
   var arg = this.firstOperand;
@@ -147,10 +148,9 @@ r5js.ProcCall.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
   /* If we're at the end of the continuable-continuation chain and we're
      trying to return a macro object off the trampoline, that's an error.
      The input was a bare macro name. */
-  if (!nextContinuable && ans instanceof r5js.Macro)
-    throw new r5js.MacroError(
-        /** @type {string} */ (this.firstOperand.getPayload()),
-        'bad macro syntax');
+  if (!nextContinuable && ans instanceof r5js.Macro) {
+    throw new r5js.MacroError('TODO bl', 'bad macro syntax');
+  }
 
   resultStruct.setValue(ans);
   if (nextContinuable) {

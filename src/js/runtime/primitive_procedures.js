@@ -968,9 +968,12 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
  * (that is, if the trampoline determines that the identifier is bound to a
  * Continuation object), this means bind x to cc's lastResultName and set
  * the next continuable to cc's nextContinuable.
+ *
+ * TODO bl: type checking is turned off because of the continuation argument
+ * to new r5js.ProcCall. Subclass and correct.
  */
 PrimitiveProcedures['call-with-current-continuation'] =
-    _.unaryWithSpecialEvalLogic(function(
+    _.unaryWithSpecialEvalLogic(/** @suppress {checkTypes} */ function(
         procedure, procCall, procCallLike, resultStruct) {
       var next = procCallLike.getNext();
       var resultName = procCallLike.getResultName();

@@ -28,7 +28,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 /**
  * @param {!r5js.ast.Identifier} operatorName
- * @param {?} firstOperand
+ * @param {r5js.Datum} firstOperand
  * @param {string=} opt_lastResultName Optional name to use for the last result.
  *     If not given, a unique name will be created.
  * @implements {r5js.ProcCallLike}
@@ -38,10 +38,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 r5js.ProcCall = function(operatorName, firstOperand, opt_lastResultName) {
 
   /** @const @private */ this.operatorName_ = operatorName;
-
-  /** @const @protected {?} */
-  this.firstOperand = firstOperand;
-
+  /** @const @protected */ this.firstOperand = firstOperand;
   /** @protected {r5js.IEnvironment} */ this.env = null;
 
   /** @private */
@@ -122,13 +119,16 @@ r5js.ProcCall.prototype.clearEnv = function() {
  */
 r5js.ProcCall.prototype.reconstructDatum_ = function() {
   var op = new r5js.ast.Identifier(this.operatorName_.getPayload());
-  op.setNextSibling(this.firstOperand);
+  if (this.firstOperand) {
+    op.setNextSibling(this.firstOperand);
+  }
   return new r5js.SiblingBuffer().appendSibling(op).toList(r5js.ast.List);
 };
 
 
 /**
  * @return {boolean} True iff the operands are in continuation-passing style.
+ * @suppress {accessControls} TODO bl
  */
 r5js.ProcCall.prototype.operandsInCpsStyle = function() {
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
@@ -158,12 +158,13 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
  * get their arguments as unevaluated datums.)
  *
  * @param {!r5js.ProcCallLike} procCallLike
- * @param {!r5js.TrampolineHelper} resultStruct
+ * @param {!r5js.TrampolineHelper} trampolineHelper
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
+ * @suppress {checkTypes} TODO bl
  */
 r5js.ProcCall.prototype.cpsify = function(
-    procCallLike, resultStruct, parserProvider) {
+    procCallLike, trampolineHelper, parserProvider) {
 
   var newCallChain = new r5js.ContinuableHelper();
   var finalArgs = new r5js.SiblingBuffer();
@@ -200,7 +201,6 @@ r5js.ProcCall.prototype.cpsify = function(
       if (clonedArg instanceof r5js.ast.CompoundDatum) {
         clonedArg.clearFirstChild();
       }
-      clonedArg.setNextSibling(null);
       finalArgs.appendSibling(clonedArg);
     }
   }
@@ -216,7 +216,7 @@ r5js.ProcCall.prototype.cpsify = function(
     lastContinuable.setNext(next);
   }
   lastContinuable.setResultName(procCallLike.getResultName());
-  resultStruct.setNextProcCallLike(ans);
+  trampolineHelper.setNextProcCallLike(ans);
 };
 
 
@@ -319,7 +319,6 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
 
   var args = [];
 
-  // todo bl too much logic
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.Continuation) {
       args.push(cur);
@@ -334,24 +333,15 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
              between the programmer and the implementation. */
       if (toPush instanceof r5js.Macro &&
           !toPush.isLetOrLetrecSyntax()) {
-        throw new r5js.MacroError(
-            /** @type {string} */(cur.getPayload()), 'bad syntax');
+        throw new r5js.MacroError(name, 'bad syntax');
       }
       args.push(toPush);
     } else if (cur instanceof r5js.ast.Quote) {
-      // the newIdOrLiteral part is for (quote quote)
-      args.push(cur.getFirstChild() ?
-                cur.getFirstChild() :
-                new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE));
+      args.push(cur.getFirstChild());
     } else if (cur instanceof r5js.ast.Lambda) {
       args.push(cur);
-    } else if (cur.getPayload() !== undefined) {
-      var clone = cur.clone(null /* parent */);
-      if (clone instanceof r5js.ast.CompoundDatum) {
-        clone.clearFirstChild();
-      }
-      clone.setNextSibling(null);
-      args.push(clone);
+    } else if (cur instanceof r5js.ast.SimpleDatum) {
+      args.push(cur.clone(null /* parent */));
     } else {
       throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
     }
