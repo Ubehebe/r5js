@@ -85,14 +85,15 @@ r5js.Procedure.prototype.cloneWithEnv = function(env) {
 /**
  * @param {!r5js.ProcCallLike} procCallLike
  * @private
+ * @suppress {checkTypes} procCallLike.getNext() can return null,
+ * but apparently this is required. TODO bl investigate.
  */
 r5js.Procedure.prototype.setContinuation_ = function(procCallLike) {
-  var continuation = procCallLike.getContinuation();
   /* This will be a vacuous write for a tail call. But that is
        probably still faster than checking if we are in tail position and,
        if so, explicitly doing nothing. */
-  if (this.last_ && continuation) {
-    this.last_.setContinuation(continuation);
+  if (this.last_) {
+    this.last_.setNext(procCallLike.getNext());
     this.last_.setResultName(procCallLike.getResultName());
   }
 };

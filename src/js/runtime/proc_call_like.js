@@ -16,10 +16,6 @@ r5js.ProcCallLike.prototype.evalAndAdvance = function(
     trampolineHelper, envBuffer, parserProvider) {};
 
 
-/** @return {r5js.Continuation} */
-r5js.ProcCallLike.prototype.getContinuation = function() {};
-
-
 /** @return {string} */
 r5js.ProcCallLike.prototype.getResultName = function() {};
 
@@ -30,10 +26,6 @@ r5js.ProcCallLike.prototype.getResultName = function() {};
  * @see {r5js.Continuation#setLastResultName}
  */
 r5js.ProcCallLike.prototype.setResultName = function(resultName) {};
-
-
-/** @param {!r5js.Continuation} continuation */
-r5js.ProcCallLike.prototype.setContinuation = function(continuation) {};
 
 
 /** @param {!r5js.IEnvironment} env */

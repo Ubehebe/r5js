@@ -50,18 +50,8 @@ r5js.ProcCall = function(operatorName, firstOperand, opt_lastResultName) {
 
   /** @private */
   this.continuation_ = new r5js.Continuation(this.resultName_);
-};
 
-
-/** @override */
-r5js.ProcCall.prototype.getContinuation = function() {
-  return this.continuation_;
-};
-
-
-/** @override */
-r5js.ProcCall.prototype.setContinuation = function(continuation) {
-  this.continuation_ = continuation;
+  /** @private {r5js.ProcCallLike} */ this.next_ = null;
 };
 
 
@@ -224,8 +214,10 @@ r5js.ProcCall.prototype.cpsify = function(
   var ans = newCallChain.toContinuable();
   ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
   var lastContinuable = r5js.ProcCallLike.getLast(ans);
-  lastContinuable.setContinuation(/** @type {!r5js.Continuation} */ (
-      procCallLike.getContinuation()));
+  var next = procCallLike.getNext();
+  if (next) {
+    lastContinuable.setNext(next);
+  }
   lastContinuable.setResultName(procCallLike.getResultName());
   resultStruct.setNextProcCallLike(ans);
 };
@@ -263,12 +255,13 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
 /** @override */
 r5js.ProcCall.prototype.getNext = function() {
-  return this.continuation_.getNextContinuable();
+  return this.next_;
 };
 
 
 /** @override */
 r5js.ProcCall.prototype.setNext = function(next) {
+  this.next_ = next;
   this.continuation_.setNextContinuable(next);
 };
 
@@ -279,9 +272,13 @@ r5js.ProcCall.prototype.getResultName = function() {
 };
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {const|accessControls} TODO bl remove
+ */
 r5js.ProcCall.prototype.setResultName = function(resultName) {
   this.resultName_ = resultName;
+  this.continuation_.lastResultName_ = resultName;
 };
 
 

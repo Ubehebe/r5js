@@ -43,12 +43,8 @@ r5js.Branch = function(testResultName, consequent, alternate) {
   this.resultName_ = '@' /* TODO bl document */ + goog.getUid(this);
 
   /** @private */ this.continuation_ = new r5js.Continuation(this.resultName_);
-};
 
-
-/** @override */
-r5js.Branch.prototype.getContinuation = function() {
-  return this.continuation_;
+  /** @private {r5js.ProcCallLike} */ this.next_ = null;
 };
 
 
@@ -65,19 +61,14 @@ r5js.Branch.prototype.setResultName = function(resultName) {
 
 
 /** @override */
-r5js.Branch.prototype.setContinuation = function(continuation) {
-  this.continuation_ = continuation;
-};
-
-
-/** @override */
 r5js.Branch.prototype.getNext = function() {
-  return this.continuation_.getNextContinuable();
+  return this.next_;
 };
 
 
 /** @override */
 r5js.Branch.prototype.setNext = function(next) {
+  this.next_ = next;
   this.continuation_.setNextContinuable(next);
 };
 
@@ -88,19 +79,21 @@ r5js.Branch.prototype.setStartingEnv = function(env) {
 };
 
 
-/** @override */
+/**
+ * @override
+ * TODO bl: this method relies on the fact that this.next_ can be null.
+ * The casts are incorrect. Investigate and correct.
+ */
 r5js.Branch.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
 
   /* Branches always use the old environment left by the previous action
     on the trampoline. */
   var testResult = envBuffer.getEnv().get(this.testResultName_);
-  var continuation = this.getContinuation();
   if (testResult === false) {
-    if (continuation) {
-      this.alternateLastContinuable_.setContinuation(continuation);
-      this.alternateLastContinuable_.setResultName(this.resultName_);
-    }
+    this.alternateLastContinuable_.setNext(
+        /** @type {!r5js.ProcCallLike} */ (this.next_));
+    this.alternateLastContinuable_.setResultName(this.resultName_);
     resultStruct.setNextProcCallLike(this.alternate_);
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}.
@@ -109,10 +102,9 @@ r5js.Branch.prototype.evalAndAdvance = function(
          is insufficient or that I don't understand the type of subtype. */
     this.consequent_.clearEnv();
   } else {
-    if (continuation) {
-      this.consequentLastContinuable_.setContinuation(continuation);
-      this.consequentLastContinuable_.setResultName(this.resultName_);
-    }
+    this.consequentLastContinuable_.setNext(
+        /** @type {!r5js.ProcCallLike} */ (this.next_));
+    this.consequentLastContinuable_.setResultName(this.resultName_);
     resultStruct.setNextProcCallLike(this.consequent_);
     /* We must clear the environment off the non-taken branch.
          See comment at {@link r5js.Continuation.rememberEnv}, and above. */
