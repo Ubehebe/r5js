@@ -111,15 +111,14 @@ r5js.IEnvironment.prototype.addClosure = function(name, proc) {};
 
 /**
  * @param {string} name Name of binding to get.
- * @return {?} Value of binding, if any.
- * TODO bl: tighten the return type.
+ * @return {!r5js.runtime.Value|null} Value of binding, if any.
  */
 r5js.IEnvironment.prototype.get = function(name) {};
 
 
 /**
  * @param {string} name Name of the procedure to get.
- * @return {?} Value of binding, if any.
+ * @return {!r5js.runtime.Value|null} Value of binding, if any.
  */
 r5js.IEnvironment.prototype.getProcedure = function(name) {};
 

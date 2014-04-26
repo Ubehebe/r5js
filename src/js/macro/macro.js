@@ -155,7 +155,7 @@ r5js.Macro.prototype.allPatternsBeginWith = function(kw) {
  * that will return a new Parser for the given Datum. This is a hack to avoid
  * instantiating a Parser directly in this file, which would cause
  * a cyclic dependency between macro.js and parse.js.
- * @return {?} TODO bl.
+ * @return {!r5js.Datum}
  */
 r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
   var transformer, bindings, newDatumTree;
@@ -219,7 +219,10 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
              TemplateBindings.prototype.addTemplateBinding. */
           if (bindings.wasRenamed(id) &&
               useEnv.hasBindingRecursive(id)) {
-            useEnv.addBinding(tmpName, useEnv.get(id));
+            var binding = useEnv.get(id);
+            if (binding !== null) {
+              useEnv.addBinding(tmpName, binding);
+            }
           }
         }
       }
@@ -282,12 +285,8 @@ r5js.Macro.prototype.evalAndAdvance = function(
     next.maybeSetEnv(procCall.env);
   }
 
-  // useful for debugging
-  // console.log('transcribed ' +
-  // this.reconstructDatum_() +
-  // ' => ' + newDatumTree);
-
-  var newContinuable = newParseTree.desugar(newEnv, true);
+  var newContinuable = /** @type {!r5js.ProcCallLike} */ (
+      newParseTree.desugar(newEnv, true));
   newContinuable.setStartingEnv(newEnv);
 
   var last = r5js.ProcCallLike.getLast(newContinuable);

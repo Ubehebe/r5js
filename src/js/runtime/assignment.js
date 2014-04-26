@@ -13,7 +13,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
 /**
- * @param {?} firstOperand
+ * @param {r5js.Datum} firstOperand
  * @extends {r5js.ProcCall}
  * @struct
  * @constructor
@@ -84,7 +84,7 @@ r5js.Assignment.prototype.tryAssignment_ = function(resultStruct) {
  * @see {r5js.TopLevelSyntaxAssignment#checkForImproperSyntaxAssignment},
  * which bypasses this check.
  *
- * @param {?} val TODO bl.
+ * @param {!r5js.runtime.Value} val
  * @protected
  */
 r5js.Assignment.prototype.checkForImproperSyntaxAssignment = function(val) {
@@ -96,7 +96,7 @@ r5js.Assignment.prototype.checkForImproperSyntaxAssignment = function(val) {
 
 /**
  * @param {string} name
- * @param {?} val TODO bl.
+ * @param {!r5js.runtime.Value} val
  * @protected
  */
 r5js.Assignment.prototype.mutateEnv = function(name, val) {
@@ -106,7 +106,7 @@ r5js.Assignment.prototype.mutateEnv = function(name, val) {
 
 
 /**
- * @param {?} firstOperand
+ * @param {r5js.Datum} firstOperand
  * @extends {r5js.Assignment}
  * @struct
  * @constructor
@@ -125,7 +125,7 @@ r5js.TopLevelAssignment.prototype.mutateEnv = function(name, val) {
 
 
 /**
- * @param {?} firstOperand
+ * @param {r5js.Datum} firstOperand
  * @extends {r5js.TopLevelAssignment}
  * @struct
  * @constructor

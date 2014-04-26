@@ -13,7 +13,7 @@ goog.require('r5js.datumutil');
 /**
  * @param {!Array.<string>} formalsArray The procedure's formal parameters,
  * in order.
- * @param {?} bodyStart TODO bl.
+ * @param {r5js.Datum} bodyStart
  * @param {!r5js.IEnvironment} env
  * @param {string=} opt_name The procedure's name, for pretty-printing and
  * error messages. If not given, one will be created.

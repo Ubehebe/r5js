@@ -20,7 +20,7 @@ goog.require('r5js.parse.Terminals');
 /**
  * @param {!Array.<string>} formalsArray The procedure's formal parameters,
  *        in order.
- * @param {?} bodyStart
+ * @param {r5js.Datum} bodyStart
  * @param {!r5js.IEnvironment} env An environment.
  * @param {string=} opt_name The procedure's name. It has no semantic
  *     importance; it's just used for pretty-printing debugs and messages
