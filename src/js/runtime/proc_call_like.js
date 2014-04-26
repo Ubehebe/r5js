@@ -23,13 +23,16 @@ r5js.ProcCallLike.prototype.getResultName = function() {};
 /**
  * @param {string} resultName
  * TODO bl remove.
- * @see {r5js.Continuation#setLastResultName}
  */
 r5js.ProcCallLike.prototype.setResultName = function(resultName) {};
 
 
 /** @param {!r5js.IEnvironment} env */
 r5js.ProcCallLike.prototype.setStartingEnv = function(env) {};
+
+
+/** @return {r5js.IEnvironment} */
+r5js.ProcCallLike.prototype.getEnv = function() {};
 
 
 /** @return {r5js.ProcCallLike} */

@@ -278,7 +278,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
 r5js.Macro.prototype.evalAndAdvance = function(
     procCall, procCallLike, resultStruct, parserProvider) {
 
-  var oldEnv = procCall.getEnv();
+  var oldEnv = procCallLike.getEnv();
   var newEnv = new r5js.Environment(oldEnv);
   var newParseTree = this.transcribe(
       procCall.reconstructDatum_(),

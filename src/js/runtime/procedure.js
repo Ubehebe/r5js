@@ -193,7 +193,7 @@ r5js.Procedure.prototype.evalAndAdvance = function(
 
   var args = procCall.evalArgs();
 
-  var procCallEnv = procCall.getEnv();
+  var procCallEnv = procCallLike.getEnv();
 
   /* If we're at a tail call we can reuse the existing environment.
          Otherwise create a new environment pointing back to the current one. */

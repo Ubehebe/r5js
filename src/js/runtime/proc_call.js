@@ -53,7 +53,7 @@ r5js.ProcCall.prototype.getFirstOperand = function() {
 };
 
 
-/** @return {r5js.IEnvironment} */
+/** @override */
 r5js.ProcCall.prototype.getEnv = function() {
   return this.env;
 };
@@ -286,8 +286,8 @@ r5js.ProcCall.prototype.bindResult = function(procCallLike, val) {
   var name = procCallLike.getResultName();
   var nextProcCall = procCallLike.getNext();
 
-  if (nextProcCall instanceof r5js.ProcCall) {
-    var maybeEnv = nextProcCall.env;
+  if (nextProcCall) {
+    var maybeEnv = nextProcCall.getEnv();
     /* If the next procedure call already has an environment,
          bind the result there. Otherwise, bind it in the current
          environment; it will be carried forward by the EnvBuffer. */

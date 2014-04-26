@@ -16,6 +16,7 @@
 goog.provide('r5js.Branch');
 
 
+goog.require('goog.functions');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 
@@ -73,6 +74,10 @@ r5js.Branch.prototype.setNext = function(next) {
 r5js.Branch.prototype.setStartingEnv = function(env) {
   // TODO bl unify with maybeSetEnv
 };
+
+
+/** @override */
+r5js.Branch.prototype.getEnv = goog.functions.NULL;
 
 
 /**
