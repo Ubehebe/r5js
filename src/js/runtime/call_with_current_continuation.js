@@ -22,6 +22,6 @@ goog.inherits(r5js.CallWithCurrentContinuation, r5js.ProcCall);
 
 
 /** @override */
-r5js.CallWithCurrentContinuation.prototype.evalArgs = function(wrapArgs) {
+r5js.CallWithCurrentContinuation.prototype.evalArgs = function() {
   return [this.continuation_];
 };

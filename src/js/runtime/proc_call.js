@@ -19,7 +19,6 @@ goog.require('r5js.ast.Macro');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
-goog.require('r5js.datumutil');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
@@ -308,11 +307,10 @@ r5js.ProcCall.prototype.bindResult = function(procCallLike, val) {
 
 
 /**
- * @param {boolean} wrapArgs
  * @return {!Array.<!r5js.runtime.Value>}
  * TODO bl: this method is too long.
  */
-r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
+r5js.ProcCall.prototype.evalArgs = function() {
   var maybeArray;
   if (maybeArray = this.evalArgsCallWithValues_()) {
     return maybeArray;
@@ -323,9 +321,7 @@ r5js.ProcCall.prototype.evalArgs = function(wrapArgs) {
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.ast.Identifier) {
       var name = cur.getPayload();
-      var toPush = wrapArgs ?
-          r5js.datumutil.maybeWrapResult(this.env.get(name)) :
-          this.env.get(name);
+      var toPush = this.env.get(name);
       /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
              for convenience. The isLetOrLetrecSyntax flag discriminates

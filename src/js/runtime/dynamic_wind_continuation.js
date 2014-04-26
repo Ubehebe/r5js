@@ -32,7 +32,7 @@ goog.inherits(r5js.DynamicWindContinuation, r5js.Continuation);
  */
 r5js.DynamicWindContinuation.prototype.evalAndAdvance = function(
     procCall, procCallLike, trampolineHelper, parserProvider) {
-  var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
+  var arg = procCall.evalArgs()[0]; // there will only be 1 arg
   procCall.getEnv().addBinding(this.lastResultName_, arg);
   trampolineHelper.setValue(arg);
   trampolineHelper.setNextProcCallLike(this.thunk_);

@@ -191,9 +191,7 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
 r5js.Procedure.prototype.evalAndAdvance = function(
     procCall, procCallLike, trampolineHelper, parserProvider) {
 
-  // todo bl we should be able to pass false as the last parameter.
-  // need to resolve some bugs.
-  var args = procCall.evalArgs(true);
+  var args = procCall.evalArgs();
 
   var procCallEnv = procCall.getEnv();
 

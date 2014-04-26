@@ -327,7 +327,8 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
  */
 r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
     function(procCall, procCallLike, trampolineHelper, parserProvider) {
-  var args = procCall.evalArgs(true);
+  var args = procCall.evalArgs().map(/** @type {!Function} */ (
+      r5js.datumutil.maybeWrapResult));
   // todo bl document why we're doing this...
   for (var i = 0; i < args.length; ++i) {
     if (args[i] instanceof r5js.Ref) {
