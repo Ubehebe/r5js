@@ -59,21 +59,9 @@ r5js.ProcCall.prototype.getEnv = function() {
 };
 
 
-/**
- * @param {!r5js.IEnvironment} env An environment to use.
- * @param {boolean=} opt_override True iff the ProcCall's own environment
- * should be overridden.
- */
-r5js.ProcCall.prototype.setEnv = function(env, opt_override) {
-  if (this.env && !opt_override)
-    throw new r5js.InternalInterpreterError('invariant incorrect');
-  this.env = env;
-};
-
-
 /** @override */
 r5js.ProcCall.prototype.setStartingEnv = function(env) {
-  this.setEnv(env, true /* opt_override */);
+  this.env = env;
 };
 
 
@@ -222,7 +210,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
   if (!this.env) {
-    this.setEnv(/** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()));
+    this.env = envBuffer.getEnv();
   }
 
   var proc = this.env.getProcedure(/** @type {string} */ (

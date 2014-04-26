@@ -44,7 +44,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
   /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
   if (!this.env) {
-    this.setEnv(/** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()));
+    this.env = envBuffer.getEnv();
   }
 
   this.tryIdShim_(resultStruct, parserProvider);

@@ -131,7 +131,7 @@ r5js.Procedure.prototype.toString = function() {
  */
 r5js.Procedure.prototype.setEnv_ = function(env) {
   if (this.body_) {
-    (/** @type {!r5js.ProcCall} */ (this.body_).setEnv(env, true));
+    this.body_.setStartingEnv(env);
   }
 };
 
