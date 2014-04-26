@@ -10,7 +10,6 @@ goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
-goog.require('r5js.ast.String');
 
 
 
@@ -124,10 +123,8 @@ r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
     return;
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
-  } else if (arg instanceof r5js.ast.String) {
-    ans = arg;
   } else {
-    ans = r5js.datumutil.maybeWrapResult(arg.getPayload());
+    ans = arg;
   }
 
   this.bindResult(this, ans);

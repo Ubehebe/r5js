@@ -307,8 +307,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
-  var retval = this.fn_.apply(null, unwrappedArgs);
-  var ans = r5js.datumutil.maybeWrapResult(retval);
+  var ans = this.fn_.apply(null, unwrappedArgs);
   procCall.bindResult(procCallLike, ans);
   trampolineHelper.setValue(ans);
   var nextContinuable = procCallLike.getNext();
@@ -368,8 +367,7 @@ r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
       goog.array.toArray(unwrappedArgs),
       trampolineHelper.getInputPort(),
       trampolineHelper.getOutputPort());
-  var retval = this.fn_.apply(null, args);
-  var ans = r5js.datumutil.maybeWrapResult(retval);
+  var ans = this.fn_.apply(null, args);
   procCall.bindResult(procCallLike, ans);
   trampolineHelper.setValue(ans);
   var nextContinuable = procCallLike.getNext();
