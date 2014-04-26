@@ -20,6 +20,11 @@ r5js.ProcedureLike.prototype.evalAndAdvance = function(
     procCall, procCallLike, trampolineHelper, parserProvider) {};
 
 
+/** @return {boolean} */
+r5js.ProcedureLike.prototype.operandsMustBeInContinuationPassingStyle =
+    function() {};
+
+
 /** @const @private */
 r5js.ProcedureLike.IMPLEMENTED_BY_PROP_ = '$r5js.ProcedureLike';
 

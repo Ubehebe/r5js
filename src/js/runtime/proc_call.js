@@ -127,10 +127,10 @@ r5js.ProcCall.prototype.reconstructDatum_ = function() {
 
 /**
  * @return {boolean} True iff the operands are in continuation-passing style.
- * @suppress {accessControls} TODO bl
+ * @private
  */
-r5js.ProcCall.prototype.operandsInCpsStyle = function() {
-  for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
+r5js.ProcCall.prototype.operandsInContinuationPassingStyle_ = function() {
+  for (var cur = this.firstOperand; cur; cur = cur.getNextSibling()) {
     if (cur instanceof r5js.Datum) {
       if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
         throw new r5js.IllegalEmptyApplication(this.operatorName_.getPayload());
@@ -156,14 +156,13 @@ r5js.ProcCall.prototype.operandsInCpsStyle = function() {
  * (We do _not_ do this if the operator resolves as a macro. Macros
  * get their arguments as unevaluated datums.)
  *
- * @param {!r5js.ProcCallLike} procCallLike
  * @param {!r5js.TrampolineHelper} trampolineHelper
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  * @suppress {checkTypes} TODO bl
+ * @private
  */
-r5js.ProcCall.prototype.cpsify = function(
-    procCallLike, trampolineHelper, parserProvider) {
+r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
 
   var newCallChain = new r5js.ContinuableHelper();
   var finalArgs = new r5js.SiblingBuffer();
@@ -176,8 +175,7 @@ r5js.ProcCall.prototype.cpsify = function(
     } else if (arg instanceof r5js.ast.Quasiquote) {
       maybeContinuable = arg.processQuasiquote(
           /** @type {!r5js.IEnvironment} */ (this.env),
-          procCallLike.getResultName(),
-          parserProvider);
+          this.resultName_, parserProvider);
       finalArgs.appendSibling(
           new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
           maybeContinuable).getResultName()));
@@ -210,11 +208,10 @@ r5js.ProcCall.prototype.cpsify = function(
   var ans = newCallChain.toContinuable();
   ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
   var lastContinuable = r5js.ProcCallLike.getLast(ans);
-  var next = procCallLike.getNext();
-  if (next) {
-    lastContinuable.setNext(next);
+  if (this.next_) {
+    lastContinuable.setNext(this.next_);
   }
-  lastContinuable.setResultName(procCallLike.getResultName());
+  lastContinuable.setResultName(this.resultName_);
   trampolineHelper.setNextProcCallLike(ans);
 };
 
@@ -233,7 +230,12 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
       this.operatorName_.getPayload()));
 
   if (r5js.ProcedureLike.isImplementedBy(proc)) {
-    proc.evalAndAdvance(this, this, resultStruct, parserProvider);
+    if (proc.operandsMustBeInContinuationPassingStyle() &&
+        !this.operandsInContinuationPassingStyle_()) {
+      this.cpsify_(resultStruct, parserProvider);
+    } else {
+      proc.evalAndAdvance(this, this, resultStruct, parserProvider);
+    }
   } else {
     throw new r5js.EvalError(
         'procedure application: expected procedure, given ' +

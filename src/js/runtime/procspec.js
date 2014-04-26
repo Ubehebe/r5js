@@ -2,6 +2,7 @@ goog.provide('r5js.procspec');
 
 
 goog.require('goog.array');
+goog.require('goog.functions');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.ProcedureLike');
@@ -278,6 +279,11 @@ r5js.procspec.PrimitiveProcedure_ = function(
 r5js.ProcedureLike.addImplementation(r5js.procspec.PrimitiveProcedure_);
 
 
+/** @override */
+r5js.procspec.PrimitiveProcedure_.prototype.
+    operandsMustBeInContinuationPassingStyle = goog.functions.TRUE;
+
+
 /**
  * Procedures have no deep need to know their names, as they are only bindings
  * and can change: (set! car cdr). This method exists only to increase
@@ -321,24 +327,14 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
  */
 r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
     function(procCall, procCallLike, trampolineHelper, parserProvider) {
-  /* If the operands aren't simple, we'll have to take a detour to
-             restructure them. Example:
-
-             (+ (* 1 2) (/ 3 4)) => (* 1 2 [_0 (/ 3 4 [_1 (+ _0 _1 ...)])]) */
-  if (!procCall.operandsInCpsStyle()) {
-    procCall.cpsify(procCallLike, trampolineHelper, parserProvider);
-  }
-
-  else {
-    var args = procCall.evalArgs(true);
-    // todo bl document why we're doing this...
-    for (var i = 0; i < args.length; ++i) {
-      if (args[i] instanceof r5js.Ref) {
-        args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
-      }
+  var args = procCall.evalArgs(true);
+  // todo bl document why we're doing this...
+  for (var i = 0; i < args.length; ++i) {
+    if (args[i] instanceof r5js.Ref) {
+      args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
     }
-    this.call(args, procCall, procCallLike, trampolineHelper);
   }
+  this.call(args, procCall, procCallLike, trampolineHelper);
 };
 
 

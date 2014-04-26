@@ -17,6 +17,7 @@
 goog.provide('r5js.Continuation');
 
 
+goog.require('goog.functions');
 goog.require('r5js.ProcedureLike');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
@@ -47,6 +48,11 @@ r5js.Continuation = function(resultName, next) {
   /** @const @private */ this.nextContinuable_ = next;
 };
 r5js.ProcedureLike.addImplementation(r5js.Continuation);
+
+
+/** @override */
+r5js.Continuation.prototype.operandsMustBeInContinuationPassingStyle =
+    goog.functions.FALSE;
 
 
 /**

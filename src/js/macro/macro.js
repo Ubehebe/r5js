@@ -17,6 +17,7 @@
 goog.provide('r5js.Macro');
 
 
+goog.require('goog.functions');
 goog.require('r5js.MacroError');
 goog.require('r5js.ParseError');
 goog.require('r5js.ProcCallLike');
@@ -73,6 +74,11 @@ r5js.Macro = function(
   this.isLetOrLetrecSyntax_ = false;
 };
 r5js.ProcedureLike.addImplementation(r5js.Macro);
+
+
+/** @override */
+r5js.Macro.prototype.operandsMustBeInContinuationPassingStyle =
+    goog.functions.FALSE;
 
 
 /**

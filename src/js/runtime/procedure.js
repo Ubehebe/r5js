@@ -1,6 +1,7 @@
 goog.provide('r5js.Procedure');
 
 
+goog.require('goog.functions');
 goog.require('r5js.Environment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ProcCall');
@@ -46,6 +47,11 @@ r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
   this.name_ = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
 };
 r5js.ProcedureLike.addImplementation(r5js.Procedure);
+
+
+/** @override */
+r5js.Procedure.prototype.operandsMustBeInContinuationPassingStyle =
+    goog.functions.TRUE;
 
 
 /**
@@ -185,41 +191,33 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
  */
 r5js.Procedure.prototype.evalAndAdvance = function(
     procCall, procCallLike, trampolineHelper, parserProvider) {
-  /* If the operands aren't simple, we'll have to take a detour to
-     restructure them. */
-  if (!procCall.operandsInCpsStyle()) {
-    procCall.cpsify(procCallLike, trampolineHelper, parserProvider);
-  }
 
-  else {
+  // todo bl we should be able to pass false as the last parameter.
+  // need to resolve some bugs.
+  var args = procCall.evalArgs(true);
 
-    // todo bl we should be able to pass false as the last parameter.
-    // need to resolve some bugs.
-    var args = procCall.evalArgs(true);
-
-    /* If we're at a tail call we can reuse the existing environment.
+  /* If we're at a tail call we can reuse the existing environment.
          Otherwise create a new environment pointing back to the current one. */
-    var newEnv = this.isTailCall_(procCallLike) ?
-            procCall.env.allowRedefs() :
-            new r5js.Environment(this.env_).addClosuresFrom(this.env_);
+  var newEnv = this.isTailCall_(procCallLike) ?
+      procCall.env.allowRedefs() :
+      new r5js.Environment(this.env_).addClosuresFrom(this.env_);
 
-    var next = procCallLike.getNext();
-    /* Remember to discard the new environment
+  var next = procCallLike.getNext();
+  /* Remember to discard the new environment
          at the end of the procedure call. */
-    if (procCall.env && next) {
-      next.maybeSetEnv(procCall.env);
-    }
-
-    // Do some bookkeeping to prepare for jumping into the procedure
-    this.setContinuation_(procCallLike);
-    this.checkNumArgs(args.length);
-    this.bindArgs(args, newEnv);
-    this.setEnv_(newEnv);
-
-    // And away we go
-    trampolineHelper.setNextProcCallLike(
-        /** @type {!r5js.ProcCallLike} */ (this.body_));
+  if (procCall.env && next) {
+    next.maybeSetEnv(procCall.env);
   }
+
+  // Do some bookkeeping to prepare for jumping into the procedure
+  this.setContinuation_(procCallLike);
+  this.checkNumArgs(args.length);
+  this.bindArgs(args, newEnv);
+  this.setEnv_(newEnv);
+
+  // And away we go
+  trampolineHelper.setNextProcCallLike(
+      /** @type {!r5js.ProcCallLike} */ (this.body_));
 };
 
 
