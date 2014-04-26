@@ -187,7 +187,6 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
  *
  * (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
  * @override
- * @suppress {accessControls} for procCall.env
  */
 r5js.Procedure.prototype.evalAndAdvance = function(
     procCall, procCallLike, trampolineHelper, parserProvider) {
@@ -196,17 +195,19 @@ r5js.Procedure.prototype.evalAndAdvance = function(
   // need to resolve some bugs.
   var args = procCall.evalArgs(true);
 
+  var procCallEnv = procCall.getEnv();
+
   /* If we're at a tail call we can reuse the existing environment.
          Otherwise create a new environment pointing back to the current one. */
   var newEnv = this.isTailCall_(procCallLike) ?
-      procCall.env.allowRedefs() :
+      procCallEnv.allowRedefs() :
       new r5js.Environment(this.env_).addClosuresFrom(this.env_);
 
   var next = procCallLike.getNext();
   /* Remember to discard the new environment
          at the end of the procedure call. */
-  if (procCall.env && next) {
-    next.maybeSetEnv(procCall.env);
+  if (procCallEnv && next) {
+    next.maybeSetEnv(procCallEnv);
   }
 
   // Do some bookkeeping to prepare for jumping into the procedure

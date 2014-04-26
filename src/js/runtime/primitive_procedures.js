@@ -937,15 +937,11 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
       var valuesName = newCpsName();
       var producerCall = new r5js.ProcCall(
           procCall.getFirstOperand(), null /* no arguments */, valuesName);
-      producerCall.setStartingEnv(
-          /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       var consumerCall = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling(),
           new r5js.ast.Identifier(valuesName));
       consumerCall.setNext(/** @type {!r5js.ProcCallLike} */ (
           procCallLike.getNext()));
-      consumerCall.setStartingEnv(
-          /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       producerCall.setNext(consumerCall);
       resultStruct.setNextProcCallLike(producerCall);
       return r5js.runtime.UNSPECIFIED_VALUE;
@@ -992,8 +988,6 @@ PrimitiveProcedures['call-with-current-continuation'] =
             dummyProcCall.setNext(next);
       }
       dummyProcCall.setResultName(procCallLike.getResultName());
-      dummyProcCall.setStartingEnv(
-          /** @type {!r5js.IEnvironment} */ (procCall.getEnv()));
       resultStruct.setNextProcCallLike(dummyProcCall);
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
@@ -1014,7 +1008,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
 
      should just bind 1 to _0 and continue. */
   if (numUserArgs === 1) {
-    procCall.env.addBinding(procCallLike.getResultName(), arguments[0]);
+    procCall.getEnv().addBinding(procCallLike.getResultName(), arguments[0]);
   } else {
     /* If there's more than one argument, we bind the whole array
        to the continuation's lastResultName. This means later, when we're
@@ -1027,11 +1021,11 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
       userArgs.push(arguments[i]);
     }
 
-    procCall.env.addBinding(procCallLike.getResultName(), userArgs);
+    procCall.getEnv().addBinding(procCallLike.getResultName(), userArgs);
   }
   var nextContinuable = procCallLike.getNext();
   if (nextContinuable) {
-    nextContinuable.setStartingEnv(procCall.env);
+    nextContinuable.setStartingEnv(procCall.getEnv());
   }
   resultStruct.setNextProcCallLike(nextContinuable);
   return r5js.runtime.UNSPECIFIED_VALUE;

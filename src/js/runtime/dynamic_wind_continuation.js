@@ -28,12 +28,12 @@ goog.inherits(r5js.DynamicWindContinuation, r5js.Continuation);
 
 /**
  * @override
- * @suppress {accessControls}
+ * @suppress {accessControls} TODO bl fix
  */
 r5js.DynamicWindContinuation.prototype.evalAndAdvance = function(
     procCall, procCallLike, trampolineHelper, parserProvider) {
   var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
-  procCall.env.addBinding(this.lastResultName_, arg);
+  procCall.getEnv().addBinding(this.lastResultName_, arg);
   trampolineHelper.setValue(arg);
   trampolineHelper.setNextProcCallLike(this.thunk_);
   if (this.nextContinuable_) {

@@ -55,14 +55,11 @@ r5js.Continuation.prototype.operandsMustBeInContinuationPassingStyle =
     goog.functions.FALSE;
 
 
-/**
- * @override
- * @suppress {accessControls}
- */
+/** @override */
 r5js.Continuation.prototype.evalAndAdvance = function(
     procCall, procCallLike, trampolineHelper, parserProvider) {
   var arg = procCall.evalArgs(false)[0]; // there will only be 1 arg
-  procCall.env.addBinding(this.lastResultName_, arg);
+  procCall.getEnv().addBinding(this.lastResultName_, arg);
   trampolineHelper.setValue(arg);
   if (this.nextContinuable_) {
     trampolineHelper.setNextProcCallLike(this.nextContinuable_);

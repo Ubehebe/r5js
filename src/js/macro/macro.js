@@ -278,7 +278,8 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
 r5js.Macro.prototype.evalAndAdvance = function(
     procCall, procCallLike, resultStruct, parserProvider) {
 
-  var newEnv = new r5js.Environment(procCall.env);
+  var oldEnv = procCall.getEnv();
+  var newEnv = new r5js.Environment(oldEnv);
   var newParseTree = this.transcribe(
       procCall.reconstructDatum_(),
       newEnv,
@@ -287,8 +288,8 @@ r5js.Macro.prototype.evalAndAdvance = function(
   var next = procCallLike.getNext();
   /* Just like with tryNonPrimitiveProcedures, we have to remember when
      to jump back to the old environment. */
-  if (procCall.env && next) {
-    next.maybeSetEnv(procCall.env);
+  if (oldEnv && next) {
+    next.maybeSetEnv(oldEnv);
   }
 
   var newContinuable = /** @type {!r5js.ProcCallLike} */ (
