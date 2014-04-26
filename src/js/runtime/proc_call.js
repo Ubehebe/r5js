@@ -65,34 +65,6 @@ r5js.ProcCall.prototype.setStartingEnv = function(env) {
 };
 
 
-/**
- * If the ProcCall already has an environment, don't overwrite it.
- * Exception: if this is a continuation "escape call", we do overwrite it.
- * This exception was prompted by things like
- *
- * (call-with-current-continuation
- *   (lambda (exit)
- *     (for-each
- *       (lambda (x)
- *         (if (negative? x) (exit x)))
- *   '(54 0 37 -3 245 19)) #t))
- *
- * At the end of each invocation of (lambda (x) ...), the environment on
- * (exit x) should be updated to reflect the most recent binding of x.
- * Otherwise, the trampoline would see that -3 is negative, but the x in
- * (exit x) would still be bound to 54.
- *
- * This is quite ad-hoc and could contain bugs.
- *
- * @param {!r5js.IEnvironment} env An environment.
- */
-r5js.ProcCall.prototype.maybeSetEnv = function(env) {
-  if (!this.env) {
-    this.env = env;
-  }
-};
-
-
 /** TODO bl document */
 r5js.ProcCall.prototype.clearEnv = function() {
   this.env = null;

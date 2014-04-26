@@ -288,8 +288,8 @@ r5js.Macro.prototype.evalAndAdvance = function(
   var next = procCallLike.getNext();
   /* Just like with tryNonPrimitiveProcedures, we have to remember when
      to jump back to the old environment. */
-  if (oldEnv && next) {
-    next.maybeSetEnv(oldEnv);
+  if (oldEnv && next && !next.getEnv()) {
+    next.setStartingEnv(oldEnv);
   }
 
   var newContinuable = /** @type {!r5js.ProcCallLike} */ (

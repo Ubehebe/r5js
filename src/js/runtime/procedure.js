@@ -204,8 +204,8 @@ r5js.Procedure.prototype.evalAndAdvance = function(
   var next = procCallLike.getNext();
   /* Remember to discard the new environment
          at the end of the procedure call. */
-  if (procCallEnv && next) {
-    next.maybeSetEnv(procCallEnv);
+  if (procCallEnv && next && !next.getEnv()) {
+    next.setStartingEnv(procCallEnv);
   }
 
   // Do some bookkeeping to prepare for jumping into the procedure
