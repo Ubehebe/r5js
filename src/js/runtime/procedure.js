@@ -77,6 +77,7 @@ r5js.Procedure.prototype.setupBody_ = function(bodyStart) {
  * @param {!r5js.Environment} env Environment to clone with.
  * @return {!r5js.Procedure} A clone of this procedure, with the given
  *         environment.
+ * @suppress {const} for reassignment to body_ and last_.
  */
 r5js.Procedure.prototype.cloneWithEnv = function(env) {
   var ans = new this.constructor(this.formalsArray, null /* bodyStart */, env);
