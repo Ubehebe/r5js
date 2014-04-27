@@ -59,7 +59,7 @@ r5js.TrampolineHelper.prototype.getNextProcCallLike = function() {
 
 
 /** @param {!r5js.ProcCallLike} procCallLike */
-r5js.TrampolineHelper.prototype.setNextProcCallLike = function(procCallLike) {
+r5js.TrampolineHelper.prototype.setNext = function(procCallLike) {
   this.nextContinuable_ = procCallLike;
 };
 

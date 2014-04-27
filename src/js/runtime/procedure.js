@@ -215,7 +215,7 @@ r5js.Procedure.prototype.evalAndAdvance = function(
   this.setEnv_(newEnv);
 
   // And away we go
-  trampolineHelper.setNextProcCallLike(
+  trampolineHelper.setNext(
       /** @type {!r5js.ProcCallLike} */ (this.body_));
 };
 

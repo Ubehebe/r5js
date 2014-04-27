@@ -119,7 +119,7 @@ r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
       r5js.ProcCallLike.appendProcCallLike(
           continuable, nextContinuable);
     }
-    resultStruct.setNextProcCallLike(continuable);
+    resultStruct.setNext(continuable);
     return;
   } else if (arg.isImproperList()) {
     throw new r5js.GeneralSyntaxError(arg);
@@ -140,6 +140,6 @@ r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
 
   resultStruct.setValue(ans);
   if (nextContinuable) {
-    resultStruct.setNextProcCallLike(nextContinuable);
+    resultStruct.setNext(nextContinuable);
   }
 };

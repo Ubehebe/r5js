@@ -171,7 +171,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
     lastContinuable.setNext(this.next_);
   }
   lastContinuable.setResultName(this.resultName_);
-  trampolineHelper.setNextProcCallLike(ans);
+  trampolineHelper.setNext(ans);
 };
 
 

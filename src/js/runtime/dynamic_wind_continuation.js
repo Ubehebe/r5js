@@ -35,7 +35,7 @@ r5js.DynamicWindContinuation.prototype.evalAndAdvance = function(
   var arg = procCall.evalArgs()[0]; // there will only be 1 arg
   procCall.getEnv().addBinding(this.lastResultName_, arg);
   trampolineHelper.setValue(arg);
-  trampolineHelper.setNextProcCallLike(this.thunk_);
+  trampolineHelper.setNext(this.thunk_);
   if (this.nextContinuable_) {
     r5js.ProcCallLike.appendProcCallLike(this.thunk_, this.nextContinuable_);
   }

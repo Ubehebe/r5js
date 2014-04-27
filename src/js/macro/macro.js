@@ -301,6 +301,6 @@ r5js.Macro.prototype.evalAndAdvance = function(
     last.setNext(next);
   }
   last.setResultName(procCallLike.getResultName());
-  resultStruct.setNextProcCallLike(newContinuable);
+  resultStruct.setNext(newContinuable);
 };
 

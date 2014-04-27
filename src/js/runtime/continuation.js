@@ -62,7 +62,7 @@ r5js.Continuation.prototype.evalAndAdvance = function(
   procCall.getEnv().addBinding(this.lastResultName_, arg);
   trampolineHelper.setValue(arg);
   if (this.nextContinuable_) {
-    trampolineHelper.setNextProcCallLike(this.nextContinuable_);
+    trampolineHelper.setNext(this.nextContinuable_);
   }
   r5js.Continuation.repairInfiniteLoop(procCallLike, trampolineHelper);
 };
