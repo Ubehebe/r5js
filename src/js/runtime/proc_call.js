@@ -142,9 +142,6 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
           new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
           maybeContinuable).getResultName()));
       newCallChain.appendProcCallLike(maybeContinuable);
-    } else if (arg instanceof r5js.ast.Lambda) {
-      finalArgs.appendSibling(
-          new r5js.ast.Identifier(/** @type {string} */ (arg.getName())));
     } else if (arg.isImproperList()) {
       throw new r5js.GeneralSyntaxError(arg);
     } else if ((maybeContinuable = arg.desugar(
