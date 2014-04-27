@@ -32,22 +32,17 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  * @param {r5js.Datum} firstOperand
  * @param {string=} opt_lastResultName Optional name to use for the last result.
  *     If not given, a unique name will be created.
- * @implements {r5js.ProcCallLike}
+ * @extends {r5js.ProcCallLike}
  * @struct
  * @constructor
  */
 r5js.ProcCall = function(operatorName, firstOperand, opt_lastResultName) {
+  goog.base(this, opt_lastResultName);
 
   /** @const @private */ this.operatorName_ = operatorName;
   /** @const @protected */ this.firstOperand = firstOperand;
-  /** @protected {r5js.IEnvironment} */ this.env = null;
-
-  /** @private */
-  this.resultName_ = opt_lastResultName ||
-      ('@' /* TODO bl document */ + goog.getUid(this));
-
-  /** @private {r5js.ProcCallLike} */ this.next_ = null;
 };
+goog.inherits(r5js.ProcCall, r5js.ProcCallLike);
 
 
 /** @return {?} TODO bl. */
@@ -56,21 +51,9 @@ r5js.ProcCall.prototype.getFirstOperand = function() {
 };
 
 
-/** @override */
-r5js.ProcCall.prototype.getEnv = function() {
-  return this.env;
-};
-
-
-/** @override */
-r5js.ProcCall.prototype.setStartingEnv = function(env) {
-  this.env = env;
-};
-
-
-/** TODO bl document */
+/** @suppress {checkTypes} for the assignment to null. TODO bl remove. */
 r5js.ProcCall.prototype.clearEnv = function() {
-  this.env = null;
+  this.setStartingEnv(null);
 };
 
 
@@ -136,8 +119,8 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
       finalArgs.appendSibling(arg.clone(null /* parent */));
     } else if (arg instanceof r5js.ast.Quasiquote) {
       maybeContinuable = arg.processQuasiquote(
-          /** @type {!r5js.IEnvironment} */ (this.env),
-          this.resultName_, parserProvider);
+          /** @type {!r5js.IEnvironment} */ (this.getEnv()),
+          this.getResultName(), parserProvider);
       finalArgs.appendSibling(
           new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
           maybeContinuable).getResultName()));
@@ -145,7 +128,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
     } else if (arg.isImproperList()) {
       throw new r5js.GeneralSyntaxError(arg);
     } else if ((maybeContinuable = arg.desugar(
-        /** @type {!r5js.IEnvironment} */ (this.env))).evalAndAdvance) {
+        /** @type {!r5js.IEnvironment} */ (this.getEnv()))).evalAndAdvance) {
       /* todo bl is it an invariant violation to be a list
              and not to desugar to a Continuable? */
       finalArgs.appendSibling(
@@ -165,12 +148,13 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
       new r5js.ProcCall(this.operatorName_, finalArgs.toSiblings()));
 
   var ans = newCallChain.toContinuable();
-  ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.env));
+  ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.getEnv()));
   var lastContinuable = r5js.ProcCallLike.getLast(ans);
-  if (this.next_) {
-    lastContinuable.setNext(this.next_);
+  var next = this.getNext();
+  if (next) {
+    lastContinuable.setNext(next);
   }
-  lastContinuable.setResultName(this.resultName_);
+  lastContinuable.setResultName(this.getResultName());
   trampolineHelper.setNext(ans);
 };
 
@@ -179,13 +163,16 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
 r5js.ProcCall.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
 
+  var curEnv = this.getEnv();
+  var bufferEnv = envBuffer.getEnv();
+
   /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
-  if (!this.env) {
-    this.env = envBuffer.getEnv();
+  if (!curEnv && bufferEnv) {
+    this.setStartingEnv(bufferEnv);
   }
 
-  var proc = this.env.getProcedure(/** @type {string} */ (
+  var proc = this.getEnv().getProcedure(/** @type {string} */ (
       this.operatorName_.getPayload()));
 
   if (proc instanceof r5js.Procedure) {
@@ -209,37 +196,10 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
   /* Save the environment we used in case the next action on the trampoline
      needs it (for example branches, which have no environment of their own). */
-  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.env));
+  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
 
   // We shouldn't leave the environment pointer hanging around.
   this.clearEnv();
-};
-
-
-/** @override */
-r5js.ProcCall.prototype.getNext = function() {
-  return this.next_;
-};
-
-
-/** @override */
-r5js.ProcCall.prototype.setNext = function(next) {
-  this.next_ = next;
-};
-
-
-/** @override */
-r5js.ProcCall.prototype.getResultName = function() {
-  return this.resultName_;
-};
-
-
-/**
- * @override
- * @suppress {const|accessControls} TODO bl remove
- */
-r5js.ProcCall.prototype.setResultName = function(resultName) {
-  this.resultName_ = resultName;
 };
 
 
@@ -260,14 +220,14 @@ r5js.ProcCall.prototype.bindResult = function(procCallLike, val) {
     if (maybeEnv) {
       maybeEnv.addBinding(name, val);
     } else {
-      this.env.addBinding(name, val);
+      this.getEnv().addBinding(name, val);
     }
   }
 
 /* If the next thing is not a procedure call, it will reuse this procedure
      call's environment, so just bind the result here. */
   else {
-    this.env.addBinding(name, val);
+    this.getEnv().addBinding(name, val);
   }
 };
 
@@ -287,7 +247,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
   for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.ast.Identifier) {
       var name = cur.getPayload();
-      var toPush = this.env.get(name);
+      var toPush = this.getEnv().get(name);
       /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
              for convenience. The isLetOrLetrecSyntax flag discriminates
@@ -332,7 +292,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
 r5js.ProcCall.prototype.evalArgsCallWithValues_ = function() {
   if (this.firstOperand instanceof r5js.ast.Identifier &&
       !this.firstOperand.getNextSibling()) {
-    var maybeArray = this.env.get(
+    var maybeArray = this.getEnv().get(
         /** @type {string} */ (this.firstOperand.getPayload()));
     if (maybeArray instanceof Array) {
       return maybeArray;

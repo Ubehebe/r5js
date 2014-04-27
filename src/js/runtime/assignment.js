@@ -32,17 +32,21 @@ r5js.Assignment.NAME_ = new r5js.ast.Identifier('set!');
 r5js.Assignment.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
 
+
+  var curEnv = this.getEnv();
+  var bufferEnv = envBuffer.getEnv();
+
   /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
-  if (!this.env) {
-    this.env = envBuffer.getEnv();
+  if (!curEnv && bufferEnv) {
+    this.setStartingEnv(bufferEnv);
   }
 
   this.tryAssignment_(resultStruct);
 
   /* Save the environment we used in case the next action on the trampoline
      needs it (for example branches, which have no environment of their own). */
-  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.env));
+  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
 
   // We shouldn't leave the environment pointer hanging around.
   this.clearEnv();
@@ -55,7 +59,7 @@ r5js.Assignment.prototype.evalAndAdvance = function(
  * @suppress {checkTypes} TODO bl remove
  */
 r5js.Assignment.prototype.tryAssignment_ = function(resultStruct) {
-  var src = this.env.get(/** @type {string} */ (
+  var src = this.getEnv().get(/** @type {string} */ (
       this.firstOperand.getNextSibling().getPayload()));
   this.checkForImproperSyntaxAssignment(src);
   this.mutateEnv(/** @type {string} */ (this.firstOperand.getPayload()), src);
@@ -100,7 +104,7 @@ r5js.Assignment.prototype.checkForImproperSyntaxAssignment = function(val) {
  * @protected
  */
 r5js.Assignment.prototype.mutateEnv = function(name, val) {
-  this.env.mutate(name, val, false /* isTopLevel */);
+  this.getEnv().mutate(name, val, false /* isTopLevel */);
 };
 
 
@@ -119,7 +123,7 @@ goog.inherits(r5js.TopLevelAssignment, r5js.Assignment);
 
 /** @override */
 r5js.TopLevelAssignment.prototype.mutateEnv = function(name, val) {
-  this.env.mutate(name, val, true /* isTopLevel */);
+  this.getEnv().mutate(name, val, true /* isTopLevel */);
 };
 
 

@@ -8,7 +8,6 @@ goog.require('r5js.ProcCall');
 /**
  * @param {!r5js.ast.Identifier} operatorName
  * @param {!r5js.Continuation} continuation
- * @implements {r5js.ProcCallLike}
  * @extends {r5js.ProcCall}
  * @struct
  * @constructor

@@ -41,17 +41,20 @@ goog.inherits(r5js.IdShim, r5js.ProcCall);
 r5js.IdShim.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
 
+  var curEnv = this.getEnv();
+  var bufferEnv = envBuffer.getEnv();
+
   /* If the procedure call has no attached environment, we use
      the environment left over from the previous action on the trampoline. */
-  if (!this.env) {
-    this.env = envBuffer.getEnv();
+  if (!curEnv && bufferEnv) {
+    this.setStartingEnv(bufferEnv);
   }
 
   this.tryIdShim_(resultStruct, parserProvider);
 
   /* Save the environment we used in case the next action on the trampoline
      needs it (for example branches, which have no environment of their own). */
-  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.env));
+  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
 
   // We shouldn't leave the environment pointer hanging around.
   this.clearEnv();
@@ -74,9 +77,9 @@ r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
   /* todo bl: id shims have become quite popular for passing through
      disparate objects on the trampoline. The logic could be made clearer. */
   if (arg instanceof r5js.ast.Identifier) {
-    ans = this.env.get(/** @type {string} */ (arg.getPayload()));
+    ans = this.getEnv().get(/** @type {string} */ (arg.getPayload()));
   } else if (arg instanceof r5js.ast.Quote) {
-    var env = this.env;
+    var env = this.getEnv();
     // Do the appropriate substitutions.
     ans = arg.replaceChildren(
         function(node) {
@@ -111,7 +114,7 @@ r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
             new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
   } else if (arg instanceof r5js.ast.Quasiquote) {
     var continuable = arg.processQuasiquote(
-        /** @type {!r5js.IEnvironment} */ (this.env),
+        /** @type {!r5js.IEnvironment} */ (this.getEnv()),
         this.getResultName(),
         parserProvider);
     var nextContinuable = this.getNext();
