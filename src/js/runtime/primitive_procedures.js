@@ -44,7 +44,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 /** @private {r5js.js.Environment} */ r5js.PrimitiveProcedures.jsEnv_;
 
 
-/** @const @private {!Object.<string, !r5js.AbstractProcedure>} */
+/** @const @private {!Object.<string, !r5js.procspec.PrimitiveProcedure_>} */
 r5js.PrimitiveProcedures.registry_ = {};
 
 
@@ -1066,8 +1066,7 @@ r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv, jsEnv) {
   r5js.PrimitiveProcedures.r5RSEnv_ = r5RSEnv;
   r5js.PrimitiveProcedures.jsEnv_ = jsEnv;
   for (var name in r5js.PrimitiveProcedures.registry_) {
-    var proc = /** @type {!r5js.procspec.PrimitiveProcedure_} */ (
-        r5js.PrimitiveProcedures.registry_[name]);
+    var proc = r5js.PrimitiveProcedures.registry_[name];
     proc.setDebugName(name);
     r5RSEnv.addBinding(name, proc);
   }
