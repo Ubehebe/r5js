@@ -308,7 +308,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
   var ans = this.fn_.apply(null, unwrappedArgs);
-  procCall.bindResult(procCallLike, ans);
+  r5js.procspec.PrimitiveProcedure_.bindResult(procCallLike, ans);
   trampolineHelper.setValue(ans);
   var nextContinuable = procCallLike.getNext();
   if (nextContinuable) {
@@ -335,6 +335,35 @@ r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
     }
   }
   this.call(args, procCall, procCallLike, trampolineHelper);
+};
+
+
+/**
+ * @param {!r5js.ProcCallLike} procCallLike
+ * @param {!r5js.runtime.Value} val
+ */
+r5js.procspec.PrimitiveProcedure_.bindResult = function(procCallLike, val) {
+
+  var name = procCallLike.getResultName();
+  var nextProcCall = procCallLike.getNext();
+
+  if (nextProcCall) {
+    var maybeEnv = nextProcCall.getEnv();
+    /* If the next procedure call already has an environment,
+         bind the result there. Otherwise, bind it in the current
+         environment; it will be carried forward by the EnvBuffer. */
+    if (maybeEnv) {
+      maybeEnv.addBinding(name, val);
+    } else {
+      procCallLike.getEnv().addBinding(name, val);
+    }
+  }
+
+/* If the next thing is not a procedure call, it will reuse this procedure
+     call's environment, so just bind the result here. */
+  else {
+    procCallLike.getEnv().addBinding(name, val);
+  }
 };
 
 
@@ -368,7 +397,7 @@ r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
       trampolineHelper.getInputPort(),
       trampolineHelper.getOutputPort());
   var ans = this.fn_.apply(null, args);
-  procCall.bindResult(procCallLike, ans);
+  r5js.procspec.PrimitiveProcedure_.bindResult(procCallLike, ans);
   trampolineHelper.setValue(ans);
   var nextContinuable = procCallLike.getNext();
   if (nextContinuable) {
