@@ -1,4 +1,4 @@
-goog.provide('r5js.Procedure');
+goog.provide('r5js.UserDefinedProcedure');
 
 
 goog.require('goog.functions');
@@ -30,7 +30,7 @@ goog.require('r5js.parse.Terminals');
  * @struct
  * @constructor
  */
-r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
+r5js.UserDefinedProcedure = function(formalsArray, bodyStart, env, opt_name) {
   goog.base(this);
   /** @const @protected */
   this.formalsArray = formalsArray;
@@ -47,7 +47,7 @@ r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
   /** @const @private */
   this.name_ = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
 };
-goog.inherits(r5js.Procedure, r5js.AbstractProcedure);
+goog.inherits(r5js.UserDefinedProcedure, r5js.AbstractProcedure);
 
 
 /**
@@ -55,8 +55,8 @@ goog.inherits(r5js.Procedure, r5js.AbstractProcedure);
  * @return {!r5js.ProcCallLike}
  * @private
  */
-r5js.Procedure.prototype.setupBody_ = function(bodyStart) {
-  var helper = new r5js.Procedure.LetrecBindingsHelper_();
+r5js.UserDefinedProcedure.prototype.setupBody_ = function(bodyStart) {
+  var helper = new r5js.UserDefinedProcedure.LetrecBindingsHelper_();
   var letrecBindings = helper.collectLetrecBindings(bodyStart);
   if (letrecBindings.isEmpty()) {
     return /** @type {!r5js.ProcCallLike} */ (
@@ -71,11 +71,11 @@ r5js.Procedure.prototype.setupBody_ = function(bodyStart) {
 
 /**
  * @param {!r5js.Environment} env Environment to clone with.
- * @return {!r5js.Procedure} A clone of this procedure, with the given
- *         environment.
+ * @return {!r5js.UserDefinedProcedure} A clone of this procedure,
+ * with the given environment.
  * @suppress {const} for reassignment to body_ and last_.
  */
-r5js.Procedure.prototype.cloneWithEnv = function(env) {
+r5js.UserDefinedProcedure.prototype.cloneWithEnv = function(env) {
   var ans = new this.constructor(this.formalsArray, null /* bodyStart */, env);
   ans.env_.setClosuresFrom(this.env_); // non-cloning ok?
   ans.body_ = this.body_;
@@ -90,7 +90,7 @@ r5js.Procedure.prototype.cloneWithEnv = function(env) {
  * @suppress {checkTypes} procCallLike.getNext() can return null,
  * but apparently this is required. TODO bl investigate.
  */
-r5js.Procedure.prototype.setContinuation_ = function(procCallLike) {
+r5js.UserDefinedProcedure.prototype.setContinuation_ = function(procCallLike) {
   /* This will be a vacuous write for a tail call. But that is
        probably still faster than checking if we are in tail position and,
        if so, explicitly doing nothing. */
@@ -107,7 +107,7 @@ r5js.Procedure.prototype.setContinuation_ = function(procCallLike) {
  * @private
  * TODO bl are we sure this covers all forms of tail recursion in R5RS?
  */
-r5js.Procedure.prototype.isTailCall_ = function(procCallLike) {
+r5js.UserDefinedProcedure.prototype.isTailCall_ = function(procCallLike) {
   if (this.last_ === procCallLike) {
     // a good place to see if tail recursion is actually working :)
     // console.log('TAIL RECURSION!!!');
@@ -117,7 +117,7 @@ r5js.Procedure.prototype.isTailCall_ = function(procCallLike) {
 
 
 /** @override */
-r5js.Procedure.prototype.toString = function() {
+r5js.UserDefinedProcedure.prototype.toString = function() {
   return 'proc:' + this.name_;
 };
 
@@ -126,7 +126,7 @@ r5js.Procedure.prototype.toString = function() {
  * @param {!r5js.IEnvironment} env The environment to set.
  * @private
  */
-r5js.Procedure.prototype.setEnv_ = function(env) {
+r5js.UserDefinedProcedure.prototype.setEnv_ = function(env) {
   if (this.body_) {
     this.body_.setStartingEnv(env);
   }
@@ -138,7 +138,7 @@ r5js.Procedure.prototype.setEnv_ = function(env) {
  * during evaluation.
  * @protected
  */
-r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
+r5js.UserDefinedProcedure.prototype.checkNumArgs = function(numActuals) {
   if (numActuals !== this.formalsArray.length) {
     throw new r5js.IncorrectNumArgs(
         this.toString(), this.formalsArray.length, numActuals);
@@ -151,7 +151,7 @@ r5js.Procedure.prototype.checkNumArgs = function(numActuals) {
  * @param {!r5js.IEnvironment} env
  * @protected
  */
-r5js.Procedure.prototype.bindArgs = function(args, env) {
+r5js.UserDefinedProcedure.prototype.bindArgs = function(args, env) {
   for (var i = 0; i < this.formalsArray.length; ++i) {
     env.addBinding(this.formalsArray[i], args[i]);
   }
@@ -159,7 +159,6 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
 
 
 /**
- * Non-primitive procedure, represented by {@link r5js.Procedure} object.
  * Example: suppose we have
  *
  * (define (foo x y) (+ x (* 2 y)))
@@ -185,7 +184,7 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
  * (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
  * @override
  */
-r5js.Procedure.prototype.evaluate = function(
+r5js.UserDefinedProcedure.prototype.evaluate = function(
     args, procCallLike, trampolineHelper) {
 
   var procCallEnv = procCallLike.getEnv();
@@ -221,7 +220,7 @@ r5js.Procedure.prototype.evaluate = function(
  * @constructor
  * @private
  */
-r5js.Procedure.LetrecBindingsHelper_ = function() {
+r5js.UserDefinedProcedure.LetrecBindingsHelper_ = function() {
   /** @const @private */ this.bindings_ = new r5js.SiblingBuffer();
   /** @private {r5js.Datum} */ this.last_ = null;
 };
@@ -233,8 +232,8 @@ r5js.Procedure.LetrecBindingsHelper_ = function() {
  * @param {!r5js.Datum} bodyStart
  * @return {!r5js.SiblingBuffer}
  */
-r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindings = function(
-    bodyStart) {
+r5js.UserDefinedProcedure.LetrecBindingsHelper_.prototype.
+    collectLetrecBindings = function(bodyStart) {
   for (var cur = bodyStart;
       cur && cur.peekParse() === r5js.parse.Nonterminals.DEFINITION;
       cur = cur.getNextSibling()) {
@@ -256,8 +255,8 @@ r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindings = function(
  * @param {!r5js.Datum} node
  * @private
  */
-r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindingsForChild_ =
-    function(node) {
+r5js.UserDefinedProcedure.LetrecBindingsHelper_.prototype.
+    collectLetrecBindingsForChild_ = function(node) {
   if (!(node instanceof r5js.ast.CompoundDatum) ||
       node instanceof r5js.ast.Quote) {
     return;
@@ -275,11 +274,7 @@ r5js.Procedure.LetrecBindingsHelper_.prototype.collectLetrecBindingsForChild_ =
 
 
 /** @return {r5js.Datum} */
-r5js.Procedure.LetrecBindingsHelper_.prototype.getLast = function() {
+r5js.UserDefinedProcedure.LetrecBindingsHelper_.prototype.getLast = function() {
   return this.last_;
 };
-
-
-
-
 

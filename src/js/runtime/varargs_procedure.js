@@ -1,9 +1,9 @@
 goog.provide('r5js.VarargsProcedure');
 
 
-goog.require('r5js.Procedure');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TooFewArgs');
+goog.require('r5js.UserDefinedProcedure');
 goog.require('r5js.ast.List');
 goog.require('r5js.datumutil');
 
@@ -16,14 +16,14 @@ goog.require('r5js.datumutil');
  * @param {!r5js.IEnvironment} env
  * @param {string=} opt_name The procedure's name, for pretty-printing and
  * error messages. If not given, one will be created.
- * @extends {r5js.Procedure}
+ * @extends {r5js.UserDefinedProcedure}
  * @struct
  * @constructor
  */
 r5js.VarargsProcedure = function(formalsArray, bodyStart, env, opt_name) {
   goog.base(this, formalsArray, bodyStart, env, opt_name);
 };
-goog.inherits(r5js.VarargsProcedure, r5js.Procedure);
+goog.inherits(r5js.VarargsProcedure, r5js.UserDefinedProcedure);
 
 
 /** @override */

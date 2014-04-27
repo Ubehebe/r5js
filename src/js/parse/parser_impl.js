@@ -29,10 +29,10 @@ goog.require('r5js.MacroError');
 goog.require('r5js.PatternIdTransformer');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
-goog.require('r5js.Procedure');
 goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.TemplateIdTransformer');
+goog.require('r5js.UserDefinedProcedure');
 goog.require('r5js.VarargsProcedure');
 goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.CompoundDatum');
@@ -419,7 +419,7 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
       var proc = treatAsDotted ?
           new r5js.VarargsProcedure(
               formals, formalRoot.getNextSibling(), env, name) :
-          new r5js.Procedure(
+          new r5js.UserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name);
       env.addClosure(name, proc);
       return new r5js.IdShim(new r5js.ast.Identifier(name));
@@ -510,7 +510,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
       var anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
-          new r5js.Procedure(
+          new r5js.UserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name));
       return r5js.newTopLevelAssignment(name.getPayload(), anonymousName);
     }),

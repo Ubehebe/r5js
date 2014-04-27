@@ -77,8 +77,8 @@ r5js.IEnvironment.prototype.addBinding = function(name, val) {};
  *
  * With internal definitions, this is easy. The grammar of Scheme says that
  * all internal definitions must precede all expressions in a procedure body,
- * so the {@link r5js.Procedure} constructor can intercept all the definitions
- * and deal with them appropriately.
+ * so the {@link r5js.UserDefinedProcedure} constructor can intercept all the
+ * definitions and deal with them appropriately.
  *
  * Lambda expressions, however, can appear anywhere in a procedure's body,
  * so we deal with them in a generic way here. Using the second definition of
@@ -91,7 +91,7 @@ r5js.IEnvironment.prototype.addBinding = function(name, val) {};
  *   {@link r5js.IEnvironment} hanging off fooEnv (say, tmp-fooEnv).
  *   (We have to do this to support multiple active calls to the same
  *   procedure.) We copy all of fooEnv's closures into tmp-fooEnv as actual
- *   bound {@link r5js.Procedure}s, using
+ *   bound {@link r5js.UserDefinedProcedure}s, using
  *   {@link r5js.Environment.addClosuresFrom}.
  *   We also bind the arguments (in this case x = 10) in tmp-fooEnv,
  *   then advance to foo's body.
@@ -103,7 +103,7 @@ r5js.IEnvironment.prototype.addBinding = function(name, val) {};
  * (fooEnv).
  *
  * @param {string} name Name of the binding to install this closure under.
- * @param {!r5js.Procedure} proc Closure to install.
+ * @param {!r5js.UserDefinedProcedure} proc Closure to install.
  * TODO bl: consider renaming to addSchemeProcedure?
  */
 r5js.IEnvironment.prototype.addClosure = function(name, proc) {};

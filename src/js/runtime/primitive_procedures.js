@@ -676,8 +676,7 @@ PrimitiveProcedures['eval'] = _.binary(
 PrimitiveProcedures['will-eval?'] = _.binary(
     /** @suppress {accessControls} */function(expr) {
       try {
-        (/** @type {!r5js.procspec.PrimitiveProcedure_} */ (
-            PrimitiveProcedures['eval'])).fn_.call(null, expr);
+        PrimitiveProcedures['eval'].fn_.call(null, expr);
         return true;
       } catch (e) {
         return false;
