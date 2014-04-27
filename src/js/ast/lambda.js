@@ -8,8 +8,8 @@ goog.require('r5js.parse.Terminals');
 
 /**
  * @param {string} name Name of the procedure.
- * @param {!r5js.ProcedureLike|!r5js.Procedure} procedure TODO bl.
- * @extends {r5js.ast.SimpleDatum.<!r5js.ProcedureLike|!r5js.Procedure>}
+ * @param {!r5js.AbstractProcedure} procedure TODO bl.
+ * @extends {r5js.ast.SimpleDatum.<!r5js.AbstractProcedure>}
  * @struct
  * @constructor
  */

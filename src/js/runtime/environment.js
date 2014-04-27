@@ -24,7 +24,6 @@ goog.require('r5js.EvalError');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
-goog.require('r5js.ProcedureLike');
 goog.require('r5js.Ref');
 goog.require('r5js.UnboundVariable');
 goog.require('r5js.ast.Lambda');
@@ -115,7 +114,7 @@ r5js.Environment.prototype.get = function(name) {
              (getProcedure, which is intended just for evaluating the operator
              on the trampoline, will return the unwrapped procedures.) */
       return new r5js.ast.Lambda(name,
-          /** @type {!r5js.ProcedureLike|!r5js.Procedure} */ (
+          /** @type {!r5js.AbstractProcedure} */ (
           binding));
     } else if (binding === r5js.runtime.UNSPECIFIED_VALUE) {
       return binding;
