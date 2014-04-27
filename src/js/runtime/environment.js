@@ -18,6 +18,7 @@ goog.provide('r5js.Environment');
 
 
 goog.require('r5js.AbstractProcedure');
+goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.IEnvironment');
@@ -107,7 +108,7 @@ r5js.Environment.prototype.get = function(name) {
       return binding.get(name);
     } else if (binding instanceof r5js.Macro) {
       return binding;
-    } else if (r5js.ProcedureLike.isImplementedBy(binding) ||
+    } else if (binding instanceof r5js.Continuation ||
         binding instanceof r5js.AbstractProcedure) {
       /* We store primitive and non-primitive procedures unwrapped,
              but wrap them in a Datum if they are requested through get.
@@ -146,7 +147,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
     var binding = this.bindings_[name];
     if (r5js.IEnvironment.isImplementedBy(binding)) {
       return binding.getProcedure(name);
-    } else if (r5js.ProcedureLike.isImplementedBy(binding) ||
+    } else if (binding instanceof r5js.Continuation ||
             binding instanceof r5js.Macro ||
         binding instanceof r5js.AbstractProcedure) {
       return binding;

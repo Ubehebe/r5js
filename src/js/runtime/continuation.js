@@ -18,7 +18,6 @@ goog.provide('r5js.Continuation');
 
 
 goog.require('goog.functions');
-goog.require('r5js.ProcedureLike');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Macro');
@@ -39,7 +38,6 @@ goog.require('r5js.ast.Macro');
  * @param {string} resultName Optional name to use for the last result.
  *     If not given, a unique name will be created.
  * @param {r5js.ProcCallLike} next
- * @implements {r5js.ProcedureLike}
  * @struct
  * @constructor
  */
@@ -47,19 +45,16 @@ r5js.Continuation = function(resultName, next) {
   /** @const @private */ this.lastResultName_ = resultName;
   /** @const @private */ this.nextContinuable_ = next;
 };
-r5js.ProcedureLike.addImplementation(r5js.Continuation);
 
 
-/** @override */
-r5js.Continuation.prototype.operandsMustBeInContinuationPassingStyle =
-    goog.functions.FALSE;
-
-
-/** @override */
-r5js.Continuation.prototype.evalAndAdvance = function(
-    procCall, procCallLike, trampolineHelper, parserProvider) {
-  var arg = procCall.evalArgs()[0]; // there will only be 1 arg
-  procCall.getEnv().addBinding(this.lastResultName_, arg);
+/**
+ * @param {?} arg
+ * @param {!r5js.ProcCallLike} procCallLike
+ * @param {!r5js.TrampolineHelper} trampolineHelper
+ */
+r5js.Continuation.prototype.evaluate = function(
+    arg, procCallLike, trampolineHelper) {
+  procCallLike.getEnv().addBinding(this.lastResultName_, arg);
   trampolineHelper.setValue(arg);
   if (this.nextContinuable_) {
     trampolineHelper.setNext(this.nextContinuable_);

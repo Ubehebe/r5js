@@ -3,6 +3,7 @@ goog.provide('r5js.ProcCall');
 
 goog.require('r5js.AbstractProcedure');
 goog.require('r5js.ContinuableHelper');
+goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.Environment');
 goog.require('r5js.GeneralSyntaxError');
@@ -200,13 +201,9 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   } else if (proc instanceof r5js.Macro) {
     var rawDatum = this.reconstructDatum_();
     proc.evaluate(rawDatum, this, resultStruct, parserProvider);
-  } else if (r5js.ProcedureLike.isImplementedBy(proc)) {
-    if (proc.operandsMustBeInContinuationPassingStyle() &&
-        !this.operandsInContinuationPassingStyle_()) {
-      this.cpsify_(resultStruct, parserProvider);
-    } else {
-      proc.evalAndAdvance(this, this, resultStruct, parserProvider);
-    }
+  } else if (proc instanceof r5js.Continuation) {
+    var fakeArg = this.evalArgs()[0]; // TODO bl
+    proc.evaluate(fakeArg, this, resultStruct);
   } else {
     throw new r5js.EvalError(
         'procedure application: expected procedure, given ' +
