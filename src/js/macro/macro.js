@@ -21,7 +21,6 @@ goog.require('goog.functions');
 goog.require('r5js.MacroError');
 goog.require('r5js.ParseError');
 goog.require('r5js.ProcCallLike');
-goog.require('r5js.ProcedureLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
@@ -37,7 +36,7 @@ goog.require('r5js.parse.Terminals');
  * @param {r5js.Datum} rules
  * @param {!r5js.IEnvironment} definitionEnv
  * @param {!Array.<!r5js.Transformer>=} opt_transformers
- * @implements {r5js.ProcedureLike}
+ * @implements {r5js.runtime.ObjectValue} TODO bl almost certainly wrong
  * @struct
  * @constructor
  */
@@ -73,12 +72,6 @@ r5js.Macro = function(
   /** @private {boolean} */
   this.isLetOrLetrecSyntax_ = false;
 };
-r5js.ProcedureLike.addImplementation(r5js.Macro);
-
-
-/** @override */
-r5js.Macro.prototype.operandsMustBeInContinuationPassingStyle =
-    goog.functions.FALSE;
 
 
 /**
@@ -269,14 +262,6 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
   throw new r5js.MacroError(
       this.transformers_[0].getName(), 'no pattern match for input ' + datum);
 };
-
-
-/**
- * @override
- * TODO bl remove
- */
-r5js.Macro.prototype.evalAndAdvance = function(
-    procCall, procCallLike, resultStruct, parserProvider) {};
 
 
 /**
