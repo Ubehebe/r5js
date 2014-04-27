@@ -6,7 +6,6 @@ goog.require('goog.functions');
 goog.require('r5js.AbstractProcedure');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
-goog.require('r5js.ProcedureLike');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.datumutil');
@@ -160,7 +159,7 @@ r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_ = function(argtypes) {
 
 /**
  * @override
- * @suppress {accessControls} for r5js.PrimitiveProcedures_
+ * @suppress {accessControls|checkTypes} for r5js.PrimitiveProcedures_
  */
 r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_.prototype.
     checkAndUnwrapArgs = function(args, nameToShowInErrorMessage) {
@@ -222,8 +221,9 @@ r5js.procspec.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
     args, nameToShowInErrorMessage) {
   var argtype = this.type_;
   return goog.array.map(args, function(arg, i) {
-    if (!r5js.PrimitiveProcedures.registry_[argtype + '?'].fn_.call(
-        null, arg)) {
+    if (!(/** @type {!r5js.procspec.PrimitiveProcedure_} */ (
+        r5js.PrimitiveProcedures.registry_[argtype + '?'])).fn_.call(
+            null, arg)) {
       throw new r5js.ArgumentTypeError(
           arg, i, nameToShowInErrorMessage, argtype);
     }
@@ -258,7 +258,6 @@ r5js.procspec.JUST_UNWRAP_ARGS_ = new r5js.procspec.JustUnwrapArgs_();
  * @param {!Function} fn TODO bl narrow type?
  * @param {!r5js.procspec.NumArgChecker_} numArgChecker
  * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
- * @implements {r5js.ProcedureLike}
  * @extends {r5js.AbstractProcedure}
  * @struct
  * @constructor
@@ -280,12 +279,6 @@ r5js.procspec.PrimitiveProcedure_ = function(
   this.debugName_ = '';
 };
 goog.inherits(r5js.procspec.PrimitiveProcedure_, r5js.AbstractProcedure);
-r5js.ProcedureLike.addImplementation(r5js.procspec.PrimitiveProcedure_);
-
-
-/** @override */
-r5js.procspec.PrimitiveProcedure_.prototype.
-    operandsMustBeInContinuationPassingStyle = goog.functions.TRUE;
 
 
 /**
@@ -318,14 +311,6 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
     trampolineHelper.setNext(nextContinuable);
   }
 };
-
-
-/**
- * @override
- * TODO bl remove
- */
-r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance = function(
-    procCall, procCallLike, trampolineHelper, parserProvider) {};
 
 
 /**
@@ -383,7 +368,6 @@ r5js.procspec.PrimitiveProcedure_.bindResult = function(procCallLike, val) {
  * @param {!Function} fn
  * @param {!r5js.procspec.NumArgChecker_} numArgChecker
  * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
- * @implements {r5js.ProcedureLike}
  * @extends {r5js.procspec.PrimitiveProcedure_}
  * @struct
  * @constructor
@@ -394,7 +378,6 @@ r5js.procspec.NeedsCurrentPorts_ = function(fn, numArgChecker, typeChecker) {
 };
 goog.inherits(
     r5js.procspec.NeedsCurrentPorts_, r5js.procspec.PrimitiveProcedure_);
-r5js.ProcedureLike.addImplementation(r5js.procspec.NeedsCurrentPorts_);
 
 
 /** @override */
@@ -422,7 +405,6 @@ r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
  * @param {!Function} fn
  * @param {!r5js.procspec.NumArgChecker_} numArgChecker
  * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
- * @implements {r5js.ProcedureLike}
  * @extends {r5js.procspec.PrimitiveProcedure_}
  * @struct
  * @constructor
@@ -433,7 +415,6 @@ r5js.procspec.HasSpecialEvalLogic_ = function(fn, numArgChecker, typeChecker) {
 };
 goog.inherits(
     r5js.procspec.HasSpecialEvalLogic_, r5js.procspec.PrimitiveProcedure_);
-r5js.ProcedureLike.addImplementation(r5js.procspec.HasSpecialEvalLogic_);
 
 
 /** @override */
@@ -452,7 +433,7 @@ r5js.procspec.HasSpecialEvalLogic_.prototype.call = function(
 /**
  * @param {function(T):?} fn
  * @param {!r5js.Type=} opt_argtype
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  * @template T
  * TODO bl: make the template type mean something
  */
@@ -469,7 +450,7 @@ r5js.procspec.unary = function(fn, opt_argtype) {
  * @param {function(T1, T2):?} fn
  * @param {!r5js.Type=} opt_argtype1
  * @param {!r5js.Type=} opt_argtype2
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  * @template T1,T2
  * TODO bl: make the template types mean something
  */
@@ -491,7 +472,7 @@ r5js.procspec.binary = function(fn, opt_argtype1, opt_argtype2) {
 
 /**
  * @param {function(?, ?, ?): ?} fn
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.ternary = function(fn) {
   return new r5js.procspec.PrimitiveProcedure_(
@@ -502,7 +483,7 @@ r5js.procspec.ternary = function(fn) {
 /**
  * @param {!Function} fn
  * @param {!r5js.Type} typeOfAllArgs
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.varargsAtLeast0 = function(fn, typeOfAllArgs) {
   return new r5js.procspec.PrimitiveProcedure_(
@@ -514,7 +495,7 @@ r5js.procspec.varargsAtLeast0 = function(fn, typeOfAllArgs) {
 /**
  * @param {!Function} fn
  * @param {!r5js.Type} typeOfAllArgs
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.varargsAtLeast1 = function(fn, typeOfAllArgs) {
   return new r5js.procspec.PrimitiveProcedure_(
@@ -527,7 +508,7 @@ r5js.procspec.varargsAtLeast1 = function(fn, typeOfAllArgs) {
  * @param {!Function} fn
  * @param {number} minArgs
  * @param {number} maxArgs
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.varargsRange = function(fn, minArgs, maxArgs) {
   return new r5js.procspec.PrimitiveProcedure_(
@@ -538,7 +519,7 @@ r5js.procspec.varargsRange = function(fn, minArgs, maxArgs) {
 
 /**
  * @param {function(!r5js.InputPort, !r5js.OutputPort): ?} fn
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.nullaryWithCurrentPorts = function(fn) {
   return new r5js.procspec.NeedsCurrentPorts_(
@@ -549,7 +530,7 @@ r5js.procspec.nullaryWithCurrentPorts = function(fn) {
 
 /**
  * @param {function(?, !r5js.InputPort, !r5js.OutputPort): ?} fn
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.nullaryOrUnaryWithCurrentPorts = function(fn) {
   return new r5js.procspec.NeedsCurrentPorts_(
@@ -560,7 +541,7 @@ r5js.procspec.nullaryOrUnaryWithCurrentPorts = function(fn) {
 
 /**
  * @param {function(?, ?, !r5js.InputPort, !r5js.OutputPort): ?} fn
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.unaryOrBinaryWithCurrentPorts = function(fn) {
   return new r5js.procspec.NeedsCurrentPorts_(
@@ -571,7 +552,7 @@ r5js.procspec.unaryOrBinaryWithCurrentPorts = function(fn) {
 
 /**
  * @param {function(?, !r5js.ProcCall, !r5js.ProcCallLike, !r5js.TrampolineHelper): ?}  fn
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.unaryWithSpecialEvalLogic = function(fn) {
   return new r5js.procspec.HasSpecialEvalLogic_(
@@ -581,7 +562,7 @@ r5js.procspec.unaryWithSpecialEvalLogic = function(fn) {
 
 /**
  * @param {function(?, ?, !r5js.ProcCall, !r5js.ProcCallLike, !r5js.TrampolineHelper): ?} fn
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.binaryWithSpecialEvalLogic = function(fn) {
   return new r5js.procspec.HasSpecialEvalLogic_(
@@ -591,7 +572,7 @@ r5js.procspec.binaryWithSpecialEvalLogic = function(fn) {
 
 /**
  * @param {function(?, ?, ?, !r5js.ProcCall, !r5js.ProcCallLike, !r5js.TrampolineHelper): ?} fn
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.ternaryWithSpecialEvalLogic = function(fn) {
   return new r5js.procspec.HasSpecialEvalLogic_(
@@ -602,7 +583,7 @@ r5js.procspec.ternaryWithSpecialEvalLogic = function(fn) {
 /**
  * @param {number} min
  * @param {!Function} fn
- * @return {!r5js.ProcedureLike}
+ * @return {!r5js.AbstractProcedure}
  */
 r5js.procspec.atLeastNWithSpecialEvalLogic = function(min, fn) {
   return new r5js.procspec.HasSpecialEvalLogic_(

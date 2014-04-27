@@ -7,7 +7,6 @@ goog.require('r5js.Environment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
-goog.require('r5js.ProcedureLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
@@ -27,7 +26,6 @@ goog.require('r5js.parse.Terminals');
  * @param {string=} opt_name The procedure's name. It has no semantic
  *     importance; it's just used for pretty-printing debugs and messages
  *     to the user. If not given, one will be created.
- * @implements {r5js.ProcedureLike}
  * @extends {r5js.AbstractProcedure}
  * @struct
  * @constructor
@@ -50,12 +48,6 @@ r5js.Procedure = function(formalsArray, bodyStart, env, opt_name) {
   this.name_ = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
 };
 goog.inherits(r5js.Procedure, r5js.AbstractProcedure);
-r5js.ProcedureLike.addImplementation(r5js.Procedure);
-
-
-/** @override */
-r5js.Procedure.prototype.operandsMustBeInContinuationPassingStyle =
-    goog.functions.TRUE;
 
 
 /**
@@ -163,16 +155,6 @@ r5js.Procedure.prototype.bindArgs = function(args, env) {
   for (var i = 0; i < this.formalsArray.length; ++i) {
     env.addBinding(this.formalsArray[i], args[i]);
   }
-};
-
-
-/**
- * @override
- * TODO bl remove
- */
-r5js.Procedure.prototype.evalAndAdvance = function(
-    procCall, proCallLike, trampolineHelper, parserProvider) {
-
 };
 
 

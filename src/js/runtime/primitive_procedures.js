@@ -44,7 +44,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 /** @private {r5js.js.Environment} */ r5js.PrimitiveProcedures.jsEnv_;
 
 
-/** @const @private {!Object.<string, !r5js.ProcedureLike>} */
+/** @const @private {!Object.<string, !r5js.AbstractProcedure>} */
 r5js.PrimitiveProcedures.registry_ = {};
 
 
@@ -673,14 +673,16 @@ PrimitiveProcedures['eval'] = _.binary(
 
 /* This is not part of any Scheme standard, but it should be useful to
      test Scheme expressions that should not evaluate. */
-PrimitiveProcedures['will-eval?'] = _.binary(function(expr, envSpec) {
-  try {
-    PrimitiveProcedures['eval'].fn_.call(null, expr, envSpec);
-    return true;
-  } catch (e) {
-    return false;
-  }
-});
+PrimitiveProcedures['will-eval?'] = _.binary(
+    /** @suppress {accessControls} */function(expr) {
+      try {
+        (/** @type {!r5js.procspec.PrimitiveProcedure_} */ (
+            PrimitiveProcedures['eval'])).fn_.call(null, expr);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    });
 
 // I/O related procedures
 
@@ -1064,7 +1066,8 @@ r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv, jsEnv) {
   r5js.PrimitiveProcedures.r5RSEnv_ = r5RSEnv;
   r5js.PrimitiveProcedures.jsEnv_ = jsEnv;
   for (var name in r5js.PrimitiveProcedures.registry_) {
-    var proc = r5js.PrimitiveProcedures.registry_[name];
+    var proc = /** @type {!r5js.procspec.PrimitiveProcedure_} */ (
+        r5js.PrimitiveProcedures.registry_[name]);
     proc.setDebugName(name);
     r5RSEnv.addBinding(name, proc);
   }

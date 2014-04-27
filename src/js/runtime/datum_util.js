@@ -1,6 +1,7 @@
 goog.provide('r5js.datumutil');
 
 
+goog.require('r5js.AbstractProcedure');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.IEnvironment');
@@ -95,6 +96,7 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
   } else if (result === r5js.runtime.UNSPECIFIED_VALUE ||
       result instanceof r5js.Datum ||
       result instanceof r5js.Macro ||
+      result instanceof r5js.AbstractProcedure ||
       r5js.ProcedureLike.isImplementedBy(result) ||
       r5js.IEnvironment.isImplementedBy(result) ||
       r5js.InputPort.isImplementedBy(result) ||
