@@ -1,7 +1,6 @@
 goog.provide('r5js.ProcCall');
 
 
-goog.require('r5js.AbstractProcedure');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
@@ -11,6 +10,7 @@ goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
 goog.require('r5js.ProcCallLike');
+goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.CompoundDatum');
@@ -191,7 +191,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   var proc = this.env.getProcedure(/** @type {string} */ (
       this.operatorName_.getPayload()));
 
-  if (proc instanceof r5js.AbstractProcedure) {
+  if (proc instanceof r5js.Procedure) {
     if (!this.operandsInContinuationPassingStyle_()) {
       this.cpsify_(resultStruct, parserProvider);
     } else {

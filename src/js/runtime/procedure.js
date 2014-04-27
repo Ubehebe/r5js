@@ -1,4 +1,4 @@
-goog.provide('r5js.AbstractProcedure');
+goog.provide('r5js.Procedure');
 
 
 
@@ -7,7 +7,7 @@ goog.provide('r5js.AbstractProcedure');
  * @struct
  * @constructor
  */
-r5js.AbstractProcedure = function() {};
+r5js.Procedure = function() {};
 
 
 /**
@@ -15,4 +15,4 @@ r5js.AbstractProcedure = function() {};
  * @param {!r5js.ProcCallLike} procCall
  * @param {!r5js.TrampolineHelper} trampolineHelper
  */
-r5js.AbstractProcedure.prototype.evaluate = goog.abstractMethod;
+r5js.Procedure.prototype.evaluate = goog.abstractMethod;

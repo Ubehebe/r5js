@@ -3,9 +3,9 @@ goog.provide('r5js.procspec');
 
 goog.require('goog.array');
 goog.require('goog.functions');
-goog.require('r5js.AbstractProcedure');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
+goog.require('r5js.Procedure');
 goog.require('r5js.TooFewArgs');
 goog.require('r5js.TooManyArgs');
 goog.require('r5js.datumutil');
@@ -258,7 +258,7 @@ r5js.procspec.JUST_UNWRAP_ARGS_ = new r5js.procspec.JustUnwrapArgs_();
  * @param {!Function} fn TODO bl narrow type?
  * @param {!r5js.procspec.NumArgChecker_} numArgChecker
  * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
- * @extends {r5js.AbstractProcedure}
+ * @extends {r5js.Procedure}
  * @struct
  * @constructor
  * @private
@@ -278,7 +278,7 @@ r5js.procspec.PrimitiveProcedure_ = function(
   /** @private {string} */
   this.debugName_ = '';
 };
-goog.inherits(r5js.procspec.PrimitiveProcedure_, r5js.AbstractProcedure);
+goog.inherits(r5js.procspec.PrimitiveProcedure_, r5js.Procedure);
 
 
 /**

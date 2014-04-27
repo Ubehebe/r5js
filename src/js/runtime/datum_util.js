@@ -1,7 +1,6 @@
 goog.provide('r5js.datumutil');
 
 
-goog.require('r5js.AbstractProcedure');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
@@ -10,6 +9,7 @@ goog.require('r5js.InputPort');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
 goog.require('r5js.OutputPort');
+goog.require('r5js.Procedure');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
@@ -96,7 +96,7 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
   } else if (result === r5js.runtime.UNSPECIFIED_VALUE ||
       result instanceof r5js.Datum ||
       result instanceof r5js.Macro ||
-      result instanceof r5js.AbstractProcedure ||
+      result instanceof r5js.Procedure ||
       result instanceof r5js.Continuation ||
       r5js.IEnvironment.isImplementedBy(result) ||
       r5js.InputPort.isImplementedBy(result) ||

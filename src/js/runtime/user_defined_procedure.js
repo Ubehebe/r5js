@@ -2,11 +2,11 @@ goog.provide('r5js.UserDefinedProcedure');
 
 
 goog.require('goog.functions');
-goog.require('r5js.AbstractProcedure');
 goog.require('r5js.Environment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
+goog.require('r5js.Procedure');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
@@ -26,7 +26,7 @@ goog.require('r5js.parse.Terminals');
  * @param {string=} opt_name The procedure's name. It has no semantic
  *     importance; it's just used for pretty-printing debugs and messages
  *     to the user. If not given, one will be created.
- * @extends {r5js.AbstractProcedure}
+ * @extends {r5js.Procedure}
  * @struct
  * @constructor
  */
@@ -47,7 +47,7 @@ r5js.UserDefinedProcedure = function(formalsArray, bodyStart, env, opt_name) {
   /** @const @private */
   this.name_ = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
 };
-goog.inherits(r5js.UserDefinedProcedure, r5js.AbstractProcedure);
+goog.inherits(r5js.UserDefinedProcedure, r5js.Procedure);
 
 
 /**

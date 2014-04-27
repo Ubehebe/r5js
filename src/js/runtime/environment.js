@@ -17,13 +17,13 @@
 goog.provide('r5js.Environment');
 
 
-goog.require('r5js.AbstractProcedure');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.EvalError');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
+goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
 goog.require('r5js.UnboundVariable');
 goog.require('r5js.ast.Lambda');
@@ -109,13 +109,13 @@ r5js.Environment.prototype.get = function(name) {
     } else if (binding instanceof r5js.Macro) {
       return binding;
     } else if (binding instanceof r5js.Continuation ||
-        binding instanceof r5js.AbstractProcedure) {
+        binding instanceof r5js.Procedure) {
       /* We store primitive and non-primitive procedures unwrapped,
              but wrap them in a Datum if they are requested through get.
              (getProcedure, which is intended just for evaluating the operator
              on the trampoline, will return the unwrapped procedures.) */
       return new r5js.ast.Lambda(name,
-          /** @type {!r5js.AbstractProcedure} */ (
+          /** @type {!r5js.Procedure} */ (
           binding));
     } else if (binding === r5js.runtime.UNSPECIFIED_VALUE) {
       return binding;
@@ -149,7 +149,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
       return binding.getProcedure(name);
     } else if (binding instanceof r5js.Continuation ||
             binding instanceof r5js.Macro ||
-        binding instanceof r5js.AbstractProcedure) {
+        binding instanceof r5js.Procedure) {
       return binding;
     } else {
       throw new r5js.EvalError('expected procedure, given ' + name);
