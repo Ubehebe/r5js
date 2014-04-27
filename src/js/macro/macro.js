@@ -273,17 +273,23 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
 
 /**
  * @override
- * @suppress {accessControls} TODO bl fix
+ * TODO bl remove
  */
 r5js.Macro.prototype.evalAndAdvance = function(
-    procCall, procCallLike, resultStruct, parserProvider) {
+    procCall, procCallLike, resultStruct, parserProvider) {};
 
+
+/**
+ * @param {!r5js.Datum} rawDatum
+ * @param {!r5js.ProcCallLike} procCallLike
+ * @param {!r5js.TrampolineHelper} resultStruct
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider
+ */
+r5js.Macro.prototype.evaluate = function(
+    rawDatum, procCallLike, resultStruct, parserProvider) {
   var oldEnv = procCallLike.getEnv();
   var newEnv = new r5js.Environment(oldEnv);
-  var newParseTree = this.transcribe(
-      procCall.reconstructDatum_(),
-      newEnv,
-      parserProvider);
+  var newParseTree = this.transcribe(rawDatum, newEnv, parserProvider);
 
   var next = procCallLike.getNext();
   /* Just like with tryNonPrimitiveProcedures, we have to remember when

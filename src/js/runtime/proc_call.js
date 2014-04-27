@@ -197,6 +197,9 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
       var args = this.evalArgs();
       proc.evaluate(args, this, resultStruct);
     }
+  } else if (proc instanceof r5js.Macro) {
+    var rawDatum = this.reconstructDatum_();
+    proc.evaluate(rawDatum, this, resultStruct, parserProvider);
   } else if (r5js.ProcedureLike.isImplementedBy(proc)) {
     if (proc.operandsMustBeInContinuationPassingStyle() &&
         !this.operandsInContinuationPassingStyle_()) {
