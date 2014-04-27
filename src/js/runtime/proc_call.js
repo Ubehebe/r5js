@@ -1,5 +1,7 @@
 goog.provide('r5js.ProcCall');
 
+
+goog.require('r5js.AbstractProcedure');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Datum');
 goog.require('r5js.Environment');
@@ -188,7 +190,14 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   var proc = this.env.getProcedure(/** @type {string} */ (
       this.operatorName_.getPayload()));
 
-  if (r5js.ProcedureLike.isImplementedBy(proc)) {
+  if (proc instanceof r5js.AbstractProcedure) {
+    if (!this.operandsInContinuationPassingStyle_()) {
+      this.cpsify_(resultStruct, parserProvider);
+    } else {
+      var args = this.evalArgs();
+      proc.evaluate(args, this, resultStruct);
+    }
+  } else if (r5js.ProcedureLike.isImplementedBy(proc)) {
     if (proc.operandsMustBeInContinuationPassingStyle() &&
         !this.operandsInContinuationPassingStyle_()) {
       this.cpsify_(resultStruct, parserProvider);

@@ -3,6 +3,7 @@ goog.provide('r5js.procspec');
 
 goog.require('goog.array');
 goog.require('goog.functions');
+goog.require('r5js.AbstractProcedure');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.ProcedureLike');
@@ -258,12 +259,14 @@ r5js.procspec.JUST_UNWRAP_ARGS_ = new r5js.procspec.JustUnwrapArgs_();
  * @param {!r5js.procspec.NumArgChecker_} numArgChecker
  * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
  * @implements {r5js.ProcedureLike}
+ * @extends {r5js.AbstractProcedure}
  * @struct
  * @constructor
  * @private
  */
 r5js.procspec.PrimitiveProcedure_ = function(
     fn, numArgChecker, typeChecker) {
+  goog.base(this);
   /** @const @private {function(!r5js.Datum):?} */
   this.fn_ = fn;
 
@@ -276,6 +279,7 @@ r5js.procspec.PrimitiveProcedure_ = function(
   /** @private {string} */
   this.debugName_ = '';
 };
+goog.inherits(r5js.procspec.PrimitiveProcedure_, r5js.AbstractProcedure);
 r5js.ProcedureLike.addImplementation(r5js.procspec.PrimitiveProcedure_);
 
 
@@ -297,13 +301,12 @@ r5js.procspec.PrimitiveProcedure_.prototype.setDebugName = function(name) {
 
 /**
  * @param {!goog.array.ArrayLike} userArgs
- * @param {!r5js.ProcCall} procCall
  * @param {!r5js.ProcCallLike} procCallLike
  * @param {!r5js.TrampolineHelper} trampolineHelper
  * @protected
  */
 r5js.procspec.PrimitiveProcedure_.prototype.call = function(
-    userArgs, procCall, procCallLike, trampolineHelper) {
+    userArgs, procCallLike, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
@@ -318,15 +321,23 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
 
 
 /**
+ * @override
+ * TODO bl remove
+ */
+r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance = function(
+    procCall, procCallLike, trampolineHelper, parserProvider) {};
+
+
+/**
  * Primitive procedure, represented by JavaScript function:
  * (+ x y [ans ...]). We perform the action ("+"), bind the
  * result to the continuation's result name ("ans"), and advance
  * to the next continuable ("...").
  * @override
  */
-r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
-    function(procCall, procCallLike, trampolineHelper, parserProvider) {
-  var args = procCall.evalArgs().map(/** @type {!Function} */ (
+r5js.procspec.PrimitiveProcedure_.prototype.evaluate = function(
+    args, procCallLike, trampolineHelper) {
+  args = args.map(/** @type {!Function} */ (
       r5js.datumutil.maybeWrapResult));
   // todo bl document why we're doing this...
   for (var i = 0; i < args.length; ++i) {
@@ -334,7 +345,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.evalAndAdvance =
       args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
     }
   }
-  this.call(args, procCall, procCallLike, trampolineHelper);
+  this.call(args, procCallLike, trampolineHelper);
 };
 
 
@@ -388,7 +399,7 @@ r5js.ProcedureLike.addImplementation(r5js.procspec.NeedsCurrentPorts_);
 
 /** @override */
 r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
-    userArgs, procCall, procCallLike, trampolineHelper) {
+    userArgs, procCallLike, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
@@ -427,13 +438,13 @@ r5js.ProcedureLike.addImplementation(r5js.procspec.HasSpecialEvalLogic_);
 
 /** @override */
 r5js.procspec.HasSpecialEvalLogic_.prototype.call = function(
-    userArgs, procCall, procCallLike, trampolineHelper) {
+    userArgs, procCallLike, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
   var args = goog.array.concat(
       goog.array.toArray(unwrappedArgs),
-      procCall, procCallLike, trampolineHelper);
+      procCallLike, procCallLike, trampolineHelper); // TODO bl why push twice?
   this.fn_.apply(null, args);
 };
 
