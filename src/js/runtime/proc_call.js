@@ -40,14 +40,14 @@ r5js.ProcCall = function(operatorName, firstOperand, opt_lastResultName) {
   goog.base(this, opt_lastResultName);
 
   /** @const @private */ this.operatorName_ = operatorName;
-  /** @const @protected */ this.firstOperand = firstOperand;
+  /** @const @private */ this.firstOperand_ = firstOperand;
 };
 goog.inherits(r5js.ProcCall, r5js.ProcCallLike);
 
 
 /** @return {?} TODO bl. */
 r5js.ProcCall.prototype.getFirstOperand = function() {
-  return this.firstOperand;
+  return this.firstOperand_;
 };
 
 
@@ -63,8 +63,8 @@ r5js.ProcCall.prototype.clearEnv = function() {
  */
 r5js.ProcCall.prototype.reconstructDatum_ = function() {
   var op = new r5js.ast.Identifier(this.operatorName_.getPayload());
-  if (this.firstOperand) {
-    op.setNextSibling(this.firstOperand);
+  if (this.firstOperand_) {
+    op.setNextSibling(this.firstOperand_);
   }
   return new r5js.SiblingBuffer().appendSibling(op).toList(r5js.ast.List);
 };
@@ -75,7 +75,7 @@ r5js.ProcCall.prototype.reconstructDatum_ = function() {
  * @private
  */
 r5js.ProcCall.prototype.operandsInContinuationPassingStyle_ = function() {
-  for (var cur = this.firstOperand; cur; cur = cur.getNextSibling()) {
+  for (var cur = this.firstOperand_; cur; cur = cur.getNextSibling()) {
     if (cur instanceof r5js.Datum) {
       if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
         throw new r5js.IllegalEmptyApplication(this.operatorName_.getPayload());
@@ -113,7 +113,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
   var finalArgs = new r5js.SiblingBuffer();
   var maybeContinuable;
 
-  for (var arg = this.firstOperand; arg; arg = arg.getNextSibling()) {
+  for (var arg = this.firstOperand_; arg; arg = arg.getNextSibling()) {
     arg.resetDesugars();
     if (arg instanceof r5js.ast.Quote) {
       finalArgs.appendSibling(arg.clone(null /* parent */));
@@ -215,7 +215,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
 
   var args = [];
 
-  for (var cur = this.firstOperand; cur; cur = cur.nextSibling_) {
+  for (var cur = this.firstOperand_; cur; cur = cur.nextSibling_) {
     if (cur instanceof r5js.ast.Identifier) {
       var name = cur.getPayload();
       var toPush = this.getEnv().get(name);
@@ -261,10 +261,10 @@ r5js.ProcCall.prototype.evalArgs = function() {
  * @private
  */
 r5js.ProcCall.prototype.evalArgsCallWithValues_ = function() {
-  if (this.firstOperand instanceof r5js.ast.Identifier &&
-      !this.firstOperand.getNextSibling()) {
+  if (this.firstOperand_ instanceof r5js.ast.Identifier &&
+      !this.firstOperand_.getNextSibling()) {
     var maybeArray = this.getEnv().get(
-        /** @type {string} */ (this.firstOperand.getPayload()));
+        /** @type {string} */ (this.firstOperand_.getPayload()));
     if (maybeArray instanceof Array) {
       return maybeArray;
     }
