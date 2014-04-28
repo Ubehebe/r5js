@@ -4,7 +4,7 @@ goog.provide('r5js.IdShim');
 goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
-goog.require('r5js.ProcCall');
+goog.require('r5js.ProcCallLike');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
@@ -24,20 +24,24 @@ goog.require('r5js.ast.Quote');
  * and whose firstOperand is the payload.
  * @param {r5js.Datum} payload
  * @param {string=} opt_continuationName Optional name of the continuation.
- * @extends {r5js.ProcCall}
+ * @extends {r5js.ProcCallLike}
  * @struct
  * @constructor
  */
 r5js.IdShim = function(payload, opt_continuationName) {
-  goog.base(this, r5js.IdShim.NAME_, payload, opt_continuationName);
+  goog.base(this, opt_continuationName);
+  /** @const @private */ this.firstOperand_ = payload;
 };
-goog.inherits(r5js.IdShim, r5js.ProcCall);
+goog.inherits(r5js.IdShim, r5js.ProcCallLike);
 
 
 /** @const @private */ r5js.IdShim.NAME_ = new r5js.ast.Identifier('id');
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {checkTypes} for setStartingEnv(null). TODO bl
+ */
 r5js.IdShim.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
 
@@ -57,7 +61,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
   envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
 
   // We shouldn't leave the environment pointer hanging around.
-  this.clearEnv();
+  this.setStartingEnv(null);
 };
 
 
@@ -72,7 +76,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
 r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
   var ans;
 
-  var arg = this.firstOperand;
+  var arg = this.firstOperand_;
 
   /* todo bl: id shims have become quite popular for passing through
      disparate objects on the trampoline. The logic could be made clearer. */

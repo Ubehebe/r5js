@@ -5,7 +5,7 @@ goog.provide('r5js.newTopLevelSyntaxAssignment');
 
 goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.Macro');
-goog.require('r5js.ProcCall');
+goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
@@ -14,21 +14,22 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 /**
  * @param {r5js.Datum} firstOperand
- * @extends {r5js.ProcCall}
+ * @extends {r5js.ProcCallLike}
  * @struct
  * @constructor
  */
 r5js.Assignment = function(firstOperand) {
-  goog.base(this, r5js.Assignment.NAME_, firstOperand);
+  goog.base(this);
+
+  /** @const @private */ this.firstOperand_ = firstOperand;
 };
-goog.inherits(r5js.Assignment, r5js.ProcCall);
+goog.inherits(r5js.Assignment, r5js.ProcCallLike);
 
 
-/** @const @private */
-r5js.Assignment.NAME_ = new r5js.ast.Identifier('set!');
-
-
-/** @override */
+/**
+ * @override
+ * @suppress {checkTypes} for setStartingEnv(null) TODO bl
+ */
 r5js.Assignment.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
 
@@ -49,7 +50,7 @@ r5js.Assignment.prototype.evalAndAdvance = function(
   envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
 
   // We shouldn't leave the environment pointer hanging around.
-  this.clearEnv();
+  this.setStartingEnv(null);
 };
 
 
@@ -60,9 +61,9 @@ r5js.Assignment.prototype.evalAndAdvance = function(
  */
 r5js.Assignment.prototype.tryAssignment_ = function(resultStruct) {
   var src = this.getEnv().get(/** @type {string} */ (
-      this.firstOperand.getNextSibling().getPayload()));
+      this.firstOperand_.getNextSibling().getPayload()));
   this.checkForImproperSyntaxAssignment(src);
-  this.mutateEnv(/** @type {string} */ (this.firstOperand.getPayload()), src);
+  this.mutateEnv(/** @type {string} */ (this.firstOperand_.getPayload()), src);
   /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
   this.bindResult(r5js.runtime.UNSPECIFIED_VALUE);
