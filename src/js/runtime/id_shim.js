@@ -67,71 +67,29 @@ r5js.IdShim.prototype.evalAndAdvance = function(
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  * @private
- * @suppress {checkTypes} TODO bl
- * TODO bl too long.
  */
 r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
   var ans;
-
-  var arg = this.firstOperand_;
-
-  /* todo bl: id shims have become quite popular for passing through
-     disparate objects on the trampoline. The logic could be made clearer. */
-  if (arg instanceof r5js.ast.Identifier) {
-    ans = this.getEnv().get(/** @type {string} */ (arg.getPayload()));
-  } else if (arg instanceof r5js.ast.Quote) {
-    var env = this.getEnv();
-    // Do the appropriate substitutions.
-    ans = arg.replaceChildren(
-        function(node) {
-          return node instanceof r5js.ast.Identifier && node.shouldUnquote();
-        },
-        function(node) {
-          var ans = r5js.datumutil.maybeWrapResult(env.get(
-              /** @type {string} */ ((
-              /** @type {!r5js.ast.Identifier} */ (node)).
-              getPayload())));
-          // TODO bl document why we're doing this
-          if (ans instanceof r5js.Ref) {
-            ans = ans.deref();
-          }
-          if (node instanceof r5js.ast.Identifier &&
-              node.shouldUnquoteSplice()) {
-            if (ans instanceof r5js.ast.List) {
-              if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
-                ans = ans.getFirstChild();
-              } else { // `(1 ,@(list) 2) => (1 2)
-                ans = null;
-              }
-            } else throw new r5js.QuasiquoteError(ans + ' is not a list');
-          }
-          return /** @type {r5js.Datum} */ (ans);
-        });
-    // Now strip away the quote mark.
-    // the newIdOrLiteral part is for (quote quote)
-    ans = (ans instanceof r5js.ast.CompoundDatum &&
-            ans.getFirstChild()) ?
-            ans.getFirstChild() :
-            new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
-  } else if (arg instanceof r5js.ast.Quasiquote) {
-    var continuable = arg.processQuasiquote(
-        /** @type {!r5js.IEnvironment} */ (this.getEnv()),
-        this.getResultName(),
-        parserProvider);
-    var nextContinuable = this.getNext();
-    if (nextContinuable) {
-      r5js.ProcCallLike.appendProcCallLike(
-          continuable, nextContinuable);
+  if (this.firstOperand_ instanceof r5js.ast.Identifier) {
+    ans = this.tryIdentifier_(this.firstOperand_);
+  } else if (this.firstOperand_ instanceof r5js.ast.Quote) {
+    ans = this.tryQuote_(this.firstOperand_);
+  } else if (this.firstOperand_ instanceof r5js.ast.Quasiquote) {
+    var next = this.tryQuasiquote_(this.firstOperand_, parserProvider);
+    if (next) {
+      resultStruct.setNext(next);
     }
-    resultStruct.setNext(continuable);
-    return;
-  } else if (arg.isImproperList()) {
-    throw new r5js.GeneralSyntaxError(arg);
+    return; // TODO bl odd control flow
+  } else if (this.firstOperand_.isImproperList()) {
+    throw new r5js.GeneralSyntaxError(this.firstOperand_);
   } else {
-    ans = arg;
+    ans = this.firstOperand_;
   }
 
-  this.bindResult(ans);
+  if (ans !== null) {
+    this.bindResult(ans);
+    resultStruct.setValue(ans);
+  }
 
   var nextContinuable = this.getNext();
 
@@ -142,8 +100,78 @@ r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
     throw new r5js.MacroError('TODO bl', 'bad macro syntax');
   }
 
-  resultStruct.setValue(ans);
   if (nextContinuable) {
     resultStruct.setNext(nextContinuable);
   }
+};
+
+
+/**
+ * @param {!r5js.ast.Identifier} id
+ * @return {!r5js.runtime.Value|null}
+ * @private
+ */
+r5js.IdShim.prototype.tryIdentifier_ = function(id) {
+  return this.getEnv().get(/** @type {string} */ (id.getPayload()));
+};
+
+
+/**
+ * @param {!r5js.ast.Quote} quote
+ * @return {!r5js.runtime.Value|null}
+ * @private
+ */
+r5js.IdShim.prototype.tryQuote_ = function(quote) {
+  var env = this.getEnv();
+  // Do the appropriate substitutions.
+  var ans = quote.replaceChildren(
+      function(node) {
+        return node instanceof r5js.ast.Identifier && node.shouldUnquote();
+      },
+      function(node) {
+        var ans = r5js.datumutil.maybeWrapResult(env.get(
+            /** @type {string} */ ((
+                /** @type {!r5js.ast.Identifier} */ (node)).
+                    getPayload())));
+        // TODO bl document why we're doing this
+        if (ans instanceof r5js.Ref) {
+          ans = ans.deref();
+        }
+        if (node instanceof r5js.ast.Identifier &&
+                node.shouldUnquoteSplice()) {
+          if (ans instanceof r5js.ast.List) {
+            if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
+              ans = ans.getFirstChild();
+            } else { // `(1 ,@(list) 2) => (1 2)
+              ans = null;
+            }
+          } else throw new r5js.QuasiquoteError(ans + ' is not a list');
+        }
+        return /** @type {r5js.Datum} */ (ans);
+      });
+  // Now strip away the quote mark.
+  // the newIdOrLiteral part is for (quote quote)
+  return (ans instanceof r5js.ast.CompoundDatum &&
+      ans.getFirstChild()) ?
+      ans.getFirstChild() :
+      new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
+};
+
+
+/**
+ * @param {!r5js.ast.Quasiquote} quasiquote
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider
+ * @return {r5js.ProcCallLike}
+ * @private
+ */
+r5js.IdShim.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
+  var continuable = quasiquote.processQuasiquote(
+      /** @type {!r5js.IEnvironment} */ (this.getEnv()),
+      this.getResultName(),
+      parserProvider);
+  var next = this.getNext();
+  if (next) {
+    r5js.ProcCallLike.appendProcCallLike(continuable, next);
+  }
+  return continuable;
 };
