@@ -38,10 +38,7 @@ goog.inherits(r5js.IdShim, r5js.ProcCallLike);
 /** @const @private */ r5js.IdShim.NAME_ = new r5js.ast.Identifier('id');
 
 
-/**
- * @override
- * @suppress {checkTypes} for setStartingEnv(null). TODO bl
- */
+/** @override */
 r5js.IdShim.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
 
@@ -61,7 +58,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
   envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
 
   // We shouldn't leave the environment pointer hanging around.
-  this.setStartingEnv(null);
+  this.clearEnv();
 };
 
 

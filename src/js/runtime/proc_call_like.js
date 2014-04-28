@@ -51,6 +51,12 @@ r5js.ProcCallLike.prototype.getEnv = function() {
 };
 
 
+/** Clears the current environment. TODO bl not well understood. */
+r5js.ProcCallLike.prototype.clearEnv = function() {
+  this.env_ = null;
+};
+
+
 /** @return {r5js.ProcCallLike} */
 r5js.ProcCallLike.prototype.getNext = function() {
   return this.next_;

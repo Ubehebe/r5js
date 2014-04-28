@@ -51,12 +51,6 @@ r5js.ProcCall.prototype.getFirstOperand = function() {
 };
 
 
-/** @suppress {checkTypes} for the assignment to null. TODO bl remove. */
-r5js.ProcCall.prototype.clearEnv = function() {
-  this.setStartingEnv(null);
-};
-
-
 /**
  * @return {!r5js.Datum}
  * @private

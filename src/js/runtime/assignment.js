@@ -26,14 +26,9 @@ r5js.Assignment = function(firstOperand) {
 goog.inherits(r5js.Assignment, r5js.ProcCallLike);
 
 
-/**
- * @override
- * @suppress {checkTypes} for setStartingEnv(null) TODO bl
- */
+/** @override */
 r5js.Assignment.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
-
-
   var curEnv = this.getEnv();
   var bufferEnv = envBuffer.getEnv();
 
@@ -50,7 +45,7 @@ r5js.Assignment.prototype.evalAndAdvance = function(
   envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
 
   // We shouldn't leave the environment pointer hanging around.
-  this.setStartingEnv(null);
+  this.clearEnv();
 };
 
 
