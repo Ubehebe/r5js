@@ -130,7 +130,7 @@ r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
     ans = arg;
   }
 
-  this.bindResult(this, ans);
+  this.bindResult(ans);
 
   var nextContinuable = this.getNext();
 

@@ -65,7 +65,7 @@ r5js.Assignment.prototype.tryAssignment_ = function(resultStruct) {
   this.mutateEnv(/** @type {string} */ (this.firstOperand.getPayload()), src);
   /* The return value of an assignment is unspecified,
      but this is not the same as no binding. */
-  this.bindResult(this, r5js.runtime.UNSPECIFIED_VALUE);
+  this.bindResult(r5js.runtime.UNSPECIFIED_VALUE);
   var nextContinuable = this.getNext();
   if (nextContinuable) {
     resultStruct.setNext(nextContinuable);

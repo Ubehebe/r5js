@@ -63,6 +63,16 @@ r5js.ProcCallLike.prototype.setNext = function(next) {
 };
 
 
+/** @param {!r5js.runtime.Value} val */
+r5js.ProcCallLike.prototype.bindResult = function(val) {
+  /* If the next procedure call already has an environment,
+     bind the result there. Otherwise, bind it in the current
+     environment; it will be carried forward by the EnvBuffer. */
+  var envToUse = (this.next_ && this.next_.getEnv()) || this.env_;
+  envToUse.addBinding(this.resultName_, val);
+};
+
+
 /**
  * @param {!r5js.ProcCallLike} procCallLike
  * @return {!r5js.ProcCallLike}
