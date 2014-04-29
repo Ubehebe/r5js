@@ -156,16 +156,6 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
 /** @override */
 r5js.ProcCall.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
-
-  var curEnv = this.getEnv();
-  var bufferEnv = envBuffer.getEnv();
-
-  /* If the procedure call has no attached environment, we use
-     the environment left over from the previous action on the trampoline. */
-  if (!curEnv && bufferEnv) {
-    this.setStartingEnv(bufferEnv);
-  }
-
   var proc = this.getEnv().getProcedure(/** @type {string} */ (
       this.operatorName_.getPayload()));
 
@@ -187,13 +177,6 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
         'procedure application: expected procedure, given ' +
         this.operatorName_);
   }
-
-  /* Save the environment we used in case the next action on the trampoline
-     needs it (for example branches, which have no environment of their own). */
-  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
-
-  // We shouldn't leave the environment pointer hanging around.
-  this.clearEnv();
 };
 
 

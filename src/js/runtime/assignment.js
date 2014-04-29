@@ -26,35 +26,12 @@ r5js.Assignment = function(firstOperand) {
 goog.inherits(r5js.Assignment, r5js.ProcCallLike);
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {checkTypes} TODO bl
+ */
 r5js.Assignment.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
-  var curEnv = this.getEnv();
-  var bufferEnv = envBuffer.getEnv();
-
-  /* If the procedure call has no attached environment, we use
-     the environment left over from the previous action on the trampoline. */
-  if (!curEnv && bufferEnv) {
-    this.setStartingEnv(bufferEnv);
-  }
-
-  this.tryAssignment_(resultStruct);
-
-  /* Save the environment we used in case the next action on the trampoline
-     needs it (for example branches, which have no environment of their own). */
-  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
-
-  // We shouldn't leave the environment pointer hanging around.
-  this.clearEnv();
-};
-
-
-/**
- * @param {!r5js.TrampolineHelper} resultStruct
- * @private
- * @suppress {checkTypes} TODO bl remove
- */
-r5js.Assignment.prototype.tryAssignment_ = function(resultStruct) {
   var src = this.getEnv().get(/** @type {string} */ (
       this.firstOperand_.getNextSibling().getPayload()));
   this.checkForImproperSyntaxAssignment(src);

@@ -38,34 +38,6 @@ goog.inherits(r5js.IdShim, r5js.ProcCallLike);
 /** @override */
 r5js.IdShim.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
-
-  var curEnv = this.getEnv();
-  var bufferEnv = envBuffer.getEnv();
-
-  /* If the procedure call has no attached environment, we use
-     the environment left over from the previous action on the trampoline. */
-  if (!curEnv && bufferEnv) {
-    this.setStartingEnv(bufferEnv);
-  }
-
-  this.tryIdShim_(resultStruct, parserProvider);
-
-  /* Save the environment we used in case the next action on the trampoline
-     needs it (for example branches, which have no environment of their own). */
-  envBuffer.setEnv(/** @type {!r5js.IEnvironment} */(this.getEnv()));
-
-  // We shouldn't leave the environment pointer hanging around.
-  this.clearEnv();
-};
-
-
-/**
- * @param {!r5js.TrampolineHelper} resultStruct The trampoline helper.
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
- * that will return a new Parser for the given Datum when called.
- * @private
- */
-r5js.IdShim.prototype.tryIdShim_ = function(resultStruct, parserProvider) {
   var ans;
   if (this.firstOperand_ instanceof r5js.ast.Identifier) {
     ans = this.tryIdentifier_(this.firstOperand_);

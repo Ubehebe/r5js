@@ -110,11 +110,27 @@ r5js.trampoline = function(procCallLike, inputPort, outputPort) {
 
   var cur = procCallLike;
   var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
-  var savedEnv = new r5js.EnvBuffer();
+  var envBuffer = new r5js.EnvBuffer();
   var ans;
 
+
   while (cur) {
-    cur.evalAndAdvance(resultStruct, savedEnv, parserProvider);
+    var curEnv = cur.getEnv();
+    var bufferEnv = envBuffer.getEnv();
+    /* If the procedure call has no attached environment, we use
+       the environment left over from the previous action on the trampoline. */
+    if (!curEnv && bufferEnv) {
+      cur.setStartingEnv(bufferEnv);
+    }
+    cur.evalAndAdvance(resultStruct, envBuffer, parserProvider);
+    /* Save the environment we used in case the next action on the trampoline
+       needs it. */
+    curEnv = cur.getEnv();
+    if (curEnv) {
+      envBuffer.setEnv(curEnv);
+    }
+    // We shouldn't leave the environment pointer hanging around.
+    cur.clearEnv();
     ans = resultStruct.getValue();
     cur = resultStruct.getNextProcCallLike();
     resultStruct.clear();
