@@ -883,31 +883,28 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
  */
 PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
     function(before, thunk, after, procCall, procCallLike, resultStruct) {
-      // TODO bl: the compiler thinks there's already a variable named
-      // "before" in scope here. Figure out why.
-      var before2 = newCpsName();
-
       // None of the three thunks have any arguments.
 
       // todo bl use a ContinuableBuffer for efficiency
 
       var procCallBefore = new r5js.ProcCall(
-          procCall.getFirstOperand(), null /* no arguments */, before2);
+          procCall.getFirstOperand(), null /* no arguments */);
 
       var procCallAfter = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling().getNextSibling(),
           null /* no arguments */);
 
-      var result = newCpsName();
+      var procCallThunk = new r5js.ProcCall(
+          procCall.getFirstOperand().getNextSibling(),
+          null /* no arguments */);
+
       r5js.ProcCallLike.appendProcCallLike(
           procCallAfter,
-          new r5js.IdShim(new r5js.ast.Identifier(result)));
+          new r5js.IdShim(
+              new r5js.ast.Identifier(procCallThunk.getResultName())));
       r5js.ProcCallLike.getLast(procCallAfter).setNext(
           /** @type {!r5js.ProcCallLike} */ (procCallLike.getNext()));
 
-      var procCallThunk = new r5js.ProcCall(
-          procCall.getFirstOperand().getNextSibling(),
-          null /* no arguments */, result);
 
       r5js.ProcCallLike.appendProcCallLike(
           procCallThunk, procCallAfter);
@@ -921,7 +918,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
          todo bl document why we cannot reuse procCallBefore. */
       resultStruct.setBeforeThunk(new r5js.ProcCall(
           procCall.getFirstOperand(),
-          null /* no arguments */, before2));
+          null /* no arguments */, procCallBefore.getResultName()));
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
@@ -935,12 +932,11 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
  */
 PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
     function(producer, consumer, procCall, procCallLike, resultStruct) {
-      var valuesName = newCpsName();
       var producerCall = new r5js.ProcCall(
-          procCall.getFirstOperand(), null /* no arguments */, valuesName);
+          procCall.getFirstOperand(), null /* no arguments */);
       var consumerCall = new r5js.ProcCall(
           procCall.getFirstOperand().getNextSibling(),
-          new r5js.ast.Identifier(valuesName));
+          new r5js.ast.Identifier(producerCall.getResultName()));
       consumerCall.setNext(/** @type {!r5js.ProcCallLike} */ (
           procCallLike.getNext()));
       producerCall.setNext(consumerCall);
