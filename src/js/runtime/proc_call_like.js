@@ -17,7 +17,7 @@ r5js.ProcCallLike = function(opt_lastResultName) {
 
 /**
  * @param {!r5js.TrampolineHelper} trampolineHelper
- * @param {!r5js.EnvBuffer} envBuffer
+ * @param {!r5js.IEnvironment} env
  * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
  * that will return a new Parser for the given Datum when called.
  */

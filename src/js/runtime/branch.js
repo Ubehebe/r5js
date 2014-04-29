@@ -64,11 +64,11 @@ r5js.Branch.prototype.getEnv = goog.functions.NULL;
  * The casts are incorrect. Investigate and correct.
  */
 r5js.Branch.prototype.evalAndAdvance = function(
-    resultStruct, envBuffer, parserProvider) {
+    resultStruct, env, parserProvider) {
 
   /* Branches always use the old environment left by the previous action
     on the trampoline. */
-  var testResult = envBuffer.getEnv().get(this.testResultName_);
+  var testResult = env.get(this.testResultName_);
   if (testResult === false) {
     this.alternateLastContinuable_.setNext(
         /** @type {!r5js.ProcCallLike} */ (this.getNext()));

@@ -122,7 +122,9 @@ r5js.trampoline = function(procCallLike, inputPort, outputPort) {
     if (!curEnv && bufferEnv) {
       cur.setStartingEnv(bufferEnv);
     }
-    cur.evalAndAdvance(resultStruct, envBuffer, parserProvider);
+    cur.evalAndAdvance(
+        resultStruct, /** @type {!r5js.IEnvironment} */ (envBuffer.getEnv()),
+        parserProvider);
     /* Save the environment we used in case the next action on the trampoline
        needs it. */
     curEnv = cur.getEnv();

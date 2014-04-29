@@ -37,7 +37,7 @@ goog.inherits(r5js.IdShim, r5js.ProcCallLike);
 
 /** @override */
 r5js.IdShim.prototype.evalAndAdvance = function(
-    resultStruct, envBuffer, parserProvider) {
+    resultStruct, env, parserProvider) {
   var ans;
   if (this.firstOperand_ instanceof r5js.ast.Identifier) {
     ans = this.tryIdentifier_(this.firstOperand_);
