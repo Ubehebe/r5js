@@ -1,4 +1,4 @@
-goog.provide('r5js.VarargsProcedure');
+goog.provide('r5js.VarargsUserDefinedProcedure');
 
 
 goog.require('r5js.SiblingBuffer');
@@ -20,14 +20,15 @@ goog.require('r5js.datumutil');
  * @struct
  * @constructor
  */
-r5js.VarargsProcedure = function(formalsArray, bodyStart, env, opt_name) {
+r5js.VarargsUserDefinedProcedure = function(
+    formalsArray, bodyStart, env, opt_name) {
   goog.base(this, formalsArray, bodyStart, env, opt_name);
 };
-goog.inherits(r5js.VarargsProcedure, r5js.UserDefinedProcedure);
+goog.inherits(r5js.VarargsUserDefinedProcedure, r5js.UserDefinedProcedure);
 
 
 /** @override */
-r5js.VarargsProcedure.prototype.checkNumArgs = function(numActuals) {
+r5js.VarargsUserDefinedProcedure.prototype.checkNumArgs = function(numActuals) {
   var minNumArgs = this.formalsArray.length - 1;
   if (numActuals < minNumArgs) {
     throw new r5js.TooFewArgs(this.toString(), minNumArgs, numActuals);
@@ -36,7 +37,7 @@ r5js.VarargsProcedure.prototype.checkNumArgs = function(numActuals) {
 
 
 /** @override */
-r5js.VarargsProcedure.prototype.bindArgs = function(args, env) {
+r5js.VarargsUserDefinedProcedure.prototype.bindArgs = function(args, env) {
   var name, i;
 
   for (i = 0; i < this.formalsArray.length - 1; ++i) {

@@ -33,7 +33,7 @@ goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.TemplateIdTransformer');
 goog.require('r5js.UserDefinedProcedure');
-goog.require('r5js.VarargsProcedure');
+goog.require('r5js.VarargsUserDefinedProcedure');
 goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
@@ -417,7 +417,7 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
 
       var name = newAnonymousLambdaName();
       var proc = treatAsDotted ?
-          new r5js.VarargsProcedure(
+          new r5js.VarargsUserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name) :
           new r5js.UserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name);
@@ -541,7 +541,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
       var anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
-          new r5js.VarargsProcedure(
+          new r5js.VarargsUserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name));
       return r5js.newTopLevelAssignment(
           /** @type {string} */(name.getPayload()), // TODO bl
