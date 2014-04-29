@@ -155,7 +155,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
 
 /** @override */
 r5js.ProcCall.prototype.evalAndAdvance = function(
-    resultStruct, envBuffer, parserProvider) {
+    resultStruct, env, parserProvider) {
   var proc = this.getEnv().getProcedure(/** @type {string} */ (
       this.operatorName_.getPayload()));
 
@@ -164,7 +164,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
       this.cpsify_(resultStruct, parserProvider);
     } else {
       var args = this.evalArgs();
-      proc.evaluate(args, this, resultStruct);
+      proc.evaluate(args, this, resultStruct, env);
     }
   } else if (proc instanceof r5js.Macro) {
     var rawDatum = this.reconstructDatum_();

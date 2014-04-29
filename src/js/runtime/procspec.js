@@ -321,7 +321,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
  * @override
  */
 r5js.procspec.PrimitiveProcedure_.prototype.evaluate = function(
-    args, procCallLike, trampolineHelper) {
+    args, procCallLike, trampolineHelper, env) {
   args = args.map(/** @type {!Function} */ (
       r5js.datumutil.maybeWrapResult));
   // todo bl document why we're doing this...

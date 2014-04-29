@@ -14,5 +14,6 @@ r5js.Procedure = function() {};
  * @param {!Array.<!r5js.runtime.Value>} args
  * @param {!r5js.ProcCallLike} procCall
  * @param {!r5js.TrampolineHelper} trampolineHelper
+ * @param {!r5js.IEnvironment} env
  */
 r5js.Procedure.prototype.evaluate = goog.abstractMethod;

@@ -185,7 +185,7 @@ r5js.UserDefinedProcedure.prototype.bindArgs = function(args, env) {
  * @override
  */
 r5js.UserDefinedProcedure.prototype.evaluate = function(
-    args, procCallLike, trampolineHelper) {
+    args, procCallLike, trampolineHelper, env) {
 
   var procCallEnv = procCallLike.getEnv();
 
