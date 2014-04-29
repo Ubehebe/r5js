@@ -35,9 +35,6 @@ r5js.IdShim = function(payload, opt_continuationName) {
 goog.inherits(r5js.IdShim, r5js.ProcCallLike);
 
 
-/** @const @private */ r5js.IdShim.NAME_ = new r5js.ast.Identifier('id');
-
-
 /** @override */
 r5js.IdShim.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
