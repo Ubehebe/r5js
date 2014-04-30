@@ -396,7 +396,7 @@ r5js.procspec.HasSpecialEvalLogic_.prototype.call = function(
       userArgs, this.debugName_);
   var args = goog.array.concat(
       goog.array.toArray(unwrappedArgs),
-      procCallLike, procCallLike, trampolineHelper); // TODO bl why push twice?
+      procCallLike, trampolineHelper);
   this.fn_.apply(null, args);
 };
 
@@ -522,7 +522,7 @@ r5js.procspec.unaryOrBinaryWithCurrentPorts = function(fn) {
 
 
 /**
- * @param {function(?, !r5js.ProcCall, !r5js.ProcCallLike, !r5js.TrampolineHelper): ?}  fn
+ * @param {function(?, !r5js.ProcCallLike, !r5js.TrampolineHelper): ?}  fn
  * @return {!r5js.procspec.PrimitiveProcedure_}
  */
 r5js.procspec.unaryWithSpecialEvalLogic = function(fn) {
@@ -532,7 +532,7 @@ r5js.procspec.unaryWithSpecialEvalLogic = function(fn) {
 
 
 /**
- * @param {function(?, ?, !r5js.ProcCall, !r5js.ProcCallLike, !r5js.TrampolineHelper): ?} fn
+ * @param {function(?, ?, !r5js.ProcCallLike, !r5js.TrampolineHelper): ?} fn
  * @return {!r5js.procspec.PrimitiveProcedure_}
  */
 r5js.procspec.binaryWithSpecialEvalLogic = function(fn) {
@@ -542,7 +542,7 @@ r5js.procspec.binaryWithSpecialEvalLogic = function(fn) {
 
 
 /**
- * @param {function(?, ?, ?, !r5js.ProcCall, !r5js.ProcCallLike, !r5js.TrampolineHelper): ?} fn
+ * @param {function(?, ?, ?, !r5js.ProcCallLike, !r5js.TrampolineHelper): ?} fn
  * @return {!r5js.procspec.PrimitiveProcedure_}
  */
 r5js.procspec.ternaryWithSpecialEvalLogic = function(fn) {

@@ -805,13 +805,13 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
         mustBeProc, 0, 'apply', r5js.parse.Terminals.LAMBDA);
   }
 
-  var curProcCall = arguments[arguments.length - 3];
+  var curProcCall = arguments[arguments.length - 2];
   var procName = new r5js.ast.Identifier(mustBeProc.getName());
   var procCallLike = arguments[arguments.length - 2];
   var resultStruct = /** @type {!r5js.TrampolineHelper} */ (
       arguments[arguments.length - 1]);
 
-  var lastRealArgIndex = arguments.length - 4;
+  var lastRealArgIndex = arguments.length - 3;
   var mustBeList = arguments[lastRealArgIndex];
   if (!(mustBeList instanceof r5js.ast.List)) {
     throw new r5js.ArgumentTypeError(
@@ -882,7 +882,9 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
  * 42 to).
  */
 PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
-    function(before, thunk, after, procCall, procCallLike, resultStruct) {
+    function(before, thunk, after, procCallLike, resultStruct) {
+
+      var procCall = /** @type {!r5js.ProcCall} */ (procCallLike);
       // None of the three thunks have any arguments.
 
       // todo bl use a ContinuableBuffer for efficiency
@@ -931,7 +933,8 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
  * of the call to call-with-values."
  */
 PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
-    function(producer, consumer, procCall, procCallLike, resultStruct) {
+    function(producer, consumer, procCallLike, resultStruct) {
+      var procCall = /** @type {!r5js.ProcCall} */ (procCallLike);
       var producerCall = new r5js.ProcCall(
           procCall.getFirstOperand(), null /* no arguments */);
       var consumerCall = new r5js.ProcCall(
@@ -968,7 +971,8 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
  */
 PrimitiveProcedures['call-with-current-continuation'] =
     _.unaryWithSpecialEvalLogic(/** @suppress {checkTypes} */ function(
-        procedure, procCall, procCallLike, resultStruct) {
+        procedure, procCallLike, resultStruct) {
+      var procCall = /** @type {!r5js.ProcCall} */ (procCallLike);
       var next = procCallLike.getNext();
       var resultName = procCallLike.getResultName();
       var beforeThunk = resultStruct.getBeforeThunk();
@@ -995,8 +999,8 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
   // Varargs procedures that also have special eval logic are a pain.
   var resultStruct = arguments[arguments.length - 1];
   var procCallLike = arguments[arguments.length - 2];
-  var procCall = arguments[arguments.length - 3];
-  var numUserArgs = arguments.length - 3;
+  var procCall = arguments[arguments.length - 2];
+  var numUserArgs = arguments.length - 2;
 
   /* If there's just one user-supplied argument, that works fine
      with the existing machinery. Example:
