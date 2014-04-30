@@ -83,6 +83,5 @@ r5js.boot.installSchemeSource_ = function(lib, env) {
   var continuable = /** @type {!r5js.ProcCallLike} */ (new r5js.ParserImpl(
       /** @type {!r5js.Datum} */ (new r5js.Reader(
       new r5js.Scanner(lib)).read())).parse().desugar(env));
-  continuable.setStartingEnv(env);
-  r5js.trampoline(continuable, r5js.InputPort.NULL, r5js.OutputPort.NULL);
+  r5js.trampoline(continuable, env, r5js.InputPort.NULL, r5js.OutputPort.NULL);
 };

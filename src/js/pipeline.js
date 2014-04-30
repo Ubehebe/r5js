@@ -74,17 +74,13 @@ r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
 /** @override */
 r5js.Pipeline.prototype.desugar = function(root) {
   this.env_ = new r5js.Environment(this.rootEnv_);
-  var continuable = root.desugar(this.env_, false);
-  continuable.setStartingEnv(this.env_);
-  return continuable;
+  return root.desugar(this.env_, false);
 };
 
 
 /** @override */
 r5js.Pipeline.prototype.desugarRepl = function(root) {
-  var continuable = root.desugar(this.env_, false);
-  continuable.setStartingEnv(this.env_);
-  return continuable;
+  return root.desugar(this.env_, false);
 };
 
 
@@ -92,6 +88,7 @@ r5js.Pipeline.prototype.desugarRepl = function(root) {
 r5js.Pipeline.prototype.Eval = function(continuable) {
   return r5js.trampoline(
       continuable,
+      /** @type {!r5js.IEnvironment} */ (this.env_),
       r5js.InputPort.NULL,
       new r5js.CallbackBackedPort(function(output) {
         console.log(output);
