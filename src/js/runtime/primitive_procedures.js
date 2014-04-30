@@ -828,7 +828,6 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
         procName, newArgs.toSiblings());
     actualProcCall.setNext(procCallLike.getNext());
     actualProcCall.setResultName(procCallLike.getResultName());
-    actualProcCall.setStartingEnv(curProcCall.env);
     resultStruct.setNext(actualProcCall);
   } else {
     // (apply foo a b c '(1 2 3))

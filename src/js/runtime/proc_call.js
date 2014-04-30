@@ -142,7 +142,6 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
       new r5js.ProcCall(this.operatorName_, finalArgs.toSiblings()));
 
   var ans = newCallChain.toContinuable();
-  ans.setStartingEnv(/** @type {!r5js.IEnvironment} */ (this.getEnv()));
   var lastContinuable = r5js.ProcCallLike.getLast(ans);
   var next = this.getNext();
   if (next) {
