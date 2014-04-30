@@ -16,6 +16,8 @@
 
 goog.provide('r5js.TrampolineHelper');
 
+goog.require('r5js.runtime.UNSPECIFIED_VALUE');
+
 
 
 /**
@@ -29,13 +31,13 @@ r5js.TrampolineHelper = function(inputPort, outputPort) {
   /** @const @private */ this.outputPort_ = outputPort;
   /** @private {r5js.ProcCallLike} */ this.beforeThunk_ = null;
   /** @private {r5js.ProcCallLike} */ this.nextContinuable_ = null;
-  /** @private {!r5js.runtime.Value|null} */ this.value_ = null;
+  /** @private {!r5js.runtime.Value} */
+  this.value_ = r5js.runtime.UNSPECIFIED_VALUE;
 };
 
 
 /** Clears the object's state. TODO bl: not {@link beforeThunk}? */
 r5js.TrampolineHelper.prototype.clear = function() {
-  this.value_ = null;
   this.nextContinuable_ = null;
 };
 
@@ -64,7 +66,7 @@ r5js.TrampolineHelper.prototype.setNext = function(procCallLike) {
 };
 
 
-/** @return {!r5js.runtime.Value|null} */
+/** @return {!r5js.runtime.Value} */
 r5js.TrampolineHelper.prototype.getValue = function() {
   return this.value_;
 };

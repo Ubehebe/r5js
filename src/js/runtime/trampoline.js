@@ -110,7 +110,6 @@ r5js.trampoline = function(procCallLike, startingEnv, inputPort, outputPort) {
 
   var cur = procCallLike;
   var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
-  var ans;
   var prevEnv = startingEnv;
 
   while (cur) {
@@ -130,12 +129,11 @@ r5js.trampoline = function(procCallLike, startingEnv, inputPort, outputPort) {
     prevEnv = curEnv;
     // We shouldn't leave the environment pointer hanging around.
     cur.clearEnv();
-    ans = resultStruct.getValue();
     cur = resultStruct.getNextProcCallLike();
     resultStruct.clear();
   }
 
-  return /** @type {!r5js.runtime.Value} */ (ans); // TODO bl
+  return resultStruct.getValue();
 };
 
 
