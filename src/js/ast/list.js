@@ -43,12 +43,6 @@ r5js.ast.List.prototype.markDotted = function() {
 };
 
 
-/** @return {boolean} */
-r5js.ast.List.prototype.isDirty = function() {
-  return this.dirty_;
-};
-
-
 /** @override */
 r5js.ast.List.prototype.isImproperList = function() {
   return this.dotted_;
@@ -100,7 +94,7 @@ r5js.ast.List.prototype.cdr = function() {
   var startOfCdr = this.getFirstChild().getNextSibling();
   var ans;
   if (startOfCdr) {
-    if (startOfCdr.getNextSibling() || !this.isDirty()) {
+    if (startOfCdr.getNextSibling() || !this.dirty_) {
       // TODO bl investigate why this is happening
       if (startOfCdr.getNextSibling() === startOfCdr) {
         startOfCdr.setNextSibling(null);

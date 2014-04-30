@@ -371,13 +371,13 @@ PrimitiveProcedures['truncate'] = _.unary(function(x) {
 
 // Pair-related procedures
 
-PrimitiveProcedures['car'] = _.unary(function(p) {
-  return p.car();
-}, r5js.DatumType.PAIR);
+PrimitiveProcedures['car'] = _.unary(
+    function(p) { return p.car(); },
+    r5js.DatumType.PAIR);
 
-PrimitiveProcedures['cdr'] = _.unary(/** @suppress {checkTypes} */ function(p) {
-  return p.cdr();
-}, r5js.DatumType.PAIR);
+PrimitiveProcedures['cdr'] = _.unary(
+    function(p) { return p.cdr(); },
+    r5js.DatumType.PAIR);
 
 PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
   // todo bl this is really expensive! can we cut down on the copying?
