@@ -888,6 +888,23 @@
 ;;      (string-length (file->string "foo"))) => 4)
 ;; )
 
+(define-tests quote-tests
+  ((car ''a) => quote)
+  ((car '(quote a)) => quote)
+  ((car (quote 'a)) => quote)
+  ((car (quote (quote a))) => quote)
+  ((car (list 'quote 'a)) => quote)
+  ((car (list (quote quote) (quote a))) => quote)
+  ((length ''a) => 2)
+  ((length '(quote a)) => 2)
+  ((length (quote 'a)) => 2)
+  ((length (quote (quote a))) => 2)
+  ((cdr ''a) => (a))
+  ((cdr '(quote a)) => (a))
+  ((cdr (quote 'a)) => (a))
+  ((cdr (quote (quote a))) => (a))
+)
+
 (define-tests strcmp-tests
   ((string=? "" "") => #t)
   ((string=? "a" "b") => #f)
