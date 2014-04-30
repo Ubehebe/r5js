@@ -86,9 +86,7 @@ PrimitiveProcedures['output-port?'] = _.unary(function(port) {
 });
 
 PrimitiveProcedures['pair?'] = _.unary(function(node) {
-  return (node instanceof r5js.ast.List ||
-      node.isImproperList() ||
-      node instanceof r5js.ast.Quote) &&
+  return r5js.Pair.isImplementedBy(node) &&
       !!node.getFirstChild(); // 3.2: (pair? '()) => #f
 });
 
@@ -374,32 +372,11 @@ PrimitiveProcedures['truncate'] = _.unary(function(x) {
 // Pair-related procedures
 
 PrimitiveProcedures['car'] = _.unary(function(p) {
-  return p.getFirstChild();
+  return p.car();
 }, r5js.DatumType.PAIR);
 
 PrimitiveProcedures['cdr'] = _.unary(/** @suppress {checkTypes} */ function(p) {
-  p = /** @type {!r5js.ast.CompoundDatum} */ (p); // TODO bl
-  var startOfCdr = p.getFirstChild().getNextSibling();
-  var ans;
-  if (startOfCdr) {
-    if (startOfCdr.getNextSibling() ||
-        (p instanceof r5js.ast.List && !p.isDirty())) {
-      // TODO bl investigate why this is happening
-      if (startOfCdr.getNextSibling() === startOfCdr) {
-        startOfCdr.setNextSibling(null);
-      }
-      ans = new r5js.SiblingBuffer().appendSibling(startOfCdr).toList(
-          p.isImproperList() ? r5js.ast.DottedList : r5js.ast.List);
-    } else {
-      ans = startOfCdr;
-    }
-    if (ans instanceof r5js.ast.CompoundDatum) {
-      ans.setCdrHelper(new r5js.CdrHelper(p, startOfCdr));
-    }
-    return ans;
-  } else {
-    return new r5js.SiblingBuffer().toList(r5js.ast.List);
-  }
+  return p.cdr();
 }, r5js.DatumType.PAIR);
 
 PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
@@ -804,7 +781,6 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
         mustBeProc, 0, 'apply', r5js.parse.Terminals.LAMBDA);
   }
 
-  var curProcCall = arguments[arguments.length - 2];
   var procName = new r5js.ast.Identifier(mustBeProc.getName());
   var procCallLike = arguments[arguments.length - 2];
   var resultStruct = /** @type {!r5js.TrampolineHelper} */ (

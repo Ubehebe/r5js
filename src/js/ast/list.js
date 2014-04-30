@@ -1,6 +1,10 @@
 goog.provide('r5js.ast.List');
 
 
+goog.require('r5js.Pair');
+// TODO bl circular dependency goog.require('r5js.ast.DottedList');
+// TODO bl circular dependency goog.require('r5js.CdrHelper');
+goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.parse.Terminals');
 
@@ -8,6 +12,7 @@ goog.require('r5js.parse.Terminals');
 
 /**
  * @param {r5js.Datum} firstChild
+ * @implements {r5js.Pair}
  * @extends {r5js.ast.CompoundDatum}
  * @struct
  * @constructor
@@ -23,6 +28,7 @@ r5js.ast.List = function(firstChild) {
   /** @private */ this.dotted_ = false;
 };
 goog.inherits(r5js.ast.List, r5js.ast.CompoundDatum);
+r5js.Pair.addImplementation(r5js.ast.List);
 
 
 /** Marks dirty. */
@@ -76,6 +82,40 @@ r5js.ast.List.prototype.eqv = function(other) {
     return otherHelper.resolvesTo(this);
   } else {
     return false;
+  }
+};
+
+
+/** @override */
+r5js.ast.List.prototype.car = function() {
+  return /** @type {!r5js.Datum} */ (this.getFirstChild());
+};
+
+
+/**
+ * @override
+ * @suppress {checkTypes} for setNextSibling(null).
+ */
+r5js.ast.List.prototype.cdr = function() {
+  var startOfCdr = this.getFirstChild().getNextSibling();
+  var ans;
+  if (startOfCdr) {
+    if (startOfCdr.getNextSibling() || !this.isDirty()) {
+      // TODO bl investigate why this is happening
+      if (startOfCdr.getNextSibling() === startOfCdr) {
+        startOfCdr.setNextSibling(null);
+      }
+      ans = new r5js.SiblingBuffer().appendSibling(startOfCdr).toList(
+          this.dotted_ ? r5js.ast.DottedList : r5js.ast.List);
+    } else {
+      ans = startOfCdr;
+    }
+    if (ans instanceof r5js.ast.CompoundDatum) {
+      ans.setCdrHelper(new r5js.CdrHelper(this, startOfCdr));
+    }
+    return ans;
+  } else {
+    return new r5js.SiblingBuffer().toList(r5js.ast.List);
   }
 };
 
