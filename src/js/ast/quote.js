@@ -3,6 +3,8 @@ goog.provide('r5js.ast.Quote');
 
 goog.require('r5js.Pair');
 goog.require('r5js.ast.CompoundDatum');
+goog.require('r5js.ast.Identifier');
+goog.require('r5js.ast.List');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
@@ -25,15 +27,19 @@ goog.inherits(r5js.ast.Quote, r5js.ast.CompoundDatum);
 r5js.Pair.addImplementation(r5js.ast.Quote);
 
 
+/** @const @private {!r5js.runtime.Value} */
+r5js.ast.Quote.CAR_ = new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
+
+
 /** @override */
 r5js.ast.Quote.prototype.car = function() {
-  return /** @type {!r5js.Datum} */ (this.getFirstChild());
+  return r5js.ast.Quote.CAR_;
 };
 
 
 /** @override */
 r5js.ast.Quote.prototype.cdr = function() {
-  return r5js.runtime.UNSPECIFIED_VALUE; // TODO bl
+  return new r5js.ast.List(this.getFirstChild());
 };
 
 
