@@ -10,7 +10,7 @@ goog.require('r5js.Reader');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.boot');
-goog.require('r5js.test.Interpreter');
+goog.require('r5js.test.SchemeTestDriver');
 goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
 goog.require('r5js.test.SchemeSources');
@@ -96,7 +96,7 @@ r5js.test.getTestSuites_ = function(evaluator, sources) {
   return [
     new r5js.test.Scanner(),
     new r5js.test.Parser(),
-    new r5js.test.Interpreter(evaluator, sources)
+    new r5js.test.SchemeTestDriver(evaluator, sources)
   ];
 };
 
