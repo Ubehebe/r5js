@@ -4,6 +4,8 @@ goog.setTestOnly('r5js.test.Evaluator');
 
 goog.require('expect');
 goog.require('goog.functions');
+goog.require('r5js.ToStringEvaluator');
+goog.require('r5js.ToJsEvaluator');
 goog.require('tdd.TestType');
 
 
@@ -15,7 +17,8 @@ goog.require('tdd.TestType');
  * @constructor
  */
 r5js.test.Evaluator = function(evaluator) {
-  /** @const @private */ this.evaluator_ = evaluator;
+  /** @const @private */ this.toString_ = new r5js.ToStringEvaluator(evaluator);
+  /** @const @private */ this.toJs_ = new r5js.ToJsEvaluator(evaluator);
 };
 
 
@@ -30,10 +33,14 @@ r5js.test.Evaluator.prototype.toString = goog.functions.constant(
 
 
 r5js.test.Evaluator.prototype['testSchemeToJsPrimitives'] = function() {
-  expect(this.evaluator_.evaluate('(+ 1 1)')).
+  expect(this.toJs_.evaluate('(+ 1 1)')).
       toBe(2);
-  expect(this.evaluator_.evaluate('(procedure? procedure?)')).
+  expect(this.toString_.evaluate('(+ 1 1)')).
+      toBe('2');
+  expect(this.toJs_.evaluate('(procedure? procedure?)')).
       toBe(true);
-  expect(this.evaluator_.evaluate('(string-append "hello " "world")')).
-      toBe('hello world');
+  //  expect(this.toString_.evaluate('(procedure? procedure?)')).
+  //      toBe('#t');
+  //  expect(this.toJs_.evaluate('(string-append "hello " "world")')).
+  //      toBe('hello world');
 };

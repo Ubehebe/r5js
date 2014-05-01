@@ -23,7 +23,7 @@ goog.require('r5js.OutputMode');
 
 /**
  * @param {!r5js.IPipeline} pipeline A pipeline object.
- * @implements {r5js.Evaluator}
+ * @implements {r5js.Evaluator.<!r5js.runtime.Value>}
  * @struct
  * @constructor
  */
@@ -81,16 +81,11 @@ r5js.EvaluatorImpl.prototype.willParse = function(logicalLine) {
 
 /** @override */
 r5js.EvaluatorImpl.prototype.evaluate = function(string) {
-  var ans =
-      this.pipeline_.Eval(
-            this.pipeline_.desugar(
-                this.pipeline_.parse(/** @type {!r5js.Datum} */ (
-                    this.pipeline_.read(
-                        this.pipeline_.scan(string))))));
-  return ans instanceof r5js.Datum ?
-      (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
-      r5js.OutputMode.DISPLAY) :
-      ans;
+  return this.pipeline_.Eval(
+      this.pipeline_.desugar(
+      this.pipeline_.parse(/** @type {!r5js.Datum} */ (
+      this.pipeline_.read(
+      this.pipeline_.scan(string))))));
 };
 
 
