@@ -90,7 +90,7 @@ r5js.EvaluatorImpl.prototype.evaluate = function(string) {
   return ans instanceof r5js.Datum ?
       (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
       r5js.OutputMode.DISPLAY) :
-      (ans ? ans.toString() : '');
+      ans;
 };
 
 
