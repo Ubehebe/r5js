@@ -81,12 +81,11 @@ r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
 
 /**
  * @param {?} result The result to potentially wrap.
- * @param {!r5js.Type=} opt_type
  * @return {?} The result, wrapped in a {@link r5js.Datum} if necessary.
  * @suppress {accessControls} for result.name_.
  * TODO bl: remove. This whole method seems confused.
  */
-r5js.datumutil.maybeWrapResult = function(result, opt_type) {
+r5js.datumutil.maybeWrapResult = function(result) {
 
   if (result === null) {
     // TODO bl don't allow passing in null
