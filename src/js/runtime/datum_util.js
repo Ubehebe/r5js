@@ -1,24 +1,14 @@
 goog.provide('r5js.datumutil');
 
 
-goog.require('r5js.Continuation');
-goog.require('r5js.Datum');
-goog.require('r5js.DatumType');
-goog.require('r5js.IEnvironment');
-goog.require('r5js.InputPort');
 goog.require('r5js.InternalInterpreterError');
-goog.require('r5js.Macro');
-goog.require('r5js.OutputPort');
-goog.require('r5js.Procedure');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Number');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
-goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
 /**
