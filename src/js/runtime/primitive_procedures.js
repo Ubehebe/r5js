@@ -449,11 +449,11 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
 
 PrimitiveProcedures['make-vector'] = _.varargsRange(
     function(numberNode, fillNode) {
-      var n = numberNode.unwrap();
-      if (typeof n !== 'number') {
+      if (!(numberNode instanceof r5js.ast.Number)) {
         throw new r5js.ArgumentTypeError(
             numberNode, 0, 'make-vector', r5js.DatumType.NUMBER);
       }
+      var n = numberNode.getPayload();
       /* R5RS 6.3.6: "If a second argument is given, then each element
          is initialized to fill. Otherwise the initial contents of each element
          is unspecified." False seems like a good default. */
@@ -474,25 +474,19 @@ PrimitiveProcedures['vector-ref'] = _.binary(function(v, k) {
 }, 'vector' /* TODO bl */, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
-  v = v.unwrap();
-  k = k.unwrap();
-
   if (!(v instanceof r5js.ast.Vector)) {
     throw new r5js.ArgumentTypeError(
         v, 0, 'vector-set!', r5js.DatumType.VECTOR);
   }
-  if (typeof k !== 'number') {
+  if (!(k instanceof r5js.ast.Number)) {
     throw new r5js.ArgumentTypeError(
         k, 1, 'vector-set!', r5js.DatumType.NUMBER);
   }
   if (v.isImmutable()) {
     throw new r5js.ImmutableError(v.toString());
   }
-
-  v.vectorSet(k, fill);
-
+  v.vectorSet(k.getPayload(), fill);
   // todo bl requires a cycle-labeling procedure like set-car! and set-cdr!
-
   return r5js.runtime.UNSPECIFIED_VALUE;
 });
 
@@ -570,31 +564,15 @@ PrimitiveProcedures['string-ref'] = _.binary(function(node, i) {
 }, r5js.DatumType.STRING, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
-  if (!(str instanceof r5js.ast.String)) {
-    throw new r5js.ArgumentTypeError(
-        str, 0, 'string-set!', r5js.DatumType.STRING);
-  }
-  if (!(k instanceof r5js.ast.Number)) {
-    throw new r5js.ArgumentTypeError(
-        k, 1, 'string-set!', r5js.DatumType.NUMBER);
-  }
-  if (!(c instanceof r5js.ast.Character)) {
-    throw new r5js.ArgumentTypeError(
-        c, 2, 'string-set!', r5js.DatumType.CHARACTER);
-  }
-
   if (str.isImmutable()) {
     throw new r5js.ImmutableError(/** @type {string} */ (str.getPayload()));
   }
-
   var s = str.getPayload();
-
-  var kNum = /** @type {number} */ (k.getPayload());
-
-  str.setPayload(s.substr(0, kNum) + c.getPayload() + s.substr(kNum + 1));
-
+  str.setPayload(s.substr(0, k) + c.getPayload() + s.substr(k + 1));
   return r5js.runtime.UNSPECIFIED_VALUE;
-});
+}, r5js.DatumType.STRING,
+r5js.DatumType.NUMBER,
+r5js.DatumType.CHARACTER);
 
 // Vector-related procedures
 

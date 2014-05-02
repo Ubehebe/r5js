@@ -442,12 +442,30 @@ r5js.procspec.binary = function(fn, opt_argtype1, opt_argtype2) {
 
 
 /**
- * @param {function(?, ?, ?): ?} fn
+ * @param {function(T1, T2, T3): ?} fn
+ * @param {!r5js.Type=} opt_argtype1
+ * @param {!r5js.Type=} opt_argtype2
+ * @param {!r5js.Type=} opt_argtype3
  * @return {!r5js.procspec.PrimitiveProcedure_}
+ * @template T1,T2,T3
+ * TODO bl make the template types mean something
  */
-r5js.procspec.ternary = function(fn) {
+r5js.procspec.ternary = function(fn, opt_argtype1, opt_argtype2, opt_argtype3) {
+  var argtypes = [];
+  if (opt_argtype1) {
+    argtypes.push(opt_argtype1);
+  }
+  if (opt_argtype2) {
+    argtypes.push(opt_argtype2);
+  }
+  if (opt_argtype3) {
+    argtypes.push(opt_argtype3);
+  }
+  var typeChecker = argtypes.length ?
+      new r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes) :
+      r5js.procspec.NO_TYPE_RESTRICTIONS_;
   return new r5js.procspec.PrimitiveProcedure_(
-      fn, r5js.procspec.EXACTLY_3_ARGS_, r5js.procspec.NO_TYPE_RESTRICTIONS_);
+      fn, r5js.procspec.EXACTLY_3_ARGS_, typeChecker);
 };
 
 
