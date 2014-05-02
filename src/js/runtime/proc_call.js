@@ -203,7 +203,8 @@ r5js.ProcCall.prototype.evalArgs = function() {
           !toPush.isLetOrLetrecSyntax()) {
         throw new r5js.MacroError(name, 'bad syntax');
       }
-      args.push(toPush);
+      // TODO bl this doesn't seem like the right behavior. Investigate.
+      args.push(toPush === null ? r5js.runtime.UNSPECIFIED_VALUE : toPush);
     } else if (cur instanceof r5js.ast.Quote) {
       args.push(cur.getFirstChild());
     } else if (cur instanceof r5js.ast.Lambda) {

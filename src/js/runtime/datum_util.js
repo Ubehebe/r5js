@@ -80,39 +80,36 @@ r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
 
 
 /**
- * @param {?} result The result to potentially wrap.
- * @return {?} The result, wrapped in a {@link r5js.Datum} if necessary.
- * @suppress {accessControls} for result.name_.
- * TODO bl: remove. This whole method seems confused.
+ * Environments bind names to values, and this implementation represents
+ * values idiomatically in JavaScript. For example, the Scheme value #f
+ * is represented in environment bindings by the JavaScript value false.
+ *
+ * However, in a few cases it is useful to retrieve a value from an environment
+ * and then wrap it in an AST node. For example, during evaluation of a varargs
+ * procedure call: ((lambda (x . xs) xs) 1 2 3), the "rest args" are rolled up
+ * into a list and bound to the identifier xs. The list is a
+ * {@link r5js.ast.List}, and its elements must be {@link r5js.Datum} instances,
+ * not JavaScript numbers.
+ * @see {r5js.VarargsUserDefinedProcedure#bindArgs}
+ *
+ * @param {!r5js.runtime.Value} result The value to potentially wrap.
+ * @return {!r5js.Datum} The value, wrapped in a {@link r5js.Datum}
+ * if necessary.
  */
 r5js.datumutil.maybeWrapResult = function(result) {
-
-  if (result === null) {
-    // TODO bl don't allow passing in null
-    return r5js.runtime.UNSPECIFIED_VALUE;
-  } else if (result === r5js.runtime.UNSPECIFIED_VALUE ||
-      result instanceof r5js.Datum ||
-      result instanceof r5js.Macro ||
-      result instanceof r5js.Procedure ||
-      result instanceof r5js.Continuation ||
-      r5js.IEnvironment.isImplementedBy(result) ||
-      r5js.InputPort.isImplementedBy(result) ||
-      r5js.OutputPort.isImplementedBy(result)) {
-    return result; // no-op, strictly for convenience
-  } else {
-    // If no type was supplied, we can deduce it in most (not all) cases
-    switch (typeof result) {
-      case 'boolean':
-        return new r5js.ast.Boolean(result);
-      case 'number':
-        return new r5js.ast.Number(result);
-      case 'string':
-        return new r5js.ast.Identifier(result);
-      default:
-        throw new r5js.InternalInterpreterError(
-            'cannot deduce type from value ' +
-                result +
-                ': noninjective mapping from values to types');
-    }
+  switch (typeof result) {
+    case 'boolean':
+      return new r5js.ast.Boolean(result);
+    case 'number':
+      return new r5js.ast.Number(result);
+    case 'object':
+      return /** @type {!r5js.Datum} */ (result);
+    case 'string':
+      return new r5js.ast.Identifier(result);
+    default:
+      throw new r5js.InternalInterpreterError(
+          'cannot deduce type from value ' +
+          result +
+          ': noninjective mapping from values to types');
   }
 };

@@ -98,10 +98,13 @@ r5js.IdShim.prototype.tryQuote_ = function(quote) {
         return node instanceof r5js.ast.Identifier && node.shouldUnquote();
       },
       function(node) {
-        var ans = r5js.datumutil.maybeWrapResult(env.get(
+        var result = env.get(
             /** @type {string} */ ((
-                /** @type {!r5js.ast.Identifier} */ (node)).
-                    getPayload())));
+            /** @type {!r5js.ast.Identifier} */ (node)).
+            getPayload()));
+        var ans = result === null ?
+            r5js.runtime.UNSPECIFIED_VALUE :
+            r5js.datumutil.maybeWrapResult(result);
         // TODO bl document why we're doing this
         if (ans instanceof r5js.Ref) {
           ans = ans.deref();
