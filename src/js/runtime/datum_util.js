@@ -12,12 +12,10 @@ goog.require('r5js.OutputPort');
 goog.require('r5js.Procedure');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
-goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Number');
-goog.require('r5js.ast.String');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
@@ -102,12 +100,6 @@ r5js.datumutil.maybeWrapResult = function(result, opt_type) {
       r5js.InputPort.isImplementedBy(result) ||
       r5js.OutputPort.isImplementedBy(result)) {
     return result; // no-op, strictly for convenience
-  } else if (opt_type === r5js.DatumType.CHARACTER) {
-    return new r5js.ast.Character(/** @type {string} */ (result));
-  } else if (opt_type === r5js.DatumType.NUMBER) {
-    return new r5js.ast.Number(/** @type {number} */ (result));
-  } else if (opt_type === r5js.DatumType.STRING) {
-    return new r5js.ast.String(/** @type {string} */ (result));
   } else {
     // If no type was supplied, we can deduce it in most (not all) cases
     switch (typeof result) {
