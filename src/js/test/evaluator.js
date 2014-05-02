@@ -3,9 +3,10 @@ goog.setTestOnly('r5js.test.Evaluator');
 
 
 goog.require('expect');
+goog.require('haveJsValue');
+goog.require('haveStringValue');
+goog.require('r5js.test.matchers.setSharedEvaluator');
 goog.require('goog.functions');
-goog.require('r5js.ToStringEvaluator');
-goog.require('r5js.ToJsEvaluator');
 goog.require('tdd.TestType');
 
 
@@ -17,8 +18,7 @@ goog.require('tdd.TestType');
  * @constructor
  */
 r5js.test.Evaluator = function(evaluator) {
-  /** @const @private */ this.toString_ = new r5js.ToStringEvaluator(evaluator);
-  /** @const @private */ this.toJs_ = new r5js.ToJsEvaluator(evaluator);
+  r5js.test.matchers.setSharedEvaluator(evaluator);
 };
 
 
@@ -32,15 +32,11 @@ r5js.test.Evaluator.prototype.toString = goog.functions.constant(
     'r5js.test.Evaluator');
 
 
-r5js.test.Evaluator.prototype['testSchemeToJsPrimitives'] = function() {
-  expect(this.toJs_.evaluate('(+ 1 1)')).
-      toBe(2);
-  expect(this.toString_.evaluate('(+ 1 1)')).
-      toBe('2');
-  expect(this.toJs_.evaluate('(procedure? procedure?)')).
-      toBe(true);
-  //  expect(this.toString_.evaluate('(procedure? procedure?)')).
-  //      toBe('#t');
+r5js.test.Evaluator.prototype['testSchemeToJsEvaluation'] = function() {
+  expect('(+ 1 1)').to(haveJsValue(2));
+  expect('(+ 1 1)').to(haveStringValue('2'));
+  expect('(procedure? procedure?)').to(haveJsValue(true));
+  //  expect('(procedure? procedure?)').to(haveStringValue('#t'));
   //  expect(this.toJs_.evaluate('(string-append "hello " "world")')).
   //      toBe('hello world');
 };
