@@ -50,7 +50,7 @@ r5js.VarargsUserDefinedProcedure.prototype.bindArgs = function(args, env) {
     // Roll up the remaining arguments into a list
     var siblingBuffer = new r5js.SiblingBuffer();
     for (var j = this.formalsArray.length - 1; j < args.length; ++j) {
-      siblingBuffer.appendSibling(r5js.datumutil.maybeWrapResult(args[j]));
+      siblingBuffer.appendSibling(r5js.datumutil.wrapValue(args[j]));
     }
     env.addBinding(name, siblingBuffer.toList(r5js.ast.List));
   }

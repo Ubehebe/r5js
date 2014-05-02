@@ -96,7 +96,7 @@ r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
  * @return {!r5js.Datum} The value, wrapped in a {@link r5js.Datum}
  * if necessary.
  */
-r5js.datumutil.maybeWrapResult = function(result) {
+r5js.datumutil.wrapValue = function(result) {
   switch (typeof result) {
     case 'boolean':
       return new r5js.ast.Boolean(result);

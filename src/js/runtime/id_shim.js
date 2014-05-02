@@ -104,7 +104,7 @@ r5js.IdShim.prototype.tryQuote_ = function(quote) {
             getPayload()));
         var ans = result === null ?
             r5js.runtime.UNSPECIFIED_VALUE :
-            r5js.datumutil.maybeWrapResult(result);
+            r5js.datumutil.wrapValue(result);
         // TODO bl document why we're doing this
         if (ans instanceof r5js.Ref) {
           ans = ans.deref();

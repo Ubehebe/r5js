@@ -323,7 +323,7 @@ r5js.procspec.PrimitiveProcedure_.prototype.call = function(
 r5js.procspec.PrimitiveProcedure_.prototype.evaluate = function(
     args, procCallLike, trampolineHelper, env) {
   args = args.map(/** @type {!Function} */ (
-      r5js.datumutil.maybeWrapResult));
+      r5js.datumutil.wrapValue));
   // todo bl document why we're doing this...
   for (var i = 0; i < args.length; ++i) {
     if (args[i] instanceof r5js.Ref) {
