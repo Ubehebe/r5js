@@ -66,8 +66,14 @@ r5js.InputPort.addImplementation = function(ctor) {
 r5js.OutputPort = function() {};
 
 
-/** @param {string} str String to write. */
-r5js.OutputPort.prototype.write = function(str) {};
+/**
+ * According to R5RS 6.6.3, write is supposed to write a textual representation
+ * of the given value to the output port, including escaping of backslashes
+ * and doublequotes. But write can be more useful if it passes the value
+ * directly, letting the output port decide how to represent it.
+ * @param {!r5js.runtime.Value} value Value to write.
+ */
+r5js.OutputPort.prototype.write = function(value) {};
 
 
 /** @see R5RS 6.6.1 */

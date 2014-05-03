@@ -3,6 +3,8 @@ goog.provide('r5js.js.NodeEnvironment');
 
 goog.require('goog.Promise');
 goog.require('r5js.IOError');
+goog.require('r5js.OutputMode');
+goog.require('r5js.datumutil');
 
 
 
@@ -110,7 +112,9 @@ r5js.js.NodeEnvironment.Port_.prototype.readChar = function() {
  * argument means the current position, but the Node externs give the type
  * of that argument as number.
  */
-r5js.js.NodeEnvironment.Port_.prototype.write = function(str) {
+r5js.js.NodeEnvironment.Port_.prototype.write = function(value) {
+  var str = r5js.datumutil.wrapValue(value).stringForOutputMode(
+      r5js.OutputMode.WRITE);
   var fs = require('fs');
   fs.writeSync(this.fd_, str, 0, str.length, null /* current position */);
 };

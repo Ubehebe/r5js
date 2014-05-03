@@ -18,7 +18,9 @@ goog.provide('r5js.CallbackBackedPort');
 
 
 goog.require('r5js.InternalInterpreterError');
+goog.require('r5js.OutputMode');
 goog.require('r5js.OutputPort');
+goog.require('r5js.datumutil');
 
 
 
@@ -40,6 +42,8 @@ r5js.CallbackBackedPort.prototype.close = goog.nullFunction;
 
 
 /** @override */
-r5js.CallbackBackedPort.prototype.write = function(str) {
+r5js.CallbackBackedPort.prototype.write = function(value) {
+  var str = r5js.datumutil.wrapValue(value).
+      stringForOutputMode(r5js.OutputMode.WRITE);
   this.onOutput_(str);
 };
