@@ -32,11 +32,27 @@ r5js.test.Evaluator.prototype.toString = goog.functions.constant(
     'r5js.test.Evaluator');
 
 
-r5js.test.Evaluator.prototype['testSchemeToJsEvaluation'] = function() {
+r5js.test.Evaluator.prototype['testPrimitives'] = function() {
+  expect('42').to(haveJsValue(42));
+  expect('42').to(haveStringValue('42'));
+  expect('#t').to(haveJsValue(true));
+  expect('#t').to(haveStringValue('#t'));
+  expect('#f').to(haveJsValue(false));
+  expect('#f').to(haveStringValue('#f'));
+  expect('"hello, world"').to(haveJsValue('hello, world'));
+  expect('"hello, world"').to(haveStringValue('"hello, world"'));
+  expect('#\\a').to(haveJsValue('a'));
+  expect('#\\a').to(haveStringValue('#\\a'));
+};
+
+
+r5js.test.Evaluator.prototype['testSanityChecks'] = function() {
   expect('(+ 1 1)').to(haveJsValue(2));
   expect('(+ 1 1)').to(haveStringValue('2'));
   expect('(procedure? procedure?)').to(haveJsValue(true));
-  //  expect('(procedure? procedure?)').to(haveStringValue('#t'));
-  //  expect(this.toJs_.evaluate('(string-append "hello " "world")')).
-  //      toBe('hello world');
+  expect('(procedure? procedure?)').to(haveStringValue('#t'));
+  expect('(string-append "hello " "world")').to(
+      haveJsValue('hello world'));
+  expect('(string-append "hello " "world")').to(
+      haveStringValue('"hello world"'));
 };

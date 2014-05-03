@@ -1,8 +1,8 @@
 goog.provide('r5js.ToStringEvaluator');
 
 
-goog.require('r5js.Datum');
 goog.require('r5js.OutputMode');
+goog.require('r5js.datumutil');
 
 
 
@@ -19,9 +19,6 @@ r5js.ToStringEvaluator = function(evaluator) {
 
 /** @override */
 r5js.ToStringEvaluator.prototype.evaluate = function(input) {
-  var value = this.evaluator_.evaluate(input);
-  return value instanceof r5js.Datum ?
-      (/** @type {!r5js.Datum} */ (value)).stringForOutputMode(
-      r5js.OutputMode.DISPLAY) :
-      (value ? value.toString() : '');
+  var wrapped = r5js.datumutil.wrapValue(this.evaluator_.evaluate(input));
+  return wrapped.stringForOutputMode(r5js.OutputMode.WRITE);
 };
