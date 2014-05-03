@@ -6,6 +6,7 @@ goog.setTestOnly('haveStringValue');
 goog.setTestOnly('r5js.test.matchers.setSharedEvaluator');
 
 
+goog.require('goog.array');
 goog.require('r5js.ToJsEvaluator');
 goog.require('r5js.ToStringEvaluator');
 
@@ -47,8 +48,8 @@ r5js.test.matchers.HasJsValue_.toJsEvaluator;
 
 /** @override */
 r5js.test.matchers.HasJsValue_.prototype.matches = function(input) {
-  return r5js.test.matchers.HasJsValue_.sharedEvaluator_.evaluate(input) ===
-      this.expectedValue_;
+  return r5js.test.matchers.HasJsValue_.equals(this.expectedValue_,
+      r5js.test.matchers.HasJsValue_.sharedEvaluator_.evaluate(input));
 };
 
 
@@ -64,6 +65,27 @@ r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(input) {
       this.expectedValue_ +
       ' got ' +
       r5js.test.matchers.HasJsValue_.sharedEvaluator_.evaluate(input);
+};
+
+
+/**
+ * @param {?} x
+ * @param {?} y
+ * @return {boolean}
+ */
+r5js.test.matchers.HasJsValue_.equals = function(x, y) {
+  var xIsArray = x instanceof Array;
+  var yIsArray = y instanceof Array;
+  if (xIsArray && yIsArray) {
+    return x.length === y.length &&
+        goog.array.zip(x, y).every(function(pair) {
+          return r5js.test.matchers.HasJsValue_.equals(pair[0], pair[1]);
+        });
+  } else if (!(xIsArray || yIsArray)) {
+    return x === y;
+  } else {
+    return false;
+  }
 };
 
 

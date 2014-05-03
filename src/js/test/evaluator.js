@@ -56,3 +56,13 @@ r5js.test.Evaluator.prototype['testSanityChecks'] = function() {
   expect('(string-append "hello " "world")').to(
       haveStringValue('"hello world"'));
 };
+
+
+r5js.test.Evaluator.prototype['testSchemeListToJsArray'] = function() {
+  expect('#()').to(haveJsValue([]));
+  expect("'()").to(haveJsValue([]));
+  expect("(list '() '() '() '(42))").to(haveJsValue([[], [], [], [42]]));
+  expect('(list 1 2 3)').to(haveJsValue([1, 2, 3]));
+  expect("(cons 'a (cons 'b (cons 'c '())))").to(haveJsValue(['a', 'b', 'c']));
+  expect("(cons 'a 'b)").not().to(haveJsValue(['a', 'b']));
+};
