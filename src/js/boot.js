@@ -33,12 +33,19 @@ goog.require('r5js.trampoline');
 
 /**
  * The main bootstrap function. Given Scheme source code for R5RS syntax and
- * procedures, returns an interpreter that is ready to run on user input.
+ * procedures, returns an interpreter that is ready to run on user input,
+ * and is connected to the given ports.
  * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
  * @param {string} procLib Scheme source code for the R5RS procedure library.
+ * @param {!r5js.InputPort=} opt_inputPort Optional input port that the new
+ * evaluator will be connected to. If not given, defaults to
+ * {@link r5js.InputPort.NULL}.
+ * @param {!r5js.OutputPort=} opt_outputPort Optional output port that the new
+ * evaluator will be connected to. If not given, defaults to
+ * {@link r5js.OutputPort.NULL}.
  * @return {!r5js.Evaluator}
  */
-r5js.boot = function(syntaxLib, procLib) {
+r5js.boot = function(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   var nullEnv = new r5js.Environment(null /* enclosingEnv */);
   r5js.boot.installSchemeSource_(syntaxLib, nullEnv);
   nullEnv.seal();
@@ -69,7 +76,11 @@ r5js.boot = function(syntaxLib, procLib) {
   r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, r5js.js.Environment.get());
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
-  return new r5js.EvaluatorImpl(new r5js.Pipeline(r5RSEnv));
+  return new r5js.EvaluatorImpl(
+      new r5js.Pipeline(
+          r5RSEnv,
+          opt_inputPort || r5js.InputPort.NULL,
+          opt_outputPort || r5js.OutputPort.NULL));
 };
 
 
