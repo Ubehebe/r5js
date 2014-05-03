@@ -36,8 +36,8 @@ goog.require('r5js.trampoline');
  * @constructor
  */
 r5js.Pipeline = function(rootEnv) {
-  /** @const @private */ this.rootEnv_ = rootEnv;
-  /** @private {r5js.Environment} */ this.env_ = null;
+  /** @const @private {!r5js.IEnvironment} */ this.env_ =
+      new r5js.Environment(rootEnv);
 };
 
 
@@ -73,7 +73,6 @@ r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
 
 /** @override */
 r5js.Pipeline.prototype.desugar = function(root) {
-  this.env_ = new r5js.Environment(this.rootEnv_);
   return root.desugar(this.env_, false);
 };
 
