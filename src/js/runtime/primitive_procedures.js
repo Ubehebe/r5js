@@ -715,8 +715,8 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
     });
 
 PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
-    function(datum, maybeUserSuppliedOutputPort, inputPort, outputPort) {
-      var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
+    function(datum, inputPort, outputPort) {
+      var outputPortToUse = outputPort; // TODO bl fix calling convention
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw new r5js.ArgumentTypeError(
             outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT);
