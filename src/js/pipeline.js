@@ -31,17 +31,13 @@ goog.require('r5js.trampoline');
 
 /**
  * @param {!r5js.IEnvironment} rootEnv The root environment.
- * @param {!r5js.InputPort} inputPort
- * @param {!r5js.OutputPort} outputPort
  * @implements {r5js.IPipeline}
  * @struct
  * @constructor
  */
-r5js.Pipeline = function(rootEnv, inputPort, outputPort) {
+r5js.Pipeline = function(rootEnv) {
   /** @const @private {!r5js.IEnvironment} */
   this.env_ = new r5js.Environment(rootEnv);
-  /** @const @private */ this.inputPort_ = inputPort;
-  /** @const @private */ this.outputPort_ = outputPort;
 };
 
 
@@ -88,7 +84,6 @@ r5js.Pipeline.prototype.desugarRepl = function(root) {
 
 
 /** @override */
-r5js.Pipeline.prototype.Eval = function(continuable) {
-  return r5js.trampoline(
-      continuable, this.env_, this.inputPort_, this.outputPort_);
+r5js.Pipeline.prototype.Eval = function(continuable, inputPort, outputPort) {
+  return r5js.trampoline(continuable, this.env_, inputPort, outputPort);
 };

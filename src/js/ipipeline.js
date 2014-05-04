@@ -62,6 +62,8 @@ r5js.IPipeline.prototype.desugarRepl = function(root) {};
 
 /**
  * @param {!r5js.ProcCallLike} continuable The continuable to evaluate.
+ * @param {!r5js.InputPort} inputPort Port to use as current-input-port.
+ * @param {!r5js.OutputPort} outputPort Port to use as current-output-port.
  * @return {!r5js.runtime.Value}
  */
-r5js.IPipeline.prototype.Eval = function(continuable) {};
+r5js.IPipeline.prototype.Eval = function(continuable, inputPort, outputPort) {};

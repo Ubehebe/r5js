@@ -77,10 +77,9 @@ r5js.boot = function(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
   return new r5js.EvaluatorImpl(
-      new r5js.Pipeline(
-          r5RSEnv,
-          opt_inputPort || r5js.InputPort.NULL,
-          opt_outputPort || r5js.OutputPort.NULL));
+      new r5js.Pipeline(r5RSEnv),
+      opt_inputPort || r5js.InputPort.NULL,
+      opt_outputPort || r5js.OutputPort.NULL);
 };
 
 

@@ -23,12 +23,16 @@ goog.require('r5js.OutputMode');
 
 /**
  * @param {!r5js.IPipeline} pipeline A pipeline object.
+ * @param {!r5js.InputPort} inputPort Input port to connect the evaluator to.
+ * @param {!r5js.OutputPort} outputPort Output port to connect the evaluator to.
  * @implements {r5js.Evaluator.<!r5js.runtime.Value>}
  * @struct
  * @constructor
  */
-r5js.EvaluatorImpl = function(pipeline) {
+r5js.EvaluatorImpl = function(pipeline, inputPort, outputPort) {
   /** @const @private */ this.pipeline_ = pipeline;
+  /** @const @private */ this.inputPort_ = inputPort;
+  /** @const @private */ this.outputPort_ = outputPort;
 };
 
 
@@ -85,7 +89,9 @@ r5js.EvaluatorImpl.prototype.evaluate = function(string) {
       this.pipeline_.desugar(
       this.pipeline_.parse(/** @type {!r5js.Datum} */ (
       this.pipeline_.read(
-      this.pipeline_.scan(string))))));
+      this.pipeline_.scan(string))))),
+      this.inputPort_,
+      this.outputPort_);
 };
 
 
@@ -100,7 +106,9 @@ r5js.EvaluatorImpl.prototype.repl = function(string) {
             this.pipeline_.desugarRepl(
                     this.pipeline_.parse(/** @type {!r5js.Datum} */ (
       this.pipeline_.read(
-                        this.pipeline_.scan(string))))));
+                        this.pipeline_.scan(string))))),
+      this.inputPort_,
+      this.outputPort_);
   return ans instanceof r5js.Datum ?
       (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
       r5js.OutputMode.DISPLAY) :
