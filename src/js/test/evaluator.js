@@ -4,6 +4,7 @@ goog.setTestOnly('r5js.test.Evaluator');
 
 goog.require('expect');
 goog.require('haveJsValue');
+goog.require('haveJsOutput');
 goog.require('haveStringValue');
 goog.require('r5js.test.matchers.setSharedEvaluator');
 goog.require('goog.functions');
@@ -65,4 +66,9 @@ r5js.test.Evaluator.prototype['testSchemeListToJsArray'] = function() {
   expect('(list 1 2 3)').to(haveJsValue([1, 2, 3]));
   expect("(cons 'a (cons 'b (cons 'c '())))").to(haveJsValue(['a', 'b', 'c']));
   expect("(cons 'a 'b)").not().to(haveJsValue(['a', 'b']));
+};
+
+
+r5js.test.Evaluator.prototype['testWriteToJs'] = function() {
+  expect("(write 'hello)").to(haveJsOutput('hello'));
 };
