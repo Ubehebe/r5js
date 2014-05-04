@@ -43,7 +43,7 @@ r5js.test.matchers.HasJsValue_ = function(expectedValue) {
 
 
 /** @private {r5js.EvaluateToExternalRepresentation.<?>} */
-r5js.test.matchers.HasJsValue_.toJsEvaluator;
+r5js.test.matchers.HasJsValue_.sharedEvaluator_;
 
 
 /** @override */
