@@ -25,7 +25,7 @@ goog.require('r5js.OutputMode');
  * @param {!r5js.IPipeline} pipeline A pipeline object.
  * @param {!r5js.InputPort} inputPort Input port to connect the evaluator to.
  * @param {!r5js.OutputPort} outputPort Output port to connect the evaluator to.
- * @implements {r5js.Evaluator.<!r5js.runtime.Value>}
+ * @implements {r5js.Evaluator}
  * @struct
  * @constructor
  */
@@ -113,4 +113,10 @@ r5js.EvaluatorImpl.prototype.repl = function(string) {
       (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
       r5js.OutputMode.DISPLAY) :
       (ans ? ans.toString() : '');
+};
+
+
+/** @override */
+r5js.EvaluatorImpl.prototype.withPorts = function(inputPort, outputPort) {
+  return new r5js.EvaluatorImpl(this.pipeline_, inputPort, outputPort);
 };
