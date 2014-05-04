@@ -43,7 +43,7 @@ r5js.ToJsEvaluator.prototype.evaluate = function(input) {
  * so it won't work in the JS -> Scheme direction.
  *
  * @param {!r5js.runtime.Value} value
- * @return {boolean|number|string|Array|undefined}
+ * @return {boolean|number|string|!Array|undefined}
  * @private
  */
 r5js.ToJsEvaluator.schemeToJsValue_ = function(value) {
