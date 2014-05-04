@@ -16,7 +16,9 @@ goog.require('r5js.ToStringEvaluator');
  * @return {!tdd.matchers.Matcher}
  */
 haveJsValue = function(value) {
-  return new r5js.test.matchers.HasJsValue_(value);
+  return new r5js.test.matchers.HasJsValue_(
+      value, /** @type {!r5js.EvaluateToExternalRepresentation.<?>} */ (
+          r5js.test.matchers.HasJsValue_.sharedEvaluator_));
 };
 
 
@@ -25,20 +27,24 @@ haveJsValue = function(value) {
  * @return {!tdd.matchers.Matcher}
  */
 haveStringValue = function(value) {
-  return new r5js.test.matchers.HasStringValue_(value);
+  return new r5js.test.matchers.HasStringValue_(
+      value, /** @type {!r5js.EvaluateToExternalRepresentation.<string>} */ (
+          r5js.test.matchers.HasStringValue_.sharedEvaluator_));
 };
 
 
 
 /**
  * @param {?} expectedValue
+ * @param {!r5js.EvaluateToExternalRepresentation.<?>} evaluator
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
  * @private
  */
-r5js.test.matchers.HasJsValue_ = function(expectedValue) {
+r5js.test.matchers.HasJsValue_ = function(expectedValue, evaluator) {
   /** @const @private */ this.expectedValue_ = expectedValue;
+  /** @const @private */ this.evaluator_ = evaluator;
 };
 
 
@@ -48,8 +54,8 @@ r5js.test.matchers.HasJsValue_.sharedEvaluator_;
 
 /** @override */
 r5js.test.matchers.HasJsValue_.prototype.matches = function(input) {
-  return r5js.test.matchers.HasJsValue_.equals(this.expectedValue_,
-      r5js.test.matchers.HasJsValue_.sharedEvaluator_.evaluate(input));
+  return r5js.test.matchers.HasJsValue_.equals(
+      this.expectedValue_, this.evaluator_.evaluate(input));
 };
 
 
@@ -64,7 +70,7 @@ r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(input) {
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      r5js.test.matchers.HasJsValue_.sharedEvaluator_.evaluate(input);
+      this.evaluator_.evaluate(input);
 };
 
 
@@ -92,13 +98,15 @@ r5js.test.matchers.HasJsValue_.equals = function(x, y) {
 
 /**
  * @param {string} expectedValue
+ * @param {!r5js.EvaluateToExternalRepresentation.<string>} evaluator
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
  * @private
  */
-r5js.test.matchers.HasStringValue_ = function(expectedValue) {
+r5js.test.matchers.HasStringValue_ = function(expectedValue, evaluator) {
   /** @const @private */ this.expectedValue_ = expectedValue;
+  /** @const @private */ this.evaluator_ = evaluator;
 };
 
 
@@ -108,8 +116,7 @@ r5js.test.matchers.HasStringValue_.sharedEvaluator_;
 
 /** @override */
 r5js.test.matchers.HasStringValue_.prototype.matches = function(input) {
-  return this.expectedValue_ ===
-      r5js.test.matchers.HasStringValue_.sharedEvaluator_.evaluate(input);
+  return this.expectedValue_ === this.evaluator_.evaluate(input);
 };
 
 
@@ -126,7 +133,7 @@ r5js.test.matchers.HasStringValue_.prototype.getFailureMessage =
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      r5js.test.matchers.HasStringValue_.sharedEvaluator_.evaluate(input);
+      this.evaluator_.evaluate(input);
 };
 
 
