@@ -22,6 +22,7 @@ goog.require('r5js.ast.Macro');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
+goog.require('r5js.ast.Vector');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
@@ -74,7 +75,8 @@ r5js.ProcCall.prototype.operandsInContinuationPassingStyle_ = function() {
       if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
         throw new r5js.IllegalEmptyApplication(this.operatorName_.getPayload());
       } else if (!(cur instanceof r5js.ast.Literal ||
-          cur instanceof r5js.ast.Quote)) {
+          cur instanceof r5js.ast.Quote ||
+          cur instanceof r5js.ast.Vector)) {
         return false;
       }
     }
@@ -181,7 +183,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
 /**
  * @return {!Array.<!r5js.runtime.Value>}
- * TODO bl: this method is too long.
+ * TODO bl: this method is confused.
  */
 r5js.ProcCall.prototype.evalArgs = function() {
   var maybeArray;
@@ -191,7 +193,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
 
   var args = [];
 
-  for (var cur = this.firstOperand_; cur; cur = cur.nextSibling_) {
+  for (var cur = this.firstOperand_; cur; cur = cur.getNextSibling()) {
     if (cur instanceof r5js.ast.Identifier) {
       var name = cur.getPayload();
       var toPush = this.getEnv().get(name);
@@ -209,7 +211,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
       args.push(cur.getFirstChild());
     } else if (cur instanceof r5js.ast.Lambda) {
       args.push(cur);
-    } else if (cur instanceof r5js.ast.SimpleDatum) {
+    } else if (cur instanceof r5js.Datum) {
       args.push(cur.clone(null /* parent */));
     } else {
       throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
