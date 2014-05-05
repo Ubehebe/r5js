@@ -84,7 +84,7 @@ r5js.test.Evaluator.prototype['testReturnRecursiveTypesToJs'] = function() {
 
 
 r5js.test.Evaluator.prototype['testOutputRecursiveTypesToJs'] = function() {
-  //    expect('(write #())').to(haveJsOutput([])); TODO bl infinite loop
+  expect('(write #())').to(haveJsOutput([]));
   expect("(write '())").to(haveJsOutput([]));
   expect("(write (list '() '() '() '(42)))").
       to(haveJsOutput([[], [], [], [42]]));
