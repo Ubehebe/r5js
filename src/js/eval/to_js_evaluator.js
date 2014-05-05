@@ -22,7 +22,7 @@ r5js.ToJsEvaluator = function(evaluator) {
 
 /** @override */
 r5js.ToJsEvaluator.prototype.evaluate = function(input) {
-  return r5js.ToJsEvaluator.schemeToJsValue_(this.evaluator_.evaluate(input));
+  return r5js.ToJsEvaluator.schemeToJsValue(this.evaluator_.evaluate(input));
 };
 
 
@@ -44,9 +44,8 @@ r5js.ToJsEvaluator.prototype.evaluate = function(input) {
  *
  * @param {!r5js.runtime.Value} value
  * @return {boolean|number|string|!Array|undefined}
- * @private
  */
-r5js.ToJsEvaluator.schemeToJsValue_ = function(value) {
+r5js.ToJsEvaluator.schemeToJsValue = function(value) {
   switch (typeof value) {
     case 'number':
     case 'boolean':
@@ -54,10 +53,10 @@ r5js.ToJsEvaluator.schemeToJsValue_ = function(value) {
       return value;
     case 'object':
       if (value instanceof r5js.Ref) {
-        return r5js.ToJsEvaluator.schemeToJsValue_(value.deref());
+        return r5js.ToJsEvaluator.schemeToJsValue(value.deref());
       } else if (value instanceof r5js.ast.List ||
           value instanceof r5js.ast.Vector) {
-        return value.mapChildren(r5js.ToJsEvaluator.schemeToJsValue_);
+        return value.mapChildren(r5js.ToJsEvaluator.schemeToJsValue);
       } else if (value instanceof r5js.ast.String ||
           value instanceof r5js.ast.Character) {
         return value.getPayload();

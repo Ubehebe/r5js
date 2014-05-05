@@ -18,13 +18,9 @@ r5js.OutputSavingPort = function() {
 r5js.OutputPort.addImplementation(r5js.OutputSavingPort);
 
 
-/**
- * @override
- * @suppress {accessControls} for {@link r5js.ToJsEvaluator#schemeToJsValue_}.
- * TODO bl move that method somewhere appropriate.
- */
+/** @override */
 r5js.OutputSavingPort.prototype.write = function(value) {
-  this.values_.push(r5js.ToJsEvaluator.schemeToJsValue_(value));
+  this.values_.push(r5js.ToJsEvaluator.schemeToJsValue(value));
 };
 
 
