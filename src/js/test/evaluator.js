@@ -5,6 +5,7 @@ goog.setTestOnly('r5js.test.Evaluator');
 goog.require('expect');
 goog.require('haveJsValue');
 goog.require('haveJsOutput');
+goog.require('haveStringOutput');
 goog.require('haveStringValue');
 goog.require('r5js.test.matchers.setSharedEvaluator');
 goog.require('goog.functions');
@@ -49,15 +50,15 @@ r5js.test.Evaluator.prototype['testReturnPrimitivesToJs'] = function() {
 
 r5js.test.Evaluator.prototype['testOutputPrimitivesToJs'] = function() {
   expect('(write 42)').to(haveJsOutput(42));
-  //    expect('42').to(haveStringValue('42'));
+  expect('(write 42)').to(haveStringOutput('42'));
   expect('(write #t)').to(haveJsOutput(true));
-  //    expect('#t').to(haveStringValue('#t'));
+  expect('(write #t)').to(haveStringOutput('#t'));
   expect('(write #f)').to(haveJsOutput(false));
-  //    expect('#f').to(haveStringValue('#f'));
+  expect('(write #f)').to(haveStringOutput('#f'));
   expect('(write "hello, world")').to(haveJsOutput('hello, world'));
-  //    expect('"hello, world"').to(haveStringValue('"hello, world"'));
+  expect('(write "hello, world")').to(haveStringOutput('"hello, world"'));
   expect('(write #\\a)').to(haveJsOutput('a'));
-  //    expect('#\\a').to(haveStringValue('#\\a'));
+  expect('(write #\\a)').to(haveStringOutput('#\\a'));
 };
 
 

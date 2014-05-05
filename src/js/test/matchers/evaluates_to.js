@@ -1,5 +1,6 @@
 goog.provide('haveJsOutput');
 goog.provide('haveJsValue');
+goog.provide('haveStringOutput');
 goog.provide('haveStringValue');
 goog.provide('r5js.test.matchers.setSharedEvaluator');
 goog.setTestOnly('haveJsOutput');
@@ -12,6 +13,8 @@ goog.require('goog.array');
 goog.require('r5js.OutputSavingPort');
 goog.require('r5js.ToJsEvaluator');
 goog.require('r5js.ToStringEvaluator');
+goog.require('r5js.datumutil');
+goog.require('r5js.OutputMode');
 
 
 /**
@@ -45,6 +48,18 @@ haveJsOutput = function(output) {
       /** @type {!r5js.Evaluator} */(
       r5js.test.matchers.HasJsOutput_.sharedEvaluator_),
       r5js.test.matchers.HasJsOutput_.sharedOutputPort_);
+};
+
+
+/**
+ * @param {string} output
+ * @return {!tdd.matchers.Matcher}
+ */
+haveStringOutput = function(output) {
+  return new r5js.test.matchers.HasStringOutput_(output,
+      /** @type {!r5js.Evaluator} */ (
+      r5js.test.matchers.HasStringOutput_.sharedEvaluator_),
+      r5js.test.matchers.HasStringOutput_.sharedOutputPort_);
 };
 
 
@@ -205,6 +220,63 @@ r5js.test.matchers.HasJsOutput_.prototype.getFailureMessage = function(input) {
 };
 
 
+
+/**
+ * @param {string} expectedOutput
+ * @param {!r5js.Evaluator} evaluator
+ * @param {!r5js.OutputSavingPort} outputPort
+ * @implements {tdd.matchers.Matcher}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.test.matchers.HasStringOutput_ = function(
+    expectedOutput, evaluator, outputPort) {
+  /** @const @private */ this.expectedOutput_ = expectedOutput;
+  /** @const @private */ this.evaluator_ = evaluator;
+  /** @const @private */ this.outputPort_ = outputPort;
+};
+
+
+/** @private {r5js.Evaluator} */
+r5js.test.matchers.HasStringOutput_.sharedEvaluator_;
+
+
+/**
+ * @private {!r5js.OutputSavingPort.<string>}
+ * @const
+ */
+r5js.test.matchers.HasStringOutput_.sharedOutputPort_ =
+    new r5js.OutputSavingPort(function(value) {
+  return r5js.datumutil.wrapValue(value).
+      stringForOutputMode(r5js.OutputMode.WRITE);
+});
+
+
+/** @override */
+r5js.test.matchers.HasStringOutput_.prototype.matches = function(input) {
+  this.evaluator_.evaluate(input);
+  var actualOutput = this.outputPort_.getAndClearOutput()[0];
+  return actualOutput === this.expectedOutput_;
+};
+
+
+/** @override */
+r5js.test.matchers.HasStringOutput_.prototype.getSuccessMessage =
+    function(input) {
+  return 'ok';
+};
+
+
+/** @override */
+r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
+    function(input) {
+  return 'want ' +
+      this.expectedOutput_ +
+      ' got ';
+};
+
+
 /** @param {!r5js.Evaluator} evaluator */
 r5js.test.matchers.setSharedEvaluator = function(evaluator) {
   r5js.test.matchers.HasJsValue_.sharedEvaluator_ =
@@ -213,4 +285,7 @@ r5js.test.matchers.setSharedEvaluator = function(evaluator) {
       new r5js.ToStringEvaluator(evaluator);
   r5js.test.matchers.HasJsOutput_.sharedEvaluator_ = evaluator.withPorts(
       r5js.InputPort.NULL, r5js.test.matchers.HasJsOutput_.sharedOutputPort_);
+  r5js.test.matchers.HasStringOutput_.sharedEvaluator_ = evaluator.withPorts(
+      r5js.InputPort.NULL,
+      r5js.test.matchers.HasStringOutput_.sharedOutputPort_);
 };
