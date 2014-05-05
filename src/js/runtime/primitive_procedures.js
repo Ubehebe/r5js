@@ -721,10 +721,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
         throw new r5js.ArgumentTypeError(
             outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT);
       }
-      var toWrite = datum instanceof r5js.Datum ?
-          datum.stringForOutputMode(r5js.OutputMode.WRITE) :
-          String(datum);
-      outputPortToUse.write(toWrite);
+      outputPortToUse.write(datum);
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 

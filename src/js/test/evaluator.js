@@ -33,7 +33,7 @@ r5js.test.Evaluator.prototype.toString = goog.functions.constant(
     'r5js.test.Evaluator');
 
 
-r5js.test.Evaluator.prototype['testPrimitives'] = function() {
+r5js.test.Evaluator.prototype['testReturnPrimitivesToJs'] = function() {
   expect('42').to(haveJsValue(42));
   expect('42').to(haveStringValue('42'));
   expect('#t').to(haveJsValue(true));
@@ -44,6 +44,20 @@ r5js.test.Evaluator.prototype['testPrimitives'] = function() {
   expect('"hello, world"').to(haveStringValue('"hello, world"'));
   expect('#\\a').to(haveJsValue('a'));
   expect('#\\a').to(haveStringValue('#\\a'));
+};
+
+
+r5js.test.Evaluator.prototype['testOutputPrimitivesToJs'] = function() {
+  expect('(write 42)').to(haveJsOutput(42));
+  //    expect('42').to(haveStringValue('42'));
+  expect('(write #t)').to(haveJsOutput(true));
+  //    expect('#t').to(haveStringValue('#t'));
+  expect('(write #f)').to(haveJsOutput(false));
+  //    expect('#f').to(haveStringValue('#f'));
+  expect('(write "hello, world")').to(haveJsOutput('hello, world'));
+  //    expect('"hello, world"').to(haveStringValue('"hello, world"'));
+  expect('(write #\\a)').to(haveJsOutput('a'));
+  //    expect('#\\a').to(haveStringValue('#\\a'));
 };
 
 
@@ -59,7 +73,7 @@ r5js.test.Evaluator.prototype['testSanityChecks'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testSchemeListToJsArray'] = function() {
+r5js.test.Evaluator.prototype['testReturnRecursiveTypesToJs'] = function() {
   expect('#()').to(haveJsValue([]));
   expect("'()").to(haveJsValue([]));
   expect("(list '() '() '() '(42))").to(haveJsValue([[], [], [], [42]]));
@@ -69,6 +83,14 @@ r5js.test.Evaluator.prototype['testSchemeListToJsArray'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testWriteToJs'] = function() {
-  expect("(write 'hello)").to(haveJsOutput('hello'));
+r5js.test.Evaluator.prototype['testOutputRecursiveTypesToJs'] = function() {
+  //    expect('(write #())').to(haveJsOutput([])); TODO bl infinite loop
+  expect("(write '())").to(haveJsOutput([]));
+  expect("(write (list '() '() '() '(42)))").
+      to(haveJsOutput([[], [], [], [42]]));
+  expect('(write (list 1 2 3))').to(haveJsOutput([1, 2, 3]));
+  expect("(write (cons 'a (cons 'b (cons 'c '()))))").
+      to(haveJsOutput(['a', 'b', 'c']));
+  expect("(write (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
 };
+
