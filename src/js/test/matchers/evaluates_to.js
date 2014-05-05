@@ -174,8 +174,12 @@ r5js.test.matchers.HasJsOutput_ = function(
 r5js.test.matchers.HasJsOutput_.sharedEvaluator_;
 
 
-/** @const @private */
-r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = new r5js.OutputSavingPort();
+/**
+ * @private {!r5js.OutputSavingPort.<boolean|number|string|!Array|undefined>}
+ * @const
+ */
+r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = new r5js.OutputSavingPort(
+    r5js.ToJsEvaluator.schemeToJsValue);
 
 
 /** @override */

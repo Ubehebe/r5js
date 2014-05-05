@@ -2,25 +2,26 @@ goog.provide('r5js.OutputSavingPort');
 
 
 goog.require('r5js.OutputPort');
-goog.require('r5js.ToJsEvaluator');
 
 
 
 /**
+ * @param {function(!r5js.runtime.Value):T} converter
  * @implements {r5js.OutputPort}
  * @struct
  * @constructor
+ * @template T
  */
-r5js.OutputSavingPort = function() {
-  /** @private {!Array.<boolean|number|string|!Array|undefined>} */
-  this.values_ = [];
+r5js.OutputSavingPort = function(converter) {
+  /** @const @private */ this.converter_ = converter;
+  /** @private {!Array.<T>} */ this.values_ = [];
 };
 r5js.OutputPort.addImplementation(r5js.OutputSavingPort);
 
 
 /** @override */
 r5js.OutputSavingPort.prototype.write = function(value) {
-  this.values_.push(r5js.ToJsEvaluator.schemeToJsValue(value));
+  this.values_.push(this.converter_(value));
 };
 
 
@@ -28,7 +29,7 @@ r5js.OutputSavingPort.prototype.write = function(value) {
 r5js.OutputSavingPort.prototype.close = goog.nullFunction;
 
 
-/** @return {!Array.<boolean|number|string|!Array|undefined>} */
+/** @return {!Array.<T>} */
 r5js.OutputSavingPort.prototype.getAndClearOutput = function() {
   var values = this.values_;
   this.values_ = [];
