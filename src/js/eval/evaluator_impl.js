@@ -17,9 +17,6 @@
 goog.provide('r5js.EvaluatorImpl');
 
 
-goog.require('r5js.OutputMode');
-
-
 
 /**
  * @param {!r5js.IPipeline} pipeline A pipeline object.
@@ -101,18 +98,14 @@ r5js.EvaluatorImpl.prototype.evaluate = function(string) {
  * @return {string} A string representation of the value of the evaluation.
  */
 r5js.EvaluatorImpl.prototype.repl = function(string) {
-  var ans =
+  return r5js.ToStringEvaluator.schemeValueToString(
       this.pipeline_.Eval(
-            this.pipeline_.desugarRepl(
-                    this.pipeline_.parse(/** @type {!r5js.Datum} */ (
+      this.pipeline_.desugarRepl(
+      this.pipeline_.parse(/** @type {!r5js.Datum} */ (
       this.pipeline_.read(
-                        this.pipeline_.scan(string))))),
+      this.pipeline_.scan(string))))),
       this.inputPort_,
-      this.outputPort_);
-  return ans instanceof r5js.Datum ?
-      (/** @type {!r5js.Datum} */ (ans)).stringForOutputMode(
-      r5js.OutputMode.DISPLAY) :
-      (ans ? ans.toString() : '');
+      this.outputPort_));
 };
 
 
