@@ -49,7 +49,7 @@ r5js.EvalAdapter.prototype.evaluate = function(input) {
  * @param {!r5js.runtime.Value} value
  * @return {boolean|number|string|!Array|undefined}
  */
-r5js.EvalAdapter.schemeToJsValue = function(value) {
+r5js.EvalAdapter.toJsValue = function(value) {
   switch (typeof value) {
     case 'number':
     case 'boolean':
@@ -57,10 +57,10 @@ r5js.EvalAdapter.schemeToJsValue = function(value) {
       return value;
     case 'object':
       if (value instanceof r5js.Ref) {
-        return r5js.EvalAdapter.schemeToJsValue(value.deref());
+        return r5js.EvalAdapter.toJsValue(value.deref());
       } else if (value instanceof r5js.ast.List ||
           value instanceof r5js.ast.Vector) {
-        return value.mapChildren(r5js.EvalAdapter.schemeToJsValue);
+        return value.mapChildren(r5js.EvalAdapter.toJsValue);
       } else if (value instanceof r5js.ast.String ||
           value instanceof r5js.ast.Character) {
         return value.getPayload();
@@ -77,7 +77,7 @@ r5js.EvalAdapter.schemeToJsValue = function(value) {
  * @param {!r5js.runtime.Value} value
  * @return {string}
  */
-r5js.EvalAdapter.schemeValueToDisplayString = function(value) {
+r5js.EvalAdapter.toDisplayString = function(value) {
   switch (typeof value) {
     case 'number':
       return value + '';
@@ -87,21 +87,21 @@ r5js.EvalAdapter.schemeValueToDisplayString = function(value) {
       return value;
     case 'object':
       if (value instanceof r5js.Ref) {
-        return r5js.EvalAdapter.schemeValueToDisplayString(value.deref());
+        return r5js.EvalAdapter.toDisplayString(value.deref());
       } else if (value instanceof r5js.ast.List) {
         var childStrings = value.mapChildren(
-            r5js.EvalAdapter.schemeValueToDisplayString).join(' ');
+            r5js.EvalAdapter.toDisplayString).join(' ');
         return '(' + childStrings + ')';
       } else if (value instanceof r5js.ast.Vector) {
         var childStrings = value.mapChildren(
-            r5js.EvalAdapter.schemeValueToDisplayString).join(' ');
+            r5js.EvalAdapter.toDisplayString).join(' ');
         return '#(' + childStrings;
       } else if (value instanceof r5js.ast.String) {
         return value.getPayload();
       } else if (value instanceof r5js.ast.Character) {
         return value.getPayload();
       } else if (value instanceof r5js.Datum) {
-        return r5js.EvalAdapter.schemeValueToDisplayString(
+        return r5js.EvalAdapter.toDisplayString(
             value.unwrap());
       }
     default:
@@ -114,7 +114,7 @@ r5js.EvalAdapter.schemeValueToDisplayString = function(value) {
  * @param {!r5js.runtime.Value} value
  * @return {string}
  */
-r5js.EvalAdapter.schemeValueToWriteString = function(value) {
+r5js.EvalAdapter.toWriteString = function(value) {
   switch (typeof value) {
     case 'number':
       return value + '';
@@ -124,21 +124,21 @@ r5js.EvalAdapter.schemeValueToWriteString = function(value) {
       return value;
     case 'object':
       if (value instanceof r5js.Ref) {
-        return r5js.EvalAdapter.schemeValueToWriteString(value.deref());
+        return r5js.EvalAdapter.toWriteString(value.deref());
       } else if (value instanceof r5js.ast.List) {
         var childStrings = value.mapChildren(
-            r5js.EvalAdapter.schemeValueToWriteString).join(' ');
+            r5js.EvalAdapter.toWriteString).join(' ');
         return '(' + childStrings + ')';
       } else if (value instanceof r5js.ast.Vector) {
         var childStrings = value.mapChildren(
-            r5js.EvalAdapter.schemeValueToWriteString).join(' ');
+            r5js.EvalAdapter.toWriteString).join(' ');
         return '#(' + childStrings;
       } else if (value instanceof r5js.ast.String) {
         return '"' + value.getPayload() + '"'; // TODO bl escape
       } else if (value instanceof r5js.ast.Character) {
         return '#\\' + value.getPayload();
       } else if (value instanceof r5js.Datum) {
-        return r5js.EvalAdapter.schemeValueToWriteString(value.unwrap());
+        return r5js.EvalAdapter.toWriteString(value.unwrap());
       }
     default:
       return '';

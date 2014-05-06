@@ -43,13 +43,13 @@ r5js.CallbackBackedPort.prototype.close = goog.nullFunction;
 
 /** @override */
 r5js.CallbackBackedPort.prototype.write = function(value) {
-  var str = r5js.EvalAdapter.schemeValueToWriteString(value);
+  var str = r5js.EvalAdapter.toWriteString(value);
   this.onOutput_(str);
 };
 
 
 /** @override */
 r5js.CallbackBackedPort.prototype.display = function(value) {
-  var str = r5js.EvalAdapter.schemeValueToDisplayString(value);
+  var str = r5js.EvalAdapter.toDisplayString(value);
   this.onOutput_(str);
 };

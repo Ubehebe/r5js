@@ -112,7 +112,7 @@ r5js.js.NodeEnvironment.Port_.prototype.readChar = function() {
  * of that argument as number.
  */
 r5js.js.NodeEnvironment.Port_.prototype.write = function(value) {
-  var str = r5js.EvalAdapter.schemeValueToWriteString(value);
+  var str = r5js.EvalAdapter.toWriteString(value);
   var fs = require('fs');
   fs.writeSync(this.fd_, str, 0, str.length, null /* current position */);
 };

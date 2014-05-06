@@ -192,7 +192,7 @@ r5js.test.matchers.HasJsOutput_.sharedEvaluator_;
  * @const
  */
 r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = new r5js.OutputSavingPort(
-    r5js.EvalAdapter.schemeToJsValue);
+    r5js.EvalAdapter.toJsValue);
 
 
 /** @override */
@@ -243,8 +243,8 @@ r5js.test.matchers.HasStringOutput_.sharedEvaluator_;
 /** @const @private {!r5js.OutputSavingPort.<string>} */
 r5js.test.matchers.HasStringOutput_.sharedOutputPort_ =
     new r5js.OutputSavingPort(
-        r5js.EvalAdapter.schemeValueToWriteString,
-        r5js.EvalAdapter.schemeValueToDisplayString);
+        r5js.EvalAdapter.toWriteString,
+        r5js.EvalAdapter.toDisplayString);
 
 
 /** @override */
@@ -275,10 +275,10 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
 r5js.test.matchers.setSharedEvaluator = function(evaluator) {
   r5js.test.matchers.HasJsValue_.sharedEvaluator_ =
       new r5js.EvalAdapter(
-          evaluator, r5js.EvalAdapter.schemeToJsValue);
+          evaluator, r5js.EvalAdapter.toJsValue);
   r5js.test.matchers.HasStringValue_.sharedEvaluator_ =
       new r5js.EvalAdapter(
-          evaluator, r5js.EvalAdapter.schemeValueToWriteString);
+          evaluator, r5js.EvalAdapter.toWriteString);
   r5js.test.matchers.HasJsOutput_.sharedEvaluator_ = evaluator.withPorts(
       r5js.InputPort.NULL, r5js.test.matchers.HasJsOutput_.sharedOutputPort_);
   r5js.test.matchers.HasStringOutput_.sharedEvaluator_ = evaluator.withPorts(
