@@ -12,7 +12,7 @@ goog.setTestOnly('r5js.test.matchers.setSharedEvaluator');
 goog.require('goog.array');
 goog.require('r5js.OutputSavingPort');
 goog.require('r5js.ToJsEvaluator');
-goog.require('r5js.EvaluateToExternalRepresentation');
+goog.require('r5js.EvalAdapter');
 goog.require('r5js.ToStringEvaluator');
 goog.require('r5js.datumutil');
 
@@ -23,7 +23,7 @@ goog.require('r5js.datumutil');
  */
 haveJsValue = function(value) {
   return new r5js.test.matchers.HasJsValue_(
-      value, /** @type {!r5js.EvaluateToExternalRepresentation.<?>} */ (
+      value, /** @type {!r5js.EvalAdapter.<?>} */ (
           r5js.test.matchers.HasJsValue_.sharedEvaluator_));
 };
 
@@ -34,7 +34,7 @@ haveJsValue = function(value) {
  */
 haveStringValue = function(value) {
   return new r5js.test.matchers.HasStringValue_(
-      value, /** @type {!r5js.EvaluateToExternalRepresentation.<string>} */ (
+      value, /** @type {!r5js.EvalAdapter.<string>} */ (
           r5js.test.matchers.HasStringValue_.sharedEvaluator_));
 };
 
@@ -66,7 +66,7 @@ haveStringOutput = function(output) {
 
 /**
  * @param {?} expectedValue
- * @param {!r5js.EvaluateToExternalRepresentation.<?>} evaluator
+ * @param {!r5js.EvalAdapter.<?>} evaluator
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
@@ -78,7 +78,7 @@ r5js.test.matchers.HasJsValue_ = function(expectedValue, evaluator) {
 };
 
 
-/** @private {r5js.EvaluateToExternalRepresentation.<?>} */
+/** @private {r5js.EvalAdapter.<?>} */
 r5js.test.matchers.HasJsValue_.sharedEvaluator_;
 
 
@@ -128,7 +128,7 @@ r5js.test.matchers.HasJsValue_.equals = function(x, y) {
 
 /**
  * @param {string} expectedValue
- * @param {!r5js.EvaluateToExternalRepresentation.<string>} evaluator
+ * @param {!r5js.EvalAdapter.<string>} evaluator
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
@@ -140,7 +140,7 @@ r5js.test.matchers.HasStringValue_ = function(expectedValue, evaluator) {
 };
 
 
-/** @private {r5js.EvaluateToExternalRepresentation.<string>} */
+/** @private {r5js.EvalAdapter.<string>} */
 r5js.test.matchers.HasStringValue_.sharedEvaluator_;
 
 
@@ -276,10 +276,10 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
 /** @param {!r5js.Evaluator} evaluator */
 r5js.test.matchers.setSharedEvaluator = function(evaluator) {
   r5js.test.matchers.HasJsValue_.sharedEvaluator_ =
-      new r5js.EvaluateToExternalRepresentation(
+      new r5js.EvalAdapter(
           evaluator, r5js.ToJsEvaluator.schemeToJsValue);
   r5js.test.matchers.HasStringValue_.sharedEvaluator_ =
-      new r5js.EvaluateToExternalRepresentation(
+      new r5js.EvalAdapter(
           evaluator, r5js.ToStringEvaluator.schemeValueToWriteString);
   r5js.test.matchers.HasJsOutput_.sharedEvaluator_ = evaluator.withPorts(
       r5js.InputPort.NULL, r5js.test.matchers.HasJsOutput_.sharedOutputPort_);
