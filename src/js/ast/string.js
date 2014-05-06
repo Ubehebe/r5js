@@ -2,7 +2,6 @@ goog.provide('r5js.ast.String');
 
 
 goog.require('r5js.DatumType');
-goog.require('r5js.OutputMode');
 goog.require('r5js.ast.SimpleDatum');
 
 

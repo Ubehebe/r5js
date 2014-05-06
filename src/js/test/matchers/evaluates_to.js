@@ -14,7 +14,6 @@ goog.require('r5js.OutputSavingPort');
 goog.require('r5js.ToJsEvaluator');
 goog.require('r5js.ToStringEvaluator');
 goog.require('r5js.datumutil');
-goog.require('r5js.OutputMode');
 
 
 /**

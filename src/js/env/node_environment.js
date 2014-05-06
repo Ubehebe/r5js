@@ -3,7 +3,6 @@ goog.provide('r5js.js.NodeEnvironment');
 
 goog.require('goog.Promise');
 goog.require('r5js.IOError');
-goog.require('r5js.OutputMode');
 goog.require('r5js.datumutil');
 
 

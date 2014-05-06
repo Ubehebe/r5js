@@ -1,7 +1,6 @@
 goog.provide('r5js.ToStringEvaluator');
 
 
-goog.require('r5js.OutputMode');
 goog.require('r5js.datumutil');
 
 

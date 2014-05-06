@@ -13,7 +13,6 @@ goog.require('r5js.Environment');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.IdShim');
 goog.require('r5js.InputPort');
-goog.require('r5js.OutputMode');
 goog.require('r5js.OutputPort');
 goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.ProcCall');
