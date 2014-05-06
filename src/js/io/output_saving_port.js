@@ -26,6 +26,12 @@ r5js.OutputSavingPort.prototype.write = function(value) {
 
 
 /** @override */
+r5js.OutputSavingPort.prototype.display = function(value) {
+  this.write(value); // TODO bl do something different?
+};
+
+
+/** @override */
 r5js.OutputSavingPort.prototype.close = goog.nullFunction;
 
 

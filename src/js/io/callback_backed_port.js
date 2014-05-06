@@ -47,3 +47,9 @@ r5js.CallbackBackedPort.prototype.write = function(value) {
       stringForOutputMode(r5js.OutputMode.WRITE);
   this.onOutput_(str);
 };
+
+
+/** @override */
+r5js.CallbackBackedPort.prototype.display = function(value) {
+  this.write(value); // TODO bl do something different?
+};

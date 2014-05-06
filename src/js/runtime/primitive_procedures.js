@@ -675,10 +675,7 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
         throw new r5js.ArgumentTypeError(
             outputPort, 1, 'display', r5js.DatumType.OUTPUT_PORT);
       }
-      var toWrite = datum instanceof r5js.Datum ?
-          datum.stringForOutputMode(r5js.OutputMode.DISPLAY) :
-          String(datum);
-      outputPort.write(toWrite);
+      (/** @type {!r5js.OutputPort} */ (outputPort)).display(datum);
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
