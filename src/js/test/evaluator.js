@@ -48,7 +48,23 @@ r5js.test.Evaluator.prototype['testReturnPrimitivesToJs'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testOutputPrimitivesToJs'] = function() {
+r5js.test.Evaluator.prototype['testDisplayPrimitivesToJs'] = function() {
+  expect('(display 42)').to(haveJsOutput(42));
+  expect('(display 42)').to(haveJsOutput(42));
+  expect('(display 42)').to(haveStringOutput('42'));
+  expect('(display #t)').to(haveJsOutput(true));
+  expect('(display #t)').to(haveStringOutput('#t'));
+  expect('(display #f)').to(haveJsOutput(false));
+  expect('(display #f)').to(haveStringOutput('#f'));
+  expect('(display "hello, world")').to(haveJsOutput('hello, world'));
+  expect('(display "hello, world")').to(haveStringOutput('hello, world'));
+  expect('(display #\\a)').to(haveJsOutput('a'));
+  expect('(display #\\a)').to(haveStringOutput('a'));
+};
+
+
+r5js.test.Evaluator.prototype['testWritePrimitivesToJs'] = function() {
+  expect('(write 42)').to(haveJsOutput(42));
   expect('(write 42)').to(haveJsOutput(42));
   expect('(write 42)').to(haveStringOutput('42'));
   expect('(write #t)').to(haveJsOutput(true));
@@ -84,7 +100,19 @@ r5js.test.Evaluator.prototype['testReturnRecursiveTypesToJs'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testOutputRecursiveTypesToJs'] = function() {
+r5js.test.Evaluator.prototype['testDisplayRecursiveTypesToJs'] = function() {
+  expect('(display #())').to(haveJsOutput([]));
+  expect("(display '())").to(haveJsOutput([]));
+  expect("(display (list '() '() '() '(42)))").
+      to(haveJsOutput([[], [], [], [42]]));
+  expect('(display (list 1 2 3))').to(haveJsOutput([1, 2, 3]));
+  expect("(display (cons 'a (cons 'b (cons 'c '()))))").
+      to(haveJsOutput(['a', 'b', 'c']));
+  expect("(display (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
+};
+
+
+r5js.test.Evaluator.prototype['testWriteRecursiveTypesToJs'] = function() {
   expect('(write #())').to(haveJsOutput([]));
   expect("(write '())").to(haveJsOutput([]));
   expect("(write (list '() '() '() '(42)))").
