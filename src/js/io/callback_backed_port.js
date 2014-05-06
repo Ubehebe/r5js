@@ -17,6 +17,7 @@
 goog.provide('r5js.CallbackBackedPort');
 
 
+goog.require('r5js.EvalAdapter');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputPort');
 goog.require('r5js.datumutil');
@@ -42,13 +43,13 @@ r5js.CallbackBackedPort.prototype.close = goog.nullFunction;
 
 /** @override */
 r5js.CallbackBackedPort.prototype.write = function(value) {
-  var str = r5js.ToStringEvaluator.schemeValueToWriteString(value);
+  var str = r5js.EvalAdapter.schemeValueToWriteString(value);
   this.onOutput_(str);
 };
 
 
 /** @override */
 r5js.CallbackBackedPort.prototype.display = function(value) {
-  var str = r5js.ToStringEvaluator.schemeValueToDisplayString(value);
+  var str = r5js.EvalAdapter.schemeValueToDisplayString(value);
   this.onOutput_(str);
 };

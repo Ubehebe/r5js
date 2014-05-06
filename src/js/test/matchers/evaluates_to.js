@@ -11,9 +11,7 @@ goog.setTestOnly('r5js.test.matchers.setSharedEvaluator');
 
 goog.require('goog.array');
 goog.require('r5js.OutputSavingPort');
-goog.require('r5js.ToJsEvaluator');
 goog.require('r5js.EvalAdapter');
-goog.require('r5js.ToStringEvaluator');
 goog.require('r5js.datumutil');
 
 
@@ -194,7 +192,7 @@ r5js.test.matchers.HasJsOutput_.sharedEvaluator_;
  * @const
  */
 r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = new r5js.OutputSavingPort(
-    r5js.ToJsEvaluator.schemeToJsValue);
+    r5js.EvalAdapter.schemeToJsValue);
 
 
 /** @override */
@@ -245,8 +243,8 @@ r5js.test.matchers.HasStringOutput_.sharedEvaluator_;
 /** @const @private {!r5js.OutputSavingPort.<string>} */
 r5js.test.matchers.HasStringOutput_.sharedOutputPort_ =
     new r5js.OutputSavingPort(
-        r5js.ToStringEvaluator.schemeValueToWriteString,
-        r5js.ToStringEvaluator.schemeValueToDisplayString);
+        r5js.EvalAdapter.schemeValueToWriteString,
+        r5js.EvalAdapter.schemeValueToDisplayString);
 
 
 /** @override */
@@ -277,10 +275,10 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
 r5js.test.matchers.setSharedEvaluator = function(evaluator) {
   r5js.test.matchers.HasJsValue_.sharedEvaluator_ =
       new r5js.EvalAdapter(
-          evaluator, r5js.ToJsEvaluator.schemeToJsValue);
+          evaluator, r5js.EvalAdapter.schemeToJsValue);
   r5js.test.matchers.HasStringValue_.sharedEvaluator_ =
       new r5js.EvalAdapter(
-          evaluator, r5js.ToStringEvaluator.schemeValueToWriteString);
+          evaluator, r5js.EvalAdapter.schemeValueToWriteString);
   r5js.test.matchers.HasJsOutput_.sharedEvaluator_ = evaluator.withPorts(
       r5js.InputPort.NULL, r5js.test.matchers.HasJsOutput_.sharedOutputPort_);
   r5js.test.matchers.HasStringOutput_.sharedEvaluator_ = evaluator.withPorts(
