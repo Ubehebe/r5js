@@ -43,6 +43,10 @@ r5js.test.Evaluator.prototype['testReturnPrimitivesToJs'] = function() {
   expect('#f').to(haveStringValue('#f'));
   expect('"hello, world"').to(haveJsValue('hello, world'));
   expect('"hello, world"').to(haveStringValue('"hello, world"'));
+  expect("'hello").to(haveJsValue('hello'));
+  expect("'hello").to(haveStringValue('hello'));
+  expect('(quote hello)').to(haveJsValue('hello'));
+  expect('(quote hello)').to(haveStringValue('hello'));
   expect('#\\a').to(haveJsValue('a'));
   expect('#\\a').to(haveStringValue('#\\a'));
 };
@@ -58,6 +62,10 @@ r5js.test.Evaluator.prototype['testDisplayPrimitivesToJs'] = function() {
   expect('(display #f)').to(haveStringOutput('#f'));
   expect('(display "hello, world")').to(haveJsOutput('hello, world'));
   expect('(display "hello, world")').to(haveStringOutput('hello, world'));
+  expect("(display 'hello)").to(haveJsOutput('hello'));
+  expect("(display 'hello)").to(haveStringOutput('hello'));
+  expect('(display (quote hello))').to(haveJsOutput('hello'));
+  expect('(display (quote hello))').to(haveStringOutput('hello'));
   expect('(display #\\a)').to(haveJsOutput('a'));
   expect('(display #\\a)').to(haveStringOutput('a'));
 };
@@ -73,6 +81,10 @@ r5js.test.Evaluator.prototype['testWritePrimitivesToJs'] = function() {
   expect('(write #f)').to(haveStringOutput('#f'));
   expect('(write "hello, world")').to(haveJsOutput('hello, world'));
   expect('(write "hello, world")').to(haveStringOutput('"hello, world"'));
+  expect("(write 'hello)").to(haveJsOutput('hello'));
+  expect("(write 'hello)").to(haveStringOutput('hello'));
+  expect('(write (quote hello))').to(haveJsOutput('hello'));
+  expect('(write (quote hello))').to(haveStringOutput('hello'));
   expect('(write #\\a)').to(haveJsOutput('a'));
   expect('(write #\\a)').to(haveStringOutput('#\\a'));
 };

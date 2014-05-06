@@ -121,7 +121,7 @@ r5js.EvalAdapter.schemeValueToWriteString = function(value) {
     case 'boolean':
       return value ? '#t' : '#f';
     case 'string':
-      return '"' + value + '"'; // TODO bl escape " and \
+      return value;
     case 'object':
       if (value instanceof r5js.Ref) {
         return r5js.EvalAdapter.schemeValueToWriteString(value.deref());
