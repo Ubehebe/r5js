@@ -51,5 +51,7 @@ r5js.CallbackBackedPort.prototype.write = function(value) {
 
 /** @override */
 r5js.CallbackBackedPort.prototype.display = function(value) {
-  this.write(value); // TODO bl do something different?
+  var str = r5js.datumutil.wrapValue(value).
+      stringForOutputMode(r5js.OutputMode.DISPLAY);
+  this.onOutput_(str);
 };
