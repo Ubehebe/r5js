@@ -244,7 +244,7 @@ r5js.test.matchers.HasStringOutput_.sharedEvaluator_;
 
 /** @const @private {!r5js.OutputSavingPort.<string>} */
 r5js.test.matchers.HasStringOutput_.sharedOutputPort_ =
-    new r5js.OutputSavingPort(r5js.ToStringEvaluator.schemeValueToString);
+    new r5js.OutputSavingPort(r5js.ToStringEvaluator.schemeValueToWriteString);
 
 
 /** @override */

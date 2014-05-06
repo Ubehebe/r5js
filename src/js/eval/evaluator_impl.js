@@ -98,7 +98,7 @@ r5js.EvaluatorImpl.prototype.evaluate = function(string) {
  * @return {string} A string representation of the value of the evaluation.
  */
 r5js.EvaluatorImpl.prototype.repl = function(string) {
-  return r5js.ToStringEvaluator.schemeValueToString(
+  return r5js.ToStringEvaluator.schemeValueToDisplayString(
       this.pipeline_.Eval(
       this.pipeline_.desugarRepl(
       this.pipeline_.parse(/** @type {!r5js.Datum} */ (
