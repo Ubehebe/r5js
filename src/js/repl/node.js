@@ -2,6 +2,7 @@ goog.provide('r5js.repl.node');
 goog.provide('r5js.repl.node.main');
 
 
+goog.require('r5js.EvalAdapter');
 goog.require('r5js.boot');
 goog.require('r5js.js.Environment');
 goog.require('r5js.test.SchemeSources');
@@ -16,7 +17,8 @@ goog.require('r5js.test.SchemeSources');
  * @private
  */
 r5js.repl.Node_ = function(evaluator, readline) {
-  /** @private @const */ this.evaluator_ = evaluator;
+  /** @private @const */ this.evaluator_ = new r5js.EvalAdapter(
+      evaluator, r5js.EvalAdapter.schemeValueToWriteString);
   /** @private @const */ this.readline_ = readline;
   this.readline_.on('line', goog.bind(this.handleLine_, this));
   this.readline_.on('close', goog.bind(this.handleClose_, this));
