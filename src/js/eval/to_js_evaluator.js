@@ -8,22 +8,10 @@ goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
 
 
-
 /**
- * @param {!r5js.Evaluator} evaluator
- * @implements {r5js.EvaluateToExternalRepresentation.<?>}
- * @struct
- * @constructor
+ * TODO bl remove.
  */
-r5js.ToJsEvaluator = function(evaluator) {
-  this.evaluator_ = evaluator;
-};
-
-
-/** @override */
-r5js.ToJsEvaluator.prototype.evaluate = function(input) {
-  return r5js.ToJsEvaluator.schemeToJsValue(this.evaluator_.evaluate(input));
-};
+r5js.ToJsEvaluator = {};
 
 
 /**

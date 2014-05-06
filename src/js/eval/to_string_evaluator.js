@@ -4,23 +4,10 @@ goog.provide('r5js.ToStringEvaluator');
 goog.require('r5js.datumutil');
 
 
-
 /**
- * @param {!r5js.Evaluator} evaluator
- * @implements {r5js.EvaluateToExternalRepresentation.<string>}
- * @struct
- * @constructor
+ * TODO bl remove
  */
-r5js.ToStringEvaluator = function(evaluator) {
-  /** @const @private */ this.evaluator_ = evaluator;
-};
-
-
-/** @override */
-r5js.ToStringEvaluator.prototype.evaluate = function(input) {
-  return r5js.ToStringEvaluator.schemeValueToWriteString(
-      this.evaluator_.evaluate(input));
-};
+r5js.ToStringEvaluator = function() {};
 
 
 /**

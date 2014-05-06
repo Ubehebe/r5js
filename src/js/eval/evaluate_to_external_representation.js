@@ -9,14 +9,22 @@ goog.provide('r5js.EvaluateToExternalRepresentation');
  * This is a convenience interface representing both the underlying evaluation
  * and the subsequent conversion, saving callers from having to specify a
  * conversion function for each evaluation.
- * @interface
+ * @param {!r5js.Evaluator} evaluator Evaluator to use.
+ * @param {function(!r5js.runtime.Value):T} adapter
+ * @struct
+ * @constructor
  * @template T
  */
-r5js.EvaluateToExternalRepresentation = function() {};
+r5js.EvaluateToExternalRepresentation = function(evaluator, adapter) {
+  /** @const @private */ this.evaluator_ = evaluator;
+  /** @const @private */ this.adapter_ = adapter;
+};
 
 
 /**
  * @param {string} input
  * @return {T}
  */
-r5js.EvaluateToExternalRepresentation.prototype.evaluate = function(input) {};
+r5js.EvaluateToExternalRepresentation.prototype.evaluate = function(input) {
+  return this.adapter_(this.evaluator_.evaluate(input));
+};
