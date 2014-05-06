@@ -19,6 +19,42 @@ r5js.ToStringEvaluator = function(evaluator) {
 
 /** @override */
 r5js.ToStringEvaluator.prototype.evaluate = function(input) {
-  var wrapped = r5js.datumutil.wrapValue(this.evaluator_.evaluate(input));
-  return wrapped.stringForOutputMode(r5js.OutputMode.WRITE);
+  return r5js.ToStringEvaluator.schemeValueToString(
+      this.evaluator_.evaluate(input));
+};
+
+
+/**
+ * @param {!r5js.runtime.Value} value
+ * @return {string}
+ */
+r5js.ToStringEvaluator.schemeValueToString = function(value) {
+  switch (typeof value) {
+    case 'number':
+      return value + '';
+    case 'boolean':
+      return value ? '#t' : '#f';
+    case 'string':
+      return '"' + value + '"'; // TODO bl escape " and \
+    case 'object':
+      if (value instanceof r5js.Ref) {
+        return r5js.ToStringEvaluator.schemeValueToString(value.deref());
+      } else if (value instanceof r5js.ast.List) {
+        var childStrings =
+            value.mapChildren(r5js.ToJsEvaluator.schemeToJsValue).join(' ');
+        return '(' + childStrings + ')';
+      } else if (value instanceof r5js.ast.Vector) {
+        var childStrings =
+            value.mapChildren(r5js.ToJsEvaluator.schemeToJsValue).join(' ');
+        return '#(' + childStrings;
+      } else if (value instanceof r5js.ast.String) {
+        return '"' + value.getPayload() + '"'; // TODO bl escape
+      } else if (value instanceof r5js.ast.Character) {
+        return '#\\' + value.getPayload();
+      } else if (value instanceof r5js.Datum) {
+        return r5js.ToStringEvaluator.schemeValueToString(value.unwrap());
+      }
+    default:
+      return '';
+  }
 };

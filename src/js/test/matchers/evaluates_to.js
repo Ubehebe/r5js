@@ -242,15 +242,9 @@ r5js.test.matchers.HasStringOutput_ = function(
 r5js.test.matchers.HasStringOutput_.sharedEvaluator_;
 
 
-/**
- * @private {!r5js.OutputSavingPort.<string>}
- * @const
- */
+/** @const @private {!r5js.OutputSavingPort.<string>} */
 r5js.test.matchers.HasStringOutput_.sharedOutputPort_ =
-    new r5js.OutputSavingPort(function(value) {
-  return r5js.datumutil.wrapValue(value).
-      stringForOutputMode(r5js.OutputMode.WRITE);
-});
+    new r5js.OutputSavingPort(r5js.ToStringEvaluator.schemeValueToString);
 
 
 /** @override */
