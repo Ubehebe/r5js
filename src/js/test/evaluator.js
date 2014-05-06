@@ -54,7 +54,6 @@ r5js.test.Evaluator.prototype['testReturnPrimitivesToJs'] = function() {
 
 r5js.test.Evaluator.prototype['testDisplayPrimitivesToJs'] = function() {
   expect('(display 42)').to(haveJsOutput(42));
-  expect('(display 42)').to(haveJsOutput(42));
   expect('(display 42)').to(haveStringOutput('42'));
   expect('(display #t)').to(haveJsOutput(true));
   expect('(display #t)').to(haveStringOutput('#t'));
@@ -72,7 +71,6 @@ r5js.test.Evaluator.prototype['testDisplayPrimitivesToJs'] = function() {
 
 
 r5js.test.Evaluator.prototype['testWritePrimitivesToJs'] = function() {
-  expect('(write 42)').to(haveJsOutput(42));
   expect('(write 42)').to(haveJsOutput(42));
   expect('(write 42)').to(haveStringOutput('42'));
   expect('(write #t)').to(haveJsOutput(true));
