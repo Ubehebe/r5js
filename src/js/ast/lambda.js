@@ -25,9 +25,3 @@ goog.inherits(r5js.ast.Lambda, r5js.ast.SimpleDatum);
 r5js.ast.Lambda.prototype.getName = function() {
   return this.name_;
 };
-
-
-/** @override */
-r5js.ast.Lambda.prototype.stringForOutputMode = function(outputMode) {
-  return this.name_;
-};

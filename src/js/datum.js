@@ -62,13 +62,6 @@ r5js.Datum = function() {
 
 
 /**
- * @param {!r5js.OutputMode} outputMode
- * @return {string}
- */
-r5js.Datum.prototype.stringForOutputMode = goog.abstractMethod;
-
-
-/**
  * @return {!r5js.Datum} This object, for chaining.
  */
 r5js.Datum.prototype.setImmutable = function() {

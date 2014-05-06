@@ -31,20 +31,3 @@ goog.inherits(r5js.ast.Character, r5js.ast.SimpleDatum);
 r5js.ast.Character.prototype.unwrap = function() {
   return this;
 };
-
-
-/** @override */
-r5js.ast.Character.prototype.stringForOutputMode = function(outputMode) {
-  switch (outputMode) {
-    case r5js.OutputMode.WRITE:
-      if (this.payload === ' ')
-        return '#\\space';
-      else if (this.payload === '\n')
-        return '#\\newline';
-      else
-        return '#\\' + this.getPayload();
-    case r5js.OutputMode.DISPLAY:
-    default:
-      return /** @type {string} */(this.payload);
-  }
-};

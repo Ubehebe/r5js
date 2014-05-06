@@ -23,9 +23,3 @@ goog.inherits(r5js.Ref, r5js.ast.SimpleDatum);
 r5js.Ref.prototype.deref = function() {
   return this.payload;
 };
-
-
-/** @override */
-r5js.Ref.prototype.stringForOutputMode = function(outputMode) {
-  return this.payload.stringForOutputMode(outputMode);
-};

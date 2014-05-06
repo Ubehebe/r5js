@@ -22,15 +22,6 @@ goog.inherits(r5js.ast.UnquoteSplicing, r5js.ast.CompoundDatum);
 
 
 /** @override */
-r5js.ast.UnquoteSplicing.prototype.stringForOutputMode = function(outputMode) {
-  var children = this.mapChildren(function(child) {
-    return child.stringForOutputMode(outputMode);
-  });
-  return r5js.parse.Terminals.COMMA_AT + children.join(' ');
-};
-
-
-/** @override */
 r5js.ast.UnquoteSplicing.prototype.setQuasiquotationLevel = function(qqLevel) {
   this.qqLevel = qqLevel;
   return goog.base(this, 'setQuasiquotationLevel', qqLevel - 1);

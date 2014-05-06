@@ -29,14 +29,6 @@ r5js.ast.String.prototype.eqv = function(other) {
 };
 
 
-/** @override */
-r5js.ast.String.prototype.stringForOutputMode = function(outputMode) {
-  return /** @type {string} */ (outputMode === r5js.OutputMode.DISPLAY ?
-      this.payload :
-      '"' + this.payload.replace(/([\\"])/g, '\\$1') + '"');
-};
-
-
 /**
  * Datums representing strings have payloads of type string.
  * If they all unwrapped as JavaScript strings, it would be impossible

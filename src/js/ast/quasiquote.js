@@ -50,15 +50,6 @@ r5js.ast.Quasiquote.prototype.eqv = function(other) {
 };
 
 
-/** @override */
-r5js.ast.Quasiquote.prototype.stringForOutputMode = function(outputMode) {
-  var children = this.mapChildren(function(child) {
-    return child.stringForOutputMode(outputMode);
-  });
-  return r5js.parse.Terminals.BACKTICK + children.join(' ');
-};
-
-
 /**
  * Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
  * @param {!r5js.IEnvironment} env TODO bl.

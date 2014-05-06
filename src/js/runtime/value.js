@@ -44,12 +44,6 @@ r5js.runtime.UnspecifiedValue_ = function() {
 goog.inherits(r5js.runtime.UnspecifiedValue_, r5js.Datum);
 
 
-/** @override */
-r5js.runtime.UnspecifiedValue_.prototype.stringForOutputMode =
-    function(outputMode) { return ''; };
-
-
-
 /**
  * @const {!r5js.runtime.ObjectValue}
  * TODO bl: there is no reason to represent unspecified runtime values

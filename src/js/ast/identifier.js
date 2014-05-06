@@ -20,12 +20,6 @@ r5js.ast.Identifier = function(name) {
 goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
 
 
-/** @override */
-r5js.ast.Identifier.prototype.stringForOutputMode = function(outputMode) {
-  return this.payload;
-};
-
-
 /**
  * @return {boolean} True iff this Datum is in a quasiquotation and should be
  * unquoted (i.e. starts with a ,).

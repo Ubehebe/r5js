@@ -86,19 +86,3 @@ r5js.ast.Vector.prototype.convertVectorToArrayBacked_ = function() {
   this.clearFirstChild();
   this.arrayBacked_ = true;
 };
-
-
-/** @override */
-r5js.ast.Vector.prototype.stringForOutputMode = function(outputMode) {
-  var childStrings = this.arrayBacked_ ?
-      this.array_.map(function(datum) {
-        return datum.stringForOutputMode(outputMode);
-          }) :
-      this.mapChildren(function(child) {
-        return child.stringForOutputMode(outputMode);
-      });
-
-  return r5js.parse.Terminals.LPAREN_VECTOR +
-      childStrings.join(' ') +
-      r5js.parse.Terminals.RPAREN;
-};

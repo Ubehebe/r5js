@@ -16,9 +16,3 @@ r5js.ast.Number = function(x) {
   goog.base(this, x);
 };
 goog.inherits(r5js.ast.Number, r5js.ast.SimpleDatum);
-
-
-/** @override */
-r5js.ast.Number.prototype.stringForOutputMode = function(outputMode) {
-  return this.payload + '';
-};
