@@ -112,7 +112,7 @@ r5js.test.Evaluator.prototype['testReturnRecursiveTypesToJs'] = function() {
   expect("(cons 'a (cons 'b (cons 'c '())))").to(haveJsValue(['a', 'b', 'c']));
   expect("(cons 'a (cons 'b (cons 'c '())))").to(haveStringValue('(a b c)'));
   expect("(cons 'a 'b)").not().to(haveJsValue(['a', 'b']));
-  //  expect("(cons 'a 'b)").to(haveStringValue('(a . b)'));
+  expect("(cons 'a 'b)").to(haveStringValue('(a . b)'));
 };
 
 
@@ -131,7 +131,7 @@ r5js.test.Evaluator.prototype['testDisplayRecursiveTypesToJs'] = function() {
       to(haveJsOutput(['a', 'b', 'c']));
   expect("(display (cons 'a (cons 'b (cons 'c '()))))").
       to(haveStringOutput('(a b c)'));
-  //    expect("(display (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
+  expect("(display (cons 'a 'b))").to(haveStringOutput('(a . b)'));
 };
 
 

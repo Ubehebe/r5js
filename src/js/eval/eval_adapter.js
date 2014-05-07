@@ -112,11 +112,16 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
     case 'object':
       if (value instanceof r5js.Ref) {
         return r5js.EvalAdapter.toString_(includeSigils, value.deref());
-      } else if (value instanceof r5js.ast.List) {
-        var childStrings = value.mapChildren(
-            goog.partial(r5js.EvalAdapter.toString_, includeSigils)).join(' ');
+      } else if (value instanceof r5js.ast.List ||
+          value instanceof r5js.ast.DottedList) {
+        var children = value.mapChildren(
+            goog.partial(r5js.EvalAdapter.toString_, includeSigils));
+        if ((value instanceof r5js.ast.List && value.isImproperList()) ||
+            value instanceof r5js.ast.DottedList) {
+          children.splice(children.length - 1, 0, r5js.parse.Terminals.DOT);
+        }
         return r5js.parse.Terminals.LPAREN +
-            childStrings +
+            children.join(' ') +
             r5js.parse.Terminals.RPAREN;
       } else if (value instanceof r5js.ast.Vector) {
         var childStrings = value.mapChildren(
@@ -133,7 +138,7 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
             '#\\' + value.getPayload() :
             value.getPayload();
       } else if (value instanceof r5js.Datum) {
-        return r5js.EvalAdapter.toWriteString(value.unwrap());
+        return r5js.EvalAdapter.toString_(includeSigils, value.unwrap());
       }
     default:
       return '';
