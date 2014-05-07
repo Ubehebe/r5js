@@ -137,12 +137,20 @@ r5js.test.Evaluator.prototype['testDisplayRecursiveTypesToJs'] = function() {
 
 r5js.test.Evaluator.prototype['testWriteRecursiveTypesToJs'] = function() {
   expect('(write #())').to(haveJsOutput([]));
+  expect('(write #())').to(haveStringOutput('#()'));
   expect("(write '())").to(haveJsOutput([]));
+  expect("(write '())").to(haveStringOutput('()'));
   expect("(write (list '() '() '() '(42)))").
       to(haveJsOutput([[], [], [], [42]]));
+  expect("(write (list '() '() '() '(42)))").
+      to(haveStringOutput('(() () () (42))'));
   expect('(write (list 1 2 3))').to(haveJsOutput([1, 2, 3]));
+  expect('(write (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
   expect("(write (cons 'a (cons 'b (cons 'c '()))))").
       to(haveJsOutput(['a', 'b', 'c']));
+  expect("(write (cons 'a (cons 'b (cons 'c '()))))").
+      to(haveStringOutput('(a b c)'));
   expect("(write (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
+  expect("(write (cons 'a 'b))").to(haveStringOutput('(a . b)'));
 };
 
