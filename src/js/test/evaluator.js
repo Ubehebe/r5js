@@ -102,23 +102,36 @@ r5js.test.Evaluator.prototype['testSanityChecks'] = function() {
 
 r5js.test.Evaluator.prototype['testReturnRecursiveTypesToJs'] = function() {
   expect('#()').to(haveJsValue([]));
+  expect('#()').to(haveStringValue('#()'));
   expect("'()").to(haveJsValue([]));
+  expect("'()").to(haveStringValue('()'));
   expect("(list '() '() '() '(42))").to(haveJsValue([[], [], [], [42]]));
+  expect("(list '() '() '() '(42))").to(haveStringValue('(() () () (42))'));
   expect('(list 1 2 3)').to(haveJsValue([1, 2, 3]));
+  expect('(list 1 2 3)').to(haveStringValue('(1 2 3)'));
   expect("(cons 'a (cons 'b (cons 'c '())))").to(haveJsValue(['a', 'b', 'c']));
+  expect("(cons 'a (cons 'b (cons 'c '())))").to(haveStringValue('(a b c)'));
   expect("(cons 'a 'b)").not().to(haveJsValue(['a', 'b']));
+  //  expect("(cons 'a 'b)").to(haveStringValue('(a . b)'));
 };
 
 
 r5js.test.Evaluator.prototype['testDisplayRecursiveTypesToJs'] = function() {
   expect('(display #())').to(haveJsOutput([]));
+  expect('(display #())').to(haveStringOutput('#()'));
   expect("(display '())").to(haveJsOutput([]));
+  expect("(display '())").to(haveStringOutput('()'));
   expect("(display (list '() '() '() '(42)))").
       to(haveJsOutput([[], [], [], [42]]));
+  expect("(display (list '() '() '() '(42)))").
+      to(haveStringOutput('(() () () (42))'));
   expect('(display (list 1 2 3))').to(haveJsOutput([1, 2, 3]));
+  expect('(display (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
   expect("(display (cons 'a (cons 'b (cons 'c '()))))").
       to(haveJsOutput(['a', 'b', 'c']));
-  expect("(display (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
+  expect("(display (cons 'a (cons 'b (cons 'c '()))))").
+      to(haveStringOutput('(a b c)'));
+  //    expect("(display (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
 };
 
 

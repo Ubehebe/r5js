@@ -2,6 +2,10 @@ goog.provide('r5js.EvalAdapter');
 
 
 
+goog.require('r5js.parse.Terminals');
+
+
+
 /**
  * An {@link r5js.Evaluator} maps input strings to Scheme values.
  * But to interact with the outside world, Scheme values need to be converted
@@ -111,11 +115,15 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
       } else if (value instanceof r5js.ast.List) {
         var childStrings = value.mapChildren(
             goog.partial(r5js.EvalAdapter.toString_, includeSigils)).join(' ');
-        return '(' + childStrings + ')';
+        return r5js.parse.Terminals.LPAREN +
+            childStrings +
+            r5js.parse.Terminals.RPAREN;
       } else if (value instanceof r5js.ast.Vector) {
         var childStrings = value.mapChildren(
             goog.partial(r5js.EvalAdapter.toString_, includeSigils)).join(' ');
-        return '#(' + childStrings;
+        return r5js.parse.Terminals.LPAREN_VECTOR +
+            childStrings +
+            r5js.parse.Terminals.RPAREN;
       } else if (value instanceof r5js.ast.String) {
         return includeSigils ?
             '"' + value.getPayload() + '"' : // TODO bl escape
