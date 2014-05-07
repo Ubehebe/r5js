@@ -78,35 +78,7 @@ r5js.EvalAdapter.toJsValue = function(value) {
  * @return {string}
  */
 r5js.EvalAdapter.toDisplayString = function(value) {
-  switch (typeof value) {
-    case 'number':
-      return value + '';
-    case 'boolean':
-      return value ? '#t' : '#f';
-    case 'string':
-      return value;
-    case 'object':
-      if (value instanceof r5js.Ref) {
-        return r5js.EvalAdapter.toDisplayString(value.deref());
-      } else if (value instanceof r5js.ast.List) {
-        var childStrings = value.mapChildren(
-            r5js.EvalAdapter.toDisplayString).join(' ');
-        return '(' + childStrings + ')';
-      } else if (value instanceof r5js.ast.Vector) {
-        var childStrings = value.mapChildren(
-            r5js.EvalAdapter.toDisplayString).join(' ');
-        return '#(' + childStrings;
-      } else if (value instanceof r5js.ast.String) {
-        return value.getPayload();
-      } else if (value instanceof r5js.ast.Character) {
-        return value.getPayload();
-      } else if (value instanceof r5js.Datum) {
-        return r5js.EvalAdapter.toDisplayString(
-            value.unwrap());
-      }
-    default:
-      return '';
-  }
+  return r5js.EvalAdapter.toString_(false /* includeSigils */, value);
 };
 
 
@@ -115,6 +87,17 @@ r5js.EvalAdapter.toDisplayString = function(value) {
  * @return {string}
  */
 r5js.EvalAdapter.toWriteString = function(value) {
+  return r5js.EvalAdapter.toString_(true /* includeSigils */, value);
+};
+
+
+/**
+ * @param {boolean} includeSigils
+ * @param {!r5js.runtime.Value} value
+ * @return {string}
+ * @private
+ */
+r5js.EvalAdapter.toString_ = function(includeSigils, value) {
   switch (typeof value) {
     case 'number':
       return value + '';
@@ -124,19 +107,23 @@ r5js.EvalAdapter.toWriteString = function(value) {
       return value;
     case 'object':
       if (value instanceof r5js.Ref) {
-        return r5js.EvalAdapter.toWriteString(value.deref());
+        return r5js.EvalAdapter.toString_(includeSigils, value.deref());
       } else if (value instanceof r5js.ast.List) {
         var childStrings = value.mapChildren(
-            r5js.EvalAdapter.toWriteString).join(' ');
+            goog.partial(r5js.EvalAdapter.toString_, includeSigils)).join(' ');
         return '(' + childStrings + ')';
       } else if (value instanceof r5js.ast.Vector) {
         var childStrings = value.mapChildren(
-            r5js.EvalAdapter.toWriteString).join(' ');
+            goog.partial(r5js.EvalAdapter.toString_, includeSigils)).join(' ');
         return '#(' + childStrings;
       } else if (value instanceof r5js.ast.String) {
-        return '"' + value.getPayload() + '"'; // TODO bl escape
+        return includeSigils ?
+            '"' + value.getPayload() + '"' : // TODO bl escape
+            value.getPayload();
       } else if (value instanceof r5js.ast.Character) {
-        return '#\\' + value.getPayload();
+        return includeSigils ?
+            '#\\' + value.getPayload() :
+            value.getPayload();
       } else if (value instanceof r5js.Datum) {
         return r5js.EvalAdapter.toWriteString(value.unwrap());
       }
