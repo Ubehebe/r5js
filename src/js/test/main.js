@@ -8,7 +8,6 @@ goog.require('goog.log');
 goog.require('r5js.js.Environment');
 goog.require('r5js.Reader');
 goog.require('r5js.InputPort');
-goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.boot');
@@ -84,12 +83,8 @@ r5js.test.evaluator_ = null;
 r5js.test.getEvaluator_ = function(sources) {
   if (!r5js.test.evaluator_) {
     r5js.test.evaluator_ = r5js.boot(
-        sources.syntax,
-        sources.procedures,
-        r5js.InputPort.NULL,
-        new r5js.CallbackBackedPort(function(output) {
-          console.log(output);
-        }));
+        sources.syntax, sources.procedures,
+        r5js.InputPort.NULL, r5js.OutputPort.NULL);
   }
   return r5js.test.evaluator_;
 };

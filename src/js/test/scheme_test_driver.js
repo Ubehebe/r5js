@@ -3,6 +3,7 @@ goog.setTestOnly('r5js.test.SchemeTestDriver');
 
 
 goog.require('expect');
+goog.require('r5js.CallbackBackedPort');
 
 
 
@@ -15,7 +16,9 @@ goog.require('expect');
  * @constructor
  */
 r5js.test.SchemeTestDriver = function(evaluator, sources) {
-  /** @const @private */ this.evaluator_ = evaluator;
+  /** @const @private */ this.evaluator_ = evaluator.withPorts(
+      r5js.InputPort.NULL,
+      new r5js.CallbackBackedPort(this.onWrite_.bind(this)));
   /** @const @private */ this.sources_ = sources;
 };
 
@@ -29,6 +32,15 @@ r5js.test.SchemeTestDriver.prototype.getType = function() {
 /** @override */
 r5js.test.SchemeTestDriver.prototype.toString = function() {
   return 'r5js.test.SchemeTestDriver';
+};
+
+
+/**
+ * @param {!r5js.runtime.Value} value
+ * @private
+ */
+r5js.test.SchemeTestDriver.prototype.onWrite_ = function(value) {
+  console.log(value);
 };
 
 
