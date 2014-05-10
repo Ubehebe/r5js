@@ -1,5 +1,5 @@
-goog.provide('r5js.test.Evaluator');
-goog.setTestOnly('r5js.test.Evaluator');
+goog.provide('r5js.test.JsInterop');
+goog.setTestOnly('r5js.test.JsInterop');
 
 
 goog.require('expect');
@@ -14,27 +14,28 @@ goog.require('tdd.TestType');
 
 
 /**
+ * Tests exercising Scheme->JavaScript interoperability.
  * @param {!r5js.Evaluator} evaluator
  * @implements {tdd.TestSuite}
  * @struct
  * @constructor
  */
-r5js.test.Evaluator = function(evaluator) {
+r5js.test.JsInterop = function(evaluator) {
   r5js.test.matchers.setSharedEvaluator(evaluator);
 };
 
 
 /** @override */
-r5js.test.Evaluator.prototype.getType = goog.functions.constant(
+r5js.test.JsInterop.prototype.getType = goog.functions.constant(
     tdd.TestType.UNIT);
 
 
 /** @override */
-r5js.test.Evaluator.prototype.toString = goog.functions.constant(
-    'r5js.test.Evaluator');
+r5js.test.JsInterop.prototype.toString = goog.functions.constant(
+    'r5js.test.JsInterop');
 
 
-r5js.test.Evaluator.prototype['testReturnPrimitivesToJs'] = function() {
+r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
   expect('42').to(haveJsValue(42));
   expect('42').to(haveStringValue('42'));
   expect('#t').to(haveJsValue(true));
@@ -52,7 +53,7 @@ r5js.test.Evaluator.prototype['testReturnPrimitivesToJs'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testDisplayPrimitivesToJs'] = function() {
+r5js.test.JsInterop.prototype['testDisplayPrimitivesToJs'] = function() {
   expect('(display 42)').to(haveJsOutput(42));
   expect('(display 42)').to(haveStringOutput('42'));
   expect('(display #t)').to(haveJsOutput(true));
@@ -70,7 +71,7 @@ r5js.test.Evaluator.prototype['testDisplayPrimitivesToJs'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testWritePrimitivesToJs'] = function() {
+r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
   expect('(write 42)').to(haveJsOutput(42));
   expect('(write 42)').to(haveStringOutput('42'));
   expect('(write #t)').to(haveJsOutput(true));
@@ -88,7 +89,7 @@ r5js.test.Evaluator.prototype['testWritePrimitivesToJs'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testSanityChecks'] = function() {
+r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
   expect('(+ 1 1)').to(haveJsValue(2));
   expect('(+ 1 1)').to(haveStringValue('2'));
   expect('(procedure? procedure?)').to(haveJsValue(true));
@@ -100,7 +101,7 @@ r5js.test.Evaluator.prototype['testSanityChecks'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testReturnRecursiveTypesToJs'] = function() {
+r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
   expect('#()').to(haveJsValue([]));
   expect('#()').to(haveStringValue('#()'));
   expect("'()").to(haveJsValue([]));
@@ -116,7 +117,7 @@ r5js.test.Evaluator.prototype['testReturnRecursiveTypesToJs'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testDisplayRecursiveTypesToJs'] = function() {
+r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
   expect('(display #())').to(haveJsOutput([]));
   expect('(display #())').to(haveStringOutput('#()'));
   expect("(display '())").to(haveJsOutput([]));
@@ -135,7 +136,7 @@ r5js.test.Evaluator.prototype['testDisplayRecursiveTypesToJs'] = function() {
 };
 
 
-r5js.test.Evaluator.prototype['testWriteRecursiveTypesToJs'] = function() {
+r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
   expect('(write #())').to(haveJsOutput([]));
   expect('(write #())').to(haveStringOutput('#()'));
   expect("(write '())").to(haveJsOutput([]));

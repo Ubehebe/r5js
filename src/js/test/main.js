@@ -12,7 +12,7 @@ goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.boot');
-goog.require('r5js.test.Evaluator');
+goog.require('r5js.test.JsInterop');
 goog.require('r5js.test.SchemeTestDriver');
 goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
@@ -105,7 +105,7 @@ r5js.test.getTestSuites_ = function(evaluator, sources) {
   return [
     new r5js.test.Scanner(),
     new r5js.test.Parser(),
-    new r5js.test.Evaluator(evaluator),
+    new r5js.test.JsInterop(evaluator),
     new r5js.test.SchemeTestDriver(evaluator, sources)
   ];
 };
