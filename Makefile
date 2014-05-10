@@ -29,7 +29,7 @@ test_main_class = r5js.test.main
 test_outfile = $(outdir)/test-all.js
 # test_opts can be overridden from the command line. Example:
 # make test test_opts="type=integration verbose"
-test_opts = type=unit
+test_opts = type=unit verbose
 
 # Node-related paths.
 node_repl_main_class = r5js.repl.node.main

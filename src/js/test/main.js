@@ -5,6 +5,7 @@ goog.setTestOnly('r5js.test.evalSandbox');
 
 
 goog.require('goog.log');
+goog.require('tdd.Formatter');
 goog.require('r5js.js.Environment');
 goog.require('r5js.Reader');
 goog.require('r5js.InputPort');
@@ -27,7 +28,7 @@ goog.require('tdd.RunnerConfig');
 r5js.test.main = function(opt_argv) {
   var testConfig = goog.isDef(opt_argv) ?
       tdd.RunnerConfig.fromFlags(opt_argv) :
-      tdd.RunnerConfig.DEFAULT;
+      r5js.test.main.defaultConfig_();
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
   var jsEnv = r5js.js.Environment.get();
@@ -43,6 +44,22 @@ r5js.test.main = function(opt_argv) {
           jsEnv.exit(
               result.getNumFailed() + result.getNumExceptions() === 0 ? 0 : 1);
         });
+      });
+};
+
+
+/**
+ * @return {!tdd.RunnerConfig}
+ * @private
+ */
+r5js.test.main.defaultConfig_ = function() {
+  var formatter = new tdd.Formatter();
+  return new tdd.RunnerConfig().
+      setTestTypesToRun([tdd.TestType.UNIT, tdd.TestType.INTEGRATION
+      ]).addFailureHandler(function(logRecord) {
+        console.log(formatter.formatRecord(logRecord));
+      }).addSuccessHandler(function(logRecord) {
+        console.log(formatter.formatRecord(logRecord));
       });
 };
 
