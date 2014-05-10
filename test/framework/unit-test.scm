@@ -30,13 +30,10 @@
 	      (list (quote (input . output)) ...)))
 	    (num-errors (car result))
 	    (num-tests (cdr result)))
-       (display (quote name))
-       (display ": ")
-       (display num-tests)
-       (display " tests, ")
-       (display num-errors)
-       (display " errors")
-       (display #\newline)))))
+       (write (list
+	       'name
+	       (list num-tests 'tests)
+	       (list num-errors 'errors)))))))
 
 (define (run-test-group group-name)
   (lambda (l r)
