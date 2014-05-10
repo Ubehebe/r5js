@@ -2,6 +2,9 @@ goog.provide('r5js.test.SchemeTestDriver');
 goog.setTestOnly('r5js.test.SchemeTestDriver');
 
 
+goog.require('goog.Promise');
+goog.require('tdd.ResultStruct');
+goog.require('tdd.ManualTestSuite');
 goog.require('expect');
 goog.require('r5js.CallbackBackedPort');
 
@@ -11,16 +14,18 @@ goog.require('r5js.CallbackBackedPort');
  * Driver for running the unit tests written in Scheme.
  * @param {!r5js.Evaluator} evaluator
  * @param {!r5js.test.SchemeSources} sources
- * @implements {tdd.TestSuite}
+ * @extends {tdd.ManualTestSuite}
  * @struct
  * @constructor
  */
 r5js.test.SchemeTestDriver = function(evaluator, sources) {
+  goog.base(this);
   /** @const @private */ this.evaluator_ = evaluator.withPorts(
       r5js.InputPort.NULL,
       new r5js.CallbackBackedPort(this.onWrite_.bind(this)));
   /** @const @private */ this.sources_ = sources;
 };
+goog.inherits(r5js.test.SchemeTestDriver, tdd.ManualTestSuite);
 
 
 /** @override */
@@ -35,6 +40,15 @@ r5js.test.SchemeTestDriver.prototype.toString = function() {
 };
 
 
+/** @override */
+r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
+  this.testR5RSTests_();
+  this.testNegativeTests_();
+  this.testOtherTests_();
+  return goog.Promise.resolve(new tdd.ResultStruct(1, 0, 0));
+};
+
+
 /**
  * @param {!r5js.runtime.Value} value
  * @private
@@ -44,19 +58,22 @@ r5js.test.SchemeTestDriver.prototype.onWrite_ = function(value) {
 };
 
 
-r5js.test.SchemeTestDriver.prototype['testR5RSTests'] = function() {
+/** @private */
+r5js.test.SchemeTestDriver.prototype.testR5RSTests_ = function() {
   this.evaluator_.evaluate(
       this.sources_.testFramework + this.sources_.r5RSTests);
 };
 
 
-r5js.test.SchemeTestDriver.prototype['testNegativeTests'] = function() {
+/** @private */
+r5js.test.SchemeTestDriver.prototype.testNegativeTests_ = function() {
   this.evaluator_.evaluate(
       this.sources_.negativeTestFramework + this.sources_.negativeTests);
 };
 
 
-r5js.test.SchemeTestDriver.prototype['testOtherTests'] = function() {
+/** @private */
+r5js.test.SchemeTestDriver.prototype.testOtherTests_ = function() {
   this.evaluator_.evaluate(
       this.sources_.testFramework + this.sources_.otherTests);
 };
