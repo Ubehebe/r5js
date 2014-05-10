@@ -17,7 +17,6 @@
 goog.provide('r5js.boot');
 
 
-goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.Environment');
 goog.require('r5js.EvaluatorImpl');
 goog.require('r5js.InputPort');

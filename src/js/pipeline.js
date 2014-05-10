@@ -18,7 +18,6 @@
 goog.provide('r5js.Pipeline');
 
 
-goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.Environment');
 goog.require('r5js.InputPort');
 goog.require('r5js.ParseError');

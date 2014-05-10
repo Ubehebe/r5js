@@ -7,6 +7,7 @@ goog.require('tdd.ResultStruct');
 goog.require('tdd.ManualTestSuite');
 goog.require('expect');
 goog.require('r5js.CallbackBackedPort');
+goog.require('r5js.EvalAdapter');
 
 
 
@@ -54,7 +55,7 @@ r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
  * @private
  */
 r5js.test.SchemeTestDriver.prototype.onWrite_ = function(value) {
-  console.log(value);
+  console.log(r5js.EvalAdapter.toWriteString(value));
 };
 
 

@@ -17,15 +17,12 @@
 goog.provide('r5js.CallbackBackedPort');
 
 
-goog.require('r5js.EvalAdapter');
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.OutputPort');
-goog.require('r5js.datumutil');
 
 
 
 /**
- * @param {function(string)} onOutput Callback that will be called
+ * @param {function(!r5js.runtime.Value)} onOutput Callback that will be called
  * whenever output is available.
  * @implements {r5js.OutputPort}
  * @struct
@@ -43,13 +40,11 @@ r5js.CallbackBackedPort.prototype.close = goog.nullFunction;
 
 /** @override */
 r5js.CallbackBackedPort.prototype.write = function(value) {
-  var str = r5js.EvalAdapter.toWriteString(value);
-  this.onOutput_(str);
+  this.onOutput_(value);
 };
 
 
 /** @override */
 r5js.CallbackBackedPort.prototype.display = function(value) {
-  var str = r5js.EvalAdapter.toDisplayString(value);
-  this.onOutput_(str);
+  this.onOutput_(value);
 };
