@@ -32,7 +32,7 @@ r5js.test.main = function(opt_argv) {
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
   var jsEnv = r5js.js.Environment.get();
-  r5js.test.SchemeSources.get(goog.bind(jsEnv.fetchUrl, jsEnv)).
+  r5js.test.SchemeSources.get(jsEnv.fetchUrl.bind(jsEnv)).
       then(function(sources) {
         var publicApi = r5js.test.getEvaluator_(sources);
         r5js.test.getTestSuites_(publicApi, sources).

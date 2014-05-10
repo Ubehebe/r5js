@@ -20,8 +20,8 @@ r5js.repl.Node_ = function(evaluator, readline) {
   /** @private @const */ this.evaluator_ = new r5js.EvalAdapter(
       evaluator, r5js.EvalAdapter.toWriteString);
   /** @private @const */ this.readline_ = readline;
-  this.readline_.on('line', goog.bind(this.handleLine_, this));
-  this.readline_.on('close', goog.bind(this.handleClose_, this));
+  this.readline_.on('line', this.handleLine_.bind(this));
+  this.readline_.on('close', this.handleClose_.bind(this));
 };
 
 
@@ -53,7 +53,7 @@ r5js.repl.node.main = function() {
       r5js.repl.node.PROMPT_, r5js.repl.node.PROMPT_.length);
 
   var jsEnv = r5js.js.Environment.get();
-  r5js.test.SchemeSources.get(goog.bind(jsEnv.fetchUrl, jsEnv)).
+  r5js.test.SchemeSources.get(jsEnv.fetchUrl.bind(jsEnv)).
       then(function(sources) {
         return r5js.boot(sources.syntax, sources.procedures);
       }).then(function(evaluator) {
