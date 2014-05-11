@@ -1,25 +1,18 @@
-;; This file contains the unit testing framework (not the tests themselves).
-
-;; This is a fairly natural syntax for unit tests. Example:
+;; This file contains the unit testing framework, not the tests themselves.
+;; The framework provides a simple syntax for specifying the expected value
+;; of an expression, as well as simple human- and machine-readable outputs
+;; for success and failure. Example:
 ;;
-;; (define-tests sanity-checks
+;; (define-tests foo-tests
 ;;   ((+ 1 2) => 3)
 ;;   ((* 10 10) => 100)
-;;   ((begin
-;;      (define x 3)
-;;      x) => 3))
+;;   ((+ 1 1) => 3))
 ;;
-;; The only limitation is that the input has to be a single datum.
-;; If you have more than one datum to evaluate, you have to wrap them all
-;; in a (begin ...). This is due to a limitation of the macro pattern
-;; language syntax: we would like to write a pattern like
+;; should produce output like this:
 ;;
-;; (define-tests name (input ... => output) ...)
-;;
-;; but according to R5RS section 4.3.2, ellipses in pattern datums must
-;; always be immediately followed by a right paren. So the first ellipsis
-;; in our pattern is illegal. (Implementations like PLT Scheme seem to
-;; support them, but I don't.)
+;; (fail foo-tests (input (+ 1 1)) (want 3) (got 2))
+;; (foo-tests (3 tests) (1 failed))
+
 (define-syntax define-tests
   (syntax-rules (=>)
     ((define-tests name (input => output) ...)
@@ -33,7 +26,7 @@
        (write (list
 	       'name
 	       (list num-tests 'tests)
-	       (list num-errors 'errors)))))))
+	       (list num-errors 'failed)))))))
 
 (define (run-test-group group-name)
   (lambda (l r)
@@ -46,13 +39,10 @@
       (if (equal? actual-output expected-output)
 	  (cons cur-errors (+ cur-total 1))
 	  (begin
-	    (display "error in test ")
-	    (display group-name)
-	    (display ": input ")
-	    (display input)
-	    (display ", expected ")
-	    (display expected-output)
-	    (display ", got ")
-	    (display actual-output)
-	    (display #\newline)
+	    (write (list
+		    'fail
+		    group-name
+		    (list 'input input)
+		    (list 'want expected-output)
+		    (list 'got actual-output)))
 	    (cons (+ cur-errors 1) (+ cur-total 1)))))))
