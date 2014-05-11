@@ -62,11 +62,6 @@ r5js.test.SchemeTestDriver.prototype.onWrite_ = function(value) {
 
 
 /** @private */
-r5js.test.SchemeTestDriver.prototype.testFrameworkTests_ = function() {
-};
-
-
-/** @private */
 r5js.test.SchemeTestDriver.prototype.testR5RSTests_ = function() {
   this.evaluator_.evaluate(
       this.sources_.testFramework + this.sources_.r5RSTests);
@@ -76,7 +71,7 @@ r5js.test.SchemeTestDriver.prototype.testR5RSTests_ = function() {
 /** @private */
 r5js.test.SchemeTestDriver.prototype.testNegativeTests_ = function() {
   this.evaluator_.evaluate(
-      this.sources_.negativeTestFramework + this.sources_.negativeTests);
+      this.sources_.testFramework + this.sources_.negativeTests);
 };
 
 
