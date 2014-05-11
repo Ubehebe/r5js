@@ -11,6 +11,7 @@ goog.require('goog.Promise');
  * @param {string} procedures
  * @param {string} testFramework
  * @param {string} negativeTestFramework
+ * @param {string} testFrameworkTests
  * @param {string} r5RSTests
  * @param {string} negativeTests
  * @param {string} otherTests
@@ -22,6 +23,7 @@ r5js.test.SchemeSources = function(
     procedures,
     testFramework,
     negativeTestFramework,
+    testFrameworkTests,
     r5RSTests,
     negativeTests,
     otherTests) {
@@ -29,6 +31,7 @@ r5js.test.SchemeSources = function(
   /** @const */ this.procedures = procedures;
   /** @const */ this.testFramework = testFramework;
   /** @const */ this.negativeTestFramework = negativeTestFramework;
+  /** @const */ this.testFrameworkTests = testFrameworkTests;
   /** @const */ this.r5RSTests = r5RSTests;
   /** @const */ this.negativeTests = negativeTests;
   /** @const */ this.otherTests = otherTests;
@@ -52,6 +55,7 @@ r5js.test.SchemeSources.get = function(urlFetcher) {
       r5js.test.SchemeSources.urls_.PROCEDURES,
       r5js.test.SchemeSources.urls_.TEST_FRAMEWORK,
       r5js.test.SchemeSources.urls_.NEGATIVE_TEST_FRAMEWORK,
+      r5js.test.SchemeSources.urls_.TEST_FRAMEWORK_TESTS,
       r5js.test.SchemeSources.urls_.R5RS_TESTS,
       r5js.test.SchemeSources.urls_.NEGATIVE_TESTS,
       r5js.test.SchemeSources.urls_.OTHER_TESTS
@@ -66,7 +70,8 @@ r5js.test.SchemeSources.get = function(urlFetcher) {
             sources[3],
             sources[4],
             sources[5],
-            sources[6]);
+            sources[6],
+            sources[7]);
       }
       return r5js.test.SchemeSources.sources_;
     });
@@ -83,6 +88,7 @@ r5js.test.SchemeSources.urls_ = {
   PROCEDURES: '/src/scm/r5rs-procedures.scm',
   TEST_FRAMEWORK: '/test/framework/unit-test.scm',
   NEGATIVE_TEST_FRAMEWORK: '/test/framework/unit-test-negative.scm',
+  TEST_FRAMEWORK_TESTS: '/test/framework/unit-test-test.scm',
   R5RS_TESTS: '/test/r5rs-tests.scm',
   NEGATIVE_TESTS: '/test/negative-tests.scm',
   OTHER_TESTS: '/test/other-tests.scm'
