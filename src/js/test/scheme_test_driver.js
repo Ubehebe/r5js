@@ -6,6 +6,8 @@ goog.require('goog.Promise');
 goog.require('tdd.ResultStruct');
 goog.require('tdd.ManualTestSuite');
 goog.require('tdd.ResultStruct');
+goog.require('tdd.LogRecord');
+goog.require('tdd.LogLevel');
 goog.require('expect');
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.EvalAdapter');
@@ -82,6 +84,24 @@ r5js.test.SchemeTestDriver.prototype.testOtherTests_ = function() {
 };
 
 
+
+/**
+ * @param {string} name
+ * @param {number} numSucceeded
+ * @param {number} numFailed
+ * @extends {tdd.ResultStruct}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.test.SchemeTestDriver.ResultStruct_ = function(
+    name, numSucceeded, numFailed) {
+  goog.base(this, numSucceeded, numFailed, 0 /* TODO bl */);
+  /** @const @private */ this.name_ = name;
+};
+goog.inherits(r5js.test.SchemeTestDriver.ResultStruct_, tdd.ResultStruct);
+
+
 /**
  * Parses a Scheme test framework output like this:
  * (foo-tests (3 tests) (1 errors))
@@ -90,10 +110,10 @@ r5js.test.SchemeTestDriver.prototype.testOtherTests_ = function() {
  * The JavaScript serialization of the above output is this:
  * ["foo-tests", [3, "tests"], [1, "errors"]]
  * @param {!r5js.runtime.Value} output
- * @return {tdd.ResultStruct}
+ * @return {r5js.test.SchemeTestDriver.ResultStruct_}
  * @private
  */
-r5js.test.SchemeTestDriver.resultStructForOutput_ = function(output) {
+r5js.test.SchemeTestDriver.jsValueToResultStruct_ = function(output) {
   var jsValue = r5js.EvalAdapter.toJsValue(output);
   if (jsValue.length === 3 &&
       goog.isString(jsValue[0]) &&
@@ -103,11 +123,12 @@ r5js.test.SchemeTestDriver.resultStructForOutput_ = function(output) {
       jsValue[2].length === 2 &&
       goog.isNumber(jsValue[2][0]) &&
       jsValue[2][1] === 'failed') {
+    var name = jsValue[0];
     var numTests = jsValue[1][0];
     var numFailed = jsValue[2][0];
     var numSucceeded = numTests - numFailed;
-    return new tdd.ResultStruct(
-        numSucceeded, numFailed, 0 /* TODO bl support */);
+    return new r5js.test.SchemeTestDriver.ResultStruct_(
+        name, numSucceeded, numFailed);
   } else {
     return null;
   }
@@ -130,7 +151,10 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_ = function(evaluator, sources) {
       new r5js.CallbackBackedPort(this.onWrite_.bind(this)));
 
   /** @const @private */ this.sources_ = sources;
-  /** @private */ this.actualResult_ = new tdd.ResultStruct(0, 0, 0);
+  /** @private */
+  this.actualResult_ = new r5js.test.SchemeTestDriver.ResultStruct_('', 0, 0);
+
+  /** @private {goog.log.Logger} */ this.logger_ = null;
 };
 goog.inherits(
     r5js.test.SchemeTestDriver.TestFrameworkTest_, tdd.ManualTestSuite);
@@ -157,8 +181,12 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.resultIsExpected_ =
  */
 r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.onWrite_ = function(
     value) {
-  var result = r5js.test.SchemeTestDriver.resultStructForOutput_(value);
+  var result = r5js.test.SchemeTestDriver.jsValueToResultStruct_(value);
   if (result) {
+    this.logger_.logRecord(new tdd.LogRecord(
+        tdd.LogLevel.SUCCESS,
+        'r5js.test.SchemeTestDriver',
+        result.name_));
     this.actualResult_ = this.actualResult_.merge(result);
   }
 };
@@ -177,6 +205,7 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.toString =
 /** @override */
 r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.execute =
     function(logger) {
+  this.logger_ = logger;
   this.evaluator_.evaluate(
       this.sources_.testFramework + this.sources_.testFrameworkTests);
   var success = r5js.test.SchemeTestDriver.TestFrameworkTest_.resultIsExpected_(
