@@ -138,7 +138,7 @@ goog.inherits(
 
 /**
  * Must be kept manually in sync with the expected results of
- * test/framework/unit-test-test.scm.
+ * test/unit-test-tests.scm.
  * @param {!tdd.ResultStruct} result
  * @return {boolean}
  * @private

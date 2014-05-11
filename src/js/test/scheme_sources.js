@@ -82,7 +82,7 @@ r5js.test.SchemeSources.urls_ = {
   SYNTAX: '/src/scm/r5rs-syntax.scm',
   PROCEDURES: '/src/scm/r5rs-procedures.scm',
   TEST_FRAMEWORK: '/test/framework/unit-test.scm',
-  TEST_FRAMEWORK_TESTS: '/test/framework/unit-test-test.scm',
+  TEST_FRAMEWORK_TESTS: '/test/unit-test-tests.scm',
   R5RS_TESTS: '/test/r5rs-tests.scm',
   NEGATIVE_TESTS: '/test/negative-tests.scm',
   OTHER_TESTS: '/test/other-tests.scm'
