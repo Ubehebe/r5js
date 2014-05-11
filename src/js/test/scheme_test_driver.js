@@ -28,6 +28,8 @@ r5js.test.SchemeTestDriver = function(evaluator, sources) {
       r5js.InputPort.NULL,
       new r5js.CallbackBackedPort(this.onWrite_.bind(this)));
   /** @const @private */ this.sources_ = sources;
+  /** @private */ this.result_ = new tdd.ResultStruct(0, 0, 0);
+  /** @private {goog.log.Logger} */ this.logger_ = null;
 };
 goog.inherits(r5js.test.SchemeTestDriver, tdd.ManualTestSuite);
 
@@ -46,11 +48,18 @@ r5js.test.SchemeTestDriver.prototype.toString = function() {
 
 /** @override */
 r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
-  this.testR5RSTests_();
-  this.testNegativeTests_();
-  this.testOtherTests_();
+  this.logger_ = logger;
   return new r5js.test.SchemeTestDriver.TestFrameworkTest_(
-      this.evaluator_, this.sources_).execute(logger);
+      this.evaluator_, this.sources_).execute(logger).then(function(result) {
+    this.result_ = this.result_.merge(result);
+    this.evaluator_.evaluate(
+        this.sources_.testFramework + this.sources_.r5RSTests);
+    this.evaluator_.evaluate(
+        this.sources_.testFramework + this.sources_.negativeTests);
+    this.evaluator_.evaluate(
+        this.sources_.testFramework + this.sources_.otherTests);
+    return this.result_;
+  }, undefined /* opt_onRejected */, this);
 };
 
 
@@ -59,28 +68,14 @@ r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
  * @private
  */
 r5js.test.SchemeTestDriver.prototype.onWrite_ = function(value) {
-  console.log(r5js.EvalAdapter.toWriteString(value));
-};
-
-
-/** @private */
-r5js.test.SchemeTestDriver.prototype.testR5RSTests_ = function() {
-  this.evaluator_.evaluate(
-      this.sources_.testFramework + this.sources_.r5RSTests);
-};
-
-
-/** @private */
-r5js.test.SchemeTestDriver.prototype.testNegativeTests_ = function() {
-  this.evaluator_.evaluate(
-      this.sources_.testFramework + this.sources_.negativeTests);
-};
-
-
-/** @private */
-r5js.test.SchemeTestDriver.prototype.testOtherTests_ = function() {
-  this.evaluator_.evaluate(
-      this.sources_.testFramework + this.sources_.otherTests);
+  var result = r5js.test.SchemeTestDriver.jsValueToResultStruct_(value);
+  if (result) {
+    this.logger_.logRecord(new tdd.LogRecord(
+        tdd.LogLevel.SUCCESS,
+        'r5js.test.SchemeTestDriver',
+        result.name_));
+    this.result_ = this.result_.merge(result);
+  }
 };
 
 
