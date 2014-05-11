@@ -71,7 +71,7 @@ r5js.test.SchemeTestDriver.prototype.onWrite_ = function(value) {
   var result = r5js.test.SchemeTestDriver.jsValueToResultStruct_(value);
   if (result) {
     this.logger_.logRecord(new tdd.LogRecord(
-        tdd.LogLevel.SUCCESS,
+        result.getNumFailed() ? tdd.LogLevel.FAILURE : tdd.LogLevel.SUCCESS,
         'r5js.test.SchemeTestDriver',
         result.name_));
     this.result_ = this.result_.merge(result);
