@@ -50,6 +50,10 @@ r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
   expect('(quote hello)').to(haveStringValue('hello'));
   expect('#\\a').to(haveJsValue('a'));
   expect('#\\a').to(haveStringValue('#\\a'));
+  expect('#\\space').to(haveJsValue(' '));
+  expect('#\\space').to(haveStringValue('#\\space'));
+  expect('#\\newline').to(haveJsValue('\n'));
+  expect('#\\newline').to(haveStringValue('#\\newline'));
 };
 
 
@@ -68,6 +72,10 @@ r5js.test.JsInterop.prototype['testDisplayPrimitivesToJs'] = function() {
   expect('(display (quote hello))').to(haveStringOutput('hello'));
   expect('(display #\\a)').to(haveJsOutput('a'));
   expect('(display #\\a)').to(haveStringOutput('a'));
+  expect('(display #\\space)').to(haveJsOutput(' '));
+  expect('(display #\\space)').to(haveStringOutput(' '));
+  expect('(display #\\newline)').to(haveJsOutput('\n'));
+  expect('(display #\\newline)').to(haveStringOutput('\n'));
 };
 
 
@@ -86,6 +94,10 @@ r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
   expect('(write (quote hello))').to(haveStringOutput('hello'));
   expect('(write #\\a)').to(haveJsOutput('a'));
   expect('(write #\\a)').to(haveStringOutput('#\\a'));
+  expect('(write #\\space)').to(haveJsOutput(' '));
+  expect('(write #\\space)').to(haveStringOutput('#\\space'));
+  expect('(write #\\newline)').to(haveJsOutput('\n'));
+  expect('(write #\\newline)').to(haveStringOutput('#\\newline'));
 };
 
 

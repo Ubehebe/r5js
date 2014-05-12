@@ -134,9 +134,19 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
             '"' + value.getPayload() + '"' : // TODO bl escape
             value.getPayload();
       } else if (value instanceof r5js.ast.Character) {
-        return includeSigils ?
-            '#\\' + value.getPayload() :
-            value.getPayload();
+        if (includeSigils) {
+          // Special cases for space and newline: R5RS 6.3.4
+          var payload = value.getPayload();
+          if (payload === ' ') {
+            return '#\\space';
+          } else if (payload === '\n') {
+            return '#\\newline';
+          } else {
+            return '#\\' + payload;
+          }
+        } else {
+          return value.getPayload();
+        }
       } else if (value instanceof r5js.Datum) {
         return r5js.EvalAdapter.toString_(includeSigils, value.unwrap());
       }
