@@ -870,8 +870,15 @@
      x) => (a . y))
 )
 
-;; (define-tests io-tests ; will fail in browser
-;;   ((begin
+ (define-tests io-tests ; will fail in browser
+   ;;((input-port? (current-input-port)) => #t)
+   ;;((input-port? (current-output-port)) => #f)
+   ;;((output-port? (current-input-port)) => #f)
+   ;;((output-port? (current-output-port)) => #f)
+   ((input-port? (open-input-file "foo")) => #t)
+   ((input-port? (open-output-file "foo")) => #f)
+   ((output-port? (open-input-file "foo")) => #f)
+   ((output-port? (open-output-file "foo")) => #t))
 ;;      (define foo (open-output-file "foo"))
 ;;      (display "foo" foo)
 ;;      (close-output-port foo)
