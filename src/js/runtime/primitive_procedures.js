@@ -683,11 +683,11 @@ PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
 });
 
 PrimitiveProcedures['open-input-file'] = _.unary(function(datum) {
-  return PrimitiveProcedures.jsEnv_.newInputPort(datum.getPayload());
+  return r5js.PrimitiveProcedures.jsEnv_.newInputPort(datum.getPayload());
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['open-output-file'] = _.unary(function(datum) {
-  return PrimitiveProcedures.jsEnv_.newOutputPort(datum.getPayload());
+  return r5js.PrimitiveProcedures.jsEnv_.newOutputPort(datum.getPayload());
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
