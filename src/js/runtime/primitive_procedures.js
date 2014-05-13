@@ -701,6 +701,16 @@ PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
       return new r5js.ast.Character(inputPortToUse.peekChar());
     });
 
+PrimitiveProcedures['read'] = _.nullaryOrUnaryWithCurrentPorts(
+    function(inputPort, outputPort, maybeUserSuppliedInputPort) {
+      var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
+      if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
+        throw new r5js.ArgumentTypeError(
+            inputPortToUse, 0, 'read', r5js.DatumType.INPUT_PORT);
+      }
+      return inputPortToUse.read();
+    });
+
 PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
@@ -712,8 +722,8 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
     });
 
 PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
-    function(inputPort, outputPort, datum) {
-      var outputPortToUse = outputPort; // TODO bl fix calling convention
+    function(inputPort, outputPort, datum, maybeUserSuppliedOutputPort) {
+      var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw new r5js.ArgumentTypeError(
             outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT);
