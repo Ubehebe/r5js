@@ -4,6 +4,8 @@ goog.provide('r5js.js.NodeEnvironment');
 goog.require('goog.Promise');
 goog.require('r5js.EvalAdapter');
 goog.require('r5js.IOError');
+goog.require('r5js.InputPort');
+goog.require('r5js.OutputPort');
 
 
 
@@ -71,6 +73,8 @@ r5js.js.NodeEnvironment.Port_ = function(filename, mode) {
   /** @private */ this.offset_ = 0;
   /** @private */ this.position_ = 0;
 };
+r5js.InputPort.addImplementation(r5js.js.NodeEnvironment.Port_);
+r5js.OutputPort.addImplementation(r5js.js.NodeEnvironment.Port_);
 
 
 /** @override */
