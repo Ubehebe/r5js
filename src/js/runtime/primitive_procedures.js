@@ -640,7 +640,7 @@ PrimitiveProcedures['will-eval?'] = _.binary(
 // I/O related procedures
 
 PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
-    function(maybeUserSuppliedInputPort, inputPort) {
+    function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
@@ -660,7 +660,7 @@ PrimitiveProcedures['close-output-port'] = _.unary(function(datum) {
 }, r5js.DatumType.OUTPUT_PORT);
 
 PrimitiveProcedures['current-input-port'] = _.nullaryWithCurrentPorts(
-    function(inputPort) { return inputPort; });
+    function(inputPort, outputPort) { return inputPort; });
 
 PrimitiveProcedures['current-output-port'] = _.nullaryWithCurrentPorts(
     function(inputPort, outputPort) { return outputPort; });
@@ -670,7 +670,7 @@ PrimitiveProcedures['current-output-port'] = _.nullaryWithCurrentPorts(
      display would presumably have to be written in terms of write-char.
      That's not too efficient, so I decided to write it in JavaScript. */
 PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
-    function(datum, inputPort, outputPort) {
+    function(inputPort, outputPort, datum) {
       if (!r5js.OutputPort.isImplementedBy(outputPort)) {
         throw new r5js.ArgumentTypeError(
             outputPort, 1, 'display', r5js.DatumType.OUTPUT_PORT);
@@ -692,7 +692,7 @@ PrimitiveProcedures['open-output-file'] = _.unary(function(datum) {
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
-    function(maybeUserSuppliedInputPort, inputPort) {
+    function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
@@ -702,7 +702,7 @@ PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
     });
 
 PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
-    function(maybeUserSuppliedInputPort, inputPort) {
+    function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
@@ -712,7 +712,7 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
     });
 
 PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
-    function(datum, inputPort, outputPort) {
+    function(inputPort, outputPort, datum) {
       var outputPortToUse = outputPort; // TODO bl fix calling convention
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw new r5js.ArgumentTypeError(
@@ -723,7 +723,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
     });
 
 PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
-    function(charNode, maybeUserSuppliedOutputPort, inputPort, outputPort) {
+    function(inputPort, outputPort, charNode, maybeUserSuppliedOutputPort) {
       if (!(charNode instanceof r5js.ast.Character)) {
         throw new r5js.ArgumentTypeError(
             charNode, 0, 'write-char', r5js.DatumType.CHARACTER);

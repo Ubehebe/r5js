@@ -358,9 +358,9 @@ r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
   var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
   var args = goog.array.concat(
-      goog.array.toArray(unwrappedArgs),
       trampolineHelper.getInputPort(),
-      trampolineHelper.getOutputPort());
+      trampolineHelper.getOutputPort(),
+      goog.array.toArray(unwrappedArgs));
   var ans = this.fn_.apply(null, args);
   procCallLike.bindResult(ans);
   trampolineHelper.setValue(ans);
@@ -518,7 +518,7 @@ r5js.procspec.nullaryWithCurrentPorts = function(fn) {
 
 
 /**
- * @param {function(?, !r5js.InputPort, !r5js.OutputPort): ?} fn
+ * @param {function(!r5js.InputPort, !r5js.OutputPort, ?): ?} fn
  * @return {!r5js.procspec.PrimitiveProcedure_}
  */
 r5js.procspec.nullaryOrUnaryWithCurrentPorts = function(fn) {
@@ -529,7 +529,7 @@ r5js.procspec.nullaryOrUnaryWithCurrentPorts = function(fn) {
 
 
 /**
- * @param {function(?, ?, !r5js.InputPort, !r5js.OutputPort): ?} fn
+ * @param {function(!r5js.InputPort, !r5js.OutputPort, ?, ?): ?} fn
  * @return {!r5js.procspec.PrimitiveProcedure_}
  */
 r5js.procspec.unaryOrBinaryWithCurrentPorts = function(fn) {
