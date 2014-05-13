@@ -36,8 +36,8 @@ r5js.Assignment.prototype.evalAndAdvance = function(
       this.firstOperand_.getNextSibling().getPayload()));
   this.checkForImproperSyntaxAssignment(src);
   this.mutateEnv(/** @type {string} */ (this.firstOperand_.getPayload()), src);
-  /* The return value of an assignment is unspecified,
-     but this is not the same as no binding. */
+  // R5RS 4.1.6: the value of an assignment is unspecified.
+  resultStruct.setValue(r5js.runtime.UNSPECIFIED_VALUE);
   this.bindResult(r5js.runtime.UNSPECIFIED_VALUE);
   var nextContinuable = this.getNext();
   if (nextContinuable) {

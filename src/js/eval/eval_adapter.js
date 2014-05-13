@@ -3,6 +3,7 @@ goog.provide('r5js.EvalAdapter');
 
 
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
 
@@ -60,7 +61,9 @@ r5js.EvalAdapter.toJsValue = function(value) {
     case 'string':
       return value;
     case 'object':
-      if (value instanceof r5js.Ref) {
+      if (value === r5js.runtime.UNSPECIFIED_VALUE) {
+        return undefined;
+      } else if (value instanceof r5js.Ref) {
         return r5js.EvalAdapter.toJsValue(value.deref());
       } else if (value instanceof r5js.ast.List ||
           value instanceof r5js.ast.Vector) {
@@ -110,6 +113,9 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
     case 'string':
       return value;
     case 'object':
+      if (value === r5js.runtime.UNSPECIFIED_VALUE) {
+        return '';
+      }
       if (value instanceof r5js.Ref) {
         return r5js.EvalAdapter.toString_(includeSigils, value.deref());
       } else if (value instanceof r5js.ast.List ||

@@ -167,3 +167,23 @@ r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
   expect("(write (cons 'a 'b))").to(haveStringOutput('(a . b)'));
 };
 
+
+r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
+  expect('(define x 1)').to(haveJsValue(undefined));
+  expect('(define x 1)').to(haveStringValue(''));
+  expect('(define x 1) (set! x 2)').to(haveJsValue(undefined));
+  expect('(define x 1) (set! x 2)').to(haveStringValue(''));
+  expect('(define x (cons 1 2)) (set-car! x x)').to(haveJsValue(undefined));
+  expect('(define x (cons 1 2)) (set-car! x x)').to(haveStringValue(''));
+  expect('(define x (cons 1 2)) (set-cdr! x x)').to(haveJsValue(undefined));
+  expect('(define x (cons 1 2)) (set-cdr! x x)').to(haveStringValue(''));
+  expect('(if #f #t)').to(haveJsValue(undefined));
+  expect('(if #f #t)').to(haveStringValue(''));
+  expect('(write "foo")').to(haveJsValue(undefined));
+  expect('(write "foo")').to(haveStringValue(''));
+  expect('(display 42)').to(haveJsValue(undefined));
+  expect('(display 42)').to(haveStringValue(''));
+  expect('(write-char #\\a)').to(haveJsValue(undefined));
+  expect('(write-char #\\a)').to(haveStringValue(''));
+};
+

@@ -46,6 +46,7 @@ goog.require('r5js.newAssignment');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.parse.bnf');
+goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
 /* todo bl: this file should not exist.
@@ -587,16 +588,10 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
       var testEndpoint = r5js.ProcCallLike.getLast(test);
-      /* If there's no alternate given, we create a shim that will return
-         an undefined value. Example: (display (if #f 42)).
-         We give a type of "number" for the shim because passing in
-         a null type would activate the default type, identifier, which would
-         change the semantics.
-         TODO bl improve. */
       var branch = new r5js.Branch(
           testEndpoint.getResultName(),
           consequent,
-          new r5js.IdShim(new r5js.ast.Number(null)));
+          new r5js.IdShim(r5js.runtime.UNSPECIFIED_VALUE));
       testEndpoint.setNext(branch);
       return test;
     }));
