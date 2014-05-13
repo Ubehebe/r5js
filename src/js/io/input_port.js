@@ -2,6 +2,7 @@ goog.provide('r5js.InputPort');
 
 
 goog.require('goog.functions');
+goog.require('r5js.runtime.EOF');
 
 
 
@@ -13,11 +14,15 @@ r5js.InputPort = function() {};
 r5js.InputPort.prototype.isCharReady = function() {};
 
 
-/** @return {?string} */
+/** @return {string|!r5js.runtime.Eof} */
 r5js.InputPort.prototype.peekChar = function() {};
 
 
-/** @return {?string} */
+/** @return {!r5js.runtime.Value} */
+r5js.InputPort.prototype.read = function() {};
+
+
+/** @return {string|!r5js.runtime.Eof} */
 r5js.InputPort.prototype.readChar = function() {};
 
 
@@ -61,11 +66,18 @@ r5js.InputPort.Null_.prototype.isCharReady = goog.functions.FALSE;
 
 
 /** @override */
-r5js.InputPort.Null_.prototype.peekChar = goog.functions.NULL;
+r5js.InputPort.Null_.prototype.peekChar = goog.functions.constant(
+    r5js.runtime.EOF);
 
 
 /** @override */
-r5js.InputPort.Null_.prototype.readChar = goog.functions.NULL;
+r5js.InputPort.Null_.prototype.read = goog.functions.constant(
+    r5js.runtime.EOF);
+
+
+/** @override */
+r5js.InputPort.Null_.prototype.readChar = goog.functions.constant(
+    r5js.runtime.EOF);
 
 
 /** @override */
