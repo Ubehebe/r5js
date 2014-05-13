@@ -33,6 +33,7 @@ goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
+goog.require('r5js.runtime.EOF');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
@@ -679,7 +680,7 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
     });
 
 PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
-  return false; // TODO bl add port tests
+  return port === r5js.runtime.EOF;
 });
 
 PrimitiveProcedures['open-input-file'] = _.unary(function(datum) {

@@ -1,3 +1,4 @@
+goog.provide('r5js.runtime.EOF');
 goog.provide('r5js.runtime.ObjectValue');
 goog.provide('r5js.runtime.PrimitiveValue');
 goog.provide('r5js.runtime.UNSPECIFIED_VALUE');
@@ -52,4 +53,19 @@ goog.inherits(r5js.runtime.UnspecifiedValue_, r5js.Datum);
  * they are datums (for example the implementation of car).
  */
 r5js.runtime.UNSPECIFIED_VALUE = new r5js.runtime.UnspecifiedValue_();
+
+
+
+/**
+ * @extends {r5js.Datum}
+ * @struct
+ * @constructor
+ */
+r5js.runtime.Eof = function() {
+  goog.base(this);
+};
+goog.inherits(r5js.runtime.Eof, r5js.Datum);
+
+
+/** @const */ r5js.runtime.EOF = new r5js.runtime.Eof();
 
