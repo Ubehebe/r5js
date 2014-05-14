@@ -650,12 +650,12 @@ PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
     });
 
 PrimitiveProcedures['close-input-port'] = _.unary(function(datum) {
-  datum.getPayload().close();
+  datum.close();
   return r5js.runtime.UNSPECIFIED_VALUE;
 }, r5js.DatumType.INPUT_PORT);
 
 PrimitiveProcedures['close-output-port'] = _.unary(function(datum) {
-  datum.getPayload().close();
+  datum.close();
   return r5js.runtime.UNSPECIFIED_VALUE;
 }, r5js.DatumType.OUTPUT_PORT);
 

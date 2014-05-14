@@ -185,5 +185,18 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
   expect('(display 42)').to(haveStringValue(''));
   expect('(write-char #\\a)').to(haveJsValue(undefined));
   expect('(write-char #\\a)').to(haveStringValue(''));
+  expect('(close-input-port (current-input-port))').
+      to(haveJsValue(undefined));
+  expect('(close-input-port (current-input-port))').to(haveStringValue(''));
+  expect('(close-input-port (open-input-file "foo"))').
+      to(haveJsValue(undefined));
+  expect('(close-input-port (open-input-file "foo"))').to(haveStringValue(''));
+  expect('(close-output-port (open-output-file "foo"))').
+      to(haveJsValue(undefined));
+  expect('(close-output-port (open-output-file "foo"))').
+      to(haveStringValue(''));
+  expect('(close-output-port (current-output-port))').
+      to(haveJsValue(undefined));
+  expect('(close-output-port (current-output-port))').to(haveStringValue(''));
 };
 
