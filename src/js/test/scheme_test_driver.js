@@ -75,6 +75,12 @@ r5js.test.SchemeTestDriver.prototype.onWrite_ = function(value) {
         'r5js.test.SchemeTestDriver',
         result.name_));
     this.result_ = this.result_.merge(result);
+  } else if (result = r5js.test.SchemeTestDriver.jsValueToFailureMessage_(
+      value)) {
+    this.logger_.logRecord(new tdd.LogRecord(
+        tdd.LogLevel.FAILURE,
+        'r5js.test.SchemeTestDriver',
+        result));
   }
 };
 
@@ -127,6 +133,29 @@ r5js.test.SchemeTestDriver.jsValueToResultStruct_ = function(output) {
   } else {
     return null;
   }
+};
+
+
+/**
+ * Parses a Scheme test framework output like this:
+ * (fail foo-tests (input (+ 1 1)) (want 3) (got 2))
+ * into a string, returning null if the parse failed.
+ * Uses {@link r5js.EvalAdapter#toWriteString} to avoid messing with the AST.
+ * @param {!r5js.runtime.Value} output
+ * @return {?string}
+ * @private
+ */
+r5js.test.SchemeTestDriver.jsValueToFailureMessage_ = function(output) {
+  var string = r5js.EvalAdapter.toDisplayString(output);
+  var match = /\(fail .+ \(input (.*)\) \(want (.*)\) \(got (.*)\)\)/.
+      exec(string);
+  if (!match) {
+    return null;
+  }
+  var input = match[1];
+  var want = match[2];
+  var got = match[3];
+  return 'input ' + input + ': want ' + want + ', got ' + got;
 };
 
 
