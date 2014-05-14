@@ -870,11 +870,11 @@
      x) => (a . y))
 )
 
- (define-tests io-tests ; will fail in browser
-   ;;((input-port? (current-input-port)) => #t)
-   ;;((input-port? (current-output-port)) => #f)
-   ;;((output-port? (current-input-port)) => #f)
-   ;;((output-port? (current-output-port)) => #f)
+ (define-tests io-tests
+   ((input-port? (current-input-port)) => #t)
+   ((input-port? (current-output-port)) => #f)
+   ((output-port? (current-input-port)) => #f)
+   ((output-port? (current-output-port)) => #t)
    ((input-port? (open-input-file "foo")) => #t)
    ((input-port? (open-output-file "foo")) => #f)
    ((output-port? (open-input-file "foo")) => #f)
