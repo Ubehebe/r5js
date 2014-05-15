@@ -115,8 +115,9 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
     case 'object':
       if (value === r5js.runtime.UNSPECIFIED_VALUE) {
         return '';
-      }
-      if (value instanceof r5js.Ref) {
+      } else if (value === r5js.runtime.EOF) {
+        return '<eof>';
+      } else if (value instanceof r5js.Ref) {
         return r5js.EvalAdapter.toString_(includeSigils, value.deref());
       } else if (value instanceof r5js.ast.List ||
           value instanceof r5js.ast.DottedList) {
