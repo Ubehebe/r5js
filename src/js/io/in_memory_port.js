@@ -29,7 +29,7 @@ r5js.InputPort.addImplementation(r5js.InMemoryInputPort);
 
 /** @override */
 r5js.InMemoryInputPort.prototype.isCharReady = function() {
-  return false; // TODO bl
+  return this.buffer_.length > 0 && !this.buffer_[0].done();
 };
 
 
@@ -84,14 +84,14 @@ r5js.OutputPort.addImplementation(r5js.InMemoryOutputPort);
 
 
 /** @override */
-r5js.InMemoryOutputPort.prototype.display =
-    r5js.InMemoryOutputPort.prototype.write;
-
-
-/** @override */
 r5js.InMemoryOutputPort.prototype.write = function(value) {
   this.buffer_.push(new r5js.ValueAndExternalRepresentation_(value));
 };
+
+
+/** @override */
+r5js.InMemoryOutputPort.prototype.display =
+    r5js.InMemoryOutputPort.prototype.write;
 
 
 /** @override */
