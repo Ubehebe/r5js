@@ -578,8 +578,9 @@ r5js.DatumType.CHARACTER);
 
 // Evaluation-related procedures
 
-PrimitiveProcedures['eval'] = _.binary(
-    /** @suppress {checkTypes} */ function(expr, envSpec) {
+PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
+    /** @suppress {accessControls} */function(
+        inputPort, outputPort, expr, envSpec) {
       if (!(expr instanceof r5js.Datum))
         throw new r5js.ArgumentTypeError(
             expr, 0, 'eval', 'ref' /* TODO bl is this right? */);
@@ -614,14 +615,14 @@ PrimitiveProcedures['eval'] = _.binary(
 
         var env = /** @type {!r5js.IEnvironment} */ (envSpec);
         // don't accidentally evaluate the next expr!
-        expr.setNextSibling(null);
+        expr.nextSibling_ = null;
 
         var parsed = new r5js.ParserImpl(expr).parse();
         if (!parsed)
           throw new r5js.ParseError(expr);
-        var continuable = parsed.desugar(env);
-        return r5js.trampoline(
-            continuable, env, r5js.InputPort.NULL, r5js.OutputPort.NULL);
+        var continuable = /** @type {!r5js.ProcCallLike} */ (
+            parsed.desugar(env));
+        return r5js.trampoline(continuable, env, inputPort, outputPort);
       }
     });
 

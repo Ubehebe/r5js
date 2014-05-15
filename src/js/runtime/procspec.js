@@ -518,6 +518,17 @@ r5js.procspec.nullaryWithCurrentPorts = function(fn) {
 
 
 /**
+ * @param {function(!r5js.InputPort, !r5js.OutputPort, ?, ?): ?} fn
+ * @return {!r5js.procspec.PrimitiveProcedure_}
+ */
+r5js.procspec.binaryWithCurrentPorts = function(fn) {
+  return new r5js.procspec.NeedsCurrentPorts_(
+      fn, new r5js.procspec.Exactly_(2),
+      r5js.procspec.NO_TYPE_RESTRICTIONS_);
+};
+
+
+/**
  * @param {function(!r5js.InputPort, !r5js.OutputPort, ?): ?} fn
  * @return {!r5js.procspec.PrimitiveProcedure_}
  */
