@@ -2,20 +2,34 @@ goog.provide('r5js.js.NodeEnvironment');
 
 
 goog.require('goog.Promise');
-goog.require('r5js.EvalAdapter');
-goog.require('r5js.IOError');
-goog.require('r5js.InputPort');
-goog.require('r5js.OutputPort');
-goog.require('r5js.runtime.EOF');
+goog.require('r5js.InMemoryInputPort');
+goog.require('r5js.InMemoryOutputPort');
 
 
 
 /**
+ * NodeJS-specific environment facilities.
+ *
+ * TODO bl: The main benefit of running the interpreter in Node
+ * over a browser is filesystem access: open-input-file and open-output-file
+ * should be connected to the local filesystem.
+ *
+ * However, the current implementation merely uses in-memory ports.
+ * The reason is that the R5RS I/O facilities are underspecified to such
+ * an extent as to be of little use to the programmer. (For example,
+ * it is unspecified whether calling open-output-file on an existing file
+ * truncates or appends, and the effect of concurrent modifications
+ * to a file isn't even discussed.)
+ *
+ * Proper filesystem access through Node will be added for R6RS.
  * @implements {r5js.js.Environment}
  * @struct
  * @constructor
  */
-r5js.js.NodeEnvironment = function() {};
+r5js.js.NodeEnvironment = function() {
+  /** @const @private {!Object.<string, !r5js.InMemoryPortBuffer>} */
+  this.buffers_ = {};
+};
 
 
 /** @override */
@@ -44,128 +58,17 @@ r5js.js.NodeEnvironment.prototype.exit = function(statusCode) {
 
 /** @override */
 r5js.js.NodeEnvironment.prototype.newInputPort = function(name) {
-  return new r5js.js.NodeEnvironment.InputPort_(name);
+  if (!(name in this.buffers_)) {
+    this.buffers_[name] = [];
+  }
+  return new r5js.InMemoryInputPort(this.buffers_[name]);
 };
 
 
 /** @override */
 r5js.js.NodeEnvironment.prototype.newOutputPort = function(name) {
-  return new r5js.js.NodeEnvironment.OutputPort_(name);
-};
-
-
-
-/**
- * @param {string} filename
- * @param {string} mode
- * @struct
- * @constructor
- * @private
- * @suppress {checkTypes} TODO bl the compiler complains that Buffer
- * is non-instantiable.
- */
-r5js.js.NodeEnvironment.Port_ = function(filename, mode) {
-  var fs = require('fs');
-  /** @const @protected */ this.fd = fs.openSync(filename, mode);
-  /** @const @protected */ this.buf = new Buffer(1 << 10);
-  /** @protected */ this.offset = 0;
-  /** @protected */ this.position = 0;
-};
-
-
-/** Closes the port. */
-r5js.js.NodeEnvironment.Port_.prototype.close = function() {
-  var fs = require('fs');
-  fs.closeSync(this.fd);
-};
-
-
-
-/**
- * @param {string} filename
- * @implements {r5js.InputPort}
- * @extends {r5js.js.NodeEnvironment.Port_}
- * @struct
- * @constructor
- * @private
- */
-r5js.js.NodeEnvironment.InputPort_ = function(filename) {
-  goog.base(this, filename, 'r');
-};
-goog.inherits(
-    r5js.js.NodeEnvironment.InputPort_, r5js.js.NodeEnvironment.Port_);
-r5js.InputPort.addImplementation(r5js.js.NodeEnvironment.InputPort_);
-
-
-/** @override */
-r5js.js.NodeEnvironment.InputPort_.prototype.isCharReady = function() {
-  return true;
-};
-
-
-/** @override */
-r5js.js.NodeEnvironment.InputPort_.prototype.peekChar = function() {
-  var ans = this.readChar();
-  this.position++;
-  return ans;
-};
-
-
-/** @override */
-r5js.js.NodeEnvironment.InputPort_.prototype.read = function() {
-  return r5js.runtime.EOF; // TODO bl implement
-};
-
-
-/** @override */
-r5js.js.NodeEnvironment.InputPort_.prototype.readChar = function() {
-  var fs = require('fs');
-  var nread = fs.readSync(this.fd, this.buf, this.offset, 1, this.position);
-  if (nread < 1) {
-    throw new r5js.IOError('readSync: read ' + nread);
+  if (!(name in this.buffers_)) {
+    this.buffers_[name] = [];
   }
-  return this.buf[this.offset++];
-};
-
-
-
-/**
- * @param {string} filename
- * @implements {r5js.OutputPort}
- * @extends {r5js.js.NodeEnvironment.Port_}
- * @struct
- * @constructor
- * @private
- */
-r5js.js.NodeEnvironment.OutputPort_ = function(filename) {
-  goog.base(this, filename, 'w');
-};
-goog.inherits(
-    r5js.js.NodeEnvironment.OutputPort_, r5js.js.NodeEnvironment.Port_);
-r5js.OutputPort.addImplementation(r5js.js.NodeEnvironment.OutputPort_);
-
-
-/**
- * @override
- * @suppress {checkTypes} The Node API docs say that a null position
- * argument means the current position, but the Node externs give the type
- * of that argument as number.
- */
-r5js.js.NodeEnvironment.OutputPort_.prototype.write = function(value) {
-  var str = r5js.EvalAdapter.toWriteString(value);
-  var fs = require('fs');
-  fs.writeSync(this.fd, str, 0, str.length, null /* current position */);
-};
-
-
-/**
- * @override
- * @suppress {checkTypes} The Node API docs say that a null position
- * argument means the current position, but the Node externs give the type
- * of that argument as number.
- */
-r5js.js.NodeEnvironment.OutputPort_.prototype.display = function(value) {
-  var str = r5js.EvalAdapter.toDisplayString(value);
-  var fs = require('fs');
-  fs.writeSync(this.fd, str, 0, str.length, null /* current position */);
+  return new r5js.InMemoryOutputPort(this.buffers_[name]);
 };
