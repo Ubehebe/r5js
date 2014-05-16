@@ -744,7 +744,7 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
         throw new r5js.ArgumentTypeError(
             outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
       }
-      outputPort.write(charNode.getPayload());
+      outputPortToUse.writeChar(charNode.getPayload());
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
