@@ -878,22 +878,19 @@
    ((input-port? (open-input-file "foo")) => #t)
    ((input-port? (open-output-file "foo")) => #f)
    ((output-port? (open-input-file "foo")) => #f)
-   ((output-port? (open-output-file "foo")) => #t))
-;;      (define foo (open-output-file "foo"))
-;;      (display "foo" foo)
-;;      (close-output-port foo)
-;;      (string=? "foo" (file->string "foo"))) => #t)
-;;   ((begin
-;;      (define foo (open-output-file "foo"))
-;;      (display "\\" foo)
-;;      (close-output-port foo)
-;;      (string-length (file->string "foo"))) => 1)
-;;   ((begin
-;;      (define foo (open-output-file "foo"))
-;;      (write "\\" foo)
-;;      (close-output-port foo)
-;;      (string-length (file->string "foo"))) => 4)
-;; )
+   ((output-port? (open-output-file "foo")) => #t)
+   ((begin
+      (write 'hello (open-output-file "foo"))
+      (read (open-input-file "foo"))) => hello)
+   ((begin
+      (define out (open-output-file "bar"))
+      (write 'hello out)
+      (write 123 out)
+      (define in (open-input-file "bar"))
+      (read in)
+      (read in)) => 123)
+   ((eof-object? (peek-char (open-input-file "xyzzy"))) => #t)
+)
 
 (define-tests quote-tests
   ((car ''a) => quote)
