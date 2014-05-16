@@ -146,7 +146,7 @@ r5js.test.SchemeTestDriver.jsValueToResultStruct_ = function(output) {
  * @private
  */
 r5js.test.SchemeTestDriver.jsValueToFailureMessage_ = function(output) {
-  var string = r5js.EvalAdapter.toDisplayString(output);
+  var string = r5js.EvalAdapter.toWriteString(output);
   var match = /\(fail .+ \(input (.*)\) \(want (.*)\) \(got (.*)\)\)/.
       exec(string);
   if (!match) {
