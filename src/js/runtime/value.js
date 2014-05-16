@@ -56,16 +56,5 @@ r5js.runtime.UNSPECIFIED_VALUE = new r5js.runtime.UnspecifiedValue_();
 
 
 
-/**
- * @extends {r5js.Datum}
- * @struct
- * @constructor
- */
-r5js.runtime.Eof = function() {
-  goog.base(this);
-};
-goog.inherits(r5js.runtime.Eof, r5js.Datum);
-
-
-/** @const */ r5js.runtime.EOF = new r5js.runtime.Eof();
+/** @const */ r5js.runtime.EOF = new r5js.Datum();
 
