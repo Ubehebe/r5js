@@ -6,7 +6,6 @@ goog.provide('r5js.InMemoryPortBuffer');
 goog.require('r5js.EvalAdapter');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
-goog.require('r5js.runtime.EOF');
 
 
 /** @typedef {!Array.<!r5js.ValueAndExternalRepresentation_>} */
@@ -42,7 +41,7 @@ r5js.InMemoryInputPort.prototype.close = function() {
 /** @override */
 r5js.InMemoryInputPort.prototype.read = function() {
   if (!this.buffer_.length) {
-    return r5js.runtime.EOF;
+    return null;
   }
   return this.buffer_.shift().value;
 };
@@ -51,22 +50,22 @@ r5js.InMemoryInputPort.prototype.read = function() {
 /** @override */
 r5js.InMemoryInputPort.prototype.peekChar = function() {
   if (!this.buffer_.length) {
-    return r5js.runtime.EOF;
+    return null;
   }
-  return this.buffer_[0].peekChar();
+  return new r5js.ast.Character(this.buffer_[0].peekChar());
 };
 
 
 /** @override */
 r5js.InMemoryInputPort.prototype.readChar = function() {
   if (!this.buffer_.length) {
-    return r5js.runtime.EOF;
+    return null;
   }
   var result = this.buffer_[0].readChar();
   if (this.buffer_[0].done()) {
     this.buffer_.shift();
   }
-  return result;
+  return new r5js.ast.Character(result);
 };
 
 

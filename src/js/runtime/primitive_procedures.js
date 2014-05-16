@@ -699,7 +699,7 @@ PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
         throw new r5js.ArgumentTypeError(
             inputPortToUse, 0, 'peek-char', r5js.DatumType.INPUT_PORT);
       }
-      return new r5js.ast.Character(inputPortToUse.peekChar());
+      return inputPortToUse.peekChar() || r5js.runtime.EOF;
     });
 
 PrimitiveProcedures['read'] = _.nullaryOrUnaryWithCurrentPorts(
@@ -709,7 +709,7 @@ PrimitiveProcedures['read'] = _.nullaryOrUnaryWithCurrentPorts(
         throw new r5js.ArgumentTypeError(
             inputPortToUse, 0, 'read', r5js.DatumType.INPUT_PORT);
       }
-      return inputPortToUse.read();
+      return inputPortToUse.read() || r5js.runtime.EOF;
     });
 
 PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
@@ -719,7 +719,7 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
         throw new r5js.ArgumentTypeError(
             inputPortToUse, 0, 'read-char', r5js.DatumType.INPUT_PORT);
       }
-      return new r5js.ast.Character(inputPortToUse.readChar());
+      return inputPortToUse.readChar() || r5js.runtime.EOF;
     });
 
 PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(

@@ -14,15 +14,24 @@ r5js.InputPort = function() {};
 r5js.InputPort.prototype.isCharReady = function() {};
 
 
-/** @return {string|!r5js.runtime.Eof} */
+/**
+ * @return {r5js.ast.Character} The next character, or null if there are
+ * no more characters.
+ */
 r5js.InputPort.prototype.peekChar = function() {};
 
 
-/** @return {!r5js.runtime.Value} */
+/**
+ * @return {!r5js.runtime.Value|null} The next value, or null if there are
+ * no more values.
+ */
 r5js.InputPort.prototype.read = function() {};
 
 
-/** @return {string|!r5js.runtime.Eof} */
+/**
+ * @return {r5js.ast.Character} The next character, or null if there are
+ * no more characters.
+ */
 r5js.InputPort.prototype.readChar = function() {};
 
 
@@ -66,18 +75,15 @@ r5js.InputPort.Null_.prototype.isCharReady = goog.functions.FALSE;
 
 
 /** @override */
-r5js.InputPort.Null_.prototype.peekChar = goog.functions.constant(
-    r5js.runtime.EOF);
+r5js.InputPort.Null_.prototype.peekChar = goog.functions.NULL;
 
 
 /** @override */
-r5js.InputPort.Null_.prototype.read = goog.functions.constant(
-    r5js.runtime.EOF);
+r5js.InputPort.Null_.prototype.read = goog.functions.NULL;
 
 
 /** @override */
-r5js.InputPort.Null_.prototype.readChar = goog.functions.constant(
-    r5js.runtime.EOF);
+r5js.InputPort.Null_.prototype.readChar = goog.functions.NULL;
 
 
 /** @override */
