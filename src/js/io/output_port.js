@@ -41,6 +41,10 @@ r5js.OutputPort = function() {};
 r5js.OutputPort.prototype.write = function(value) {};
 
 
+/** @param {string} c Character to write. */
+r5js.OutputPort.prototype.writeChar = function(c) {};
+
+
 /** @param {!r5js.runtime.Value} value Value to display. */
 r5js.OutputPort.prototype.display = function(value) {};
 
@@ -91,6 +95,10 @@ r5js.OutputPort.Null_.prototype.display = goog.nullFunction;
 
 /** @override */
 r5js.OutputPort.Null_.prototype.write = goog.nullFunction;
+
+
+/** @override */
+r5js.OutputPort.Null_.prototype.writeChar = goog.nullFunction;
 
 
 /** @const {!r5js.OutputPort} */

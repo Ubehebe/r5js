@@ -32,6 +32,10 @@ r5js.OutputSavingPort.prototype.write = function(value) {
 
 
 /** @override */
+r5js.OutputSavingPort.prototype.writeChar = goog.nullFunction;
+
+
+/** @override */
 r5js.OutputSavingPort.prototype.display = function(value) {
   this.values_.push(this.displayConverter_(value));
 };

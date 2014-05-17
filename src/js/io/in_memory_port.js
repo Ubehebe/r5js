@@ -97,6 +97,10 @@ r5js.InMemoryOutputPort.prototype.display =
 r5js.InMemoryOutputPort.prototype.close = goog.nullFunction;
 
 
+/** @override */
+r5js.InMemoryOutputPort.prototype.writeChar = goog.nullFunction;
+
+
 
 /**
  * @param {!r5js.runtime.Value} value
