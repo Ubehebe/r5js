@@ -4,11 +4,15 @@ goog.provide('r5js.InMemoryPortBuffer');
 
 
 goog.require('r5js.EvalAdapter');
+goog.require('r5js.IOError');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
+goog.require('r5js.ParserImpl');
+goog.require('r5js.Reader');
+goog.require('r5js.Scanner');
 
 
-/** @typedef {!Array.<!r5js.ValueAndExternalRepresentation_>} */
+/** @typedef {!Array.<!r5js.BufferedValue_>} */
 r5js.InMemoryPortBuffer;
 
 
@@ -28,7 +32,7 @@ r5js.InputPort.addImplementation(r5js.InMemoryInputPort);
 
 /** @override */
 r5js.InMemoryInputPort.prototype.isCharReady = function() {
-  return this.buffer_.length > 0 && !this.buffer_[0].done();
+  return this.buffer_.length > 0 && !!this.buffer_[0].peekChar();
 };
 
 
@@ -40,32 +44,30 @@ r5js.InMemoryInputPort.prototype.close = function() {
 
 /** @override */
 r5js.InMemoryInputPort.prototype.read = function() {
-  if (!this.buffer_.length) {
-    return null;
-  }
-  return this.buffer_.shift().value;
+  return this.buffer_.length ? this.buffer_.shift().toDatum() : null;
 };
 
 
 /** @override */
 r5js.InMemoryInputPort.prototype.peekChar = function() {
-  if (!this.buffer_.length) {
+  var c;
+  if (!this.buffer_.length || !(c = this.buffer_[0].peekChar())) {
     return null;
   }
-  return new r5js.ast.Character(this.buffer_[0].peekChar());
+  return new r5js.ast.Character(c);
 };
 
 
 /** @override */
 r5js.InMemoryInputPort.prototype.readChar = function() {
-  if (!this.buffer_.length) {
+  var c;
+  if (!this.buffer_.length || !(c = this.buffer_[0].readChar())) {
     return null;
   }
-  var result = this.buffer_[0].readChar();
-  if (this.buffer_[0].done()) {
+  if (!this.buffer_[0].peekChar()) {
     this.buffer_.shift();
   }
-  return new r5js.ast.Character(result);
+  return new r5js.ast.Character(c);
 };
 
 
@@ -89,6 +91,27 @@ r5js.InMemoryOutputPort.prototype.write = function(value) {
 
 
 /** @override */
+r5js.InMemoryOutputPort.prototype.writeChar = function(c) {
+  this.getValueUnderConstruction_().push(c);
+};
+
+
+/**
+ * @return {!r5js.ValueUnderConstruction_}
+ * @private
+ */
+r5js.InMemoryOutputPort.prototype.getValueUnderConstruction_ = function() {
+  if (!this.buffer_.length ||
+      !(this.buffer_[this.buffer_.length - 1] instanceof
+          r5js.ValueUnderConstruction_)) {
+    this.buffer_.push(new r5js.ValueUnderConstruction_());
+  }
+  return /** @type {!r5js.ValueUnderConstruction_} */ (
+      this.buffer_[this.buffer_.length - 1]);
+};
+
+
+/** @override */
 r5js.InMemoryOutputPort.prototype.display =
     r5js.InMemoryOutputPort.prototype.write;
 
@@ -97,43 +120,110 @@ r5js.InMemoryOutputPort.prototype.display =
 r5js.InMemoryOutputPort.prototype.close = goog.nullFunction;
 
 
-/** @override */
-r5js.InMemoryOutputPort.prototype.writeChar = goog.nullFunction;
+
+/**
+ * @interface
+ * @private
+ */
+r5js.BufferedValue_ = function() {};
+
+
+/** @return {?string} */
+r5js.BufferedValue_.prototype.peekChar = function() {};
+
+
+/** @return {?string} */
+r5js.BufferedValue_.prototype.readChar = function() {};
+
+
+/** @return {!r5js.Datum} */
+r5js.BufferedValue_.prototype.toDatum = function() {};
 
 
 
 /**
  * @param {!r5js.runtime.Value} value
+ * @implements {r5js.BufferedValue_}
  * @struct
  * @constructor
  * @private
  */
 r5js.ValueAndExternalRepresentation_ = function(value) {
-  /** @const */
-  this.value = value;
+  /** @const @private */
+  this.value_ = value;
   /** @const @private */
   this.externalRepresentation_ = r5js.EvalAdapter.toWriteString(value);
   /** @private */
-  this.externalRepresentationOffset_ = 0;
+  this.pos_ = 0;
 };
 
 
-/** @return {boolean} */
-r5js.ValueAndExternalRepresentation_.prototype.done = function() {
-  return this.externalRepresentationOffset_ >=
-      this.externalRepresentation_.length;
-};
-
-
-/** @return {string} */
+/** @override */
 r5js.ValueAndExternalRepresentation_.prototype.peekChar = function() {
-  return this.externalRepresentation_[this.externalRepresentationOffset_];
+  return this.pos_ < this.externalRepresentation_.length ?
+      this.externalRepresentation_[this.pos_] : null;
 };
 
 
-/** @return {string} */
+/** @override */
 r5js.ValueAndExternalRepresentation_.prototype.readChar = function() {
   var result = this.peekChar();
-  ++this.externalRepresentationOffset_;
+  if (result) {
+    ++this.pos_;
+  }
   return result;
+};
+
+
+/**
+ * @override
+ * @suppress {checkTypes}
+ */
+r5js.ValueAndExternalRepresentation_.prototype.toDatum = function() {
+  return this.value_;
+};
+
+
+
+/**
+ * @implements {r5js.BufferedValue_}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.ValueUnderConstruction_ = function() {
+  /** @const @private {!Array.<string>} */ this.buffer_ = [];
+};
+
+
+/** @param {string} c*/
+r5js.ValueUnderConstruction_.prototype.push = function(c) {
+  this.buffer_.push(c);
+};
+
+
+/** @override */
+r5js.ValueUnderConstruction_.prototype.peekChar = function() {
+  return this.buffer_.length ? this.buffer_[0] : null;
+};
+
+
+/** @override */
+r5js.ValueUnderConstruction_.prototype.readChar = function() {
+  return this.buffer_.length ? this.buffer_.shift() : null;
+};
+
+
+/** @override */
+r5js.ValueUnderConstruction_.prototype.toDatum = function() {
+  var text = this.buffer_.join('');
+  var ans = new r5js.ParserImpl(
+      new r5js.Reader(
+      new r5js.Scanner(
+      text)).read()).parse();
+  if (ans) {
+    return ans;
+  } else {
+    throw new r5js.IOError('read failure: ' + text);
+  }
 };
