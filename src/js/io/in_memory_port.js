@@ -85,7 +85,7 @@ r5js.OutputPort.addImplementation(r5js.InMemoryOutputPort);
 
 
 /** @override */
-r5js.InMemoryOutputPort.prototype.write = function(value) {
+r5js.InMemoryOutputPort.prototype.writeValue = function(value) {
   this.buffer_.push(new r5js.ValueAndExternalRepresentation_(value));
 };
 
@@ -113,7 +113,7 @@ r5js.InMemoryOutputPort.prototype.getValueUnderConstruction_ = function() {
 
 /** @override */
 r5js.InMemoryOutputPort.prototype.display =
-    r5js.InMemoryOutputPort.prototype.write;
+    r5js.InMemoryOutputPort.prototype.writeValue;
 
 
 /** @override */

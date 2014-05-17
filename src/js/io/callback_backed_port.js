@@ -39,7 +39,7 @@ r5js.CallbackBackedPort.prototype.close = goog.nullFunction;
 
 
 /** @override */
-r5js.CallbackBackedPort.prototype.write = function(value) {
+r5js.CallbackBackedPort.prototype.writeValue = function(value) {
   this.onOutput_(value);
 };
 

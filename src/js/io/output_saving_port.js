@@ -26,7 +26,7 @@ r5js.OutputPort.addImplementation(r5js.OutputSavingPort);
 
 
 /** @override */
-r5js.OutputSavingPort.prototype.write = function(value) {
+r5js.OutputSavingPort.prototype.writeValue = function(value) {
   this.values_.push(this.writeConverter_(value));
 };
 
