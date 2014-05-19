@@ -16,12 +16,13 @@
 
 goog.provide('r5js.ArgumentTypeError');
 goog.provide('r5js.EvalError');
+goog.provide('r5js.FFIError');
 goog.provide('r5js.GeneralSyntaxError');
+goog.provide('r5js.IOError');
 goog.provide('r5js.IllegalEmptyApplication');
 goog.provide('r5js.ImmutableError');
 goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.InternalInterpreterError');
-goog.provide('r5js.IOError');
 goog.provide('r5js.MacroError');
 goog.provide('r5js.ParseError');
 goog.provide('r5js.PrimitiveProcedureError');
@@ -31,7 +32,7 @@ goog.provide('r5js.TooFewArgs');
 goog.provide('r5js.TooManyArgs');
 goog.provide('r5js.UnboundVariable');
 goog.provide('r5js.UnimplementedOptionError');
-goog.provide('r5js.FFIError');
+
 
 
 /**
@@ -40,10 +41,12 @@ goog.provide('r5js.FFIError');
  * @constructor
  */
 r5js.UnboundVariable = function(name) {
-    this.toString = function() {
-        return 'unbound variable ' + name;
-    };
+  this.toString = function() {
+    return 'unbound variable ' + name;
+  };
 };
+
+
 
 /**
  * @param {string} name The name of the procedure.
@@ -53,19 +56,21 @@ r5js.UnboundVariable = function(name) {
  * @constructor
  */
 r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
-    this.toString = function() {
-        return 'The procedure '
-            + name
-            + ' has been called with '
-            + actualNumArgs
-            + ' argument'
-            + (actualNumArgs === 1 ? '' : 's')
-            + '; it requires at least '
-            + minNumArgs
-            + ' argument'
-            + (minNumArgs === 1 ? '' : 's');
-    };
+  this.toString = function() {
+    return 'The procedure ' +
+        name +
+        ' has been called with ' +
+        actualNumArgs +
+        ' argument' +
+        (actualNumArgs === 1 ? '' : 's') +
+        '; it requires at least ' +
+        minNumArgs +
+        ' argument' +
+        (minNumArgs === 1 ? '' : 's');
+  };
 };
+
+
 
 /**
  * @param {string} name The name of the procedure.
@@ -75,19 +80,21 @@ r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
  * @constructor
  */
 r5js.TooManyArgs = function(name, maxNumArgs, actualNumArgs) {
-    this.toString = function() {
-        return 'The procedure '
-            + name
-            + ' has been called with '
-            + actualNumArgs
-            + ' argument'
-            + (actualNumArgs === 1 ? '' : 's')
-            + '; it requires at most '
-            + maxNumArgs
-            + ' argument'
-            + (maxNumArgs === 1 ? '' : 's');
-    };
+  this.toString = function() {
+    return 'The procedure ' +
+        name +
+        ' has been called with ' +
+        actualNumArgs +
+        ' argument' +
+        (actualNumArgs === 1 ? '' : 's') +
+        '; it requires at most ' +
+        maxNumArgs +
+        ' argument' +
+        (maxNumArgs === 1 ? '' : 's');
+  };
 };
+
+
 
 /**
  * @param {string} name The name of the procedure.
@@ -96,29 +103,33 @@ r5js.TooManyArgs = function(name, maxNumArgs, actualNumArgs) {
  * @constructor
  */
 r5js.IncorrectNumArgs = function(name, expectedNumArgs, actualNumArgs) {
-    this.toString = function() {
-        return 'The procedure '
-            + name
-            + ' has been called with '
-            + actualNumArgs
-            + ' argument'
-            + (actualNumArgs === 1 ? '' : 's')
-            + '; it requires exactly '
-            + expectedNumArgs
-            + ' argument'
-            + (expectedNumArgs === 1 ? '' : 's');
-    };
+  this.toString = function() {
+    return 'The procedure ' +
+        name +
+        ' has been called with ' +
+        actualNumArgs +
+        ' argument' +
+        (actualNumArgs === 1 ? '' : 's') +
+        '; it requires exactly ' +
+        expectedNumArgs +
+        ' argument' +
+        (expectedNumArgs === 1 ? '' : 's');
+  };
 };
+
+
 
 /**
  * @param {string} msg An error message.
  * @constructor
  */
 r5js.InternalInterpreterError = function(msg) {
-    this.toString = function() {
-        return msg;
-    };
+  this.toString = function() {
+    return msg;
+  };
 };
+
+
 
 /**
  * @param {string} message An error message.
@@ -126,8 +137,10 @@ r5js.InternalInterpreterError = function(msg) {
  * TODO bl: consider renaming to RuntimeError.
  */
 r5js.PrimitiveProcedureError = function(message) {
-    this.toString = function() { return message; };
+  this.toString = function() { return message; };
 };
+
+
 
 /**
  * @param {*} argument The argument.
@@ -135,22 +148,24 @@ r5js.PrimitiveProcedureError = function(message) {
  * (zero-indexed).
  * @param {string} procName The procedure that the interpreter was invoking
  * when this error occurred.
- * @param {!r5js.Type} expectedType The type of the argument that the interpreter
- * expected.
+ * @param {!r5js.Type} expectedType The type of the argument
+ * that the interpreter expected.
  * @constructor
  */
 r5js.ArgumentTypeError = function(argument, which, procName, expectedType) {
-    this.toString = function() {
-        return 'The object '
-            + argument.toString()
-            + ', passed as argument '
-            + which
-            + ' to '
-            + procName
-            + ', is not of the correct type '
-            + expectedType.toString();
-    };
+  this.toString = function() {
+    return 'The object ' +
+        argument.toString() +
+        ', passed as argument ' +
+        which +
+        ' to ' +
+        procName +
+        ', is not of the correct type ' +
+        expectedType.toString();
+  };
 };
+
+
 
 /**
  * @param {string} keyword Keyword of macro.
@@ -159,23 +174,29 @@ r5js.ArgumentTypeError = function(argument, which, procName, expectedType) {
  * TODO bl: This should accept a macro object to simplify call sites.
  */
 r5js.MacroError = function(keyword, msg) {
-    this.toString = function() {
-        return 'Error in macro '
-        + keyword + ': ' + msg;
-    };
+  this.toString = function() {
+    return 'Error in macro ' +
+        keyword +
+        ': ' +
+        msg;
+  };
 };
+
+
 
 /**
  * @param {string} what An error message.
  * @constructor
  */
 r5js.UnimplementedOptionError = function(what) {
-    this.toString = function() {
-        return 'Sorry, '
-            + what
-            + ' is optional according to R5RS and unimplemented';
-    }
+  this.toString = function() {
+    return 'Sorry, ' +
+        what +
+        ' is optional according to R5RS and unimplemented';
+  };
 };
+
+
 
 /**
  * @param {*} what The object that caused the syntax error.
@@ -184,20 +205,24 @@ r5js.UnimplementedOptionError = function(what) {
  * TODO bl: Consider eliminating. It's vague.
  */
 r5js.GeneralSyntaxError = function(what) {
-    this.toString = function() {
-        return 'bad syntax in ' + what;
-    };
+  this.toString = function() {
+    return 'bad syntax in ' + what;
+  };
 };
+
+
 
 /**
  * @param {string} what An error message.
  * @constructor
  */
 r5js.IOError = function(what) {
-    this.toString = function() {
-        return 'IO error: ' + what;
-    };
+  this.toString = function() {
+    return 'IO error: ' + what;
+  };
 };
+
+
 
 /**
  * @param {string} what An error message.
@@ -206,10 +231,12 @@ r5js.IOError = function(what) {
  * something else?
  */
 r5js.QuasiquoteError = function(what) {
-    this.toString = function() {
-        return 'quasiquote error: ' + what;
-    };
+  this.toString = function() {
+    return 'quasiquote error: ' + what;
+  };
 };
+
+
 
 /**
  * @param {*} where Object that caused the empty application.
@@ -217,10 +244,12 @@ r5js.QuasiquoteError = function(what) {
  * TODO bl: narrow the type of the parameter. Can it be string?
  */
 r5js.IllegalEmptyApplication = function(where) {
-    this.toString = function() {
-        return 'illegal empty application in ' + where;
-    };
+  this.toString = function() {
+    return 'illegal empty application in ' + where;
+  };
 };
+
+
 
 /**
  * @param {*} what
@@ -228,46 +257,54 @@ r5js.IllegalEmptyApplication = function(where) {
  * TODO bl: Narrow the type of the parameter.
  */
 r5js.ParseError = function(what) {
-    this.toString = function() {
-        return 'parse error on ' + what;
-    };
+  this.toString = function() {
+    return 'parse error on ' + what;
+  };
 };
+
+
 
 /**
  * @param {string} what Error message.
  * @constructor
  */
 r5js.EvalError = function(what) {
-    this.toString = function() {
-        return 'evaluation error: ' + what;
-    };
+  this.toString = function() {
+    return 'evaluation error: ' + what;
+  };
 };
+
+
 
 /**
  * @param {string} what Object that caused the error.
  * @constructor
  */
 r5js.ImmutableError = function(what) {
-    this.toString = function() {
-        return 'cannot mutate immutable object: ' + what;
-    };
+  this.toString = function() {
+    return 'cannot mutate immutable object: ' + what;
+  };
 };
+
+
 
 /**
  * @param {string} what An error message.
  * @constructor
  */
 r5js.ScanError = function(what) {
-    this.toString = function() {
-        return 'scan error on ' + what;
-    };
+  this.toString = function() {
+    return 'scan error on ' + what;
+  };
 };
+
+
 
 /**
  * @constructor
  */
 r5js.FFIError = function() {
-    this.toString = function() {
-        return 'JS interop is an experimental feature. Sorry!';
-    };
+  this.toString = function() {
+    return 'JS interop is an experimental feature. Sorry!';
+  };
 };
