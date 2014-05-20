@@ -14,26 +14,26 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.IPipeline');
+goog.provide('r5js.Pipeline');
 
 
 
 /** @interface */
-r5js.IPipeline = function() {};
+r5js.Pipeline = function() {};
 
 
 /**
  * @param {string} string The string to scan.
  * @return {!r5js.TokenStream} A token stream representing the input string.
  */
-r5js.IPipeline.prototype.scan = function(string) {};
+r5js.Pipeline.prototype.scan = function(string) {};
 
 
 /**
  * @param {!r5js.TokenStream} tokenStream A token input stream.
  * @return {r5js.Datum} The root of the datum tree, or null if reading failed.
  */
-r5js.IPipeline.prototype.read = function(tokenStream) {};
+r5js.Pipeline.prototype.read = function(tokenStream) {};
 
 
 /**
@@ -42,14 +42,14 @@ r5js.IPipeline.prototype.read = function(tokenStream) {};
  * that should be the root of the parse tree.
  * @return {!r5js.Datum}
  */
-r5js.IPipeline.prototype.parse = function(root, opt_nonterminal) {};
+r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {};
 
 
 /**
  * @param {!r5js.Datum} root The root to desugar.
  * @return {!r5js.ProcCallLike}
  */
-r5js.IPipeline.prototype.desugar = function(root) {};
+r5js.Pipeline.prototype.desugar = function(root) {};
 
 
 /**
@@ -57,7 +57,7 @@ r5js.IPipeline.prototype.desugar = function(root) {};
  * @return {!r5js.ProcCallLike}
  * TODO bl temporary shim. Remove.
  */
-r5js.IPipeline.prototype.desugarRepl = function(root) {};
+r5js.Pipeline.prototype.desugarRepl = function(root) {};
 
 
 /**
@@ -66,4 +66,4 @@ r5js.IPipeline.prototype.desugarRepl = function(root) {};
  * @param {!r5js.OutputPort} outputPort Port to use as current-output-port.
  * @return {!r5js.runtime.Value}
  */
-r5js.IPipeline.prototype.Eval = function(continuable, inputPort, outputPort) {};
+r5js.Pipeline.prototype.Eval = function(continuable, inputPort, outputPort) {};

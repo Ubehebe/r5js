@@ -19,7 +19,7 @@ goog.provide('r5js.EvaluatorImpl');
 
 
 /**
- * @param {!r5js.IPipeline} pipeline A pipeline object.
+ * @param {!r5js.Pipeline} pipeline A pipeline object.
  * @param {!r5js.InputPort} inputPort Input port to connect the evaluator to.
  * @param {!r5js.OutputPort} outputPort Output port to connect the evaluator to.
  * @implements {r5js.Evaluator}

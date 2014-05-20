@@ -30,7 +30,7 @@ goog.require('r5js.trampoline');
 
 /**
  * @param {!r5js.IEnvironment} rootEnv The root environment.
- * @implements {r5js.IPipeline}
+ * @implements {r5js.Pipeline}
  * @struct
  * @constructor
  */
