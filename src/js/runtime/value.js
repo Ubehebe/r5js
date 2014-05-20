@@ -32,29 +32,10 @@ r5js.runtime.ObjectValue = function() {};
 r5js.runtime.Value;
 
 
-
-/**
- * @extends {r5js.Datum}
- * @struct
- * @constructor
- * @private
- */
-r5js.runtime.UnspecifiedValue_ = function() {
-  goog.base(this);
-};
-goog.inherits(r5js.runtime.UnspecifiedValue_, r5js.Datum);
+/** @const {!r5js.runtime.Value} */
+r5js.runtime.UNSPECIFIED_VALUE = new r5js.Datum();
 
 
-/**
- * @const {!r5js.runtime.ObjectValue}
- * TODO bl: there is no reason to represent unspecified runtime values
- * as a Datum object. This is especially concerning because Datums have mutable
- * state. It appears unspecified values are leaking into contexts that assume
- * they are datums (for example the implementation of car).
- */
-r5js.runtime.UNSPECIFIED_VALUE = new r5js.runtime.UnspecifiedValue_();
-
-
-
-/** @const */ r5js.runtime.EOF = new r5js.Datum();
+/** @const {!r5js.runtime.Value} */
+r5js.runtime.EOF = new r5js.Datum();
 
