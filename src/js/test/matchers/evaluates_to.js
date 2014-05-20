@@ -10,8 +10,8 @@ goog.setTestOnly('r5js.test.matchers.setSharedEvaluator');
 
 
 goog.require('goog.array');
-goog.require('r5js.OutputSavingPort');
 goog.require('r5js.EvalAdapter');
+goog.require('r5js.OutputSavingPort');
 goog.require('r5js.datumutil');
 
 

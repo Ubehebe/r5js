@@ -14,12 +14,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.ast.Literal');
 goog.provide('r5js.Datum');
+goog.provide('r5js.ast.Literal');
 
 
-goog.require('r5js.parse.Terminals');
 goog.require('r5js.ProcCallLike');
+goog.require('r5js.parse.Terminals');
 // TODO bl circular dependency goog.require('r5js.newIdShim');
 
 

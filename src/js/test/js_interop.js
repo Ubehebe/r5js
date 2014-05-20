@@ -3,12 +3,12 @@ goog.setTestOnly('r5js.test.JsInterop');
 
 
 goog.require('expect');
-goog.require('haveJsValue');
+goog.require('goog.functions');
 goog.require('haveJsOutput');
+goog.require('haveJsValue');
 goog.require('haveStringOutput');
 goog.require('haveStringValue');
 goog.require('r5js.test.matchers.setSharedEvaluator');
-goog.require('goog.functions');
 goog.require('tdd.TestType');
 
 

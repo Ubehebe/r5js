@@ -2,15 +2,14 @@ goog.provide('r5js.test.SchemeTestDriver');
 goog.setTestOnly('r5js.test.SchemeTestDriver');
 
 
-goog.require('goog.Promise');
-goog.require('tdd.ResultStruct');
-goog.require('tdd.ManualTestSuite');
-goog.require('tdd.ResultStruct');
-goog.require('tdd.LogRecord');
-goog.require('tdd.LogLevel');
 goog.require('expect');
+goog.require('goog.Promise');
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.EvalAdapter');
+goog.require('tdd.LogLevel');
+goog.require('tdd.LogRecord');
+goog.require('tdd.ManualTestSuite');
+goog.require('tdd.ResultStruct');
 
 
 

@@ -5,10 +5,10 @@ goog.setTestOnly('r5js.test.matchers.ParsesAs');
 
 
 goog.require('r5js.Datum');
-goog.require('r5js.parse.bnf');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.Reader');
 goog.require('r5js.Scanner');
+goog.require('r5js.parse.bnf');
 
 
 /**
