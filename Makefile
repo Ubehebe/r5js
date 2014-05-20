@@ -63,7 +63,6 @@ repl:
 	cat ui/index.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
 	cp ui/main.js ui/repl.css build/
 	cp mockterm/mockterm.js mockterm/async_queue.js build/
-	cp tutorial/*.js build/
 
 .PHONY: typecheck
 typecheck:
