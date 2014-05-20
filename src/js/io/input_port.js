@@ -22,7 +22,7 @@ r5js.InputPort.prototype.peekChar = function() {};
 
 
 /**
- * @return {!r5js.runtime.Value|null} The next value, or null if there are
+ * @return {?r5js.runtime.Value} The next value, or null if there are
  * no more values.
  */
 r5js.InputPort.prototype.read = function() {};

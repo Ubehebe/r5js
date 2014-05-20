@@ -77,7 +77,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
 
 /**
  * @param {!r5js.ast.Identifier} id
- * @return {!r5js.runtime.Value|null}
+ * @return {?r5js.runtime.Value}
  * @private
  */
 r5js.IdShim.prototype.tryIdentifier_ = function(id) {
@@ -87,7 +87,7 @@ r5js.IdShim.prototype.tryIdentifier_ = function(id) {
 
 /**
  * @param {!r5js.ast.Quote} quote
- * @return {!r5js.runtime.Value|null}
+ * @return {?r5js.runtime.Value}
  * @private
  */
 r5js.IdShim.prototype.tryQuote_ = function(quote) {
