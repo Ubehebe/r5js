@@ -15,7 +15,7 @@
 
 
 
-goog.provide('r5js.Pipeline');
+goog.provide('r5js.PipelineImpl');
 
 
 goog.require('r5js.Environment');
@@ -34,20 +34,20 @@ goog.require('r5js.trampoline');
  * @struct
  * @constructor
  */
-r5js.Pipeline = function(rootEnv) {
+r5js.PipelineImpl = function(rootEnv) {
   /** @const @private {!r5js.IEnvironment} */
   this.env_ = new r5js.Environment(rootEnv);
 };
 
 
 /** @override */
-r5js.Pipeline.prototype.scan = function(string) {
+r5js.PipelineImpl.prototype.scan = function(string) {
   return new r5js.Scanner(string);
 };
 
 
 /** @override */
-r5js.Pipeline.prototype.read = function(scanner) {
+r5js.PipelineImpl.prototype.read = function(scanner) {
   return new r5js.Reader(scanner).read();
 };
 
@@ -58,7 +58,7 @@ r5js.Pipeline.prototype.read = function(scanner) {
  * @return {!r5js.Datum}
  * TODO bl: why does the compiler not accept an. @override here?
  */
-r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
+r5js.PipelineImpl.prototype.parse = function(root, opt_nonterminal) {
   var parser = new r5js.ParserImpl(root);
   var ans = goog.isDef(opt_nonterminal) ?
       parser.parse(opt_nonterminal) :
@@ -71,18 +71,19 @@ r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {
 
 
 /** @override */
-r5js.Pipeline.prototype.desugar = function(root) {
+r5js.PipelineImpl.prototype.desugar = function(root) {
   return root.desugar(this.env_, false);
 };
 
 
 /** @override */
-r5js.Pipeline.prototype.desugarRepl = function(root) {
+r5js.PipelineImpl.prototype.desugarRepl = function(root) {
   return root.desugar(this.env_, false);
 };
 
 
 /** @override */
-r5js.Pipeline.prototype.Eval = function(continuable, inputPort, outputPort) {
+r5js.PipelineImpl.prototype.Eval = function(
+    continuable, inputPort, outputPort) {
   return r5js.trampoline(continuable, this.env_, inputPort, outputPort);
 };

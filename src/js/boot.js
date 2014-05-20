@@ -22,7 +22,7 @@ goog.require('r5js.EvaluatorImpl');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.ParserImpl');
-goog.require('r5js.Pipeline');
+goog.require('r5js.PipelineImpl');
 goog.require('r5js.PrimitiveProcedures');
 goog.require('r5js.Reader');
 goog.require('r5js.Scanner');
@@ -76,7 +76,7 @@ r5js.boot = function(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
   return new r5js.EvaluatorImpl(
-      new r5js.Pipeline(r5RSEnv),
+      new r5js.PipelineImpl(r5RSEnv),
       opt_inputPort || r5js.InputPort.NULL,
       opt_outputPort || r5js.OutputPort.NULL);
 };
