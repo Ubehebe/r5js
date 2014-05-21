@@ -1,23 +1,19 @@
 <!DOCTYPE html>
-<!--This file is manipulated during the build process, so it will probably
-not do what you want if you use it in its pristine state in the source control. -->
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title>Gay Lisp</title>
-    <link rel="stylesheet" href="repl.css" />
-    <script src="gay-lisp.js"></script>
-    <script src="async_queue.js"></script>
-    <script src="mockterm.js"></script>
-    <script src="tutorial.js"></script>
-    <script src="tutorial_data.js"></script>
-    <script src="main.js"></script>
+    <title>r5js+jq-console</title>
+    <link rel="stylesheet" href="repl.css"/>
+    <script src="../closure-library/closure/goog/base.js"></script>
+    <script src="../../../build/deps.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="../jq-console/lib/jqconsole.js"></script>
+    <script src="../src/js/repl/jqconsole.js"></script>
 </head>
 <body>
-    <h1>This is Gay Lisp,</h1>
-    <h2>the first standards-compliant Scheme that runs in the browser.</h2>
-    <p>This is just a test page. For more information, check out the project's
-        <a href="http://gay-lisp.org/">homepage</a> or the <a href="http://github.com/Ubehebe/Gay-Lisp/">official repository on GitHub</a>.</p>
-    <textarea class='terminal' id='repl' rows=20 autofocus spellcheck="false"></textarea>
+<div id="console"></div>
+<script>
+    var jqConsole = $('#console').jqconsole('hello, world\n', '>>> ');
+    r5js.repl.jqconsole.main(jqConsole);
+</script>
 </body>
 </html>
