@@ -14,3 +14,6 @@
 [submodule "externs"]
 	path = externs
 	url = https://github.com/dcodeIO/node.js-closure-compiler-externs
+[submodule "jq-console"]
+	path = jq-console
+	url = https://github.com/replit/jq-console.git
