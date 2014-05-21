@@ -1,6 +1,7 @@
 goog.provide('r5js.parse.bnf');
 
 
+goog.require('goog.array');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
 goog.require('r5js.ast.DottedList');
