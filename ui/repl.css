@@ -39,3 +39,7 @@
 .jqconsole-output {
     color: white;
 }
+/* Text color for error output. */
+.jqconsole-error {
+    color: red;
+}
