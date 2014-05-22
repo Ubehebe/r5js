@@ -47,14 +47,16 @@ deps:
 lint:
 	@command -v gjslint > /dev/null 2>&1 || \
 		{ echo >&2 "gjslint is required for linting."; exit 1; }
-	@find $(src) -name *.js \
+	@git diff --name-only --cached --diff-filter=MA \
+	| grep "\.js" \
 	| xargs gjslint --strict
 
 .PHONY: fix
 fix:
 	@command -v fixjsstyle > /dev/null 2>&1 || \
 		{ echo >&2 "fixjsstyle is required to run the fix target."; exit 1; }
-	@find $(src) -name *.js \
+	@git diff --name-only --cached --diff-filter=MA \
+	| grep "\.js" \
 	| xargs fixjsstyle --strict
 
 .PHONY: repl
