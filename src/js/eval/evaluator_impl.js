@@ -33,53 +33,6 @@ r5js.EvaluatorImpl = function(pipeline, inputPort, outputPort) {
 };
 
 
-/**
- * Mainly intended for multiline input on a terminal:
- * when the programmer presses enter, the terminal needs to know
- * whether to send the line out for evaluation or wait for another
- * line to complete the input.
- * @param {string} logicalLine The logical line.
- * @return {boolean} True iff the logical line has a parse.
- */
-r5js.EvaluatorImpl.prototype.willParse = function(logicalLine) {
-  try {
-    this.pipeline_.parse(/** @type {!r5js.Datum} */ (
-        this.pipeline_.read(
-        this.pipeline_.scan(logicalLine))));
-    return true;
-  } catch (x) {
-    /* If parsing failed, we usually want to wait for another line
-         of input. There's one common exception: unquoted empty lists
-         () and nested versions of the same. If a programmer types ()
-         at the terminal and presses enter, she will be stuck forever:
-         nothing she later types in will make the line buffer parse, and
-         so the terminal will never send the line buffer off for
-         evaluation. As a heuristic, if the parse has not succeeded,
-         we return false unless the number of opening and closing parens
-         is the same. This might not be the right heuristic,
-         but I haven't found a counterexample yet. Note that it's
-         fine to type unquoted empty lists as their own lines as long
-         as they are not the first line: for example the following is
-         fine:
-
-         >> (define-syntax
-         >> foo
-         >> (syntax-rules
-         >> ()
-         >> ((foo f) 'hi)))
-         >> (foo ())
-
-         If we find more of these situations where parsing fails but
-         we should not wait for more input, it might be a better idea
-         to equip the programmer with a button or key to flush the
-         line buffer. */
-    var lparens = logicalLine.match(/\(/g);
-    var rparens = logicalLine.match(/\)/g);
-    return !!(lparens && rparens && lparens.length === rparens.length);
-  }
-};
-
-
 /** @override */
 r5js.EvaluatorImpl.prototype.evaluate = function(string) {
   return this.pipeline_.Eval(
