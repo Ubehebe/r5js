@@ -3,7 +3,8 @@ goog.provide('r5js.Terminal');
 
 
 /**
- * Abstraction for a terminal that the Scheme REPL can read to and write from.
+ * "Dumb" terminal that {@link r5js.Repl} can read to and write from.
+ * In contrast to a Repl, a Terminal knows nothing about Scheme.
  * @interface
  */
 r5js.Terminal = function() {};
