@@ -1,10 +1,10 @@
 goog.provide('r5js.js.Html5Environment');
 
 
+goog.require('goog.Promise');
 goog.require('goog.labs.net.xhr');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
-goog.require('r5js.repl.jqconsole.Console_');
 
 
 
@@ -47,10 +47,50 @@ r5js.js.Html5Environment.prototype.newOutputPort = function(name) {
 };
 
 
+/** @override */
+r5js.js.Html5Environment.prototype.getTerminal = function() {
+  return new r5js.js.Html5Environment.Terminal_(this.jqConsole_);
+};
+
+
+
+/**
+ * @param {?} jqconsole
+ * @implements {r5js.Terminal}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.js.Html5Environment.Terminal_ = function(jqconsole) {
+  /** @const @private */ this.jqconsole_ = jqconsole;
+};
+
+
 /**
  * @override
- * @suppress {accessControls} TODO bl
+ * @suppress {checkTypes} for the jqconsole integration
  */
-r5js.js.Html5Environment.prototype.getTerminal = function() {
-  return new r5js.repl.jqconsole.Console_(this.jqConsole_);
+r5js.js.Html5Environment.Terminal_.prototype.getNextLineOfInput = function() {
+  return new goog.Promise(function(resolve) {
+    this.jqconsole_.Prompt(true /* history_enabled */, resolve);
+  }, this);
 };
+
+
+/**
+ * @override
+ * @suppress {checkTypes} for the jqconsole integration
+ */
+r5js.js.Html5Environment.Terminal_.prototype.print = function(msg) {
+  this.jqconsole_.Write(msg, 'jqconsole-output');
+};
+
+
+/**
+ * @override
+ * @suppress {checkTypes} for the jqconsole integration
+ */
+r5js.js.Html5Environment.Terminal_.prototype.error = function(msg) {
+  this.jqconsole_.Write(msg, 'jqconsole-error');
+};
+
