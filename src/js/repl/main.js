@@ -24,3 +24,8 @@ r5js.repl.main = function() {
         new r5js.Repl(terminal, evaluator.pipeline_, stdin, stdout).start();
       });
 };
+
+
+goog.exportSymbol('r5js.repl.main', r5js.repl.main);
+// nodejs hack. See comment in goog.promise.testSuiteAdapter.
+goog.exportSymbol('setTimeout', setTimeout);

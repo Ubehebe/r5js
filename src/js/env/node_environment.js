@@ -4,6 +4,7 @@ goog.provide('r5js.js.NodeEnvironment');
 goog.require('goog.Promise');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
+goog.require('r5js.repl.Node_');
 
 
 
@@ -74,39 +75,12 @@ r5js.js.NodeEnvironment.prototype.newOutputPort = function(name) {
 };
 
 
-/** @override */
-r5js.js.NodeEnvironment.prototype.getTerminal = function() {
-  return new r5js.js.NodeEnvironment.Terminal_();
-};
-
-
-
 /**
- * @implements {r5js.Terminal}
- * @struct
- * @constructor
- * @private
+ * @override
+ * @suppress {accessControls} TODO bl
  */
-r5js.js.NodeEnvironment.Terminal_ = function() {
-
-};
-
-
-/** @override */
-r5js.js.NodeEnvironment.Terminal_.prototype.getNextLineOfInput = function() {
-  return goog.Promise.resolve('TODO bl');
-};
-
-
-/** @override */
-r5js.js.NodeEnvironment.Terminal_.prototype.print = function(str) {
-  // TODO bl implement
-};
-
-
-/** @override */
-r5js.js.NodeEnvironment.Terminal_.prototype.error = function(str) {
-  this.print(str);
+r5js.js.NodeEnvironment.prototype.getTerminal = function() {
+  return new r5js.repl.Node_();
 };
 
 

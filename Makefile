@@ -32,7 +32,7 @@ test_outfile = $(outdir)/test-all.js
 test_opts = type=unit verbose
 
 # Node-related paths.
-node_repl_main_class = r5js.repl.node.main
+node_repl_main_class = r5js.repl.main
 node_repl_outfile = $(outdir)/node-repl.js
 
 .PHONY: deps
@@ -210,7 +210,7 @@ node-repl: compile-node-repl
 node-repl:
 	@command -v node > /dev/null 2>&1 || \
 		{ echo >&2 "node is required for testing."; exit 1; }
-	@node -e "require('./build/node-repl').r5js.repl.node.main();"
+	@node -e "require('./build/node-repl').$(node_repl_main_class)();"
 
 .PHONY: test-server
 test-server: deps
