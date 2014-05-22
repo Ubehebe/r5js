@@ -39,10 +39,14 @@ r5js.js.Environment.prototype.newInputPort = function(name) {};
 r5js.js.Environment.prototype.newOutputPort = function(name) {};
 
 
+/** @return {!r5js.Terminal} */
+r5js.js.Environment.prototype.getTerminal = function() {};
+
+
 /** @return {!r5js.js.Environment} */
 r5js.js.Environment.get = function() {
   var isNode = typeof XMLHttpRequest === 'undefined';
   return isNode ?
       new r5js.js.NodeEnvironment() :
-      new r5js.js.Html5Environment();
+      new r5js.js.Html5Environment(arguments[0] /* TODO bl improve */);
 };

@@ -1,68 +1,46 @@
-goog.provide('r5js.repl.jqconsole.main');
+goog.provide('r5js.repl.jqconsole.Console_');
 
 
-goog.require('r5js.InputPort');
-goog.require('r5js.R5RSCompliantOutputPort');
-goog.require('r5js.boot');
-goog.require('r5js.js.Environment');
-goog.require('r5js.test.SchemeSources');
-
-
-/**
- * @param {?} jqconsole
- * @suppress {checkTypes} for the jq-console integration
- */
-r5js.repl.jqconsole.main = function(jqconsole) {
-  var jsEnv = r5js.js.Environment.get();
-  r5js.test.SchemeSources.get(jsEnv.fetchUrl.bind(jsEnv)).
-      then(function(sources) {
-        var stdout = new r5js.R5RSCompliantOutputPort(function(str) {
-          jqconsole.Write(str, 'jqconsole-output');
-        });
-        var evaluator = r5js.boot(
-            sources.syntax, sources.procedures, r5js.InputPort.NULL, stdout);
-        new r5js.repl.jqconsole.Console_(evaluator, jqconsole).prompt();
-      });
-};
+goog.require('goog.Promise');
 
 
 
 /**
- * @param {!r5js.Evaluator} evaluator
  * @param {?} jqconsole
+ * @implements {r5js.Terminal}
  * @struct
  * @constructor
  * @private
  */
-r5js.repl.jqconsole.Console_ = function(evaluator, jqconsole) {
-  /** @const @private */ this.evaluator_ = evaluator;
+r5js.repl.jqconsole.Console_ = function(jqconsole) {
   /** @const @private */ this.jqconsole_ = jqconsole;
 };
 
 
-/** @suppress {checkTypes} for the jqconsole integration */
-r5js.repl.jqconsole.Console_.prototype.prompt = function() {
-  this.jqconsole_.Prompt(
-      true /* history_enabled */, this.handleInput_.bind(this));
+/**
+ * @override
+ * @suppress {checkTypes} for the jqconsole integration
+ */
+r5js.repl.jqconsole.Console_.prototype.getNextLineOfInput = function() {
+  return new goog.Promise(function(resolve) {
+    this.jqconsole_.Prompt(true /* history_enabled */, resolve);
+  }, this);
 };
 
 
 /**
- * @param {string} input
- * @private
+ * @override
  * @suppress {checkTypes} for the jqconsole integration
  */
-r5js.repl.jqconsole.Console_.prototype.handleInput_ = function(input) {
-  var value;
-  var outputClass = 'jqconsole-output';
-  try {
-    value = r5js.EvalAdapter.toDisplayString(
-        this.evaluator_.evaluate(input));
-  } catch (e) {
-    value = e.toString();
-    outputClass = 'jqconsole-error';
-  } finally {
-    this.jqconsole_.Write(value + '\n', outputClass);
-    this.prompt();
-  }
+r5js.repl.jqconsole.Console_.prototype.print = function(msg) {
+  this.jqconsole_.Write(msg, 'jqconsole-output');
+};
+
+
+/**
+ * @override
+ * @suppress {checkTypes} for the jqconsole integration
+ */
+r5js.repl.jqconsole.Console_.prototype.error = function(msg) {
+  this.jqconsole_.Write(msg, 'jqconsole-error');
 };

@@ -72,3 +72,42 @@ r5js.js.NodeEnvironment.prototype.newOutputPort = function(name) {
   }
   return new r5js.InMemoryOutputPort(this.buffers_[name]);
 };
+
+
+/** @override */
+r5js.js.NodeEnvironment.prototype.getTerminal = function() {
+  return new r5js.js.NodeEnvironment.Terminal_();
+};
+
+
+
+/**
+ * @implements {r5js.Terminal}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.js.NodeEnvironment.Terminal_ = function() {
+
+};
+
+
+/** @override */
+r5js.js.NodeEnvironment.Terminal_.prototype.getNextLineOfInput = function() {
+  return goog.Promise.resolve('TODO bl');
+};
+
+
+/** @override */
+r5js.js.NodeEnvironment.Terminal_.prototype.print = function(str) {
+  // TODO bl implement
+};
+
+
+/** @override */
+r5js.js.NodeEnvironment.Terminal_.prototype.error = function(str) {
+  this.print(str);
+};
+
+
+

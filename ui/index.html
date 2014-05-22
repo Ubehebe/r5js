@@ -7,13 +7,13 @@
     <script src="../../../build/deps.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="../jq-console/lib/jqconsole.js"></script>
-    <script src="../src/js/repl/jqconsole.js"></script>
+    <script src="../src/js/repl/main.js"></script>
 </head>
 <body>
 <div id="console"></div>
 <script>
     var jqConsole = $('#console').jqconsole('hello, world\n', '>>> ');
-    r5js.repl.jqconsole.main(jqConsole);
+    r5js.repl.main(jqConsole);
 </script>
 </body>
 </html>
