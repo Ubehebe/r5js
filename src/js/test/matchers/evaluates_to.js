@@ -83,7 +83,8 @@ r5js.test.matchers.HasJsValue_.sharedEvaluator_;
 /** @override */
 r5js.test.matchers.HasJsValue_.prototype.matches = function(input) {
   return r5js.test.matchers.HasJsValue_.equals(
-      this.expectedValue_, this.evaluator_.evaluate(input));
+      this.expectedValue_,
+      this.evaluator_.evaluate(/** @type {string} */ (input)));
 };
 
 
@@ -98,7 +99,7 @@ r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(input) {
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      this.evaluator_.evaluate(input);
+      this.evaluator_.evaluate(/** @type {string} */ (input));
 };
 
 
@@ -144,7 +145,8 @@ r5js.test.matchers.HasStringValue_.sharedEvaluator_;
 
 /** @override */
 r5js.test.matchers.HasStringValue_.prototype.matches = function(input) {
-  return this.expectedValue_ === this.evaluator_.evaluate(input);
+  return this.expectedValue_ ===
+      this.evaluator_.evaluate(/** @type {string} */ (input));
 };
 
 
@@ -161,7 +163,7 @@ r5js.test.matchers.HasStringValue_.prototype.getFailureMessage =
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      this.evaluator_.evaluate(input);
+      this.evaluator_.evaluate(/** @type {string} */ (input));
 };
 
 
@@ -197,7 +199,7 @@ r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = new r5js.OutputSavingPort(
 
 /** @override */
 r5js.test.matchers.HasJsOutput_.prototype.matches = function(input) {
-  this.evaluator_.evaluate(input);
+  this.evaluator_.evaluate(/** @type {string} */ (input));
   var actualOutput = this.outputPort_.getAndClearOutput()[0];
   return r5js.test.matchers.HasJsValue_.equals(
       actualOutput, this.expectedOutput_);
@@ -249,7 +251,7 @@ r5js.test.matchers.HasStringOutput_.sharedOutputPort_ =
 
 /** @override */
 r5js.test.matchers.HasStringOutput_.prototype.matches = function(input) {
-  this.evaluator_.evaluate(input);
+  this.evaluator_.evaluate(/** @type {string} */ (input));
   var actualOutput = this.outputPort_.getAndClearOutput()[0];
   return actualOutput === this.expectedOutput_;
 };
