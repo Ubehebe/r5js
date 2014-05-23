@@ -82,7 +82,7 @@ r5js.js.Html5Environment.Terminal_.prototype.getNextLineOfInput = function() {
  * @suppress {checkTypes} for the jqconsole integration
  */
 r5js.js.Html5Environment.Terminal_.prototype.print = function(msg) {
-  this.jqconsole_.Write(msg, 'jqconsole-output');
+  this.jqconsole_.Write(msg + '\n', 'jqconsole-output');
 };
 
 
@@ -91,6 +91,6 @@ r5js.js.Html5Environment.Terminal_.prototype.print = function(msg) {
  * @suppress {checkTypes} for the jqconsole integration
  */
 r5js.js.Html5Environment.Terminal_.prototype.error = function(msg) {
-  this.jqconsole_.Write(msg, 'jqconsole-error');
+  this.jqconsole_.Write(msg + '\n', 'jqconsole-error');
 };
 
