@@ -21,7 +21,7 @@ r5js.repl.main = function() {
             terminal.print.bind(terminal));
         var evaluator = r5js.boot(
             sources.syntax, sources.procedures, stdin, stdout);
-        new r5js.Repl(terminal, evaluator.pipeline_, stdin, stdout).start();
+        new r5js.Repl(terminal, evaluator).start();
       });
 };
 
