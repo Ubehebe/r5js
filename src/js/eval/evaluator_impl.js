@@ -85,23 +85,6 @@ r5js.EvaluatorImpl.prototype.willParse = function(input) {
 };
 
 
-/**
- * Just like {@link r5js.EvaluatorImpl.eval}, but reuses the old environment.
- * @param {string} string The source text to evaluate.
- * @return {string} A string representation of the value of the evaluation.
- */
-r5js.EvaluatorImpl.prototype.repl = function(string) {
-  return r5js.EvalAdapter.toDisplayString(
-      this.pipeline_.Eval(
-      this.pipeline_.desugarRepl(
-      this.pipeline_.parse(/** @type {!r5js.Datum} */ (
-      this.pipeline_.read(
-      this.pipeline_.scan(string))))),
-      this.inputPort_,
-      this.outputPort_));
-};
-
-
 /** @override */
 r5js.EvaluatorImpl.prototype.withPorts = function(inputPort, outputPort) {
   return new r5js.EvaluatorImpl(this.pipeline_, inputPort, outputPort);
