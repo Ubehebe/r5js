@@ -14,6 +14,7 @@ goog.require('r5js.EvalAdapter');
 r5js.Repl = function(terminal, evaluator) {
   /** @const @private */ this.terminal_ = terminal;
   /** @const @private */ this.evaluator_ = evaluator;
+  /** @private */ this.awaitingEval_ = '';
 };
 
 
@@ -26,22 +27,19 @@ r5js.Repl.prototype.start = function() {
 
 /** @param {string} inputLine */
 r5js.Repl.prototype.handleInputLine = function(inputLine) {
-  // TODO bl re-enable
-  //    if (!this.lineComplete_(inputLine)) {
-  //        this.terminal_.getNextLineOfInput().then(
-  //
-  //        )
-  //        this.terminal_.prompt(true /* opt_continued */);
-  //        return;
-  //    }
-
+  if (!this.evaluator_.willParse(this.awaitingEval_ += inputLine + ' ')) {
+    this.terminal_.getNextLineOfInput().then(
+        this.handleInputLine, undefined /* opt_onRejected */, this);
+    return;
+  }
   try {
     var value = r5js.EvalAdapter.toDisplayString(
-        this.evaluator_.evaluate(inputLine));
+        this.evaluator_.evaluate(this.awaitingEval_));
     this.terminal_.print(value);
   } catch (e) {
     this.terminal_.error(e.toString());
   } finally {
+    this.awaitingEval_ = '';
     this.terminal_.getNextLineOfInput().then(
         this.handleInputLine, undefined /* opt_onRejected */, this);
   }

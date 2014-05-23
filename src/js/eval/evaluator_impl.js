@@ -48,10 +48,10 @@ r5js.EvaluatorImpl.prototype.evaluate = function(string) {
 /** @override */
 r5js.EvaluatorImpl.prototype.willParse = function(input) {
   try {
-    this.pipeline_.parse(/** @type {!r5js.Datum} */ (
-        this.pipeline_.read(
-        this.pipeline_.scan(input))));
-    return true;
+    var tokenStream = this.pipeline_.scan(input);
+    var datum = this.pipeline_.parse(
+        /** @type {!r5js.Datum} */ (this.pipeline_.read(tokenStream)));
+    return !tokenStream.nextToken() && !!datum;
   } catch (x) {
     /* If parsing failed, we usually want to wait for another line
          of input. There's one common exception: unquoted empty lists
