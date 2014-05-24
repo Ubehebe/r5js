@@ -318,3 +318,18 @@ r5js.test.Parser.prototype['testMacroBlock'] = function() {
   });
 };
 
+
+r5js.test.Parser.prototype['testProgram'] = function() {
+  [
+   '',
+   ' ',
+   '  ',
+   '    ',
+   '\n',
+   '\t',
+   '\n \t    \n\n \t \n'
+  ].forEach(function(text) {
+    expect(text).to(parseAs(r5js.parse.Nonterminals.PROGRAM));
+  });
+};
+
