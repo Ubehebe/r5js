@@ -42,6 +42,7 @@ goog.require('r5js.ast.List');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
+goog.require('r5js.ast.Vector');
 goog.require('r5js.datumutil');
 goog.require('r5js.newAssignment');
 goog.require('r5js.parse.Nonterminals');
@@ -146,6 +147,21 @@ r5js.ParserImpl.prototype.parse = function(opt_nonterminal) {
   var parsedRoot = /** @type {!r5js.Datum} */ (
       r5js.ParserImpl.grammar[nonterminal].match(this.datumStream_));
   if (parsedRoot) {
+    /* Special case for non-vacuous but malformed programs.
+      A "successful" parse of a nonvacuous program that has only
+      the top-level PROGRAM nonterminal set is actually a parse error,
+      since it matched none of the right-hand side PROGRAM rules.
+      (This is a deficiency in the parser implementation that I don't care
+      to correct, since the parser should eventually go away.)
+      This includes the empty list program, which reads successfully as a datum
+      but doesn't parse as anything. Occurrences of the empty list under
+      the top level are runtime errors (r5js.IllegalEmptyApplication) rather
+      than parse errors. */
+    if (nonterminal === r5js.parse.Nonterminals.PROGRAM &&
+        parsedRoot != r5js.VACUOUS_PROGRAM &&
+        !parsedRoot.peekParse()) {
+      return null;
+    }
     parsedRoot.setParse(nonterminal);
   }
   return (nonterminal === r5js.parse.Nonterminals.PROGRAM) ?
@@ -326,8 +342,9 @@ r5js.ParserImpl.grammar[Nonterminals.DATUM] = _.seq(
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 r5js.ParserImpl.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
     _.matchDatum(function(datum) {
-      var ans = datum instanceof r5js.ast.SimpleDatum &&
-          !(datum instanceof r5js.ast.Identifier);
+      var ans = (datum instanceof r5js.ast.SimpleDatum &&
+          !(datum instanceof r5js.ast.Identifier)) ||
+          datum instanceof r5js.ast.Vector /* TODO bl document */;
       if (datum instanceof r5js.ast.String) {
         // to defeat string-set! on a literal
         datum.setImmutable();
