@@ -3,6 +3,7 @@ goog.provide('r5js.read.bnf');
 
 goog.require('r5js.Datum');
 goog.require('r5js.SiblingBuffer');
+goog.require('r5js.VACUOUS_PROGRAM');
 goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quasiquote');
@@ -92,15 +93,6 @@ r5js.read.bnf.AtLeast_ = function(type, minRepetitions) {
 };
 
 
-/**
- * See {@link r5js.read.bnf.AtLeast_#match} for description.
- * @const {!r5js.Datum}
- * TODO bl: This object is mutable and can be returned from a top-level
- * call to {@link r5js.Reader#read}, which seems like a bug.
- */
-r5js.read.bnf.AtLeast_.EMPTY_LIST_SENTINEL = new r5js.Datum();
-
-
 /** @override */
 r5js.read.bnf.AtLeast_.prototype.match = function(tokenStream) {
   var siblingBuffer = new r5js.SiblingBuffer();
@@ -118,8 +110,7 @@ r5js.read.bnf.AtLeast_.prototype.match = function(tokenStream) {
       (successfully) matched, siblingBuffer.toSiblings() will return null.
       However, null is used by this API to communicate failure, so we must
       return a different object. */
-    return siblingBuffer.toSiblings() ||
-        r5js.read.bnf.AtLeast_.EMPTY_LIST_SENTINEL;
+    return siblingBuffer.toSiblings() || r5js.VACUOUS_PROGRAM;
   } else {
     tokenStream.restore(checkpoint);
     return null;
@@ -219,7 +210,7 @@ r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
     var parsed = rule.match(tokenStream);
     if (parsed === r5js.read.bnf.One_.TERMINAL_SENTINEL) {
       continue;
-    } else if (parsed === r5js.read.bnf.AtLeast_.EMPTY_LIST_SENTINEL) {
+    } else if (parsed === r5js.VACUOUS_PROGRAM) {
       continue;
     } else if (parsed) {
       siblingBuffer.appendSibling(parsed);
