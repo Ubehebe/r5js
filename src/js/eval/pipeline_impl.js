@@ -77,12 +77,6 @@ r5js.PipelineImpl.prototype.desugar = function(root) {
 
 
 /** @override */
-r5js.PipelineImpl.prototype.desugarRepl = function(root) {
-  return root.desugar(this.env_, false);
-};
-
-
-/** @override */
 r5js.PipelineImpl.prototype.Eval = function(
     continuable, inputPort, outputPort) {
   return r5js.trampoline(continuable, this.env_, inputPort, outputPort);

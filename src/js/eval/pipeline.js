@@ -53,14 +53,6 @@ r5js.Pipeline.prototype.desugar = function(root) {};
 
 
 /**
- * @param {!r5js.Datum} root The root to desugar.
- * @return {!r5js.ProcCallLike}
- * TODO bl temporary shim. Remove.
- */
-r5js.Pipeline.prototype.desugarRepl = function(root) {};
-
-
-/**
  * @param {!r5js.ProcCallLike} continuable The continuable to evaluate.
  * @param {!r5js.InputPort} inputPort Port to use as current-input-port.
  * @param {!r5js.OutputPort} outputPort Port to use as current-output-port.
