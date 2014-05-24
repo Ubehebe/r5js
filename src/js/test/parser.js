@@ -331,5 +331,24 @@ r5js.test.Parser.prototype['testProgram'] = function() {
   ].forEach(function(text) {
     expect(text).to(parseAs(r5js.parse.Nonterminals.PROGRAM));
   });
+  [
+   '(',
+   ')',
+   ')(',
+   '((',
+   '(()',
+   '))',
+   '))(',
+   '))((',
+   '(((',
+   '((()',
+   '((())',
+   ')))',
+   ')))(',
+   ')))((',
+   ')))((('
+  ].forEach(function(text) {
+    expect(text).not().to(parseAs(r5js.parse.Nonterminals.PROGRAM));
+  });
 };
 

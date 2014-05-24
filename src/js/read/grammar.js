@@ -94,6 +94,8 @@ r5js.Reader = function(scanner) {
 
 /** @override */
 r5js.Reader.prototype.read = function() {
-  return r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()].
+  var ans = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()].
       match(this.scanner_);
+  // All of the input tokens must be consumed for success.
+  return this.scanner_.nextToken() ? null : ans;
 };
