@@ -169,6 +169,16 @@ r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
 
 
 r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
+  expect('').to(haveJsValue(undefined));
+  expect('').to(haveStringValue(''));
+  expect(' ').to(haveJsValue(undefined));
+  expect(' ').to(haveStringValue(''));
+  expect('\n').to(haveJsValue(undefined));
+  expect('\n').to(haveStringValue(''));
+  expect('\t').to(haveJsValue(undefined));
+  expect('\t').to(haveStringValue(''));
+  expect('    \t \n\n\n   ').to(haveJsValue(undefined));
+  expect('    \t \n\n\n   ').to(haveStringValue(''));
   expect('(define x 1)').to(haveJsValue(undefined));
   expect('(define x 1)').to(haveStringValue(''));
   expect('(define x 1) (set! x 2)').to(haveJsValue(undefined));

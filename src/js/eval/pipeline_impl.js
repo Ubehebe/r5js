@@ -24,6 +24,8 @@ goog.require('r5js.ParseError');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.Reader');
 goog.require('r5js.Scanner');
+goog.require('r5js.VACUOUS_PROGRAM');
+goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 goog.require('r5js.trampoline');
 
 
@@ -79,5 +81,9 @@ r5js.PipelineImpl.prototype.desugar = function(root) {
 /** @override */
 r5js.PipelineImpl.prototype.Eval = function(
     continuable, inputPort, outputPort) {
-  return r5js.trampoline(continuable, this.env_, inputPort, outputPort);
+  // r5js.VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of
+  // a special case that I don't care.
+  return continuable === r5js.VACUOUS_PROGRAM ?
+      r5js.runtime.UNSPECIFIED_VALUE :
+      r5js.trampoline(continuable, this.env_, inputPort, outputPort);
 };

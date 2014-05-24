@@ -33,6 +33,7 @@ goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.TemplateIdTransformer');
 goog.require('r5js.UserDefinedProcedure');
+goog.require('r5js.VACUOUS_PROGRAM');
 goog.require('r5js.VarargsUserDefinedProcedure');
 goog.require('r5js.VectorTransformer');
 goog.require('r5js.ast.CompoundDatum');
@@ -1007,7 +1008,9 @@ r5js.ParserImpl.grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
 r5js.ParserImpl.grammar[Nonterminals.PROGRAM] = _.seq(
     _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
         desugar(function(node, env) {
-      return node.sequence(env);
+      // r5js.VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of a
+      // special case that I don't care.
+      return node === r5js.VACUOUS_PROGRAM ? node : node.sequence(env);
     });
 
 
