@@ -59,13 +59,6 @@ fix:
 	| grep "\.js" \
 	| xargs fixjsstyle --strict
 
-.PHONY: repl
-repl: interpreter
-repl:
-	cat ui/index.html | sed -e "s/gay-lisp\.js/gay-lisp-$(version).js/g" > build/index.html
-	cp ui/main.js ui/repl.css build/
-	cp mockterm/mockterm.js mockterm/async_queue.js build/
-
 .PHONY: typecheck
 typecheck:
 	@find $(src) -name "*.js" \
