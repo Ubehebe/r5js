@@ -2,18 +2,15 @@
 <html>
 <head>
     <title>r5js tests (uncompiled)</title>
-    <script>
-        var worker = new Worker('../src/js/test/worker.js');
-        worker.addEventListener('message', function(e) {
-            console.log(e.data);
-        }, false /* opt_useCapture */);
-    </script>
+    <script src="../closure-library/closure/goog/base.js"></script>
+    <script src="../../../build/deps.js"></script>
+    <script src="../src/js/test/worker_driver.js"></script>
 </head>
 <body>
-<button onclick="worker.postMessage({name: 'r5js.test.main'});">Run Tests</button>
-<button onclick="worker.postMessage({name: 'r5js.test.readSandbox', args: [document.getElementById('sandbox').value]});">Read Sandbox</button>
-<button onclick="worker.postMessage({name: 'r5js.test.parseSandbox', args: [document.getElementById('sandbox').value]});">Parse Sandbox</button>
-<button onclick="worker.postMessage({name: 'r5js.test.evalSandbox', args: [document.getElementById('sandbox').value]});">Eval Sandbox</button>
+<button onclick="r5js.test.WorkerDriver.main();">Run Tests</button>
+<button onclick="r5js.test.WorkerDriver.readSandbox(document.getElementById('sandbox').value);">Read Sandbox</button>
+<button onclick="r5js.test.WorkerDriver.parseSandbox(document.getElementById('sandbox').value);">Parse Sandbox</button>
+<button onclick="r5js.test.WorkerDriver.evalSandbox(document.getElementById('sandbox').value);">Eval Sandbox</button>
 <br />
 <textarea id="sandbox" rows="2" cols="80"></textarea>
 </body>
