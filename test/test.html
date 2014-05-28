@@ -2,11 +2,8 @@
 <html>
 <head>
     <title>r5js tests (uncompiled)</title>
-    <script src="../closure-library/closure/goog/base.js"></script>
-    <script src="../../../build/deps.js"></script>
-    <script src="../src/js/test/main.js"></script>
     <script>
-        var worker = new Worker('worker.js');
+        var worker = new Worker('../src/js/test/worker.js');
         worker.addEventListener('message', function(e) {
             console.log(e.data);
         }, false /* opt_useCapture */);

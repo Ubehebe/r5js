@@ -1,8 +1,10 @@
 goog.provide('r5js.test.evalSandbox');
 goog.provide('r5js.test.main');
+goog.provide('r5js.test.main1');
 goog.provide('r5js.test.parseSandbox');
 goog.provide('r5js.test.readSandbox');
 goog.setTestOnly('r5js.test.main');
+goog.setTestOnly('r5js.test.main1');
 goog.setTestOnly('r5js.test.evalSandbox');
 goog.setTestOnly('r5js.test.parseSandbox');
 goog.setTestOnly('r5js.test.readSandbox');
@@ -36,13 +38,25 @@ r5js.test.main = function(opt_argv, opt_env) {
   var testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env) ?
       tdd.RunnerConfig.fromFlags(opt_argv, opt_env) :
       r5js.test.main.defaultConfig_();
+  r5js.test.main1(testConfig);
+};
+
+
+/**
+ * Alternative main entry point where callers can pass in a config object
+ * directly, rather than having it constructed from command-line params
+ * and environment variables. This is useful for starting the tests from
+ * inside a web worker, for example.
+ * @param {!tdd.RunnerConfig} testConfig
+ */
+r5js.test.main1 = function(testConfig) {
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
   var jsEnv = r5js.js.Environment.get();
   r5js.test.SchemeSources.get(jsEnv.fetchUrl.bind(jsEnv)).
       then(function(sources) {
-        var publicApi = r5js.test.getEvaluator_(sources);
-        r5js.test.getTestSuites_(publicApi, sources).
+        var evaluator = r5js.test.getEvaluator_(sources);
+        r5js.test.getTestSuites_(evaluator, sources).
             forEach(function(testSuite) {
               runner.add(testSuite);
             });

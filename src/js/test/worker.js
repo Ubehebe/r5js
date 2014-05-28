@@ -1,6 +1,10 @@
+/**
+ * @fileoverview Driver to run the (uncompiled) tests from inside a web worker.
+ * @suppress {undefinedVars,globalThis} due to the unusual web worker setup.
+ */
 
 
-
+// See bootstrap/webworkers.js in the Closure Library for discussion.
 CLOSURE_BASE_PATH = '../../../closure-library/closure/goog/';
 importScripts(
     CLOSURE_BASE_PATH + 'bootstrap/webworkers.js',
@@ -8,7 +12,13 @@ importScripts(
     CLOSURE_BASE_PATH + 'deps.js',
     '../../../build/deps.js');
 
+// TODO bl: goog.labs.net.xhr calls window.clearTimeout directly.
+// Use this polyfill until it is fixed.
 window = this.window || {clearTimeout: function() {}};
+
+// TODO bl: nothing goog.requires this name, but typechecking appears
+// not to work for this file unless it has a goog.provide.
+goog.provide('r5js.test.Worker');
 
 
 goog.require('r5js.test.main');
