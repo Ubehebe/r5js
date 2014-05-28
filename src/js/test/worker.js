@@ -21,17 +21,28 @@ window = this.window || {clearTimeout: function() {}};
 goog.provide('r5js.test.Worker');
 
 
-goog.require('r5js.test.main');
+goog.require('r5js.test.main1');
 goog.require('r5js.test.evalSandbox');
 goog.require('r5js.test.parseSandbox');
 goog.require('r5js.test.readSandbox');
+goog.require('tdd.Formatter');
+goog.require('tdd.RunnerConfig');
+goog.require('tdd.TestType');
 
 
 addEventListener('message', function(e) {
   var arg = e.data.args && e.data.args[0];
   switch (e.data.name) {
     case 'r5js.test.main':
-      r5js.test.main();
+      var formatter = new tdd.Formatter();
+      var config = new tdd.RunnerConfig().
+          setTestTypesToRun([tdd.TestType.UNIT, tdd.TestType.INTEGRATION
+          ]).addFailureHandler(function(logRecord) {
+                postMessage(formatter.formatRecord(logRecord));
+          }).addSuccessHandler(function(logRecord) {
+                postMessage(formatter.formatRecord(logRecord));
+          });
+      r5js.test.main1(config);
       break;
     case 'r5js.test.readSandbox':
       r5js.test.readSandbox(arg);
