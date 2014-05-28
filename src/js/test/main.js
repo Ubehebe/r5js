@@ -1,7 +1,11 @@
 goog.provide('r5js.test.evalSandbox');
 goog.provide('r5js.test.main');
+goog.provide('r5js.test.parseSandbox');
+goog.provide('r5js.test.readSandbox');
 goog.setTestOnly('r5js.test.main');
 goog.setTestOnly('r5js.test.evalSandbox');
+goog.setTestOnly('r5js.test.parseSandbox');
+goog.setTestOnly('r5js.test.readSandbox');
 
 
 goog.require('goog.log');
