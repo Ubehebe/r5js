@@ -75,7 +75,7 @@ r5js.js.NodeEnvironment.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.js.NodeEnvironment.prototype.getTerminal = function() {
+r5js.js.NodeEnvironment.prototype.getTerminal = function(evaluator) {
   return new r5js.js.NodeEnvironment.Terminal_();
 };
 

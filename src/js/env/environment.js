@@ -39,8 +39,18 @@ r5js.js.Environment.prototype.newInputPort = function(name) {};
 r5js.js.Environment.prototype.newOutputPort = function(name) {};
 
 
-/** @return {!r5js.Terminal} */
-r5js.js.Environment.prototype.getTerminal = function() {};
+/**
+ * @param {!r5js.Evaluator} evaluator TODO bl: ideally, {@link r5js.Terminal}
+ * implementations would be "dumb", knowing nothing about Scheme.
+ * One complication is multiline input, where terminals often show a different
+ * prompt if the current line is a continuation of the last line. One of the
+ * Terminal implementations, {@link r5js.js.Html5Environment.Terminal_},
+ * has a quirky API that requires the implementation to know whether
+ * the current line will complete. This parameter is passed in order to
+ * communicate that knowledge.
+ * @return {!r5js.Terminal}
+ */
+r5js.js.Environment.prototype.getTerminal = function(evaluator) {};
 
 
 /** @return {!r5js.js.Environment} */

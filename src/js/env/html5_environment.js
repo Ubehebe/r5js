@@ -48,21 +48,39 @@ r5js.js.Html5Environment.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.js.Html5Environment.prototype.getTerminal = function() {
-  return new r5js.js.Html5Environment.Terminal_(this.jqConsole_);
+r5js.js.Html5Environment.prototype.getTerminal = function(evaluator) {
+  return new r5js.js.Html5Environment.Terminal_(
+      this.jqConsole_,
+      function(line) { return evaluator.willParse(line); });
 };
 
 
 
 /**
  * @param {?} jqconsole
+ * @param {function(string):boolean} isLineComplete Function to determine
+ * if a given line of user input is complete (= ready to be evaluated).
  * @implements {r5js.Terminal}
  * @struct
  * @constructor
  * @private
  */
-r5js.js.Html5Environment.Terminal_ = function(jqconsole) {
+r5js.js.Html5Environment.Terminal_ = function(jqconsole, isLineComplete) {
   /** @const @private */ this.jqconsole_ = jqconsole;
+  /** @const @private */ this.isLineComplete_ = isLineComplete;
+};
+
+
+/**
+ * @param {string} line
+ * @return {boolean|number}
+ * @private
+ * @see {https://github.com/replit/jq-console} for details on the odd return
+ * values.
+ */
+r5js.js.Html5Environment.Terminal_.prototype.multilineCallback_ = function(
+    line) {
+  return this.isLineComplete_(line) ? false : 0;
 };
 
 
@@ -72,7 +90,10 @@ r5js.js.Html5Environment.Terminal_ = function(jqconsole) {
  */
 r5js.js.Html5Environment.Terminal_.prototype.getNextLineOfInput = function() {
   return new goog.Promise(function(resolve) {
-    this.jqconsole_.Prompt(true /* history_enabled */, resolve);
+    this.jqconsole_.Prompt(
+        true /* history_enabled */,
+        resolve,
+        this.multilineCallback_.bind(this));
   }, this);
 };
 

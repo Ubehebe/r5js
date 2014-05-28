@@ -15,13 +15,12 @@ r5js.repl.main = function() {
       null, goog.array.toArray(arguments));
   r5js.test.SchemeSources.get(jsEnv.fetchUrl.bind(jsEnv)).
       then(function(sources) {
-        var terminal = jsEnv.getTerminal();
+        var evaluator = r5js.boot(sources.syntax, sources.procedures);
+        var terminal = jsEnv.getTerminal(evaluator);
         var stdin = r5js.InputPort.NULL;
         var stdout = new r5js.R5RSCompliantOutputPort(
             terminal.print.bind(terminal));
-        var evaluator = r5js.boot(
-            sources.syntax, sources.procedures, stdin, stdout);
-        new r5js.Repl(terminal, evaluator).start();
+        new r5js.Repl(terminal, evaluator.withPorts(stdin, stdout)).start();
       });
 };
 
