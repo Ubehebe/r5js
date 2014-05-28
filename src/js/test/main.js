@@ -26,10 +26,11 @@ goog.require('tdd.RunnerConfig');
 /**
  * Main entry point for the test suite.
  * @param {!Array.<string>=} opt_argv Optional command-line arguments.
+ * @param {!Object.<string, string>=} opt_env Optional command-line environment.
  */
-r5js.test.main = function(opt_argv) {
-  var testConfig = goog.isDef(opt_argv) ?
-      tdd.RunnerConfig.fromFlags(opt_argv) :
+r5js.test.main = function(opt_argv, opt_env) {
+  var testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env) ?
+      tdd.RunnerConfig.fromFlags(opt_argv, opt_env) :
       r5js.test.main.defaultConfig_();
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
