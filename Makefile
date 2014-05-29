@@ -138,43 +138,6 @@ compile-tests:
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		> $(test_outfile)
 
-.PHONY: doctor-api-js
-doctor-api-js: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e 's/^\([0-9]*\).*/\1/'`
-doctor-api-js: afterFirstBrace = `grep -m1 -A1 -n { src/api/api.js | tail -1 | sed -e 's/^\([0-9]*\).*/\1/'`
-doctor-api-js: banner_src = src/banner.txt
-doctor-api-js:
-	@mkdir -p build
-	@head -n$(firstBrace) src/api/api.js > $(output)
-	@echo "\nvar syntax = \"\c" >> $(output)
-	@# Remove Scheme comments, escape Scheme backslashes and quotes, compress whitespace
-	@# (Note that we compress whitespace inside string literals, which is not really correct...)
-	@sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < src/scm/r5rs-syntax.scm | tr -s '\n\t ' ' ' >> $(output)
-	@echo "\";" >> $(output)
-	@echo "var procedures = \"\c" >> $(output)
-	@sed -e 's/;.*//' -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' < src/scm/r5rs-procedures.scm | tr -s '\n\t ' ' ' >> $(output)
-	@echo "\";" >> $(output)
-
-	@# Embed the banner
-	@echo "\nvar banner = \"\c" >> $(output)
-
-	@cp $(banner_src) build/tmp
-	@echo "\n;; Version $(version) (source commit \c" >> build/tmp
-	@cat .git/refs/heads/master | sed -e 's/\(.\{7\}\).*/\1)/' >> build/tmp
-	@echo ";; Built on \c" >> build/tmp
-	@echo `date` >> build/tmp
-	@cat build/tmp | sed -e 's/\\/\\\\/g' -e 's/\"/\\\"/g' | awk '{ printf "%s\\n", $$0}' >> $(output)
-	@echo "\";" >> $(output)
-	@rm build/tmp
-
-	@# TODO bl: tail -n+$(afterFirstBrace) used to start with the line after
-	@# the brace, but now, at least on OS X, it grabs the line including
-	@# the brace, leading to very malformed output. The tail -n+2 corrects
-	@# for this. This could be a version problem with one of the command-line
-	@# tools. Investigate.
-	@tail -n+$(afterFirstBrace) src/api/api.js | tail -n+2 >> $(output)
-	@cat test/framework/* | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
-	@cat test/*.scm | sed -e 's/;.*//' | tr -s '\n\t ' ' ' >> $(unit_tests)
-
 .PHONY: test
 test: compile-tests
 test:
