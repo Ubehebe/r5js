@@ -35,13 +35,13 @@ test_opts = type=unit verbose
 node_repl_main_class = r5js.repl.main
 node_repl_outfile = $(outdir)/node-repl.js
 
+# Brings the Closure JS dependencies up-to-date.
 .PHONY: deps
 deps:
 	@mkdir -p $(outdir)
 	@$(depswriter) --root_with_prefix="$(src) ../../../$(src)" > $(deps)
 
-
-# Only lint staged JS changes.
+# Runs the Closure linter on staged JS changes.
 .PHONY: lint
 lint:
 	@command -v gjslint > /dev/null 2>&1 || \
@@ -50,6 +50,7 @@ lint:
 	| grep "\.js" \
 	| xargs gjslint --strict
 
+# Applies lint fixes suggested by gjslint.
 .PHONY: fix
 fix:
 	@command -v fixjsstyle > /dev/null 2>&1 || \
@@ -58,6 +59,7 @@ fix:
 	| grep "\.js" \
 	| xargs fixjsstyle --strict
 
+# Runs the Closure Compiler on the codebase as strictly as possible.
 .PHONY: typecheck
 typecheck:
 	@find $(src) -name "*.js" \
@@ -99,6 +101,7 @@ typecheck:
 		--jscomp_error visibility \
 		> /dev/null
 
+# Compiles the Node-based REPL.
 .PHONY: compile-node-repl
 compile-node-repl:
 	@mkdir -p $(outdir)
@@ -119,6 +122,7 @@ compile-node-repl:
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		> $(node_repl_outfile)
 
+# Compiles the test suite. 
 .PHONY: compile-tests
 compile-tests:
 	@mkdir -p $(outdir)
@@ -138,6 +142,7 @@ compile-tests:
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		> $(test_outfile)
 
+# Runs the test suite from Node.
 .PHONY: test
 test: compile-tests
 test:
@@ -145,6 +150,7 @@ test:
 		{ echo >&2 "node is required for testing."; exit 1; }
 	@node -e "require('./build/test-all').r5js.test.main(process.argv, process.env);" $(test_opts)
 
+# Runs the Node-based REPL.
 .PHONY: node-repl
 node-repl: compile-node-repl
 node-repl:
@@ -152,12 +158,17 @@ node-repl:
 		{ echo >&2 "node is required for testing."; exit 1; }
 	@node -e "require('./build/node-repl').$(node_repl_main_class)();"
 
+# Launches an HTTP server to serve the test suite to browsers.
+# The test suite can be reached at /test/test.html.
+# (The test suite cannot be served directly from the filesystem because
+# it uses Ajax, which doesn't work for file:// URLs.
 .PHONY: test-server
 test-server: deps
 	@command -v python > /dev/null 2>&1 || \
 		{ echo >&2 "python is required for running the test server."; exit 1; }
 	@python -m SimpleHTTPServer $(static_port)
 
+# Cleans everything up.
 .PHONY: clean
 clean:
 	@rm -rf $(outdir)
