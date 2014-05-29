@@ -41,8 +41,7 @@ deps:
 	@$(depswriter) --root_with_prefix="$(src) ../../../$(src)" > $(deps)
 
 
-# The codebase has been developed without a lint check. Suddenly turning on
-# a global lint would be too noisy, so just lint the files to be committed.
+# Only lint staged JS changes.
 .PHONY: lint
 lint:
 	@command -v gjslint > /dev/null 2>&1 || \
@@ -138,21 +137,6 @@ compile-tests:
 		--externs=externs/stream.js \
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		> $(test_outfile)
-
-.PHONY: interpreter
-interpreter: doctor-api-js
-interpreter:
-	@mkdir -p $(outdir)/tmpdir
-	@mv $(output) $(outdir)/tmpdir/tmp.js
-	@find $(src) -name "*.js" \
-	| xargs printf "\-\-input %s " \
-	| xargs $(builder) --root=$(src) --root=$(closure_root) \
-	| xargs $(compiler) \
-		--js $(closure_root)/closure/goog/deps.js \
-		--js $(outdir)/tmpdir/tmp.js \
-		--closure_entry_point=$(main_class) \
-		> $(output)
-	@rm -rf $(outdir)/tmpdir
 
 .PHONY: doctor-api-js
 doctor-api-js: firstBrace = `grep -m1 -A1 -n { src/api/api.js | head -1 | sed -e 's/^\([0-9]*\).*/\1/'`
