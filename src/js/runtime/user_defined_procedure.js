@@ -50,6 +50,12 @@ r5js.UserDefinedProcedure = function(formalsArray, bodyStart, env, opt_name) {
 goog.inherits(r5js.UserDefinedProcedure, r5js.Procedure);
 
 
+/** @return {string} */
+r5js.UserDefinedProcedure.prototype.getName = function() {
+  return this.name_;
+};
+
+
 /**
  * @param {!r5js.Datum} bodyStart
  * @return {!r5js.ProcCallLike}

@@ -292,6 +292,12 @@ r5js.procspec.PrimitiveProcedure_.prototype.setDebugName = function(name) {
 };
 
 
+/** @return {string} */
+r5js.procspec.PrimitiveProcedure_.prototype.getDebugName = function() {
+  return this.debugName_;
+};
+
+
 /**
  * @param {!goog.array.ArrayLike} userArgs
  * @param {!r5js.ProcCallLike} procCallLike

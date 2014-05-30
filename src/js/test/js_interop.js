@@ -173,6 +173,13 @@ r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
 };
 
 
+r5js.test.JsInterop.prototype['testNonStandardExternalRepresentations'] =
+    function() {
+  expect('+').not().to(haveStringValue(''));
+  expect('(lambda (x) x)').not().to(haveStringValue(''));
+};
+
+
 r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
   expect('').to(haveJsValue(undefined));
   expect('').to(haveStringValue(''));
