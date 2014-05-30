@@ -177,6 +177,8 @@ r5js.test.JsInterop.prototype['testNonStandardExternalRepresentations'] =
     function() {
   expect('+').not().to(haveStringValue(''));
   expect('(lambda (x) x)').not().to(haveStringValue(''));
+  expect('(current-input-port)').not().to(haveStringValue(''));
+  expect('(current-output-port)').not().to(haveStringValue(''));
 };
 
 

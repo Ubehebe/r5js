@@ -2,6 +2,8 @@ goog.provide('r5js.EvalAdapter');
 
 
 
+goog.require('r5js.InputPort');
+goog.require('r5js.OutputPort');
 goog.require('r5js.UserDefinedProcedure');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.parse.Terminals');
@@ -164,6 +166,10 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
         return '<proc:' + value.getName() + '>';
       } else if (value instanceof r5js.procspec.PrimitiveProcedure_) {
         return '<proc:' + value.getDebugName() + '>';
+      } else if (r5js.InputPort.isImplementedBy(value)) {
+        return '<input-port>';
+      } else if (r5js.OutputPort.isImplementedBy(value)) {
+        return '<output-port>';
       } else if (value instanceof r5js.Datum) {
         return r5js.EvalAdapter.toString_(includeSigils, value.unwrap());
       }
