@@ -2,6 +2,7 @@ goog.provide('r5js.EvalAdapter');
 
 
 
+goog.require('r5js.ast.Quote');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
@@ -154,6 +155,10 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
         } else {
           return value.getPayload();
         }
+      } else if (value instanceof r5js.ast.Quote) {
+        return r5js.parse.Terminals.TICK + r5js.EvalAdapter.toString_(
+            includeSigils,
+            /** @type {!r5js.runtime.Value} */ (value.getFirstChild()));
       } else if (value instanceof r5js.Datum) {
         return r5js.EvalAdapter.toString_(includeSigils, value.unwrap());
       }

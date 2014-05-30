@@ -110,6 +110,11 @@ r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
       haveJsValue('hello world'));
   expect('(string-append "hello " "world")').to(
       haveStringValue('"hello world"'));
+  expect("'a").to(haveStringValue('a'));
+  expect("''a").to(haveStringValue("'a"));
+  expect("'''a").to(haveStringValue("''a"));
+  expect("''''a").to(haveStringValue("'''a"));
+  expect("'''''a").to(haveStringValue("''''a"));
 };
 
 
