@@ -24,9 +24,9 @@ goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
 goog.require('r5js.test.SchemeSources');
 goog.require('r5js.test.SchemeTestDriver');
-goog.require('tdd.Formatter');
 goog.require('tdd.Runner');
 goog.require('tdd.RunnerConfig');
+goog.require('tdd.logTo');
 
 
 /**
@@ -74,14 +74,11 @@ r5js.test.main1 = function(testConfig) {
  * @private
  */
 r5js.test.main.defaultConfig_ = function() {
-  var formatter = new tdd.Formatter();
+  var logWriter = tdd.logTo(goog.global.console);
   return new tdd.RunnerConfig().
-      setTestTypesToRun([tdd.TestType.UNIT, tdd.TestType.INTEGRATION
-      ]).addFailureHandler(function(logRecord) {
-        console.log(formatter.formatRecord(logRecord));
-      }).addSuccessHandler(function(logRecord) {
-        console.log(formatter.formatRecord(logRecord));
-      });
+      setTestTypesToRun([tdd.TestType.UNIT, tdd.TestType.INTEGRATION])
+      .addFailureHandler(logWriter)
+      .addSuccessHandler(logWriter);
 };
 
 
@@ -149,3 +146,15 @@ r5js.test.getTestSuites_ = function(evaluator, sources) {
 goog.exportSymbol('r5js.test.main', r5js.test.main);
 // nodejs hack. See comment in goog.promise.testSuiteAdapter.
 goog.exportSymbol('setTimeout', setTimeout);
+
+
+if (!goog.global.console) {
+  /**
+    * nodejs hack. To run the tests in uncompiled mode, we could use
+    * Closure's bootstrap/nodejs.js, which sets up goog.global.console.
+    * But that file is annotated with @nocompile, so it doesn't work for
+    * the compiled tests.
+    */
+  goog.global.console = console;
+}
+
