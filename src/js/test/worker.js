@@ -19,6 +19,7 @@ window = this.window || {clearTimeout: function() {}};
 // TODO bl: nothing goog.requires this name, but typechecking appears
 // not to work for this file unless it has a goog.provide.
 goog.provide('r5js.test.Worker');
+goog.setTestOnly('r5js.test.Worker');
 
 
 goog.require('r5js.test.main1');
