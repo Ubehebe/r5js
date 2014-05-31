@@ -9,7 +9,6 @@ CLOSURE_BASE_PATH = '../../../closure-library/closure/goog/';
 importScripts(
     CLOSURE_BASE_PATH + 'bootstrap/webworkers.js',
     CLOSURE_BASE_PATH + 'base.js',
-    CLOSURE_BASE_PATH + 'deps.js',
     '../../../build/deps.js');
 
 // TODO bl: goog.labs.net.xhr calls window.clearTimeout directly.
