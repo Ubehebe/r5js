@@ -1,34 +1,56 @@
-#Gay Lisp
-Gay Lisp is the first standards-compliant (R5RS) Scheme that runs in the browser, no plugins or extensions required. You can also run it in a server environment with [Node](http://nodejs.org/).
+# r5js
 
-For a working demo and tutorial, check out the [project website](http://gay-lisp.org/).
-The project website also has a general overview of Lisp and Scheme; the present document is a technical overview.
+r5js is an implementation of the
+[Scheme](http://en.wikipedia.org/wiki/Scheme_(programming_language))
+programming language. It is written in JavaScript (with the standard library
+self-hosted in Scheme) and runs in modern web browsers
+and [Node](http://nodejs.org/).
 
-##Building
+Unlike other JavaScript Scheme implementations, r5js aims for full compliance
+with [R5RS](http://www.schemers.org/Documents/Standards/R5RS/HTML/),
+the fifth edition of the Scheme specification. It supports hygienic macros,
+first-class continuations, and proper tail recursion. It includes over 700 tests
+exercising most of the language's facilities.
 
-###Browser-based REPL
-- `git submodule init && git submodule update && make repl`
-- Visit `build/index.html` in a browser.
+## Building
 
-(The interpreter itself has no dependencies on any JavaScript libraries. The default HTML UI has a single submodule dependency, on [term.js](http://github.com/Ubehebe/term.js/), but this is easily replaced.)
+r5js uses the [Google Closure](https://developers.google.com/closure/) tools
+to build the application and manage dependencies. These tools require Java,
+Python, and [Apache Ant](http://en.wikipedia.org/wiki/Apache_Ant) to be installed.
 
-###Node-based REPL
-- `make node-repl && node build/node-repl.js`
+1. Clone the main repository:
+   `git clone https://github.com/Ubehebe/Gay-Lisp`
+2. Clone the submodules:
+   `cd Gay-Lisp && git submodule init && git submodule update`
+3. Build the Closure Compiler: `cd closure-compiler && ant && cd ..`
+4. Make the Closure Library dependency scripts writable:
+   `chmod a+x closure-library/closure/bin/build/*.py`
+5. Run the unit tests from the command line: `make test`.
+   This step requires Node.
 
-##Testing
-`make test` runs the test suite from the command line. It requires Node.
+## Running
 
-The `Makefile` has a number of other targets, including `make smslike` (an alternative UI mimicking a mobile phone's text message UI) and `make interpreter` (no UI, just the JavaScript library). Most of the targets have variants ending in `-min` that will minify the JavaScript output. They require the [Google Closure Compiler](https://developers.google.com/closure/compiler/) `compiler.jar` to be present in the working directory.
+### In a browser
 
-##Architecture
-Gay Lisp is written in JavaScript conforming to Ecmascript 3rd edition, so it should run in a wide variety of current and legacy browsers.
+1. At the command line, run `make test-server`.
+   This launches a simple web server that serves the application.
+   (It can't be served from a filesystem, because the application uses Ajax
+   to fetch the Scheme standard library.)
+2. In a browser, navigate to `localhost:8888/ui/index.html`.
+   This page provides a simple read–eval–print loop using
+   [jq-console](https://github.com/replit/jq-console).
 
-There is a regex-based scanner and a recursive descent parser, both handwritten.
+### From the command line
 
-Programs are incrementally transformed into continuation-passing style and evaluated on a trampoline.
+Run `make node-repl`. This launches a simple read–eval–print loop
+directly in the terminal, using Node.
 
-Primitive Scheme values are implemented by their primitive JavaScript counterparts as much as practical; in particular, the semantics of numerical operations are mostly those of JavaScript, while still complying with the Scheme standard.
+## Developing
 
-All the non-primitive syntax and procedures are written in Scheme and read in when the interpreter starts up.
+All commits should pass the pre-commit hook, which should be symlinked
+into  `.git/hooks`:  `ln -s $PWD/hooks/pre-commit $PWD/.git/hooks/pre-commit`.
 
-There is currently no code generation; it's just an interpreter. A major goal is to generate JavaScript. This would allow the inclusion of Scheme code in HTML `<script>` tags in the manner of [CoffeeScript](http://coffeescript.org/).
+This hook performs linting and type-checking, and runs the unit tests before
+committing. It requires the
+[Closure Linter](https://developers.google.com/closure/utilities/) tools
+`gjslint` and `fixjsstyle` to be installed and available via `$PATH`.
