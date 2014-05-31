@@ -19,9 +19,9 @@ to build the application and manage dependencies. These tools require Java,
 Python, and [Apache Ant](http://en.wikipedia.org/wiki/Apache_Ant) to be installed.
 
 1. Clone the main repository:
-   `git clone https://github.com/Ubehebe/Gay-Lisp`
+   `git clone https://github.com/Ubehebe/r5js`
 2. Clone the submodules:
-   `cd Gay-Lisp && git submodule init && git submodule update`
+   `cd r5js && git submodule init && git submodule update`
 3. Build the Closure Compiler: `cd closure-compiler && ant && cd ..`
 4. Make the Closure Library dependency scripts writable:
    `chmod a+x closure-library/closure/bin/build/*.py`
