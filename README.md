@@ -1,4 +1,4 @@
-# r5js
+# r5js [![Build Status](https://drone.io/github.com/Ubehebe/r5js/status.png)](https://drone.io/github.com/Ubehebe/r5js/latest)
 
 r5js is an implementation of the
 [Scheme](http://en.wikipedia.org/wiki/Scheme_(programming_language))
