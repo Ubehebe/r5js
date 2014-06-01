@@ -19,26 +19,20 @@ goog.provide('r5js.ProcCall');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
-goog.require('r5js.Environment');
 goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.Procedure');
-goog.require('r5js.Ref');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Literal');
-goog.require('r5js.ast.Macro');
 goog.require('r5js.ast.Quote');
-goog.require('r5js.ast.SimpleDatum');
-goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
-goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 

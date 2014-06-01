@@ -17,7 +17,6 @@ goog.provide('r5js.ast.Lambda');
 
 
 goog.require('r5js.ast.SimpleDatum');
-goog.require('r5js.parse.Terminals');
 
 
 

@@ -20,7 +20,6 @@ goog.provide('r5js.ast.Literal');
 
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.parse.Terminals');
-// TODO bl circular dependency goog.require('r5js.newIdShim');
 
 
 /** @typedef {function(!r5js.Datum, !r5js.IEnvironment):

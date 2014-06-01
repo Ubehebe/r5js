@@ -20,7 +20,6 @@ goog.require('r5js.CdrHelper');
 goog.require('r5js.Pair');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.parse.Terminals');
 
 
 
@@ -71,16 +70,3 @@ r5js.ast.DottedList.prototype.cdr = function() {
     return new r5js.SiblingBuffer().toList(r5js.ast.List);
   }
 };
-
-
-///** @override */
-//r5js.ast.DottedList.prototype.stringForOutputMode = function(outputMode) {
-//  var children = this.mapChildren(function(child) {
-//    return child.stringForOutputMode(outputMode);
-//  });
-//  Insert the dot at the next-to-last location.
-//  children.splice(-1, 0, r5js.parse.Terminals.DOT);
-//  return r5js.parse.Terminals.LPAREN +
-//      children.join(' ') +
-//      r5js.parse.Terminals.RPAREN;
-//};

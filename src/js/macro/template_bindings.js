@@ -16,10 +16,11 @@
 
 goog.provide('r5js.TemplateBindings');
 
+
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
-// TODO bl circular dependency goog.require('r5js.ast.Macro');
+goog.require('r5js.ast.Macro');
 
 
 

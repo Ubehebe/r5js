@@ -16,6 +16,7 @@
 
 goog.provide('r5js.ParserImpl');
 
+
 goog.require('r5js.Branch');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');

@@ -17,12 +17,6 @@
 goog.provide('r5js.Continuation');
 
 
-goog.require('goog.functions');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.List');
-goog.require('r5js.ast.Macro');
-
-
 
 /**
  * Example: (g (f x y) z) desugared is

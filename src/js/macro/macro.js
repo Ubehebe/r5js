@@ -24,8 +24,8 @@ goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
-// TODO bl circular dependency goog.require('r5js.ast.Identifier');
-// TODO bl circular dependency goog.require('r5js.ast.List');
+goog.require('r5js.ast.Identifier');
+goog.require('r5js.ast.List');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 

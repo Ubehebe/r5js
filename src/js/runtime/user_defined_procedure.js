@@ -16,9 +16,7 @@
 goog.provide('r5js.UserDefinedProcedure');
 
 
-goog.require('goog.functions');
 goog.require('r5js.Environment');
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.Procedure');

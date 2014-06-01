@@ -21,7 +21,6 @@ goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.parse.Terminals');
-goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
 

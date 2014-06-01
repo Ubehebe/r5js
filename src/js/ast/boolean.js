@@ -16,7 +16,6 @@
 goog.provide('r5js.ast.Boolean');
 
 
-goog.require('r5js.DatumType');
 goog.require('r5js.ast.SimpleDatum');
 
 

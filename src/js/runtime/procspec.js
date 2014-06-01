@@ -17,7 +17,6 @@ goog.provide('r5js.procspec');
 
 
 goog.require('goog.array');
-goog.require('goog.functions');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.Procedure');

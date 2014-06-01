@@ -19,7 +19,6 @@ goog.provide('r5js.PipelineImpl');
 
 
 goog.require('r5js.Environment');
-goog.require('r5js.InputPort');
 goog.require('r5js.ParseError');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.Reader');

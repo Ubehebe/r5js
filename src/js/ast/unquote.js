@@ -17,7 +17,6 @@ goog.provide('r5js.ast.Unquote');
 
 
 goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.parse.Terminals');
 
 
 

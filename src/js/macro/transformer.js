@@ -17,9 +17,6 @@
 goog.provide('r5js.Transformer');
 
 
-goog.require('r5js.MacroError');
-
-
 
 /**
  * @param {!r5js.ListLikeTransformer} pattern

@@ -23,7 +23,6 @@ goog.provide('r5js.VectorTransformer');
 
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.SiblingBuffer');
-goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Vector');

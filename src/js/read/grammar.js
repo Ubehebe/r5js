@@ -16,6 +16,7 @@
 goog.provide('r5js.Reader');
 goog.provide('r5js.read.grammar');
 
+
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.DottedList');

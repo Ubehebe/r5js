@@ -21,7 +21,6 @@ goog.require('r5js.Pair');
 // TODO bl circular dependency goog.require('r5js.CdrHelper');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.parse.Terminals');
 
 
 
