@@ -2,15 +2,17 @@
 
 r5js is an implementation of the
 [Scheme](http://en.wikipedia.org/wiki/Scheme_(programming_language))
-programming language. It is written in JavaScript (with the standard library
-self-hosted in Scheme) and runs in modern web browsers
-and [Node](http://nodejs.org/).
+programming language. It is written in JavaScript and runs in
+modern web browsers and [Node](http://nodejs.org/).
 
 Unlike other JavaScript Scheme implementations, r5js aims for full compliance
 with [R5RS](http://www.schemers.org/Documents/Standards/R5RS/HTML/),
 the fifth edition of the Scheme specification. It supports hygienic macros,
 first-class continuations, and proper tail recursion. It includes over 700 tests
 exercising most of the language's facilities.
+
+r5js is free software, licensed under
+[GPLv3](http://www.gnu.org/copyleft/gpl.html).
 
 ## Building
 

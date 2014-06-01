@@ -1,4 +1,4 @@
-/* Copyright 2011, 2012 Brendan Linn
+/* Copyright 2011-2014 Brendan Linn
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -12,7 +12,6 @@
 
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 
 goog.provide('r5js.Datum');
 goog.provide('r5js.VACUOUS_PROGRAM');
