@@ -190,12 +190,18 @@ r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
 };
 
 
+/**
+ * R5RS doesn't actually forbid these external representations to be
+ * the empty string, but empty strings are not helpful to return in a REPL.
+ */
 r5js.test.JsInterop.prototype['testNonStandardExternalRepresentations'] =
     function() {
   expect('+').not().to(haveStringValue(''));
   expect('(lambda (x) x)').not().to(haveStringValue(''));
   expect('(current-input-port)').not().to(haveStringValue(''));
   expect('(current-output-port)').not().to(haveStringValue(''));
+  expect('(scheme-report-environment 5)').not().to(haveStringValue(''));
+  expect('(null-environment 5)').not().to(haveStringValue(''));
 };
 
 

@@ -17,6 +17,7 @@ goog.provide('r5js.EvalAdapter');
 
 
 
+goog.require('r5js.Environment');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.UserDefinedProcedure');
@@ -187,6 +188,8 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
         return '<output-port>';
       } else if (value instanceof r5js.Datum) {
         return r5js.EvalAdapter.toString_(includeSigils, value.unwrap());
+      } else if (value instanceof r5js.Environment) {
+        return '<environment-specifier>';
       }
     default:
       return '';
