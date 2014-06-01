@@ -16,19 +16,12 @@ r5js is free software, licensed under
 
 ## Building
 
-r5js uses the [Google Closure](https://developers.google.com/closure/) tools
-to build the application and manage dependencies. These tools require Java,
-Python, and [Apache Ant](http://en.wikipedia.org/wiki/Apache_Ant) to be installed.
-
-1. Clone the main repository:
-   `git clone https://github.com/Ubehebe/r5js`
-2. Clone the submodules:
-   `cd r5js && git submodule init && git submodule update`
-3. Build the Closure Compiler: `cd closure-compiler && ant && cd ..`
-4. Make the Closure Library dependency scripts writable:
-   `chmod a+x closure-library/closure/bin/build/*.py`
-5. Run the unit tests from the command line: `make test`.
-   This step requires Node.
+1. `git clone https://github.com/Ubehebe/r5js`
+2. `make setup`. This will clone the submodules and set up the
+   [Google Closure](https://developers.google.com/closure/) tools.
+   This requires Java, Python, and
+   [Apache Ant](http://en.wikipedia.org/wiki/Apache_Ant) to be installed.
+3. `make test`. This will run the unit tests from the command line, using Node.
 
 ## Running
 
