@@ -36,23 +36,12 @@ r5js.test.WorkerDriver.worker_ = null;
 
 
 /**
- * @return {!tdd.LogWriter}
- * @private
- */
-r5js.test.WorkerDriver.getLogWriter_ = function() {
-  if (!r5js.test.WorkerDriver.logWriter_) {
-    r5js.test.WorkerDriver.logWriter_ = tdd.logTo(console);
-  }
-  return r5js.test.WorkerDriver.logWriter_;
-};
-
-
-/**
  * @return {!Worker}
  * @private
  */
 r5js.test.WorkerDriver.getWorker_ = function() {
   if (!r5js.test.WorkerDriver.worker_) {
+    r5js.test.WorkerDriver.logWriter_ = tdd.logTo(console);
     r5js.test.WorkerDriver.worker_ = new Worker('../src/js/test/worker.js');
     r5js.test.WorkerDriver.worker_.addEventListener(
         goog.events.EventType.MESSAGE,
@@ -77,7 +66,7 @@ r5js.test.WorkerDriver.onMessage_ = function(e) {
       reconstitutedLevel,
       logRecord.msg_,
       logRecord.loggerName_);
-  r5js.test.WorkerDriver.getLogWriter_()(reconstitutedLogRecord);
+  r5js.test.WorkerDriver.logWriter_(reconstitutedLogRecord);
 };
 
 
