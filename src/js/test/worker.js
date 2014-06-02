@@ -15,7 +15,7 @@
 
 /**
  * @fileoverview Driver to run the (uncompiled) tests from inside a web worker.
- * @suppress {undefinedVars,globalThis} due to the unusual web worker setup.
+ * @suppress {undefinedVars|globalThis} due to the unusual web worker setup.
  */
 
 
@@ -36,6 +36,7 @@ goog.provide('r5js.test.Worker');
 goog.setTestOnly('r5js.test.Worker');
 
 
+goog.require('goog.events.EventType');
 goog.require('r5js.test.main1');
 goog.require('r5js.test.evalSandbox');
 goog.require('r5js.test.parseSandbox');
@@ -44,14 +45,30 @@ goog.require('tdd.RunnerConfig');
 goog.require('tdd.TestType');
 
 
-addEventListener('message', function(e) {
+/**
+ * Serialize the log record to JSON and post it.
+ * The record cannot be posted directly as an object, because
+ * records representing failures have a field of type Error, and Error
+ * objects explicitly cannot be serialized by the HTML5 structured
+ * clone algorithm.
+ * TODO bl: investigate why this is a silent error rather than a DataCloneError
+ * exception, as required by the spec.
+ * @param {!goog.log.LogRecord} logRecord
+ * @private
+ */
+r5js.test.Worker.postLogRecord_ = function(logRecord) {
+  postMessage(JSON.stringify(logRecord));
+};
+
+
+addEventListener(goog.events.EventType.MESSAGE, function(e) {
   var arg = e.data.args && e.data.args[0];
   switch (e.data.name) {
     case 'r5js.test.main':
       var config = new tdd.RunnerConfig()
           .setTestTypesToRun([tdd.TestType.UNIT, tdd.TestType.INTEGRATION])
-          .addFailureHandler(postMessage)
-          .addSuccessHandler(postMessage);
+          .addFailureHandler(r5js.test.Worker.postLogRecord_)
+          .addSuccessHandler(r5js.test.Worker.postLogRecord_);
       r5js.test.main1(config);
       break;
     case 'r5js.test.readSandbox':
@@ -66,4 +83,4 @@ addEventListener('message', function(e) {
     default:
       break;
   }
-});
+}, false /* opt_onCapture */);

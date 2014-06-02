@@ -66,10 +66,11 @@ r5js.test.WorkerDriver.getWorker_ = function() {
 /**
  * @param {!Event} e
  * @private
- * @suppress {accessControls,checkTypes} for reconstituting the LogRecord
+ * @suppress {accessControls|checkTypes} for reconstituting the LogRecord
+ * TODO bl also reconstitute the error, if any.
  */
 r5js.test.WorkerDriver.onMessage_ = function(e) {
-  var logRecord = /** @type {!goog.log.LogRecord} */ (e.data);
+  var logRecord = /** @type {!goog.log.LogRecord} */ (JSON.parse(e.data));
   var reconstitutedLevel = goog.debug.Logger.Level.getPredefinedLevel(
       logRecord.level_.name);
   var reconstitutedLogRecord = new goog.log.LogRecord(
