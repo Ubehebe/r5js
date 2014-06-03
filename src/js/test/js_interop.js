@@ -25,6 +25,8 @@ goog.require('haveStringOutput');
 goog.require('haveStringValue');
 goog.require('r5js.test.matchers.setSharedEvaluator');
 goog.require('tdd.TestType');
+goog.require('r5js.ParseError');
+goog.require('Throw');
 
 
 
@@ -237,5 +239,10 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
   expect('(close-output-port (current-output-port))').
       to(haveJsValue(undefined));
   expect('(close-output-port (current-output-port))').to(haveStringValue(''));
+};
+
+r5js.test.JsInterop.prototype['testErrors'] = function() {
+  expect('(').to(Throw(r5js.ParseError));
+  expect(')').to(Throw(r5js.ParseError));
 };
 

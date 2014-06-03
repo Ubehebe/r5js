@@ -13,6 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+goog.provide('Throw');
 goog.provide('haveJsOutput');
 goog.provide('haveJsValue');
 goog.provide('haveStringOutput');
@@ -22,6 +23,7 @@ goog.setTestOnly('haveJsOutput');
 goog.setTestOnly('haveJsValue');
 goog.setTestOnly('haveStringValue');
 goog.setTestOnly('r5js.test.matchers.setSharedEvaluator');
+goog.setTestOnly('Throw');
 
 
 goog.require('goog.array');
@@ -73,6 +75,17 @@ haveStringOutput = function(output) {
       /** @type {!r5js.Evaluator} */ (
       r5js.test.matchers.HasStringOutput_.sharedEvaluator_),
       r5js.test.matchers.HasStringOutput_.sharedOutputPort_);
+};
+
+
+/**
+ * @param {!Function} exceptionCtor
+ * @return {!tdd.matchers.Matcher}
+ */
+Throw = function(exceptionCtor) {
+  return new r5js.test.matchers.Throws_(
+      exceptionCtor, /** @type {!r5js.Evaluator} */ (
+      r5js.test.matchers.Throws_.sharedEvaluator_));
 };
 
 
@@ -288,6 +301,48 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
 };
 
 
+
+/**
+ * @param {!Function} exceptionCtor
+ * @param {!r5js.Evaluator} evaluator
+ * @implements {tdd.matchers.Matcher}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.test.matchers.Throws_ = function(exceptionCtor, evaluator) {
+  /** @const @private */ this.exceptionCtor_ = exceptionCtor;
+  /** @const @private */ this.evaluator_ = evaluator;
+};
+
+
+/** @private {r5js.Evaluator} */
+r5js.test.matchers.Throws_.sharedEvaluator_ = null;
+
+
+/** @override */
+r5js.test.matchers.Throws_.prototype.matches = function(input) {
+  try {
+    this.evaluator_.evaluate(/** @type {string} */(input));
+  } catch (e) {
+    return e instanceof this.exceptionCtor_;
+  }
+  return false;
+};
+
+
+/** @override */
+r5js.test.matchers.Throws_.prototype.getSuccessMessage = function(input) {
+  return 'ok';
+};
+
+
+/** @override */
+r5js.test.matchers.Throws_.prototype.getFailureMessage = function(input) {
+  return 'want ' + this.exceptionCtor_ + ' got ';
+};
+
+
 /** @param {!r5js.Evaluator} evaluator */
 r5js.test.matchers.setSharedEvaluator = function(evaluator) {
   r5js.test.matchers.HasJsValue_.sharedEvaluator_ =
@@ -301,4 +356,5 @@ r5js.test.matchers.setSharedEvaluator = function(evaluator) {
   r5js.test.matchers.HasStringOutput_.sharedEvaluator_ = evaluator.withPorts(
       r5js.InputPort.NULL,
       r5js.test.matchers.HasStringOutput_.sharedOutputPort_);
+  r5js.test.matchers.Throws_.sharedEvaluator_ = evaluator;
 };
