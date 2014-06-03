@@ -14,6 +14,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
+/**
+ * @fileoverview Error classes. The constructor names are exported
+ * so they are still informative when thrown from compiled code.
+ */
+
 goog.provide('r5js.ArgumentTypeError');
 goog.provide('r5js.EvalError');
 goog.provide('r5js.FFIError');
@@ -45,6 +50,7 @@ r5js.UnboundVariable = function(name) {
     return 'unbound variable ' + name;
   };
 };
+goog.exportSymbol('r5js.UnboundVariable', r5js.UnboundVariable);
 
 
 
@@ -69,6 +75,7 @@ r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
         (minNumArgs === 1 ? '' : 's');
   };
 };
+goog.exportSymbol('r5js.TooFewArgs', r5js.TooFewArgs);
 
 
 
@@ -93,6 +100,7 @@ r5js.TooManyArgs = function(name, maxNumArgs, actualNumArgs) {
         (maxNumArgs === 1 ? '' : 's');
   };
 };
+goog.exportSymbol('r5js.TooManyArgs', r5js.TooManyArgs);
 
 
 
@@ -116,6 +124,7 @@ r5js.IncorrectNumArgs = function(name, expectedNumArgs, actualNumArgs) {
         (expectedNumArgs === 1 ? '' : 's');
   };
 };
+goog.exportSymbol('r5js.IncorrectNumArgs', r5js.IncorrectNumArgs);
 
 
 
@@ -128,6 +137,8 @@ r5js.InternalInterpreterError = function(msg) {
     return msg;
   };
 };
+goog.exportSymbol(
+    'r5js.InternalInterpreterError', r5js.InternalInterpreterError);
 
 
 
@@ -139,6 +150,7 @@ r5js.InternalInterpreterError = function(msg) {
 r5js.PrimitiveProcedureError = function(message) {
   this.toString = function() { return message; };
 };
+goog.exportSymbol('r5js.PrimitiveProcedureError', r5js.PrimitiveProcedureError);
 
 
 
@@ -164,6 +176,7 @@ r5js.ArgumentTypeError = function(argument, which, procName, expectedType) {
         expectedType.toString();
   };
 };
+goog.exportSymbol('r5js.ArgumentTypeError', r5js.ArgumentTypeError);
 
 
 
@@ -181,6 +194,7 @@ r5js.MacroError = function(keyword, msg) {
         msg;
   };
 };
+goog.exportSymbol('r5js.MacroError', r5js.MacroError);
 
 
 
@@ -195,6 +209,8 @@ r5js.UnimplementedOptionError = function(what) {
         ' is optional according to R5RS and unimplemented';
   };
 };
+goog.exportSymbol(
+    'r5js.UnimplementedOptionError', r5js.UnimplementedOptionError);
 
 
 
@@ -209,6 +225,7 @@ r5js.GeneralSyntaxError = function(what) {
     return 'bad syntax in ' + what;
   };
 };
+goog.exportSymbol('r5js.GeneralSyntaxError', r5js.GeneralSyntaxError);
 
 
 
@@ -221,6 +238,7 @@ r5js.IOError = function(what) {
     return 'IO error: ' + what;
   };
 };
+goog.exportSymbol('r5js.IOError', r5js.IOError);
 
 
 
@@ -235,6 +253,7 @@ r5js.QuasiquoteError = function(what) {
     return 'quasiquote error: ' + what;
   };
 };
+goog.exportSymbol('r5js.QuasiquoteError', r5js.QuasiquoteError);
 
 
 
@@ -248,6 +267,7 @@ r5js.IllegalEmptyApplication = function(where) {
     return 'illegal empty application in ' + where;
   };
 };
+goog.exportSymbol('r5js.IllegalEmptyApplication', r5js.IllegalEmptyApplication);
 
 
 
@@ -261,6 +281,7 @@ r5js.ParseError = function(what) {
     return 'parse error on ' + what;
   };
 };
+goog.exportSymbol('r5js.ParseError', r5js.ParseError);
 
 
 
@@ -273,6 +294,7 @@ r5js.EvalError = function(what) {
     return 'evaluation error: ' + what;
   };
 };
+goog.exportSymbol('r5js.EvalError', r5js.EvalError);
 
 
 
@@ -285,6 +307,7 @@ r5js.ImmutableError = function(what) {
     return 'cannot mutate immutable object: ' + what;
   };
 };
+goog.exportSymbol('r5js.ImmutableError', r5js.ImmutableError);
 
 
 
@@ -297,14 +320,4 @@ r5js.ScanError = function(what) {
     return 'scan error on ' + what;
   };
 };
-
-
-
-/**
- * @constructor
- */
-r5js.FFIError = function() {
-  this.toString = function() {
-    return 'JS interop is an experimental feature. Sorry!';
-  };
-};
+goog.exportSymbol('r5js.ScanError', r5js.ScanError);
