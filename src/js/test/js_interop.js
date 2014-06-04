@@ -22,6 +22,9 @@ goog.require('goog.functions');
 goog.require('haveJsOutput');
 goog.require('haveJsValue');
 goog.require('haveStringOutput');
+goog.require('r5js.IncorrectNumArgs');
+goog.require('r5js.ImmutableError');
+goog.require('r5js.UnboundVariable');
 goog.require('haveStringValue');
 goog.require('r5js.test.matchers.setSharedEvaluator');
 goog.require('tdd.TestType');
@@ -250,5 +253,8 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
 r5js.test.JsInterop.prototype['testErrors'] = function() {
   expect('(').to(Throw(r5js.ParseError));
   expect(')').to(Throw(r5js.ParseError));
+  expect('(eval)').to(Throw(r5js.IncorrectNumArgs));
+  expect('(eval 1 2 3 4 5)').to(Throw(r5js.IncorrectNumArgs));
+  expect("(set-car! '(1 2 3) 4)").to(Throw(r5js.ImmutableError));
 };
 
