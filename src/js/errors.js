@@ -260,27 +260,6 @@ r5js.UnimplementedOptionError.prototype.getShortName =
 
 
 /**
- * @param {*} what The object that caused the syntax error.
- * @implements {r5js.Error}
- * @struct
- * @constructor
- * TODO bl: narrow the type of the parameter.
- * TODO bl: Consider eliminating. It's vague.
- */
-r5js.GeneralSyntaxError = function(what) {
-  this.toString = function() {
-    return 'bad syntax in ' + what;
-  };
-};
-
-
-/** @override */
-r5js.GeneralSyntaxError.prototype.getShortName =
-    goog.functions.constant('GeneralSyntaxError');
-
-
-
-/**
  * @param {string} what An error message.
  * @implements {r5js.Error}
  * @struct

@@ -19,7 +19,6 @@ goog.provide('r5js.ProcCall');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
-goog.require('r5js.GeneralSyntaxError');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
@@ -131,7 +130,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
           maybeContinuable).getResultName()));
       newCallChain.appendProcCallLike(maybeContinuable);
     } else if (arg.isImproperList()) {
-      throw new r5js.GeneralSyntaxError(arg);
+      throw new r5js.InternalInterpreterError('TODO bl');
     } else if ((maybeContinuable = arg.desugar(
         /** @type {!r5js.IEnvironment} */ (this.getEnv()))).evalAndAdvance) {
       /* todo bl is it an invariant violation to be a list

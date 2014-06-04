@@ -18,7 +18,7 @@ goog.provide('r5js.newTopLevelAssignment');
 goog.provide('r5js.newTopLevelSyntaxAssignment');
 
 
-goog.require('r5js.GeneralSyntaxError');
+goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
@@ -81,7 +81,7 @@ r5js.Assignment.prototype.evalAndAdvance = function(
  */
 r5js.Assignment.prototype.checkForImproperSyntaxAssignment = function(val) {
   if (val instanceof r5js.Macro && !val.isLetOrLetrecSyntax()) {
-    throw new r5js.GeneralSyntaxError(this);
+    throw new r5js.InternalInterpreterError('TODO bl');
   }
 };
 

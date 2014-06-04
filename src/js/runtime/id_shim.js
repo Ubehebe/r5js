@@ -16,7 +16,7 @@
 goog.provide('r5js.IdShim');
 
 
-goog.require('r5js.GeneralSyntaxError');
+goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.ProcCallLike');
@@ -65,7 +65,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
     }
     return; // TODO bl odd control flow
   } else if (this.firstOperand_.isImproperList()) {
-    throw new r5js.GeneralSyntaxError(this.firstOperand_);
+    throw new r5js.InternalInterpreterError('TODO bl');
   } else {
     ans = this.firstOperand_;
   }
