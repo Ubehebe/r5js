@@ -297,9 +297,6 @@ PrimitiveProcedures['integer?'] = _.unary(function(node) {
 PrimitiveProcedures['log'] = _.unary(Math.log, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['modulo'] = _.binary(function(p, q) {
-  if (q === 0) {
-    throw new r5js.PrimitiveProcedureError('modulo: undefined for 0');
-  }
   var remainder = p % q;
   var sign = p * q;
   var ans = remainder;
@@ -323,9 +320,6 @@ PrimitiveProcedures['modulo'] = _.binary(function(p, q) {
 }, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['quotient'] = _.binary(function(p, q) {
-  if (q === 0) {
-    throw new r5js.PrimitiveProcedureError('quotient: undefined for 0');
-  }
   /* In Scheme, quotient rounds towards zero, which is unfortunately
                  not what JavaScript's Math.round() does. */
   var unrounded = p / q;
@@ -345,9 +339,6 @@ PrimitiveProcedures['real-part'] = _.unary(function(z) {
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['remainder'] = _.binary(function(p, q) {
-  if (q === 0) {
-    throw new r5js.PrimitiveProcedureError('remainder: undefined for 0');
-  }
   // The JavaScript % semantics are precisely the Scheme remainder semantics.
   return p % q;
 }, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);

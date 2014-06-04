@@ -183,24 +183,6 @@ r5js.InternalInterpreterError.prototype.getShortName =
 
 
 /**
- * @param {string} message An error message.
- * @implements {r5js.Error}
- * @struct
- * @constructor
- * TODO bl: consider renaming to RuntimeError.
- */
-r5js.PrimitiveProcedureError = function(message) {
-  this.toString = function() { return message; };
-};
-
-
-/** @override */
-r5js.PrimitiveProcedureError.prototype.getShortName =
-    goog.functions.constant('PrimitiveProcedureError');
-
-
-
-/**
  * @param {*} argument The argument.
  * @param {number} which The position of the argument in the argument list
  * (zero-indexed).
