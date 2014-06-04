@@ -33,7 +33,7 @@ goog.require('r5js.PrimitiveProcedureError');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
-goog.require('r5js.TooManyArgs');
+goog.require('r5js.TooManyVarargs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
@@ -234,7 +234,7 @@ PrimitiveProcedures['atan'] = _.varargsAtLeast1(function() {
     case 2:
       return Math.atan2(arguments[0], arguments[1]);
     default:
-      throw new r5js.TooManyArgs('atan', 2, arguments.length);
+      throw new r5js.TooManyVarargs('atan', 2, arguments.length);
   }
 }, r5js.DatumType.NUMBER);
 

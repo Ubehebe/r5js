@@ -28,8 +28,8 @@ goog.provide('r5js.ParseError');
 goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.QuasiquoteError');
 goog.provide('r5js.ScanError');
-goog.provide('r5js.TooFewArgs');
-goog.provide('r5js.TooManyArgs');
+goog.provide('r5js.TooFewVarargs');
+goog.provide('r5js.TooManyVarargs');
 goog.provide('r5js.UnboundVariable');
 goog.provide('r5js.UnimplementedOptionError');
 
@@ -80,7 +80,7 @@ r5js.UnboundVariable.prototype.getShortName =
  * @struct
  * @constructor
  */
-r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
+r5js.TooFewVarargs = function(name, minNumArgs, actualNumArgs) {
   this.toString = function() {
     return 'The procedure ' +
         name +
@@ -97,7 +97,8 @@ r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
 
 
 /** @override */
-r5js.TooFewArgs.prototype.getShortName = goog.functions.constant('TooFewArgs');
+r5js.TooFewVarargs.prototype.getShortName =
+    goog.functions.constant('TooFewVarargs');
 
 
 
@@ -110,7 +111,7 @@ r5js.TooFewArgs.prototype.getShortName = goog.functions.constant('TooFewArgs');
  * @struct
  * @constructor
  */
-r5js.TooManyArgs = function(name, maxNumArgs, actualNumArgs) {
+r5js.TooManyVarargs = function(name, maxNumArgs, actualNumArgs) {
   this.toString = function() {
     return 'The procedure ' +
         name +
@@ -127,8 +128,8 @@ r5js.TooManyArgs = function(name, maxNumArgs, actualNumArgs) {
 
 
 /** @override */
-r5js.TooManyArgs.prototype.getShortName =
-    goog.functions.constant('TooManyArgs');
+r5js.TooManyVarargs.prototype.getShortName =
+    goog.functions.constant('TooManyVarargs');
 
 
 
