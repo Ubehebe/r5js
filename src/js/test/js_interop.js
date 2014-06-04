@@ -17,19 +17,23 @@ goog.provide('r5js.test.JsInterop');
 goog.setTestOnly('r5js.test.JsInterop');
 
 
+goog.require('Throw');
 goog.require('expect');
 goog.require('goog.functions');
 goog.require('haveJsOutput');
 goog.require('haveJsValue');
 goog.require('haveStringOutput');
-goog.require('r5js.IncorrectNumArgs');
-goog.require('r5js.ImmutableError');
-goog.require('r5js.UnboundVariable');
 goog.require('haveStringValue');
+goog.require('r5js.ArgumentTypeError');
+goog.require('r5js.ImmutableError');
+goog.require('r5js.IncorrectNumArgs');
+goog.require('r5js.ParseError');
+goog.require('r5js.TooFewVarargs');
+goog.require('r5js.TooManyVarargs');
+goog.require('r5js.UnboundVariable');
+goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.test.matchers.setSharedEvaluator');
 goog.require('tdd.TestType');
-goog.require('r5js.ParseError');
-goog.require('Throw');
 
 
 
@@ -255,6 +259,19 @@ r5js.test.JsInterop.prototype['testErrors'] = function() {
   expect(')').to(Throw(r5js.ParseError));
   expect('(eval)').to(Throw(r5js.IncorrectNumArgs));
   expect('(eval 1 2 3 4 5)').to(Throw(r5js.IncorrectNumArgs));
+  expect('(let ((foo (lambda (x) x))) (foo))').to(Throw(r5js.IncorrectNumArgs));
+  expect('(let ((foo (lambda (x) x))) (foo 1 2))').
+      to(Throw(r5js.IncorrectNumArgs));
   expect("(set-car! '(1 2 3) 4)").to(Throw(r5js.ImmutableError));
+  expect(" (vector-set! '#(0 1 2) 1 \"doe\")").
+      to(Throw(r5js.ImmutableError)); // Example from R5RS 6.3.6
+  expect('(make-vector)').to(Throw(r5js.TooFewVarargs));
+  expect('(make-vector 1 2 3 4 5)').to(Throw(r5js.TooManyVarargs));
+  expect('(let ((foo (lambda (x . y) x))) (foo))').
+      to(Throw(r5js.TooFewVarargs));
+  expect('(+ "a" "b")').to(Throw(r5js.ArgumentTypeError));
+  expect('(scheme-report-environment 6)').
+      to(Throw(r5js.UnimplementedOptionError));
+  expect('(null-environment 6)').to(Throw(r5js.UnimplementedOptionError));
 };
 
