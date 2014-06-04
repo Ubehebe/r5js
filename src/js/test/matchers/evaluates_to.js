@@ -303,7 +303,7 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
 
 
 /**
- * @param {!Function} exceptionCtor
+ * @param {function(new: r5js.Error)} exceptionCtor
  * @param {!r5js.Evaluator} evaluator
  * @implements {tdd.matchers.Matcher}
  * @struct
@@ -312,6 +312,7 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
  */
 r5js.test.matchers.Throws_ = function(exceptionCtor, evaluator) {
   /** @const @private */ this.exceptionCtor_ = exceptionCtor;
+  /** @private {r5js.Error} */ this.actualException_ = null;
   /** @const @private */ this.evaluator_ = evaluator;
 };
 
@@ -325,7 +326,8 @@ r5js.test.matchers.Throws_.prototype.matches = function(input) {
   try {
     this.evaluator_.evaluate(/** @type {string} */(input));
   } catch (e) {
-    return e instanceof this.exceptionCtor_;
+    return (this.actualException_ = e) instanceof
+        this.exceptionCtor_;
   }
   return false;
 };
@@ -339,7 +341,12 @@ r5js.test.matchers.Throws_.prototype.getSuccessMessage = function(input) {
 
 /** @override */
 r5js.test.matchers.Throws_.prototype.getFailureMessage = function(input) {
-  return 'want ' + this.exceptionCtor_ + ' got ';
+  return input + ': want ' +
+      new this.exceptionCtor_().getShortName() +
+      ' got ' +
+      (this.actualException_ ?
+          this.actualException_.getShortName() :
+          'no exception');
 };
 
 

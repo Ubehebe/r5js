@@ -14,11 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-/**
- * @fileoverview Error classes. The constructor names are exported
- * so they are still informative when thrown from compiled code.
- */
-
 goog.provide('r5js.ArgumentTypeError');
 goog.provide('r5js.EvalError');
 goog.provide('r5js.FFIError');
@@ -39,10 +34,28 @@ goog.provide('r5js.UnboundVariable');
 goog.provide('r5js.UnimplementedOptionError');
 
 
+goog.require('goog.functions');
+
+
+
+/** @interface */
+r5js.Error = function() {};
+
+
+/** @override */
+r5js.Error.prototype.toString = function() {};
+
+
+/** @return {string} */
+r5js.Error.prototype.getShortName = function() {};
+
+
 
 /**
  * @param {string} name The name of the variable that was supposed to be
  * bound but wasn't.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.UnboundVariable = function(name) {
@@ -50,7 +63,11 @@ r5js.UnboundVariable = function(name) {
     return 'unbound variable ' + name;
   };
 };
-goog.exportSymbol('r5js.UnboundVariable', r5js.UnboundVariable);
+
+
+/** @override */
+r5js.UnboundVariable.prototype.getShortName =
+    goog.functions.constant('UnboundVariable');
 
 
 
@@ -59,6 +76,8 @@ goog.exportSymbol('r5js.UnboundVariable', r5js.UnboundVariable);
  * @param {number} minNumArgs The procedure's minimum number of arguments.
  * @param {number} actualNumArgs The actual number of arguments passed to
  * the procedure.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
@@ -75,7 +94,10 @@ r5js.TooFewArgs = function(name, minNumArgs, actualNumArgs) {
         (minNumArgs === 1 ? '' : 's');
   };
 };
-goog.exportSymbol('r5js.TooFewArgs', r5js.TooFewArgs);
+
+
+/** @override */
+r5js.TooFewArgs.prototype.getShortName = goog.functions.constant('TooFewArgs');
 
 
 
@@ -84,6 +106,8 @@ goog.exportSymbol('r5js.TooFewArgs', r5js.TooFewArgs);
  * @param {number} maxNumArgs The procedure's maximum number of arguments.
  * @param {number} actualNumArgs The actual number of arguments passed to
  * the procedure.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.TooManyArgs = function(name, maxNumArgs, actualNumArgs) {
@@ -100,7 +124,11 @@ r5js.TooManyArgs = function(name, maxNumArgs, actualNumArgs) {
         (maxNumArgs === 1 ? '' : 's');
   };
 };
-goog.exportSymbol('r5js.TooManyArgs', r5js.TooManyArgs);
+
+
+/** @override */
+r5js.TooManyArgs.prototype.getShortName =
+    goog.functions.constant('TooManyArgs');
 
 
 
@@ -108,6 +136,8 @@ goog.exportSymbol('r5js.TooManyArgs', r5js.TooManyArgs);
  * @param {string} name The name of the procedure.
  * @param {number} expectedNumArgs The expected number of arguments.
  * @param {number} actualNumArgs The actual number of arguments.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.IncorrectNumArgs = function(name, expectedNumArgs, actualNumArgs) {
@@ -124,12 +154,18 @@ r5js.IncorrectNumArgs = function(name, expectedNumArgs, actualNumArgs) {
         (expectedNumArgs === 1 ? '' : 's');
   };
 };
-goog.exportSymbol('r5js.IncorrectNumArgs', r5js.IncorrectNumArgs);
+
+
+/** @override */
+r5js.IncorrectNumArgs.prototype.getShortName =
+    goog.functions.constant('IncorrectNumArgs');
 
 
 
 /**
  * @param {string} msg An error message.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.InternalInterpreterError = function(msg) {
@@ -137,20 +173,29 @@ r5js.InternalInterpreterError = function(msg) {
     return msg;
   };
 };
-goog.exportSymbol(
-    'r5js.InternalInterpreterError', r5js.InternalInterpreterError);
+
+
+/** @override */
+r5js.InternalInterpreterError.prototype.getShortName =
+    goog.functions.constant('InternalInterpreterError');
 
 
 
 /**
  * @param {string} message An error message.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  * TODO bl: consider renaming to RuntimeError.
  */
 r5js.PrimitiveProcedureError = function(message) {
   this.toString = function() { return message; };
 };
-goog.exportSymbol('r5js.PrimitiveProcedureError', r5js.PrimitiveProcedureError);
+
+
+/** @override */
+r5js.PrimitiveProcedureError.prototype.getShortName =
+    goog.functions.constant('PrimitiveProcedureError');
 
 
 
@@ -162,6 +207,8 @@ goog.exportSymbol('r5js.PrimitiveProcedureError', r5js.PrimitiveProcedureError);
  * when this error occurred.
  * @param {!r5js.Type} expectedType The type of the argument
  * that the interpreter expected.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.ArgumentTypeError = function(argument, which, procName, expectedType) {
@@ -176,13 +223,19 @@ r5js.ArgumentTypeError = function(argument, which, procName, expectedType) {
         expectedType.toString();
   };
 };
-goog.exportSymbol('r5js.ArgumentTypeError', r5js.ArgumentTypeError);
+
+
+/** @override */
+r5js.ArgumentTypeError.prototype.getShortName =
+    goog.functions.constant('ArgumentTypeError');
 
 
 
 /**
  * @param {string} keyword Keyword of macro.
  * @param {string} msg Error message.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  * TODO bl: This should accept a macro object to simplify call sites.
  */
@@ -194,12 +247,18 @@ r5js.MacroError = function(keyword, msg) {
         msg;
   };
 };
-goog.exportSymbol('r5js.MacroError', r5js.MacroError);
+
+
+/** @override */
+r5js.MacroError.prototype.getShortName =
+    goog.functions.constant('r5js.MacroError');
 
 
 
 /**
  * @param {string} what An error message.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.UnimplementedOptionError = function(what) {
@@ -209,13 +268,18 @@ r5js.UnimplementedOptionError = function(what) {
         ' is optional according to R5RS and unimplemented';
   };
 };
-goog.exportSymbol(
-    'r5js.UnimplementedOptionError', r5js.UnimplementedOptionError);
+
+
+/** @override */
+r5js.UnimplementedOptionError.prototype.getShortName =
+    goog.functions.constant('UnimplementedOptionError');
 
 
 
 /**
  * @param {*} what The object that caused the syntax error.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  * TODO bl: narrow the type of the parameter.
  * TODO bl: Consider eliminating. It's vague.
@@ -225,12 +289,18 @@ r5js.GeneralSyntaxError = function(what) {
     return 'bad syntax in ' + what;
   };
 };
-goog.exportSymbol('r5js.GeneralSyntaxError', r5js.GeneralSyntaxError);
+
+
+/** @override */
+r5js.GeneralSyntaxError.prototype.getShortName =
+    goog.functions.constant('GeneralSyntaxError');
 
 
 
 /**
  * @param {string} what An error message.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.IOError = function(what) {
@@ -238,12 +308,17 @@ r5js.IOError = function(what) {
     return 'IO error: ' + what;
   };
 };
-goog.exportSymbol('r5js.IOError', r5js.IOError);
+
+
+/** @override */
+r5js.IOError.prototype.getShortName = goog.functions.constant('IOError');
 
 
 
 /**
  * @param {string} what An error message.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  * TODO bl: There is only one caller of this exception. Can that caller use
  * something else?
@@ -253,12 +328,18 @@ r5js.QuasiquoteError = function(what) {
     return 'quasiquote error: ' + what;
   };
 };
-goog.exportSymbol('r5js.QuasiquoteError', r5js.QuasiquoteError);
+
+
+/** @override */
+r5js.QuasiquoteError.prototype.getShortName =
+    goog.functions.constant('QuasiquoteError');
 
 
 
 /**
  * @param {*} where Object that caused the empty application.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  * TODO bl: narrow the type of the parameter. Can it be string?
  */
@@ -267,12 +348,18 @@ r5js.IllegalEmptyApplication = function(where) {
     return 'illegal empty application in ' + where;
   };
 };
-goog.exportSymbol('r5js.IllegalEmptyApplication', r5js.IllegalEmptyApplication);
+
+
+/** @override */
+r5js.IllegalEmptyApplication.prototype.getShortName =
+    goog.functions.constant('IllegalEmptyApplication');
 
 
 
 /**
  * @param {*} what
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  * TODO bl: Narrow the type of the parameter.
  */
@@ -281,12 +368,17 @@ r5js.ParseError = function(what) {
     return 'parse error on ' + what;
   };
 };
-goog.exportSymbol('r5js.ParseError', r5js.ParseError);
+
+
+/** @override */
+r5js.ParseError.prototype.getShortName = goog.functions.constant('ParseError');
 
 
 
 /**
  * @param {string} what Error message.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.EvalError = function(what) {
@@ -294,12 +386,17 @@ r5js.EvalError = function(what) {
     return 'evaluation error: ' + what;
   };
 };
-goog.exportSymbol('r5js.EvalError', r5js.EvalError);
+
+
+/** @override */
+r5js.EvalError.prototype.getShortName = goog.functions.constant('EvalError');
 
 
 
 /**
  * @param {string} what Object that caused the error.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.ImmutableError = function(what) {
@@ -307,12 +404,18 @@ r5js.ImmutableError = function(what) {
     return 'cannot mutate immutable object: ' + what;
   };
 };
-goog.exportSymbol('r5js.ImmutableError', r5js.ImmutableError);
+
+
+/** @override */
+r5js.ImmutableError.prototype.getShortName =
+    goog.functions.constant('ImmutableError');
 
 
 
 /**
  * @param {string} what An error message.
+ * @implements {r5js.Error}
+ * @struct
  * @constructor
  */
 r5js.ScanError = function(what) {
@@ -320,4 +423,7 @@ r5js.ScanError = function(what) {
     return 'scan error on ' + what;
   };
 };
-goog.exportSymbol('r5js.ScanError', r5js.ScanError);
+
+
+/** @override */
+r5js.ScanError.prototype.getShortName = goog.functions.constant('ScanError');
