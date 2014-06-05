@@ -1001,7 +1001,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
 PrimitiveProcedures['null-environment'] = _.unary(function(num) {
   if (num !== 5) {
     throw new r5js.UnimplementedOptionError(
-        'unsupported null environment ' + num);
+        '(null-environment ' + num + ')');
   }
   return new r5js.Environment(r5js.PrimitiveProcedures.nullEnv_);
 }, r5js.DatumType.NUMBER);
@@ -1009,7 +1009,7 @@ PrimitiveProcedures['null-environment'] = _.unary(function(num) {
 PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
   if (num !== 5) {
     throw new r5js.UnimplementedOptionError(
-        'unsupported scheme report environment ' + num);
+        '(scheme-report-environment ' + num + ')');
   }
   return new r5js.Environment(r5js.PrimitiveProcedures.r5RSEnv_);
 }, r5js.DatumType.NUMBER);

@@ -275,7 +275,8 @@ r5js.test.JsInterop.prototype['testErrors'] = function() {
       to(Throw(r5js.TooFewVarargs));
   expect('(+ "a" "b")').to(Throw(r5js.ArgumentTypeError));
   expect('(scheme-report-environment 6)').
-      to(Throw(r5js.UnimplementedOptionError));
-  expect('(null-environment 6)').to(Throw(r5js.UnimplementedOptionError));
+      to(Throw2(new r5js.UnimplementedOptionError('')));
+  expect('(null-environment 6)').
+      to(Throw2(new r5js.UnimplementedOptionError('')));
 };
 

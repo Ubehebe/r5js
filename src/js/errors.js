@@ -294,11 +294,13 @@ r5js.MacroError.prototype.equals = goog.functions.FALSE;
  * @constructor
  */
 r5js.UnimplementedOptionError = function(what) {
-  this.toString = function() {
-    return 'Sorry, ' +
-        what +
-        ' is optional according to R5RS and unimplemented';
-  };
+  /** @const @private */ this.what_ = what;
+};
+
+
+/** @override */
+r5js.UnimplementedOptionError.prototype.toString = function() {
+  return 'unimplemented optional procedure: ' + this.what_;
 };
 
 
@@ -308,7 +310,9 @@ r5js.UnimplementedOptionError.prototype.getShortName =
 
 
 /** @override */
-r5js.UnimplementedOptionError.prototype.equals = goog.functions.FALSE;
+r5js.UnimplementedOptionError.prototype.equals = function(other) {
+  return other instanceof r5js.UnimplementedOptionError;
+};
 
 
 
