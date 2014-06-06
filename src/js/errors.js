@@ -92,18 +92,19 @@ r5js.UnboundVariable.prototype.equals = goog.functions.FALSE;
  * @constructor
  */
 r5js.TooFewVarargs = function(name, minNumArgs, actualNumArgs) {
-  this.toString = function() {
-    return 'The procedure ' +
-        name +
-        ' has been called with ' +
-        actualNumArgs +
-        ' argument' +
-        (actualNumArgs === 1 ? '' : 's') +
-        '; it requires at least ' +
-        minNumArgs +
-        ' argument' +
-        (minNumArgs === 1 ? '' : 's');
-  };
+  /** @const @private */ this.name_ = name;
+  /** @const @private */ this.minNumArgs_ = minNumArgs;
+  /** @const @private */ this.actualNumArgs_ = actualNumArgs;
+};
+
+
+/** @override */
+r5js.TooFewVarargs.prototype.toString = function() {
+  return this.name_ +
+      ': too few args: want >= ' +
+      this.minNumArgs_ +
+      ', got ' +
+      this.actualNumArgs_;
 };
 
 
@@ -113,7 +114,15 @@ r5js.TooFewVarargs.prototype.getShortName =
 
 
 /** @override */
-r5js.TooFewVarargs.prototype.equals = goog.functions.FALSE;
+r5js.TooFewVarargs.prototype.equals = function(other) {
+  if (!(other instanceof r5js.TooFewVarargs)) {
+    return false;
+  }
+  other = /** @type {!r5js.TooFewVarargs} */ (other);
+  return this.name_ === other.name_ &&
+      this.minNumArgs_ === other.minNumArgs_ &&
+      this.actualNumArgs_ === other.actualNumArgs_;
+};
 
 
 

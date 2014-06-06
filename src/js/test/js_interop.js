@@ -270,7 +270,8 @@ r5js.test.JsInterop.prototype['testErrors'] = function() {
       to(Throw(r5js.ImmutableError)); // Example from R5RS 6.3.5
   expect("(vector-set! '#(0 1 2) 1 \"doe\")").
       to(Throw(r5js.ImmutableError)); // Example from R5RS 6.3.6
-  expect('(make-vector)').to(Throw(r5js.TooFewVarargs));
+  expect('(make-vector)').
+      to(Throw2(new r5js.TooFewVarargs('make-vector', 1, 0)));
   expect('(make-vector 1 2 3 4 5)').to(Throw(r5js.TooManyVarargs));
   expect('(let ((foo (lambda (x . y) x))) (foo))').
       to(Throw(r5js.TooFewVarargs));
