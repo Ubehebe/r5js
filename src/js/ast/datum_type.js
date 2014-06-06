@@ -29,6 +29,7 @@ r5js.Type;
  * functions.
  */
 r5js.DatumType = {
+  BOOLEAN: 'boolean',
   CHARACTER: 'char',
   ENVIRONMENT_SPECIFIER: 'environment-specifier',
   FFI: 'ffi',
@@ -41,3 +42,4 @@ r5js.DatumType = {
   SYMBOL: 'symbol',
   VECTOR: '#('
 };
+
