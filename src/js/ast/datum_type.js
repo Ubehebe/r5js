@@ -39,6 +39,6 @@ r5js.DatumType = {
   // TODO bl: add PROCEDURE
   STRING: 'string',
   SYMBOL: 'symbol',
-  VECTOR: '#('
+  VECTOR: 'vector'
 };
 
