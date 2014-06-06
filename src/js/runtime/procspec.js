@@ -180,11 +180,12 @@ r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_.prototype.
   var unwrappedArgs = [];
   for (var i = 0; i < this.argtypes_.length; ++i) {
     var arg = args[i];
-    var argtype = this.argtypes_[i];
-    if (!r5js.PrimitiveProcedures.registry_[argtype + '?'].fn_.call(
+    var expectedType = this.argtypes_[i];
+    if (!r5js.PrimitiveProcedures.registry_[expectedType + '?'].fn_.call(
         null, arg)) {
+      var actualType = r5js.PrimitiveProcedures.getActualType_(arg);
       throw new r5js.ArgumentTypeError(
-          arg, i, nameToShowInErrorMessage, argtype);
+          arg, i, nameToShowInErrorMessage, expectedType, actualType);
     }
     unwrappedArgs.push(arg instanceof r5js.Datum ? arg.unwrap() : arg);
   }
@@ -239,7 +240,8 @@ r5js.procspec.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
         r5js.PrimitiveProcedures.registry_[argtype + '?'])).fn_.call(
             null, arg)) {
       throw new r5js.ArgumentTypeError(
-          arg, i, nameToShowInErrorMessage, argtype);
+          arg, i, nameToShowInErrorMessage, argtype,
+          r5js.PrimitiveProcedures.getActualType_(arg));
     }
     return arg instanceof r5js.Datum ? arg.unwrap() : arg;
   });

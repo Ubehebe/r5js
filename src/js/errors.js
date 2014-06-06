@@ -224,28 +224,37 @@ r5js.InternalInterpreterError.prototype.equals = goog.functions.FALSE;
 
 
 /**
- * @param {*} argument The argument.
- * @param {number} which The position of the argument in the argument list
+ * @param {!r5js.runtime.Value} arg The argument.
+ * @param {number} argIndex The position of the argument in the argument list
  * (zero-indexed).
  * @param {string} procName The procedure that the interpreter was invoking
  * when this error occurred.
  * @param {!r5js.Type} expectedType The type of the argument
  * that the interpreter expected.
+ * @param {!r5js.Type} actualType The actual type of the argument.
  * @implements {r5js.Error}
  * @struct
  * @constructor
  */
-r5js.ArgumentTypeError = function(argument, which, procName, expectedType) {
-  this.toString = function() {
-    return 'The object ' +
-        argument.toString() +
-        ', passed as argument ' +
-        which +
-        ' to ' +
-        procName +
-        ', is not of the correct type ' +
-        expectedType.toString();
-  };
+r5js.ArgumentTypeError = function(
+    arg, argIndex, procName, expectedType, actualType) {
+  /** @const @private */ this.arg_ = arg;
+  /** @const @private */ this.argIndex_ = argIndex;
+  /** @const @private */ this.procName_ = procName;
+  /** @const @private */ this.expectedType_ = expectedType;
+  /** @const @private */ this.actualType_ = actualType;
+};
+
+
+/** @override */
+r5js.ArgumentTypeError.prototype.toString = function() {
+  return this.procName_ +
+      ': wrong type for argument ' +
+      (this.argIndex_ + 1) + // one-indexed for human readability
+      ': want ' +
+      this.expectedType_ +
+      ', got ' +
+      this.actualType_;
 };
 
 
@@ -255,7 +264,18 @@ r5js.ArgumentTypeError.prototype.getShortName =
 
 
 /** @override */
-r5js.ArgumentTypeError.prototype.equals = goog.functions.FALSE;
+r5js.ArgumentTypeError.prototype.equals = function(other) {
+  if (!(other instanceof r5js.ArgumentTypeError)) {
+    return false;
+  }
+  other = /** @type {!r5js.ArgumentTypeError} */ (other);
+  /* TODO bl: it would be nice to test this.arg_ === other.arg_ too,
+    but to do this right would require making the interpreter available here. */
+  return this.argIndex_ === other.argIndex_ &&
+      this.procName_ === other.procName_ &&
+      this.expectedType_ === other.expectedType_ &&
+      this.actualType_ === other.actualType_;
+};
 
 
 

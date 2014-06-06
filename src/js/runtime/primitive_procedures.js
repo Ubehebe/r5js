@@ -17,6 +17,7 @@ goog.provide('r5js.PrimitiveProcedures');
 
 
 goog.require('goog.log');
+goog.require('goog.object');
 goog.require('r5js.CallWithCurrentContinuation');
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.CdrHelper');
@@ -406,7 +407,8 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
 PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
   if (!(p instanceof r5js.ast.List || p.isImproperList())) {
     throw new r5js.ArgumentTypeError(
-        p, 0, 'set-car!', r5js.parse.Terminals.LPAREN);
+        p, 0, 'set-car!', r5js.parse.Terminals.LPAREN,
+        r5js.PrimitiveProcedures.getActualType_(p));
   }
   if (p.isImmutable()) {
     throw new r5js.ImmutableError(p.toString());
@@ -426,7 +428,8 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
 PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
   if (!(p instanceof r5js.ast.List || p.isImproperList())) {
     throw new r5js.ArgumentTypeError(
-        p, 0, 'set-cdr!', r5js.parse.Terminals.LPAREN);
+        p, 0, 'set-cdr!', r5js.parse.Terminals.LPAREN,
+        r5js.PrimitiveProcedures.getActualType_(p));
   }
 
   if (p.isImmutable()) {
@@ -457,7 +460,8 @@ PrimitiveProcedures['make-vector'] = _.varargsRange(
     function(numberNode, fillNode) {
       if (!(numberNode instanceof r5js.ast.Number)) {
         throw new r5js.ArgumentTypeError(
-            numberNode, 0, 'make-vector', r5js.DatumType.NUMBER);
+            numberNode, 0, 'make-vector', r5js.DatumType.NUMBER,
+            r5js.PrimitiveProcedures.getActualType_(numberNode));
       }
       var n = numberNode.getPayload();
       /* R5RS 6.3.6: "If a second argument is given, then each element
@@ -482,11 +486,13 @@ PrimitiveProcedures['vector-ref'] = _.binary(function(v, k) {
 PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
   if (!(v instanceof r5js.ast.Vector)) {
     throw new r5js.ArgumentTypeError(
-        v, 0, 'vector-set!', r5js.DatumType.VECTOR);
+        v, 0, 'vector-set!', r5js.DatumType.VECTOR,
+        r5js.PrimitiveProcedures.getActualType_(v));
   }
   if (!(k instanceof r5js.ast.Number)) {
     throw new r5js.ArgumentTypeError(
-        k, 1, 'vector-set!', r5js.DatumType.NUMBER);
+        k, 1, 'vector-set!', r5js.DatumType.NUMBER,
+        r5js.PrimitiveProcedures.getActualType_(k));
   }
   if (v.isImmutable()) {
     throw new r5js.ImmutableError(v.toString());
@@ -589,10 +595,12 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
         inputPort, outputPort, expr, envSpec) {
       if (!(expr instanceof r5js.Datum))
         throw new r5js.ArgumentTypeError(
-            expr, 0, 'eval', 'ref' /* TODO bl is this right? */);
+            expr, 0, 'eval', 'ref' /* TODO bl is this right? */,
+            r5js.PrimitiveProcedures.getActualType_(expr));
       if (!r5js.IEnvironment.isImplementedBy(envSpec)) {
         throw new r5js.ArgumentTypeError(
-            envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER);
+            envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER,
+            r5js.PrimitiveProcedures.getActualType_(envSpec));
       }
       /* An interesting special case. If we're about to evaluate a wrapped
   procedure (primitive JavaScript or SchemeProcedure), return its name
@@ -651,7 +659,8 @@ PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
-            inputPortToUse, 0, 'char-ready?', r5js.DatumType.INPUT_PORT);
+            inputPortToUse, 0, 'char-ready?', r5js.DatumType.INPUT_PORT,
+            r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
       return inputPortToUse.isCharReady();
     });
@@ -681,7 +690,8 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
       var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw new r5js.ArgumentTypeError(
-            outputPortToUse, 1, 'display', r5js.DatumType.OUTPUT_PORT);
+            outputPortToUse, 1, 'display', r5js.DatumType.OUTPUT_PORT,
+            r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
       (/** @type {!r5js.OutputPort} */ (outputPortToUse)).display(datum);
       return r5js.runtime.UNSPECIFIED_VALUE;
@@ -704,7 +714,8 @@ PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
-            inputPortToUse, 0, 'peek-char', r5js.DatumType.INPUT_PORT);
+            inputPortToUse, 0, 'peek-char', r5js.DatumType.INPUT_PORT,
+            r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
       return inputPortToUse.peekChar() || r5js.runtime.EOF;
     });
@@ -714,7 +725,8 @@ PrimitiveProcedures['read'] = _.nullaryOrUnaryWithCurrentPorts(
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
-            inputPortToUse, 0, 'read', r5js.DatumType.INPUT_PORT);
+            inputPortToUse, 0, 'read', r5js.DatumType.INPUT_PORT,
+            r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
       return inputPortToUse.read() || r5js.runtime.EOF;
     });
@@ -724,7 +736,8 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw new r5js.ArgumentTypeError(
-            inputPortToUse, 0, 'read-char', r5js.DatumType.INPUT_PORT);
+            inputPortToUse, 0, 'read-char', r5js.DatumType.INPUT_PORT,
+            r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
       return inputPortToUse.readChar() || r5js.runtime.EOF;
     });
@@ -734,7 +747,8 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
       var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw new r5js.ArgumentTypeError(
-            outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT);
+            outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT,
+            r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
       outputPortToUse.writeValue(datum);
       return r5js.runtime.UNSPECIFIED_VALUE;
@@ -744,12 +758,14 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
     function(inputPort, outputPort, charNode, maybeUserSuppliedOutputPort) {
       if (!(charNode instanceof r5js.ast.Character)) {
         throw new r5js.ArgumentTypeError(
-            charNode, 0, 'write-char', r5js.DatumType.CHARACTER);
+            charNode, 0, 'write-char', r5js.DatumType.CHARACTER,
+            r5js.PrimitiveProcedures.getActualType_(charNode));
       }
       var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw new r5js.ArgumentTypeError(
-            outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT);
+            outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT,
+            r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
       outputPortToUse.writeChar(charNode.getPayload());
       return r5js.runtime.UNSPECIFIED_VALUE;
@@ -768,7 +784,8 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var mustBeProc = arguments[0];
   if (!(mustBeProc instanceof r5js.ast.Lambda)) {
     throw new r5js.ArgumentTypeError(
-        mustBeProc, 0, 'apply', r5js.parse.Terminals.LAMBDA);
+        mustBeProc, 0, 'apply', r5js.parse.Terminals.LAMBDA,
+        r5js.PrimitiveProcedures.getActualType_(mustBeProc));
   }
 
   var procName = new r5js.ast.Identifier(mustBeProc.getName());
@@ -780,7 +797,8 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var mustBeList = arguments[lastRealArgIndex];
   if (!(mustBeList instanceof r5js.ast.List)) {
     throw new r5js.ArgumentTypeError(
-        mustBeList, lastRealArgIndex, 'apply', r5js.parse.Terminals.LPAREN);
+        mustBeList, lastRealArgIndex, 'apply', r5js.parse.Terminals.LPAREN,
+        r5js.PrimitiveProcedures.getActualType_(mustBeList));
   }
 
   // (apply foo '(x y z))
