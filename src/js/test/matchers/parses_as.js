@@ -53,8 +53,13 @@ r5js.test.matchers.ParsesAs = function(expectedType) {
 
 /** @override */
 r5js.test.matchers.ParsesAs.prototype.matches = function(value) {
-  var datumRoot = new r5js.Reader(
-      new r5js.Scanner(/** @type {string} */ (value))).read();
+  var datumRoot;
+  try {
+    datumRoot = new r5js.Reader(
+        new r5js.Scanner(/** @type {string} */ (value))).read();
+  } catch (e) {
+    return false;
+  }
   var actualResult = (datumRoot instanceof r5js.Datum) &&
       new r5js.ParserImpl(datumRoot).parse(this.expectedType_);
   if (actualResult && actualResult.peekParse) {

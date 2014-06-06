@@ -23,12 +23,13 @@ goog.require('goog.functions');
 goog.require('r5js.DatumType');
 goog.require('haveJsOutput');
 goog.require('haveJsValue');
+goog.require('r5js.parse.Terminals');
 goog.require('haveStringOutput');
 goog.require('haveStringValue');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
-goog.require('r5js.ParseError');
+goog.require('r5js.ReadError');
 goog.require('r5js.TooFewVarargs');
 goog.require('r5js.TooManyVarargs');
 goog.require('r5js.UnboundVariable');
@@ -256,8 +257,8 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
 };
 
 r5js.test.JsInterop.prototype['testErrors'] = function() {
-  expect('(').to(Throw(r5js.ParseError));
-  expect(')').to(Throw(r5js.ParseError));
+  expect('(').to(Throw2(new r5js.ReadError(r5js.parse.Terminals.LPAREN)));
+  expect(')').to(Throw2(new r5js.ReadError(r5js.parse.Terminals.RPAREN)));
   expect('(eval)').to(Throw(r5js.IncorrectNumArgs));
   expect('(eval 1 2 3 4 5)').to(Throw(r5js.IncorrectNumArgs));
   expect('(let ((foo (lambda (x) x))) (foo))').to(Throw(r5js.IncorrectNumArgs));
