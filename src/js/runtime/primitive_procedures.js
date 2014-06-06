@@ -677,12 +677,13 @@ PrimitiveProcedures['current-output-port'] = _.nullaryWithCurrentPorts(
      display would presumably have to be written in terms of write-char.
      That's not too efficient, so I decided to write it in JavaScript. */
 PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
-    function(inputPort, outputPort, datum) {
-      if (!r5js.OutputPort.isImplementedBy(outputPort)) {
+    function(inputPort, outputPort, datum, maybeUserSuppliedOutputPort) {
+      var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
+      if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw new r5js.ArgumentTypeError(
-            outputPort, 1, 'display', r5js.DatumType.OUTPUT_PORT);
+            outputPortToUse, 1, 'display', r5js.DatumType.OUTPUT_PORT);
       }
-      (/** @type {!r5js.OutputPort} */ (outputPort)).display(datum);
+      (/** @type {!r5js.OutputPort} */ (outputPortToUse)).display(datum);
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
