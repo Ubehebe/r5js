@@ -23,7 +23,7 @@ goog.require('r5js.IOError');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.ParserImpl');
-goog.require('r5js.Reader');
+goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
 
 
@@ -233,7 +233,7 @@ r5js.ValueUnderConstruction_.prototype.readChar = function() {
 r5js.ValueUnderConstruction_.prototype.toDatum = function() {
   var text = this.buffer_.join('');
   var ans = new r5js.ParserImpl(
-      new r5js.Reader(
+      new r5js.ReaderImpl(
       new r5js.Scanner(
       text)).read()).parse();
   if (ans) {

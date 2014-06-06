@@ -21,7 +21,7 @@ goog.setTestOnly('r5js.test.matchers.ParsesAs');
 
 goog.require('r5js.Datum');
 goog.require('r5js.ParserImpl');
-goog.require('r5js.Reader');
+goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.parse.bnf');
 
@@ -55,7 +55,7 @@ r5js.test.matchers.ParsesAs = function(expectedType) {
 r5js.test.matchers.ParsesAs.prototype.matches = function(value) {
   var datumRoot;
   try {
-    datumRoot = new r5js.Reader(
+    datumRoot = new r5js.ReaderImpl(
         new r5js.Scanner(/** @type {string} */ (value))).read();
   } catch (e) {
     return false;

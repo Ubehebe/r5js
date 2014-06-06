@@ -21,7 +21,7 @@ goog.provide('r5js.PipelineImpl');
 goog.require('r5js.Environment');
 goog.require('r5js.ParseError');
 goog.require('r5js.ParserImpl');
-goog.require('r5js.Reader');
+goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.VACUOUS_PROGRAM');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
@@ -49,7 +49,7 @@ r5js.PipelineImpl.prototype.scan = function(string) {
 
 /** @override */
 r5js.PipelineImpl.prototype.read = function(scanner) {
-  return new r5js.Reader(scanner).read();
+  return new r5js.ReaderImpl(scanner).read();
 };
 
 

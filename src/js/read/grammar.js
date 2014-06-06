@@ -13,7 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.Reader');
+goog.provide('r5js.ReaderImpl');
 goog.provide('r5js.read.grammar');
 
 
@@ -103,14 +103,14 @@ r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()] = _.zeroOrMore(
  * @struct
  * @constructor
  */
-r5js.Reader = function(scanner) {
+r5js.ReaderImpl = function(scanner) {
   /** @const @private {!r5js.TokenStream} */
   this.scanner_ = scanner;
 };
 
 
 /** @override */
-r5js.Reader.prototype.read = function() {
+r5js.ReaderImpl.prototype.read = function() {
   var ans = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()].
       match(this.scanner_);
   // All of the input tokens must be consumed for success.
