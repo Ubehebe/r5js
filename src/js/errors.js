@@ -136,18 +136,19 @@ r5js.TooFewVarargs.prototype.equals = function(other) {
  * @constructor
  */
 r5js.TooManyVarargs = function(name, maxNumArgs, actualNumArgs) {
-  this.toString = function() {
-    return 'The procedure ' +
-        name +
-        ' has been called with ' +
-        actualNumArgs +
-        ' argument' +
-        (actualNumArgs === 1 ? '' : 's') +
-        '; it requires at most ' +
-        maxNumArgs +
-        ' argument' +
-        (maxNumArgs === 1 ? '' : 's');
-  };
+  /** @const @private */ this.name_ = name;
+  /** @const @private */ this.maxNumArgs_ = maxNumArgs;
+  /** @const @private */ this.actualNumArgs_ = actualNumArgs;
+};
+
+
+/** @override */
+r5js.TooManyVarargs.prototype.toString = function() {
+  return this.name_ +
+      ': too many args: want <= ' +
+      this.maxNumArgs_ +
+      ', got ' +
+      this.actualNumArgs_;
 };
 
 
@@ -157,7 +158,15 @@ r5js.TooManyVarargs.prototype.getShortName =
 
 
 /** @override */
-r5js.TooManyVarargs.prototype.equals = goog.functions.FALSE;
+r5js.TooManyVarargs.prototype.equals = function(other) {
+  if (!(other instanceof r5js.TooManyVarargs)) {
+    return false;
+  }
+  other = /** @type {!r5js.TooManyVarargs} */ (other);
+  return this.name_ === other.name_ &&
+      this.maxNumArgs_ === other.maxNumArgs_ &&
+      this.actualNumArgs_ === other.actualNumArgs_;
+};
 
 
 
