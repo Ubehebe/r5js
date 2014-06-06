@@ -35,8 +35,8 @@ r5js.DatumType = {
   INPUT_PORT: 'input-port',
   NUMBER: 'number',
   OUTPUT_PORT: 'output-port',
-  PAIR: 'pair', // TODO bl
-  // TODO bl: add PROCEDURE
+  PAIR: 'pair',
+  PROCEDURE: 'procedure',
   STRING: 'string',
   SYMBOL: 'symbol',
   VECTOR: 'vector'
