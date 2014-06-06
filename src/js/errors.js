@@ -27,6 +27,7 @@ goog.provide('r5js.MacroError');
 goog.provide('r5js.ParseError');
 goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.QuasiquoteError');
+goog.provide('r5js.ReadError');
 goog.provide('r5js.ScanError');
 goog.provide('r5js.TooFewVarargs');
 goog.provide('r5js.TooManyVarargs');
@@ -445,6 +446,37 @@ r5js.ParseError.prototype.getShortName = goog.functions.constant('ParseError');
 
 /** @override */
 r5js.ParseError.prototype.equals = goog.functions.FALSE;
+
+
+
+/**
+ * @param {!r5js.Token} token
+ * @implements {r5js.Error}
+ * @struct
+ * @constructor
+ */
+r5js.ReadError = function(token) {
+  /** @const @private */ this.token_ = token;
+};
+
+
+/** @override */
+r5js.ReadError.prototype.toString = function() {
+  return 'read error: ' + this.token_;
+};
+
+
+/** @override */
+r5js.ReadError.prototype.getShortName = goog.functions.constant('ReadError');
+
+
+/** @override */
+r5js.ReadError.prototype.equals = function(other) {
+  if (!(other instanceof r5js.ReadError)) {
+    return false;
+  }
+  return this.token_ === other.token_;
+};
 
 
 
