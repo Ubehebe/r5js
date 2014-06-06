@@ -22,7 +22,9 @@ r5js.IReader = function() {};
 
 
 /**
- * @return {r5js.Datum} The root of the datum tree,
- * or null if reading the tokens into datums was unsuccessful.
+ * @return {!r5js.Datum} The root of the datum tree.
+ * If reading the tokens into datums was unsuccessful, a {@link r5js.ReadError}
+ * is thrown.
+ * @throws {r5js.ReadError}
  */
 r5js.IReader.prototype.read = function() {};

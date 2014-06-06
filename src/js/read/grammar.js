@@ -17,6 +17,7 @@ goog.provide('r5js.Reader');
 goog.provide('r5js.read.grammar');
 
 
+goog.require('r5js.ReadError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.DottedList');
@@ -113,5 +114,9 @@ r5js.Reader.prototype.read = function() {
   var ans = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()].
       match(this.scanner_);
   // All of the input tokens must be consumed for success.
-  return this.scanner_.nextToken() ? null : ans;
+  var nextToken = this.scanner_.nextToken();
+  if (nextToken) {
+    throw new r5js.ReadError(nextToken);
+  }
+  return ans;
 };
