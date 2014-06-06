@@ -20,6 +20,7 @@ goog.setTestOnly('r5js.test.JsInterop');
 goog.require('Throw');
 goog.require('expect');
 goog.require('goog.functions');
+goog.require('r5js.DatumType');
 goog.require('haveJsOutput');
 goog.require('haveJsValue');
 goog.require('haveStringOutput');
@@ -273,7 +274,9 @@ r5js.test.JsInterop.prototype['testErrors'] = function() {
   expect('(make-vector 1 2 3 4 5)').to(Throw(r5js.TooManyVarargs));
   expect('(let ((foo (lambda (x . y) x))) (foo))').
       to(Throw(r5js.TooFewVarargs));
-  expect('(+ "a" "b")').to(Throw(r5js.ArgumentTypeError));
+  expect('(+ "a" "b")').
+      to(Throw2(new r5js.ArgumentTypeError(
+          'a', 0, '+', r5js.DatumType.NUMBER, r5js.DatumType.STRING)));
   expect('(scheme-report-environment 6)').
       to(Throw2(new r5js.UnimplementedOptionError('')));
   expect('(null-environment 6)').
