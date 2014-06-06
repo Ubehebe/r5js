@@ -1020,6 +1020,27 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
 
 
 /**
+ * @param {!r5js.runtime.Value} arg
+ * @return {!r5js.Type}
+ * @private
+ * @suppress {accessControls|checkTypes} TODO bl
+ */
+r5js.PrimitiveProcedures.getActualType_ = function(arg) {
+  var types = goog.object.getValues(r5js.DatumType);
+  for (var i = 0; i < types.length; ++i) {
+    var type = types[i];
+    var predicateName = type + '?';
+    if (predicateName in r5js.PrimitiveProcedures.registry_ &&
+            r5js.PrimitiveProcedures.registry_[predicateName].fn_.call(
+                null, arg)) {
+      return /** @type {!r5js.Type} */ (type);
+    }
+  }
+  return 'unknown type';
+};
+
+
+/**
  * @param {!r5js.IEnvironment} nullEnv
  * @param {!r5js.IEnvironment} r5RSEnv
  * @param {!r5js.js.Environment} jsEnv JavaScript execution environment.
