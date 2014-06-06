@@ -13,12 +13,12 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.IReader');
+goog.provide('r5js.Reader');
 
 
 
 /** @interface */
-r5js.IReader = function() {};
+r5js.Reader = function() {};
 
 
 /**
@@ -27,4 +27,4 @@ r5js.IReader = function() {};
  * is thrown.
  * @throws {r5js.ReadError}
  */
-r5js.IReader.prototype.read = function() {};
+r5js.Reader.prototype.read = function() {};

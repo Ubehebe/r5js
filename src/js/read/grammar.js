@@ -99,7 +99,7 @@ r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()] = _.zeroOrMore(
 
 /**
  * @param {!r5js.TokenStream} scanner
- * @implements {r5js.IReader}
+ * @implements {r5js.Reader}
  * @struct
  * @constructor
  */
