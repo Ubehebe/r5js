@@ -32,7 +32,6 @@ r5js.DatumType = {
   BOOLEAN: 'boolean',
   CHARACTER: 'char',
   ENVIRONMENT_SPECIFIER: 'environment-specifier',
-  FFI: 'ffi',
   INPUT_PORT: 'input-port',
   NUMBER: 'number',
   OUTPUT_PORT: 'output-port',
