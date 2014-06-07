@@ -13,45 +13,45 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.js.Environment');
+goog.provide('r5js.Platform');
 
 
-goog.require('r5js.js.Html5Environment');
-goog.require('r5js.js.NodeEnvironment');
+goog.require('r5js.platform.Html5');
+goog.require('r5js.platform.Node');
 
 
 
 /**
- * Abstraction of the (JavaScript) environment that the Scheme implementation
+ * Abstraction of the (JavaScript) platform that the Scheme implementation
  * is running in.
  * @interface
  */
-r5js.js.Environment = function() {};
+r5js.Platform = function() {};
 
 
 /**
  * @param {string} url
  * @return {!goog.Promise.<string>}
  */
-r5js.js.Environment.prototype.fetchUrl = function(url) {};
+r5js.Platform.prototype.fetchUrl = function(url) {};
 
 
 /** @param {number} statusCode */
-r5js.js.Environment.prototype.exit = function(statusCode) {};
+r5js.Platform.prototype.exit = function(statusCode) {};
 
 
 /**
  * @param {string} name
  * @return {!r5js.InputPort}
  */
-r5js.js.Environment.prototype.newInputPort = function(name) {};
+r5js.Platform.prototype.newInputPort = function(name) {};
 
 
 /**
  * @param {string} name
  * @return {!r5js.OutputPort}
  */
-r5js.js.Environment.prototype.newOutputPort = function(name) {};
+r5js.Platform.prototype.newOutputPort = function(name) {};
 
 
 /**
@@ -59,31 +59,31 @@ r5js.js.Environment.prototype.newOutputPort = function(name) {};
  * implementations would be "dumb", knowing nothing about Scheme.
  * One complication is multiline input, where terminals often show a different
  * prompt if the current line is a continuation of the last line. One of the
- * Terminal implementations, {@link r5js.js.Html5Environment.Terminal_},
+ * Terminal implementations, {@link r5js.platform.Html5.Terminal_},
  * has a quirky API that requires the implementation to know whether
  * the current line will complete. This parameter is passed in order to
  * communicate that knowledge.
  * @return {!r5js.Terminal}
  */
-r5js.js.Environment.prototype.getTerminal = function(evaluator) {};
+r5js.Platform.prototype.getTerminal = function(evaluator) {};
 
 
 /**
  * @define {string} The environment that the application expects to be running
- * under. This should only be used in one place: {@link r5js.js.Environment#get}.
+ * under. This should only be used in {@link r5js.Platform#get}.
  */
 goog.define('r5js.PLATFORM', 'html5');
 
 
 /**
- * @return {!r5js.js.Environment}
+ * @return {!r5js.Platform}
  * @suppress {missingReturn} because adding a default case defeats
  * the compiler's dead code elimination. See comment in function body.
  */
-r5js.js.Environment.get = function() {
+r5js.Platform.get = function() {
   // Because the Closure Compiler does aggressive dead code elimination,
   // this switch is effectively evaluated at compile time, not runtime.
-  // r5js.ARCH can be defined as a command-line flag to the compiler,
+  // r5js.PLATFORM can be defined as a command-line flag to the compiler,
   // so the switch simplifies to string literal comparisons, which can be done
   // by the compiler.
   // Note: small changes in this function (for example, adding a default case)
@@ -91,8 +91,8 @@ r5js.js.Environment.get = function() {
   // and ensure the size of the compiled JS makes sense.
   switch (r5js.PLATFORM) {
     case 'html5':
-      return new r5js.js.Html5Environment(arguments[0] /* TODO bl improve */);
+      return new r5js.platform.Html5(arguments[0] /* TODO bl improve */);
     case 'node':
-      return new r5js.js.NodeEnvironment();
+      return new r5js.platform.Node();
   }
 };

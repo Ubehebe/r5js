@@ -23,10 +23,10 @@ goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.PipelineImpl');
+goog.require('r5js.Platform');
 goog.require('r5js.PrimitiveProcedures');
 goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
-goog.require('r5js.js.Environment');
 goog.require('r5js.trampoline');
 
 
@@ -72,7 +72,7 @@ r5js.boot = function(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
      Ugh. */
 
   var r5RSEnv = nullEnv.clone();
-  r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, r5js.js.Environment.get());
+  r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, r5js.Platform.get());
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
   return new r5js.EvaluatorImpl(

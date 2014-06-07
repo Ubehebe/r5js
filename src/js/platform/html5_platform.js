@@ -13,7 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.js.Html5Environment');
+goog.provide('r5js.platform.Html5');
 
 
 goog.require('goog.Promise');
@@ -25,11 +25,11 @@ goog.require('r5js.InMemoryOutputPort');
 
 /**
  * @param {?} jqConsole
- * @implements {r5js.js.Environment}
+ * @implements {r5js.Platform}
  * @struct
  * @constructor
  */
-r5js.js.Html5Environment = function(jqConsole) {
+r5js.platform.Html5 = function(jqConsole) {
   /** @const @private */ this.jqConsole_ = jqConsole;
   /** @const @private {!Object.<string, !r5js.InMemoryPortBuffer>} */
   this.buffers_ = {};
@@ -37,15 +37,15 @@ r5js.js.Html5Environment = function(jqConsole) {
 
 
 /** @override */
-r5js.js.Html5Environment.prototype.exit = goog.nullFunction;
+r5js.platform.Html5.prototype.exit = goog.nullFunction;
 
 
 /** @override */
-r5js.js.Html5Environment.prototype.fetchUrl = goog.labs.net.xhr.get;
+r5js.platform.Html5.prototype.fetchUrl = goog.labs.net.xhr.get;
 
 
 /** @override */
-r5js.js.Html5Environment.prototype.newInputPort = function(name) {
+r5js.platform.Html5.prototype.newInputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = [];
   }
@@ -54,7 +54,7 @@ r5js.js.Html5Environment.prototype.newInputPort = function(name) {
 
 
 /** @override */
-r5js.js.Html5Environment.prototype.newOutputPort = function(name) {
+r5js.platform.Html5.prototype.newOutputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = [];
   }
@@ -63,8 +63,8 @@ r5js.js.Html5Environment.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.js.Html5Environment.prototype.getTerminal = function(evaluator) {
-  return new r5js.js.Html5Environment.Terminal_(
+r5js.platform.Html5.prototype.getTerminal = function(evaluator) {
+  return new r5js.platform.Html5.Terminal_(
       this.jqConsole_,
       function(line) { return evaluator.willParse(line); });
 };
@@ -80,7 +80,7 @@ r5js.js.Html5Environment.prototype.getTerminal = function(evaluator) {
  * @constructor
  * @private
  */
-r5js.js.Html5Environment.Terminal_ = function(jqconsole, isLineComplete) {
+r5js.platform.Html5.Terminal_ = function(jqconsole, isLineComplete) {
   /** @const @private */ this.jqconsole_ = jqconsole;
   /** @const @private */ this.isLineComplete_ = isLineComplete;
 };
@@ -93,7 +93,7 @@ r5js.js.Html5Environment.Terminal_ = function(jqconsole, isLineComplete) {
  * @see {https://github.com/replit/jq-console} for details on the odd return
  * values.
  */
-r5js.js.Html5Environment.Terminal_.prototype.multilineCallback_ = function(
+r5js.platform.Html5.Terminal_.prototype.multilineCallback_ = function(
     line) {
   return this.isLineComplete_(line) ? false : 0;
 };
@@ -103,7 +103,7 @@ r5js.js.Html5Environment.Terminal_.prototype.multilineCallback_ = function(
  * @override
  * @suppress {checkTypes} for the jqconsole integration
  */
-r5js.js.Html5Environment.Terminal_.prototype.getNextLineOfInput = function() {
+r5js.platform.Html5.Terminal_.prototype.getNextLineOfInput = function() {
   return new goog.Promise(function(resolve) {
     this.jqconsole_.Prompt(
         true /* history_enabled */,
@@ -117,7 +117,7 @@ r5js.js.Html5Environment.Terminal_.prototype.getNextLineOfInput = function() {
  * @override
  * @suppress {checkTypes} for the jqconsole integration
  */
-r5js.js.Html5Environment.Terminal_.prototype.print = function(msg) {
+r5js.platform.Html5.Terminal_.prototype.print = function(msg) {
   this.jqconsole_.Write(msg + '\n', 'jqconsole-output');
 };
 
@@ -126,7 +126,7 @@ r5js.js.Html5Environment.Terminal_.prototype.print = function(msg) {
  * @override
  * @suppress {checkTypes} for the jqconsole integration
  */
-r5js.js.Html5Environment.Terminal_.prototype.error = function(msg) {
+r5js.platform.Html5.Terminal_.prototype.error = function(msg) {
   this.jqconsole_.Write(msg + '\n', 'jqconsole-error');
 };
 

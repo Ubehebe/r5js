@@ -30,10 +30,10 @@ goog.require('r5js.EvalAdapter');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.ParserImpl');
+goog.require('r5js.Platform');
 goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.boot');
-goog.require('r5js.js.Environment');
 goog.require('r5js.test.JsInterop');
 goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
@@ -67,7 +67,7 @@ r5js.test.main = function(opt_argv, opt_env) {
 r5js.test.main1 = function(testConfig) {
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
-  var jsEnv = r5js.js.Environment.get();
+  var jsEnv = r5js.Platform.get();
   r5js.test.SchemeSources.get(jsEnv.fetchUrl.bind(jsEnv)).
       then(function(sources) {
         var evaluator = r5js.test.getEvaluator_(sources);

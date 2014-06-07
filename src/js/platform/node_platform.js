@@ -13,7 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.js.NodeEnvironment');
+goog.provide('r5js.platform.Node');
 
 
 goog.require('goog.Promise');
@@ -37,18 +37,18 @@ goog.require('r5js.InMemoryOutputPort');
  * to a file isn't even discussed.)
  *
  * Proper filesystem access through Node will be added for R6RS.
- * @implements {r5js.js.Environment}
+ * @implements {r5js.Platform}
  * @struct
  * @constructor
  */
-r5js.js.NodeEnvironment = function() {
+r5js.platform.Node = function() {
   /** @const @private {!Object.<string, !r5js.InMemoryPortBuffer>} */
   this.buffers_ = {};
 };
 
 
 /** @override */
-r5js.js.NodeEnvironment.prototype.fetchUrl = function(url) {
+r5js.platform.Node.prototype.fetchUrl = function(url) {
   return new goog.Promise(function(resolve, reject) {
     // TODO bl: move this declaration to the top of this file, instead of
     // repeating it in each method that needs it. This will require changing
@@ -66,13 +66,13 @@ r5js.js.NodeEnvironment.prototype.fetchUrl = function(url) {
 
 
 /** @override */
-r5js.js.NodeEnvironment.prototype.exit = function(statusCode) {
+r5js.platform.Node.prototype.exit = function(statusCode) {
   process.exit(statusCode);
 };
 
 
 /** @override */
-r5js.js.NodeEnvironment.prototype.newInputPort = function(name) {
+r5js.platform.Node.prototype.newInputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = [];
   }
@@ -81,7 +81,7 @@ r5js.js.NodeEnvironment.prototype.newInputPort = function(name) {
 
 
 /** @override */
-r5js.js.NodeEnvironment.prototype.newOutputPort = function(name) {
+r5js.platform.Node.prototype.newOutputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = [];
   }
@@ -90,8 +90,8 @@ r5js.js.NodeEnvironment.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.js.NodeEnvironment.prototype.getTerminal = function(evaluator) {
-  return new r5js.js.NodeEnvironment.Terminal_();
+r5js.platform.Node.prototype.getTerminal = function(evaluator) {
+  return new r5js.platform.Node.Terminal_();
 };
 
 
@@ -104,20 +104,20 @@ r5js.js.NodeEnvironment.prototype.getTerminal = function(evaluator) {
 * @suppress {checkTypes} TODO bl my Node version is 0.6x, but the externs
 * I'm using are for 0.10x, which has an incompatible readline API.
 */
-r5js.js.NodeEnvironment.Terminal_ = function() {
+r5js.platform.Node.Terminal_ = function() {
   var readline = require('readline');
   /** @private @const */
   this.readline_ = readline.createInterface(process.stdin, process.stdout);
   this.readline_.setPrompt(
-      r5js.js.NodeEnvironment.Terminal_.PROMPT_,
-      r5js.js.NodeEnvironment.Terminal_.PROMPT_.length);
+      r5js.platform.Node.Terminal_.PROMPT_,
+      r5js.platform.Node.Terminal_.PROMPT_.length);
   this.readline_.on('close', this.handleClose_.bind(this));
   this.readline_.prompt();
 };
 
 
 /** @override */
-r5js.js.NodeEnvironment.Terminal_.prototype.getNextLineOfInput = function() {
+r5js.platform.Node.Terminal_.prototype.getNextLineOfInput = function() {
   return new goog.Promise(function(resolve) {
     this.readline_.once('line', resolve);
   }, this);
@@ -125,26 +125,26 @@ r5js.js.NodeEnvironment.Terminal_.prototype.getNextLineOfInput = function() {
 
 
 /** @override */
-r5js.js.NodeEnvironment.Terminal_.prototype.print = function(str) {
+r5js.platform.Node.Terminal_.prototype.print = function(str) {
   console.log(str);
   this.readline_.prompt(); // TODO bl double-prompts on Scheme output
 };
 
 
 /** @override */
-r5js.js.NodeEnvironment.Terminal_.prototype.error = function(str) {
+r5js.platform.Node.Terminal_.prototype.error = function(str) {
   console.error(str);
   this.readline_.prompt(); // TODO bl double-prompts on Scheme output
 };
 
 
 /** @private */
-r5js.js.NodeEnvironment.Terminal_.prototype.handleClose_ = function() {
+r5js.platform.Node.Terminal_.prototype.handleClose_ = function() {
   process.exit(0);
 };
 
 
-/** @const @private */ r5js.js.NodeEnvironment.Terminal_.PROMPT_ = '>> ';
+/** @const @private */ r5js.platform.Node.Terminal_.PROMPT_ = '>> ';
 
 
 

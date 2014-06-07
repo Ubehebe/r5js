@@ -56,7 +56,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 /** @private {r5js.IEnvironment} */ r5js.PrimitiveProcedures.r5RSEnv_;
 
-/** @private {r5js.js.Environment} */ r5js.PrimitiveProcedures.jsEnv_;
+/** @private {r5js.Platform} */ r5js.PrimitiveProcedures.jsEnv_;
 
 
 /** @const @private {!Object.<string, !r5js.procspec.PrimitiveProcedure_>} */
@@ -1059,7 +1059,7 @@ r5js.PrimitiveProcedures.getActualType_ = function(arg) {
 /**
  * @param {!r5js.IEnvironment} nullEnv
  * @param {!r5js.IEnvironment} r5RSEnv
- * @param {!r5js.js.Environment} jsEnv JavaScript execution environment.
+ * @param {!r5js.Platform} jsEnv JavaScript execution environment.
  */
 r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv, jsEnv) {
   r5js.PrimitiveProcedures.nullEnv_ = nullEnv;
