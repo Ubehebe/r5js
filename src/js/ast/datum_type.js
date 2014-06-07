@@ -21,12 +21,15 @@ r5js.Type;
 
 
 /**
+ * This is basically the enumeration of types in R5RS 3.2.
+ * Ordinarily, type tags are a code smell in object-oriented code.
+ * But this implementation is not completely object-oriented; in particular,
+ * Scheme booleans, numbers, and symbols are represented by
+ * corresponding JavaScript primitives, not objects.
+ * It is convenient to have names for these types, for example
+ * when printing errors during runtime type-checking. But for the most part
+ * they have no critical role in this implementation.
  * @enum {!r5js.Type}
- * TODO bl: remove. Type enums are inferior to subclasses as a way
- * of structuring code. There is one major place where direct type checks are
- * probably unavoidable -- runtime argument type-checking -- but that can be
- * done directly with instanceof constructor checks, or opaque isXXX()
- * functions.
  */
 r5js.DatumType = {
   BOOLEAN: 'boolean',
