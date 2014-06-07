@@ -19,10 +19,10 @@ goog.provide('r5js.Environment');
 
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
-goog.require('r5js.EvalError');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
+goog.require('r5js.NotAProcedureError');
 goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
 goog.require('r5js.UnboundVariable');
@@ -141,7 +141,11 @@ r5js.Environment.prototype.get = function(name) {
 };
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {accessControls} for
+ * {@link r5js.PrimitiveProcedures#getActualType_}.
+ */
 r5js.Environment.prototype.getProcedure = function(name) {
   if (name in this.bindings_) {
     var binding = this.bindings_[name];
@@ -152,7 +156,8 @@ r5js.Environment.prototype.getProcedure = function(name) {
         binding instanceof r5js.Procedure) {
       return binding;
     } else {
-      throw new r5js.EvalError('expected procedure, given ' + name);
+      throw new r5js.NotAProcedureError(
+          name, r5js.PrimitiveProcedures.getActualType_(binding));
     }
   } else if (this.enclosingEnv_) {
     return this.enclosingEnv_.getProcedure(name);

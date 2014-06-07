@@ -15,7 +15,6 @@
 
 
 goog.provide('r5js.ArgumentTypeError');
-goog.provide('r5js.EvalError');
 goog.provide('r5js.FFIError');
 goog.provide('r5js.GeneralSyntaxError');
 goog.provide('r5js.IOError');
@@ -24,6 +23,7 @@ goog.provide('r5js.ImmutableError');
 goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.MacroError');
+goog.provide('r5js.NotAProcedureError');
 goog.provide('r5js.ParseError');
 goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.QuasiquoteError');
@@ -415,20 +415,26 @@ r5js.ReadError.prototype.equals = function(other) {
 
 
 /**
- * @param {string} what Error message.
+ * @param {string} name Error message.
+ * @param {!r5js.Type} actualType
  * @implements {r5js.Error}
  * @struct
  * @constructor
  */
-r5js.EvalError = function(what) {
-  this.toString = function() {
-    return 'evaluation error: ' + what;
-  };
+r5js.NotAProcedureError = function(name, actualType) {
+  /** @const @private */ this.name_ = name;
+  /** @const @private */ this.actualType_ = actualType;
 };
 
 
 /** @override */
-r5js.EvalError.prototype.equals = goog.functions.FALSE;
+r5js.NotAProcedureError.prototype.toString = function() {
+  return 'operator ' + this.name_ + ': want procedure, got ' + this.actualType_;
+};
+
+
+/** @override */
+r5js.NotAProcedureError.prototype.equals = goog.functions.FALSE;
 
 
 

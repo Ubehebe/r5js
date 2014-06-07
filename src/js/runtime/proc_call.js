@@ -22,6 +22,7 @@ goog.require('r5js.Datum');
 goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
+goog.require('r5js.NotAProcedureError');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.Procedure');
 goog.require('r5js.SiblingBuffer');
@@ -162,7 +163,11 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
 };
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {accessControls} for
+ * {@link r5js.PrimitiveProcedures#getActualType_}.
+ */
 r5js.ProcCall.prototype.evalAndAdvance = function(
     resultStruct, env, parserProvider) {
   var proc = this.getEnv().getProcedure(/** @type {string} */ (
@@ -182,9 +187,10 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
     var fakeArg = this.evalArgs()[0]; // TODO bl
     proc.evaluate(fakeArg, this, resultStruct);
   } else {
-    throw new r5js.EvalError(
-        'procedure application: expected procedure, given ' +
-        this.operatorName_);
+    throw new r5js.NotAProcedureError(
+        this.operatorName_.getPayload(),
+        r5js.PrimitiveProcedures.getActualType_(
+            /** @type {!r5js.runtime.Value} */ (proc)));
   }
 };
 
