@@ -39,7 +39,12 @@ goog.require('goog.functions');
 
 
 
-/** @interface */
+/**
+ * Note: implementations of this interface should not extend the native Error
+ * class. Error objects cannot be serialized by the HTML5 structured clone
+ * algorithm, which is used for example when a web worker posts a message.
+ * @interface
+ * */
 r5js.Error = function() {};
 
 
