@@ -188,16 +188,11 @@ r5js.IncorrectNumArgs = function(name, expectedNumArgs, actualNumArgs) {
 
 /** @override */
 r5js.IncorrectNumArgs.prototype.toString = function() {
-  return 'The procedure ' +
-      this.name +
-      ' has been called with ' +
-      this.actualNumArgs +
-      ' argument' +
-      (this.actualNumArgs === 1 ? '' : 's') +
-      '; it requires exactly ' +
+  return this.name +
+      ': want ' +
       this.expectedNumArgs +
-      ' argument' +
-      (this.expectedNumArgs === 1 ? '' : 's');
+      ' args, got ' +
+      this.actualNumArgs;
 };
 
 
@@ -212,8 +207,8 @@ r5js.IncorrectNumArgs.prototype.equals = function(other) {
     return false;
   }
   other = /** @type {!r5js.IncorrectNumArgs} */ (other);
-  return this.name === other.name &&
-      this.expectedNumArgs === other.expectedNumArgs &&
+  // TODO bl check the name once lambdas are plumbed
+  return this.expectedNumArgs === other.expectedNumArgs &&
       this.actualNumArgs === other.actualNumArgs;
 };
 

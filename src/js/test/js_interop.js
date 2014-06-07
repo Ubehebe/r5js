@@ -259,11 +259,13 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
 r5js.test.JsInterop.prototype['testErrors'] = function() {
   expect('(').to(Throw2(new r5js.ReadError(r5js.parse.Terminals.LPAREN)));
   expect(')').to(Throw2(new r5js.ReadError(r5js.parse.Terminals.RPAREN)));
-  expect('(eval)').to(Throw(r5js.IncorrectNumArgs));
-  expect('(eval 1 2 3 4 5)').to(Throw(r5js.IncorrectNumArgs));
-  expect('(let ((foo (lambda (x) x))) (foo))').to(Throw(r5js.IncorrectNumArgs));
+  expect('(eval)').to(Throw2(new r5js.IncorrectNumArgs('eval', 2, 0)));
+  expect('(eval 1 2 3 4 5)').
+      to(Throw2(new r5js.IncorrectNumArgs('eval', 2, 5)));
+  expect('(let ((foo (lambda (x) x))) (foo))').
+      to(Throw2(new r5js.IncorrectNumArgs(''/* TODO bl lambda */, 1, 0)));
   expect('(let ((foo (lambda (x) x))) (foo 1 2))').
-      to(Throw(r5js.IncorrectNumArgs));
+      to(Throw2(new r5js.IncorrectNumArgs('' /* TODO bl lambda */, 1, 2)));
   expect("(set-car! '(1 2 3) 4)").to(Throw(r5js.ImmutableError));
   expect('(let ((g (lambda () "***"))) (string-set! (g) 0 #\\?))').
       to(Throw(r5js.ImmutableError)); // Example from R5RS 6.3.5
