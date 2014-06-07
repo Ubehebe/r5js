@@ -13,22 +13,20 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('Throw2');
+goog.provide('Throw');
 goog.provide('r5js.test.matchers.Throws');
-goog.provide('r5js.test.matchers.Throws2');
-goog.setTestOnly('Throw2');
+goog.setTestOnly('Throw');
 goog.setTestOnly('r5js.test.matchers.Throws');
-goog.setTestOnly('r5js.test.matchers.Throws2');
 
 
 /**
  * @param {!r5js.Error} error
  * @return {!tdd.matchers.Matcher}
  */
-Throw2 = function(error) {
-  return new r5js.test.matchers.Throws2(
+Throw = function(error) {
+  return new r5js.test.matchers.Throws(
       error, /** @type {!r5js.Evaluator} */ (
-          r5js.test.matchers.Throws2.sharedEvaluator));
+          r5js.test.matchers.Throws.sharedEvaluator));
 };
 
 
@@ -40,7 +38,7 @@ Throw2 = function(error) {
  * @struct
  * @constructor
  */
-r5js.test.matchers.Throws2 = function(expectedError, evaluator) {
+r5js.test.matchers.Throws = function(expectedError, evaluator) {
   /** @const @private */ this.expectedError_ = expectedError;
   /** @private */ this.actualError_ = null;
   /** @const @private */ this.evaluator_ = evaluator;
@@ -48,11 +46,11 @@ r5js.test.matchers.Throws2 = function(expectedError, evaluator) {
 
 
 /** @type {r5js.Evaluator} */
-r5js.test.matchers.Throws2.sharedEvaluator = null;
+r5js.test.matchers.Throws.sharedEvaluator = null;
 
 
 /** @override */
-r5js.test.matchers.Throws2.prototype.matches = function(input) {
+r5js.test.matchers.Throws.prototype.matches = function(input) {
   try {
     this.evaluator_.evaluate(/** @type {string} */ (input));
   } catch (e) {
@@ -63,13 +61,13 @@ r5js.test.matchers.Throws2.prototype.matches = function(input) {
 
 
 /** @override */
-r5js.test.matchers.Throws2.prototype.getSuccessMessage = function(input) {
+r5js.test.matchers.Throws.prototype.getSuccessMessage = function(input) {
   return 'ok';
 };
 
 
 /** @override */
-r5js.test.matchers.Throws2.prototype.getFailureMessage = function(input) {
+r5js.test.matchers.Throws.prototype.getFailureMessage = function(input) {
   return input +
       ': want\n' +
       this.expectedError_.toString() +
