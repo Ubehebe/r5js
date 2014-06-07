@@ -120,8 +120,8 @@ r5js.TooFewVarargs.prototype.equals = function(other) {
     return false;
   }
   other = /** @type {!r5js.TooFewVarargs} */ (other);
-  return this.name_ === other.name_ &&
-      this.minNumArgs_ === other.minNumArgs_ &&
+  // TODO bl test name_ once we can handle lambdas
+  return this.minNumArgs_ === other.minNumArgs_ &&
       this.actualNumArgs_ === other.actualNumArgs_;
 };
 

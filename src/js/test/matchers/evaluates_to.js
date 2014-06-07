@@ -28,7 +28,6 @@ goog.require('goog.array');
 goog.require('r5js.EvalAdapter');
 goog.require('r5js.OutputSavingPort');
 goog.require('r5js.datumutil');
-goog.require('r5js.test.matchers.Throws');
 goog.require('r5js.test.matchers.Throws2');
 
 
@@ -303,6 +302,5 @@ r5js.test.matchers.setSharedEvaluator = function(evaluator) {
   r5js.test.matchers.HasStringOutput_.sharedEvaluator_ = evaluator.withPorts(
       r5js.InputPort.NULL,
       r5js.test.matchers.HasStringOutput_.sharedOutputPort_);
-  r5js.test.matchers.Throws.sharedEvaluator =
-      r5js.test.matchers.Throws2.sharedEvaluator = evaluator;
+  r5js.test.matchers.Throws2.sharedEvaluator = evaluator;
 };

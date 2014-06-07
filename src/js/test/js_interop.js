@@ -17,7 +17,7 @@ goog.provide('r5js.test.JsInterop');
 goog.setTestOnly('r5js.test.JsInterop');
 
 
-goog.require('Throw');
+goog.require('Throw2');
 goog.require('expect');
 goog.require('goog.functions');
 goog.require('r5js.DatumType');
@@ -266,7 +266,7 @@ r5js.test.JsInterop.prototype['testErrors'] = function() {
       to(Throw2(new r5js.IncorrectNumArgs(''/* TODO bl lambda */, 1, 0)));
   expect('(let ((foo (lambda (x) x))) (foo 1 2))').
       to(Throw2(new r5js.IncorrectNumArgs('' /* TODO bl lambda */, 1, 2)));
-  expect("(set-car! '(1 2 3) 4)").to(Throw(r5js.ImmutableError));
+  expect("(set-car! '(1 2 3) 4)").to(Throw2(new r5js.ImmutableError('')));
   expect('(let ((g (lambda () "***"))) (string-set! (g) 0 #\\?))').
       to(Throw2(new r5js.ImmutableError(''))); // Example from R5RS 6.3.5
   expect("(string-set! (symbol->string 'immutable) 0 #\\?)").
@@ -278,7 +278,7 @@ r5js.test.JsInterop.prototype['testErrors'] = function() {
   expect('(make-vector 1 2 3 4 5)').
       to(Throw2(new r5js.TooManyVarargs('make-vector', 2, 5)));
   expect('(let ((foo (lambda (x . y) x))) (foo))').
-      to(Throw(r5js.TooFewVarargs));
+      to(Throw2(new r5js.TooFewVarargs('', 1, 0)));
   expect('(+ "a" "b")').
       to(Throw2(new r5js.ArgumentTypeError(
           'a', 0, '+', r5js.DatumType.NUMBER, r5js.DatumType.STRING)));

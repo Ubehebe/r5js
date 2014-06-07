@@ -13,25 +13,12 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('Throw');
 goog.provide('Throw2');
 goog.provide('r5js.test.matchers.Throws');
 goog.provide('r5js.test.matchers.Throws2');
-goog.setTestOnly('Throw');
 goog.setTestOnly('Throw2');
 goog.setTestOnly('r5js.test.matchers.Throws');
 goog.setTestOnly('r5js.test.matchers.Throws2');
-
-
-/**
- * @param {function(new: r5js.Error, ...)} exceptionCtor
- * @return {!tdd.matchers.Matcher}
- */
-Throw = function(exceptionCtor) {
-  return new r5js.test.matchers.Throws(
-      exceptionCtor, /** @type {!r5js.Evaluator} */ (
-      r5js.test.matchers.Throws.sharedEvaluator));
-};
 
 
 /**
@@ -42,54 +29,6 @@ Throw2 = function(error) {
   return new r5js.test.matchers.Throws2(
       error, /** @type {!r5js.Evaluator} */ (
           r5js.test.matchers.Throws2.sharedEvaluator));
-};
-
-
-
-/**
- * @param {function(new: r5js.Error)} exceptionCtor
- * @param {!r5js.Evaluator} evaluator
- * @implements {tdd.matchers.Matcher}
- * @struct
- * @constructor
- */
-r5js.test.matchers.Throws = function(exceptionCtor, evaluator) {
-  /** @const @private */ this.exceptionCtor_ = exceptionCtor;
-  /** @private {r5js.Error} */ this.actualException_ = null;
-  /** @const @private */ this.evaluator_ = evaluator;
-};
-
-
-/** @type {r5js.Evaluator} */
-r5js.test.matchers.Throws.sharedEvaluator = null;
-
-
-/** @override */
-r5js.test.matchers.Throws.prototype.matches = function(input) {
-  try {
-    this.evaluator_.evaluate(/** @type {string} */(input));
-  } catch (e) {
-    return (this.actualException_ = e) instanceof
-        this.exceptionCtor_;
-  }
-  return false;
-};
-
-
-/** @override */
-r5js.test.matchers.Throws.prototype.getSuccessMessage = function(input) {
-  return 'ok';
-};
-
-
-/** @override */
-r5js.test.matchers.Throws.prototype.getFailureMessage = function(input) {
-  return input + ': want ' +
-      new this.exceptionCtor_().getShortName() +
-      ' got ' +
-      (this.actualException_ ?
-      this.actualException_.getShortName() :
-      'no exception');
 };
 
 
