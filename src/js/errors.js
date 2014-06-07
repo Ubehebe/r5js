@@ -47,10 +47,6 @@ r5js.Error = function() {};
 r5js.Error.prototype.toString = function() {};
 
 
-/** @return {string} */
-r5js.Error.prototype.getShortName = function() {};
-
-
 /**
  * @param {!r5js.Error} other
  * @return {boolean}
@@ -71,11 +67,6 @@ r5js.UnboundVariable = function(name) {
     return 'unbound variable ' + name;
   };
 };
-
-
-/** @override */
-r5js.UnboundVariable.prototype.getShortName =
-    goog.functions.constant('UnboundVariable');
 
 
 /** @override */
@@ -107,11 +98,6 @@ r5js.TooFewVarargs.prototype.toString = function() {
       ', got ' +
       this.actualNumArgs_;
 };
-
-
-/** @override */
-r5js.TooFewVarargs.prototype.getShortName =
-    goog.functions.constant('TooFewVarargs');
 
 
 /** @override */
@@ -154,11 +140,6 @@ r5js.TooManyVarargs.prototype.toString = function() {
 
 
 /** @override */
-r5js.TooManyVarargs.prototype.getShortName =
-    goog.functions.constant('TooManyVarargs');
-
-
-/** @override */
 r5js.TooManyVarargs.prototype.equals = function(other) {
   if (!(other instanceof r5js.TooManyVarargs)) {
     return false;
@@ -197,11 +178,6 @@ r5js.IncorrectNumArgs.prototype.toString = function() {
 
 
 /** @override */
-r5js.IncorrectNumArgs.prototype.getShortName =
-    goog.functions.constant('IncorrectNumArgs');
-
-
-/** @override */
 r5js.IncorrectNumArgs.prototype.equals = function(other) {
   if (!(other instanceof r5js.IncorrectNumArgs)) {
     return false;
@@ -225,11 +201,6 @@ r5js.InternalInterpreterError = function(msg) {
     return msg;
   };
 };
-
-
-/** @override */
-r5js.InternalInterpreterError.prototype.getShortName =
-    goog.functions.constant('InternalInterpreterError');
 
 
 /** @override */
@@ -273,11 +244,6 @@ r5js.ArgumentTypeError.prototype.toString = function() {
 
 
 /** @override */
-r5js.ArgumentTypeError.prototype.getShortName =
-    goog.functions.constant('ArgumentTypeError');
-
-
-/** @override */
 r5js.ArgumentTypeError.prototype.equals = function(other) {
   if (!(other instanceof r5js.ArgumentTypeError)) {
     return false;
@@ -312,11 +278,6 @@ r5js.MacroError = function(keyword, msg) {
 
 
 /** @override */
-r5js.MacroError.prototype.getShortName =
-    goog.functions.constant('r5js.MacroError');
-
-
-/** @override */
 r5js.MacroError.prototype.equals = goog.functions.FALSE;
 
 
@@ -336,11 +297,6 @@ r5js.UnimplementedOptionError = function(what) {
 r5js.UnimplementedOptionError.prototype.toString = function() {
   return 'unimplemented optional procedure: ' + this.what_;
 };
-
-
-/** @override */
-r5js.UnimplementedOptionError.prototype.getShortName =
-    goog.functions.constant('UnimplementedOptionError');
 
 
 /** @override */
@@ -364,10 +320,6 @@ r5js.IOError = function(what) {
 
 
 /** @override */
-r5js.IOError.prototype.getShortName = goog.functions.constant('IOError');
-
-
-/** @override */
 r5js.IOError.prototype.equals = goog.functions.FALSE;
 
 
@@ -385,11 +337,6 @@ r5js.QuasiquoteError = function(what) {
     return 'quasiquote error: ' + what;
   };
 };
-
-
-/** @override */
-r5js.QuasiquoteError.prototype.getShortName =
-    goog.functions.constant('QuasiquoteError');
 
 
 /** @override */
@@ -412,11 +359,6 @@ r5js.IllegalEmptyApplication = function(where) {
 
 
 /** @override */
-r5js.IllegalEmptyApplication.prototype.getShortName =
-    goog.functions.constant('IllegalEmptyApplication');
-
-
-/** @override */
 r5js.IllegalEmptyApplication.prototype.equals = goog.functions.FALSE;
 
 
@@ -433,10 +375,6 @@ r5js.ParseError = function(what) {
     return 'parse error on ' + what;
   };
 };
-
-
-/** @override */
-r5js.ParseError.prototype.getShortName = goog.functions.constant('ParseError');
 
 
 /** @override */
@@ -459,10 +397,6 @@ r5js.ReadError = function(token) {
 r5js.ReadError.prototype.toString = function() {
   return 'read error: ' + this.token_;
 };
-
-
-/** @override */
-r5js.ReadError.prototype.getShortName = goog.functions.constant('ReadError');
 
 
 /** @override */
@@ -489,10 +423,6 @@ r5js.EvalError = function(what) {
 
 
 /** @override */
-r5js.EvalError.prototype.getShortName = goog.functions.constant('EvalError');
-
-
-/** @override */
 r5js.EvalError.prototype.equals = goog.functions.FALSE;
 
 
@@ -508,11 +438,6 @@ r5js.ImmutableError = function(what) {
     return 'cannot mutate immutable object: ' + what;
   };
 };
-
-
-/** @override */
-r5js.ImmutableError.prototype.getShortName =
-    goog.functions.constant('ImmutableError');
 
 
 /** @override */
@@ -538,7 +463,3 @@ r5js.ScanError = function(what) {
 
 /** @override */
 r5js.ScanError.prototype.equals = goog.functions.FALSE;
-
-
-/** @override */
-r5js.ScanError.prototype.getShortName = goog.functions.constant('ScanError');
