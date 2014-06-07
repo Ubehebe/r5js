@@ -68,10 +68,31 @@ r5js.js.Environment.prototype.newOutputPort = function(name) {};
 r5js.js.Environment.prototype.getTerminal = function(evaluator) {};
 
 
-/** @return {!r5js.js.Environment} */
+/**
+ * @define {string} The environment that the application expects to be running
+ * under. This should only be used in one place: {@link r5js.js.Environment#get}.
+ */
+goog.define('r5js.PLATFORM', 'html5');
+
+
+/**
+ * @return {!r5js.js.Environment}
+ * @suppress {missingReturn} because adding a default case defeats
+ * the compiler's dead code elimination. See comment in function body.
+ */
 r5js.js.Environment.get = function() {
-  var isNode = typeof XMLHttpRequest === 'undefined';
-  return isNode ?
-      new r5js.js.NodeEnvironment() :
-      new r5js.js.Html5Environment(arguments[0] /* TODO bl improve */);
+  // Because the Closure Compiler does aggressive dead code elimination,
+  // this switch is effectively evaluated at compile time, not runtime.
+  // r5js.ARCH can be defined as a command-line flag to the compiler,
+  // so the switch simplifies to string literal comparisons, which can be done
+  // by the compiler.
+  // Note: small changes in this function (for example, adding a default case)
+  // can defeat the compiler's dead code elimination. Modify with care
+  // and ensure the size of the compiled JS makes sense.
+  switch (r5js.PLATFORM) {
+    case 'html5':
+      return new r5js.js.Html5Environment(arguments[0] /* TODO bl improve */);
+    case 'node':
+      return new r5js.js.NodeEnvironment();
+  }
 };

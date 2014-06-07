@@ -141,6 +141,7 @@ compile-tests:
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
 		--closure_entry_point=$(test_main_class) \
+		--define r5js.PLATFORM=\'node\' \
 		--externs=externs/buffer.js \
 		--externs=externs/core.js \
 		--externs=externs/events.js \
