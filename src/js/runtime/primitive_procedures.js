@@ -17,7 +17,6 @@ goog.provide('r5js.PrimitiveProcedures');
 
 
 goog.require('goog.log');
-goog.require('goog.object');
 goog.require('r5js.CallWithCurrentContinuation');
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.CdrHelper');
@@ -1044,9 +1043,8 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
  * @suppress {accessControls|checkTypes} TODO bl
  */
 r5js.PrimitiveProcedures.getActualType_ = function(arg) {
-  var types = goog.object.getValues(r5js.DatumType);
-  for (var i = 0; i < types.length; ++i) {
-    var type = types[i];
+  for (var typeName in r5js.DatumType) {
+    var type = r5js.DatumType[typeName];
     var predicateName = type + '?';
     if (predicateName in r5js.PrimitiveProcedures.registry_ &&
             r5js.PrimitiveProcedures.registry_[predicateName].fn_.call(
