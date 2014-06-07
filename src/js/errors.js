@@ -516,7 +516,10 @@ r5js.ImmutableError.prototype.getShortName =
 
 
 /** @override */
-r5js.ImmutableError.prototype.equals = goog.functions.FALSE;
+r5js.ImmutableError.prototype.equals = function(other) {
+  // TODO bl: for now, all instances are considered equal
+  return other instanceof r5js.ImmutableError;
+};
 
 
 
