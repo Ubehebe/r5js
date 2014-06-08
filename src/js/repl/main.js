@@ -31,13 +31,18 @@ r5js.repl.main = function() {
       null, goog.array.toArray(arguments));
   r5js.test.SchemeSources.get(platform.fetchUrl.bind(platform)).
       then(function(sources) {
-        var evaluator = r5js.boot(sources.syntax, sources.procedures);
-        var terminal = platform.getTerminal(
-            evaluator.willParse.bind(evaluator));
-        var stdin = r5js.InputPort.NULL;
-        var stdout = new r5js.R5RSCompliantOutputPort(
-            terminal.print.bind(terminal));
-        new r5js.Repl(terminal, evaluator.withPorts(stdin, stdout)).start();
+        // Forward-declare the terminal, since it needs the evaluator
+        // to be constructed (to tell if the current input line is complete).
+        /** @type {r5js.Terminal} */ var terminal;
+        var evaluator = r5js.boot(
+            sources.syntax,
+            sources.procedures,
+            r5js.InputPort.NULL,
+            new r5js.R5RSCompliantOutputPort(function(output) {
+              terminal.print(output);
+            }));
+        terminal = platform.getTerminal(evaluator.willParse.bind(evaluator));
+        new r5js.Repl(terminal, evaluator).start();
       });
 };
 
