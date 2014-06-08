@@ -67,8 +67,8 @@ r5js.test.main = function(opt_argv, opt_env) {
 r5js.test.main1 = function(testConfig) {
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
-  var jsEnv = r5js.Platform.get();
-  r5js.test.SchemeSources.get(jsEnv.fetchUrl.bind(jsEnv)).
+  var platform = r5js.Platform.get();
+  r5js.test.SchemeSources.get(platform.fetchUrl.bind(platform)).
       then(function(sources) {
         var evaluator = r5js.test.getEvaluator_(sources);
         r5js.test.getTestSuites_(evaluator, sources).
@@ -77,7 +77,7 @@ r5js.test.main1 = function(testConfig) {
             });
         runner.run().then(function(result) {
           console.log(result.toString());
-          jsEnv.exit(
+          platform.exit(
               result.getNumFailed() + result.getNumExceptions() === 0 ? 0 : 1);
         });
       });

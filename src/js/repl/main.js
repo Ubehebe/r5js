@@ -27,12 +27,12 @@ goog.require('r5js.test.SchemeSources');
 
 /** The main REPL method. */
 r5js.repl.main = function() {
-  var jsEnv = r5js.Platform.get.apply(
+  var platform = r5js.Platform.get.apply(
       null, goog.array.toArray(arguments));
-  r5js.test.SchemeSources.get(jsEnv.fetchUrl.bind(jsEnv)).
+  r5js.test.SchemeSources.get(platform.fetchUrl.bind(platform)).
       then(function(sources) {
         var evaluator = r5js.boot(sources.syntax, sources.procedures);
-        var terminal = jsEnv.getTerminal(evaluator);
+        var terminal = platform.getTerminal(evaluator);
         var stdin = r5js.InputPort.NULL;
         var stdout = new r5js.R5RSCompliantOutputPort(
             terminal.print.bind(terminal));
