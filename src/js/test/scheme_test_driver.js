@@ -30,7 +30,7 @@ goog.require('tdd.ResultStruct');
 
 /**
  * Driver for running the unit tests written in Scheme.
- * @param {!r5js.Evaluator} evaluator
+ * @param {!r5js.sync.Evaluator} evaluator
  * @param {!r5js.test.SchemeSources} sources
  * @extends {tdd.ManualTestSuite}
  * @struct
@@ -175,7 +175,7 @@ r5js.test.SchemeTestDriver.jsValueToFailureMessage_ = function(output) {
 
 
 /**
- * @param {!r5js.Evaluator} evaluator
+ * @param {!r5js.sync.Evaluator} evaluator
  * @param {!r5js.test.SchemeSources} sources
  * @extends {tdd.ManualTestSuite}
  * @struct

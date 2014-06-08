@@ -13,19 +13,20 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.Evaluator');
+goog.provide('r5js.sync.Evaluator');
 
 
 
 /** @interface */
-r5js.Evaluator = function() {};
+r5js.sync.Evaluator = function() {};
 
 
 /**
  * @param {string} input
- * @return {!goog.Promise.<!r5js.runtime.Value>}
+ * @return {!r5js.runtime.Value}
+ * @throws {!r5js.Error}
  */
-r5js.Evaluator.prototype.evaluate = function(input) {};
+r5js.sync.Evaluator.prototype.evaluate = function(input) {};
 
 
 /**
@@ -36,6 +37,14 @@ r5js.Evaluator.prototype.evaluate = function(input) {};
  * This method arguably belongs in {@link r5js.Repl}, but keeping it here
  * exposes less of the evaluator's guts.
  * @param {string} input
- * @return {!goog.Promise.<boolean>} Whether input parses successfully.
+ * @return {boolean} Whether input parses successfully.
  */
-r5js.Evaluator.prototype.willParse = function(input) {};
+r5js.sync.Evaluator.prototype.willParse = function(input) {};
+
+
+/**
+ * @param {!r5js.InputPort} inputPort
+ * @param {!r5js.OutputPort} outputPort
+ * @return {!r5js.sync.Evaluator} A new evaluator connected to the given ports.
+ */
+r5js.sync.Evaluator.prototype.withPorts = function(inputPort, outputPort) {};

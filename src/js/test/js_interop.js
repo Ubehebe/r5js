@@ -20,13 +20,12 @@ goog.setTestOnly('r5js.test.JsInterop');
 goog.require('Throw');
 goog.require('expect');
 goog.require('goog.functions');
-goog.require('r5js.DatumType');
 goog.require('haveJsOutput');
 goog.require('haveJsValue');
-goog.require('r5js.parse.Terminals');
 goog.require('haveStringOutput');
 goog.require('haveStringValue');
 goog.require('r5js.ArgumentTypeError');
+goog.require('r5js.DatumType');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.ReadError');
@@ -34,6 +33,7 @@ goog.require('r5js.TooFewVarargs');
 goog.require('r5js.TooManyVarargs');
 goog.require('r5js.UnboundVariable');
 goog.require('r5js.UnimplementedOptionError');
+goog.require('r5js.parse.Terminals');
 goog.require('r5js.test.matchers.setSharedEvaluator');
 goog.require('tdd.TestType');
 
@@ -41,7 +41,7 @@ goog.require('tdd.TestType');
 
 /**
  * Tests exercising Scheme->JavaScript interoperability.
- * @param {!r5js.Evaluator} evaluator
+ * @param {!r5js.sync.Evaluator} evaluator
  * @implements {tdd.TestSuite}
  * @struct
  * @constructor

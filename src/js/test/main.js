@@ -114,20 +114,21 @@ r5js.test.parseSandbox = function(text) {
 
 /** @param {string} text Text to parse. */
 r5js.test.evalSandbox = function(text) {
-  r5js.test.SchemeSources.get(goog.labs.net.xhr.get).then(function(sources) {
-    var publicApi = r5js.test.getEvaluator_(sources);
-    console.log(r5js.EvalAdapter.toDisplayString(publicApi.evaluate(text)));
-  });
+  r5js.test.SchemeSources.get(goog.labs.net.xhr.get).
+      then(r5js.test.getEvaluator_).
+      then(function(evaluator) { return evaluator.evaluate(text); }).
+      then(r5js.EvalAdapter.toDisplayString).
+      then(function(displayString) { console.log(displayString); });
 };
 
 
-/** @private {r5js.Evaluator} */
+/** @private {r5js.sync.Evaluator} */
 r5js.test.evaluator_ = null;
 
 
 /**
  * @param {!r5js.test.SchemeSources} sources
- * @return {!r5js.Evaluator}
+ * @return {!r5js.sync.Evaluator}
  * @private
  */
 r5js.test.getEvaluator_ = function(sources) {
@@ -143,7 +144,7 @@ r5js.test.getEvaluator_ = function(sources) {
 
 
 /**
- * @param {!r5js.Evaluator} evaluator
+ * @param {!r5js.sync.Evaluator} evaluator
  * @param {!r5js.test.SchemeSources} sources
  * @return {!Array.<!tdd.TestSuite>}
  * @private

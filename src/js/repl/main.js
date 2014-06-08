@@ -17,6 +17,7 @@ goog.provide('r5js.repl.main');
 
 
 goog.require('goog.array');
+goog.require('r5js.EvaluatorImpl');
 goog.require('r5js.InputPort');
 goog.require('r5js.Platform');
 goog.require('r5js.R5RSCompliantOutputPort');
@@ -34,15 +35,16 @@ r5js.repl.main = function() {
         // Forward-declare the terminal, since it needs the evaluator
         // to be constructed (to tell if the current input line is complete).
         /** @type {r5js.Terminal} */ var terminal;
-        var evaluator = r5js.boot(
+        var syncEvaluator = r5js.boot(
             sources.syntax,
             sources.procedures,
             r5js.InputPort.NULL,
             new r5js.R5RSCompliantOutputPort(function(output) {
               terminal.print(output);
             }));
-        terminal = platform.getTerminal(evaluator.willParse.bind(evaluator));
-        new r5js.Repl(terminal, evaluator).start();
+        terminal = platform.getTerminal(
+            syncEvaluator.willParse.bind(syncEvaluator));
+        new r5js.Repl(terminal, new r5js.EvaluatorImpl(syncEvaluator)).start();
       });
 };
 

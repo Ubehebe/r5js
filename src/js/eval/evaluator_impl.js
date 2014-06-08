@@ -17,75 +17,32 @@
 goog.provide('r5js.EvaluatorImpl');
 
 
+goog.require('goog.Promise');
+
+
 
 /**
- * @param {!r5js.Pipeline} pipeline A pipeline object.
- * @param {!r5js.InputPort} inputPort Input port to connect the evaluator to.
- * @param {!r5js.OutputPort} outputPort Output port to connect the evaluator to.
+ * @param {!r5js.sync.Evaluator} evaluator
  * @implements {r5js.Evaluator}
  * @struct
  * @constructor
  */
-r5js.EvaluatorImpl = function(pipeline, inputPort, outputPort) {
-  /** @const @private */ this.pipeline_ = pipeline;
-  /** @const @private */ this.inputPort_ = inputPort;
-  /** @const @private */ this.outputPort_ = outputPort;
+r5js.EvaluatorImpl = function(evaluator) {
+  /** @const @private */ this.evaluator_ = evaluator;
 };
 
 
 /** @override */
 r5js.EvaluatorImpl.prototype.evaluate = function(string) {
-  return this.pipeline_.Eval(
-      this.pipeline_.desugar(
-      this.pipeline_.parse(/** @type {!r5js.Datum} */ (
-      this.pipeline_.read(
-      this.pipeline_.scan(string))))),
-      this.inputPort_,
-      this.outputPort_);
-};
-
-
-/** @override */
-r5js.EvaluatorImpl.prototype.willParse = function(input) {
   try {
-    var tokenStream = this.pipeline_.scan(input);
-    var datum = this.pipeline_.parse(
-        /** @type {!r5js.Datum} */ (this.pipeline_.read(tokenStream)));
-    return !tokenStream.nextToken() && !!datum;
-  } catch (x) {
-    /* If parsing failed, we usually want to wait for another line
-         of input. There's one common exception: unquoted empty lists
-         () and nested versions of the same. If a programmer types ()
-         at the terminal and presses enter, she will be stuck forever:
-         nothing she later types in will make the line buffer parse, and
-         so the terminal will never send the line buffer off for
-         evaluation. As a heuristic, if the parse has not succeeded,
-         we return false unless the number of opening and closing parens
-         is the same. This might not be the right heuristic,
-         but I haven't found a counterexample yet. Note that it's
-         fine to type unquoted empty lists as their own lines as long
-         as they are not the first line: for example the following is
-         fine:
-
-         >> (define-syntax
-         >> foo
-         >> (syntax-rules
-         >> ()
-         >> ((foo f) 'hi)))
-         >> (foo ())
-
-         If we find more of these situations where parsing fails but
-         we should not wait for more input, it might be a better idea
-         to equip the programmer with a button or key to flush the
-         line buffer. */
-    var lparens = input.match(/\(/g);
-    var rparens = input.match(/\)/g);
-    return !!(lparens && rparens && lparens.length === rparens.length);
+    return goog.Promise.resolve(this.evaluator_.evaluate(string));
+  } catch (e) {
+    return goog.Promise.reject(e);
   }
 };
 
 
 /** @override */
-r5js.EvaluatorImpl.prototype.withPorts = function(inputPort, outputPort) {
-  return new r5js.EvaluatorImpl(this.pipeline_, inputPort, outputPort);
+r5js.EvaluatorImpl.prototype.willParse = function(input) {
+  return goog.Promise.resolve(this.evaluator_.willParse(input));
 };

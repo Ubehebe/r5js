@@ -201,7 +201,7 @@ r5js.test.matchers.HasJsOutput_ = function(
 };
 
 
-/** @private {r5js.Evaluator} */
+/** @private {r5js.sync.Evaluator} */
 r5js.test.matchers.HasJsOutput_.sharedEvaluator_;
 
 
@@ -254,7 +254,7 @@ r5js.test.matchers.HasStringOutput_ = function(
 };
 
 
-/** @private {r5js.Evaluator} */
+/** @private {r5js.sync.Evaluator} */
 r5js.test.matchers.HasStringOutput_.sharedEvaluator_;
 
 
@@ -289,7 +289,7 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
 };
 
 
-/** @param {!r5js.Evaluator} evaluator */
+/** @param {!r5js.sync.Evaluator} evaluator */
 r5js.test.matchers.setSharedEvaluator = function(evaluator) {
   r5js.test.matchers.HasJsValue_.sharedEvaluator_ = function(input) {
     return r5js.EvalAdapter.toJsValue(evaluator.evaluate(input));

@@ -45,7 +45,7 @@ r5js.test.matchers.Throws = function(expectedError, evaluator) {
 };
 
 
-/** @type {r5js.Evaluator} */
+/** @type {r5js.sync.Evaluator} */
 r5js.test.matchers.Throws.sharedEvaluator = null;
 
 

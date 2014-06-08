@@ -42,20 +42,21 @@ r5js.Repl.prototype.start = function() {
 
 /** @param {string} inputLine */
 r5js.Repl.prototype.handleInputLine = function(inputLine) {
-  if (!this.evaluator_.willParse(this.awaitingEval_ += inputLine + ' ')) {
+  this.evaluator_.willParse(this.awaitingEval_ += inputLine + ' '
+  ).then(function(ok) {
+    if (ok) {
+      var toEval = this.awaitingEval_;
+      this.awaitingEval_ = '';
+      return this.evaluator_.evaluate(toEval);
+    }
+  }, undefined /* opt_onRejected */, this
+  ).then(r5js.EvalAdapter.toDisplayString
+  ).then(
+      function(displayString) { this.terminal_.print(displayString); },
+      function(error) { this.terminal_.error(error.toString()); },
+      this
+  ).thenAlways(function() {
     this.terminal_.getNextLineOfInput().then(
         this.handleInputLine, undefined /* opt_onRejected */, this);
-    return;
-  }
-  try {
-    var value = r5js.EvalAdapter.toDisplayString(
-        this.evaluator_.evaluate(this.awaitingEval_));
-    this.terminal_.print(value);
-  } catch (e) {
-    this.terminal_.error(e.toString());
-  } finally {
-    this.awaitingEval_ = '';
-    this.terminal_.getNextLineOfInput().then(
-        this.handleInputLine, undefined /* opt_onRejected */, this);
-  }
+  }, this);
 };

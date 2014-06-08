@@ -18,7 +18,6 @@ goog.provide('r5js.boot');
 
 
 goog.require('r5js.Environment');
-goog.require('r5js.EvaluatorImpl');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.ParserImpl');
@@ -27,6 +26,7 @@ goog.require('r5js.Platform');
 goog.require('r5js.PrimitiveProcedures');
 goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
+goog.require('r5js.sync.EvaluatorImpl');
 goog.require('r5js.trampoline');
 
 
@@ -42,7 +42,7 @@ goog.require('r5js.trampoline');
  * @param {!r5js.OutputPort=} opt_outputPort Optional output port that the new
  * evaluator will be connected to. If not given, defaults to
  * {@link r5js.OutputPort.NULL}.
- * @return {!r5js.Evaluator}
+ * @return {!r5js.sync.Evaluator}
  */
 r5js.boot = function(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   var nullEnv = new r5js.Environment(null /* enclosingEnv */);
@@ -75,7 +75,7 @@ r5js.boot = function(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, r5js.Platform.get());
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
-  return new r5js.EvaluatorImpl(
+  return new r5js.sync.EvaluatorImpl(
       new r5js.PipelineImpl(r5RSEnv),
       opt_inputPort || r5js.InputPort.NULL,
       opt_outputPort || r5js.OutputPort.NULL);
