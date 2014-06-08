@@ -24,6 +24,7 @@ r5js.Evaluator = function() {};
 /**
  * @param {string} input
  * @return {!r5js.runtime.Value}
+ * @throws {!r5js.Error}
  */
 r5js.Evaluator.prototype.evaluate = function(input) {};
 
