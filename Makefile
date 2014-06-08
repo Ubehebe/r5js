@@ -35,6 +35,10 @@ test_opts = type=unit verbose
 node_repl_main_class = r5js.repl.main
 node_repl_outfile = $(outdir)/node-repl.js
 
+# Target platform. This corresponds to r5js.PLATFORM in src/js/platform.js.
+# Choices: html5, node.
+PLATFORM = node
+
 # First-time setup: clones submodules, builds compiler, etc.
 .PHONY: setup
 setup:
@@ -141,7 +145,7 @@ compile-tests:
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
 		--closure_entry_point=$(test_main_class) \
-		--define r5js.PLATFORM=\'node\' \
+		--define r5js.PLATFORM=\'$(PLATFORM)\' \
 		--externs=externs/buffer.js \
 		--externs=externs/core.js \
 		--externs=externs/events.js \
