@@ -90,7 +90,7 @@ r5js.platform.Node.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.platform.Node.prototype.getTerminal = function(evaluator) {
+r5js.platform.Node.prototype.getTerminal = function(lineCompleteHandler) {
   return new r5js.platform.Node.Terminal_();
 };
 

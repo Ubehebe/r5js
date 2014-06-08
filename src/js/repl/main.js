@@ -32,7 +32,8 @@ r5js.repl.main = function() {
   r5js.test.SchemeSources.get(platform.fetchUrl.bind(platform)).
       then(function(sources) {
         var evaluator = r5js.boot(sources.syntax, sources.procedures);
-        var terminal = platform.getTerminal(evaluator);
+        var terminal = platform.getTerminal(
+            evaluator.willParse.bind(evaluator));
         var stdin = r5js.InputPort.NULL;
         var stdout = new r5js.R5RSCompliantOutputPort(
             terminal.print.bind(terminal));

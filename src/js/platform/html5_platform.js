@@ -63,10 +63,9 @@ r5js.platform.Html5.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.platform.Html5.prototype.getTerminal = function(evaluator) {
+r5js.platform.Html5.prototype.getTerminal = function(lineCompleteHandler) {
   return new r5js.platform.Html5.Terminal_(
-      this.jqConsole_,
-      function(line) { return evaluator.willParse(line); });
+      this.jqConsole_, lineCompleteHandler);
 };
 
 
