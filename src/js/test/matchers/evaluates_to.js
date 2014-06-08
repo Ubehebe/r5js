@@ -37,7 +37,7 @@ goog.require('r5js.test.matchers.Throws');
  */
 haveJsValue = function(value) {
   return new r5js.test.matchers.HasJsValue_(
-      value, /** @type {!r5js.EvalAdapter.<?>} */ (
+      value, /** @type {function(string):?} */ (
           r5js.test.matchers.HasJsValue_.sharedEvaluator_));
 };
 
@@ -48,7 +48,7 @@ haveJsValue = function(value) {
  */
 haveStringValue = function(value) {
   return new r5js.test.matchers.HasStringValue_(
-      value, /** @type {!r5js.EvalAdapter.<string>} */ (
+      value, /** @type {function(string):string} */ (
           r5js.test.matchers.HasStringValue_.sharedEvaluator_));
 };
 
@@ -80,7 +80,7 @@ haveStringOutput = function(output) {
 
 /**
  * @param {?} expectedValue
- * @param {!r5js.EvalAdapter.<?>} evaluator
+ * @param {function(string):?} evaluator
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
@@ -92,7 +92,7 @@ r5js.test.matchers.HasJsValue_ = function(expectedValue, evaluator) {
 };
 
 
-/** @private {r5js.EvalAdapter.<?>} */
+/** @private {?function(string):?} */
 r5js.test.matchers.HasJsValue_.sharedEvaluator_;
 
 
@@ -100,7 +100,7 @@ r5js.test.matchers.HasJsValue_.sharedEvaluator_;
 r5js.test.matchers.HasJsValue_.prototype.matches = function(input) {
   return r5js.test.matchers.HasJsValue_.equals(
       this.expectedValue_,
-      this.evaluator_.evaluate(/** @type {string} */ (input)));
+      this.evaluator_(/** @type {string} */ (input)));
 };
 
 
@@ -115,7 +115,7 @@ r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(input) {
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      this.evaluator_.evaluate(/** @type {string} */ (input));
+      this.evaluator_(/** @type {string} */ (input));
 };
 
 
@@ -143,7 +143,7 @@ r5js.test.matchers.HasJsValue_.equals = function(x, y) {
 
 /**
  * @param {string} expectedValue
- * @param {!r5js.EvalAdapter.<string>} evaluator
+ * @param {function(string):string} evaluator
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
@@ -155,14 +155,14 @@ r5js.test.matchers.HasStringValue_ = function(expectedValue, evaluator) {
 };
 
 
-/** @private {r5js.EvalAdapter.<string>} */
+/** @private {?function(string):string} */
 r5js.test.matchers.HasStringValue_.sharedEvaluator_;
 
 
 /** @override */
 r5js.test.matchers.HasStringValue_.prototype.matches = function(input) {
   return this.expectedValue_ ===
-      this.evaluator_.evaluate(/** @type {string} */ (input));
+      this.evaluator_(/** @type {string} */ (input));
 };
 
 
@@ -179,7 +179,7 @@ r5js.test.matchers.HasStringValue_.prototype.getFailureMessage =
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      this.evaluator_.evaluate(/** @type {string} */ (input));
+      this.evaluator_(/** @type {string} */ (input));
 };
 
 
@@ -291,12 +291,12 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
 
 /** @param {!r5js.Evaluator} evaluator */
 r5js.test.matchers.setSharedEvaluator = function(evaluator) {
-  r5js.test.matchers.HasJsValue_.sharedEvaluator_ =
-      new r5js.EvalAdapter(
-          evaluator, r5js.EvalAdapter.toJsValue);
-  r5js.test.matchers.HasStringValue_.sharedEvaluator_ =
-      new r5js.EvalAdapter(
-          evaluator, r5js.EvalAdapter.toWriteString);
+  r5js.test.matchers.HasJsValue_.sharedEvaluator_ = function(input) {
+    return r5js.EvalAdapter.toJsValue(evaluator.evaluate(input));
+  };
+  r5js.test.matchers.HasStringValue_.sharedEvaluator_ = function(input) {
+    return r5js.EvalAdapter.toWriteString(evaluator.evaluate(input));
+  };
   r5js.test.matchers.HasJsOutput_.sharedEvaluator_ = evaluator.withPorts(
       r5js.InputPort.NULL, r5js.test.matchers.HasJsOutput_.sharedOutputPort_);
   r5js.test.matchers.HasStringOutput_.sharedEvaluator_ = evaluator.withPorts(
