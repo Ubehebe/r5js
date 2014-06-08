@@ -124,6 +124,7 @@ compile-node-repl:
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
 		--closure_entry_point=$(node_repl_main_class) \
+		--define r5js.PLATFORM=\'node\' \
 		--externs=externs/buffer.js \
 		--externs=externs/core.js \
 		--externs=externs/events.js \
