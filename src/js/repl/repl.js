@@ -16,7 +16,7 @@
 goog.provide('r5js.Repl');
 
 
-goog.require('r5js.EvalAdapter');
+goog.require('r5js.valutil');
 
 
 
@@ -56,7 +56,7 @@ r5js.Repl.prototype.handleInputLine = function(inputLine) {
   this.awaitingEval_ = '';
 
   this.evaluator_.evaluate(toEval
-  ).then(r5js.EvalAdapter.toDisplayString
+  ).then(r5js.valutil.toDisplayString
   ).then(
       function(displayString) { this.terminal_.print(displayString); },
       function(error) { this.terminal_.error(error.toString()); },

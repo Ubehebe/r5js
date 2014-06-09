@@ -26,7 +26,6 @@ goog.setTestOnly('r5js.test.readSandbox');
 
 
 goog.require('goog.log');
-goog.require('r5js.EvalAdapter');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.ParserImpl');
@@ -39,6 +38,7 @@ goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
 goog.require('r5js.test.SchemeSources');
 goog.require('r5js.test.SchemeTestDriver');
+goog.require('r5js.valutil');
 goog.require('tdd.Runner');
 goog.require('tdd.RunnerConfig');
 goog.require('tdd.logTo');
@@ -117,7 +117,7 @@ r5js.test.evalSandbox = function(text) {
   r5js.test.SchemeSources.get(goog.labs.net.xhr.get).
       then(r5js.test.getEvaluator_).
       then(function(evaluator) { return evaluator.evaluate(text); }).
-      then(r5js.EvalAdapter.toDisplayString).
+      then(r5js.valutil.toDisplayString).
       then(function(displayString) { console.log(displayString); });
 };
 

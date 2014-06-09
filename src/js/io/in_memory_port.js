@@ -18,13 +18,13 @@ goog.provide('r5js.InMemoryOutputPort');
 goog.provide('r5js.InMemoryPortBuffer');
 
 
-goog.require('r5js.EvalAdapter');
 goog.require('r5js.IOError');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
+goog.require('r5js.valutil');
 
 
 /** @typedef {!Array.<!r5js.BufferedValue_>} */
@@ -167,7 +167,7 @@ r5js.ValueAndExternalRepresentation_ = function(value) {
   /** @const @private */
   this.value_ = value;
   /** @const @private */
-  this.externalRepresentation_ = r5js.EvalAdapter.toWriteString(value);
+  this.externalRepresentation_ = r5js.valutil.toWriteString(value);
   /** @private */
   this.pos_ = 0;
 };

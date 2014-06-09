@@ -20,7 +20,7 @@ goog.setTestOnly('r5js.test.SchemeTestDriver');
 goog.require('expect');
 goog.require('goog.Promise');
 goog.require('r5js.CallbackBackedPort');
-goog.require('r5js.EvalAdapter');
+goog.require('r5js.valutil');
 goog.require('tdd.LogLevel');
 goog.require('tdd.LogRecord');
 goog.require('tdd.ManualTestSuite');
@@ -121,7 +121,7 @@ goog.inherits(r5js.test.SchemeTestDriver.ResultStruct_, tdd.ResultStruct);
  * Parses a Scheme test framework output like this:
  * (foo-tests (3 tests) (1 errors))
  * into a {@link tdd.ResultStruct}, returning null if the parse failed.
- * Uses {@link r5js.EvalAdapter#toJsValue} to avoid messing with the AST.
+ * Uses {@link r5js.valutil#toJsValue} to avoid messing with the AST.
  * The JavaScript serialization of the above output is this:
  * ["foo-tests", [3, "tests"], [1, "errors"]]
  * @param {!r5js.runtime.Value} output
@@ -129,7 +129,7 @@ goog.inherits(r5js.test.SchemeTestDriver.ResultStruct_, tdd.ResultStruct);
  * @private
  */
 r5js.test.SchemeTestDriver.jsValueToResultStruct_ = function(output) {
-  var jsValue = r5js.EvalAdapter.toJsValue(output);
+  var jsValue = r5js.valutil.toJsValue(output);
   if (jsValue.length === 3 &&
       goog.isString(jsValue[0]) &&
       jsValue[1].length === 2 &&
@@ -154,13 +154,13 @@ r5js.test.SchemeTestDriver.jsValueToResultStruct_ = function(output) {
  * Parses a Scheme test framework output like this:
  * (fail foo-tests (input (+ 1 1)) (want 3) (got 2))
  * into a string, returning null if the parse failed.
- * Uses {@link r5js.EvalAdapter#toWriteString} to avoid messing with the AST.
+ * Uses {@link r5js.valutil#toWriteString} to avoid messing with the AST.
  * @param {!r5js.runtime.Value} output
  * @return {?string}
  * @private
  */
 r5js.test.SchemeTestDriver.jsValueToFailureMessage_ = function(output) {
-  var string = r5js.EvalAdapter.toWriteString(output);
+  var string = r5js.valutil.toWriteString(output);
   var match = /\(fail .+ \(input (.*)\) \(want (.*)\) \(got (.*)\)\)/.
       exec(string);
   if (!match) {

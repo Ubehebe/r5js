@@ -13,7 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.EvalAdapter');
+goog.provide('r5js.valutil');
 
 
 
@@ -45,7 +45,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  * @param {!r5js.runtime.Value} value
  * @return {boolean|number|string|!Array|undefined}
  */
-r5js.EvalAdapter.toJsValue = function(value) {
+r5js.valutil.toJsValue = function(value) {
   switch (typeof value) {
     case 'number':
     case 'boolean':
@@ -55,10 +55,10 @@ r5js.EvalAdapter.toJsValue = function(value) {
       if (value === r5js.runtime.UNSPECIFIED_VALUE) {
         return undefined;
       } else if (value instanceof r5js.Ref) {
-        return r5js.EvalAdapter.toJsValue(value.deref());
+        return r5js.valutil.toJsValue(value.deref());
       } else if (value instanceof r5js.ast.List ||
           value instanceof r5js.ast.Vector) {
-        return value.mapChildren(r5js.EvalAdapter.toJsValue);
+        return value.mapChildren(r5js.valutil.toJsValue);
       } else if (value instanceof r5js.ast.String ||
           value instanceof r5js.ast.Character) {
         return value.getPayload();
@@ -75,8 +75,8 @@ r5js.EvalAdapter.toJsValue = function(value) {
  * @param {!r5js.runtime.Value} value
  * @return {string}
  */
-r5js.EvalAdapter.toDisplayString = function(value) {
-  return r5js.EvalAdapter.toString_(false /* includeSigils */, value);
+r5js.valutil.toDisplayString = function(value) {
+  return r5js.valutil.toString_(false /* includeSigils */, value);
 };
 
 
@@ -84,8 +84,8 @@ r5js.EvalAdapter.toDisplayString = function(value) {
  * @param {!r5js.runtime.Value} value
  * @return {string}
  */
-r5js.EvalAdapter.toWriteString = function(value) {
-  return r5js.EvalAdapter.toString_(true /* includeSigils */, value);
+r5js.valutil.toWriteString = function(value) {
+  return r5js.valutil.toString_(true /* includeSigils */, value);
 };
 
 
@@ -95,7 +95,7 @@ r5js.EvalAdapter.toWriteString = function(value) {
  * @return {string}
  * @private
  */
-r5js.EvalAdapter.toString_ = function(includeSigils, value) {
+r5js.valutil.toString_ = function(includeSigils, value) {
   switch (typeof value) {
     case 'number':
       return value + '';
@@ -109,11 +109,11 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
       } else if (value === r5js.runtime.EOF) {
         return '<eof>';
       } else if (value instanceof r5js.Ref) {
-        return r5js.EvalAdapter.toString_(includeSigils, value.deref());
+        return r5js.valutil.toString_(includeSigils, value.deref());
       } else if (value instanceof r5js.ast.List ||
           value instanceof r5js.ast.DottedList) {
         var children = value.mapChildren(
-            goog.partial(r5js.EvalAdapter.toString_, includeSigils));
+            goog.partial(r5js.valutil.toString_, includeSigils));
         if ((value instanceof r5js.ast.List && value.isImproperList()) ||
             value instanceof r5js.ast.DottedList) {
           children.splice(children.length - 1, 0, r5js.parse.Terminals.DOT);
@@ -123,7 +123,7 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
             r5js.parse.Terminals.RPAREN;
       } else if (value instanceof r5js.ast.Vector) {
         var childStrings = value.mapChildren(
-            goog.partial(r5js.EvalAdapter.toString_, includeSigils)).join(' ');
+            goog.partial(r5js.valutil.toString_, includeSigils)).join(' ');
         return r5js.parse.Terminals.LPAREN_VECTOR +
             childStrings +
             r5js.parse.Terminals.RPAREN;
@@ -146,7 +146,7 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
           return value.getPayload();
         }
       } else if (value instanceof r5js.ast.Quote) {
-        return r5js.parse.Terminals.TICK + r5js.EvalAdapter.toString_(
+        return r5js.parse.Terminals.TICK + r5js.valutil.toString_(
             includeSigils,
             /** @type {!r5js.runtime.Value} */ (value.getFirstChild()));
       } else if (value instanceof r5js.UserDefinedProcedure) {
@@ -158,7 +158,7 @@ r5js.EvalAdapter.toString_ = function(includeSigils, value) {
       } else if (r5js.OutputPort.isImplementedBy(value)) {
         return '<output-port>';
       } else if (value instanceof r5js.Datum) {
-        return r5js.EvalAdapter.toString_(includeSigils, value.unwrap());
+        return r5js.valutil.toString_(includeSigils, value.unwrap());
       } else if (value instanceof r5js.Environment) {
         return '<environment-specifier>';
       }
