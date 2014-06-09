@@ -42,9 +42,11 @@ r5js.repl.main = function() {
             new r5js.R5RSCompliantOutputPort(function(output) {
               terminal.print(output);
             }));
-        terminal = platform.getTerminal(
-            syncEvaluator.willParse.bind(syncEvaluator));
-        new r5js.Repl(terminal, new r5js.EvaluatorImpl(syncEvaluator)).start();
+        var isLineComplete = syncEvaluator.willParse.bind(syncEvaluator);
+        terminal = platform.getTerminal(isLineComplete);
+        new r5js.Repl(
+            terminal, new r5js.EvaluatorImpl(syncEvaluator), isLineComplete).
+            start();
       });
 };
 

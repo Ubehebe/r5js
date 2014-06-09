@@ -40,9 +40,3 @@ r5js.EvaluatorImpl.prototype.evaluate = function(string) {
     return goog.Promise.reject(e);
   }
 };
-
-
-/** @override */
-r5js.EvaluatorImpl.prototype.willParse = function(input) {
-  return goog.Promise.resolve(this.evaluator_.willParse(input));
-};
