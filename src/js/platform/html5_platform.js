@@ -87,14 +87,15 @@ r5js.platform.Html5.Terminal_ = function(jqconsole, isLineComplete) {
 
 /**
  * @param {string} line
- * @return {boolean|number}
+ * @param {!Function} cb
  * @private
- * @see {https://github.com/replit/jq-console} for details on the odd return
+ * @see https://github.com/replit/jq-console for details on the odd return
  * values.
  */
 r5js.platform.Html5.Terminal_.prototype.multilineCallback_ = function(
-    line) {
-  return this.isLineComplete_(line) ? false : 0;
+    line, cb) {
+  goog.Promise.resolve(this.isLineComplete_(line)).
+      then(function(lineComplete) { cb(lineComplete ? false : 0); });
 };
 
 
@@ -107,7 +108,8 @@ r5js.platform.Html5.Terminal_.prototype.getNextLineOfInput = function() {
     this.jqconsole_.Prompt(
         true /* history_enabled */,
         resolve,
-        this.multilineCallback_.bind(this));
+        this.multilineCallback_.bind(this),
+        true /* async_multiline */);
   }, this);
 };
 
