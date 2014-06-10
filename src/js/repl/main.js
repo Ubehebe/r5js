@@ -22,6 +22,7 @@ goog.require('r5js.InputPort');
 goog.require('r5js.Platform');
 goog.require('r5js.R5RSCompliantOutputPort');
 goog.require('r5js.Repl');
+goog.require('r5js.WorkerDriver');
 goog.require('r5js.boot');
 goog.require('r5js.test.SchemeSources');
 
@@ -45,8 +46,9 @@ r5js.repl.main = function() {
         var isLineComplete = syncEvaluator.willParse.bind(syncEvaluator);
         terminal = platform.getTerminal(isLineComplete);
         new r5js.Repl(
-            terminal, new r5js.EvaluatorImpl(syncEvaluator), isLineComplete).
-            start();
+            terminal,
+            new r5js.WorkerDriver('../src/js/eval/worker/worker.js', sources),
+            isLineComplete).start();
       });
 };
 
