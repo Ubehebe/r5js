@@ -43,7 +43,9 @@ r5js.repl.main = function() {
             new r5js.R5RSCompliantOutputPort(function(output) {
               terminal.print(output);
             }));
-        var isLineComplete = syncEvaluator.willParse.bind(syncEvaluator);
+        var isLineComplete = function(line) {
+          return goog.Promise.resolve(syncEvaluator.willParse(line));
+        };
         terminal = platform.getTerminal(isLineComplete);
         new r5js.Repl(
             terminal,

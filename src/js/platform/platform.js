@@ -55,8 +55,8 @@ r5js.Platform.prototype.newOutputPort = function(name) {};
 
 
 /**
- * @param {function(string):boolean} lineCompleteHandler TODO bl:
- * ideally, {@link r5js.Terminal} implementations would be "dumb",
+ * @param {function(string):!goog.Promise.<boolean>} lineCompleteHandler
+ * TODO bl: ideally, {@link r5js.Terminal} implementations would be "dumb",
  * knowing nothing about Scheme. One complication is multiline input,
  * where terminals often show a different prompt if the current line is a
  * continuation of the last line. One of the Terminal implementations,

@@ -23,7 +23,7 @@ goog.require('r5js.valutil');
 /**
  * @param {!r5js.Terminal} terminal
  * @param {!r5js.Evaluator} evaluator
- * @param {function(string): boolean} isLineComplete
+ * @param {function(string): !goog.Promise.<boolean>} isLineComplete
  * @struct
  * @constructor
  */
@@ -44,26 +44,21 @@ r5js.Repl.prototype.start = function() {
 
 /** @param {string} inputLine */
 r5js.Repl.prototype.handleInputLine = function(inputLine) {
-  // It is somewhat odd that isLineComplete_ is synchronous while
-  // the evaluator itself is asynchronous. Consider changing eventually.
-  if (!this.isLineComplete_(this.awaitingEval_ += inputLine + ' ')) {
-    this.terminal_.getNextLineOfInput().then(
-        this.handleInputLine, undefined /* opt_onRejected */, this);
-    return;
-  }
-
-  var toEval = this.awaitingEval_;
-  this.awaitingEval_ = '';
-
-  this.evaluator_.evaluate(toEval
+  this.isLineComplete_(this.awaitingEval_ += inputLine + ' '
+  ).then(function(complete) {
+    if (complete) {
+      var toEval = this.awaitingEval_;
+      this.awaitingEval_ = '';
+      return this.evaluator_.evaluate(toEval);
+    }
+  }, undefined /* opt_onRejected */, this
   ).then(r5js.valutil.toDisplayString
   ).then(
       function(displayString) { this.terminal_.print(displayString); },
       function(error) { this.terminal_.error(error.toString()); },
       this
-  ).then(
-      this.terminal_.getNextLineOfInput,
-      undefined /* opt_onRejected */,
-      this.terminal_
-  ).then(this.handleInputLine, undefined /* opt_onRejected */, this);
+  ).thenAlways(function() {
+    this.terminal_.getNextLineOfInput().then(
+        this.handleInputLine, undefined /* opt_onRejected */, this);
+  }, this);
 };

@@ -72,8 +72,9 @@ r5js.platform.Html5.prototype.getTerminal = function(lineCompleteHandler) {
 
 /**
  * @param {?} jqconsole
- * @param {function(string):boolean} isLineComplete Function to determine
- * if a given line of user input is complete (= ready to be evaluated).
+ * @param {function(string):!goog.Promise.<boolean>} isLineComplete Function
+ * to determine if a given line of user input is complete (= ready to be
+ * evaluated).
  * @implements {r5js.Terminal}
  * @struct
  * @constructor
@@ -94,8 +95,9 @@ r5js.platform.Html5.Terminal_ = function(jqconsole, isLineComplete) {
  */
 r5js.platform.Html5.Terminal_.prototype.multilineCallback_ = function(
     line, cb) {
-  goog.Promise.resolve(this.isLineComplete_(line)).
-      then(function(lineComplete) { cb(lineComplete ? false : 0); });
+  this.isLineComplete_(line).then(function(lineComplete) {
+    cb(lineComplete ? false : 0);
+  });
 };
 
 
