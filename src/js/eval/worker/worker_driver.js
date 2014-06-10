@@ -47,7 +47,6 @@ r5js.WorkerDriver.prototype.evaluate = function(input) {
     var onError = function(e) {
       worker.removeEventListener(
           goog.events.EventType.ERROR, onError, false);
-      debugger;
       reject(e.message);
     };
     worker.addEventListener(
