@@ -16,37 +16,23 @@
 goog.provide('r5js.repl.main');
 
 
+goog.require('goog.Promise');
 goog.require('goog.array');
-goog.require('r5js.EvaluatorImpl');
-goog.require('r5js.InputPort');
 goog.require('r5js.Platform');
-goog.require('r5js.R5RSCompliantOutputPort');
 goog.require('r5js.Repl');
-goog.require('r5js.WorkerDriver');
-goog.require('r5js.test.SchemeSources');
 
 
 /** The main REPL method. */
 r5js.repl.main = function() {
-  var platform = r5js.Platform.get.apply(
-      null, goog.array.toArray(arguments));
-  // Forward-declare the terminal, since it needs the evaluator
-  // to be constructed (to tell if the current input line is complete).
-  /** @type {r5js.Terminal} */ var terminal;
-
-  platform.newSyncEvaluator(
-      r5js.InputPort.NULL,
-      new r5js.R5RSCompliantOutputPort(function(output) {
-        terminal.print(output);
-      })).then(function(syncEvaluator) {
-    var isLineComplete = function(line) {
-      return goog.Promise.resolve(syncEvaluator.willParse(line));
-    };
-    terminal = platform.getTerminal(isLineComplete);
-    new r5js.Repl(
-        terminal,
-        new r5js.WorkerDriver('../src/js/eval/worker/worker.js'),
-        isLineComplete).start();
+  var platform = r5js.Platform.get.apply(null, goog.array.toArray(arguments));
+  platform.newSyncEvaluator().then(function(syncEvaluator) {
+    return platform.newEvaluator().then(function(evaluator) {
+      var isLineComplete = function(line) {
+        return goog.Promise.resolve(syncEvaluator.willParse(line));
+      };
+      var terminal = platform.getTerminal(isLineComplete);
+      new r5js.Repl(terminal, evaluator, isLineComplete).start();
+    });
   });
 };
 
