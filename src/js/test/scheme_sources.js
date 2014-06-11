@@ -22,8 +22,6 @@ goog.require('goog.Promise');
 
 
 /**
- * @param {string} syntax
- * @param {string} procedures
  * @param {string} testFramework
  * @param {string} testFrameworkTests
  * @param {string} r5RSTests
@@ -33,15 +31,11 @@ goog.require('goog.Promise');
  * @constructor
  */
 r5js.test.SchemeSources = function(
-    syntax,
-    procedures,
     testFramework,
     testFrameworkTests,
     r5RSTests,
     negativeTests,
     otherTests) {
-  /** @const */ this.syntax = syntax;
-  /** @const */ this.procedures = procedures;
   /** @const */ this.testFramework = testFramework;
   /** @const */ this.testFrameworkTests = testFrameworkTests;
   /** @const */ this.r5RSTests = r5RSTests;
@@ -63,8 +57,6 @@ r5js.test.SchemeSources.get = function(urlFetcher) {
     return goog.Promise.resolve(r5js.test.SchemeSources.sources_);
   } else {
     return goog.Promise.all([
-      r5js.test.SchemeSources.urls_.SYNTAX,
-      r5js.test.SchemeSources.urls_.PROCEDURES,
       r5js.test.SchemeSources.urls_.TEST_FRAMEWORK,
       r5js.test.SchemeSources.urls_.TEST_FRAMEWORK_TESTS,
       r5js.test.SchemeSources.urls_.R5RS_TESTS,
@@ -79,9 +71,7 @@ r5js.test.SchemeSources.get = function(urlFetcher) {
             sources[1],
             sources[2],
             sources[3],
-            sources[4],
-            sources[5],
-            sources[6]);
+            sources[4]);
       }
       return r5js.test.SchemeSources.sources_;
     });
@@ -94,8 +84,6 @@ r5js.test.SchemeSources.get = function(urlFetcher) {
  * @private
  */
 r5js.test.SchemeSources.urls_ = {
-  SYNTAX: '/src/scm/r5rs-syntax.scm',
-  PROCEDURES: '/src/scm/r5rs-procedures.scm',
   TEST_FRAMEWORK: '/src/scm/unit-test.scm',
   TEST_FRAMEWORK_TESTS: '/src/scm/unit-test-tests.scm',
   R5RS_TESTS: '/src/scm/r5rs-tests.scm',

@@ -19,6 +19,7 @@ goog.provide('r5js.platform.Node');
 goog.require('goog.Promise');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
+goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
 goog.require('r5js.platform.node.Evaluator');
 goog.require('r5js.test.SchemeSources');
@@ -94,7 +95,7 @@ r5js.platform.Node.prototype.newEvaluator = function() {
  */
 r5js.platform.Node.prototype.newSyncEvaluator = function(
     opt_inputPort, opt_outputPort) {
-  return r5js.test.SchemeSources.get(r5js.platform.Node.fetchUrl_)
+  return r5js.SchemeSources.get(r5js.platform.Node.fetchUrl_)
         .then(function(sources) {
         return r5js.boot(
             sources.syntax,
