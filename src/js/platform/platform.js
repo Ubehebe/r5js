@@ -44,8 +44,13 @@ r5js.Platform.prototype.exit = function(statusCode) {};
 r5js.Platform.prototype.newEvaluator = function() {};
 
 
-/** @return {!goog.Promise.<!r5js.sync.Evaluator>} */
-r5js.Platform.prototype.newSyncEvaluator = function() {};
+/**
+ * @param {!r5js.InputPort=} opt_inputPort
+ * @param {!r5js.OutputPort=} opt_outputPort
+ * @return {!goog.Promise.<!r5js.sync.Evaluator>}
+ */
+r5js.Platform.prototype.newSyncEvaluator = function(
+    opt_inputPort, opt_outputPort) {};
 
 
 /**

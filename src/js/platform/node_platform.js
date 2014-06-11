@@ -82,11 +82,21 @@ r5js.platform.Node.prototype.newEvaluator = function() {
 };
 
 
-/** @override */
-r5js.platform.Node.prototype.newSyncEvaluator = function() {
+/**
+ * @param {!r5js.InputPort=} opt_inputPort
+ * @param {!r5js.OutputPort=} opt_outputPort
+ * @return {!goog.Promise.<!r5js.sync.Evaluator>}
+ * @override TODO bl why is it necessary to repeat the doc?
+ */
+r5js.platform.Node.prototype.newSyncEvaluator = function(
+    opt_inputPort, opt_outputPort) {
   return r5js.test.SchemeSources.get(this.fetchUrl.bind(this))
         .then(function(sources) {
-        return r5js.boot(sources.syntax, sources.procedures);
+        return r5js.boot(
+            sources.syntax,
+            sources.procedures,
+            opt_inputPort,
+            opt_outputPort);
       });
 };
 
