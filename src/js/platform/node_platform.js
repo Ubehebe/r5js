@@ -95,9 +95,10 @@ r5js.platform.Node.prototype.newSyncEvaluator = function(
         return r5js.boot(
             sources.syntax,
             sources.procedures,
+            this,
             opt_inputPort,
             opt_outputPort);
-      });
+      }, undefined /* opt_onRejected */, this);
 };
 
 

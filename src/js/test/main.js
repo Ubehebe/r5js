@@ -143,7 +143,7 @@ r5js.test.getEvaluator_ = function(sources) {
     var stdin = new r5js.InMemoryInputPort(buffer);
     var stdout = new r5js.InMemoryOutputPort(buffer);
     r5js.test.evaluator_ = r5js.boot(
-        sources.syntax, sources.procedures, stdin, stdout);
+        sources.syntax, sources.procedures, r5js.Platform.get(), stdin, stdout);
   }
   return r5js.test.evaluator_;
 };

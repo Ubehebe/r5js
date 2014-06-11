@@ -33,6 +33,7 @@ goog.provide('r5js.Worker');
 
 goog.require('goog.events.EventType');
 goog.require('r5js.boot');
+goog.require('r5js.Platform');
 goog.require('r5js.valutil');
 
 
@@ -58,7 +59,8 @@ r5js.Worker.handleInput_ = function(input) {
  * @private
  */
 r5js.Worker.boot_ = function(sources) {
-  r5js.Worker.evaluator_ = r5js.boot(sources.syntax, sources.procedures);
+  r5js.Worker.evaluator_ = r5js.boot(
+      sources.syntax, sources.procedures, r5js.Platform.get());
 };
 
 addEventListener(goog.events.EventType.MESSAGE, function(e) {

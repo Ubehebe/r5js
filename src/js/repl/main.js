@@ -39,6 +39,7 @@ r5js.repl.main = function() {
         var syncEvaluator = r5js.boot(
             sources.syntax,
             sources.procedures,
+            platform,
             r5js.InputPort.NULL,
             new r5js.R5RSCompliantOutputPort(function(output) {
               terminal.print(output);
