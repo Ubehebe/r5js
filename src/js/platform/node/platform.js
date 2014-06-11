@@ -17,10 +17,10 @@ goog.provide('r5js.platform.Node');
 
 
 goog.require('goog.Promise');
-goog.require('r5js.EvaluatorImpl');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.boot');
+goog.require('r5js.platform.node.Evaluator');
 goog.require('r5js.test.SchemeSources');
 
 
@@ -81,7 +81,7 @@ r5js.platform.Node.prototype.exit = function(statusCode) {
 /** @override */
 r5js.platform.Node.prototype.newEvaluator = function() {
   return this.newSyncEvaluator().then(function(syncEvaluator) {
-    return new r5js.EvaluatorImpl(syncEvaluator);
+    return new r5js.platform.node.Evaluator(syncEvaluator);
   });
 };
 

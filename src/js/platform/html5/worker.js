@@ -29,7 +29,7 @@ importScripts(
 
 // TODO bl: nothing goog.requires this name, but typechecking appears
 // not to work for this file unless it has a goog.provide.
-goog.provide('r5js.Worker');
+goog.provide('r5js.platform.html5.Worker');
 
 goog.require('goog.events.EventType');
 goog.require('r5js.boot');
@@ -38,7 +38,7 @@ goog.require('r5js.valutil');
 
 
 /** @private {goog.Promise.<!r5js.sync.Evaluator>} */
-r5js.Worker.evaluator_;
+r5js.platform.html5.Worker.evaluator_;
 
 
 /**
@@ -47,22 +47,23 @@ r5js.Worker.evaluator_;
  * Note: this can throw an {@link r5js.Error}, which will be caught by
  * the worker's parent.
  */
-r5js.Worker.handleInput_ = function(input) {
-  r5js.Worker.evaluator_.then(function(evaluator) {
+r5js.platform.html5.Worker.handleInput_ = function(input) {
+  r5js.platform.html5.Worker.evaluator_.then(function(evaluator) {
     postMessage(r5js.valutil.toDisplayString(evaluator.evaluate(input)));
   });
 };
 
 
 /** @private */
-r5js.Worker.boot_ = function() {
-  r5js.Worker.evaluator_ = r5js.Platform.get().newSyncEvaluator();
+r5js.platform.html5.Worker.boot_ = function() {
+  r5js.platform.html5.Worker.evaluator_ = r5js.Platform.get().
+      newSyncEvaluator();
 };
 
 addEventListener(goog.events.EventType.MESSAGE, function(e) {
   if (goog.isString(e.data)) {
-    r5js.Worker.handleInput_(e.data);
+    r5js.platform.html5.Worker.handleInput_(e.data);
   } else {
-    r5js.Worker.boot_();
+    r5js.platform.html5.Worker.boot_();
   }
 }, false);

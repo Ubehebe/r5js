@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.WorkerDriver');
+goog.provide('r5js.platform.html5.Client');
 
 
 goog.require('goog.Promise');
@@ -28,14 +28,14 @@ goog.require('goog.events.EventType');
  * @struct
  * @constructor
  */
-r5js.WorkerDriver = function(scriptName) {
+r5js.platform.html5.Client = function(scriptName) {
   /** @const @private */ this.worker_ = new Worker(scriptName);
   this.worker_.postMessage(null);
 };
 
 
 /** @override */
-r5js.WorkerDriver.prototype.evaluate = function(input) {
+r5js.platform.html5.Client.prototype.evaluate = function(input) {
   var worker = this.worker_;
   return new goog.Promise(function(resolve, reject) {
     var onMessage = function(e) {

@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.EvaluatorImpl');
+goog.provide('r5js.platform.node.Evaluator');
 
 
 goog.require('goog.Promise');
@@ -27,13 +27,13 @@ goog.require('goog.Promise');
  * @struct
  * @constructor
  */
-r5js.EvaluatorImpl = function(evaluator) {
+r5js.platform.node.Evaluator = function(evaluator) {
   /** @const @private */ this.evaluator_ = evaluator;
 };
 
 
 /** @override */
-r5js.EvaluatorImpl.prototype.evaluate = function(string) {
+r5js.platform.node.Evaluator.prototype.evaluate = function(string) {
   try {
     return goog.Promise.resolve(this.evaluator_.evaluate(string));
   } catch (e) {

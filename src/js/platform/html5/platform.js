@@ -20,8 +20,8 @@ goog.require('goog.Promise');
 goog.require('goog.labs.net.xhr');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
-goog.require('r5js.WorkerDriver');
 goog.require('r5js.boot');
+goog.require('r5js.platform.html5.Client');
 goog.require('r5js.test.SchemeSources');
 
 
@@ -46,7 +46,7 @@ r5js.platform.Html5.prototype.exit = goog.nullFunction;
 /** @override */
 r5js.platform.Html5.prototype.newEvaluator = function() {
   return goog.Promise.resolve(
-      new r5js.WorkerDriver('../src/js/eval/worker/worker.js'));
+      new r5js.platform.html5.Client('../src/js/platform/html5/worker.js'));
 };
 
 
