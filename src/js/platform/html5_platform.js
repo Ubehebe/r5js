@@ -44,10 +44,6 @@ r5js.platform.Html5.prototype.exit = goog.nullFunction;
 
 
 /** @override */
-r5js.platform.Html5.prototype.fetchUrl = goog.labs.net.xhr.get;
-
-
-/** @override */
 r5js.platform.Html5.prototype.newEvaluator = function() {
   return goog.Promise.resolve(
       new r5js.WorkerDriver('../src/js/eval/worker/worker.js'));
@@ -62,7 +58,7 @@ r5js.platform.Html5.prototype.newEvaluator = function() {
  */
 r5js.platform.Html5.prototype.newSyncEvaluator = function(
     opt_inputPort, opt_outputPort) {
-  return r5js.test.SchemeSources.get(this.fetchUrl.bind(this)).
+  return r5js.test.SchemeSources.get(goog.labs.net.xhr.get).
       then(function(sources) {
         return r5js.boot(
             sources.syntax,
@@ -96,6 +92,12 @@ r5js.platform.Html5.prototype.newOutputPort = function(name) {
 r5js.platform.Html5.prototype.getTerminal = function(lineCompleteHandler) {
   return new r5js.platform.Html5.Terminal_(
       this.jqConsole_, lineCompleteHandler);
+};
+
+
+/** @override */
+r5js.platform.Html5.prototype.getTestSources = function() {
+  return r5js.test.SchemeSources.get(goog.labs.net.xhr.get);
 };
 
 

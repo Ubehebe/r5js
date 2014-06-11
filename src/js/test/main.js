@@ -69,19 +69,18 @@ r5js.test.main1 = function(testConfig) {
   var platform = r5js.Platform.get();
 
   r5js.test.getEvaluator_().then(function(evaluator) {
-    r5js.test.SchemeSources.get(platform.fetchUrl.bind(platform)).
-        then(function(sources) {
-          r5js.test.getTestSuites_(evaluator, sources).
-              forEach(function(testSuite) {
-                runner.add(testSuite);
-              });
-          runner.run().then(function(result) {
-            console.log(result.toString());
-            platform.exit(
-                result.getNumFailed() + result.getNumExceptions() === 0 ?
-                    0 : 1);
+    platform.getTestSources().then(function(sources) {
+      r5js.test.getTestSuites_(evaluator, sources).
+          forEach(function(testSuite) {
+            runner.add(testSuite);
           });
-        });
+      runner.run().then(function(result) {
+        console.log(result.toString());
+        platform.exit(
+            result.getNumFailed() + result.getNumExceptions() === 0 ?
+            0 : 1);
+      });
+    });
   });
 };
 

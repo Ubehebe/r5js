@@ -50,8 +50,12 @@ r5js.platform.Node = function() {
 };
 
 
-/** @override */
-r5js.platform.Node.prototype.fetchUrl = function(url) {
+/**
+ * @param {string} url
+ * @return {!goog.Promise.<string>}
+ * @private
+ */
+r5js.platform.Node.fetchUrl_ = function(url) {
   return new goog.Promise(function(resolve, reject) {
     // TODO bl: move this declaration to the top of this file, instead of
     // repeating it in each method that needs it. This will require changing
@@ -90,7 +94,7 @@ r5js.platform.Node.prototype.newEvaluator = function() {
  */
 r5js.platform.Node.prototype.newSyncEvaluator = function(
     opt_inputPort, opt_outputPort) {
-  return r5js.test.SchemeSources.get(this.fetchUrl.bind(this))
+  return r5js.test.SchemeSources.get(r5js.platform.Node.fetchUrl_)
         .then(function(sources) {
         return r5js.boot(
             sources.syntax,
@@ -123,6 +127,12 @@ r5js.platform.Node.prototype.newOutputPort = function(name) {
 /** @override */
 r5js.platform.Node.prototype.getTerminal = function(lineCompleteHandler) {
   return new r5js.platform.Node.Terminal_();
+};
+
+
+/** @override */
+r5js.platform.Node.prototype.getTestSources = function() {
+  return r5js.test.SchemeSources.get(r5js.platform.Node.fetchUrl_);
 };
 
 

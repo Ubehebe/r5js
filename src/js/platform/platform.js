@@ -29,13 +29,6 @@ goog.require('r5js.platform.Node');
 r5js.Platform = function() {};
 
 
-/**
- * @param {string} url
- * @return {!goog.Promise.<string>}
- */
-r5js.Platform.prototype.fetchUrl = function(url) {};
-
-
 /** @param {number} statusCode */
 r5js.Platform.prototype.exit = function(statusCode) {};
 
@@ -79,6 +72,10 @@ r5js.Platform.prototype.newOutputPort = function(name) {};
  * @return {!r5js.Terminal}
  */
 r5js.Platform.prototype.getTerminal = function(lineCompleteHandler) {};
+
+
+/** @return {!goog.Promise.<!r5js.test.SchemeSources>} */
+r5js.Platform.prototype.getTestSources = function() {};
 
 
 /**
