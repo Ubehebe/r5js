@@ -24,14 +24,13 @@ goog.require('goog.events.EventType');
 
 /**
  * @param {string} scriptName
- * @param {!r5js.test.SchemeSources} sources
  * @implements {r5js.Evaluator}
  * @struct
  * @constructor
  */
-r5js.WorkerDriver = function(scriptName, sources) {
+r5js.WorkerDriver = function(scriptName) {
   /** @const @private */ this.worker_ = new Worker(scriptName);
-  this.worker_.postMessage(sources);
+  this.worker_.postMessage(null);
 };
 
 

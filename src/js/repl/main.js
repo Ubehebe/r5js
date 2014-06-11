@@ -39,17 +39,14 @@ r5js.repl.main = function() {
       new r5js.R5RSCompliantOutputPort(function(output) {
         terminal.print(output);
       })).then(function(syncEvaluator) {
-    return r5js.test.SchemeSources.get(platform.fetchUrl.bind(platform)).
-        then(function(sources) {
-          var isLineComplete = function(line) {
-            return goog.Promise.resolve(syncEvaluator.willParse(line));
-          };
-          terminal = platform.getTerminal(isLineComplete);
-          new r5js.Repl(
-             terminal,
-             new r5js.WorkerDriver('../src/js/eval/worker/worker.js', sources),
-             isLineComplete).start();
-        });
+    var isLineComplete = function(line) {
+      return goog.Promise.resolve(syncEvaluator.willParse(line));
+    };
+    terminal = platform.getTerminal(isLineComplete);
+    new r5js.Repl(
+        terminal,
+        new r5js.WorkerDriver('../src/js/eval/worker/worker.js'),
+        isLineComplete).start();
   });
 };
 

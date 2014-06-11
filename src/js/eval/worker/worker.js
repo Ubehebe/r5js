@@ -37,7 +37,7 @@ goog.require('r5js.Platform');
 goog.require('r5js.valutil');
 
 
-/** @private {r5js.sync.Evaluator} */
+/** @private {goog.Promise.<!r5js.sync.Evaluator>} */
 r5js.Worker.evaluator_;
 
 
@@ -48,25 +48,21 @@ r5js.Worker.evaluator_;
  * the worker's parent.
  */
 r5js.Worker.handleInput_ = function(input) {
-  postMessage(
-      r5js.valutil.toDisplayString(
-      r5js.Worker.evaluator_.evaluate(input)));
+  r5js.Worker.evaluator_.then(function(evaluator) {
+    postMessage(r5js.valutil.toDisplayString(evaluator.evaluate(input)));
+  });
 };
 
 
-/**
- * @param {!r5js.test.SchemeSources} sources
- * @private
- */
-r5js.Worker.boot_ = function(sources) {
-  r5js.Worker.evaluator_ = r5js.boot(
-      sources.syntax, sources.procedures, r5js.Platform.get());
+/** @private */
+r5js.Worker.boot_ = function() {
+  r5js.Worker.evaluator_ = r5js.Platform.get().newSyncEvaluator();
 };
 
 addEventListener(goog.events.EventType.MESSAGE, function(e) {
   if (goog.isString(e.data)) {
     r5js.Worker.handleInput_(e.data);
   } else {
-    r5js.Worker.boot_(/** @type {!r5js.test.SchemeSources} */ (e.data));
+    r5js.Worker.boot_();
   }
 }, false);
