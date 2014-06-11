@@ -32,7 +32,6 @@ goog.require('r5js.ParserImpl');
 goog.require('r5js.Platform');
 goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
-goog.require('r5js.boot');
 goog.require('r5js.test.JsInterop');
 goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
@@ -67,12 +66,9 @@ r5js.test.main = function(opt_argv, opt_env) {
 r5js.test.main1 = function(testConfig) {
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
-  var buffer = [];
-  var stdin = new r5js.InMemoryInputPort(buffer);
-  var stdout = new r5js.InMemoryOutputPort(buffer);
   var platform = r5js.Platform.get();
 
-  platform.newSyncEvaluator(stdin, stdout).then(function(evaluator) {
+  r5js.test.getEvaluator_().then(function(evaluator) {
     r5js.test.SchemeSources.get(platform.fetchUrl.bind(platform)).
         then(function(sources) {
           r5js.test.getTestSuites_(evaluator, sources).
@@ -120,30 +116,28 @@ r5js.test.parseSandbox = function(text) {
 
 /** @param {string} text Text to parse. */
 r5js.test.evalSandbox = function(text) {
-  r5js.test.SchemeSources.get(goog.labs.net.xhr.get).
-      then(r5js.test.getEvaluator_).
+  r5js.test.getEvaluator_().
       then(function(evaluator) { return evaluator.evaluate(text); }).
       then(r5js.valutil.toDisplayString).
       then(function(displayString) { console.log(displayString); });
 };
 
 
-/** @private {r5js.sync.Evaluator} */
+/** @private {goog.Promise.<!r5js.sync.Evaluator>} */
 r5js.test.evaluator_ = null;
 
 
 /**
- * @param {!r5js.test.SchemeSources} sources
- * @return {!r5js.sync.Evaluator}
+ * @return {!goog.Promise.<!r5js.sync.Evaluator>}
  * @private
  */
-r5js.test.getEvaluator_ = function(sources) {
+r5js.test.getEvaluator_ = function() {
   if (!r5js.test.evaluator_) {
     var buffer = [];
     var stdin = new r5js.InMemoryInputPort(buffer);
     var stdout = new r5js.InMemoryOutputPort(buffer);
-    r5js.test.evaluator_ = r5js.boot(
-        sources.syntax, sources.procedures, r5js.Platform.get(), stdin, stdout);
+    r5js.test.evaluator_ = r5js.Platform.get().newSyncEvaluator(
+        stdin, stdout);
   }
   return r5js.test.evaluator_;
 };

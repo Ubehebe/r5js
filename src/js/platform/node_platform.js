@@ -18,9 +18,9 @@ goog.provide('r5js.platform.Node');
 
 goog.require('goog.Promise');
 goog.require('r5js.EvaluatorImpl');
-// TODO bl cyclic dependency goog.require('r5js.boot');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
+goog.require('r5js.boot');
 goog.require('r5js.test.SchemeSources');
 
 

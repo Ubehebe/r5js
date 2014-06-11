@@ -21,7 +21,7 @@ goog.require('goog.labs.net.xhr');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.WorkerDriver');
-// TODO bl cyclic dependency goog.require('r5js.boot');
+goog.require('r5js.boot');
 goog.require('r5js.test.SchemeSources');
 
 
