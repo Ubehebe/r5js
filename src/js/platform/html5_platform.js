@@ -20,6 +20,9 @@ goog.require('goog.Promise');
 goog.require('goog.labs.net.xhr');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
+goog.require('r5js.WorkerDriver');
+// TODO bl cyclic dependency goog.require('r5js.boot');
+goog.require('r5js.test.SchemeSources');
 
 
 
@@ -42,6 +45,25 @@ r5js.platform.Html5.prototype.exit = goog.nullFunction;
 
 /** @override */
 r5js.platform.Html5.prototype.fetchUrl = goog.labs.net.xhr.get;
+
+
+/** @override */
+r5js.platform.Html5.prototype.newEvaluator = function() {
+  return r5js.test.SchemeSources.get(this.fetchUrl.bind(this)).
+      then(function(sources) {
+        return new r5js.WorkerDriver(
+           '../src/js/eval/worker/worker.js', sources);
+      });
+};
+
+
+/** @override */
+r5js.platform.Html5.prototype.newSyncEvaluator = function() {
+  return r5js.test.SchemeSources.get(this.fetchUrl.bind(this)).
+      then(function(sources) {
+        return r5js.boot(sources.syntax, sources.procedures);
+      });
+};
 
 
 /** @override */

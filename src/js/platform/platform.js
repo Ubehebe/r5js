@@ -40,6 +40,14 @@ r5js.Platform.prototype.fetchUrl = function(url) {};
 r5js.Platform.prototype.exit = function(statusCode) {};
 
 
+/** @return {!goog.Promise.<!r5js.Evaluator>} */
+r5js.Platform.prototype.newEvaluator = function() {};
+
+
+/** @return {!goog.Promise.<!r5js.sync.Evaluator>} */
+r5js.Platform.prototype.newSyncEvaluator = function() {};
+
+
 /**
  * @param {string} name
  * @return {!r5js.InputPort}
@@ -75,11 +83,7 @@ r5js.Platform.prototype.getTerminal = function(lineCompleteHandler) {};
 goog.define('r5js.PLATFORM', 'html5');
 
 
-/**
- * @return {!r5js.Platform}
- * @suppress {missingReturn} because adding a default case defeats
- * the compiler's dead code elimination. See comment in function body.
- */
+/** @return {!r5js.Platform} */
 r5js.Platform.get = function() {
   // Because the Closure Compiler does aggressive dead code elimination,
   // this switch is effectively evaluated at compile time, not runtime.

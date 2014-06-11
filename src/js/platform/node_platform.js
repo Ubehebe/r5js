@@ -17,8 +17,11 @@ goog.provide('r5js.platform.Node');
 
 
 goog.require('goog.Promise');
+goog.require('r5js.EvaluatorImpl');
+// TODO bl cyclic dependency goog.require('r5js.boot');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
+goog.require('r5js.test.SchemeSources');
 
 
 
@@ -68,6 +71,23 @@ r5js.platform.Node.prototype.fetchUrl = function(url) {
 /** @override */
 r5js.platform.Node.prototype.exit = function(statusCode) {
   process.exit(statusCode);
+};
+
+
+/** @override */
+r5js.platform.Node.prototype.newEvaluator = function() {
+  return this.newSyncEvaluator().then(function(syncEvaluator) {
+    return new r5js.EvaluatorImpl(syncEvaluator);
+  });
+};
+
+
+/** @override */
+r5js.platform.Node.prototype.newSyncEvaluator = function() {
+  return r5js.test.SchemeSources.get(this.fetchUrl.bind(this))
+        .then(function(sources) {
+        return r5js.boot(sources.syntax, sources.procedures);
+      });
 };
 
 
