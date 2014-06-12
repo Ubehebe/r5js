@@ -19,6 +19,7 @@ goog.provide('r5js.platform.html5.Client');
 
 goog.require('goog.Promise');
 goog.require('goog.events.EventType');
+goog.require('r5js.platform.html5.MessageType');
 
 
 
@@ -30,28 +31,64 @@ goog.require('goog.events.EventType');
  */
 r5js.platform.html5.Client = function(scriptName) {
   /** @const @private */ this.worker_ = new Worker(scriptName);
-  this.worker_.postMessage(null);
+
+  this.worker_.addEventListener(
+      goog.events.EventType.MESSAGE, this.onMessage_.bind(this), false);
+
+  /** @private */ this.messageIdCounter_ = 0;
+
+  /** @const @private {!Array.<function(*)>} */
+  this.resolvers_ = [];
+
+  /** @const @private {!Array.<function(*)>}*/
+  this.rejecters_ = [];
+
+  this.worker_.postMessage(r5js.platform.html5.message.boot());
 };
 
 
 /** @override */
 r5js.platform.html5.Client.prototype.evaluate = function(input) {
-  var worker = this.worker_;
   return new goog.Promise(function(resolve, reject) {
-    var onMessage = function(e) {
-      worker.removeEventListener(
-          goog.events.EventType.MESSAGE, onMessage, false);
-      resolve(e.data);
-    };
-    var onError = function(e) {
-      worker.removeEventListener(
-          goog.events.EventType.ERROR, onError, false);
-      reject(e.message);
-    };
-    worker.addEventListener(
-        goog.events.EventType.MESSAGE, onMessage, false);
-    worker.addEventListener(
-        goog.events.EventType.ERROR, onError, false);
-    worker.postMessage(input);
-  });
+    var messageId = this.messageIdCounter_++;
+    this.resolvers_[messageId] = resolve;
+    this.rejecters_[messageId] = reject;
+    this.worker_.postMessage(
+        r5js.platform.html5.message.newEvalRequest(messageId, input));
+  }, this);
+};
+
+
+/**
+ * @param {!Event} e
+ * @private
+ */
+r5js.platform.html5.Client.prototype.onMessage_ = function(e) {
+  e = /** @type {!MessageEvent} */ (e);
+  var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
+  switch (message.type) {
+    case r5js.platform.html5.MessageType.EVAL_RESPONSE:
+      this.resolvers_[message.id](message.content);
+      break;
+    case r5js.platform.html5.MessageType.EVAL_ERROR:
+      this.rejecters_[message.id](message.content);
+      break;
+  }
+  delete this.resolvers_[message.id];
+  delete this.rejecters_[message.id];
+};
+
+
+/**
+ * @param {!MessageEvent} e
+ * @private
+ */
+r5js.platform.html5.Client.prototype.onError_ = function(e) {
+  var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
+  var rejecter = this.rejecters_[message.id];
+  delete this.resolvers_[message.id];
+  delete this.rejecters_[message.id];
+  if (rejecter) {
+    rejecter(message.content);
+  }
 };

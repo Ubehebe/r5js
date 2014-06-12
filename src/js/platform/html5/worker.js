@@ -35,6 +35,7 @@ goog.require('goog.events.EventType');
 goog.require('r5js.boot');
 goog.require('r5js.Platform');
 goog.require('r5js.valutil');
+goog.require('r5js.platform.html5.MessageType');
 
 
 /** @private {goog.Promise.<!r5js.sync.Evaluator>} */
@@ -42,14 +43,23 @@ r5js.platform.html5.Worker.evaluator_;
 
 
 /**
- * @param {string} input
+ * @param {!r5js.platform.html5.Message} message
  * @private
- * Note: this can throw an {@link r5js.Error}, which will be caught by
- * the worker's parent.
  */
-r5js.platform.html5.Worker.handleInput_ = function(input) {
+r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
   r5js.platform.html5.Worker.evaluator_.then(function(evaluator) {
-    postMessage(r5js.valutil.toDisplayString(evaluator.evaluate(input)));
+    var value;
+    try {
+      value = evaluator.evaluate(message.content);
+    } catch (e) {
+      postMessage(
+          r5js.platform.html5.message.newEvalError(message.id, e.toString()));
+      return;
+    }
+    postMessage(
+        r5js.platform.html5.message.newEvalResponse(
+        message.id,
+        r5js.valutil.toDisplayString(value)));
   });
 };
 
@@ -60,10 +70,15 @@ r5js.platform.html5.Worker.boot_ = function() {
       newSyncEvaluator();
 };
 
+
 addEventListener(goog.events.EventType.MESSAGE, function(e) {
-  if (goog.isString(e.data)) {
-    r5js.platform.html5.Worker.handleInput_(e.data);
-  } else {
-    r5js.platform.html5.Worker.boot_();
+  var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
+  switch (message.type) {
+    case r5js.platform.html5.MessageType.BOOT:
+      r5js.platform.html5.Worker.boot_();
+      break;
+    case r5js.platform.html5.MessageType.EVAL_REQUEST:
+      r5js.platform.html5.Worker.handleEvalRequest_(message);
+      break;
   }
 }, false);
