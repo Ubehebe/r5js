@@ -42,8 +42,6 @@ r5js.platform.html5.Client = function(scriptName) {
 
   /** @const @private {!Array.<function(*)>}*/
   this.rejecters_ = [];
-
-  this.worker_.postMessage(r5js.platform.html5.message.boot());
 };
 
 

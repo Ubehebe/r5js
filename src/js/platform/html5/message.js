@@ -45,17 +45,9 @@ r5js.platform.html5.Message = function(type, id, content) {
 
 /** @enum {number} */
 r5js.platform.html5.MessageType = {
-  BOOT: 0,
   EVAL_REQUEST: 1,
   EVAL_RESPONSE: 2,
   EVAL_ERROR: 3
-};
-
-
-/** @return {!r5js.platform.html5.Message} */
-r5js.platform.html5.message.boot = function() {
-  return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.BOOT, 0, '');
 };
 
 
