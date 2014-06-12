@@ -44,10 +44,17 @@ r5js.platform.Html5 = function(jqConsole) {
 r5js.platform.Html5.prototype.exit = goog.nullFunction;
 
 
-/** @override */
-r5js.platform.Html5.prototype.newEvaluator = function() {
+/**
+ * @param {!r5js.InputPort=} opt_inputPort
+ * @param {!r5js.OutputPort=} opt_outputPort
+ * @return {!goog.Promise.<!r5js.Evaluator>}
+ * @override TODO bl why is it necessary to repeat the doc?
+ */
+r5js.platform.Html5.prototype.newEvaluator =
+    function(opt_inputPort, opt_outputPort) {
   return goog.Promise.resolve(
-      new r5js.platform.html5.Client('../src/js/platform/html5/worker.js'));
+      /** @type {!r5js.Evaluator} */(new r5js.platform.html5.Client(
+          '../src/js/platform/html5/worker.js')));
 };
 
 

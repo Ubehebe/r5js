@@ -33,8 +33,13 @@ r5js.Platform = function() {};
 r5js.Platform.prototype.exit = function(statusCode) {};
 
 
-/** @return {!goog.Promise.<!r5js.Evaluator>} */
-r5js.Platform.prototype.newEvaluator = function() {};
+/**
+ * @param {!r5js.InputPort=} opt_inputPort
+ * @param {!r5js.OutputPort=} opt_outputPort
+ * @return {!goog.Promise.<!r5js.Evaluator>}
+ */
+r5js.Platform.prototype.newEvaluator =
+    function(opt_inputPort, opt_outputPort) {};
 
 
 /**

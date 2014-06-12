@@ -79,11 +79,18 @@ r5js.platform.Node.prototype.exit = function(statusCode) {
 };
 
 
-/** @override */
-r5js.platform.Node.prototype.newEvaluator = function() {
-  return this.newSyncEvaluator().then(function(syncEvaluator) {
-    return new r5js.platform.node.Evaluator(syncEvaluator);
-  });
+/**
+ * @param {!r5js.InputPort=} opt_inputPort
+ * @param {!r5js.OutputPort=} opt_outputPort
+ * @return {!goog.Promise.<!r5js.Evaluator>}
+ * @override TODO bl why is it necessary to repeat the doc?
+ */
+r5js.platform.Node.prototype.newEvaluator =
+    function(opt_inputPort, opt_outputPort) {
+  return this.newSyncEvaluator(opt_inputPort, opt_outputPort).
+      then(function(syncEvaluator) {
+        return new r5js.platform.node.Evaluator(syncEvaluator);
+      });
 };
 
 
