@@ -21,6 +21,9 @@ goog.provide('r5js.platform.html5.MessageType');
 goog.provide('r5js.platform.html5.message');
 
 
+goog.require('r5js.valutil');
+
+
 
 /**
  * Structure for messages passed between {@link r5js.platform.html5.Client}
@@ -48,7 +51,9 @@ r5js.platform.html5.MessageType = {
   EVAL_REQUEST: 0,
   EVAL_RESPONSE: 1,
   EVAL_ERROR: 2,
-  OUTPUT: 3
+  WRITE_VALUE: 3,
+  WRITE_CHAR: 4,
+  DISPLAY: 5
 };
 
 
@@ -86,13 +91,36 @@ r5js.platform.html5.message.newEvalError = function(id, errorMsg) {
 
 
 /**
- * @param {string} output
+ * @param {!r5js.runtime.Value} value
  * @return {!r5js.platform.html5.Message}
  */
-r5js.platform.html5.message.newOutput = function(output) {
+r5js.platform.html5.message.writeValue = function(value) {
   return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.OUTPUT, -1, output);
+      r5js.platform.html5.MessageType.WRITE_VALUE, -1,
+      r5js.valutil.toWriteString(value));
 };
+
+
+/**
+ * @param {string} c
+ * @return {!r5js.platform.html5.Message}
+ */
+r5js.platform.html5.message.writeChar = function(c) {
+  return new r5js.platform.html5.Message(
+      r5js.platform.html5.MessageType.WRITE_CHAR, -1, c);
+};
+
+
+/**
+ * @param {!r5js.runtime.Value} value
+ * @return {!r5js.platform.html5.Message}
+ */
+r5js.platform.html5.message.display = function(value) {
+  return new r5js.platform.html5.Message(
+      r5js.platform.html5.MessageType.DISPLAY, -1,
+      r5js.valutil.toDisplayString(value));
+};
+
 
 
 

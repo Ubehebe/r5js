@@ -38,6 +38,7 @@ goog.require('r5js.valutil');
 goog.require('r5js.InputPort');
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.platform.html5.MessageType');
+goog.require('r5js.platform.html5.OutputPort');
 
 
 /** @private {goog.Promise.<!r5js.sync.Evaluator>} */
@@ -67,25 +68,15 @@ r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
 
 
 /**
- * @param {!r5js.runtime.Value} value
- * @private
- */
-r5js.platform.html5.Worker.handleOutput_ = function(value) {
-  postMessage(
-      r5js.platform.html5.message.newOutput(
-      r5js.valutil.toDisplayString(value)));
-};
-
-
-/**
  * @return {!goog.Promise.<!r5js.sync.Evaluator>}
  * @private
  */
 r5js.platform.html5.Worker.getEvaluator_ = function() {
   if (!r5js.platform.html5.Worker.evaluator_) {
     var inputPort = r5js.InputPort.NULL;
-    var outputPort = new r5js.CallbackBackedPort(
-        r5js.platform.html5.Worker.handleOutput_);
+    var outputPort = new r5js.platform.html5.OutputPort(function(value) {
+      postMessage(value);
+    });
     r5js.platform.html5.Worker.evaluator_ = r5js.Platform.get().
             newSyncEvaluator(inputPort, outputPort);
   }

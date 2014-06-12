@@ -74,7 +74,9 @@ r5js.platform.html5.Client.prototype.onMessage_ = function(e) {
     case r5js.platform.html5.MessageType.EVAL_ERROR:
       this.rejecters_[message.id](message.content);
       break;
-    case r5js.platform.html5.MessageType.OUTPUT:
+    case r5js.platform.html5.MessageType.DISPLAY:
+    case r5js.platform.html5.MessageType.WRITE_VALUE:
+    case r5js.platform.html5.MessageType.WRITE_CHAR:
       this.outputPort_.display(message.content);
       return;
   }
