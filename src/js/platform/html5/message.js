@@ -45,9 +45,10 @@ r5js.platform.html5.Message = function(type, id, content) {
 
 /** @enum {number} */
 r5js.platform.html5.MessageType = {
-  EVAL_REQUEST: 1,
-  EVAL_RESPONSE: 2,
-  EVAL_ERROR: 3
+  EVAL_REQUEST: 0,
+  EVAL_RESPONSE: 1,
+  EVAL_ERROR: 2,
+  OUTPUT: 3
 };
 
 
@@ -81,6 +82,16 @@ r5js.platform.html5.message.newEvalResponse = function(id, response) {
 r5js.platform.html5.message.newEvalError = function(id, errorMsg) {
   return new r5js.platform.html5.Message(
       r5js.platform.html5.MessageType.EVAL_ERROR, id, errorMsg);
+};
+
+
+/**
+ * @param {string} output
+ * @return {!r5js.platform.html5.Message}
+ */
+r5js.platform.html5.message.newOutput = function(output) {
+  return new r5js.platform.html5.Message(
+      r5js.platform.html5.MessageType.OUTPUT, -1, output);
 };
 
 

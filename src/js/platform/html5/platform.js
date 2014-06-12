@@ -20,6 +20,7 @@ goog.require('goog.Promise');
 goog.require('goog.labs.net.xhr');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
+goog.require('r5js.OutputPort');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
 goog.require('r5js.platform.html5.Client');
@@ -54,7 +55,8 @@ r5js.platform.Html5.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {
   return goog.Promise.resolve(
       /** @type {!r5js.Evaluator} */(new r5js.platform.html5.Client(
-          '../src/js/platform/html5/worker.js')));
+          '../src/js/platform/html5/worker.js',
+          opt_outputPort || r5js.OutputPort.NULL)));
 };
 
 

@@ -25,12 +25,15 @@ goog.require('r5js.platform.html5.MessageType');
 
 /**
  * @param {string} scriptName
+ * @param {!r5js.OutputPort} outputPort
  * @implements {r5js.Evaluator}
  * @struct
  * @constructor
  */
-r5js.platform.html5.Client = function(scriptName) {
+r5js.platform.html5.Client = function(scriptName, outputPort) {
   /** @const @private */ this.worker_ = new Worker(scriptName);
+
+  /** @const @private */ this.outputPort_ = outputPort;
 
   this.worker_.addEventListener(
       goog.events.EventType.MESSAGE, this.onMessage_.bind(this), false);
@@ -71,6 +74,9 @@ r5js.platform.html5.Client.prototype.onMessage_ = function(e) {
     case r5js.platform.html5.MessageType.EVAL_ERROR:
       this.rejecters_[message.id](message.content);
       break;
+    case r5js.platform.html5.MessageType.OUTPUT:
+      this.outputPort_.display(message.content);
+      return;
   }
   delete this.resolvers_[message.id];
   delete this.rejecters_[message.id];
