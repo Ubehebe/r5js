@@ -46,10 +46,12 @@ r5js.platform.html5.Worker.evaluator_;
 
 /**
  * @param {!r5js.platform.html5.Message} message
+ * @param {function(!r5js.runtime.Value):?} valueConverter
  * @private
- * @suppress {checkTypes} TODO bl for newEvalResponse
+ * @suppress {checkTypes} TODO bl for newEvalToStringResponse
  */
-r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
+r5js.platform.html5.Worker.handleEvalRequest_ = function(
+    message, valueConverter) {
   r5js.platform.html5.Worker.getEvaluator_().then(function(evaluator) {
     var value;
     try {
@@ -62,7 +64,7 @@ r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
     postMessage(
         r5js.platform.html5.message.newEvalResponse(
         message.id,
-        r5js.valutil.toJsValue(value)));
+        valueConverter(value)));
   });
 };
 
@@ -87,8 +89,13 @@ r5js.platform.html5.Worker.getEvaluator_ = function() {
 addEventListener(goog.events.EventType.MESSAGE, function(e) {
   var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
   switch (message.type) {
-    case r5js.platform.html5.MessageType.EVAL_REQUEST:
-      r5js.platform.html5.Worker.handleEvalRequest_(message);
+    case r5js.platform.html5.MessageType.EVAL_TO_JS_REQUEST:
+      r5js.platform.html5.Worker.handleEvalRequest_(
+          message, r5js.valutil.toJsValue);
+      break;
+    case r5js.platform.html5.MessageType.EVAL_TO_STRING_REQUEST:
+      r5js.platform.html5.Worker.handleEvalRequest_(
+          message, r5js.valutil.toWriteString);
       break;
   }
 }, false);

@@ -49,10 +49,9 @@ r5js.Repl.prototype.handleInputLine = function(inputLine) {
     if (complete) {
       var toEval = this.awaitingEval_;
       this.awaitingEval_ = '';
-      return this.evaluator_.evaluate(toEval);
+      return this.evaluator_.evaluateToString(toEval);
     }
   }, undefined /* opt_onRejected */, this
-  ).then(r5js.valutil.toDisplayString
   ).then(
       function(displayString) { this.terminal_.print(displayString); },
       function(error) { this.terminal_.error(error.toString()); },

@@ -34,10 +34,21 @@ r5js.platform.node.Evaluator = function(evaluator) {
 
 
 /** @override */
-r5js.platform.node.Evaluator.prototype.evaluate = function(string) {
+r5js.platform.node.Evaluator.prototype.evaluateToString = function(input) {
   try {
     return goog.Promise.resolve(
-        r5js.valutil.toJsValue(this.evaluator_.evaluate(string)));
+        r5js.valutil.toWriteString(this.evaluator_.evaluate(input)));
+  } catch (e) {
+    return goog.Promise.reject(e);
+  }
+};
+
+
+/** @override */
+r5js.platform.node.Evaluator.prototype.evaluateToJs = function(input) {
+  try {
+    return goog.Promise.resolve(
+        r5js.valutil.toJsValue(this.evaluator_.evaluate(input)));
   } catch (e) {
     return goog.Promise.reject(e);
   }

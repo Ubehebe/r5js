@@ -49,13 +49,25 @@ r5js.platform.html5.Client = function(scriptName, outputPort) {
 
 
 /** @override */
-r5js.platform.html5.Client.prototype.evaluate = function(input) {
+r5js.platform.html5.Client.prototype.evaluateToString = function(input) {
   return new goog.Promise(function(resolve, reject) {
     var messageId = this.messageIdCounter_++;
     this.resolvers_[messageId] = resolve;
     this.rejecters_[messageId] = reject;
     this.worker_.postMessage(
-        r5js.platform.html5.message.newEvalRequest(messageId, input));
+        r5js.platform.html5.message.newEvalToStringRequest(messageId, input));
+  }, this);
+};
+
+
+/** @override */
+r5js.platform.html5.Client.prototype.evaluateToJs = function(input) {
+  return new goog.Promise(function(resolve, reject) {
+    var messageId = this.messageIdCounter_++;
+    this.resolvers_[messageId] = resolve;
+    this.rejecters_[messageId] = reject;
+    this.worker_.postMessage(
+        r5js.platform.html5.message.newEvalToJsRequest(messageId, input));
   }, this);
 };
 

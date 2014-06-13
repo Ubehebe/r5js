@@ -209,7 +209,7 @@ r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = new r5js.OutputSavingPort(
 
 /** @override */
 r5js.test.matchers.HasJsOutput_.prototype.matches = function(input) {
-  this.evaluator_.evaluate(/** @type {string} */ (input));
+  this.evaluator_.evaluateToJs(/** @type {string} */ (input));
   var actualOutput = this.outputPort_.getAndClearOutput()[0];
   return r5js.test.matchers.HasJsValue_.equals(
       actualOutput, this.expectedOutput_);
@@ -261,7 +261,7 @@ r5js.test.matchers.HasStringOutput_.sharedOutputPort_ =
 
 /** @override */
 r5js.test.matchers.HasStringOutput_.prototype.matches = function(input) {
-  this.evaluator_.evaluate(/** @type {string} */ (input));
+  this.evaluator_.evaluateToString(/** @type {string} */ (input));
   var actualOutput = this.outputPort_.getAndClearOutput()[0];
   return actualOutput === this.expectedOutput_;
 };
