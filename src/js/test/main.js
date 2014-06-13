@@ -69,19 +69,15 @@ r5js.test.main1 = function(testConfig) {
   var platform = r5js.Platform.get();
 
   r5js.test.getEvaluator_().then(function(evaluator) {
-    r5js.test.getSyncEvaluator_().then(function(syncEvaluator) {
-      platform.getTestSources().then(function(sources) {
-        r5js.test.getTestSuites_(evaluator, syncEvaluator, sources).
-            forEach(function(testSuite) {
-              runner.add(testSuite);
-            });
-        runner.run().then(function(result) {
-          console.log(result.toString());
-          platform.exit(
-              result.getNumFailed() + result.getNumExceptions() === 0 ?
-              0 : 1);
+    r5js.test.getTestSuites_(evaluator).
+        forEach(function(testSuite) {
+          runner.add(testSuite);
         });
-      });
+    runner.run().then(function(result) {
+      console.log(result.toString());
+      platform.exit(
+          result.getNumFailed() + result.getNumExceptions() === 0 ?
+              0 : 1);
     });
   });
 };
@@ -165,17 +161,15 @@ r5js.test.getSyncEvaluator_ = function() {
 
 /**
  * @param {!r5js.Evaluator} evaluator
- * @param {!r5js.sync.Evaluator} syncEvaluator
- * @param {!r5js.test.SchemeSources} sources
  * @return {!Array.<!tdd.TestSuite>}
  * @private
  */
-r5js.test.getTestSuites_ = function(evaluator, syncEvaluator, sources) {
+r5js.test.getTestSuites_ = function(evaluator) {
   return [
     new r5js.test.Scanner(),
     new r5js.test.Parser(),
     new r5js.test.JsInterop(evaluator),
-    new r5js.test.SchemeTestDriver(syncEvaluator, sources)
+    new r5js.test.SchemeTestDriver()
   ];
 };
 

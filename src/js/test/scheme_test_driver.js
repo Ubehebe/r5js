@@ -18,6 +18,7 @@ goog.setTestOnly('r5js.test.SchemeTestDriver');
 
 
 goog.require('expect');
+goog.require('r5js.Platform');
 goog.require('goog.Promise');
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.valutil');
@@ -30,18 +31,12 @@ goog.require('tdd.ResultStruct');
 
 /**
  * Driver for running the unit tests written in Scheme.
- * @param {!r5js.sync.Evaluator} evaluator
- * @param {!r5js.test.SchemeSources} sources
  * @extends {tdd.ManualTestSuite}
  * @struct
  * @constructor
  */
-r5js.test.SchemeTestDriver = function(evaluator, sources) {
+r5js.test.SchemeTestDriver = function() {
   goog.base(this);
-  /** @const @private */ this.evaluator_ = evaluator.withPorts(
-      r5js.InputPort.NULL,
-      new r5js.CallbackBackedPort(this.onWrite_.bind(this)));
-  /** @const @private */ this.sources_ = sources;
   /** @private */ this.result_ = new tdd.ResultStruct(0, 0, 0);
   /** @private {goog.log.Logger} */ this.logger_ = null;
 };
@@ -63,16 +58,28 @@ r5js.test.SchemeTestDriver.prototype.toString = function() {
 /** @override */
 r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
   this.logger_ = logger;
-  return new r5js.test.SchemeTestDriver.TestFrameworkTest_(
-      this.evaluator_, this.sources_).execute(logger).then(function(result) {
-    this.result_ = this.result_.merge(result);
-    this.evaluator_.evaluate(
-        this.sources_.testFramework + this.sources_.r5RSTests);
-    this.evaluator_.evaluate(
-        this.sources_.testFramework + this.sources_.negativeTests);
-    this.evaluator_.evaluate(
-        this.sources_.testFramework + this.sources_.otherTests);
-    return this.result_;
+  var platform = r5js.Platform.get();
+
+  return platform.getTestSources().then(function(sources) {
+    var r5RSTests = sources.testFramework + sources.r5RSTests;
+    var negativeTests = sources.testFramework + sources.negativeTests;
+    var otherTests = sources.testFramework + sources.otherTests;
+    return platform.newEvaluator(
+        r5js.InputPort.NULL,
+        new r5js.CallbackBackedPort(this.onWrite_.bind(this)))
+      .then(function(evaluator) {
+          return new r5js.test.SchemeTestDriver.TestFrameworkTest_(sources)
+      .execute(logger)
+      .then(function(result) {
+               this.result_ = this.result_.merge(result);
+             }, undefined /* opt_onRejected */, this)
+      .then(function() { evaluator.evaluateToString(r5RSTests); })
+      .then(function() { evaluator.evaluateToString(negativeTests); })
+      .then(function() { evaluator.evaluateToString(otherTests); })
+      .then(function() {
+               return this.result_;
+             }, undefined /* opt_onRejected */, this);
+        }, undefined /* opt_onRejected */, this);
   }, undefined /* opt_onRejected */, this);
 };
 
@@ -175,19 +182,14 @@ r5js.test.SchemeTestDriver.jsValueToFailureMessage_ = function(output) {
 
 
 /**
- * @param {!r5js.sync.Evaluator} evaluator
  * @param {!r5js.test.SchemeSources} sources
  * @extends {tdd.ManualTestSuite}
  * @struct
  * @constructor
  * @private
  */
-r5js.test.SchemeTestDriver.TestFrameworkTest_ = function(evaluator, sources) {
+r5js.test.SchemeTestDriver.TestFrameworkTest_ = function(sources) {
   goog.base(this);
-  /** @const @private */ this.evaluator_ = evaluator.withPorts(
-      r5js.InputPort.NULL,
-      new r5js.CallbackBackedPort(this.onWrite_.bind(this)));
-
   /** @const @private */ this.sources_ = sources;
   /** @private */
   this.actualResult_ = new r5js.test.SchemeTestDriver.ResultStruct_('', 0, 0);
@@ -244,12 +246,21 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.toString =
 r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.execute =
     function(logger) {
   this.logger_ = logger;
-  this.evaluator_.evaluate(
-      this.sources_.testFramework + this.sources_.testFrameworkTests);
-  var success = r5js.test.SchemeTestDriver.TestFrameworkTest_.resultIsExpected_(
-      this.actualResult_);
-  return goog.Promise.resolve(
-      success ?
-      new tdd.ResultStruct(1, 0, 0) :
-      new tdd.ResultStruct(0, 1, 0));
+  return r5js.Platform.get().newEvaluator(
+      r5js.InputPort.NULL,
+      new r5js.CallbackBackedPort(this.onWrite_.bind(this)))
+      .then(function(evaluator) {
+        return evaluator.evaluateToString(
+           this.sources_.testFramework + this.sources_.testFrameworkTests)
+      .then(function() {
+             return r5js.test.SchemeTestDriver.TestFrameworkTest_.
+             resultIsExpected_(this.actualResult_);
+           }, undefined /* opt_onRejected */, this)
+      .then(function(success) {
+             return goog.Promise.resolve(
+             success ?
+             new tdd.ResultStruct(1, 0, 0) :
+             new tdd.ResultStruct(0, 1, 0));
+           });
+      }, undefined /* opt_onRejected */, this);
 };
