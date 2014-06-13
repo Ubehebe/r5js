@@ -59,6 +59,8 @@ r5js.test.SchemeTestDriver.prototype.toString = function() {
 r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
   this.logger_ = logger;
   var platform = r5js.Platform.get();
+  var result = this.result_;
+  var onWrite = this.onWrite_.bind(this);
 
   return platform.getTestSources().then(function(sources) {
     var r5RSTests = sources.testFramework + sources.r5RSTests;
@@ -66,21 +68,17 @@ r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
     var otherTests = sources.testFramework + sources.otherTests;
     return platform.newEvaluator(
         r5js.InputPort.NULL,
-        new r5js.CallbackBackedPort(this.onWrite_.bind(this)))
+        new r5js.CallbackBackedPort(onWrite))
       .then(function(evaluator) {
           return new r5js.test.SchemeTestDriver.TestFrameworkTest_(sources)
       .execute(logger)
-      .then(function(result) {
-               this.result_ = this.result_.merge(result);
-             }, undefined /* opt_onRejected */, this)
+      .then(function(subresult) { result = result.merge(subresult); })
       .then(function() { evaluator.evaluateToString(r5RSTests); })
       .then(function() { evaluator.evaluateToString(negativeTests); })
       .then(function() { evaluator.evaluateToString(otherTests); })
-      .then(function() {
-               return this.result_;
-             }, undefined /* opt_onRejected */, this);
-        }, undefined /* opt_onRejected */, this);
-  }, undefined /* opt_onRejected */, this);
+      .then(function() { return result; });
+        });
+  });
 };
 
 
