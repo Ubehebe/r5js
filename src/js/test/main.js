@@ -69,16 +69,18 @@ r5js.test.main1 = function(testConfig) {
   var platform = r5js.Platform.get();
 
   r5js.test.getEvaluator_().then(function(evaluator) {
-    platform.getTestSources().then(function(sources) {
-      r5js.test.getTestSuites_(evaluator, sources).
-          forEach(function(testSuite) {
-            runner.add(testSuite);
-          });
-      runner.run().then(function(result) {
-        console.log(result.toString());
-        platform.exit(
-            result.getNumFailed() + result.getNumExceptions() === 0 ?
-            0 : 1);
+    r5js.test.getSyncEvaluator_().then(function(syncEvaluator) {
+      platform.getTestSources().then(function(sources) {
+        r5js.test.getTestSuites_(evaluator, syncEvaluator, sources).
+            forEach(function(testSuite) {
+              runner.add(testSuite);
+            });
+        runner.run().then(function(result) {
+          console.log(result.toString());
+          platform.exit(
+              result.getNumFailed() + result.getNumExceptions() === 0 ?
+              0 : 1);
+        });
       });
     });
   });
@@ -122,12 +124,16 @@ r5js.test.evalSandbox = function(text) {
 };
 
 
-/** @private {goog.Promise.<!r5js.sync.Evaluator>} */
+/** @private {goog.Promise.<!r5js.Evaluator>} */
 r5js.test.evaluator_ = null;
 
 
+/** @private {goog.Promise.<!r5js.sync.Evaluator>} */
+r5js.test.syncEvaluator_ = null;
+
+
 /**
- * @return {!goog.Promise.<!r5js.sync.Evaluator>}
+ * @return {!goog.Promise.<!r5js.Evaluator>}
  * @private
  */
 r5js.test.getEvaluator_ = function() {
@@ -135,7 +141,7 @@ r5js.test.getEvaluator_ = function() {
     var buffer = [];
     var stdin = new r5js.InMemoryInputPort(buffer);
     var stdout = new r5js.InMemoryOutputPort(buffer);
-    r5js.test.evaluator_ = r5js.Platform.get().newSyncEvaluator(
+    r5js.test.evaluator_ = r5js.Platform.get().newEvaluator(
         stdin, stdout);
   }
   return r5js.test.evaluator_;
@@ -143,17 +149,34 @@ r5js.test.getEvaluator_ = function() {
 
 
 /**
- * @param {!r5js.sync.Evaluator} evaluator
+ * @return {!goog.Promise.<!r5js.sync.Evaluator>}
+ * @private
+ */
+r5js.test.getSyncEvaluator_ = function() {
+  if (!r5js.test.syncEvaluator_) {
+    var buffer = [];
+    var stdin = new r5js.InMemoryInputPort(buffer);
+    var stdout = new r5js.InMemoryOutputPort(buffer);
+    r5js.test.syncEvaluator_ = r5js.Platform.get().newSyncEvaluator(
+        stdin, stdout);
+  }
+  return r5js.test.syncEvaluator_;
+};
+
+
+/**
+ * @param {!r5js.Evaluator} evaluator
+ * @param {!r5js.sync.Evaluator} syncEvaluator
  * @param {!r5js.test.SchemeSources} sources
  * @return {!Array.<!tdd.TestSuite>}
  * @private
  */
-r5js.test.getTestSuites_ = function(evaluator, sources) {
+r5js.test.getTestSuites_ = function(evaluator, syncEvaluator, sources) {
   return [
     new r5js.test.Scanner(),
     new r5js.test.Parser(),
     new r5js.test.JsInterop(evaluator),
-    new r5js.test.SchemeTestDriver(evaluator, sources)
+    new r5js.test.SchemeTestDriver(syncEvaluator, sources)
   ];
 };
 

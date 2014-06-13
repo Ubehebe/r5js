@@ -36,7 +36,6 @@ goog.require('r5js.boot');
 goog.require('r5js.Platform');
 goog.require('r5js.valutil');
 goog.require('r5js.InputPort');
-goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.platform.html5.MessageType');
 goog.require('r5js.platform.html5.OutputPort');
 
@@ -48,6 +47,7 @@ r5js.platform.html5.Worker.evaluator_;
 /**
  * @param {!r5js.platform.html5.Message} message
  * @private
+ * @suppress {checkTypes} TODO bl for newEvalResponse
  */
 r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
   r5js.platform.html5.Worker.getEvaluator_().then(function(evaluator) {
@@ -62,7 +62,7 @@ r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
     postMessage(
         r5js.platform.html5.message.newEvalResponse(
         message.id,
-        r5js.valutil.toDisplayString(value)));
+        r5js.valutil.toJsValue(value)));
   });
 };
 

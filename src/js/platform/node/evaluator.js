@@ -18,6 +18,7 @@ goog.provide('r5js.platform.node.Evaluator');
 
 
 goog.require('goog.Promise');
+goog.require('r5js.valutil');
 
 
 
@@ -35,7 +36,8 @@ r5js.platform.node.Evaluator = function(evaluator) {
 /** @override */
 r5js.platform.node.Evaluator.prototype.evaluate = function(string) {
   try {
-    return goog.Promise.resolve(this.evaluator_.evaluate(string));
+    return goog.Promise.resolve(
+        r5js.valutil.toJsValue(this.evaluator_.evaluate(string)));
   } catch (e) {
     return goog.Promise.reject(e);
   }

@@ -36,9 +36,7 @@ goog.require('r5js.valutil');
  * @return {!tdd.matchers.Matcher}
  */
 haveJsValue = function(value) {
-  return new r5js.test.matchers.HasJsValue_(
-      value, /** @type {function(string):?} */ (
-          r5js.test.matchers.HasJsValue_.sharedEvaluator_));
+  return new r5js.test.matchers.HasJsValue_(value);
 };
 
 
@@ -80,42 +78,38 @@ haveStringOutput = function(output) {
 
 /**
  * @param {?} expectedValue
- * @param {function(string):?} evaluator
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
  * @private
  */
-r5js.test.matchers.HasJsValue_ = function(expectedValue, evaluator) {
+r5js.test.matchers.HasJsValue_ = function(expectedValue) {
   /** @const @private */ this.expectedValue_ = expectedValue;
-  /** @const @private */ this.evaluator_ = evaluator;
+  /** @private {?} */ this.actualValue_ = null;
 };
 
 
-/** @private {?function(string):?} */
-r5js.test.matchers.HasJsValue_.sharedEvaluator_;
-
-
 /** @override */
-r5js.test.matchers.HasJsValue_.prototype.matches = function(input) {
+r5js.test.matchers.HasJsValue_.prototype.matches = function(actualValue) {
   return r5js.test.matchers.HasJsValue_.equals(
-      this.expectedValue_,
-      this.evaluator_(/** @type {string} */ (input)));
+      this.expectedValue_, this.actualValue_ = actualValue);
 };
 
 
 /** @override */
-r5js.test.matchers.HasJsValue_.prototype.getSuccessMessage = function(input) {
+r5js.test.matchers.HasJsValue_.prototype.getSuccessMessage = function(
+    actualValue) {
   return 'ok';
 };
 
 
 /** @override */
-r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(input) {
+r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(
+    actualValue) {
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      this.evaluator_(/** @type {string} */ (input));
+      actualValue;
 };
 
 
