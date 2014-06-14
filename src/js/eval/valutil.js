@@ -71,6 +71,89 @@ r5js.valutil.toJsValue = function(value) {
 };
 
 
+/** @typedef {{
+* type: string,
+* value: ?,
+* writeValue: string,
+* displayValue: string
+* }}
+*/
+r5js.JsonValue;
+
+
+/** @const @private {!r5js.JsonValue} */ r5js.UNSPECIFIED_JSON_VALUE_ = {
+  type: 'unspecified',
+  value: undefined,
+  writeValue: '',
+  displayValue: ''
+};
+
+
+/**
+ * Maps Scheme values to idiomatic JSON values:
+ * @param {!r5js.runtime.Value} value
+ * @return {!r5js.JsonValue}
+ */
+r5js.valutil.toJson = function(value) {
+  var type = typeof value;
+  switch (type) {
+    case 'number': // fallthrough
+    case 'boolean':
+      return {
+        type: type,
+        value: value,
+        writeValue: r5js.valutil.toWriteString(value),
+        displayValue: r5js.valutil.toDisplayString(value)
+      };
+    case 'string':
+      return {
+        type: r5js.DatumType.SYMBOL,
+        value: value,
+        writeValue: r5js.valutil.toWriteString(value),
+        displayValue: r5js.valutil.toDisplayString(value)
+      };
+    case 'object':
+      if (value === r5js.runtime.UNSPECIFIED_VALUE) {
+        return r5js.UNSPECIFIED_JSON_VALUE_;
+      } else if (value instanceof r5js.Ref) {
+        return r5js.valutil.toJson(value.deref());
+      } else if (value instanceof r5js.ast.List) {
+        return {
+          type: 'list', // TODO bl not a real Scheme type. Should be PAIR.
+          value: value.mapChildren(r5js.valutil.toJson),
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
+      } else if (value instanceof r5js.ast.Vector) {
+        return {
+          type: r5js.DatumType.VECTOR,
+          value: value.mapChildren(r5js.valutil.toJson),
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
+      } else if (value instanceof r5js.ast.String) {
+        return {
+          type: r5js.DatumType.STRING,
+          value: value.getPayload(),
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
+      } else if (value instanceof r5js.ast.Character) {
+        return {
+          type: r5js.DatumType.CHARACTER,
+          value: value.getPayload(),
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
+      } else if (value instanceof r5js.Datum) {
+        return r5js.valutil.toJson(value.unwrap());
+      }
+    default:
+      return r5js.UNSPECIFIED_JSON_VALUE_;
+  }
+};
+
+
 /**
  * @param {!r5js.runtime.Value} value
  * @return {string}
