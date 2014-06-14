@@ -26,51 +26,6 @@ goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
-/**
- * Maps Scheme values to idiomatic JavaScript values:
- *
- * Scheme strings -> JS strings
- * Scheme numbers -> JS numbers
- * Scheme booleans -> JS booleans
- * Scheme symbols -> JS strings
- * Scheme characters -> JS strings
- * Scheme proper lists -> JS arrays
- * Scheme vectors -> JS arrays
- *
- * This is just intended as a convenience when using the Scheme interpreter
- * from its JavaScript API. The mapping is somewhat arbitrary;
- * the two languages' type systems don't fit exactly. It is also noninjective,
- * so it won't work in the JS -> Scheme direction.
- *
- * @param {!r5js.runtime.Value} value
- * @return {boolean|number|string|!Array|undefined}
- */
-r5js.valutil.toJsValue = function(value) {
-  switch (typeof value) {
-    case 'number':
-    case 'boolean':
-    case 'string':
-      return value;
-    case 'object':
-      if (value === r5js.runtime.UNSPECIFIED_VALUE) {
-        return undefined;
-      } else if (value instanceof r5js.Ref) {
-        return r5js.valutil.toJsValue(value.deref());
-      } else if (value instanceof r5js.ast.List ||
-          value instanceof r5js.ast.Vector) {
-        return value.mapChildren(r5js.valutil.toJsValue);
-      } else if (value instanceof r5js.ast.String ||
-          value instanceof r5js.ast.Character) {
-        return value.getPayload();
-      } else if (value instanceof r5js.Datum) {
-        return value.unwrap();
-      }
-    default:
-      return undefined;
-  }
-};
-
-
 /** @typedef {{
 * type: string,
 * value: ?,
@@ -119,8 +74,15 @@ r5js.valutil.toJson = function(value) {
         return r5js.valutil.toJson(value.deref());
       } else if (value instanceof r5js.ast.List) {
         return {
-          type: 'list', // TODO bl not a real Scheme type. Should be PAIR.
+          type: 'list', // TODO bl not a Scheme value. Should be PAIR.
           value: value.mapChildren(r5js.valutil.toJson),
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
+      } else if (value instanceof r5js.ast.DottedList) {
+        return {
+          type: 'dotted-list', // TODO bl not a Scheme value. Should be PAIR.
+          value: undefined,
           writeValue: r5js.valutil.toWriteString(value),
           displayValue: r5js.valutil.toDisplayString(value)
         };

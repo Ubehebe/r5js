@@ -157,7 +157,7 @@ r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
 
 
 r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
-  this.expect('(+ 1 1)', haveJsValue(2)).
+  return this.expect('(+ 1 1)', haveJsValue(2)).
       //  expect('(+ 1 1)').to(haveStringValue('2'));
       expect('(procedure? procedure?)', haveJsValue(true)).
       //  expect('(procedure? procedure?)').to(haveStringValue('#t'));
@@ -174,20 +174,18 @@ r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
 
 
 r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
-  this.expect('#()', haveJsValue([])).
-      //  expect('#()').to(haveStringValue('#()'));
+  return this.expect('#()', haveJsValue([])).
+      expect('#()', haveStringValue('#()')).
       expect("'()", haveJsValue([])).
-      //  expect("'()").to(haveStringValue('()'));
+      expect("'()", haveStringValue('()')).
       expect("(list '() '() '() '(42))", haveJsValue([[], [], [], [42]])).
-      // expect("(list '() '() '() '(42))").
-      // to(haveStringValue('(() () () (42))'));
+      expect("(list '() '() '() '(42))", haveStringValue('(() () () (42))')).
       expect('(list 1 2 3)', haveJsValue([1, 2, 3])).
-      //  expect('(list 1 2 3)').to(haveStringValue('(1 2 3)'));
+      expect('(list 1 2 3)', haveStringValue('(1 2 3)')).
       expect("(cons 'a (cons 'b (cons 'c '())))", haveJsValue(['a', 'b', 'c'])).
-      done();
-  // expect("(cons 'a (cons 'b (cons 'c '())))").to(haveStringValue('(a b c)'));
-  //  expect("(cons 'a 'b)").not().to(haveJsValue(['a', 'b'])).done();
-  //  expect("(cons 'a 'b)").to(haveStringValue('(a . b)'));
+      expect("(cons 'a (cons 'b (cons 'c '())))", haveStringValue('(a b c)')).
+      //    expect("(cons 'a 'b)").not().to(haveJsValue(['a', 'b'])).done();
+      expect("(cons 'a 'b)", haveStringValue('(a . b)')).done();
 };
 
 
@@ -245,51 +243,47 @@ r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
 //};
 
 
+/** @return {!goog.Promise} */
 r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
-  this.expect('', haveJsValue(undefined)).
-      //  expect('').to(haveStringValue(''));
+  return this.expect('', haveJsValue(undefined)).
+      expect('', haveStringValue('')).
       expect(' ', haveJsValue(undefined)).
-      //  expect(' ').to(haveStringValue(''));
+      expect(' ', haveStringValue('')).
       expect('\n', haveJsValue(undefined)).
-      //  expect('\n').to(haveStringValue(''));
+      expect('\n', haveStringValue('')).
       expect('\t', haveJsValue(undefined)).
-      //  expect('\t').to(haveStringValue(''));
+      expect('\t', haveStringValue('')).
       expect('    \t \n\n\n   ', haveJsValue(undefined)).
-      //  expect('    \t \n\n\n   ').to(haveStringValue(''));
+      expect('    \t \n\n\n   ', haveStringValue('')).
       expect('(define x 1)', haveJsValue(undefined)).
-      //  expect('(define x 1)').to(haveStringValue(''));
+      expect('(define x 1)', haveStringValue('')).
       expect('(define x 1) (set! x 2)', haveJsValue(undefined)).
-      //  expect('(define x 1) (set! x 2)').to(haveStringValue(''));
+      expect('(define x 1) (set! x 2)', haveStringValue('')).
       expect('(define x (cons 1 2)) (set-car! x x)', haveJsValue(undefined)).
-      //  expect('(define x (cons 1 2)) (set-car! x x)').
-      // to(haveStringValue(''));
+      expect('(define x (cons 1 2)) (set-car! x x)', haveStringValue('')).
       expect('(define x (cons 1 2)) (set-cdr! x x)', haveJsValue(undefined)).
-      // expect('(define x (cons 1 2)) (set-cdr! x x)').
-      // to(haveStringValue(''));
+      expect('(define x (cons 1 2)) (set-cdr! x x)', haveStringValue('')).
       expect('(if #f #t)', haveJsValue(undefined)).
-      // expect('(if #f #t)').to(haveStringValue(''));
+      expect('(if #f #t)', haveStringValue('')).
       expect('(write "foo")', haveJsValue(undefined)).
-      // expect('(write "foo")').to(haveStringValue(''));
+      expect('(write "foo")', haveStringValue('')).
       expect('(display 42)', haveJsValue(undefined)).
-      // expect('(display 42)').to(haveStringValue(''));
+      expect('(display 42)', haveStringValue('')).
       expect('(write-char #\\a)', haveJsValue(undefined)).
-      // expect('(write-char #\\a)').to(haveStringValue(''));
+      expect('(write-char #\\a)', haveStringValue('')).
       expect('(close-input-port (current-input-port))', haveJsValue(undefined)).
-      // expect('(close-input-port (current-input-port))').
-      // to(haveStringValue(''));
+      expect('(close-input-port (current-input-port))', haveStringValue('')).
       expect('(close-input-port (open-input-file "foo"))',
           haveJsValue(undefined)).
-      // expect('(close-input-port (open-input-file "foo"))').
-      // to(haveStringValue(''));
+      expect('(close-input-port (open-input-file "foo"))', haveStringValue('')).
       expect('(close-output-port (open-output-file "foo"))',
           haveJsValue(undefined)).
-      // expect('(close-output-port (open-output-file "foo"))').
-      // to(haveStringValue(''));
+      expect('(close-output-port (open-output-file "foo"))',
+          haveStringValue('')).
       expect('(close-output-port (current-output-port))',
           haveJsValue(undefined)).
+      expect('(close-output-port (current-output-port))', haveStringValue('')).
       done();
-  //  expect('(close-output-port (current-output-port))').
-  // to(haveStringValue(''));
 };
 
 //r5js.test.JsInterop.prototype['testErrors'] = function() {
