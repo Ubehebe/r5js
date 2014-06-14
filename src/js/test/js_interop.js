@@ -89,26 +89,26 @@ r5js.test.JsInterop.prototype.done = function() {
 
 r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
   return this.expect('42', haveJsValue(42)).
-      //        expect('42', haveStringValue('42')).
+      expect('42', haveStringValue('42')).
       expect('#t', haveJsValue(true)).
       expect('42', haveJsValue(42)).
-      //  expect('42').to(haveStringValue('42'));
+      expect('42', haveStringValue('42')).
       expect('#t', haveJsValue(true)).
-      //  expect('#t').to(haveStringValue('#t'));
+      expect('#t', haveStringValue('#t')).
       expect('#f', haveJsValue(false)).
-      //  expect('#f').to(haveStringValue('#f'));
+      expect('#f', haveStringValue('#f')).
       expect('"hello, world"', haveJsValue('hello, world')).
-      //  expect('"hello, world"').to(haveStringValue('"hello, world"'));
+      expect('"hello, world"', haveStringValue('"hello, world"')).
       expect("'hello", haveJsValue('hello')).
-      //  expect("'hello").to(haveStringValue('hello'));
+      expect("'hello", haveStringValue('hello')).
       expect('(quote hello)', haveJsValue('hello')).
-      //  expect('(quote hello)').to(haveStringValue('hello'));
+      expect('(quote hello)', haveStringValue('hello')).
       expect('#\\a', haveJsValue('a')).
-      //  expect('#\\a').to(haveStringValue('#\\a'));
+      expect('#\\a', haveStringValue('#\\a')).
       expect('#\\space', haveJsValue(' ')).
-      //  expect('#\\space').to(haveStringValue('#\\space'));
-      expect('#\\newline', haveJsValue('\n')).done();
-  //  expect('#\\newline').to(haveStringValue('#\\newline'));
+      expect('#\\space', haveStringValue('#\\space')).
+      expect('#\\newline', haveJsValue('\n')).
+      expect('#\\newline', haveStringValue('#\\newline')).done();
 };
 
 
@@ -158,18 +158,17 @@ r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
 
 r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
   return this.expect('(+ 1 1)', haveJsValue(2)).
-      //  expect('(+ 1 1)').to(haveStringValue('2'));
+      expect('(+ 1 1)', haveStringValue('2')).
       expect('(procedure? procedure?)', haveJsValue(true)).
-      //  expect('(procedure? procedure?)').to(haveStringValue('#t'));
+      expect('(procedure? procedure?)', haveStringValue('#t')).
       expect('(string-append "hello " "world")', haveJsValue('hello world')).
-      done();
-  //  expect('(string-append "hello " "world")').to(
-  //      haveStringValue('"hello world"'));
-  //  expect("'a").to(haveStringValue('a'));
-  //  expect("''a").to(haveStringValue("'a"));
-  //  expect("'''a").to(haveStringValue("''a"));
-  //  expect("''''a").to(haveStringValue("'''a"));
-  //  expect("'''''a").to(haveStringValue("''''a"));
+      expect('(string-append "hello " "world")',
+              haveStringValue('"hello world"')).
+      expect("'a", haveStringValue('a')).
+      expect("''a", haveStringValue("'a")).
+      expect("'''a", haveStringValue("''a")).
+      expect("''''a", haveStringValue("'''a")).
+      expect("'''''a", haveStringValue("''''a")).done();
 };
 
 

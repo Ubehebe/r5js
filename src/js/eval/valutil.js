@@ -72,6 +72,13 @@ r5js.valutil.toJson = function(value) {
         return r5js.UNSPECIFIED_JSON_VALUE_;
       } else if (value instanceof r5js.Ref) {
         return r5js.valutil.toJson(value.deref());
+      } else if (value instanceof r5js.ast.Quote) {
+        return {
+          type: 'datum', // TODO bl not a Scheme value
+          value: undefined,
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
       } else if (value instanceof r5js.ast.List) {
         return {
           type: 'list', // TODO bl not a Scheme value. Should be PAIR.
