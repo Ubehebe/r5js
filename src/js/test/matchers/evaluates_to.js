@@ -45,9 +45,7 @@ haveJsValue = function(value) {
  * @return {!tdd.matchers.Matcher}
  */
 haveStringValue = function(value) {
-  return new r5js.test.matchers.HasStringValue_(
-      value, /** @type {function(string):string} */ (
-          r5js.test.matchers.HasStringValue_.sharedEvaluator_));
+  return new r5js.test.matchers.HasStringValue_(value);
 };
 
 
@@ -85,14 +83,13 @@ haveStringOutput = function(output) {
  */
 r5js.test.matchers.HasJsValue_ = function(expectedValue) {
   /** @const @private */ this.expectedValue_ = expectedValue;
-  /** @private {?} */ this.actualValue_ = null;
 };
 
 
 /** @override */
 r5js.test.matchers.HasJsValue_.prototype.matches = function(actualValue) {
   return r5js.test.matchers.HasJsValue_.equals(
-      this.expectedValue_, this.actualValue_ = actualValue);
+      this.expectedValue_, actualValue.value);
 };
 
 
@@ -109,7 +106,7 @@ r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      actualValue;
+      (/** @type {!r5js.JsonValue} */ (actualValue)).value;
 };
 
 
@@ -123,7 +120,9 @@ r5js.test.matchers.HasJsValue_.equals = function(x, y) {
   var yIsArray = y instanceof Array;
   if (xIsArray && yIsArray) {
     return x.length === y.length &&
-        goog.array.zip(x, y).every(function(pair) {
+        goog.array.zip(x, y.map(function(jsonValue) {
+          return jsonValue.value;
+        })).every(function(pair) {
           return r5js.test.matchers.HasJsValue_.equals(pair[0], pair[1]);
         });
   } else if (!(xIsArray || yIsArray)) {
@@ -137,26 +136,20 @@ r5js.test.matchers.HasJsValue_.equals = function(x, y) {
 
 /**
  * @param {string} expectedValue
- * @param {function(string):string} evaluator
  * @implements {tdd.matchers.Matcher}
  * @struct
  * @constructor
  * @private
  */
-r5js.test.matchers.HasStringValue_ = function(expectedValue, evaluator) {
+r5js.test.matchers.HasStringValue_ = function(expectedValue) {
   /** @const @private */ this.expectedValue_ = expectedValue;
-  /** @const @private */ this.evaluator_ = evaluator;
 };
-
-
-/** @private {?function(string):string} */
-r5js.test.matchers.HasStringValue_.sharedEvaluator_;
 
 
 /** @override */
 r5js.test.matchers.HasStringValue_.prototype.matches = function(input) {
   return this.expectedValue_ ===
-      this.evaluator_(/** @type {string} */ (input));
+      (/** @type {!r5js.JsonValue} */ (input)).writeValue;
 };
 
 
@@ -173,7 +166,7 @@ r5js.test.matchers.HasStringValue_.prototype.getFailureMessage =
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      this.evaluator_(/** @type {string} */ (input));
+      (/** @type {!r5js.JsonValue} */ (input)).writeValue;
 };
 
 
@@ -208,7 +201,7 @@ r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = new r5js.OutputSavingPort();
 
 /** @override */
 r5js.test.matchers.HasJsOutput_.prototype.matches = function(input) {
-  this.evaluator_.evaluateToJs(/** @type {string} */ (input));
+  this.evaluator_.evaluate(/** @type {string} */ (input));
   var actualOutput = this.outputPort_.getAndClearOutput()[0];
   return r5js.test.matchers.HasJsValue_.equals(
       actualOutput, this.expectedOutput_);
@@ -258,7 +251,7 @@ r5js.test.matchers.HasStringOutput_.sharedOutputPort_ =
 
 /** @override */
 r5js.test.matchers.HasStringOutput_.prototype.matches = function(input) {
-  this.evaluator_.evaluateToString(/** @type {string} */ (input));
+  this.evaluator_.evaluate(/** @type {string} */ (input));
   var actualOutput = this.outputPort_.getAndClearOutput()[0];
   return actualOutput === this.expectedOutput_;
 };
@@ -282,12 +275,6 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
 
 /** @param {!r5js.sync.Evaluator} evaluator */
 r5js.test.matchers.setSharedEvaluator = function(evaluator) {
-  r5js.test.matchers.HasJsValue_.sharedEvaluator_ = function(input) {
-    return r5js.valutil.toJsValue(evaluator.evaluate(input));
-  };
-  r5js.test.matchers.HasStringValue_.sharedEvaluator_ = function(input) {
-    return r5js.valutil.toWriteString(evaluator.evaluate(input));
-  };
   r5js.test.matchers.HasJsOutput_.sharedEvaluator_ = evaluator.withPorts(
       r5js.InputPort.NULL, r5js.test.matchers.HasJsOutput_.sharedOutputPort_);
   r5js.test.matchers.HasStringOutput_.sharedEvaluator_ = evaluator.withPorts(

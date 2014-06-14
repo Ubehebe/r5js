@@ -32,7 +32,7 @@ goog.provide('r5js.platform.html5.message');
  * To avoid several pitfalls (for example, functions can't be serialized),
  * we stick to a simple structure and use type tags.
  * @param {number} id Message id.
- * @param {string} content Message content.
+ * @param {string|!r5js.JsonValue} content Message content.
  * @struct
  * @constructor
  */
@@ -45,13 +45,12 @@ r5js.platform.html5.Message = function(type, id, content) {
 
 /** @enum {number} */
 r5js.platform.html5.MessageType = {
-  EVAL_TO_STRING_REQUEST: 0,
-  EVAL_TO_JS_REQUEST: 1,
-  EVAL_RESPONSE: 2,
-  EVAL_ERROR: 3,
-  WRITE_VALUE: 4,
-  WRITE_CHAR: 5,
-  DISPLAY: 6
+  EVAL_REQUEST: 0,
+  EVAL_RESPONSE: 1,
+  EVAL_ERROR: 2,
+  WRITE_VALUE: 3,
+  WRITE_CHAR: 4,
+  DISPLAY: 5
 };
 
 
@@ -60,31 +59,20 @@ r5js.platform.html5.MessageType = {
  * @param {string} request Message content.
  * @return {!r5js.platform.html5.Message}
  */
-r5js.platform.html5.message.newEvalToStringRequest = function(id, request) {
+r5js.platform.html5.message.newEvalRequest = function(id, request) {
   return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.EVAL_TO_STRING_REQUEST, id, request);
+      r5js.platform.html5.MessageType.EVAL_REQUEST, id, request);
 };
 
 
 /**
  * @param {number} id Message id.
- * @param {string} response Message content.
+ * @param {!r5js.JsonValue} jsonValue Message content.
  * @return {!r5js.platform.html5.Message}
  */
-r5js.platform.html5.message.newEvalResponse = function(id, response) {
+r5js.platform.html5.message.newEvalResponse = function(id, jsonValue) {
   return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.EVAL_RESPONSE, id, response);
-};
-
-
-/**
- * @param {number} id Message id.
- * @param {string} request Message content.
- * @return {!r5js.platform.html5.Message}
- */
-r5js.platform.html5.message.newEvalToJsRequest = function(id, request) {
-  return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.EVAL_TO_JS_REQUEST, id, request);
+      r5js.platform.html5.MessageType.EVAL_RESPONSE, id, jsonValue);
 };
 
 

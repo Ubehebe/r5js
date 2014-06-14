@@ -52,7 +52,8 @@ r5js.test.matchers.Throws.sharedEvaluator = null;
 /** @override */
 r5js.test.matchers.Throws.prototype.matches = function(input) {
   try {
-    this.evaluator_.evaluateToJs(/** @type {string} */ (input));
+    // TODO bl this is async, won't work
+    this.evaluator_.evaluate(/** @type {string} */ (input));
   } catch (e) {
     return this.expectedError_.equals(this.actualError_ = e);
   }

@@ -73,9 +73,9 @@ r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
           return new r5js.test.SchemeTestDriver.TestFrameworkTest_(sources)
       .execute(logger)
       .then(function(subresult) { result = result.merge(subresult); })
-      .then(function() { evaluator.evaluateToString(r5RSTests); })
-      .then(function() { evaluator.evaluateToString(negativeTests); })
-      .then(function() { evaluator.evaluateToString(otherTests); })
+      .then(function() { evaluator.evaluate(r5RSTests); })
+      .then(function() { evaluator.evaluate(negativeTests); })
+      .then(function() { evaluator.evaluate(otherTests); })
       .then(function() { return result; });
         });
   });
@@ -258,7 +258,7 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.execute =
       r5js.InputPort.NULL,
       new r5js.CallbackBackedPort(this.onWrite_.bind(this)))
       .then(function(evaluator) {
-        return evaluator.evaluateToString(
+        return evaluator.evaluate(
            this.sources_.testFramework + this.sources_.testFrameworkTests)
       .then(function() {
              return r5js.test.SchemeTestDriver.TestFrameworkTest_.

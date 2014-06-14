@@ -17,6 +17,9 @@
 goog.provide('r5js.sync.EvaluatorImpl');
 
 
+goog.require('r5js.valutil');
+
+
 
 /**
  * @param {!r5js.Pipeline} pipeline
@@ -35,13 +38,14 @@ r5js.sync.EvaluatorImpl = function(pipeline, inputPort, outputPort) {
 
 /** @override */
 r5js.sync.EvaluatorImpl.prototype.evaluate = function(input) {
-  return this.pipeline_.Eval(
+  return r5js.valutil.toJson(
+      this.pipeline_.Eval(
       this.pipeline_.desugar(
       this.pipeline_.parse(/** @type {!r5js.Datum} */ (
       this.pipeline_.read(
       this.pipeline_.scan(input))))),
       this.inputPort_,
-      this.outputPort_);
+      this.outputPort_));
 };
 
 

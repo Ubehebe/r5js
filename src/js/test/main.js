@@ -114,7 +114,7 @@ r5js.test.parseSandbox = function(text) {
 /** @param {string} text Text to parse. */
 r5js.test.evalSandbox = function(text) {
   r5js.test.getEvaluator_().
-      then(function(evaluator) { return evaluator.evaluateToString(text); }).
+      then(function(evaluator) { return evaluator.evaluate(text); }).
       then(function(displayString) { console.log(displayString); });
 };
 

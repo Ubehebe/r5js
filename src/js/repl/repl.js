@@ -49,11 +49,11 @@ r5js.Repl.prototype.handleInputLine = function(inputLine) {
     if (complete) {
       var toEval = this.awaitingEval_;
       this.awaitingEval_ = '';
-      return this.evaluator_.evaluateToString(toEval);
+      return this.evaluator_.evaluate(toEval);
     }
   }, undefined /* opt_onRejected */, this
   ).then(
-      function(displayString) { this.terminal_.print(displayString); },
+      function(jsonValue) { this.terminal_.print(jsonValue.writeValue); },
       function(error) { this.terminal_.error(error.toString()); },
       this
   ).thenAlways(function() {

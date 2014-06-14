@@ -18,7 +18,6 @@ goog.provide('r5js.platform.node.Evaluator');
 
 
 goog.require('goog.Promise');
-goog.require('r5js.valutil');
 
 
 
@@ -34,21 +33,9 @@ r5js.platform.node.Evaluator = function(evaluator) {
 
 
 /** @override */
-r5js.platform.node.Evaluator.prototype.evaluateToString = function(input) {
+r5js.platform.node.Evaluator.prototype.evaluate = function(input) {
   try {
-    return goog.Promise.resolve(
-        r5js.valutil.toWriteString(this.evaluator_.evaluate(input)));
-  } catch (e) {
-    return goog.Promise.reject(e);
-  }
-};
-
-
-/** @override */
-r5js.platform.node.Evaluator.prototype.evaluateToJs = function(input) {
-  try {
-    return goog.Promise.resolve(
-        r5js.valutil.toJsValue(this.evaluator_.evaluate(input)));
+    return goog.Promise.resolve(this.evaluator_.evaluate(input));
   } catch (e) {
     return goog.Promise.reject(e);
   }

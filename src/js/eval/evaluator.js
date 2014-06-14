@@ -23,15 +23,6 @@ goog.provide('r5js.Evaluator');
  * Its methods are asynchronous, returning Promises, because
  * evaluation should not block the main thread (for example, the browser UI).
  *
- * Ideally, this interface should have only one method, mapping input text
- * to Scheme values: function(string):!r5js.runtime.Value. Unfortunately,
- * this implementation is limited in the extent it can serialize Scheme values.
- * The implementation represents many Scheme values with JavaScript objects,
- * which have methods, and methods cannot be serialized by the HTML5
- * structured clone algorithm that governs the interaction of web workers
- * with their parent contexts. So I have chosen to split this interface into two
- * methods, each of which serializes Scheme values in a different way.
- *
  * @interface
  */
 r5js.Evaluator = function() {};
@@ -39,13 +30,6 @@ r5js.Evaluator = function() {};
 
 /**
  * @param {string} input
- * @return {!goog.Promise.<string>}
+ * @return {!goog.Promise.<!r5js.JsonValue>}
  */
-r5js.Evaluator.prototype.evaluateToString = function(input) {};
-
-
-/**
- * @param {string} input
- * @return {!goog.Promise.<?>}
- */
-r5js.Evaluator.prototype.evaluateToJs = function(input) {};
+r5js.Evaluator.prototype.evaluate = function(input) {};

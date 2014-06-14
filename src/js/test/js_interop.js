@@ -71,7 +71,7 @@ r5js.test.JsInterop.prototype.toString = goog.functions.constant(
  */
 r5js.test.JsInterop.prototype.expect = function(input, matcher) {
   this.promise_ = this.promise_.then(function() {
-    return this.evaluator_.evaluateToJs(input);
+    return this.evaluator_.evaluate(input);
   }, undefined /* opt_onRejected */, this).then(function(value) {
     if (!matcher.matches(value)) {
       throw new Error(matcher.getFailureMessage(value));
