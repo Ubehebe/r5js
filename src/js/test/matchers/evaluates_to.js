@@ -14,13 +14,10 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 goog.provide('haveJsOutput');
-goog.provide('haveJsValue');
+
 goog.provide('haveStringOutput');
-goog.provide('haveStringValue');
 goog.provide('r5js.test.matchers.setSharedEvaluator');
 goog.setTestOnly('haveJsOutput');
-goog.setTestOnly('haveJsValue');
-goog.setTestOnly('haveStringValue');
 goog.setTestOnly('r5js.test.matchers.setSharedEvaluator');
 
 
@@ -29,24 +26,6 @@ goog.require('r5js.OutputSavingPort');
 goog.require('r5js.datumutil');
 goog.require('r5js.test.matchers.Throws');
 goog.require('r5js.valutil');
-
-
-/**
- * @param {?} value
- * @return {!tdd.matchers.Matcher}
- */
-haveJsValue = function(value) {
-  return new r5js.test.matchers.HasJsValue_(value);
-};
-
-
-/**
- * @param {string} value
- * @return {!tdd.matchers.Matcher}
- */
-haveStringValue = function(value) {
-  return new r5js.test.matchers.HasStringValue_(value);
-};
 
 
 /**
@@ -70,103 +49,6 @@ haveStringOutput = function(output) {
       /** @type {!r5js.Evaluator} */ (
       r5js.test.matchers.HasStringOutput_.sharedEvaluator_),
       r5js.test.matchers.HasStringOutput_.sharedOutputPort_);
-};
-
-
-
-/**
- * @param {?} expectedValue
- * @implements {tdd.matchers.Matcher}
- * @struct
- * @constructor
- * @private
- */
-r5js.test.matchers.HasJsValue_ = function(expectedValue) {
-  /** @const @private */ this.expectedValue_ = expectedValue;
-};
-
-
-/** @override */
-r5js.test.matchers.HasJsValue_.prototype.matches = function(actualValue) {
-  return r5js.test.matchers.HasJsValue_.equals(
-      this.expectedValue_, actualValue.value);
-};
-
-
-/** @override */
-r5js.test.matchers.HasJsValue_.prototype.getSuccessMessage = function(
-    actualValue) {
-  return 'ok';
-};
-
-
-/** @override */
-r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(
-    actualValue) {
-  return 'want ' +
-      this.expectedValue_ +
-      ' got ' +
-      (/** @type {!r5js.JsonValue} */ (actualValue)).value;
-};
-
-
-/**
- * @param {?} x
- * @param {?} y
- * @return {boolean}
- */
-r5js.test.matchers.HasJsValue_.equals = function(x, y) {
-  var xIsArray = x instanceof Array;
-  var yIsArray = y instanceof Array;
-  if (xIsArray && yIsArray) {
-    return x.length === y.length &&
-        goog.array.zip(x, y.map(function(jsonValue) {
-          return jsonValue.value;
-        })).every(function(pair) {
-          return r5js.test.matchers.HasJsValue_.equals(pair[0], pair[1]);
-        });
-  } else if (!(xIsArray || yIsArray)) {
-    return x === y;
-  } else {
-    return false;
-  }
-};
-
-
-
-/**
- * @param {string} expectedValue
- * @implements {tdd.matchers.Matcher}
- * @struct
- * @constructor
- * @private
- */
-r5js.test.matchers.HasStringValue_ = function(expectedValue) {
-  /** @const @private */ this.expectedValue_ = expectedValue;
-};
-
-
-/** @override */
-r5js.test.matchers.HasStringValue_.prototype.matches = function(input) {
-  return this.expectedValue_ ===
-      (/** @type {!r5js.JsonValue} */ (input)).writeValue;
-};
-
-
-/** @override */
-r5js.test.matchers.HasStringValue_.prototype.getSuccessMessage =
-    function(input) {
-  return 'ok';
-};
-
-
-/** @override */
-r5js.test.matchers.HasStringValue_.prototype.getFailureMessage =
-    function(input) {
-  return 'want ' +
-      this.expectedValue_ +
-      ' got ' +
-      (/** @type {!r5js.JsonValue} */ (input)).writeValue;
 };
 
 
