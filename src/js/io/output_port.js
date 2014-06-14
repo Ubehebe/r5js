@@ -37,16 +37,8 @@ goog.provide('r5js.OutputPort');
 r5js.OutputPort = function() {};
 
 
-/** @param {!r5js.runtime.Value} value Value to write. */
-r5js.OutputPort.prototype.writeValue = function(value) {};
-
-
-/** @param {string} c Character to write. */
-r5js.OutputPort.prototype.writeChar = function(c) {};
-
-
-/** @param {!r5js.runtime.Value} value Value to display. */
-r5js.OutputPort.prototype.display = function(value) {};
+/** @param {!r5js.JsonValue} value Value to write. */
+r5js.OutputPort.prototype.write = function(value) {};
 
 
 /** @see R5RS 6.6.1 */
@@ -90,15 +82,7 @@ r5js.OutputPort.Null_.prototype.close = goog.nullFunction;
 
 
 /** @override */
-r5js.OutputPort.Null_.prototype.display = goog.nullFunction;
-
-
-/** @override */
-r5js.OutputPort.Null_.prototype.writeValue = goog.nullFunction;
-
-
-/** @override */
-r5js.OutputPort.Null_.prototype.writeChar = goog.nullFunction;
+r5js.OutputPort.Null_.prototype.write = goog.nullFunction;
 
 
 /** @const {!r5js.OutputPort} */

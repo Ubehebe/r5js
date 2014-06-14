@@ -18,9 +18,9 @@ goog.setTestOnly('r5js.test.SchemeTestDriver');
 
 
 goog.require('expect');
-goog.require('r5js.Platform');
 goog.require('goog.Promise');
 goog.require('r5js.CallbackBackedPort');
+goog.require('r5js.Platform');
 goog.require('r5js.valutil');
 goog.require('tdd.LogLevel');
 goog.require('tdd.LogRecord');
@@ -83,18 +83,18 @@ r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
 
 
 /**
- * @param {!r5js.runtime.Value} value
+ * @param {!r5js.JsonValue} value
  * @private
  */
 r5js.test.SchemeTestDriver.prototype.onWrite_ = function(value) {
-  var result = r5js.test.SchemeTestDriver.jsValueToResultStruct_(value);
+  var result = r5js.test.SchemeTestDriver.jsonValueToResultStruct_(value);
   if (result) {
     this.logger_.logRecord(new tdd.LogRecord(
         result.getNumFailed() ? tdd.LogLevel.FAILURE : tdd.LogLevel.SUCCESS,
         'r5js.test.SchemeTestDriver',
         result.name_));
     this.result_ = this.result_.merge(result);
-  } else if (result = r5js.test.SchemeTestDriver.jsValueToFailureMessage_(
+  } else if (result = r5js.test.SchemeTestDriver.jsonValueToFailureMessage_(
       value)) {
     this.logger_.logRecord(new tdd.LogRecord(
         tdd.LogLevel.FAILURE,
@@ -126,26 +126,36 @@ goog.inherits(r5js.test.SchemeTestDriver.ResultStruct_, tdd.ResultStruct);
  * Parses a Scheme test framework output like this:
  * (foo-tests (3 tests) (1 errors))
  * into a {@link tdd.ResultStruct}, returning null if the parse failed.
- * Uses {@link r5js.valutil#toJsValue} to avoid messing with the AST.
- * The JavaScript serialization of the above output is this:
- * ["foo-tests", [3, "tests"], [1, "errors"]]
- * @param {!r5js.runtime.Value} output
+ * The JSON serialization of the above output is this:
+ * {
+*  type: "list",
+*  value: [
+*      {type: "symbol", value: "foo-tests"},
+*      {type: "list", value: [
+*          {type: "number", value: 1},
+*          {type: "symbol", value: "tests"}
+*      ]},
+*      {type: "list", value: [
+*          {type: "number", value: 1},
+*          {type: "symbol", value: "errors"}
+*      ]}
+* }
+* @param {!r5js.JsonValue} json
  * @return {r5js.test.SchemeTestDriver.ResultStruct_}
  * @private
  */
-r5js.test.SchemeTestDriver.jsValueToResultStruct_ = function(output) {
-  var jsValue = r5js.valutil.toJsValue(output);
-  if (jsValue.length === 3 &&
-      goog.isString(jsValue[0]) &&
-      jsValue[1].length === 2 &&
-      goog.isNumber(jsValue[1][0]) &&
-      jsValue[1][1] === 'tests' &&
-      jsValue[2].length === 2 &&
-      goog.isNumber(jsValue[2][0]) &&
-      jsValue[2][1] === 'failed') {
-    var name = jsValue[0];
-    var numTests = jsValue[1][0];
-    var numFailed = jsValue[2][0];
+r5js.test.SchemeTestDriver.jsonValueToResultStruct_ = function(json) {
+  if (json.value.length === 3 &&
+      json.value[0].type === r5js.DatumType.SYMBOL &&
+      json.value[1].value.length === 2 &&
+      goog.isNumber(json.value[1].value[0].value) &&
+      json.value[1].value[1].value === 'tests' &&
+      json.value[2].value.length === 2 &&
+      goog.isNumber(json.value[2].value[0].value) &&
+      json.value[2].value[1].value === 'failed') {
+    var name = json.value[0].value;
+    var numTests = json.value[1].value[0].value;
+    var numFailed = json.value[2].value[0].value;
     var numSucceeded = numTests - numFailed;
     return new r5js.test.SchemeTestDriver.ResultStruct_(
         name, numSucceeded, numFailed);
@@ -160,12 +170,12 @@ r5js.test.SchemeTestDriver.jsValueToResultStruct_ = function(output) {
  * (fail foo-tests (input (+ 1 1)) (want 3) (got 2))
  * into a string, returning null if the parse failed.
  * Uses {@link r5js.valutil#toWriteString} to avoid messing with the AST.
- * @param {!r5js.runtime.Value} output
+ * @param {!r5js.JsonValue} value
  * @return {?string}
  * @private
  */
-r5js.test.SchemeTestDriver.jsValueToFailureMessage_ = function(output) {
-  var string = r5js.valutil.toWriteString(output);
+r5js.test.SchemeTestDriver.jsonValueToFailureMessage_ = function(value) {
+  var string = value.writeValue;
   var match = /\(fail .+ \(input (.*)\) \(want (.*)\) \(got (.*)\)\)/.
       exec(string);
   if (!match) {
@@ -214,12 +224,12 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.resultIsExpected_ =
 
 
 /**
- * @param {!r5js.runtime.Value} value
+ * @param {!r5js.JsonValue} value
  * @private
  */
 r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.onWrite_ = function(
     value) {
-  var result = r5js.test.SchemeTestDriver.jsValueToResultStruct_(value);
+  var result = r5js.test.SchemeTestDriver.jsonValueToResultStruct_(value);
   if (result) {
     this.logger_.logRecord(new tdd.LogRecord(
         tdd.LogLevel.SUCCESS,

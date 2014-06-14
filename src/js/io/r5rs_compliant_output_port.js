@@ -40,18 +40,6 @@ r5js.R5RSCompliantOutputPort.prototype.close = goog.nullFunction;
 
 
 /** @override */
-r5js.R5RSCompliantOutputPort.prototype.display = function(value) {
-  this.onOutput_(r5js.valutil.toDisplayString(value));
-};
-
-
-/** @override */
-r5js.R5RSCompliantOutputPort.prototype.writeChar = function(c) {
-  this.onOutput_(c);
-};
-
-
-/** @override */
-r5js.R5RSCompliantOutputPort.prototype.writeValue = function(value) {
-  this.onOutput_(r5js.valutil.toWriteString(value));
+r5js.R5RSCompliantOutputPort.prototype.write = function(value) {
+  this.onOutput_(value.writeValue);
 };

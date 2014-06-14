@@ -50,6 +50,7 @@ goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
 goog.require('r5js.runtime.EOF');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
+goog.require('r5js.valutil');
 
 
 /** @private {r5js.IEnvironment} */ r5js.PrimitiveProcedures.nullEnv_;
@@ -692,7 +693,8 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
             outputPortToUse, 1, 'display', r5js.DatumType.OUTPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
-      (/** @type {!r5js.OutputPort} */ (outputPortToUse)).display(datum);
+      (/** @type {!r5js.OutputPort} */ (outputPortToUse)).
+          write(r5js.valutil.toJson(datum));
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
@@ -749,7 +751,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
             outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
-      outputPortToUse.writeValue(datum);
+      outputPortToUse.write(r5js.valutil.toJson(datum));
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 
@@ -766,7 +768,7 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
             outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
-      outputPortToUse.writeChar(charNode.getPayload());
+      outputPortToUse.write(r5js.valutil.toJson(charNode));
       return r5js.runtime.UNSPECIFIED_VALUE;
     });
 

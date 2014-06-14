@@ -22,7 +22,7 @@ goog.require('r5js.OutputPort');
 
 
 /**
- * @param {function(!r5js.runtime.Value)} onOutput Callback that will be called
+ * @param {function(!r5js.JsonValue)} onOutput Callback that will be called
  * whenever output is available.
  * @implements {r5js.OutputPort}
  * @struct
@@ -39,16 +39,6 @@ r5js.CallbackBackedPort.prototype.close = goog.nullFunction;
 
 
 /** @override */
-r5js.CallbackBackedPort.prototype.writeValue = function(value) {
-  this.onOutput_(value);
-};
-
-
-/** @override */
-r5js.CallbackBackedPort.prototype.writeChar = goog.nullFunction;
-
-
-/** @override */
-r5js.CallbackBackedPort.prototype.display = function(value) {
+r5js.CallbackBackedPort.prototype.write = function(value) {
   this.onOutput_(value);
 };

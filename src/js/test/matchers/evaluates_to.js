@@ -200,11 +200,10 @@ r5js.test.matchers.HasJsOutput_.sharedEvaluator_;
 
 
 /**
- * @private {!r5js.OutputSavingPort.<boolean|number|string|!Array|undefined>}
+ * @private {!r5js.OutputSavingPort}
  * @const
  */
-r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = new r5js.OutputSavingPort(
-    r5js.valutil.toJsValue);
+r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = new r5js.OutputSavingPort();
 
 
 /** @override */
@@ -252,11 +251,9 @@ r5js.test.matchers.HasStringOutput_ = function(
 r5js.test.matchers.HasStringOutput_.sharedEvaluator_;
 
 
-/** @const @private {!r5js.OutputSavingPort.<string>} */
+/** @const @private {!r5js.OutputSavingPort} */
 r5js.test.matchers.HasStringOutput_.sharedOutputPort_ =
-    new r5js.OutputSavingPort(
-        r5js.valutil.toWriteString,
-        r5js.valutil.toDisplayString);
+    new r5js.OutputSavingPort();
 
 
 /** @override */

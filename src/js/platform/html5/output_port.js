@@ -35,20 +35,8 @@ r5js.OutputPort.addImplementation(r5js.platform.html5.OutputPort);
 
 
 /** @override */
-r5js.platform.html5.OutputPort.prototype.writeValue = function(value) {
-  this.postMessage_(r5js.platform.html5.message.writeValue(value));
-};
-
-
-/** @override */
-r5js.platform.html5.OutputPort.prototype.writeChar = function(c) {
-  this.postMessage_(r5js.platform.html5.message.writeChar(c));
-};
-
-
-/** @override */
-r5js.platform.html5.OutputPort.prototype.display = function(value) {
-  this.postMessage_(r5js.platform.html5.message.display(value));
+r5js.platform.html5.OutputPort.prototype.write = function(value) {
+  this.postMessage_(value);
 };
 
 

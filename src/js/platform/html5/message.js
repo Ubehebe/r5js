@@ -21,9 +21,6 @@ goog.provide('r5js.platform.html5.MessageType');
 goog.provide('r5js.platform.html5.message');
 
 
-goog.require('r5js.valutil');
-
-
 
 /**
  * Structure for messages passed between {@link r5js.platform.html5.Client}
@@ -103,13 +100,13 @@ r5js.platform.html5.message.newEvalError = function(id, errorMsg) {
 
 
 /**
- * @param {!r5js.runtime.Value} value
+ * @param {!r5js.JsonValue} value
  * @return {!r5js.platform.html5.Message}
  */
 r5js.platform.html5.message.writeValue = function(value) {
   return new r5js.platform.html5.Message(
       r5js.platform.html5.MessageType.WRITE_VALUE, -1,
-      r5js.valutil.toWriteString(value));
+      value.writeValue);
 };
 
 
@@ -124,13 +121,13 @@ r5js.platform.html5.message.writeChar = function(c) {
 
 
 /**
- * @param {!r5js.runtime.Value} value
+ * @param {!r5js.JsonValue} value
  * @return {!r5js.platform.html5.Message}
  */
 r5js.platform.html5.message.display = function(value) {
   return new r5js.platform.html5.Message(
       r5js.platform.html5.MessageType.DISPLAY, -1,
-      r5js.valutil.toDisplayString(value));
+      value.displayValue);
 };
 
 
