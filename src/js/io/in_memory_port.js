@@ -88,7 +88,7 @@ r5js.InMemoryInputPort.prototype.readChar = function() {
 
 /**
  * @param {!r5js.InMemoryPortBuffer} buffer
- * @implements {r5js.OutputPort}
+ * @implements {r5js.OutputSavingPort}
  * @struct
  * @constructor
  */
@@ -101,6 +101,17 @@ r5js.OutputPort.addImplementation(r5js.InMemoryOutputPort);
 /** @override */
 r5js.InMemoryOutputPort.prototype.write = function(value) {
   this.buffer_.push(value);
+};
+
+
+/** @override */
+r5js.InMemoryOutputPort.prototype.getAndClearOutput = function() {
+  var values = [];
+  for (var i = 0; i < this.buffer_.length; ++i) {
+    values.push(this.buffer_[i]);
+  }
+  this.buffer_.length = 0;
+  return values;
 };
 
 

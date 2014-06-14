@@ -15,6 +15,7 @@
 
 
 goog.provide('haveJsValue');
+goog.provide('r5js.test.matchers.HasJsValue_');
 goog.setTestOnly('haveJsValue');
 
 

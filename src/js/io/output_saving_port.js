@@ -16,37 +16,15 @@
 goog.provide('r5js.OutputSavingPort');
 
 
-goog.require('r5js.OutputPort');
-
-
 
 /**
- * @implements {r5js.OutputPort}
- * @struct
- * @constructor
- * @template T
+ * @extends {r5js.OutputPort}
+ * @interface
  */
-r5js.OutputSavingPort = function() {
-  /** @private {!Array.<!r5js.JsonValue>} */ this.values_ = [];
-};
-r5js.OutputPort.addImplementation(r5js.OutputSavingPort);
+r5js.OutputSavingPort = function() {};
 
 
-/** @override */
-r5js.OutputSavingPort.prototype.write = function(value) {
-  this.values_.push(value);
-};
-
-
-/** @override */
-r5js.OutputSavingPort.prototype.close = goog.nullFunction;
-
-
-/** @return {!Array.<T>} */
-r5js.OutputSavingPort.prototype.getAndClearOutput = function() {
-  var values = this.values_;
-  this.values_ = [];
-  return values;
-};
+/** @return {!r5js.InMemoryPortBuffer} */
+r5js.OutputSavingPort.prototype.getAndClearOutput = function() {};
 
 

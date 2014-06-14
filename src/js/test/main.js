@@ -68,8 +68,12 @@ r5js.test.main1 = function(testConfig) {
   var runner = new tdd.Runner(testConfig, logger);
   var platform = r5js.Platform.get();
 
-  r5js.test.getEvaluator_().then(function(evaluator) {
-    r5js.test.getTestSuites_(evaluator).
+  var buffer = [];
+  var stdin = new r5js.InMemoryInputPort(buffer);
+  var stdout = new r5js.InMemoryOutputPort(buffer);
+
+  r5js.test.getEvaluator_(stdin, stdout).then(function(evaluator) {
+    r5js.test.getTestSuites_(evaluator, stdout).
         forEach(function(testSuite) {
           runner.add(testSuite);
         });
@@ -128,16 +132,15 @@ r5js.test.syncEvaluator_ = null;
 
 
 /**
+ * @param {!r5js.InputPort=} opt_inputPort
+ * @param {!r5js.OutputPort=} opt_outputPort
  * @return {!goog.Promise.<!r5js.Evaluator>}
  * @private
  */
-r5js.test.getEvaluator_ = function() {
+r5js.test.getEvaluator_ = function(opt_inputPort, opt_outputPort) {
   if (!r5js.test.evaluator_) {
-    var buffer = [];
-    var stdin = new r5js.InMemoryInputPort(buffer);
-    var stdout = new r5js.InMemoryOutputPort(buffer);
     r5js.test.evaluator_ = r5js.Platform.get().newEvaluator(
-        stdin, stdout);
+        opt_inputPort, opt_outputPort);
   }
   return r5js.test.evaluator_;
 };
@@ -161,14 +164,15 @@ r5js.test.getSyncEvaluator_ = function() {
 
 /**
  * @param {!r5js.Evaluator} evaluator
+ * @param {!r5js.OutputSavingPort} outputPort
  * @return {!Array.<!tdd.TestSuite>}
  * @private
  */
-r5js.test.getTestSuites_ = function(evaluator) {
+r5js.test.getTestSuites_ = function(evaluator, outputPort) {
   return [
     new r5js.test.Scanner(),
     new r5js.test.Parser(),
-    new r5js.test.JsInterop(evaluator),
+    new r5js.test.JsInterop(evaluator, outputPort),
     new r5js.test.SchemeTestDriver()
   ];
 };
