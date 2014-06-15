@@ -74,9 +74,7 @@ r5js.platform.html5.Client.prototype.onMessage_ = function(e) {
     case r5js.platform.html5.MessageType.EVAL_ERROR:
       this.rejecters_[message.id](message.content);
       break;
-    case r5js.platform.html5.MessageType.DISPLAY:
-    case r5js.platform.html5.MessageType.WRITE_VALUE:
-    case r5js.platform.html5.MessageType.WRITE_CHAR:
+    case r5js.platform.html5.MessageType.OUTPUT:
       this.outputPort_.write(
           /** @type {!r5js.JsonValue} */ (message.content));
       return;

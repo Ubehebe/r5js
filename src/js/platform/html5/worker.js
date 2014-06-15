@@ -73,7 +73,7 @@ r5js.platform.html5.Worker.getEvaluator_ = function() {
   if (!r5js.platform.html5.Worker.evaluator_) {
     var inputPort = r5js.InputPort.NULL;
     var outputPort = new r5js.platform.html5.OutputPort(function(value) {
-      postMessage(value);
+      postMessage(r5js.platform.html5.message.output(value));
     });
     r5js.platform.html5.Worker.evaluator_ = r5js.Platform.get().
             newSyncEvaluator(inputPort, outputPort);

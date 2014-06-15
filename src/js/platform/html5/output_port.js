@@ -23,7 +23,7 @@ goog.require('r5js.platform.html5.message');
 
 
 /**
- * @param {function(*)} postMessage
+ * @param {function(!r5js.JsonValue)} postMessage
  * @implements {r5js.OutputPort}
  * @struct
  * @constructor
