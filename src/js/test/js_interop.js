@@ -86,7 +86,9 @@ r5js.test.JsInterop.prototype.expect = function(input, matcher) {
 
 /** @return {!goog.Promise} */
 r5js.test.JsInterop.prototype.done = function() {
-  return this.promise_;
+  var promise = this.promise_;
+  this.promise_ = goog.Promise.resolve();
+  return promise;
 };
 
 
@@ -230,7 +232,7 @@ r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
 //};
 
 
-/**
+/*
  * R5RS doesn't actually forbid these external representations to be
  * the empty string, but empty strings are not helpful to return in a REPL.
  */
@@ -245,7 +247,6 @@ r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
 //};
 
 
-/** @return {!goog.Promise} */
 r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
   return this.expect('', haveJsValue(undefined)).
       expect('', haveStringValue('')).
