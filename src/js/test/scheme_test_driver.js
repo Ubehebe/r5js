@@ -61,24 +61,31 @@ r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
   var platform = r5js.Platform.get();
   var result = this.result_;
   var onWrite = this.onWrite_.bind(this);
+  /** @type {r5js.test.SchemeSources} */ var sources;
+  /** @type {r5js.Evaluator} */ var evaluator;
 
-  return platform.getTestSources().then(function(sources) {
-    var r5RSTests = sources.testFramework + sources.r5RSTests;
-    var negativeTests = sources.testFramework + sources.negativeTests;
-    var otherTests = sources.testFramework + sources.otherTests;
-    return platform.newEvaluator(
-        r5js.InputPort.NULL,
-        new r5js.CallbackBackedPort(onWrite))
-      .then(function(evaluator) {
-          return new r5js.test.SchemeTestDriver.TestFrameworkTest_(sources)
-      .execute(logger)
-      .then(function(subresult) { result = result.merge(subresult); })
-      .then(function() { evaluator.evaluate(r5RSTests); })
-      .then(function() { evaluator.evaluate(negativeTests); })
-      .then(function() { evaluator.evaluate(otherTests); })
-      .then(function() { return result; });
-        });
-  });
+  return goog.Promise.all([
+    platform.getTestSources(),
+    platform.newEvaluator(r5js.InputPort.NULL,
+        new r5js.CallbackBackedPort(onWrite))]).then(function(resolved) {
+    sources = resolved[0];
+    evaluator = resolved[1];
+  }).then(function() {
+    return new r5js.test.SchemeTestDriver.TestFrameworkTest_(
+        /** @type {!r5js.test.SchemeSources} */ (sources)).execute(logger);
+  }).then(function(result_) {
+    result = result.merge(result_);
+    return evaluator.evaluate(
+        sources.testFramework + sources.r5RSTests);
+  }).then(function() {
+    return evaluator.evaluate(
+        sources.testFramework + sources.negativeTests);
+  }).then(function() {
+    return evaluator.evaluate(
+        sources.testFramework + sources.otherTests);
+  }).then(function() {
+    return this.result_;
+  }, undefined /* opt_onRejected */, this);
 };
 
 
@@ -145,7 +152,8 @@ goog.inherits(r5js.test.SchemeTestDriver.ResultStruct_, tdd.ResultStruct);
  * @private
  */
 r5js.test.SchemeTestDriver.jsonValueToResultStruct_ = function(json) {
-  if (json.value.length === 3 &&
+  if (json.value &&
+      json.value.length === 3 &&
       json.value[0].type === r5js.DatumType.SYMBOL &&
       json.value[1].value.length === 2 &&
       goog.isNumber(json.value[1].value[0].value) &&
