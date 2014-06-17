@@ -22,6 +22,7 @@ goog.require('r5js.InputPort');
 goog.require('r5js.Platform');
 goog.require('r5js.R5RSCompliantOutputPort');
 goog.require('r5js.Repl');
+goog.require('r5js.replutil');
 
 
 /** The main REPL method. */
@@ -32,14 +33,12 @@ r5js.repl.main = function() {
   var stdout = new r5js.R5RSCompliantOutputPort(function(output) {
     terminal.print(output);
   });
-  platform.newSyncEvaluator().then(function(syncEvaluator) {
-    return platform.newEvaluator(stdin, stdout).then(function(evaluator) {
-      var isLineComplete = function(line) {
-        return goog.Promise.resolve(syncEvaluator.willParse(line));
-      };
-      terminal = platform.getTerminal(isLineComplete);
-      new r5js.Repl(terminal, evaluator, isLineComplete).start();
-    });
+  platform.newEvaluator(stdin, stdout).then(function(evaluator) {
+    var isLineComplete = function(line) {
+      return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
+    };
+    terminal = platform.getTerminal();
+    new r5js.Repl(terminal, evaluator, isLineComplete).start();
   });
 };
 

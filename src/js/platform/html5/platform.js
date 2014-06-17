@@ -101,7 +101,7 @@ r5js.platform.Html5.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.platform.Html5.prototype.getTerminal = function(lineCompleteHandler) {
+r5js.platform.Html5.prototype.getTerminal = function() {
   return new r5js.platform.html5.Terminal(
       this.jqConsole_, function(line) {
         return goog.Promise.resolve(r5js.replutil.isLineComplete(line));

@@ -133,7 +133,7 @@ r5js.platform.Node.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.platform.Node.prototype.getTerminal = function(lineCompleteHandler) {
+r5js.platform.Node.prototype.getTerminal = function() {
   return new r5js.platform.Node.Terminal_();
 };
 
