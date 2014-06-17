@@ -22,6 +22,7 @@ goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
 goog.require('r5js.platform.node.Evaluator');
+goog.require('r5js.platform.node.Terminal');
 goog.require('r5js.test.SchemeSources');
 
 
@@ -120,7 +121,7 @@ r5js.platform.Node.prototype.newOutputPort = function(name) {
 
 /** @override */
 r5js.platform.Node.prototype.getTerminal = function() {
-  return new r5js.platform.Node.Terminal_();
+  return new r5js.platform.node.Terminal();
 };
 
 
@@ -134,58 +135,6 @@ r5js.platform.Node.prototype.getSources = function() {
 r5js.platform.Node.prototype.getTestSources = function() {
   return r5js.test.SchemeSources.get(r5js.platform.Node.fetchUrl_);
 };
-
-
-
-/**
-* @implements {r5js.Terminal}
-* @struct
-    * @constructor
-* @private
-* @suppress {checkTypes} TODO bl my Node version is 0.6x, but the externs
-* I'm using are for 0.10x, which has an incompatible readline API.
-*/
-r5js.platform.Node.Terminal_ = function() {
-  var readline = require('readline');
-  /** @private @const */
-  this.readline_ = readline.createInterface(process.stdin, process.stdout);
-  this.readline_.setPrompt(
-      r5js.platform.Node.Terminal_.PROMPT_,
-      r5js.platform.Node.Terminal_.PROMPT_.length);
-  this.readline_.on('close', this.handleClose_.bind(this));
-  this.readline_.prompt();
-};
-
-
-/** @override */
-r5js.platform.Node.Terminal_.prototype.getNextLineOfInput = function() {
-  return new goog.Promise(function(resolve) {
-    this.readline_.once('line', resolve);
-  }, this);
-};
-
-
-/** @override */
-r5js.platform.Node.Terminal_.prototype.print = function(str) {
-  console.log(str);
-  this.readline_.prompt(); // TODO bl double-prompts on Scheme output
-};
-
-
-/** @override */
-r5js.platform.Node.Terminal_.prototype.error = function(str) {
-  console.error(str);
-  this.readline_.prompt(); // TODO bl double-prompts on Scheme output
-};
-
-
-/** @private */
-r5js.platform.Node.Terminal_.prototype.handleClose_ = function() {
-  process.exit(0);
-};
-
-
-/** @const @private */ r5js.platform.Node.Terminal_.PROMPT_ = '>> ';
 
 
 
