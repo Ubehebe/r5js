@@ -139,26 +139,26 @@ r5js.test.JsInterop.prototype['testDisplayPrimitivesToJs'] = function() {
 };
 
 
-//r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
-//  expect('(write 42)').to(haveJsOutput(42));
-//  expect('(write 42)').to(haveStringOutput('42'));
-//  expect('(write #t)').to(haveJsOutput(true));
-//  expect('(write #t)').to(haveStringOutput('#t'));
-//  expect('(write #f)').to(haveJsOutput(false));
-//  expect('(write #f)').to(haveStringOutput('#f'));
-//  expect('(write "hello, world")').to(haveJsOutput('hello, world'));
-//  expect('(write "hello, world")').to(haveStringOutput('"hello, world"'));
-//  expect("(write 'hello)").to(haveJsOutput('hello'));
-//  expect("(write 'hello)").to(haveStringOutput('hello'));
-//  expect('(write (quote hello))').to(haveJsOutput('hello'));
-//  expect('(write (quote hello))').to(haveStringOutput('hello'));
-//  expect('(write #\\a)').to(haveJsOutput('a'));
-//  expect('(write #\\a)').to(haveStringOutput('#\\a'));
-//  expect('(write #\\space)').to(haveJsOutput(' '));
-//  expect('(write #\\space)').to(haveStringOutput('#\\space'));
-//  expect('(write #\\newline)').to(haveJsOutput('\n'));
-//  expect('(write #\\newline)').to(haveStringOutput('#\\newline'));
-//};
+r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
+  return this.expect('(write 42)', haveJsOutput(42)).
+      expect('(write 42)', haveStringOutput('42')).
+      expect('(write #t)', haveJsOutput(true)).
+      expect('(write #t)', haveStringOutput('#t')).
+      expect('(write #f)', haveJsOutput(false)).
+      expect('(write #f)', haveStringOutput('#f')).
+      expect('(write "hello, world")', haveJsOutput('hello, world')).
+      //  expect('(write "hello, world")', haveStringOutput('"hello, world"')).
+      expect("(write 'hello)", haveJsOutput('hello')).
+      expect("(write 'hello)", haveStringOutput('hello')).
+      expect('(write (quote hello))', haveJsOutput('hello')).
+      expect('(write (quote hello))', haveStringOutput('hello')).
+      expect('(write #\\a)', haveJsOutput('a')).
+      //  expect('(write #\\a)', haveStringOutput('#\\a')).
+      expect('(write #\\space)', haveJsOutput(' ')).
+      //  expect('(write #\\space)', haveStringOutput('#\\space')).
+      expect('(write #\\newline)', haveJsOutput('\n')).done();
+  //  expect('(write #\\newline)', haveStringOutput('#\\newline')).done();
+};
 
 
 r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
@@ -193,43 +193,43 @@ r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
 };
 
 
-//r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
-//  return this.expect('(display #())', haveJsOutput([])).
-//  expect('(display #())', haveStringOutput('#()')).
-//  expect("(display '())", haveJsOutput([])).
-//  expect("(display '())", haveStringOutput('()')).
-//  expect("(display (list '() '() '() '(42)))",
-//          haveJsOutput([[], [], [], [42]])).
-//  expect("(display (list '() '() '() '(42)))",
-//          haveStringOutput('(() () () (42))')).
-//  expect('(display (list 1 2 3))', haveJsOutput([1, 2, 3])).
-//  expect('(display (list 1 2 3))', haveStringOutput('(1 2 3)')).
-//  expect("(display (cons 'a (cons 'b (cons 'c '()))))",
-//          haveJsOutput(['a', 'b', 'c'])).
-//  expect("(display (cons 'a (cons 'b (cons 'c '()))))",
-//          haveStringOutput('(a b c)')).
-//  expect("(display (cons 'a 'b))", haveStringOutput('(a . b)')).done();
-//};
+r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
+  return this.expect('(display #())', haveJsOutput([])).
+      expect('(display #())', haveStringOutput('#()')).
+      expect("(display '())", haveJsOutput([])).
+      expect("(display '())", haveStringOutput('()')).
+      //  expect("(display (list '() '() '() '(42)))",
+      //          haveJsOutput([[], [], [], [42]])).
+      expect("(display (list '() '() '() '(42)))",
+          haveStringOutput('(() () () (42))')).
+      //  expect('(display (list 1 2 3))', haveJsOutput([1, 2, 3])).
+      expect('(display (list 1 2 3))', haveStringOutput('(1 2 3)')).
+      //  expect("(display (cons 'a (cons 'b (cons 'c '()))))",
+      //          haveJsOutput(['a', 'b', 'c'])).
+      expect("(display (cons 'a (cons 'b (cons 'c '()))))",
+          haveStringOutput('(a b c)')).
+      expect("(display (cons 'a 'b))", haveStringOutput('(a . b)')).done();
+};
 
 
-//r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
-//  expect('(write #())').to(haveJsOutput([]));
-//  expect('(write #())').to(haveStringOutput('#()'));
-//  expect("(write '())").to(haveJsOutput([]));
-//  expect("(write '())").to(haveStringOutput('()'));
-//  expect("(write (list '() '() '() '(42)))").
-//      to(haveJsOutput([[], [], [], [42]]));
-//  expect("(write (list '() '() '() '(42)))").
-//      to(haveStringOutput('(() () () (42))'));
-//  expect('(write (list 1 2 3))').to(haveJsOutput([1, 2, 3]));
-//  expect('(write (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
-//  expect("(write (cons 'a (cons 'b (cons 'c '()))))").
-//      to(haveJsOutput(['a', 'b', 'c']));
-//  expect("(write (cons 'a (cons 'b (cons 'c '()))))").
-//      to(haveStringOutput('(a b c)'));
-//  expect("(write (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
-//  expect("(write (cons 'a 'b))").to(haveStringOutput('(a . b)'));
-//};
+r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
+  return this.expect('(write #())', haveJsOutput([])).
+      expect('(write #())', haveStringOutput('#()')).
+      expect("(write '())", haveJsOutput([])).
+      expect("(write '())", haveStringOutput('()')).
+      //  expect("(write (list '() '() '() '(42)))",
+      // haveJsOutput([[], [], [], [42]])).
+      expect("(write (list '() '() '() '(42)))",
+          haveStringOutput('(() () () (42))')).
+      //  expect('(write (list 1 2 3))', haveJsOutput([1, 2, 3])).
+      expect('(write (list 1 2 3))', haveStringOutput('(1 2 3)')).
+      //  expect("(write (cons 'a (cons 'b (cons 'c '()))))",
+      // haveJsOutput(['a', 'b', 'c'])).
+      expect("(write (cons 'a (cons 'b (cons 'c '()))))",
+          haveStringOutput('(a b c)')).
+      //  expect("(write (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
+      expect("(write (cons 'a 'b))", haveStringOutput('(a . b)')).done();
+};
 
 
 /*
