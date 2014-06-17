@@ -71,7 +71,7 @@ r5js.Platform.prototype.newOutputPort = function(name) {};
  * knowing nothing about Scheme. One complication is multiline input,
  * where terminals often show a different prompt if the current line is a
  * continuation of the last line. One of the Terminal implementations,
- * {@link r5js.platform.Html5.Terminal_}, has a quirky API that requires
+ * {@link r5js.platform.html5.Terminal}, has a quirky API that requires
  * the implementation to know whether the current line will complete.
  * This parameter is passed in order to communicate that knowledge.
  * @return {!r5js.Terminal}

@@ -24,6 +24,7 @@ goog.require('r5js.OutputPort');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
 goog.require('r5js.platform.html5.Client');
+goog.require('r5js.platform.html5.Terminal');
 goog.require('r5js.test.SchemeSources');
 
 
@@ -100,7 +101,7 @@ r5js.platform.Html5.prototype.newOutputPort = function(name) {
 
 /** @override */
 r5js.platform.Html5.prototype.getTerminal = function(lineCompleteHandler) {
-  return new r5js.platform.Html5.Terminal_(
+  return new r5js.platform.html5.Terminal(
       this.jqConsole_, lineCompleteHandler);
 };
 
@@ -108,70 +109,5 @@ r5js.platform.Html5.prototype.getTerminal = function(lineCompleteHandler) {
 /** @override */
 r5js.platform.Html5.prototype.getTestSources = function() {
   return r5js.test.SchemeSources.get(goog.labs.net.xhr.get);
-};
-
-
-
-/**
- * @param {?} jqconsole
- * @param {function(string):!goog.Promise.<boolean>} isLineComplete Function
- * to determine if a given line of user input is complete (= ready to be
- * evaluated).
- * @implements {r5js.Terminal}
- * @struct
- * @constructor
- * @private
- */
-r5js.platform.Html5.Terminal_ = function(jqconsole, isLineComplete) {
-  /** @const @private */ this.jqconsole_ = jqconsole;
-  /** @const @private */ this.isLineComplete_ = isLineComplete;
-};
-
-
-/**
- * @param {string} line
- * @param {!Function} cb
- * @private
- * @see https://github.com/replit/jq-console for details on the odd return
- * values.
- */
-r5js.platform.Html5.Terminal_.prototype.multilineCallback_ = function(
-    line, cb) {
-  this.isLineComplete_(line).then(function(lineComplete) {
-    cb(lineComplete ? false : 0);
-  });
-};
-
-
-/**
- * @override
- * @suppress {checkTypes} for the jqconsole integration
- */
-r5js.platform.Html5.Terminal_.prototype.getNextLineOfInput = function() {
-  return new goog.Promise(function(resolve) {
-    this.jqconsole_.Prompt(
-        true /* history_enabled */,
-        resolve,
-        this.multilineCallback_.bind(this),
-        true /* async_multiline */);
-  }, this);
-};
-
-
-/**
- * @override
- * @suppress {checkTypes} for the jqconsole integration
- */
-r5js.platform.Html5.Terminal_.prototype.print = function(msg) {
-  this.jqconsole_.Write(msg + '\n', 'jqconsole-output');
-};
-
-
-/**
- * @override
- * @suppress {checkTypes} for the jqconsole integration
- */
-r5js.platform.Html5.Terminal_.prototype.error = function(msg) {
-  this.jqconsole_.Write(msg + '\n', 'jqconsole-error');
 };
 
