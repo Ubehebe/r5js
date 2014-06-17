@@ -87,9 +87,3 @@ r5js.sync.EvaluatorImpl.prototype.willParse = function(input) {
     return !!(lparens && rparens && lparens.length === rparens.length);
   }
 };
-
-
-/** @override */
-r5js.sync.EvaluatorImpl.prototype.withPorts = function(inputPort, outputPort) {
-  return new r5js.sync.EvaluatorImpl(this.pipeline_, inputPort, outputPort);
-};

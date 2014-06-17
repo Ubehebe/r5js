@@ -40,11 +40,3 @@ r5js.sync.Evaluator.prototype.evaluate = function(input) {};
  * @return {boolean} Whether input parses successfully.
  */
 r5js.sync.Evaluator.prototype.willParse = function(input) {};
-
-
-/**
- * @param {!r5js.InputPort} inputPort
- * @param {!r5js.OutputPort} outputPort
- * @return {!r5js.sync.Evaluator} A new evaluator connected to the given ports.
- */
-r5js.sync.Evaluator.prototype.withPorts = function(inputPort, outputPort) {};
