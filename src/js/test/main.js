@@ -127,10 +127,6 @@ r5js.test.evalSandbox = function(text) {
 r5js.test.evaluator_ = null;
 
 
-/** @private {goog.Promise.<!r5js.sync.Evaluator>} */
-r5js.test.syncEvaluator_ = null;
-
-
 /**
  * @param {!r5js.InputPort=} opt_inputPort
  * @param {!r5js.OutputPort=} opt_outputPort
@@ -143,22 +139,6 @@ r5js.test.getEvaluator_ = function(opt_inputPort, opt_outputPort) {
         opt_inputPort, opt_outputPort);
   }
   return r5js.test.evaluator_;
-};
-
-
-/**
- * @return {!goog.Promise.<!r5js.sync.Evaluator>}
- * @private
- */
-r5js.test.getSyncEvaluator_ = function() {
-  if (!r5js.test.syncEvaluator_) {
-    var buffer = [];
-    var stdin = new r5js.InMemoryInputPort(buffer);
-    var stdout = new r5js.InMemoryOutputPort(buffer);
-    r5js.test.syncEvaluator_ = r5js.Platform.get().newSyncEvaluator(
-        stdin, stdout);
-  }
-  return r5js.test.syncEvaluator_;
 };
 
 
