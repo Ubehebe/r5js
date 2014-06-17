@@ -22,7 +22,6 @@ goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.SchemeSources');
-goog.require('r5js.boot');
 goog.require('r5js.platform.html5.Client');
 goog.require('r5js.platform.html5.Terminal');
 goog.require('r5js.replutil');
@@ -62,26 +61,6 @@ r5js.platform.Html5.prototype.newEvaluator =
 };
 
 
-/**
- * @param {!r5js.InputPort=} opt_inputPort
- * @param {!r5js.OutputPort=} opt_outputPort
- * @return {!goog.Promise.<!r5js.sync.Evaluator>}
- * @override TODO bl why is it necessary to repeat the doc?
- */
-r5js.platform.Html5.prototype.newSyncEvaluator = function(
-    opt_inputPort, opt_outputPort) {
-  return r5js.SchemeSources.get(goog.labs.net.xhr.get).
-      then(function(sources) {
-        return r5js.boot(
-            sources.syntax,
-            sources.procedures,
-            this,
-            opt_inputPort,
-            opt_outputPort);
-      }, undefined /* opt_onRejected */, this);
-};
-
-
 /** @override */
 r5js.platform.Html5.prototype.newInputPort = function(name) {
   if (!(name in this.buffers_)) {
@@ -106,6 +85,12 @@ r5js.platform.Html5.prototype.getTerminal = function() {
       this.jqConsole_, function(line) {
         return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
       });
+};
+
+
+/** @override */
+r5js.platform.Html5.prototype.getSources = function() {
+  return r5js.SchemeSources.get(goog.labs.net.xhr.get);
 };
 
 

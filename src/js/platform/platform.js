@@ -43,15 +43,6 @@ r5js.Platform.prototype.newEvaluator =
 
 
 /**
- * @param {!r5js.InputPort=} opt_inputPort
- * @param {!r5js.OutputPort=} opt_outputPort
- * @return {!goog.Promise.<!r5js.sync.Evaluator>}
- */
-r5js.Platform.prototype.newSyncEvaluator = function(
-    opt_inputPort, opt_outputPort) {};
-
-
-/**
  * @param {string} name
  * @return {!r5js.InputPort}
  */
@@ -67,6 +58,10 @@ r5js.Platform.prototype.newOutputPort = function(name) {};
 
 /** @return {!r5js.Terminal} */
 r5js.Platform.prototype.getTerminal = function() {};
+
+
+/** @return {!goog.Promise.<!r5js.SchemeSources>} */
+r5js.Platform.prototype.getSources = function() {};
 
 
 /** @return {!goog.Promise.<!r5js.test.SchemeSources>} */

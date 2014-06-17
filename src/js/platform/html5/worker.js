@@ -75,8 +75,16 @@ r5js.platform.html5.Worker.getEvaluator_ = function() {
     var outputPort = new r5js.platform.html5.OutputPort(function(value) {
       postMessage(r5js.platform.html5.message.output(value));
     });
-    r5js.platform.html5.Worker.evaluator_ = r5js.Platform.get().
-            newSyncEvaluator(inputPort, outputPort);
+    var platform = r5js.Platform.get();
+    r5js.platform.html5.Worker.evaluator_ = platform.getSources().
+        then(function(sources) {
+              return r5js.boot(
+                  sources.syntax,
+                  sources.procedures,
+                  platform,
+                  inputPort,
+                  outputPort);
+        });
   }
   return r5js.platform.html5.Worker.evaluator_;
 };

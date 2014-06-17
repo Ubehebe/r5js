@@ -87,30 +87,16 @@ r5js.platform.Node.prototype.exit = function(statusCode) {
  */
 r5js.platform.Node.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {
-  return this.newSyncEvaluator(opt_inputPort, opt_outputPort).
-      then(function(syncEvaluator) {
-        return new r5js.platform.node.Evaluator(syncEvaluator);
-      });
-};
-
-
-/**
- * @param {!r5js.InputPort=} opt_inputPort
- * @param {!r5js.OutputPort=} opt_outputPort
- * @return {!goog.Promise.<!r5js.sync.Evaluator>}
- * @override TODO bl why is it necessary to repeat the doc?
- */
-r5js.platform.Node.prototype.newSyncEvaluator = function(
-    opt_inputPort, opt_outputPort) {
-  return r5js.SchemeSources.get(r5js.platform.Node.fetchUrl_)
-        .then(function(sources) {
-        return r5js.boot(
-            sources.syntax,
-            sources.procedures,
-            this,
-            opt_inputPort,
-            opt_outputPort);
-      }, undefined /* opt_onRejected */, this);
+  return this.getSources().then(function(sources) {
+    return r5js.boot(
+        sources.syntax,
+        sources.procedures,
+        this,
+        opt_inputPort,
+        opt_outputPort);
+  }, undefined /* opt_onRejected */, this).then(function(syncEvaluator) {
+    return new r5js.platform.node.Evaluator(syncEvaluator);
+  });
 };
 
 
@@ -135,6 +121,12 @@ r5js.platform.Node.prototype.newOutputPort = function(name) {
 /** @override */
 r5js.platform.Node.prototype.getTerminal = function() {
   return new r5js.platform.Node.Terminal_();
+};
+
+
+/** @override */
+r5js.platform.Node.prototype.getSources = function() {
+  return r5js.SchemeSources.get(r5js.platform.Node.fetchUrl_);
 };
 
 
