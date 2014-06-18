@@ -20,7 +20,6 @@ goog.provide('r5js.GeneralSyntaxError');
 goog.provide('r5js.IOError');
 goog.provide('r5js.IllegalEmptyApplication');
 goog.provide('r5js.ImmutableError');
-goog.provide('r5js.IncorrectNumArgs');
 goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.MacroError');
 goog.provide('r5js.NotAProcedureError');
@@ -223,6 +222,17 @@ r5js.IncorrectNumArgs.prototype.equals = function(other) {
   // TODO bl check the name once lambdas are plumbed
   return this.expectedNumArgs === other.expectedNumArgs &&
       this.actualNumArgs === other.actualNumArgs;
+};
+
+
+/**
+ * @param {string} name The name of the procedure.
+ * @param {number} expectedNumArgs The expected number of arguments.
+ * @param {number} actualNumArgs The actual number of arguments.
+ * @return {!r5js.Error}
+ */
+r5js.error.incorrectNumArgs = function(name, expectedNumArgs, actualNumArgs) {
+  return new r5js.IncorrectNumArgs(name, expectedNumArgs, actualNumArgs);
 };
 
 

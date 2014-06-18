@@ -26,6 +26,7 @@ goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.datumutil');
+goog.require('r5js.error');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 
@@ -159,7 +160,7 @@ r5js.UserDefinedProcedure.prototype.setEnv_ = function(env) {
  */
 r5js.UserDefinedProcedure.prototype.checkNumArgs = function(numActuals) {
   if (numActuals !== this.formalsArray.length) {
-    throw new r5js.IncorrectNumArgs(
+    throw r5js.error.incorrectNumArgs(
         this.toString(), this.formalsArray.length, numActuals);
   }
 };

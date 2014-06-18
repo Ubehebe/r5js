@@ -18,7 +18,6 @@ goog.provide('r5js.procspec');
 
 goog.require('goog.array');
 goog.require('r5js.ArgumentTypeError');
-goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.Procedure');
 goog.require('r5js.datumutil');
 goog.require('r5js.error');
@@ -58,7 +57,7 @@ r5js.procspec.Exactly_ = function(numArgs) {
 r5js.procspec.Exactly_.prototype.checkNumArgs = function(
     numArgs, nameToShowInErrorMessage) {
   if (numArgs !== this.numArgs_) {
-    throw new r5js.IncorrectNumArgs(
+    throw r5js.error.incorrectNumArgs(
         nameToShowInErrorMessage, this.numArgs_, numArgs);
   }
 };
