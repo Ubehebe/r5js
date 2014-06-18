@@ -47,7 +47,9 @@ r5js.test.matchers.HasJsValue_ = function(expectedValue) {
 /** @override */
 r5js.test.matchers.HasJsValue_.prototype.matches = function(actualValue) {
   return r5js.test.matchers.HasJsValue_.equals(
-      this.expectedValue_, actualValue.value);
+      this.expectedValue_,
+      r5js.test.matchers.HasJsValue_.prepare(
+          /** @type {!r5js.JsonValue} */ (actualValue)));
 };
 
 
@@ -69,6 +71,18 @@ r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(
 
 
 /**
+ * @param {!r5js.JsonValue} jsonValue
+ * @return {?}
+ */
+r5js.test.matchers.HasJsValue_.prepare = function(jsonValue) {
+  var retval = jsonValue.value;
+  return retval instanceof Array ?
+      retval.map(r5js.test.matchers.HasJsValue_.prepare) :
+      retval;
+};
+
+
+/**
  * @param {?} x
  * @param {?} y
  * @return {boolean}
@@ -78,9 +92,7 @@ r5js.test.matchers.HasJsValue_.equals = function(x, y) {
   var yIsArray = y instanceof Array;
   if (xIsArray && yIsArray) {
     return x.length === y.length &&
-        goog.array.zip(x, y.map(function(jsonValue) {
-          return jsonValue.value;
-        })).every(function(pair) {
+        goog.array.zip(x, y).every(function(pair) {
           return r5js.test.matchers.HasJsValue_.equals(pair[0], pair[1]);
         });
   } else if (!(xIsArray || yIsArray)) {
