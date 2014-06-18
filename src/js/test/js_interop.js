@@ -31,7 +31,6 @@ goog.require('r5js.DatumType');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.ReadError');
-goog.require('r5js.TooManyVarargs');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.test.matchers.setOutputPort');

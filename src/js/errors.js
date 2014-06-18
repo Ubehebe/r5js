@@ -29,7 +29,6 @@ goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.QuasiquoteError');
 goog.provide('r5js.ReadError');
 goog.provide('r5js.ScanError');
-goog.provide('r5js.TooManyVarargs');
 goog.provide('r5js.UnimplementedOptionError');
 goog.provide('r5js.error');
 
@@ -174,6 +173,18 @@ r5js.TooManyVarargs.prototype.equals = function(other) {
   return this.name_ === other.name_ &&
       this.maxNumArgs_ === other.maxNumArgs_ &&
       this.actualNumArgs_ === other.actualNumArgs_;
+};
+
+
+/**
+ * @param {string} name The name of the procedure.
+ * @param {number} maxNumArgs The procedure's maximum number of arguments.
+ * @param {number} actualNumArgs The actual number of arguments passed to
+ * the procedure.
+ * @return {!r5js.Error}
+ */
+r5js.error.tooManyVarargs = function(name, maxNumArgs, actualNumArgs) {
+  return new r5js.TooManyVarargs(name, maxNumArgs, actualNumArgs);
 };
 
 
