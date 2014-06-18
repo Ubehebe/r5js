@@ -48,13 +48,6 @@ r5js.test.matchers.HasStringValue_.prototype.matches = function(input) {
 
 
 /** @override */
-r5js.test.matchers.HasStringValue_.prototype.getSuccessMessage =
-    function(input) {
-  return 'ok';
-};
-
-
-/** @override */
 r5js.test.matchers.HasStringValue_.prototype.getFailureMessage =
     function(input) {
   return 'want ' +

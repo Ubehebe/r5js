@@ -66,13 +66,6 @@ r5js.test.matchers.HasStringOutput_.prototype.matches = function(input) {
 
 
 /** @override */
-r5js.test.matchers.HasStringOutput_.prototype.getSuccessMessage =
-    function(input) {
-  return 'ok';
-};
-
-
-/** @override */
 r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
     function(input) {
   return 'want ' + this.expectedOutput_ + ' got ' + this.actualOutput_;

@@ -71,12 +71,6 @@ r5js.test.matchers.ParsesAs.prototype.matches = function(value) {
 
 
 /** @override */
-r5js.test.matchers.ParsesAs.prototype.getSuccessMessage = function(value) {
-  return value + ' correctly parses as ' + this.expectedType_;
-};
-
-
-/** @override */
 r5js.test.matchers.ParsesAs.prototype.getFailureMessage = function(value) {
   return 'expected ' +
       value +

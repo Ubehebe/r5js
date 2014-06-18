@@ -61,12 +61,6 @@ r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
 
 
 /** @override */
-r5js.test.matchers.ScansAs_.prototype.getSuccessMessage = function(value) {
-  return value + ' correctly scans as ' + this.expectedType_;
-};
-
-
-/** @override */
 r5js.test.matchers.ScansAs_.prototype.getFailureMessage = function(value) {
   return 'expected ' + value + ' to scan as ' + this.expectedType_;
 };

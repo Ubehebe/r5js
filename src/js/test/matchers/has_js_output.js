@@ -58,12 +58,6 @@ r5js.test.matchers.HasJsOutput_.prototype.matches = function(input) {
 
 
 /** @override */
-r5js.test.matchers.HasJsOutput_.prototype.getSuccessMessage = function(input) {
-  return 'ok';
-};
-
-
-/** @override */
 r5js.test.matchers.HasJsOutput_.prototype.getFailureMessage = function(input) {
   return 'want ' + this.expectedOutput_ + ' got ' + this.actualOutput_.value;
 };

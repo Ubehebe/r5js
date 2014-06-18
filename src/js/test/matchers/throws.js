@@ -62,12 +62,6 @@ r5js.test.matchers.Throws.prototype.matches = function(input) {
 
 
 /** @override */
-r5js.test.matchers.Throws.prototype.getSuccessMessage = function(input) {
-  return 'ok';
-};
-
-
-/** @override */
 r5js.test.matchers.Throws.prototype.getFailureMessage = function(input) {
   return input +
       ': want\n' +

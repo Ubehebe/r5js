@@ -54,13 +54,6 @@ r5js.test.matchers.HasJsValue_.prototype.matches = function(actualValue) {
 
 
 /** @override */
-r5js.test.matchers.HasJsValue_.prototype.getSuccessMessage = function(
-    actualValue) {
-  return 'ok';
-};
-
-
-/** @override */
 r5js.test.matchers.HasJsValue_.prototype.getFailureMessage = function(
     actualValue) {
   return 'want ' +
