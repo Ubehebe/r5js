@@ -198,14 +198,14 @@ r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
       expect('(display #())', haveStringOutput('#()')).
       expect("(display '())", haveJsOutput([])).
       expect("(display '())", haveStringOutput('()')).
-      //  expect("(display (list '() '() '() '(42)))",
-      //          haveJsOutput([[], [], [], [42]])).
+      expect("(display (list '() '() '() '(42)))",
+      haveJsOutput([[], [], [], [42]])).
       expect("(display (list '() '() '() '(42)))",
           haveStringOutput('(() () () (42))')).
-      //  expect('(display (list 1 2 3))', haveJsOutput([1, 2, 3])).
+      expect('(display (list 1 2 3))', haveJsOutput([1, 2, 3])).
       expect('(display (list 1 2 3))', haveStringOutput('(1 2 3)')).
-      //  expect("(display (cons 'a (cons 'b (cons 'c '()))))",
-      //          haveJsOutput(['a', 'b', 'c'])).
+      expect("(display (cons 'a (cons 'b (cons 'c '()))))",
+      haveJsOutput(['a', 'b', 'c'])).
       expect("(display (cons 'a (cons 'b (cons 'c '()))))",
           haveStringOutput('(a b c)')).
       expect("(display (cons 'a 'b))", haveStringOutput('(a . b)')).done();
@@ -217,14 +217,14 @@ r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
       expect('(write #())', haveStringOutput('#()')).
       expect("(write '())", haveJsOutput([])).
       expect("(write '())", haveStringOutput('()')).
-      //  expect("(write (list '() '() '() '(42)))",
-      // haveJsOutput([[], [], [], [42]])).
+      expect("(write (list '() '() '() '(42)))",
+      haveJsOutput([[], [], [], [42]])).
       expect("(write (list '() '() '() '(42)))",
           haveStringOutput('(() () () (42))')).
-      //  expect('(write (list 1 2 3))', haveJsOutput([1, 2, 3])).
+      expect('(write (list 1 2 3))', haveJsOutput([1, 2, 3])).
       expect('(write (list 1 2 3))', haveStringOutput('(1 2 3)')).
-      //  expect("(write (cons 'a (cons 'b (cons 'c '()))))",
-      // haveJsOutput(['a', 'b', 'c'])).
+      expect("(write (cons 'a (cons 'b (cons 'c '()))))",
+      haveJsOutput(['a', 'b', 'c'])).
       expect("(write (cons 'a (cons 'b (cons 'c '()))))",
           haveStringOutput('(a b c)')).
       //  expect("(write (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));

@@ -50,9 +50,10 @@ r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = null;
 
 /** @override */
 r5js.test.matchers.HasJsOutput_.prototype.matches = function(input) {
-  this.actualOutput_ = this.outputPort_.getAndClearOutput()[0].value;
+  this.actualOutput_ = this.outputPort_.getAndClearOutput()[0];
   return r5js.test.matchers.HasJsValue_.equals(
-      this.actualOutput_, this.expectedOutput_);
+      r5js.test.matchers.HasJsValue_.prepare(this.actualOutput_),
+      this.expectedOutput_);
 };
 
 
@@ -64,5 +65,5 @@ r5js.test.matchers.HasJsOutput_.prototype.getSuccessMessage = function(input) {
 
 /** @override */
 r5js.test.matchers.HasJsOutput_.prototype.getFailureMessage = function(input) {
-  return 'want ' + this.expectedOutput_ + ' got ' + this.actualOutput_;
+  return 'want ' + this.expectedOutput_ + ' got ' + this.actualOutput_.value;
 };
