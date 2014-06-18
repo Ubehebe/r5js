@@ -31,8 +31,8 @@ goog.provide('r5js.ReadError');
 goog.provide('r5js.ScanError');
 goog.provide('r5js.TooFewVarargs');
 goog.provide('r5js.TooManyVarargs');
-goog.provide('r5js.UnboundVariable');
 goog.provide('r5js.UnimplementedOptionError');
+goog.provide('r5js.error');
 
 
 goog.require('goog.functions');
@@ -76,6 +76,16 @@ r5js.UnboundVariable = function(name) {
 
 /** @override */
 r5js.UnboundVariable.prototype.equals = goog.functions.FALSE;
+
+
+/**
+ * @param {string} name The name of the variable that was supposed to be bound
+ * but wasn't.
+ * @return {!r5js.Error}
+ */
+r5js.error.unboundVariable = function(name) {
+  return new r5js.UnboundVariable(name);
+};
 
 
 

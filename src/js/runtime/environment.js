@@ -25,8 +25,8 @@ goog.require('r5js.Macro');
 goog.require('r5js.NotAProcedureError');
 goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
-goog.require('r5js.UnboundVariable');
 goog.require('r5js.ast.Lambda');
+goog.require('r5js.error');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
@@ -136,7 +136,7 @@ r5js.Environment.prototype.get = function(name) {
     // If the current environment has no binding for the name, look one level up
     return this.enclosingEnv_.get(name);
   } else {
-    throw new r5js.UnboundVariable(name + ' in env');
+    throw r5js.error.unboundVariable(name + ' in env');
   }
 };
 
