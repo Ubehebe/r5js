@@ -15,6 +15,7 @@
 
 goog.provide('haveStringOutput');
 goog.provide('r5js.test.matchers.setOutputPort');
+goog.setTestOnly('haveStringOutput');
 goog.setTestOnly('r5js.test.matchers.setOutputPort');
 
 
