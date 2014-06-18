@@ -17,10 +17,10 @@ goog.provide('r5js.VarargsUserDefinedProcedure');
 
 
 goog.require('r5js.SiblingBuffer');
-goog.require('r5js.TooFewVarargs');
 goog.require('r5js.UserDefinedProcedure');
 goog.require('r5js.ast.List');
 goog.require('r5js.datumutil');
+goog.require('r5js.error');
 
 
 
@@ -46,7 +46,7 @@ goog.inherits(r5js.VarargsUserDefinedProcedure, r5js.UserDefinedProcedure);
 r5js.VarargsUserDefinedProcedure.prototype.checkNumArgs = function(numActuals) {
   var minNumArgs = this.formalsArray.length - 1;
   if (numActuals < minNumArgs) {
-    throw new r5js.TooFewVarargs(this.toString(), minNumArgs, numActuals);
+    throw r5js.error.tooFewVarargs(this.toString(), minNumArgs, numActuals);
   }
 };
 

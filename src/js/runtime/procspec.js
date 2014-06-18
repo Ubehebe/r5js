@@ -20,9 +20,9 @@ goog.require('goog.array');
 goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.IncorrectNumArgs');
 goog.require('r5js.Procedure');
-goog.require('r5js.TooFewVarargs');
 goog.require('r5js.TooManyVarargs');
 goog.require('r5js.datumutil');
+goog.require('r5js.error');
 
 
 
@@ -82,7 +82,7 @@ r5js.procspec.AtLeast_ = function(min) {
 r5js.procspec.AtLeast_.prototype.checkNumArgs = function(
     numArgs, nameToShowInErrorMessage) {
   if (numArgs < this.min_) {
-    throw new r5js.TooFewVarargs(
+    throw r5js.error.tooFewVarargs(
         nameToShowInErrorMessage, this.min_, numArgs);
   }
 };
@@ -110,7 +110,7 @@ r5js.procspec.Between_ = function(minArgs, maxArgs) {
 r5js.procspec.Between_.prototype.checkNumArgs = function(
     numArgs, nameToShowInErrorMessage) {
   if (numArgs < this.minArgs_) {
-    throw new r5js.TooFewVarargs(
+    throw r5js.error.tooFewVarargs(
         nameToShowInErrorMessage, this.minArgs_, numArgs);
   }
   if (numArgs > this.maxArgs_) {

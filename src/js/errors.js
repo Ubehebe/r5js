@@ -29,7 +29,6 @@ goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.QuasiquoteError');
 goog.provide('r5js.ReadError');
 goog.provide('r5js.ScanError');
-goog.provide('r5js.TooFewVarargs');
 goog.provide('r5js.TooManyVarargs');
 goog.provide('r5js.UnimplementedOptionError');
 goog.provide('r5js.error');
@@ -124,6 +123,18 @@ r5js.TooFewVarargs.prototype.equals = function(other) {
   // TODO bl test name_ once we can handle lambdas
   return this.minNumArgs_ === other.minNumArgs_ &&
       this.actualNumArgs_ === other.actualNumArgs_;
+};
+
+
+/**
+ * @param {string} name The name of the procedure.
+ * @param {number} minNumArgs The procedure's minimum number of arguments.
+ * @param {number} actualNumArgs The actual number of arguments passed to
+ * the procedure.
+ * @return {!r5js.Error}
+ */
+r5js.error.tooFewVarargs = function(name, minNumArgs, actualNumArgs) {
+  return new r5js.TooFewVarargs(name, minNumArgs, actualNumArgs);
 };
 
 
