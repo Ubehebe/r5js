@@ -13,11 +13,8 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('haveJsOutput');
-
 goog.provide('haveStringOutput');
 goog.provide('r5js.test.matchers.setOutputPort');
-goog.setTestOnly('haveJsOutput');
 goog.setTestOnly('r5js.test.matchers.setOutputPort');
 
 
@@ -29,17 +26,6 @@ goog.require('r5js.valutil');
 
 
 /**
- * @param {?} output
- * @return {!tdd.matchers.Matcher}
- */
-haveJsOutput = function(output) {
-  return new r5js.test.matchers.HasJsOutput_(
-      output, /** @type {!r5js.OutputSavingPort} */ (
-          r5js.test.matchers.HasJsOutput_.sharedOutputPort_));
-};
-
-
-/**
  * @param {string} output
  * @return {!tdd.matchers.Matcher}
  */
@@ -48,46 +34,6 @@ haveStringOutput = function(output) {
       output,
       /** @type {!r5js.OutputSavingPort} */ (
           r5js.test.matchers.HasStringOutput_.sharedOutputPort_));
-};
-
-
-
-/**
- * @param {?} expectedOutput
- * @param {!r5js.OutputSavingPort} outputPort
- * @implements {tdd.matchers.Matcher}
- * @struct
- * @constructor
- * @private
- */
-r5js.test.matchers.HasJsOutput_ = function(expectedOutput, outputPort) {
-  /** @const @private */ this.expectedOutput_ = expectedOutput;
-  /** @private {?} */ this.actualOutput_ = null;
-  /** @const @private */ this.outputPort_ = outputPort;
-};
-
-
-/** @private {r5js.OutputSavingPort} */
-r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = null;
-
-
-/** @override */
-r5js.test.matchers.HasJsOutput_.prototype.matches = function(input) {
-  this.actualOutput_ = this.outputPort_.getAndClearOutput()[0].value;
-  return r5js.test.matchers.HasJsValue_.equals(
-      this.actualOutput_, this.expectedOutput_);
-};
-
-
-/** @override */
-r5js.test.matchers.HasJsOutput_.prototype.getSuccessMessage = function(input) {
-  return 'ok';
-};
-
-
-/** @override */
-r5js.test.matchers.HasJsOutput_.prototype.getFailureMessage = function(input) {
-  return 'want ' + this.expectedOutput_ + ' got ' + this.actualOutput_;
 };
 
 
@@ -132,7 +78,10 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
 };
 
 
-/** @param {!r5js.OutputSavingPort} outputPort */
+/**
+ * @param {!r5js.OutputSavingPort} outputPort
+ * @suppress {accessControls}
+ */
 r5js.test.matchers.setOutputPort = function(outputPort) {
   r5js.test.matchers.HasJsOutput_.sharedOutputPort_ =
       r5js.test.matchers.HasStringOutput_.sharedOutputPort_ = outputPort;
