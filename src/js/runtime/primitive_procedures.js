@@ -405,7 +405,7 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
 
 PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
   if (!(p instanceof r5js.ast.List || p.isImproperList())) {
-    throw new r5js.ArgumentTypeError(
+    throw r5js.error.argumentTypeError(
         p, 0, 'set-car!', r5js.parse.Terminals.LPAREN,
         r5js.PrimitiveProcedures.getActualType_(p));
   }
@@ -426,7 +426,7 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
 
 PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
   if (!(p instanceof r5js.ast.List || p.isImproperList())) {
-    throw new r5js.ArgumentTypeError(
+    throw r5js.error.argumentTypeError(
         p, 0, 'set-cdr!', r5js.parse.Terminals.LPAREN,
         r5js.PrimitiveProcedures.getActualType_(p));
   }
@@ -458,7 +458,7 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
 PrimitiveProcedures['make-vector'] = _.varargsRange(
     function(numberNode, fillNode) {
       if (!(numberNode instanceof r5js.ast.Number)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             numberNode, 0, 'make-vector', r5js.DatumType.NUMBER,
             r5js.PrimitiveProcedures.getActualType_(numberNode));
       }
@@ -484,12 +484,12 @@ PrimitiveProcedures['vector-ref'] = _.binary(function(v, k) {
 
 PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
   if (!(v instanceof r5js.ast.Vector)) {
-    throw new r5js.ArgumentTypeError(
+    throw r5js.error.argumentTypeError(
         v, 0, 'vector-set!', r5js.DatumType.VECTOR,
         r5js.PrimitiveProcedures.getActualType_(v));
   }
   if (!(k instanceof r5js.ast.Number)) {
-    throw new r5js.ArgumentTypeError(
+    throw r5js.error.argumentTypeError(
         k, 1, 'vector-set!', r5js.DatumType.NUMBER,
         r5js.PrimitiveProcedures.getActualType_(k));
   }
@@ -593,11 +593,11 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
     /** @suppress {accessControls} */function(
         inputPort, outputPort, expr, envSpec) {
       if (!(expr instanceof r5js.Datum))
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             expr, 0, 'eval', 'ref' /* TODO bl is this right? */,
             r5js.PrimitiveProcedures.getActualType_(expr));
       if (!r5js.IEnvironment.isImplementedBy(envSpec)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER,
             r5js.PrimitiveProcedures.getActualType_(envSpec));
       }
@@ -657,7 +657,7 @@ PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             inputPortToUse, 0, 'char-ready?', r5js.DatumType.INPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
@@ -688,7 +688,7 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
     function(inputPort, outputPort, datum, maybeUserSuppliedOutputPort) {
       var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             outputPortToUse, 1, 'display', r5js.DatumType.OUTPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
@@ -713,7 +713,7 @@ PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             inputPortToUse, 0, 'peek-char', r5js.DatumType.INPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
@@ -724,7 +724,7 @@ PrimitiveProcedures['read'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             inputPortToUse, 0, 'read', r5js.DatumType.INPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
@@ -735,7 +735,7 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       var inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             inputPortToUse, 0, 'read-char', r5js.DatumType.INPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
@@ -746,7 +746,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
     function(inputPort, outputPort, datum, maybeUserSuppliedOutputPort) {
       var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
@@ -757,13 +757,13 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
 PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
     function(inputPort, outputPort, charNode, maybeUserSuppliedOutputPort) {
       if (!(charNode instanceof r5js.ast.Character)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             charNode, 0, 'write-char', r5js.DatumType.CHARACTER,
             r5js.PrimitiveProcedures.getActualType_(charNode));
       }
       var outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
-        throw new r5js.ArgumentTypeError(
+        throw r5js.error.argumentTypeError(
             outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
@@ -783,7 +783,7 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
 PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var mustBeProc = arguments[0];
   if (!(mustBeProc instanceof r5js.ast.Lambda)) {
-    throw new r5js.ArgumentTypeError(
+    throw r5js.error.argumentTypeError(
         mustBeProc, 0, 'apply', r5js.parse.Terminals.LAMBDA,
         r5js.PrimitiveProcedures.getActualType_(mustBeProc));
   }
@@ -796,7 +796,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   var lastRealArgIndex = arguments.length - 3;
   var mustBeList = arguments[lastRealArgIndex];
   if (!(mustBeList instanceof r5js.ast.List)) {
-    throw new r5js.ArgumentTypeError(
+    throw r5js.error.argumentTypeError(
         mustBeList, lastRealArgIndex, 'apply', r5js.parse.Terminals.LPAREN,
         r5js.PrimitiveProcedures.getActualType_(mustBeList));
   }

@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.ArgumentTypeError');
 goog.provide('r5js.FFIError');
 goog.provide('r5js.GeneralSyntaxError');
 goog.provide('r5js.IOError');
@@ -310,6 +309,24 @@ r5js.ArgumentTypeError.prototype.equals = function(other) {
       this.procName_ === other.procName_ &&
       this.expectedType_ === other.expectedType_ &&
       this.actualType_ === other.actualType_;
+};
+
+
+/**
+ * @param {!r5js.runtime.Value} arg The argument.
+ * @param {number} argIndex The position of the argument in the argument list
+ * (zero-indexed).
+ * @param {string} procName The procedure that the interpreter was invoking
+ * when this error occurred.
+ * @param {!r5js.Type} expectedType The type of the argument
+ * that the interpreter expected.
+ * @param {!r5js.Type} actualType The actual type of the argument.
+ * @return {!r5js.Error}
+ */
+r5js.error.argumentTypeError = function(
+    arg, argIndex, procName, expectedType, actualType) {
+  return new r5js.ArgumentTypeError(
+      arg, argIndex, procName, expectedType, actualType);
 };
 
 

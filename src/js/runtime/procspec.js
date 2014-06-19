@@ -17,7 +17,6 @@ goog.provide('r5js.procspec');
 
 
 goog.require('goog.array');
-goog.require('r5js.ArgumentTypeError');
 goog.require('r5js.Procedure');
 goog.require('r5js.datumutil');
 goog.require('r5js.error');
@@ -182,7 +181,7 @@ r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_.prototype.
     if (!r5js.PrimitiveProcedures.registry_[expectedType + '?'].fn_.call(
         null, arg)) {
       var actualType = r5js.PrimitiveProcedures.getActualType_(arg);
-      throw new r5js.ArgumentTypeError(
+      throw r5js.error.argumentTypeError(
           arg, i, nameToShowInErrorMessage, expectedType, actualType);
     }
     unwrappedArgs.push(arg instanceof r5js.Datum ? arg.unwrap() : arg);
@@ -237,7 +236,7 @@ r5js.procspec.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
     if (!(/** @type {!r5js.procspec.PrimitiveProcedure_} */ (
         r5js.PrimitiveProcedures.registry_[argtype + '?'])).fn_.call(
             null, arg)) {
-      throw new r5js.ArgumentTypeError(
+      throw r5js.error.argumentTypeError(
           arg, i, nameToShowInErrorMessage, argtype,
           r5js.PrimitiveProcedures.getActualType_(arg));
     }

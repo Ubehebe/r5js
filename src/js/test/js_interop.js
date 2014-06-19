@@ -26,7 +26,7 @@ goog.require('haveJsOutput');
 goog.require('haveJsValue');
 goog.require('haveStringOutput');
 goog.require('haveStringValue');
-goog.require('r5js.ArgumentTypeError');
+goog.require('r5js.error');
 goog.require('r5js.DatumType');
 goog.require('r5js.ImmutableError');
 goog.require('r5js.ReadError');
@@ -309,7 +309,7 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
 //  expect('(let ((foo (lambda (x . y) x))) (foo))').
 //      to(Throw(new r5js.TooFewVarargs('', 1, 0)));
 //  expect('(+ "a" "b")').
-//      to(Throw(new r5js.ArgumentTypeError(
+//      to(Throw(r5js.error.argumentTypeError(
 //          'a', 0, '+', r5js.DatumType.NUMBER, r5js.DatumType.STRING)));
 //  expect('(scheme-report-environment 6)').
 //      to(Throw(new r5js.UnimplementedOptionError('')));
