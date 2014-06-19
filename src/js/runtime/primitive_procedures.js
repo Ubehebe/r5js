@@ -410,7 +410,7 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
         r5js.PrimitiveProcedures.getActualType_(p));
   }
   if (p.isImmutable()) {
-    throw new r5js.ImmutableError(p.toString());
+    throw r5js.error.immutable(p.toString());
   }
 
   car.setNextSibling(p.getFirstChild().getNextSibling());
@@ -432,7 +432,7 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
   }
 
   if (p.isImmutable()) {
-    throw new r5js.ImmutableError(p.toString());
+    throw r5js.error.immutable(p.toString());
   }
 
   if (cdr instanceof r5js.ast.List) {
@@ -494,7 +494,7 @@ PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
         r5js.PrimitiveProcedures.getActualType_(k));
   }
   if (v.isImmutable()) {
-    throw new r5js.ImmutableError(v.toString());
+    throw r5js.error.immutable(v.toString());
   }
   v.vectorSet(k.getPayload(), fill);
   // todo bl requires a cycle-labeling procedure like set-car! and set-cdr!
@@ -576,7 +576,7 @@ PrimitiveProcedures['string-ref'] = _.binary(function(node, i) {
 
 PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
   if (str.isImmutable()) {
-    throw new r5js.ImmutableError(/** @type {string} */ (str.getPayload()));
+    throw r5js.error.immutable(/** @type {string} */ (str.getPayload()));
   }
   var s = str.getPayload();
   str.setPayload(s.substr(0, k) + c.getPayload() + s.substr(k + 1));

@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.ImmutableError');
 goog.provide('r5js.MacroError');
 goog.provide('r5js.NotAProcedureError');
 goog.provide('r5js.ParseError');
@@ -509,6 +508,15 @@ r5js.ImmutableError = function(what) {
 r5js.ImmutableError.prototype.equals = function(other) {
   // TODO bl: for now, all instances are considered equal
   return other instanceof r5js.ImmutableError;
+};
+
+
+/**
+ * @param {string} what Object that caused the error.
+ * @return {!r5js.Error}
+ */
+r5js.error.immutable = function(what) {
+  return new r5js.ImmutableError(what);
 };
 
 

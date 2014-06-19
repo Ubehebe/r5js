@@ -17,8 +17,8 @@
 goog.provide('r5js.CdrHelper');
 
 
-goog.require('r5js.ImmutableError');
 goog.require('r5js.ast.List');
+goog.require('r5js.error');
 
 
 
@@ -44,7 +44,7 @@ r5js.CdrHelper = function(head, startOfCdr) {
  */
 r5js.CdrHelper.prototype.setCar = function(car) {
   if (this.head_.isImmutable()) {
-    throw new r5js.ImmutableError(this.head_.toString());
+    throw r5js.error.immutable(this.head_.toString());
   }
   this.head_.getFirstChild().setNextSibling(car);
 };
@@ -56,7 +56,7 @@ r5js.CdrHelper.prototype.setCar = function(car) {
  */
 r5js.CdrHelper.prototype.setCdr = function(cdr) {
   if (this.head_.isImmutable()) {
-    throw new r5js.ImmutableError(this.head_.toString());
+    throw r5js.error.immutable(this.head_.toString());
   }
   this.startOfCdr_.setNextSibling(cdr);
   if (!(cdr instanceof r5js.ast.List)) {
