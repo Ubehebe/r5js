@@ -16,7 +16,6 @@
 goog.provide('r5js.IdShim');
 
 
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');
 goog.require('r5js.ProcCallLike');
@@ -25,6 +24,7 @@ goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
+goog.require('r5js.error');
 
 
 
@@ -65,7 +65,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
     }
     return; // TODO bl odd control flow
   } else if (this.firstOperand_.isImproperList()) {
-    throw new r5js.InternalInterpreterError('TODO bl');
+    throw r5js.error.internalInterpreterError('TODO bl');
   } else {
     ans = this.firstOperand_;
   }

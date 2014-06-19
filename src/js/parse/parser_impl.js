@@ -23,7 +23,6 @@ goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DottedListTransformer');
 goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdShim');
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.MacroError');

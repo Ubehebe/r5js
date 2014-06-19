@@ -20,7 +20,6 @@ goog.provide('r5js.Environment');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.IEnvironment');
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
 goog.require('r5js.NotAProcedureError');
 goog.require('r5js.Procedure');
@@ -73,7 +72,7 @@ r5js.Environment.prototype.allowRedefs = function() {
 r5js.Environment.prototype.clone = function() {
 
   if (this.enclosingEnv_) {
-    throw new r5js.InternalInterpreterError(
+    throw r5js.error.internalInterpreterError(
         'clone should only be used during ' +
             'interpreter bootstrapping');
   }
@@ -187,11 +186,11 @@ r5js.Environment.prototype.addClosuresFrom = function(other) {
 /** @override */
 r5js.Environment.prototype.addClosure = function(name, proc) {
   if (this.sealed_) {
-    throw new r5js.InternalInterpreterError('tried to bind ' +
+    throw r5js.error.internalInterpreterError('tried to bind ' +
         name +
         ' in sealed environment');
   } else if (this.closures_[name]) {
-    throw new r5js.InternalInterpreterError('invariant incorrect');
+    throw r5js.error.internalInterpreterError('invariant incorrect');
   } else {
     this.closures_[name] = proc;
   }
@@ -216,7 +215,7 @@ r5js.Environment.prototype.bindingIsAcceptable_ = function(name) {
  */
 r5js.Environment.prototype.addBinding = function(name, val) {
   if (this.sealed_) {
-    throw new r5js.InternalInterpreterError(
+    throw r5js.error.internalInterpreterError(
         'tried to bind ' +
             name +
             ' in sealed environment ' +
@@ -224,7 +223,7 @@ r5js.Environment.prototype.addBinding = function(name, val) {
   }
 
   if (!this.bindingIsAcceptable_(name)) {
-    throw new r5js.InternalInterpreterError(
+    throw r5js.error.internalInterpreterError(
         'redefining ' +
         name +
                 ' in same env, not allowed');

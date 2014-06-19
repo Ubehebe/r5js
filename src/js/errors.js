@@ -20,7 +20,6 @@ goog.provide('r5js.GeneralSyntaxError');
 goog.provide('r5js.IOError');
 goog.provide('r5js.IllegalEmptyApplication');
 goog.provide('r5js.ImmutableError');
-goog.provide('r5js.InternalInterpreterError');
 goog.provide('r5js.MacroError');
 goog.provide('r5js.NotAProcedureError');
 goog.provide('r5js.ParseError');
@@ -252,6 +251,15 @@ r5js.InternalInterpreterError = function(msg) {
 
 /** @override */
 r5js.InternalInterpreterError.prototype.equals = goog.functions.FALSE;
+
+
+/**
+ * @param {string} msg An error message.
+ * @return {!r5js.Error}
+ */
+r5js.error.internalInterpreterError = function(msg) {
+  return new r5js.InternalInterpreterError(msg);
+};
 
 
 

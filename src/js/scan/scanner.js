@@ -18,13 +18,13 @@ goog.provide('r5js.Scanner');
 
 
 goog.require('r5js.Datum');
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ScanError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
+goog.require('r5js.error');
 
 
 
@@ -221,7 +221,7 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
         r5js.Scanner.parseNumericPayload_(payload) :
         parseFloat(payload);
     return new r5js.ast.Number(numericPayload);
-  } else throw new r5js.InternalInterpreterError('invariant incorrect');
+  } else throw r5js.error.internalInterpreterError('invariant incorrect');
 };
 
 
@@ -241,7 +241,7 @@ r5js.Scanner.normalizeCharacterPayload_ = function(payload) {
   } else if (afterSlash.toLowerCase() === 'newline') {
     return '\n';
   } else {
-    throw new r5js.InternalInterpreterError(
+    throw r5js.error.internalInterpreterError(
         'invalid character payload ' + payload);
   }
 };

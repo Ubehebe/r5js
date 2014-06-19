@@ -16,12 +16,12 @@
 goog.provide('r5js.datumutil');
 
 
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Number');
+goog.require('r5js.error');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 
@@ -112,7 +112,7 @@ r5js.datumutil.wrapValue = function(result) {
     case 'string':
       return new r5js.ast.Identifier(result);
     default:
-      throw new r5js.InternalInterpreterError(
+      throw r5js.error.internalInterpreterError(
           'cannot deduce type from value ' +
           result +
           ': noninjective mapping from values to types');

@@ -17,10 +17,10 @@
 goog.provide('r5js.TemplateBindings');
 
 
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Macro');
+goog.require('r5js.error');
 
 
 
@@ -123,7 +123,7 @@ r5js.TemplateBindings.prototype.resetCurChild = function() {
  */
 r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
   if (name in this.bindings_) {
-    throw new r5js.InternalInterpreterError('invariant incorrect');
+    throw r5js.error.internalInterpreterError('invariant incorrect');
   } else if (val instanceof r5js.ast.Macro) {
     // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
     var fakeName = newCpsName();
@@ -257,7 +257,7 @@ r5js.TemplateBindings.prototype.getNextChild = function() {
  */
 r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
   if (!this.patternIds_)
-    throw new r5js.InternalInterpreterError('invariant incorrect');
+    throw r5js.error.internalInterpreterError('invariant incorrect');
 
   if (datum instanceof r5js.ast.Identifier) {
     var name = /** @type {string} */(datum.getPayload());

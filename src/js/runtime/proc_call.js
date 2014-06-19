@@ -20,7 +20,6 @@ goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.IllegalEmptyApplication');
-goog.require('r5js.InternalInterpreterError');
 goog.require('r5js.Macro');
 goog.require('r5js.NotAProcedureError');
 goog.require('r5js.ProcCallLike');
@@ -33,6 +32,7 @@ goog.require('r5js.ast.List');
 goog.require('r5js.ast.Literal');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.Vector');
+goog.require('r5js.error');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
@@ -131,7 +131,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
           maybeContinuable).getResultName()));
       newCallChain.appendProcCallLike(maybeContinuable);
     } else if (arg.isImproperList()) {
-      throw new r5js.InternalInterpreterError('TODO bl');
+      throw r5js.error.internalInterpreterError('TODO bl');
     } else if ((maybeContinuable = arg.desugar(
         /** @type {!r5js.IEnvironment} */ (this.getEnv()))).evalAndAdvance) {
       /* todo bl is it an invariant violation to be a list
@@ -228,7 +228,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
     } else if (cur instanceof r5js.Datum) {
       args.push(cur.clone(null /* parent */));
     } else {
-      throw new r5js.InternalInterpreterError('unexpected datum ' + cur);
+      throw r5js.error.internalInterpreterError('unexpected datum ' + cur);
     }
   }
 
