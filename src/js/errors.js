@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.QuasiquoteError');
 goog.provide('r5js.ReadError');
 goog.provide('r5js.ScanError');
 goog.provide('r5js.UnimplementedOptionError');
@@ -396,6 +395,15 @@ r5js.QuasiquoteError = function(what) {
 
 /** @override */
 r5js.QuasiquoteError.prototype.equals = goog.functions.FALSE;
+
+
+/**
+ * @param {string} what An error message.
+ * @return {!r5js.Error}
+ */
+r5js.error.quasiquote = function(what) {
+  return new r5js.QuasiquoteError(what);
+};
 
 
 

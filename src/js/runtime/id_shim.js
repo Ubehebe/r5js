@@ -18,7 +18,6 @@ goog.provide('r5js.IdShim');
 
 goog.require('r5js.Macro');
 goog.require('r5js.ProcCallLike');
-goog.require('r5js.QuasiquoteError');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quasiquote');
@@ -131,7 +130,7 @@ r5js.IdShim.prototype.tryQuote_ = function(quote) {
             } else { // `(1 ,@(list) 2) => (1 2)
               ans = null;
             }
-          } else throw new r5js.QuasiquoteError(ans + ' is not a list');
+          } else throw r5js.error.quasiquote(ans + ' is not a list');
         }
         return /** @type {r5js.Datum} */ (ans);
       });
