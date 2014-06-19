@@ -20,7 +20,7 @@ goog.setTestOnly('haveStringValue');
 
 /**
  * @param {string} value
- * @return {!tdd.matchers.Matcher}
+ * @return {!tdd.matchers.Matcher.<!r5js.JsonValue>}
  */
 haveStringValue = function(value) {
   return new r5js.test.matchers.HasStringValue_(value);
@@ -30,7 +30,7 @@ haveStringValue = function(value) {
 
 /**
  * @param {string} expectedValue
- * @implements {tdd.matchers.Matcher}
+ * @implements {tdd.matchers.Matcher.<!r5js.JsonValue>}
  * @struct
  * @constructor
  * @private
@@ -42,8 +42,7 @@ r5js.test.matchers.HasStringValue_ = function(expectedValue) {
 
 /** @override */
 r5js.test.matchers.HasStringValue_.prototype.matches = function(input) {
-  return this.expectedValue_ ===
-      (/** @type {!r5js.JsonValue} */ (input)).writeValue;
+  return this.expectedValue_ === input.writeValue;
 };
 
 
@@ -53,5 +52,5 @@ r5js.test.matchers.HasStringValue_.prototype.getFailureMessage =
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      (/** @type {!r5js.JsonValue} */ (input)).writeValue;
+      input.writeValue;
 };
