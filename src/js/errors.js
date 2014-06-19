@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.IllegalEmptyApplication');
 goog.provide('r5js.ImmutableError');
 goog.provide('r5js.MacroError');
 goog.provide('r5js.NotAProcedureError');
@@ -411,6 +410,15 @@ r5js.IllegalEmptyApplication = function(where) {
 
 /** @override */
 r5js.IllegalEmptyApplication.prototype.equals = goog.functions.FALSE;
+
+
+/**
+ * @param {*} where Object that caused the empty application.
+ * @return {!r5js.Error}
+ */
+r5js.error.illegalEmptyApplication = function(where) {
+  return new r5js.IllegalEmptyApplication(where);
+};
 
 
 

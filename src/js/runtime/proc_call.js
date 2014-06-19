@@ -19,7 +19,6 @@ goog.provide('r5js.ProcCall');
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
-goog.require('r5js.IllegalEmptyApplication');
 goog.require('r5js.Macro');
 goog.require('r5js.NotAProcedureError');
 goog.require('r5js.ProcCallLike');
@@ -82,7 +81,8 @@ r5js.ProcCall.prototype.operandsInContinuationPassingStyle_ = function() {
   for (var cur = this.firstOperand_; cur; cur = cur.getNextSibling()) {
     if (cur instanceof r5js.Datum) {
       if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
-        throw new r5js.IllegalEmptyApplication(this.operatorName_.getPayload());
+        throw r5js.error.illegalEmptyApplication(
+            this.operatorName_.getPayload());
       } else if (!(cur instanceof r5js.ast.Literal ||
           cur instanceof r5js.ast.Quote ||
           cur instanceof r5js.ast.Vector)) {
