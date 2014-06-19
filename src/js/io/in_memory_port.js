@@ -18,7 +18,6 @@ goog.provide('r5js.InMemoryOutputPort');
 goog.provide('r5js.InMemoryPortBuffer');
 
 
-goog.require('r5js.IOError');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.ReaderImpl');

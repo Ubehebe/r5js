@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.IOError');
 goog.provide('r5js.IllegalEmptyApplication');
 goog.provide('r5js.ImmutableError');
 goog.provide('r5js.MacroError');
@@ -373,24 +372,6 @@ r5js.UnimplementedOptionError.prototype.toString = function() {
 r5js.UnimplementedOptionError.prototype.equals = function(other) {
   return other instanceof r5js.UnimplementedOptionError;
 };
-
-
-
-/**
- * @param {string} what An error message.
- * @implements {r5js.Error}
- * @struct
- * @constructor
- */
-r5js.IOError = function(what) {
-  this.toString = function() {
-    return 'IO error: ' + what;
-  };
-};
-
-
-/** @override */
-r5js.IOError.prototype.equals = goog.functions.FALSE;
 
 
 
