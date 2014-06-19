@@ -35,20 +35,20 @@ r5js.Error = function(type, var_args) {
 r5js.Error.Type = {
   ARGUMENT_TYPE_ERROR: 'argument type error',
   ILLEGAL_EMPTY_APPLICATION: 'illegal empty application',
-  IMMUTABLE_ERROR: 'immutable error',
+  IMMUTABLE: 'immutable error',
   INCORRECT_NUM_ARGS: 'incorrect number of args',
   INTERNAL_INTERPRETER_ERROR: 'internal interpreter error',
-  IO_ERROR: 'I/O error',
-  MACRO_ERROR: 'macro error',
-  NOT_A_PROCEDURE_ERROR: 'not a procedure',
-  PARSE_ERROR: 'parse error',
-  READ_ERROR: 'read error',
-  QUASIQUOTE_ERROR: 'quasiquote error',
-  SCAN_ERROR: 'scan error',
+  IO: 'I/O error',
+  MACRO: 'macro error',
+  NOT_A_PROCEDURE: 'not a procedure',
+  PARSE: 'parse error',
+  READ: 'read error',
+  QUASIQUOTE: 'quasiquote error',
+  SCAN: 'scan error',
   TOO_FEW_VARARGS: 'too few varargs',
   TOO_MANY_VARARGS: 'too many varargs',
   UNBOUND_VARIABLE: 'unbound variable',
-  UNIMPLEMENTED_OPTION_ERROR: 'unimplemented option'
+  UNIMPLEMENTED_OPTION: 'unimplemented option'
 };
 
 
@@ -143,7 +143,7 @@ r5js.error.argumentTypeError = function(
  * @return {!r5js.Error}
  */
 r5js.error.macro = function(keyword, msg) {
-  return new r5js.Error(r5js.Error.Type.MACRO_ERROR, keyword, msg);
+  return new r5js.Error(r5js.Error.Type.MACRO, keyword, msg);
 };
 
 
@@ -153,7 +153,7 @@ r5js.error.macro = function(keyword, msg) {
  */
 r5js.error.unimplementedOption = function(what) {
   return new r5js.Error(
-      r5js.Error.Type.UNIMPLEMENTED_OPTION_ERROR, what);
+      r5js.Error.Type.UNIMPLEMENTED_OPTION, what);
 };
 
 
@@ -162,7 +162,7 @@ r5js.error.unimplementedOption = function(what) {
  * @return {!r5js.Error}
  */
 r5js.error.quasiquote = function(what) {
-  return new r5js.Error(r5js.Error.Type.QUASIQUOTE_ERROR, what);
+  return new r5js.Error(r5js.Error.Type.QUASIQUOTE, what);
 };
 
 
@@ -181,7 +181,7 @@ r5js.error.illegalEmptyApplication = function(where) {
  * @return {!r5js.Error}
  */
 r5js.error.parse = function(what) {
-  return new r5js.Error(r5js.Error.Type.PARSE_ERROR, what);
+  return new r5js.Error(r5js.Error.Type.PARSE, what);
 };
 
 
@@ -190,7 +190,7 @@ r5js.error.parse = function(what) {
  * @return {!r5js.Error}
  */
 r5js.error.read = function(token) {
-  return new r5js.Error(r5js.Error.Type.READ_ERROR, token);
+  return new r5js.Error(r5js.Error.Type.READ, token);
 };
 
 
@@ -200,7 +200,7 @@ r5js.error.read = function(token) {
  * @return {!r5js.Error}
  */
 r5js.error.notAProcedure = function(name, actualType) {
-  return new r5js.Error(r5js.Error.Type.NOT_A_PROCEDURE_ERROR,
+  return new r5js.Error(r5js.Error.Type.NOT_A_PROCEDURE,
       name, actualType);
 };
 
@@ -210,7 +210,7 @@ r5js.error.notAProcedure = function(name, actualType) {
  * @return {!r5js.Error}
  */
 r5js.error.immutable = function(what) {
-  return new r5js.Error(r5js.Error.Type.IMMUTABLE_ERROR, what);
+  return new r5js.Error(r5js.Error.Type.IMMUTABLE, what);
 };
 
 
@@ -219,5 +219,5 @@ r5js.error.immutable = function(what) {
  * @return {!r5js.Error}
  */
 r5js.error.scan = function(what) {
-  return new r5js.Error(r5js.Error.Type.SCAN_ERROR, what);
+  return new r5js.Error(r5js.Error.Type.SCAN, what);
 };
