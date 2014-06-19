@@ -217,7 +217,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
              between the programmer and the implementation. */
       if (toPush instanceof r5js.Macro &&
           !toPush.isLetOrLetrecSyntax()) {
-        throw new r5js.MacroError(name, 'bad syntax');
+        throw r5js.error.macro(name, 'bad syntax');
       }
       // TODO bl this doesn't seem like the right behavior. Investigate.
       args.push(toPush === null ? r5js.runtime.UNSPECIFIED_VALUE : toPush);

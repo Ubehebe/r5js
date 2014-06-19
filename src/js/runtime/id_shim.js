@@ -17,7 +17,6 @@ goog.provide('r5js.IdShim');
 
 
 goog.require('r5js.Macro');
-goog.require('r5js.MacroError');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.QuasiquoteError');
 goog.require('r5js.ast.Identifier');
@@ -81,7 +80,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
      trying to return a macro object off the trampoline, that's an error.
      The input was a bare macro name. */
   if (!nextContinuable && ans instanceof r5js.Macro) {
-    throw new r5js.MacroError('TODO bl', 'bad macro syntax');
+    throw r5js.error.macro('TODO bl', 'bad macro syntax');
   }
 
   if (nextContinuable) {

@@ -25,7 +25,6 @@ goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdShim');
 goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
-goog.require('r5js.MacroError');
 goog.require('r5js.PatternIdTransformer');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
@@ -44,6 +43,7 @@ goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Vector');
 goog.require('r5js.datumutil');
+goog.require('r5js.error');
 goog.require('r5js.newAssignment');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
@@ -1067,7 +1067,7 @@ r5js.ParserImpl.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
       var macro = /** @type {!r5js.Macro} */ (
           node.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
       if (!macro.allPatternsBeginWith(kw))
-        throw new r5js.MacroError(kw, 'all patterns must begin with ' + kw);
+        throw r5js.error.macro(kw, 'all patterns must begin with ' + kw);
       var anonymousName = newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
       return r5js.newTopLevelSyntaxAssignment(kw, anonymousName);

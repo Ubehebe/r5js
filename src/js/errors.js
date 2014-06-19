@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.MacroError');
 goog.provide('r5js.NotAProcedureError');
 goog.provide('r5js.ParseError');
 goog.provide('r5js.PrimitiveProcedureError');
@@ -346,6 +345,16 @@ r5js.MacroError = function(keyword, msg) {
 
 /** @override */
 r5js.MacroError.prototype.equals = goog.functions.FALSE;
+
+
+/**
+ * @param {string} keyword Keyword of macro.
+ * @param {string} msg Error message.
+ * @return {!r5js.Error}
+ */
+r5js.error.macro = function(keyword, msg) {
+  return new r5js.MacroError(keyword, msg);
+};
 
 
 

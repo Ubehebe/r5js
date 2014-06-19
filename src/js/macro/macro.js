@@ -18,7 +18,6 @@ goog.provide('r5js.Macro');
 
 
 goog.require('goog.functions');
-goog.require('r5js.MacroError');
 goog.require('r5js.ParseError');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
@@ -26,6 +25,7 @@ goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
+goog.require('r5js.error');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 
@@ -259,7 +259,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
       return newParseTree;
     }
   }
-  throw new r5js.MacroError(
+  throw r5js.error.macro(
       this.transformers_[0].getName(), 'no pattern match for input ' + datum);
 };
 
