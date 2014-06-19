@@ -14,8 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.FFIError');
-goog.provide('r5js.GeneralSyntaxError');
 goog.provide('r5js.IOError');
 goog.provide('r5js.IllegalEmptyApplication');
 goog.provide('r5js.ImmutableError');
