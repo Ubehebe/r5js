@@ -22,7 +22,6 @@ goog.setTestOnly('r5js.test.matchers.setOutputPort');
 goog.require('goog.array');
 goog.require('r5js.OutputSavingPort');
 goog.require('r5js.test.matchers.HasJsValue_');
-goog.require('r5js.test.matchers.Throws');
 goog.require('r5js.valutil');
 
 

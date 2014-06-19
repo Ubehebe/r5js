@@ -14,9 +14,10 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 goog.provide('Throw');
-goog.provide('r5js.test.matchers.Throws');
 goog.setTestOnly('Throw');
-goog.setTestOnly('r5js.test.matchers.Throws');
+
+
+goog.require('r5js.error');
 
 
 /**
@@ -24,7 +25,7 @@ goog.setTestOnly('r5js.test.matchers.Throws');
  * @return {!tdd.matchers.Matcher.<!r5js.Error>}
  */
 Throw = function(error) {
-  return new r5js.test.matchers.Throws(error);
+  return new r5js.test.matchers.Throws_(error);
 };
 
 
@@ -34,22 +35,23 @@ Throw = function(error) {
  * @implements {tdd.matchers.Matcher.<!r5js.Error>}
  * @struct
  * @constructor
+ * @private
  */
-r5js.test.matchers.Throws = function(expectedError) {
+r5js.test.matchers.Throws_ = function(expectedError) {
   /** @const @private */ this.expectedError_ = expectedError;
   /** @private */ this.actualError_ = null;
 };
 
 
 /** @override */
-r5js.test.matchers.Throws.prototype.matches = function(actualError) {
+r5js.test.matchers.Throws_.prototype.matches = function(actualError) {
   return r5js.error.equals(
       this.expectedError_, this.actualError_ = actualError);
 };
 
 
 /** @override */
-r5js.test.matchers.Throws.prototype.getFailureMessage = function(input) {
+r5js.test.matchers.Throws_.prototype.getFailureMessage = function(input) {
   return input +
       ': want\n' +
       this.expectedError_.toString() +
