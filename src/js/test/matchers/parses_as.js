@@ -15,8 +15,6 @@
 
 goog.provide('parseAs');
 goog.setTestOnly('parseAs');
-goog.provide('r5js.test.matchers.ParsesAs');
-goog.setTestOnly('r5js.test.matchers.ParsesAs');
 
 
 goog.require('r5js.Datum');
@@ -31,18 +29,19 @@ goog.require('r5js.parse.bnf');
  * @return {!tdd.matchers.Matcher}
  */
 parseAs = function(expectedType) {
-  return new r5js.test.matchers.ParsesAs(expectedType);
+  return new r5js.test.matchers.ParsesAs_(expectedType);
 };
 
 
 
 /**
  * @param {!r5js.parse.Nonterminal} expectedType
- * @implements {tdd.matchers.Matcher}
+ * @implements {tdd.matchers.Matcher.<string>}
  * @struct
  * @constructor
+ * @private
  */
-r5js.test.matchers.ParsesAs = function(expectedType) {
+r5js.test.matchers.ParsesAs_ = function(expectedType) {
   /** @const @private {!r5js.parse.Nonterminal} */
   this.expectedType_ = expectedType;
 
@@ -52,7 +51,7 @@ r5js.test.matchers.ParsesAs = function(expectedType) {
 
 
 /** @override */
-r5js.test.matchers.ParsesAs.prototype.matches = function(value) {
+r5js.test.matchers.ParsesAs_.prototype.matches = function(value) {
   var datumRoot;
   try {
     datumRoot = new r5js.ReaderImpl(
@@ -71,7 +70,7 @@ r5js.test.matchers.ParsesAs.prototype.matches = function(value) {
 
 
 /** @override */
-r5js.test.matchers.ParsesAs.prototype.getFailureMessage = function(value) {
+r5js.test.matchers.ParsesAs_.prototype.getFailureMessage = function(value) {
   return 'expected ' +
       value +
       ' to parse as ' +
