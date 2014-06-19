@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.ParseError');
 goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.QuasiquoteError');
 goog.provide('r5js.ReadError');
@@ -445,6 +444,15 @@ r5js.ParseError = function(what) {
 
 /** @override */
 r5js.ParseError.prototype.equals = goog.functions.FALSE;
+
+
+/**
+ * @param {*} what
+ * @return {!r5js.Error}
+ */
+r5js.error.parse = function(what) {
+  return new r5js.ParseError(what);
+};
 
 
 

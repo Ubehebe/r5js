@@ -18,7 +18,6 @@ goog.provide('r5js.Macro');
 
 
 goog.require('goog.functions');
-goog.require('r5js.ParseError');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
@@ -253,7 +252,7 @@ r5js.Macro.prototype.transcribe = function(datum, useEnv, parserProvider) {
             }
         );
       } else {
-        throw new r5js.ParseError(newDatumTree);
+        throw r5js.error.parse(newDatumTree);
       }
 
       return newParseTree;

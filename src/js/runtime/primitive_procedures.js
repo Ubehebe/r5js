@@ -631,8 +631,9 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
         expr.nextSibling_ = null;
 
         var parsed = new r5js.ParserImpl(expr).parse();
-        if (!parsed)
-          throw new r5js.ParseError(expr);
+        if (!parsed) {
+          throw r5js.error.parse(expr);
+        }
         var continuable = /** @type {!r5js.ProcCallLike} */ (
             parsed.desugar(env));
         return r5js.trampoline(continuable, env, inputPort, outputPort);

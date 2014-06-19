@@ -19,11 +19,11 @@ goog.provide('r5js.PipelineImpl');
 
 
 goog.require('r5js.Environment');
-goog.require('r5js.ParseError');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.VACUOUS_PROGRAM');
+goog.require('r5js.error');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 goog.require('r5js.trampoline');
 
@@ -65,7 +65,7 @@ r5js.PipelineImpl.prototype.parse = function(root, opt_nonterminal) {
       parser.parse(opt_nonterminal) :
       parser.parse();
   if (!ans) {
-    throw new r5js.ParseError(root);
+    throw r5js.error.parse(root);
   }
   return ans;
 };
