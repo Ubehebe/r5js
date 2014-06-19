@@ -18,7 +18,6 @@ goog.provide('r5js.Scanner');
 
 
 goog.require('r5js.Datum');
-goog.require('r5js.ScanError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
@@ -75,7 +74,7 @@ r5js.Scanner.prototype.shouldMatchAgain_ = function(matchArray) {
   if (!matchArray) {
     return false; // eof
   } else if (this.tokenRegex_.lastIndex > this.start_ + matchArray[0].length) {
-    throw new r5js.ScanError(this.text_.substr(
+    throw r5js.error.scan(this.text_.substr(
         this.start_, this.tokenRegex_.lastIndex - this.start_));
   } else {
     var indexOfWhitespace = 7;
@@ -156,7 +155,7 @@ r5js.Scanner.prototype.readNextToken_ = function() {
     if (this.start_ === this.text_.length) {
       this.tokenRegex_.lastIndex = this.text_.length;
     } else {
-      throw new r5js.ScanError(this.text_.substr(this.start_));
+      throw r5js.error.scan(this.text_.substr(this.start_));
     }
     return match;
   } else {
@@ -179,7 +178,7 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
     /* If the previous token required a delimiter but we didn't get
          one, that's a scan error. Example: 1+2 scans as two numbers
          (1 and +2), but there has to be a delimiter between them. */
-    throw new r5js.ScanError(this.text_.substr(this.tokenRegex_.lastIndex));
+    throw r5js.error.scan(this.text_.substr(this.tokenRegex_.lastIndex));
   } else if (matchArray[6]) {
     this.needDelimiter_ = false;
     return payload;
@@ -265,7 +264,7 @@ r5js.Scanner.parseNumericPayload_ = function(payload) {
   var originalLength = payload.length;
 
   if (r5js.Scanner.NUMBER_FORBIDDEN_.test(payload))
-    throw new r5js.ScanError('unsupported number literal: ' + payload);
+    throw r5js.error.scan('unsupported number literal: ' + payload);
 
   var base = 10;
   if ((payload = payload.replace(/#x/i, '')).length < originalLength) {

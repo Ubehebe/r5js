@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.ScanError');
 goog.provide('r5js.UnimplementedOptionError');
 goog.provide('r5js.error');
 
@@ -577,3 +576,12 @@ r5js.ScanError = function(what) {
 
 /** @override */
 r5js.ScanError.prototype.equals = goog.functions.FALSE;
+
+
+/**
+ * @param {string} what An error message.
+ * @return {!r5js.Error}
+ */
+r5js.error.scan = function(what) {
+  return new r5js.ScanError(what);
+};
