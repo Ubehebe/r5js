@@ -32,7 +32,6 @@ goog.require('r5js.OutputPort');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
-goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.CompoundDatum');
@@ -217,7 +216,7 @@ PrimitiveProcedures['<'] = _.varargsAtLeast0(function() {
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['angle'] = _.unary(function(z) {
-  throw new r5js.UnimplementedOptionError('angle');
+  throw r5js.error.unimplementedOption('angle');
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['acos'] = _.unary(Math.acos, r5js.DatumType.NUMBER);
@@ -261,7 +260,7 @@ PrimitiveProcedures['expt'] = _.binary(
 PrimitiveProcedures['floor'] = _.unary(Math.floor, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['imag-part'] = _.unary(function(z) {
-  throw new r5js.UnimplementedOptionError('imag-part');
+  throw r5js.error.unimplementedOption('imag-part');
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['inexact?'] = _.unary(function(x) {
@@ -273,15 +272,15 @@ PrimitiveProcedures['inexact->exact'] = _.unary(function(x) {
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['magnitude'] = _.unary(function(z) {
-  throw new r5js.UnimplementedOptionError('magnitude');
+  throw r5js.error.unimplementedOption('magnitude');
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['make-polar'] = _.binary(function(x, y) {
-  throw new r5js.UnimplementedOptionError('make-polar');
+  throw r5js.error.unimplementedOption('make-polar');
 }, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['make-rectangular'] = _.binary(function(r, theta) {
-  throw new r5js.UnimplementedOptionError('make-rectangular');
+  throw r5js.error.unimplementedOption('make-rectangular');
 }, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['number->string'] = _.unary(function(x) {
@@ -334,7 +333,7 @@ PrimitiveProcedures['real?'] = _.unary(function(node) {
 });
 
 PrimitiveProcedures['real-part'] = _.unary(function(z) {
-  throw new r5js.UnimplementedOptionError('real-part');
+  throw r5js.error.unimplementedOption('real-part');
 }, r5js.DatumType.NUMBER);
 
 PrimitiveProcedures['remainder'] = _.binary(function(p, q) {
@@ -1019,7 +1018,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
 
 PrimitiveProcedures['null-environment'] = _.unary(function(num) {
   if (num !== 5) {
-    throw new r5js.UnimplementedOptionError(
+    throw r5js.error.unimplementedOption(
         '(null-environment ' + num + ')');
   }
   return new r5js.Environment(r5js.PrimitiveProcedures.nullEnv_);
@@ -1027,7 +1026,7 @@ PrimitiveProcedures['null-environment'] = _.unary(function(num) {
 
 PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
   if (num !== 5) {
-    throw new r5js.UnimplementedOptionError(
+    throw r5js.error.unimplementedOption(
         '(scheme-report-environment ' + num + ')');
   }
   return new r5js.Environment(r5js.PrimitiveProcedures.r5RSEnv_);

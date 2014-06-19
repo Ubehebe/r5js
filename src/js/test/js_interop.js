@@ -28,7 +28,6 @@ goog.require('haveStringOutput');
 goog.require('haveStringValue');
 goog.require('r5js.error');
 goog.require('r5js.DatumType');
-goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.test.matchers.setOutputPort');
 goog.require('tdd.TestType');
@@ -310,8 +309,8 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
 //      to(Throw(r5js.error.argumentTypeError(
 //          'a', 0, '+', r5js.DatumType.NUMBER, r5js.DatumType.STRING)));
 //  expect('(scheme-report-environment 6)').
-//      to(Throw(new r5js.UnimplementedOptionError('')));
+//      to(Throw(r5js.error.unimplementedOption('')));
 //  expect('(null-environment 6)').
-//      to(Throw(new r5js.UnimplementedOptionError('')));
+//      to(Throw(r5js.error.unimplementedOption('')));
 //};
 

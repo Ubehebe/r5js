@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.UnimplementedOptionError');
 goog.provide('r5js.error');
 
 
@@ -372,6 +371,15 @@ r5js.UnimplementedOptionError.prototype.toString = function() {
 /** @override */
 r5js.UnimplementedOptionError.prototype.equals = function(other) {
   return other instanceof r5js.UnimplementedOptionError;
+};
+
+
+/**
+ * @param {string} what An error message.
+ * @return {!r5js.Error}
+ */
+r5js.error.unimplementedOption = function(what) {
+  return new r5js.UnimplementedOptionError(what);
 };
 
 
