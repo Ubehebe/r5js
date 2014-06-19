@@ -21,43 +21,30 @@ goog.setTestOnly('r5js.test.matchers.Throws');
 
 /**
  * @param {!r5js.Error} error
- * @return {!tdd.matchers.Matcher}
+ * @return {!tdd.matchers.Matcher.<!r5js.Error>}
  */
 Throw = function(error) {
-  return new r5js.test.matchers.Throws(
-      error, /** @type {!r5js.Evaluator} */ (
-          r5js.test.matchers.Throws.sharedEvaluator));
+  return new r5js.test.matchers.Throws(error);
 };
 
 
 
 /**
  * @param {!r5js.Error} expectedError
- * @param {!r5js.Evaluator} evaluator
- * @implements {tdd.matchers.Matcher}
+ * @implements {tdd.matchers.Matcher.<!r5js.Error>}
  * @struct
  * @constructor
  */
-r5js.test.matchers.Throws = function(expectedError, evaluator) {
+r5js.test.matchers.Throws = function(expectedError) {
   /** @const @private */ this.expectedError_ = expectedError;
   /** @private */ this.actualError_ = null;
-  /** @const @private */ this.evaluator_ = evaluator;
 };
 
 
-/** @type {r5js.sync.Evaluator} */
-r5js.test.matchers.Throws.sharedEvaluator = null;
-
-
 /** @override */
-r5js.test.matchers.Throws.prototype.matches = function(input) {
-  try {
-    // TODO bl this is async, won't work
-    this.evaluator_.evaluate(/** @type {string} */ (input));
-  } catch (e) {
-    return r5js.error.equals(this.expectedError_, this.actualError_ = e);
-  }
-  return false;
+r5js.test.matchers.Throws.prototype.matches = function(actualError) {
+  return r5js.error.equals(
+      this.expectedError_, this.actualError_ = actualError);
 };
 
 
