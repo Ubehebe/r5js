@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.QuasiquoteError');
 goog.provide('r5js.ReadError');
 goog.provide('r5js.ScanError');
