@@ -251,7 +251,7 @@ r5js.Environment.prototype.mutate = function(name, newVal, isTopLevel) {
     }
   } else if (this.enclosingEnv_) {
     this.enclosingEnv_.mutate(name, newVal, isTopLevel);
-  } else throw new r5js.UnboundVariable(name);
+  } else throw r5js.error.unboundVariable(name);
 };
 
 

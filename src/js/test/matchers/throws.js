@@ -55,7 +55,7 @@ r5js.test.matchers.Throws.prototype.matches = function(input) {
     // TODO bl this is async, won't work
     this.evaluator_.evaluate(/** @type {string} */ (input));
   } catch (e) {
-    return this.expectedError_.equals(this.actualError_ = e);
+    return r5js.error.equals(this.expectedError_, this.actualError_ = e);
   }
   return false;
 };
