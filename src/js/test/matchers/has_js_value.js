@@ -24,7 +24,7 @@ goog.require('goog.array');
 
 /**
  * @param {?} value
- * @return {!tdd.matchers.Matcher}
+ * @return {!tdd.matchers.Matcher.<!r5js.JsonValue>}
  */
 haveJsValue = function(value) {
   return new r5js.test.matchers.HasJsValue_(value);
@@ -34,7 +34,7 @@ haveJsValue = function(value) {
 
 /**
  * @param {?} expectedValue
- * @implements {tdd.matchers.Matcher}
+ * @implements {tdd.matchers.Matcher.<!r5js.JsonValue>}
  * @struct
  * @constructor
  * @private
@@ -45,11 +45,10 @@ r5js.test.matchers.HasJsValue_ = function(expectedValue) {
 
 
 /** @override */
-r5js.test.matchers.HasJsValue_.prototype.matches = function(actualValue) {
+r5js.test.matchers.HasJsValue_.prototype.matches = function(jsonValue) {
   return r5js.test.matchers.HasJsValue_.equals(
       this.expectedValue_,
-      r5js.test.matchers.HasJsValue_.prepare(
-          /** @type {!r5js.JsonValue} */ (actualValue)));
+      r5js.test.matchers.HasJsValue_.prepare(jsonValue));
 };
 
 
