@@ -56,7 +56,7 @@ r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
       jsonValue = evaluator.evaluate(message.content);
     } catch (e) {
       postMessage(
-          r5js.platform.html5.message.newEvalError(message.id, e.toString()));
+          r5js.platform.html5.message.newEvalError(message.id, e));
       return;
     }
     postMessage(

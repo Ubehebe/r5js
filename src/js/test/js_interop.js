@@ -68,11 +68,16 @@ r5js.test.JsInterop.prototype.toString = goog.functions.constant(
 r5js.test.JsInterop.prototype.expect = function(input, matcher) {
   this.promise_ = this.promise_.then(function() {
     return this.evaluator_.evaluate(input);
-  }, undefined /* opt_onRejected */, this).then(function(value) {
-    if (!matcher.matches(value)) {
-      throw new Error(matcher.getFailureMessage(value));
-    }
-  });
+  }, undefined /* opt_onRejected */, this).then(
+      function(value) {
+        if (!matcher.matches(value)) {
+          throw new Error(matcher.getFailureMessage(value));
+        }
+      }, function(reason) {
+        if (!matcher.matches(reason)) {
+          throw new Error(matcher.getFailureMessage(reason));
+        }
+      });
   return this;
 };
 
@@ -282,35 +287,35 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
       done();
 };
 
-//r5js.test.JsInterop.prototype['testErrors'] = function() {
-//  expect('(').to(Throw(r5js.error.read(r5js.parse.Terminals.LPAREN)));
-//  expect(')').to(Throw(new r5js.error.read(r5js.parse.Terminals.RPAREN)));
-//  expect('(eval)').to(Throw(new r5js.IncorrectNumArgs('eval', 2, 0)));
-//  expect('(eval 1 2 3 4 5)').
-//      to(Throw(new r5js.IncorrectNumArgs('eval', 2, 5)));
-//  expect('(let ((foo (lambda (x) x))) (foo))').
-//      to(Throw(new r5js.IncorrectNumArgs(''/* TODO bl lambda */, 1, 0)));
-//  expect('(let ((foo (lambda (x) x))) (foo 1 2))').
-//      to(Throw(new r5js.IncorrectNumArgs('' /* TODO bl lambda */, 1, 2)));
-//  expect("(set-car! '(1 2 3) 4)").to(Throw(r5js.error.immutable('')));
-//  expect('(let ((g (lambda () "***"))) (string-set! (g) 0 #\\?))').
-//      to(Throw(r5js.error.immutable(''))); // Example from R5RS 6.3.5
-//  expect("(string-set! (symbol->string 'immutable) 0 #\\?)").
-//      to(Throw(r5js.error.immutable(''))); // Example from R5RS 6.3.5
-//  expect("(vector-set! '#(0 1 2) 1 \"doe\")").
-//      to(Throw(r5js.error.immutable(''))); // Example from R5RS 6.3.6
-//  expect('(make-vector)').
-//      to(Throw(new r5js.TooFewVarargs('make-vector', 1, 0)));
-//  expect('(make-vector 1 2 3 4 5)').
-//      to(Throw(new r5js.TooManyVarargs('make-vector', 2, 5)));
-//  expect('(let ((foo (lambda (x . y) x))) (foo))').
-//      to(Throw(new r5js.TooFewVarargs('', 1, 0)));
-//  expect('(+ "a" "b")').
-//      to(Throw(r5js.error.argumentTypeError(
-//          'a', 0, '+', r5js.DatumType.NUMBER, r5js.DatumType.STRING)));
-//  expect('(scheme-report-environment 6)').
-//      to(Throw(r5js.error.unimplementedOption('')));
-//  expect('(null-environment 6)').
-//      to(Throw(r5js.error.unimplementedOption('')));
-//};
+r5js.test.JsInterop.prototype['testErrors'] = function() {
+  return this.expect('(', Throw(r5js.error.read(r5js.parse.Terminals.LPAREN))).
+      expect(')', Throw(r5js.error.read(r5js.parse.Terminals.RPAREN))).
+      expect('(eval)', Throw(r5js.error.incorrectNumArgs('eval', 2, 0))).
+      expect('(eval 1 2 3 4 5)',
+          Throw(r5js.error.incorrectNumArgs('eval', 2, 5))).
+      expect('(let ((foo (lambda (x) x))) (foo))',
+          Throw(r5js.error.incorrectNumArgs(''/* TODO bl lambda */, 1, 0))).
+      expect('(let ((foo (lambda (x) x))) (foo 1 2))',
+          Throw(r5js.error.incorrectNumArgs('' /* TODO bl lambda */, 1, 2))).
+      expect("(set-car! '(1 2 3) 4)", Throw(r5js.error.immutable(''))).
+      expect('(let ((g (lambda () "***"))) (string-set! (g) 0 #\\?))',
+          Throw(r5js.error.immutable(''))). // Example from R5RS 6.3.5
+      expect("(string-set! (symbol->string 'immutable) 0 #\\?)",
+          Throw(r5js.error.immutable(''))). // Example from R5RS 6.3.5
+      expect("(vector-set! '#(0 1 2) 1 \"doe\")",
+          Throw(r5js.error.immutable(''))). // Example from R5RS 6.3.6
+      expect('(make-vector)',
+          Throw(r5js.error.tooFewVarargs('make-vector', 1, 0))).
+      expect('(make-vector 1 2 3 4 5)',
+          Throw(r5js.error.tooManyVarargs('make-vector', 2, 5))).
+      expect('(let ((foo (lambda (x . y) x))) (foo))',
+          Throw(r5js.error.tooFewVarargs('', 1, 0))).
+      expect('(+ "a" "b")',
+          Throw(r5js.error.argumentTypeError(
+          'a', 0, '+', r5js.DatumType.NUMBER, r5js.DatumType.STRING))).
+      expect('(scheme-report-environment 6)',
+          Throw(r5js.error.unimplementedOption(''))).
+      expect('(null-environment 6)',
+          Throw(r5js.error.unimplementedOption(''))).done();
+};
 
