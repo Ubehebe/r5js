@@ -16,7 +16,6 @@
 
 goog.provide('r5js.error');
 
-
 goog.require('goog.functions');
 
 
@@ -28,6 +27,27 @@ goog.require('goog.functions');
  * @interface
  * */
 r5js.Error = function() {};
+
+
+/** @enum {string} */
+r5js.Error.Type = {
+  ARGUMENT_TYPE_ERROR: 'argument type error',
+  ILLEGAL_EMPTY_APPLICATION: 'illegal empty application',
+  IMMUTABLE_ERROR: 'immutable error',
+  INCORRECT_NUM_ARGS: 'incorrect number of args',
+  INTERNAL_INTERPRETER_ERROR: 'internal interpreter error',
+  IO_ERROR: 'I/O error',
+  MACRO_ERROR: 'macro error',
+  NOT_A_PROCEDURE_ERROR: 'not a procedure',
+  PARSE_ERROR: 'parse error',
+  READ_ERROR: 'read error',
+  QUASIQUOTE_ERROR: 'quasiquote error',
+  SCAN_ERROR: 'scan error',
+  TOO_FEW_VARARGS: 'too few varargs',
+  TOO_MANY_VARARGS: 'too many varargs',
+  UNBOUND_VARIABLE: 'unbound variable',
+  UNIMPLEMENTED_OPTION_ERROR: 'unimplemented option'
+};
 
 
 /** @override */
