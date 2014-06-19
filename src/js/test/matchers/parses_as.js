@@ -55,7 +55,7 @@ r5js.test.matchers.ParsesAs_.prototype.matches = function(value) {
   var datumRoot;
   try {
     datumRoot = new r5js.ReaderImpl(
-        new r5js.Scanner(/** @type {string} */ (value))).read();
+        new r5js.Scanner(value)).read();
   } catch (e) {
     return false;
   }
