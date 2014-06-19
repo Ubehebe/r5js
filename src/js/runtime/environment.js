@@ -21,7 +21,6 @@ goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.Macro');
-goog.require('r5js.NotAProcedureError');
 goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
 goog.require('r5js.ast.Lambda');
@@ -155,7 +154,7 @@ r5js.Environment.prototype.getProcedure = function(name) {
         binding instanceof r5js.Procedure) {
       return binding;
     } else {
-      throw new r5js.NotAProcedureError(
+      throw r5js.error.notAProcedure(
           name, r5js.PrimitiveProcedures.getActualType_(binding));
     }
   } else if (this.enclosingEnv_) {

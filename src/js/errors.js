@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.NotAProcedureError');
 goog.provide('r5js.ParseError');
 goog.provide('r5js.PrimitiveProcedureError');
 goog.provide('r5js.QuasiquoteError');
@@ -497,6 +496,16 @@ r5js.NotAProcedureError.prototype.toString = function() {
 
 /** @override */
 r5js.NotAProcedureError.prototype.equals = goog.functions.FALSE;
+
+
+/**
+ * @param {string} name Error message.
+ * @param {!r5js.Type} actualType
+ * @return {!r5js.Error}
+ */
+r5js.error.notAProcedure = function(name, actualType) {
+  return new r5js.NotAProcedureError(name, actualType);
+};
 
 
 

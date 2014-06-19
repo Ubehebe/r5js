@@ -20,7 +20,6 @@ goog.require('r5js.ContinuableHelper');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.Macro');
-goog.require('r5js.NotAProcedureError');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.Procedure');
 goog.require('r5js.SiblingBuffer');
@@ -187,7 +186,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
     var fakeArg = this.evalArgs()[0]; // TODO bl
     proc.evaluate(fakeArg, this, resultStruct);
   } else {
-    throw new r5js.NotAProcedureError(
+    throw r5js.error.notAProcedure(
         this.operatorName_.getPayload(),
         r5js.PrimitiveProcedures.getActualType_(
             /** @type {!r5js.runtime.Value} */ (proc)));
