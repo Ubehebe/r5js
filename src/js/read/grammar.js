@@ -17,7 +17,6 @@ goog.provide('r5js.ReaderImpl');
 goog.provide('r5js.read.grammar');
 
 
-goog.require('r5js.ReadError');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.DottedList');
@@ -29,6 +28,7 @@ goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
+goog.require('r5js.error');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.read.bnf');
@@ -116,7 +116,7 @@ r5js.ReaderImpl.prototype.read = function() {
   // All of the input tokens must be consumed for success.
   var nextToken = this.scanner_.nextToken();
   if (nextToken) {
-    throw new r5js.ReadError(nextToken);
+    throw r5js.error.read(nextToken);
   }
   return ans;
 };

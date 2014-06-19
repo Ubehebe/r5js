@@ -28,7 +28,6 @@ goog.require('haveStringOutput');
 goog.require('haveStringValue');
 goog.require('r5js.error');
 goog.require('r5js.DatumType');
-goog.require('r5js.ReadError');
 goog.require('r5js.UnimplementedOptionError');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.test.matchers.setOutputPort');
@@ -285,8 +284,8 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
 };
 
 //r5js.test.JsInterop.prototype['testErrors'] = function() {
-//  expect('(').to(Throw(new r5js.ReadError(r5js.parse.Terminals.LPAREN)));
-//  expect(')').to(Throw(new r5js.ReadError(r5js.parse.Terminals.RPAREN)));
+//  expect('(').to(Throw(r5js.error.read(r5js.parse.Terminals.LPAREN)));
+//  expect(')').to(Throw(new r5js.error.read(r5js.parse.Terminals.RPAREN)));
 //  expect('(eval)').to(Throw(new r5js.IncorrectNumArgs('eval', 2, 0)));
 //  expect('(eval 1 2 3 4 5)').
 //      to(Throw(new r5js.IncorrectNumArgs('eval', 2, 5)));

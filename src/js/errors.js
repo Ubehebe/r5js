@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.ReadError');
 goog.provide('r5js.ScanError');
 goog.provide('r5js.UnimplementedOptionError');
 goog.provide('r5js.error');
@@ -486,6 +485,15 @@ r5js.ReadError.prototype.equals = function(other) {
     return false;
   }
   return this.token_ === other.token_;
+};
+
+
+/**
+ * @param {!r5js.Token} token
+ * @return {!r5js.Error}
+ */
+r5js.error.read = function(token) {
+  return new r5js.ReadError(token);
 };
 
 

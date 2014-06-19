@@ -25,6 +25,6 @@ r5js.Reader = function() {};
  * @return {!r5js.Datum} The root of the datum tree.
  * If reading the tokens into datums was unsuccessful, a {@link r5js.ReadError}
  * is thrown.
- * @throws {r5js.ReadError}
+ * @throws {r5js.Error}
  */
 r5js.Reader.prototype.read = function() {};
