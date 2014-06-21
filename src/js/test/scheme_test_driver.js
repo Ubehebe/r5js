@@ -31,16 +31,15 @@ goog.require('tdd.ResultStruct');
 
 /**
  * Driver for running the unit tests written in Scheme.
- * @extends {tdd.ManualTestSuite}
+ * @implements {tdd.ManualTestSuite}
  * @struct
  * @constructor
  */
 r5js.test.SchemeTestDriver = function() {
-  goog.base(this);
   /** @private */ this.result_ = new tdd.ResultStruct(0, 0, 0);
   /** @private {goog.log.Logger} */ this.logger_ = null;
 };
-goog.inherits(r5js.test.SchemeTestDriver, tdd.ManualTestSuite);
+tdd.ManualTestSuite.addImplementation(r5js.test.SchemeTestDriver);
 
 
 /** @override */
@@ -199,21 +198,20 @@ r5js.test.SchemeTestDriver.jsonValueToFailureMessage_ = function(value) {
 
 /**
  * @param {!r5js.test.SchemeSources} sources
- * @extends {tdd.ManualTestSuite}
+ * @implements {tdd.ManualTestSuite}
  * @struct
  * @constructor
  * @private
  */
 r5js.test.SchemeTestDriver.TestFrameworkTest_ = function(sources) {
-  goog.base(this);
   /** @const @private */ this.sources_ = sources;
   /** @private */
   this.actualResult_ = new r5js.test.SchemeTestDriver.ResultStruct_('', 0, 0);
 
   /** @private {goog.log.Logger} */ this.logger_ = null;
 };
-goog.inherits(
-    r5js.test.SchemeTestDriver.TestFrameworkTest_, tdd.ManualTestSuite);
+tdd.ManualTestSuite.addImplementation(
+    r5js.test.SchemeTestDriver.TestFrameworkTest_);
 
 
 /**
