@@ -21,15 +21,17 @@ goog.require('Throw');
 goog.require('expect');
 goog.require('goog.Promise');
 goog.require('goog.functions');
+goog.require('goog.string');
 goog.require('goog.testing.asserts');
 goog.require('haveJsOutput');
 goog.require('haveJsValue');
 goog.require('haveStringOutput');
 goog.require('haveStringValue');
-goog.require('r5js.error');
 goog.require('r5js.DatumType');
+goog.require('r5js.error');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.test.matchers.setOutputPort');
+goog.require('tdd.ManualTestSuite');
 goog.require('tdd.TestType');
 
 
@@ -38,16 +40,37 @@ goog.require('tdd.TestType');
  * Tests exercising Scheme->JavaScript interoperability.
  * @param {!r5js.Evaluator} evaluator
  * @param {!r5js.OutputSavingPort} outputPort
- * @implements {tdd.TestSuite}
- * @struct
+ * @implements {tdd.ManualTestSuite}
  * @constructor
  */
 r5js.test.JsInterop = function(evaluator, outputPort) {
   /** @const @private */ this.evaluator_ = evaluator;
   /** @const @private */ this.outputPort_ = outputPort;
   r5js.test.matchers.setOutputPort(outputPort);
-  this.promise_ = goog.Promise.resolve();
+
+  /** @private {goog.log.Logger} */ this.logger_ = null;
+
+  /** @const @private {!Array.<string>} */
+  this.testMethodNames_ = [];
+
+  /** @const @private {!Array.<!Function>} */
+  this.testMethods_ = [];
+
+  /**
+     * @private {!Object.<string, !Array.<!r5js.test.JsInterop.Expectation_>>}
+     * @const
+     */
+  this.expectationsPerTestMethod_ = {};
+
+  /** @private */ this.currentTestMethodName_ = '';
+
+  /** @private */ this.curIndex_ = -1;
+  /** @private */ this.curExpectationIndex_ = -1;
+  /** @private */ this.numSucceeded_ = 0;
+  /** @private */ this.numFailed_ = 0;
+  /** @private */ this.numExceptions_ = 0;
 };
+tdd.ManualTestSuite.addImplementation(r5js.test.JsInterop);
 
 
 /** @override */
@@ -60,262 +83,392 @@ r5js.test.JsInterop.prototype.toString = goog.functions.constant(
     'r5js.test.JsInterop');
 
 
+/** @override */
+r5js.test.JsInterop.prototype.execute = function(logger) {
+  this.logger_ = logger;
+  for (var key in this) {
+    var testMethod = this[key];
+    if (r5js.test.JsInterop.isTestMethod_(key, testMethod)) {
+      this.testMethodNames_.push(key);
+      this.testMethods_.push(testMethod);
+      this.currentTestMethodName_ = key;
+      this.expectationsPerTestMethod_[key] = [];
+      // Call the test method synchronously to collect the promises.
+      testMethod.call(this);
+    }
+  }
+
+  return this.runNextAction_();
+};
+
+
+/**
+ * @return {!goog.Promise.<!tdd.ResultStruct>}
+ * @private
+ */
+r5js.test.JsInterop.prototype.runNextAction_ = function() {
+  if (++this.curIndex_ >= this.testMethods_.length) {
+    return goog.Promise.resolve(
+        new tdd.ResultStruct(
+        this.numSucceeded_, this.numFailed_, this.numExceptions_));
+  }
+
+  this.currentTestMethodName_ = this.testMethodNames_[this.curIndex_];
+  this.curExpectationIndex_ = -1;
+  return this.runNextExpectation_();
+};
+
+
+/**
+ * @return {!goog.Promise.<!tdd.ResultStruct>}
+ * @private
+ */
+r5js.test.JsInterop.prototype.runNextExpectation_ = function() {
+  var expectations =
+      this.expectationsPerTestMethod_[this.currentTestMethodName_];
+  if (++this.curExpectationIndex_ >= expectations.length) {
+    return this.runNextAction_();
+  }
+  return expectations[this.curExpectationIndex_].getPromise().
+      then(this.onResolved_, this.onRejected_, this).
+      then(this.runNextExpectation_, this.runNextExpectation_, this);
+};
+
+
+/** @private */
+r5js.test.JsInterop.prototype.onResolved_ = function() {
+  ++this.numSucceeded_;
+  this.logger_.logRecord(new tdd.LogRecord(
+      tdd.LogLevel.SUCCESS, 'r5js.test.JsInterop',
+      this.currentTestMethodName_));
+};
+
+
+/**
+ * @param {*} rejectionReason
+ * @private
+ */
+r5js.test.JsInterop.prototype.onRejected_ = function(rejectionReason) {
+  ++this.numFailed_;
+  this.logger_.logRecord(
+      new tdd.LogRecord(
+      tdd.LogLevel.FAILURE,
+      'r5js.test.JsInterop',
+      this.currentTestMethodName_,
+      /** @type {Object} */ (rejectionReason)));
+};
+
+
+/**
+ * @param {string} name
+ * @param {?} val
+ * @return {boolean}
+ * @private
+ */
+r5js.test.JsInterop.isTestMethod_ = function(name, val) {
+  return goog.isFunction(val) && goog.string.startsWith(name, 'test');
+};
+
+
 /**
  * @param {string} input
- * @param {!tdd.matchers.Matcher} matcher
- * @return {!r5js.test.JsInterop} This object, for chaining.
+ * @return {!r5js.test.JsInterop.Expectation_}
  */
-r5js.test.JsInterop.prototype.expect = function(input, matcher) {
-  this.promise_ = this.promise_.then(function() {
-    return this.evaluator_.evaluate(input);
-  }, undefined /* opt_onRejected */, this).then(
-      function(value) {
-        if (!matcher.matches(value)) {
-          throw new Error(matcher.getFailureMessage(value));
-        }
-      }, function(reason) {
-        if (!matcher.matches(reason)) {
-          throw new Error(matcher.getFailureMessage(reason));
-        }
-      });
+r5js.test.JsInterop.prototype.expect = function(input) {
+  var expectation = new r5js.test.JsInterop.Expectation_(input,
+      this.evaluator_.evaluate(input));
+  this.expectationsPerTestMethod_[this.currentTestMethodName_].push(
+      expectation);
+  return expectation;
+};
+
+
+
+/**
+ * @param {string} input
+ * @param {!goog.Promise.<!r5js.JsonValue>} evalPromise
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.test.JsInterop.Expectation_ = function(input, evalPromise) {
+  /** @const @private */ this.input_ = input;
+  /** @const @private */ this.promise_ = evalPromise;
+  /** @private {tdd.matchers.Matcher} */ this.matcher_ = null;
+  /** @private */ this.invert_ = false;
+};
+
+
+/** @return {!r5js.test.JsInterop.Expectation_} */
+r5js.test.JsInterop.Expectation_.prototype.not = function() {
+  this.invert_ = !this.invert_;
   return this;
 };
 
 
-/** @return {!goog.Promise} */
-r5js.test.JsInterop.prototype.done = function() {
-  var promise = this.promise_;
-  this.promise_ = goog.Promise.resolve();
-  return promise;
+/** @param {!tdd.matchers.Matcher} matcher */
+r5js.test.JsInterop.Expectation_.prototype.to = function(matcher) {
+  this.matcher_ = matcher;
+};
+
+
+/** @return {!goog.Promise.<?>} */
+r5js.test.JsInterop.Expectation_.prototype.getPromise = function() {
+  return this.promise_.then(
+      this.resolveOrReject_, this.resolveOrReject_, this);
+};
+
+
+/**
+ * @param {?} valueOrReason
+ * @return {!goog.Promise.<?>}
+ * @private
+ */
+r5js.test.JsInterop.Expectation_.prototype.resolveOrReject_ = function(
+    valueOrReason) {
+  var matches = this.matcher_.matches(valueOrReason);
+  return ((this.invert_ && matches) || (!this.invert_ && !matches)) ?
+      goog.Promise.reject(this.matcher_.getFailureMessage(valueOrReason)) :
+      goog.Promise.resolve(null);
 };
 
 
 r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
-  return this.expect('42', haveJsValue(42)).
-      expect('42', haveStringValue('42')).
-      expect('#t', haveJsValue(true)).
-      expect('42', haveJsValue(42)).
-      expect('42', haveStringValue('42')).
-      expect('#t', haveJsValue(true)).
-      expect('#t', haveStringValue('#t')).
-      expect('#f', haveJsValue(false)).
-      expect('#f', haveStringValue('#f')).
-      expect('"hello, world"', haveJsValue('hello, world')).
-      expect('"hello, world"', haveStringValue('"hello, world"')).
-      expect("'hello", haveJsValue('hello')).
-      expect("'hello", haveStringValue('hello')).
-      expect('(quote hello)', haveJsValue('hello')).
-      expect('(quote hello)', haveStringValue('hello')).
-      expect('#\\a', haveJsValue('a')).
-      expect('#\\a', haveStringValue('#\\a')).
-      expect('#\\space', haveJsValue(' ')).
-      expect('#\\space', haveStringValue('#\\space')).
-      expect('#\\newline', haveJsValue('\n')).
-      expect('#\\newline', haveStringValue('#\\newline')).done();
+  this.expect('42').to(haveJsValue(42));
+  this.expect('42').to(haveStringValue('42'));
+  this.expect('#t').to(haveJsValue(true));
+  this.expect('42').to(haveJsValue(42));
+  this.expect('42').to(haveStringValue('42'));
+  this.expect('#t').to(haveJsValue(true));
+  this.expect('#t').to(haveStringValue('#t'));
+  this.expect('#f').to(haveJsValue(false));
+  this.expect('#f').to(haveStringValue('#f'));
+  this.expect('"hello, world"').to(haveJsValue('hello, world'));
+  this.expect('"hello, world"').to(haveStringValue('"hello, world"'));
+  this.expect("'hello").to(haveJsValue('hello'));
+  this.expect("'hello").to(haveStringValue('hello'));
+  this.expect('(quote hello)').to(haveJsValue('hello'));
+  this.expect('(quote hello)').to(haveStringValue('hello'));
+  this.expect('#\\a').to(haveJsValue('a'));
+  this.expect('#\\a').to(haveStringValue('#\\a'));
+  this.expect('#\\space').to(haveJsValue(' '));
+  this.expect('#\\space').to(haveStringValue('#\\space'));
+  this.expect('#\\newline').to(haveJsValue('\n'));
+  this.expect('#\\newline').to(haveStringValue('#\\newline'));
 };
 
 
-r5js.test.JsInterop.prototype['testDisplayPrimitivesToJs'] = function() {
-  return this.expect('(display 42)', haveJsOutput(42)).
-      expect('(display 42)', haveStringOutput('42')).
-      expect('(display #t)', haveJsOutput(true)).
-      expect('(display #t)', haveStringOutput('#t')).
-      expect('(display #f)', haveJsOutput(false)).
-      expect('(display #f)', haveStringOutput('#f')).
-      expect('(display "hello, world")', haveJsOutput('hello, world')).
-      expect('(display "hello, world")', haveStringOutput('hello, world')).
-      expect("(display 'hello)", haveJsOutput('hello')).
-      expect("(display 'hello)", haveStringOutput('hello')).
-      expect('(display (quote hello))', haveJsOutput('hello')).
-      expect('(display (quote hello))', haveStringOutput('hello')).
-      expect('(display #\\a)', haveJsOutput('a')).
-      expect('(display #\\a)', haveStringOutput('a')).
-      expect('(display #\\space)', haveJsOutput(' ')).
-      expect('(display #\\space)', haveStringOutput(' ')).
-      expect('(display #\\newline)', haveJsOutput('\n')).
-      expect('(display #\\newline)', haveStringOutput('\n')).done();
-};
+//r5js.test.JsInterop.prototype['testDisplayPrimitivesToJs'] = function() {
+//  this.expect('(display 42)').to(haveJsOutput(42));
+//      this.expect('(display 42)').to(haveStringOutput('42'));
+//      this.expect('(display #t)').to(haveJsOutput(true));
+//      this.expect('(display #t)').to(haveStringOutput('#t'));
+//      this.expect('(display #f)').to(haveJsOutput(false));
+//      this.expect('(display #f)').to(haveStringOutput('#t'));
+//      expect('(display "hello, world")', haveJsOutput('hello, world')).
+//      expect('(display "hello, world")', haveStringOutput('hello, world')).
+//      this.expect("(display 'hello)").to(haveJsOutput('hello'));
+//      this.expect("(display 'hello)").to(haveStringOutput('hello'));
+//      this.expect('(display (quote hello))').to(haveJsOutput('hello'));
+//      this.expect('(display (quote hello))').to(haveStringOutput('hello'));
+//      this.expect('(display #\\a)').to(haveJsOutput('a'));
+//      this.expect('(display #\\a)').to(haveStringOutput('a'));
+//      this.expect('(display #\\space)').to(haveJsOutput(' '));
+//      this.expect('(display #\\space)').to(haveStringOutput(' '));
+//      this.expect('(display #\\newline)').to(haveJsOutput('\n'));
+//      this.expect('(display #\\newline)').to(haveStringOutput('\n'));
+//};
 
 
-r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
-  return this.expect('(write 42)', haveJsOutput(42)).
-      expect('(write 42)', haveStringOutput('42')).
-      expect('(write #t)', haveJsOutput(true)).
-      expect('(write #t)', haveStringOutput('#t')).
-      expect('(write #f)', haveJsOutput(false)).
-      expect('(write #f)', haveStringOutput('#f')).
-      expect('(write "hello, world")', haveJsOutput('hello, world')).
-      //  expect('(write "hello, world")', haveStringOutput('"hello, world"')).
-      expect("(write 'hello)", haveJsOutput('hello')).
-      expect("(write 'hello)", haveStringOutput('hello')).
-      expect('(write (quote hello))', haveJsOutput('hello')).
-      expect('(write (quote hello))', haveStringOutput('hello')).
-      expect('(write #\\a)', haveJsOutput('a')).
-      //  expect('(write #\\a)', haveStringOutput('#\\a')).
-      expect('(write #\\space)', haveJsOutput(' ')).
-      //  expect('(write #\\space)', haveStringOutput('#\\space')).
-      expect('(write #\\newline)', haveJsOutput('\n')).done();
-  //  expect('(write #\\newline)', haveStringOutput('#\\newline')).done();
-};
+//r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
+//  return this.expect('(write 42)', haveJsOutput(42)).
+//      this.expect('(write 42)').to(haveStringOutput('42'));
+//      this.expect('(write #t)').to(haveJsOutput(true));
+//      this.expect('(write #t)').to(haveStringOutput('#t'));
+//      this.expect('(write #f)').to(haveJsOutput(false));
+//      this.expect('(write #f)').to(haveStringOutput('#f'));
+//      expect('(write "hello, world")', haveJsOutput('hello, world')).
+//  expect('(write "hello, world")', haveStringOutput('"hello, world"')).
+//      this.expect("(write 'hello)").to(haveJsOutput('hello'));
+//      this.expect("(write 'hello)").to(haveStringOutput('hello'));
+//      this.expect('(write (quote hello))').to(haveJsOutput('hello'));
+//      this.expect('(write (quote hello))').to(haveStringOutput('hello'));
+//      this.expect('(write #\\a)').to(haveJsOutput('a'));
+//      //  this.expect('(write #\\a)').to(haveStringOutput('#\\a'));
+//      this.expect('(write #\\space)').to(haveJsOutput(' '));
+//      //  this.expect('(write #\\space)').to(haveStringOutput('#\\space'));
+//      this.expect('(write #\\newline)').to(haveJsOutput('\n'));done();
+//  //  this.expect('(write #\\newline)').to(haveStringOutput('#\\newline'));
+//};
 
 
 r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
-  return this.expect('(+ 1 1)', haveJsValue(2)).
-      expect('(+ 1 1)', haveStringValue('2')).
-      expect('(procedure? procedure?)', haveJsValue(true)).
-      expect('(procedure? procedure?)', haveStringValue('#t')).
-      expect('(string-append "hello " "world")', haveJsValue('hello world')).
-      expect('(string-append "hello " "world")',
-              haveStringValue('"hello world"')).
-      expect("'a", haveStringValue('a')).
-      expect("''a", haveStringValue("'a")).
-      expect("'''a", haveStringValue("''a")).
-      expect("''''a", haveStringValue("'''a")).
-      expect("'''''a", haveStringValue("''''a")).done();
+  this.expect('(+ 1 1)').to(haveJsValue(2));
+  this.expect('(+ 1 1)').to(haveStringValue('2'));
+  this.expect('(procedure? procedure?)').to(haveJsValue(true));
+  this.expect('(procedure? procedure?)').to(haveStringValue('#t'));
+  this.expect('(string-append "hello " "world")').
+      to(haveJsValue('hello world'));
+  this.expect('(string-append "hello " "world")').
+      to(haveStringValue('"hello world"'));
+  this.expect("'a").to(haveStringValue('a'));
+  this.expect("''a").to(haveStringValue("'a"));
+  this.expect("'''a").to(haveStringValue("''a"));
+  this.expect("''''a").to(haveStringValue("'''a"));
+  this.expect("'''''a").to(haveStringValue("''''a"));
 };
 
 
 r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
-  return this.expect('#()', haveJsValue([])).
-      expect('#()', haveStringValue('#()')).
-      expect("'()", haveJsValue([])).
-      expect("'()", haveStringValue('()')).
-      expect("(list '() '() '() '(42))", haveJsValue([[], [], [], [42]])).
-      expect("(list '() '() '() '(42))", haveStringValue('(() () () (42))')).
-      expect('(list 1 2 3)', haveJsValue([1, 2, 3])).
-      expect('(list 1 2 3)', haveStringValue('(1 2 3)')).
-      expect("(cons 'a (cons 'b (cons 'c '())))", haveJsValue(['a', 'b', 'c'])).
-      expect("(cons 'a (cons 'b (cons 'c '())))", haveStringValue('(a b c)')).
-      //    expect("(cons 'a 'b)").not().to(haveJsValue(['a', 'b'])).done();
-      expect("(cons 'a 'b)", haveStringValue('(a . b)')).done();
+  this.expect('#()').to(haveJsValue([]));
+  this.expect('#()').to(haveStringValue('#()'));
+  this.expect("'()").to(haveJsValue([]));
+  this.expect("'()").to(haveStringValue('()'));
+  this.expect("(list '() '() '() '(42))").to(haveJsValue([[], [], [], [42]]));
+  this.expect("(list '() '() '() '(42))").
+      to(haveStringValue('(() () () (42))'));
+  this.expect('(list 1 2 3)').to(haveJsValue([1, 2, 3]));
+  this.expect('(list 1 2 3)').to(haveStringValue('(1 2 3)'));
+  this.expect("(cons 'a (cons 'b (cons 'c '())))").
+      to(haveJsValue(['a', 'b', 'c']));
+  this.expect("(cons 'a (cons 'b (cons 'c '())))").
+      to(haveStringValue('(a b c)'));
+  this.expect("(cons 'a 'b)").not().to(haveJsValue(['a', 'b']));
+  this.expect("(cons 'a 'b)").to(haveStringValue('(a . b)'));
 };
 
 
-r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
-  return this.expect('(display #())', haveJsOutput([])).
-      expect('(display #())', haveStringOutput('#()')).
-      expect("(display '())", haveJsOutput([])).
-      expect("(display '())", haveStringOutput('()')).
-      expect("(display (list '() '() '() '(42)))",
-      haveJsOutput([[], [], [], [42]])).
-      expect("(display (list '() '() '() '(42)))",
-          haveStringOutput('(() () () (42))')).
-      expect('(display (list 1 2 3))', haveJsOutput([1, 2, 3])).
-      expect('(display (list 1 2 3))', haveStringOutput('(1 2 3)')).
-      expect("(display (cons 'a (cons 'b (cons 'c '()))))",
-      haveJsOutput(['a', 'b', 'c'])).
-      expect("(display (cons 'a (cons 'b (cons 'c '()))))",
-          haveStringOutput('(a b c)')).
-      expect("(display (cons 'a 'b))", haveStringOutput('(a . b)')).done();
-};
+//r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
+//  return this.expect('(display #())', haveJsOutput([])).
+//      this.expect('(display #())').to(haveStringOutput('#()'));
+//      this.expect("(display '())").to(haveJsOutput([]));
+//      this.expect("(display '())").to(haveStringOutput('()'));
+//      expect("(display (list '() '() '() '(42)))",
+//      haveJsOutput([[], [], [], [42]])).
+//      expect("(display (list '() '() '() '(42)))",
+//          haveStringOutput('(() () () (42))')).
+//      expect('(display (list 1 2 3))', haveJsOutput([1, 2, 3])).
+//      this.expect('(display (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
+//      expect("(display (cons 'a (cons 'b (cons 'c '()))))",
+//      haveJsOutput(['a', 'b', 'c'])).
+//      expect("(display (cons 'a (cons 'b (cons 'c '()))))",
+//          haveStringOutput('(a b c)')).
+//      this.expect("(display (cons 'a 'b))").to(haveStringOutput('(a . b)'));
+//};
 
 
-r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
-  return this.expect('(write #())', haveJsOutput([])).
-      expect('(write #())', haveStringOutput('#()')).
-      expect("(write '())", haveJsOutput([])).
-      expect("(write '())", haveStringOutput('()')).
-      expect("(write (list '() '() '() '(42)))",
-      haveJsOutput([[], [], [], [42]])).
-      expect("(write (list '() '() '() '(42)))",
-          haveStringOutput('(() () () (42))')).
-      expect('(write (list 1 2 3))', haveJsOutput([1, 2, 3])).
-      expect('(write (list 1 2 3))', haveStringOutput('(1 2 3)')).
-      expect("(write (cons 'a (cons 'b (cons 'c '()))))",
-      haveJsOutput(['a', 'b', 'c'])).
-      expect("(write (cons 'a (cons 'b (cons 'c '()))))",
-          haveStringOutput('(a b c)')).
-      //  expect("(write (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
-      expect("(write (cons 'a 'b))", haveStringOutput('(a . b)')).done();
-};
+//r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
+//  return this.expect('(write #())', haveJsOutput([])).
+//      this.expect('(write #())').to(haveStringOutput('#()'));
+//      this.expect("(write '())").to(haveJsOutput([]));
+//      this.expect("(write '())").to(haveStringOutput('()'));
+//      expect("(write (list '() '() '() '(42)))",
+//      haveJsOutput([[], [], [], [42]])).
+//      expect("(write (list '() '() '() '(42)))",
+//          haveStringOutput('(() () () (42))')).
+//      expect('(write (list 1 2 3))', haveJsOutput([1, 2, 3])).
+//      this.expect('(write (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
+//      expect("(write (cons 'a (cons 'b (cons 'c '()))))",
+//      haveJsOutput(['a', 'b', 'c'])).
+//      expect("(write (cons 'a (cons 'b (cons 'c '()))))",
+//          haveStringOutput('(a b c)')).
+//      //  expect("(write (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
+//      this.expect("(write (cons 'a 'b))").to(haveStringOutput('(a . b)'));
+//};
 
 
 /*
  * R5RS doesn't actually forbid these external representations to be
  * the empty string, but empty strings are not helpful to return in a REPL.
  */
-//r5js.test.JsInterop.prototype['testNonStandardExternalRepresentations'] =
-//    function() {
-//  expect('+').not().to(haveStringValue(''));
-//  expect('(lambda (x) x)').not().to(haveStringValue(''));
-//  expect('(current-input-port)').not().to(haveStringValue(''));
-//  expect('(current-output-port)').not().to(haveStringValue(''));
-//  expect('(scheme-report-environment 5)').not().to(haveStringValue(''));
-//  expect('(null-environment 5)').not().to(haveStringValue(''));
-//};
+r5js.test.JsInterop.prototype['testNonStandardExternalRepresentations'] =
+    function() {
+  //  this.expect('+').not().to(haveStringValue(''));
+  //  this.expect('(lambda (x) x)').not().to(haveStringValue(''));
+  //this.expect('(current-input-port)').not().to(haveStringValue(''));
+  //  this.expect('(current-output-port)').not().to(haveStringValue(''));
+  //    this.expect('(scheme-report-environment 5)').
+  //        not().to(haveStringValue(''));
+  //  this.expect('(null-environment 5)').not().to(haveStringValue(''));
+};
 
 
 r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
-  return this.expect('', haveJsValue(undefined)).
-      expect('', haveStringValue('')).
-      expect(' ', haveJsValue(undefined)).
-      expect(' ', haveStringValue('')).
-      expect('\n', haveJsValue(undefined)).
-      expect('\n', haveStringValue('')).
-      expect('\t', haveJsValue(undefined)).
-      expect('\t', haveStringValue('')).
-      expect('    \t \n\n\n   ', haveJsValue(undefined)).
-      expect('    \t \n\n\n   ', haveStringValue('')).
-      expect('(define x 1)', haveJsValue(undefined)).
-      expect('(define x 1)', haveStringValue('')).
-      expect('(define x 1) (set! x 2)', haveJsValue(undefined)).
-      expect('(define x 1) (set! x 2)', haveStringValue('')).
-      expect('(define x (cons 1 2)) (set-car! x x)', haveJsValue(undefined)).
-      expect('(define x (cons 1 2)) (set-car! x x)', haveStringValue('')).
-      expect('(define x (cons 1 2)) (set-cdr! x x)', haveJsValue(undefined)).
-      expect('(define x (cons 1 2)) (set-cdr! x x)', haveStringValue('')).
-      expect('(if #f #t)', haveJsValue(undefined)).
-      expect('(if #f #t)', haveStringValue('')).
-      expect('(write "foo")', haveJsValue(undefined)).
-      expect('(write "foo")', haveStringValue('')).
-      expect('(display 42)', haveJsValue(undefined)).
-      expect('(display 42)', haveStringValue('')).
-      expect('(write-char #\\a)', haveJsValue(undefined)).
-      expect('(write-char #\\a)', haveStringValue('')).
-      expect('(close-input-port (current-input-port))', haveJsValue(undefined)).
-      expect('(close-input-port (current-input-port))', haveStringValue('')).
-      expect('(close-input-port (open-input-file "foo"))',
-          haveJsValue(undefined)).
-      expect('(close-input-port (open-input-file "foo"))', haveStringValue('')).
-      expect('(close-output-port (open-output-file "foo"))',
-          haveJsValue(undefined)).
-      expect('(close-output-port (open-output-file "foo"))',
-          haveStringValue('')).
-      expect('(close-output-port (current-output-port))',
-          haveJsValue(undefined)).
-      expect('(close-output-port (current-output-port))', haveStringValue('')).
-      done();
+  this.expect('').to(haveJsValue(undefined));
+  this.expect('').to(haveStringValue(''));
+  this.expect(' ').to(haveJsValue(undefined));
+  this.expect(' ').to(haveStringValue(''));
+  this.expect('\n').to(haveJsValue(undefined));
+  this.expect('\n').to(haveStringValue(''));
+  this.expect('\t').to(haveJsValue(undefined));
+  this.expect('\t').to(haveStringValue(''));
+  this.expect('    \t \n\n\n   ').to(haveJsValue(undefined));
+  this.expect('    \t \n\n\n   ').to(haveStringValue(''));
+  this.expect('(define x 1)').to(haveJsValue(undefined));
+  this.expect('(define x 1)').to(haveStringValue(''));
+  this.expect('(define x 1) (set! x 2)').to(haveJsValue(undefined));
+  this.expect('(define x 1) (set! x 2)').to(haveStringValue(''));
+  this.expect('(define x (cons 1 2)) (set-car! x x)').
+      to(haveJsValue(undefined));
+  this.expect('(define x (cons 1 2)) (set-car! x x)').to(haveStringValue(''));
+  this.expect('(define x (cons 1 2)) (set-cdr! x x)').
+      to(haveJsValue(undefined));
+  this.expect('(define x (cons 1 2)) (set-cdr! x x)').to(haveStringValue(''));
+  this.expect('(if #f #t)').to(haveJsValue(undefined));
+  this.expect('(if #f #t)').to(haveStringValue(''));
+  this.expect('(write "foo")').to(haveJsValue(undefined));
+  this.expect('(write "foo")').to(haveStringValue(''));
+  this.expect('(display 42)').to(haveJsValue(undefined));
+  this.expect('(display 42)').to(haveStringValue(''));
+  this.expect('(write-char #\\a)').to(haveJsValue(undefined));
+  this.expect('(write-char #\\a)').to(haveStringValue(''));
+  this.expect('(close-input-port (current-input-port))').
+      to(haveJsValue(undefined));
+  this.expect('(close-input-port (current-input-port))').
+      to(haveStringValue(''));
+  this.expect('(close-input-port (open-input-file "foo"))').
+      to(haveJsValue(undefined));
+  this.expect('(close-input-port (open-input-file "foo"))').
+      to(haveStringValue(''));
+  this.expect('(close-output-port (open-output-file "foo"))').
+      to(haveJsValue(undefined));
+  this.expect('(close-output-port (open-output-file "foo"))').
+      to(haveStringValue(''));
+  this.expect('(close-output-port (current-output-port))').
+      to(haveJsValue(undefined));
+  this.expect('(close-output-port (current-output-port))').
+      to(haveStringValue(''));
 };
 
 r5js.test.JsInterop.prototype['testErrors'] = function() {
-  return this.expect('(', Throw(r5js.error.read(r5js.parse.Terminals.LPAREN))).
-      expect(')', Throw(r5js.error.read(r5js.parse.Terminals.RPAREN))).
-      expect('(eval)', Throw(r5js.error.incorrectNumArgs('eval', 2, 0))).
-      expect('(eval 1 2 3 4 5)',
-          Throw(r5js.error.incorrectNumArgs('eval', 2, 5))).
-      expect('(let ((foo (lambda (x) x))) (foo))',
-          Throw(r5js.error.incorrectNumArgs(''/* TODO bl lambda */, 1, 0))).
-      expect('(let ((foo (lambda (x) x))) (foo 1 2))',
-          Throw(r5js.error.incorrectNumArgs('' /* TODO bl lambda */, 1, 2))).
-      expect("(set-car! '(1 2 3) 4)", Throw(r5js.error.immutable(''))).
-      expect('(let ((g (lambda () "***"))) (string-set! (g) 0 #\\?))',
-          Throw(r5js.error.immutable(''))). // Example from R5RS 6.3.5
-      expect("(string-set! (symbol->string 'immutable) 0 #\\?)",
-          Throw(r5js.error.immutable(''))). // Example from R5RS 6.3.5
-      expect("(vector-set! '#(0 1 2) 1 \"doe\")",
-          Throw(r5js.error.immutable(''))). // Example from R5RS 6.3.6
-      expect('(make-vector)',
-          Throw(r5js.error.tooFewVarargs('make-vector', 1, 0))).
-      expect('(make-vector 1 2 3 4 5)',
-          Throw(r5js.error.tooManyVarargs('make-vector', 2, 5))).
-      expect('(let ((foo (lambda (x . y) x))) (foo))',
-          Throw(r5js.error.tooFewVarargs('', 1, 0))).
-      expect('(+ "a" "b")',
-          Throw(r5js.error.argumentTypeError(
-          'a', 0, '+', r5js.DatumType.NUMBER, r5js.DatumType.STRING))).
-      expect('(scheme-report-environment 6)',
-          Throw(r5js.error.unimplementedOption(''))).
-      expect('(null-environment 6)',
-          Throw(r5js.error.unimplementedOption(''))).done();
+  this.expect('(').to(Throw(r5js.error.read(r5js.parse.Terminals.LPAREN)));
+  this.expect(')').to(Throw(r5js.error.read(r5js.parse.Terminals.RPAREN)));
+  this.expect('(eval)').to(Throw(r5js.error.incorrectNumArgs('eval', 2, 0)));
+  this.expect('(eval 1 2 3 4 5)').
+      to(Throw(r5js.error.incorrectNumArgs('eval', 2, 5)));
+  this.expect('(let ((foo (lambda (x) x))) (foo))').
+      to(Throw(r5js.error.incorrectNumArgs(''/* TODO bl lambda */, 1, 0)));
+  this.expect('(let ((foo (lambda (x) x))) (foo 1 2))').
+      to(Throw(r5js.error.incorrectNumArgs('' /* TODO bl lambda */, 1, 2)));
+  this.expect("(set-car! '(1 2 3) 4)").to(Throw(r5js.error.immutable('')));
+  this.expect('(let ((g (lambda () "***"))) (string-set! (g) 0 #\\?))').
+      to(Throw(r5js.error.immutable(''))); // Example from R5RS 6.3.5
+  this.expect("(string-set! (symbol->string 'immutable) 0 #\\?)").
+      to(Throw(r5js.error.immutable(''))); // Example from R5RS 6.3.5
+  this.expect("(vector-set! '#(0 1 2) 1 \"doe\")").
+      to(Throw(r5js.error.immutable(''))); // Example from R5RS 6.3.6
+  this.expect('(make-vector)').
+      to(Throw(r5js.error.tooFewVarargs('make-vector', 1, 0)));
+  this.expect('(make-vector 1 2 3 4 5)').
+      to(Throw(r5js.error.tooManyVarargs('make-vector', 2, 5)));
+  this.expect('(let ((foo (lambda (x . y) x))) (foo))').
+      to(Throw(r5js.error.tooFewVarargs('', 1, 0)));
+  this.expect('(+ "a" "b")').
+      to(Throw(r5js.error.argumentTypeError(
+          'a', 0, '+', r5js.DatumType.NUMBER, r5js.DatumType.STRING)));
+  this.expect('(scheme-report-environment 6)').
+      to(Throw(r5js.error.unimplementedOption('')));
+  this.expect('(null-environment 6)').
+      to(Throw(r5js.error.unimplementedOption('')));
 };
 
