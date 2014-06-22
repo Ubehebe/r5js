@@ -30,8 +30,8 @@ goog.require('haveStringValue');
 goog.require('r5js.DatumType');
 goog.require('r5js.error');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.test.SyncPromiseTestSuite');
 goog.require('r5js.test.matchers.setOutputPort');
-goog.require('tdd.ManualTestSuite');
 goog.require('tdd.TestType');
 
 
@@ -40,196 +40,21 @@ goog.require('tdd.TestType');
  * Tests exercising Scheme->JavaScript interoperability.
  * @param {!r5js.Evaluator} evaluator
  * @param {!r5js.OutputSavingPort} outputPort
- * @implements {tdd.ManualTestSuite}
+ * @extends {r5js.test.SyncPromiseTestSuite}
  * @constructor
  */
 r5js.test.JsInterop = function(evaluator, outputPort) {
+  goog.base(this, 'r5js.test.JsInterop');
   /** @const @private */ this.evaluator_ = evaluator;
   /** @const @private */ this.outputPort_ = outputPort;
   r5js.test.matchers.setOutputPort(outputPort);
-
-  /** @private {goog.log.Logger} */ this.logger_ = null;
-
-  /** @const @private {!Array.<string>} */
-  this.testMethodNames_ = [];
-
-  /** @const @private {!Array.<!Function>} */
-  this.testMethods_ = [];
-
-  /**
-     * @private {!Object.<string, !Array.<!r5js.test.JsInterop.Expectation_>>}
-     * @const
-     */
-  this.expectationsPerTestMethod_ = {};
-
-  /** @private */ this.currentTestMethodName_ = '';
-
-  /** @private */ this.curIndex_ = -1;
-  /** @private */ this.curExpectationIndex_ = -1;
-  /** @private */ this.numSucceeded_ = 0;
-  /** @private */ this.numFailed_ = 0;
-  /** @private */ this.numExceptions_ = 0;
 };
-tdd.ManualTestSuite.addImplementation(r5js.test.JsInterop);
+goog.inherits(r5js.test.JsInterop, r5js.test.SyncPromiseTestSuite);
 
 
 /** @override */
-r5js.test.JsInterop.prototype.getType = goog.functions.constant(
-    tdd.TestType.UNIT);
-
-
-/** @override */
-r5js.test.JsInterop.prototype.toString = goog.functions.constant(
-    'r5js.test.JsInterop');
-
-
-/** @override */
-r5js.test.JsInterop.prototype.execute = function(logger) {
-  this.logger_ = logger;
-  for (var key in this) {
-    var testMethod = this[key];
-    if (r5js.test.JsInterop.isTestMethod_(key, testMethod)) {
-      this.testMethodNames_.push(key);
-      this.testMethods_.push(testMethod);
-      this.currentTestMethodName_ = key;
-      this.expectationsPerTestMethod_[key] = [];
-      // Call the test method synchronously to collect the promises.
-      testMethod.call(this);
-    }
-  }
-
-  return this.runNextAction_();
-};
-
-
-/**
- * @return {!goog.Promise.<!tdd.ResultStruct>}
- * @private
- */
-r5js.test.JsInterop.prototype.runNextAction_ = function() {
-  if (++this.curIndex_ >= this.testMethods_.length) {
-    return goog.Promise.resolve(
-        new tdd.ResultStruct(
-        this.numSucceeded_, this.numFailed_, this.numExceptions_));
-  }
-
-  this.currentTestMethodName_ = this.testMethodNames_[this.curIndex_];
-  this.curExpectationIndex_ = -1;
-  return this.runNextExpectation_();
-};
-
-
-/**
- * @return {!goog.Promise.<!tdd.ResultStruct>}
- * @private
- */
-r5js.test.JsInterop.prototype.runNextExpectation_ = function() {
-  var expectations =
-      this.expectationsPerTestMethod_[this.currentTestMethodName_];
-  if (++this.curExpectationIndex_ >= expectations.length) {
-    return this.runNextAction_();
-  }
-  return expectations[this.curExpectationIndex_].getPromise().
-      then(this.onResolved_, this.onRejected_, this).
-      then(this.runNextExpectation_, this.runNextExpectation_, this);
-};
-
-
-/** @private */
-r5js.test.JsInterop.prototype.onResolved_ = function() {
-  ++this.numSucceeded_;
-  this.logger_.logRecord(new tdd.LogRecord(
-      tdd.LogLevel.SUCCESS, 'r5js.test.JsInterop',
-      this.currentTestMethodName_));
-};
-
-
-/**
- * @param {*} rejectionReason
- * @private
- */
-r5js.test.JsInterop.prototype.onRejected_ = function(rejectionReason) {
-  ++this.numFailed_;
-  this.logger_.logRecord(
-      new tdd.LogRecord(
-      tdd.LogLevel.FAILURE,
-      'r5js.test.JsInterop',
-      this.currentTestMethodName_,
-      /** @type {Object} */ (rejectionReason)));
-};
-
-
-/**
- * @param {string} name
- * @param {?} val
- * @return {boolean}
- * @private
- */
-r5js.test.JsInterop.isTestMethod_ = function(name, val) {
-  return goog.isFunction(val) && goog.string.startsWith(name, 'test');
-};
-
-
-/**
- * @param {string} input
- * @return {!r5js.test.JsInterop.Expectation_}
- */
 r5js.test.JsInterop.prototype.expect = function(input) {
-  var expectation = new r5js.test.JsInterop.Expectation_(input,
-      this.evaluator_.evaluate(input));
-  this.expectationsPerTestMethod_[this.currentTestMethodName_].push(
-      expectation);
-  return expectation;
-};
-
-
-
-/**
- * @param {string} input
- * @param {!goog.Promise.<!r5js.JsonValue>} evalPromise
- * @struct
- * @constructor
- * @private
- */
-r5js.test.JsInterop.Expectation_ = function(input, evalPromise) {
-  /** @const @private */ this.input_ = input;
-  /** @const @private */ this.promise_ = evalPromise;
-  /** @private {tdd.matchers.Matcher} */ this.matcher_ = null;
-  /** @private */ this.invert_ = false;
-};
-
-
-/** @return {!r5js.test.JsInterop.Expectation_} */
-r5js.test.JsInterop.Expectation_.prototype.not = function() {
-  this.invert_ = !this.invert_;
-  return this;
-};
-
-
-/** @param {!tdd.matchers.Matcher} matcher */
-r5js.test.JsInterop.Expectation_.prototype.to = function(matcher) {
-  this.matcher_ = matcher;
-};
-
-
-/** @return {!goog.Promise.<?>} */
-r5js.test.JsInterop.Expectation_.prototype.getPromise = function() {
-  return this.promise_.then(
-      this.resolveOrReject_, this.resolveOrReject_, this);
-};
-
-
-/**
- * @param {?} valueOrReason
- * @return {!goog.Promise.<?>}
- * @private
- */
-r5js.test.JsInterop.Expectation_.prototype.resolveOrReject_ = function(
-    valueOrReason) {
-  var matches = this.matcher_.matches(valueOrReason);
-  return ((this.invert_ && matches) || (!this.invert_ && !matches)) ?
-      goog.Promise.reject(this.matcher_.getFailureMessage(valueOrReason)) :
-      goog.Promise.resolve(null);
+  return goog.base(this, 'expect', input, this.evaluator_.evaluate(input));
 };
 
 
