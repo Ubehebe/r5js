@@ -81,7 +81,7 @@ r5js.test.SyncPromiseTestSuite.prototype.execute = function(logger) {
       testMethod.call(this);
     }
   }
-  return this.runNextAction_();
+  return this.runNextTestMethod_();
 };
 
 
@@ -89,7 +89,7 @@ r5js.test.SyncPromiseTestSuite.prototype.execute = function(logger) {
  * @return {!goog.Promise.<!tdd.ResultStruct>}
  * @private
  */
-r5js.test.SyncPromiseTestSuite.prototype.runNextAction_ = function() {
+r5js.test.SyncPromiseTestSuite.prototype.runNextTestMethod_ = function() {
   if (++this.curIndex_ >= this.testMethods_.length) {
     return goog.Promise.resolve(
         new tdd.ResultStruct(
@@ -112,7 +112,7 @@ r5js.test.SyncPromiseTestSuite.prototype.runNextExpectation_ = function() {
       expectation.getPromise().
       then(this.onResolved_, this.onRejected_, this).
       then(this.runNextExpectation_, this.runNextExpectation_, this) :
-      this.runNextAction_();
+      this.runNextTestMethod_();
 };
 
 
