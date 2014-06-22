@@ -27,6 +27,7 @@ goog.require('tdd.ManualTestSuite');
 
 
 /**
+ *
  * @param {string} name
  * @implements {tdd.ManualTestSuite}
  * @constructor
@@ -34,24 +35,18 @@ goog.require('tdd.ManualTestSuite');
 r5js.test.SyncPromiseTestSuite = function(name) {
 
   /** @const @private */ this.name_ = name;
-
   /** @private {goog.log.Logger} */ this.logger_ = null;
-
   /** @const @private {!Array.<string>} */
   this.testMethodNames_ = [];
-
   /** @const @private {!Array.<!Function>} */
   this.testMethods_ = [];
-
   /**
      * @private {!Object.<string,
      * !Array.<!r5js.test.SyncPromiseTestSuite.Expectation_>>}
      * @const
      */
   this.expectationsPerTestMethod_ = {};
-
   /** @private */ this.currentTestMethodName_ = '';
-
   /** @private */ this.curIndex_ = -1;
   /** @private */ this.curExpectationIndex_ = -1;
   /** @private */ this.numSucceeded_ = 0;
@@ -112,14 +107,24 @@ r5js.test.SyncPromiseTestSuite.prototype.runNextAction_ = function() {
  * @private
  */
 r5js.test.SyncPromiseTestSuite.prototype.runNextExpectation_ = function() {
+  var expectation = this.getNextExpectation_();
+  return expectation ?
+      expectation.getPromise().
+      then(this.onResolved_, this.onRejected_, this).
+      then(this.runNextExpectation_, this.runNextExpectation_, this) :
+      this.runNextAction_();
+};
+
+
+/**
+ * @return {r5js.test.SyncPromiseTestSuite.Expectation_} The next expectation
+ * in the current test method, or null if there are no more.
+ * @private
+ */
+r5js.test.SyncPromiseTestSuite.prototype.getNextExpectation_ = function() {
   var expectations =
       this.expectationsPerTestMethod_[this.currentTestMethodName_];
-  if (++this.curExpectationIndex_ >= expectations.length) {
-    return this.runNextAction_();
-  }
-  return expectations[this.curExpectationIndex_].getPromise().
-      then(this.onResolved_, this.onRejected_, this).
-      then(this.runNextExpectation_, this.runNextExpectation_, this);
+  return expectations[++this.curExpectationIndex_] || null;
 };
 
 
