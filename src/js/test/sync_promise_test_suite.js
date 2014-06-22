@@ -23,6 +23,7 @@ goog.require('goog.string');
 goog.require('tdd.LogLevel');
 goog.require('tdd.LogRecord');
 goog.require('tdd.ManualTestSuite');
+goog.require('tdd.TestType');
 
 
 
@@ -180,7 +181,8 @@ r5js.test.SyncPromiseTestSuite.Expectation_.prototype.resolveOrReject_ =
     function(valueOrReason) {
   var matches = this.matcher_.matches(valueOrReason);
   return ((this.invert_ && matches) || (!this.invert_ && !matches)) ?
-      goog.Promise.reject(this.matcher_.getFailureMessage(valueOrReason)) :
+      goog.Promise.reject(
+          this.input_ + ': ' + this.matcher_.getFailureMessage(valueOrReason)) :
       goog.Promise.resolve(null);
 };
 

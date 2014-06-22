@@ -114,6 +114,41 @@ r5js.valutil.toJson = function(value) {
           writeValue: r5js.valutil.toWriteString(value),
           displayValue: r5js.valutil.toDisplayString(value)
         };
+      } else if (value instanceof r5js.ast.Lambda) {
+        return {
+          type: r5js.DatumType.PROCEDURE,
+          value: undefined,
+          writeValue: r5js.valutil.toWriteString(value.unwrap()),
+          displayValue: r5js.valutil.toDisplayString(value.unwrap())
+        };
+      } else if (value instanceof r5js.UserDefinedProcedure) {
+        return {
+          type: r5js.DatumType.PROCEDURE,
+          value: undefined,
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
+      } else if (r5js.InputPort.isImplementedBy(value)) {
+        return {
+          type: r5js.DatumType.INPUT_PORT,
+          value: undefined,
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
+      } else if (r5js.OutputPort.isImplementedBy(value)) {
+        return {
+          type: r5js.DatumType.OUTPUT_PORT,
+          value: undefined,
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
+      } else if (value instanceof r5js.Environment) {
+        return {
+          type: r5js.DatumType.ENVIRONMENT_SPECIFIER,
+          value: undefined,
+          writeValue: r5js.valutil.toWriteString(value),
+          displayValue: r5js.valutil.toDisplayString(value)
+        };
       } else if (value instanceof r5js.Datum) {
         return r5js.valutil.toJson(value.unwrap());
       }

@@ -208,13 +208,13 @@ r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
  */
 r5js.test.JsInterop.prototype['testNonStandardExternalRepresentations'] =
     function() {
-  //  this.expect('+').not().to(haveStringValue(''));
-  //  this.expect('(lambda (x) x)').not().to(haveStringValue(''));
-  //this.expect('(current-input-port)').not().to(haveStringValue(''));
-  //  this.expect('(current-output-port)').not().to(haveStringValue(''));
-  //    this.expect('(scheme-report-environment 5)').
-  //        not().to(haveStringValue(''));
-  //  this.expect('(null-environment 5)').not().to(haveStringValue(''));
+  this.expect('+').not().to(haveStringValue(''));
+  this.expect('(lambda (x) x)').not().to(haveStringValue(''));
+  this.expect('(current-input-port)').not().to(haveStringValue(''));
+  this.expect('(current-output-port)').not().to(haveStringValue(''));
+  this.expect('(scheme-report-environment 5)').
+      not().to(haveStringValue(''));
+  this.expect('(null-environment 5)').not().to(haveStringValue(''));
 };
 
 
