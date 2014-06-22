@@ -36,19 +36,9 @@ r5js.test.SyncPromiseTestSuite = function(name) {
 
   /** @const @private */ this.name_ = name;
   /** @private {goog.log.Logger} */ this.logger_ = null;
-  /** @const @private {!Array.<string>} */
-  this.testMethodNames_ = [];
-  /** @const @private {!Array.<!Function>} */
+  /** @const @private {!Array.<!r5js.test.SyncPromiseTestSuite.Method_>} */
   this.testMethods_ = [];
-  /**
-     * @private {!Object.<string,
-     * !Array.<!r5js.test.SyncPromiseTestSuite.Expectation_>>}
-     * @const
-     */
-  this.expectationsPerTestMethod_ = {};
-  /** @private */ this.currentTestMethodName_ = '';
-  /** @private */ this.curIndex_ = -1;
-  /** @private */ this.curExpectationIndex_ = -1;
+
   /** @private */ this.numSucceeded_ = 0;
   /** @private */ this.numFailed_ = 0;
   /** @private */ this.numExceptions_ = 0;
@@ -71,17 +61,28 @@ r5js.test.SyncPromiseTestSuite.prototype.toString = function() {
 r5js.test.SyncPromiseTestSuite.prototype.execute = function(logger) {
   this.logger_ = logger;
   for (var key in this) {
-    var testMethod = this[key];
-    if (r5js.test.SyncPromiseTestSuite.isTestMethod_(key, testMethod)) {
-      this.testMethodNames_.push(key);
-      this.testMethods_.push(testMethod);
-      this.currentTestMethodName_ = key;
-      this.expectationsPerTestMethod_[key] = [];
+    var method = this[key];
+    if (r5js.test.SyncPromiseTestSuite.isTestMethod_(key, method)) {
+      this.testMethods_.push(new r5js.test.SyncPromiseTestSuite.Method_(
+          key, method, this /* TODO bl remove */));
       // Call the test method synchronously to collect the promises.
-      testMethod.call(this);
+      method.call(this);
     }
   }
   return this.runNextTestMethod_();
+};
+
+
+/**
+ * @param {boolean} success
+ * @private
+ */
+r5js.test.SyncPromiseTestSuite.prototype.reportOutcome_ = function(success) {
+  if (success) {
+    ++this.numSucceeded_;
+  } else {
+    ++this.numFailed_;
+  }
 };
 
 
@@ -90,66 +91,22 @@ r5js.test.SyncPromiseTestSuite.prototype.execute = function(logger) {
  * @private
  */
 r5js.test.SyncPromiseTestSuite.prototype.runNextTestMethod_ = function() {
-  if (++this.curIndex_ >= this.testMethods_.length) {
-    return goog.Promise.resolve(
-        new tdd.ResultStruct(
-        this.numSucceeded_, this.numFailed_, this.numExceptions_));
-  }
-
-  this.currentTestMethodName_ = this.testMethodNames_[this.curIndex_];
-  this.curExpectationIndex_ = -1;
-  return this.runNextExpectation_();
+  var testMethod = this.testMethods_.shift();
+  return testMethod ?
+      testMethod.runNextExpectation() :
+      goog.Promise.resolve(
+      new tdd.ResultStruct(
+      this.numSucceeded_, this.numFailed_, this.numExceptions_));
 };
 
 
 /**
- * @return {!goog.Promise.<!tdd.ResultStruct>}
+ * @return {!r5js.test.SyncPromiseTestSuite.Method_}
  * @private
  */
-r5js.test.SyncPromiseTestSuite.prototype.runNextExpectation_ = function() {
-  var expectation = this.getNextExpectation_();
-  return expectation ?
-      expectation.getPromise().
-      then(this.onResolved_, this.onRejected_, this).
-      then(this.runNextExpectation_, this.runNextExpectation_, this) :
-      this.runNextTestMethod_();
-};
-
-
-/**
- * @return {r5js.test.SyncPromiseTestSuite.Expectation_} The next expectation
- * in the current test method, or null if there are no more.
- * @private
- */
-r5js.test.SyncPromiseTestSuite.prototype.getNextExpectation_ = function() {
-  var expectations =
-      this.expectationsPerTestMethod_[this.currentTestMethodName_];
-  return expectations[++this.curExpectationIndex_] || null;
-};
-
-
-/** @private */
-r5js.test.SyncPromiseTestSuite.prototype.onResolved_ = function() {
-  ++this.numSucceeded_;
-  this.logger_.logRecord(new tdd.LogRecord(
-      tdd.LogLevel.SUCCESS, this.name_,
-      this.currentTestMethodName_));
-};
-
-
-/**
- * @param {*} rejectionReason
- * @private
- */
-r5js.test.SyncPromiseTestSuite.prototype.onRejected_ = function(
-    rejectionReason) {
-  ++this.numFailed_;
-  this.logger_.logRecord(
-      new tdd.LogRecord(
-      tdd.LogLevel.FAILURE,
-      this.name_,
-      this.currentTestMethodName_,
-      /** @type {Object} */ (rejectionReason)));
+r5js.test.SyncPromiseTestSuite.prototype.getTestMethodUnderConstruction_ =
+    function() {
+  return this.testMethods_[this.testMethods_.length - 1];
 };
 
 
@@ -173,8 +130,7 @@ r5js.test.SyncPromiseTestSuite.isTestMethod_ = function(name, val) {
 r5js.test.SyncPromiseTestSuite.prototype.expect = function(input, promise) {
   var expectation = new r5js.test.SyncPromiseTestSuite.Expectation_(
       input, promise);
-  this.expectationsPerTestMethod_[this.currentTestMethodName_].push(
-      expectation);
+  this.getTestMethodUnderConstruction_().addExpectation(expectation);
   return expectation;
 };
 
@@ -226,4 +182,69 @@ r5js.test.SyncPromiseTestSuite.Expectation_.prototype.resolveOrReject_ =
   return ((this.invert_ && matches) || (!this.invert_ && !matches)) ?
       goog.Promise.reject(this.matcher_.getFailureMessage(valueOrReason)) :
       goog.Promise.resolve(null);
+};
+
+
+
+/**
+ * @param {string} name The test method's name.
+ * @param {!Function} func The test method.
+ * @param {!r5js.test.SyncPromiseTestSuite} parent TODO bl remove
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.test.SyncPromiseTestSuite.Method_ = function(name, func, parent) {
+  /** @const @private */ this.name_ = name;
+  /** @const @private */ this.func_ = func;
+  /** @const @private */ this.parent_ = parent;
+  /**
+     * @private {!Array.<!r5js.test.SyncPromiseTestSuite.Expectation_>}
+     * @const
+     */
+  this.expectations_ = [];
+
+  /** @private */ this.success_ = true;
+};
+
+
+/** @param {!r5js.test.SyncPromiseTestSuite.Expectation_} expectation */
+r5js.test.SyncPromiseTestSuite.Method_.prototype.addExpectation = function(
+    expectation) {
+  this.expectations_.push(expectation);
+};
+
+
+/** @return {!goog.Promise.<?>} */
+r5js.test.SyncPromiseTestSuite.Method_.prototype.runNextExpectation =
+    function() {
+  var expectation = this.expectations_.shift();
+  if (expectation) {
+    return expectation.getPromise().
+        thenCatch(this.onRejected, this).
+        then(this.runNextExpectation, this.runNextExpectation, this);
+  } else {
+    this.parent_.reportOutcome_(this.success_);
+    if (this.success_) {
+      this.parent_.logger_.logRecord(
+          new tdd.LogRecord(
+          tdd.LogLevel.SUCCESS,
+          this.parent_.name_,
+          this.name_));
+    }
+    return this.parent_.runNextTestMethod_();
+  }
+};
+
+
+/** @param {*} rejectionReason */
+r5js.test.SyncPromiseTestSuite.Method_.prototype.onRejected = function(
+    rejectionReason) {
+  this.success_ = false;
+  this.parent_.logger_.logRecord(
+      new tdd.LogRecord(
+      tdd.LogLevel.FAILURE,
+      this.parent_.name_,
+      this.name_,
+      /** @type {Object} */ (rejectionReason)));
 };
