@@ -24,7 +24,7 @@ goog.provide('r5js.OutputSavingPort');
 r5js.OutputSavingPort = function() {};
 
 
-/** @return {!r5js.InMemoryPortBuffer} */
-r5js.OutputSavingPort.prototype.getAndClearOutput = function() {};
+/** @return {r5js.JsonValue} */
+r5js.OutputSavingPort.prototype.dequeueOutput = function() {};
 
 

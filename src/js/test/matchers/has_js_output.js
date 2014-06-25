@@ -51,7 +51,7 @@ r5js.test.matchers.HasJsOutput_.sharedOutputPort_ = null;
 
 /** @override */
 r5js.test.matchers.HasJsOutput_.prototype.matches = function(input) {
-  this.actualOutput_ = this.outputPort_.getAndClearOutput()[0];
+  this.actualOutput_ = this.outputPort_.dequeueOutput();
   return r5js.test.matchers.HasJsValue_.equals(
       r5js.test.matchers.HasJsValue_.prepare(this.actualOutput_),
       this.expectedOutput_);

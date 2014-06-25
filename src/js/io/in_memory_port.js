@@ -104,13 +104,8 @@ r5js.InMemoryOutputPort.prototype.write = function(value) {
 
 
 /** @override */
-r5js.InMemoryOutputPort.prototype.getAndClearOutput = function() {
-  var values = [];
-  for (var i = 0; i < this.buffer_.length; ++i) {
-    values.push(this.buffer_[i]);
-  }
-  this.buffer_.length = 0;
-  return values;
+r5js.InMemoryOutputPort.prototype.dequeueOutput = function() {
+  return this.buffer_.shift();
 };
 
 
