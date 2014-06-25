@@ -40,23 +40,19 @@ r5js.platform.html5.Client = function(scriptName, outputPort) {
 
   /** @private */ this.messageIdCounter_ = 0;
 
-  /** @const @private {!Array.<function(*)>} */
+  /** @const @private {!Array.<!goog.promise.Resolver.<?>>} */
   this.resolvers_ = [];
-
-  /** @const @private {!Array.<function(*)>}*/
-  this.rejecters_ = [];
 };
 
 
 /** @override */
 r5js.platform.html5.Client.prototype.evaluate = function(input) {
-  return new goog.Promise(function(resolve, reject) {
-    var messageId = this.messageIdCounter_++;
-    this.resolvers_[messageId] = resolve;
-    this.rejecters_[messageId] = reject;
-    this.worker_.postMessage(
-        r5js.platform.html5.message.newEvalRequest(messageId, input));
-  }, this);
+  var resolver = goog.Promise.withResolver();
+  var messageId = ++this.messageIdCounter_;
+  this.resolvers_[messageId] = resolver;
+  this.worker_.postMessage(
+      r5js.platform.html5.message.newEvalRequest(messageId, input));
+  return resolver.promise;
 };
 
 
@@ -69,10 +65,10 @@ r5js.platform.html5.Client.prototype.onMessage_ = function(e) {
   var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
   switch (message.type) {
     case r5js.platform.html5.MessageType.EVAL_RESPONSE:
-      this.resolvers_[message.id](message.content);
+      this.resolvers_[message.id].resolve(message.content);
       break;
     case r5js.platform.html5.MessageType.EVAL_ERROR:
-      this.rejecters_[message.id](message.content);
+      this.resolvers_[message.id].reject(message.content);
       break;
     case r5js.platform.html5.MessageType.OUTPUT:
       this.outputPort_.write(
@@ -80,20 +76,4 @@ r5js.platform.html5.Client.prototype.onMessage_ = function(e) {
       return;
   }
   delete this.resolvers_[message.id];
-  delete this.rejecters_[message.id];
-};
-
-
-/**
- * @param {!MessageEvent} e
- * @private
- */
-r5js.platform.html5.Client.prototype.onError_ = function(e) {
-  var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
-  var rejecter = this.rejecters_[message.id];
-  delete this.resolvers_[message.id];
-  delete this.rejecters_[message.id];
-  if (rejecter) {
-    rejecter(message.content);
-  }
 };
