@@ -136,7 +136,6 @@ compile-node-repl:
 		> $(node_repl_outfile)
 
 # Compiles the test suite.
-# TODO bl: remove UNHANDLED_REJECTION_DELAY.
 .PHONY: compile-tests
 compile-tests:
 	@mkdir -p $(outdir)
@@ -148,7 +147,6 @@ compile-tests:
 		--js $(closure_root)/closure/goog/deps.js \
 		--closure_entry_point=$(test_main_class) \
 		--define r5js.PLATFORM=\'$(PLATFORM)\' \
-		--define goog.Promise.UNHANDLED_REJECTION_DELAY=-1 \
 		--externs=externs/buffer.js \
 		--externs=externs/core.js \
 		--externs=externs/events.js \
