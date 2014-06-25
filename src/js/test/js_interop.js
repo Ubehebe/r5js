@@ -94,48 +94,49 @@ r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
 };
 
 
-//r5js.test.JsInterop.prototype['testDisplayPrimitivesToJs'] = function() {
-//  this.expect('(display 42)').to(haveJsOutput(42));
-//      this.expect('(display 42)').to(haveStringOutput('42'));
-//      this.expect('(display #t)').to(haveJsOutput(true));
-//      this.expect('(display #t)').to(haveStringOutput('#t'));
-//      this.expect('(display #f)').to(haveJsOutput(false));
-//      this.expect('(display #f)').to(haveStringOutput('#t'));
-//      expect('(display "hello, world")', haveJsOutput('hello, world')).
-//      expect('(display "hello, world")', haveStringOutput('hello, world')).
-//      this.expect("(display 'hello)").to(haveJsOutput('hello'));
-//      this.expect("(display 'hello)").to(haveStringOutput('hello'));
-//      this.expect('(display (quote hello))').to(haveJsOutput('hello'));
-//      this.expect('(display (quote hello))').to(haveStringOutput('hello'));
-//      this.expect('(display #\\a)').to(haveJsOutput('a'));
-//      this.expect('(display #\\a)').to(haveStringOutput('a'));
-//      this.expect('(display #\\space)').to(haveJsOutput(' '));
-//      this.expect('(display #\\space)').to(haveStringOutput(' '));
-//      this.expect('(display #\\newline)').to(haveJsOutput('\n'));
-//      this.expect('(display #\\newline)').to(haveStringOutput('\n'));
-//};
+r5js.test.JsInterop.prototype['testDisplayPrimitivesToJs'] = function() {
+  this.expect('(display 42)').to(haveJsOutput(42));
+  this.expect('(display 42)').to(haveStringOutput('42'));
+  this.expect('(display #t)').to(haveJsOutput(true));
+  this.expect('(display #t)').to(haveStringOutput('#t'));
+  this.expect('(display #f)').to(haveJsOutput(false));
+  this.expect('(display #f)').to(haveStringOutput('#f'));
+  this.expect('(display "hello, world")').to(haveJsOutput('hello, world'));
+  this.expect('(display "hello, world")').to(haveStringOutput('hello, world'));
+  this.expect("(display 'hello)").to(haveJsOutput('hello'));
+  this.expect("(display 'hello)").to(haveStringOutput('hello'));
+  this.expect('(display (quote hello))').to(haveJsOutput('hello'));
+  this.expect('(display (quote hello))').to(haveStringOutput('hello'));
+  this.expect('(display #\\a)').to(haveJsOutput('a'));
+  this.expect('(display #\\a)').to(haveStringOutput('a'));
+  this.expect('(display #\\space)').to(haveJsOutput(' '));
+  this.expect('(display #\\space)').to(haveStringOutput(' '));
+  this.expect('(display #\\newline)').to(haveJsOutput('\n'));
+  this.expect('(display #\\newline)').to(haveStringOutput('\n'));
+};
 
 
-//r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
-//  return this.expect('(write 42)', haveJsOutput(42)).
-//      this.expect('(write 42)').to(haveStringOutput('42'));
-//      this.expect('(write #t)').to(haveJsOutput(true));
-//      this.expect('(write #t)').to(haveStringOutput('#t'));
-//      this.expect('(write #f)').to(haveJsOutput(false));
-//      this.expect('(write #f)').to(haveStringOutput('#f'));
-//      expect('(write "hello, world")', haveJsOutput('hello, world')).
-//  expect('(write "hello, world")', haveStringOutput('"hello, world"')).
-//      this.expect("(write 'hello)").to(haveJsOutput('hello'));
-//      this.expect("(write 'hello)").to(haveStringOutput('hello'));
-//      this.expect('(write (quote hello))').to(haveJsOutput('hello'));
-//      this.expect('(write (quote hello))').to(haveStringOutput('hello'));
-//      this.expect('(write #\\a)').to(haveJsOutput('a'));
-//      //  this.expect('(write #\\a)').to(haveStringOutput('#\\a'));
-//      this.expect('(write #\\space)').to(haveJsOutput(' '));
-//      //  this.expect('(write #\\space)').to(haveStringOutput('#\\space'));
-//      this.expect('(write #\\newline)').to(haveJsOutput('\n'));done();
-//  //  this.expect('(write #\\newline)').to(haveStringOutput('#\\newline'));
-//};
+r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
+  this.expect('(write 42)').to(haveJsOutput(42));
+  this.expect('(write 42)').to(haveStringOutput('42'));
+  this.expect('(write #t)').to(haveJsOutput(true));
+  this.expect('(write #t)').to(haveStringOutput('#t'));
+  this.expect('(write #f)').to(haveJsOutput(false));
+  this.expect('(write #f)').to(haveStringOutput('#f'));
+  this.expect('(write "hello, world")').to(haveJsOutput('hello, world'));
+  // this.expect('(write "hello, world")').
+  // to(haveStringOutput('"hello, world"'));
+  this.expect("(write 'hello)").to(haveJsOutput('hello'));
+  this.expect("(write 'hello)").to(haveStringOutput('hello'));
+  this.expect('(write (quote hello))').to(haveJsOutput('hello'));
+  this.expect('(write (quote hello))').to(haveStringOutput('hello'));
+  this.expect('(write #\\a)').to(haveJsOutput('a'));
+  // this.expect('(write #\\a)').to(haveStringOutput('#\\a'));
+  this.expect('(write #\\space)').to(haveJsOutput(' '));
+  // this.expect('(write #\\space)').to(haveStringOutput('#\\space'));
+  this.expect('(write #\\newline)').to(haveJsOutput('\n'));
+  // this.expect('(write #\\newline)').to(haveStringOutput('#\\newline'));
+};
 
 
 r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
@@ -174,43 +175,43 @@ r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
 };
 
 
-//r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
-//  return this.expect('(display #())', haveJsOutput([])).
-//      this.expect('(display #())').to(haveStringOutput('#()'));
-//      this.expect("(display '())").to(haveJsOutput([]));
-//      this.expect("(display '())").to(haveStringOutput('()'));
-//      expect("(display (list '() '() '() '(42)))",
-//      haveJsOutput([[], [], [], [42]])).
-//      expect("(display (list '() '() '() '(42)))",
-//          haveStringOutput('(() () () (42))')).
-//      expect('(display (list 1 2 3))', haveJsOutput([1, 2, 3])).
-//      this.expect('(display (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
-//      expect("(display (cons 'a (cons 'b (cons 'c '()))))",
-//      haveJsOutput(['a', 'b', 'c'])).
-//      expect("(display (cons 'a (cons 'b (cons 'c '()))))",
-//          haveStringOutput('(a b c)')).
-//      this.expect("(display (cons 'a 'b))").to(haveStringOutput('(a . b)'));
-//};
+r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
+  this.expect('(display #())').to(haveJsOutput([]));
+  this.expect('(display #())').to(haveStringOutput('#()'));
+  this.expect("(display '())").to(haveJsOutput([]));
+  this.expect("(display '())").to(haveStringOutput('()'));
+  this.expect("(display (list '() '() '() '(42)))").
+      to(haveJsOutput([[], [], [], [42]]));
+  this.expect("(display (list '() '() '() '(42)))").
+      to(haveStringOutput('(() () () (42))'));
+  this.expect('(display (list 1 2 3))').to(haveJsOutput([1, 2, 3]));
+  this.expect('(display (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
+  this.expect("(display (cons 'a (cons 'b (cons 'c '()))))").
+      to(haveJsOutput(['a', 'b', 'c']));
+  this.expect("(display (cons 'a (cons 'b (cons 'c '()))))").
+      to(haveStringOutput('(a b c)'));
+  this.expect("(display (cons 'a 'b))").to(haveStringOutput('(a . b)'));
+};
 
 
-//r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
-//  return this.expect('(write #())', haveJsOutput([])).
-//      this.expect('(write #())').to(haveStringOutput('#()'));
-//      this.expect("(write '())").to(haveJsOutput([]));
-//      this.expect("(write '())").to(haveStringOutput('()'));
-//      expect("(write (list '() '() '() '(42)))",
-//      haveJsOutput([[], [], [], [42]])).
-//      expect("(write (list '() '() '() '(42)))",
-//          haveStringOutput('(() () () (42))')).
-//      expect('(write (list 1 2 3))', haveJsOutput([1, 2, 3])).
-//      this.expect('(write (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
-//      expect("(write (cons 'a (cons 'b (cons 'c '()))))",
-//      haveJsOutput(['a', 'b', 'c'])).
-//      expect("(write (cons 'a (cons 'b (cons 'c '()))))",
-//          haveStringOutput('(a b c)')).
-//      //  expect("(write (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
-//      this.expect("(write (cons 'a 'b))").to(haveStringOutput('(a . b)'));
-//};
+r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
+  this.expect('(write #())').to(haveJsOutput([]));
+  this.expect('(write #())').to(haveStringOutput('#()'));
+  this.expect("(write '())").to(haveJsOutput([]));
+  this.expect("(write '())").to(haveStringOutput('()'));
+  this.expect("(write (list '() '() '() '(42)))").
+      to(haveJsOutput([[], [], [], [42]]));
+  this.expect("(write (list '() '() '() '(42)))").
+      to(haveStringOutput('(() () () (42))'));
+  this.expect('(write (list 1 2 3))').to(haveJsOutput([1, 2, 3]));
+  this.expect('(write (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
+  this.expect("(write (cons 'a (cons 'b (cons 'c '()))))").
+      to(haveJsOutput(['a', 'b', 'c']));
+  this.expect("(write (cons 'a (cons 'b (cons 'c '()))))").
+      to(haveStringOutput('(a b c)'));
+  this.expect("(write (cons 'a 'b))").not().to(haveJsOutput(['a', 'b']));
+  this.expect("(write (cons 'a 'b))").to(haveStringOutput('(a . b)'));
+};
 
 
 /*
