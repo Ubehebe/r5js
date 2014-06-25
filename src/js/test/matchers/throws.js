@@ -14,6 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 goog.provide('Throw');
+goog.provide('r5js.test.matchers.Throws_');
 goog.setTestOnly('Throw');
 
 

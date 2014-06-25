@@ -14,6 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 goog.provide('haveJsOutput');
+goog.provide('r5js.test.matchers.HasJsOutput_');
 goog.setTestOnly('haveJsOutput');
 
 
