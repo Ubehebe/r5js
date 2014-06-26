@@ -68,7 +68,7 @@ r5js.InMemoryPortBuffer.prototype.getAndClear = function() {
 
 /** @param {string} str */
 r5js.InMemoryPortBuffer.prototype.append = function(str) {
-  this.buffer_ += str + ' ';
+  this.buffer_ += str;
 };
 
 
