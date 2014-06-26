@@ -37,8 +37,8 @@ goog.provide('r5js.OutputPort');
 r5js.OutputPort = function() {};
 
 
-/** @param {!r5js.JsonValue} value Value to write. */
-r5js.OutputPort.prototype.write = function(value) {};
+/** @param {string} str String to write. */
+r5js.OutputPort.prototype.write = function(str) {};
 
 
 /** @see R5RS 6.6.1 */

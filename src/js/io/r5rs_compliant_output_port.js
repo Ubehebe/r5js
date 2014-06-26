@@ -40,6 +40,6 @@ r5js.R5RSCompliantOutputPort.prototype.close = goog.nullFunction;
 
 
 /** @override */
-r5js.R5RSCompliantOutputPort.prototype.write = function(value) {
-  this.onOutput_(value.writeValue);
+r5js.R5RSCompliantOutputPort.prototype.write = function(str) {
+  this.onOutput_(str);
 };

@@ -71,8 +71,7 @@ r5js.platform.html5.Client.prototype.onMessage_ = function(e) {
       this.resolvers_[message.id].reject(message.content);
       break;
     case r5js.platform.html5.MessageType.OUTPUT:
-      this.outputPort_.write(
-          /** @type {!r5js.JsonValue} */ (message.content));
+      this.outputPort_.write(/** @type {string} */ (message.content));
       return;
   }
   delete this.resolvers_[message.id];

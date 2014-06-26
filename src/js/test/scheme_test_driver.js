@@ -89,19 +89,19 @@ r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
 
 
 /**
- * @param {!r5js.JsonValue} value
+ * @param {string} str
  * @private
  */
-r5js.test.SchemeTestDriver.prototype.onWrite_ = function(value) {
-  var result = r5js.test.SchemeTestDriver.jsonValueToResultStruct_(value);
+r5js.test.SchemeTestDriver.prototype.onWrite_ = function(str) {
+  var result = r5js.test.SchemeTestDriver.stringToResultStruct_(str);
   if (result) {
     this.logger_.logRecord(new tdd.LogRecord(
         result.getNumFailed() ? tdd.LogLevel.FAILURE : tdd.LogLevel.SUCCESS,
         'r5js.test.SchemeTestDriver',
         result.name_));
     this.result_ = this.result_.merge(result);
-  } else if (result = r5js.test.SchemeTestDriver.jsonValueToFailureMessage_(
-      value)) {
+  } else if (result = r5js.test.SchemeTestDriver.stringToFailureMessage_(
+      str)) {
     this.logger_.logRecord(new tdd.LogRecord(
         tdd.LogLevel.FAILURE,
         'r5js.test.SchemeTestDriver',
@@ -130,45 +130,23 @@ goog.inherits(r5js.test.SchemeTestDriver.ResultStruct_, tdd.ResultStruct);
 
 /**
  * Parses a Scheme test framework output like this:
- * (foo-tests (3 tests) (1 errors))
+ * (foo-tests (3 tests) (1 failed))
  * into a {@link tdd.ResultStruct}, returning null if the parse failed.
- * The JSON serialization of the above output is this:
- * {
-*  type: "list",
-*  value: [
-*      {type: "symbol", value: "foo-tests"},
-*      {type: "list", value: [
-*          {type: "number", value: 1},
-*          {type: "symbol", value: "tests"}
-*      ]},
-*      {type: "list", value: [
-*          {type: "number", value: 1},
-*          {type: "symbol", value: "errors"}
-*      ]}
-* }
-* @param {!r5js.JsonValue} json
+* @param {string} str
  * @return {r5js.test.SchemeTestDriver.ResultStruct_}
  * @private
  */
-r5js.test.SchemeTestDriver.jsonValueToResultStruct_ = function(json) {
-  if (json.value &&
-      json.value.length === 3 &&
-      json.value[0].type === r5js.DatumType.SYMBOL &&
-      json.value[1].value.length === 2 &&
-      goog.isNumber(json.value[1].value[0].value) &&
-      json.value[1].value[1].value === 'tests' &&
-      json.value[2].value.length === 2 &&
-      goog.isNumber(json.value[2].value[0].value) &&
-      json.value[2].value[1].value === 'failed') {
-    var name = json.value[0].value;
-    var numTests = json.value[1].value[0].value;
-    var numFailed = json.value[2].value[0].value;
-    var numSucceeded = numTests - numFailed;
-    return new r5js.test.SchemeTestDriver.ResultStruct_(
-        name, numSucceeded, numFailed);
-  } else {
+r5js.test.SchemeTestDriver.stringToResultStruct_ = function(str) {
+  var regex = /\((.+) \((\d+) tests\) \((\d+) failed\)\)/;
+  var matches = regex.exec(str);
+  if (!matches) {
     return null;
   }
+  var name = matches[1];
+  var numSucceeded = parseInt(matches[2], 10);
+  var numFailed = parseInt(matches[3], 10);
+  return new r5js.test.SchemeTestDriver.ResultStruct_(
+      name, numSucceeded, numFailed);
 };
 
 
@@ -176,15 +154,13 @@ r5js.test.SchemeTestDriver.jsonValueToResultStruct_ = function(json) {
  * Parses a Scheme test framework output like this:
  * (fail foo-tests (input (+ 1 1)) (want 3) (got 2))
  * into a string, returning null if the parse failed.
- * Uses {@link r5js.valutil#toWriteString} to avoid messing with the AST.
- * @param {!r5js.JsonValue} value
+ * @param {string} str
  * @return {?string}
  * @private
  */
-r5js.test.SchemeTestDriver.jsonValueToFailureMessage_ = function(value) {
-  var string = value.writeValue;
+r5js.test.SchemeTestDriver.stringToFailureMessage_ = function(str) {
   var match = /\(fail .+ \(input (.*)\) \(want (.*)\) \(got (.*)\)\)/.
-      exec(string);
+      exec(str);
   if (!match) {
     return null;
   }
@@ -230,12 +206,12 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.resultIsExpected_ =
 
 
 /**
- * @param {!r5js.JsonValue} value
+ * @param {string} str
  * @private
  */
 r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.onWrite_ = function(
-    value) {
-  var result = r5js.test.SchemeTestDriver.jsonValueToResultStruct_(value);
+    str) {
+  var result = r5js.test.SchemeTestDriver.stringToResultStruct_(str);
   if (result) {
     this.logger_.logRecord(new tdd.LogRecord(
         tdd.LogLevel.SUCCESS,

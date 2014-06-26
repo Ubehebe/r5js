@@ -86,7 +86,7 @@ r5js.platform.html5.message.newEvalError = function(id, error) {
 
 
 /**
- * @param {!r5js.JsonValue} value
+ * @param {string} value
  * @return {!r5js.platform.html5.Message}
  */
 r5js.platform.html5.message.output = function(value) {

@@ -59,7 +59,7 @@ r5js.test.matchers.HasStringOutput_.sharedOutputPort_ = null;
 
 /** @override */
 r5js.test.matchers.HasStringOutput_.prototype.matches = function(input) {
-  this.actualOutput_ = this.outputPort_.dequeueOutput().displayValue;
+  this.actualOutput_ = this.outputPort_.dequeueOutput();
   return this.actualOutput_ === this.expectedOutput_;
 };
 

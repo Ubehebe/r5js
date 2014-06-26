@@ -27,6 +27,7 @@ goog.setTestOnly('r5js.test.readSandbox');
 
 goog.require('goog.log');
 goog.require('r5js.InMemoryInputPort');
+goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.Platform');
@@ -68,7 +69,7 @@ r5js.test.main1 = function(testConfig) {
   var runner = new tdd.Runner(testConfig, logger);
   var platform = r5js.Platform.get();
 
-  var buffer = [];
+  var buffer = new r5js.InMemoryPortBuffer();
   var stdin = new r5js.InMemoryInputPort(buffer);
   var stdout = new r5js.InMemoryOutputPort(buffer);
 
