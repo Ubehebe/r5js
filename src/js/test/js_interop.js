@@ -23,7 +23,6 @@ goog.require('goog.Promise');
 goog.require('goog.functions');
 goog.require('goog.string');
 goog.require('goog.testing.asserts');
-goog.require('haveJsOutput');
 goog.require('haveJsValue');
 goog.require('haveStringOutput');
 goog.require('haveStringValue');

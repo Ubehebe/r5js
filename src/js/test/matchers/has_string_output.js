@@ -76,6 +76,5 @@ r5js.test.matchers.HasStringOutput_.prototype.getFailureMessage =
  * @suppress {accessControls}
  */
 r5js.test.matchers.setOutputPort = function(outputPort) {
-  r5js.test.matchers.HasJsOutput_.sharedOutputPort_ =
-      r5js.test.matchers.HasStringOutput_.sharedOutputPort_ = outputPort;
+  r5js.test.matchers.HasStringOutput_.sharedOutputPort_ = outputPort;
 };
