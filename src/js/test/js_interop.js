@@ -24,7 +24,7 @@ goog.require('goog.functions');
 goog.require('goog.string');
 goog.require('goog.testing.asserts');
 goog.require('haveJsValue');
-goog.require('haveStringOutput');
+goog.require('output');
 goog.require('haveStringValue');
 goog.require('r5js.DatumType');
 goog.require('r5js.error');
@@ -94,30 +94,30 @@ r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
 
 
 r5js.test.JsInterop.prototype['testDisplayPrimitivesToJs'] = function() {
-  this.expect('(display 42)').to(haveStringOutput('42'));
-  this.expect('(display #t)').to(haveStringOutput('#t'));
-  this.expect('(display #f)').to(haveStringOutput('#f'));
+  this.expect('(display 42)').to(output('42'));
+  this.expect('(display #t)').to(output('#t'));
+  this.expect('(display #f)').to(output('#f'));
   this.expect('(display "hello, world")').
-      to(haveStringOutput('hello, world'));
-  this.expect("(display 'hello)").to(haveStringOutput('hello'));
-  this.expect('(display (quote hello))').to(haveStringOutput('hello'));
-  this.expect('(display #\\a)').to(haveStringOutput('a'));
-  this.expect('(display #\\space)').to(haveStringOutput(' '));
-  this.expect('(display #\\newline)').to(haveStringOutput('\n'));
+      to(output('hello, world'));
+  this.expect("(display 'hello)").to(output('hello'));
+  this.expect('(display (quote hello))').to(output('hello'));
+  this.expect('(display #\\a)').to(output('a'));
+  this.expect('(display #\\space)').to(output(' '));
+  this.expect('(display #\\newline)').to(output('\n'));
 };
 
 
 r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
-  this.expect('(write 42)').to(haveStringOutput('42'));
-  this.expect('(write #t)').to(haveStringOutput('#t'));
-  this.expect('(write #f)').to(haveStringOutput('#f'));
+  this.expect('(write 42)').to(output('42'));
+  this.expect('(write #t)').to(output('#t'));
+  this.expect('(write #f)').to(output('#f'));
   this.expect('(write "hello, world")').
-      to(haveStringOutput('"hello, world"'));
-  this.expect("(write 'hello)").to(haveStringOutput('hello'));
-  this.expect('(write (quote hello))').to(haveStringOutput('hello'));
-  this.expect('(write #\\a)').to(haveStringOutput('#\\a'));
-  this.expect('(write #\\space)').to(haveStringOutput('#\\space'));
-  this.expect('(write #\\newline)').to(haveStringOutput('#\\newline'));
+      to(output('"hello, world"'));
+  this.expect("(write 'hello)").to(output('hello'));
+  this.expect('(write (quote hello))').to(output('hello'));
+  this.expect('(write #\\a)').to(output('#\\a'));
+  this.expect('(write #\\space)').to(output('#\\space'));
+  this.expect('(write #\\newline)').to(output('#\\newline'));
 };
 
 
@@ -158,26 +158,26 @@ r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
 
 
 r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
-  this.expect('(display #())').to(haveStringOutput('#()'));
-  this.expect("(display '())").to(haveStringOutput('()'));
+  this.expect('(display #())').to(output('#()'));
+  this.expect("(display '())").to(output('()'));
   this.expect("(display (list '() '() '() '(42)))").
-      to(haveStringOutput('(() () () (42))'));
-  this.expect('(display (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
+      to(output('(() () () (42))'));
+  this.expect('(display (list 1 2 3))').to(output('(1 2 3)'));
   this.expect("(display (cons 'a (cons 'b (cons 'c '()))))").
-      to(haveStringOutput('(a b c)'));
-  this.expect("(display (cons 'a 'b))").to(haveStringOutput('(a . b)'));
+      to(output('(a b c)'));
+  this.expect("(display (cons 'a 'b))").to(output('(a . b)'));
 };
 
 
 r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
-  this.expect('(write #())').to(haveStringOutput('#()'));
-  this.expect("(write '())").to(haveStringOutput('()'));
+  this.expect('(write #())').to(output('#()'));
+  this.expect("(write '())").to(output('()'));
   this.expect("(write (list '() '() '() '(42)))").
-      to(haveStringOutput('(() () () (42))'));
-  this.expect('(write (list 1 2 3))').to(haveStringOutput('(1 2 3)'));
+      to(output('(() () () (42))'));
+  this.expect('(write (list 1 2 3))').to(output('(1 2 3)'));
   this.expect("(write (cons 'a (cons 'b (cons 'c '()))))").
-      to(haveStringOutput('(a b c)'));
-  this.expect("(write (cons 'a 'b))").to(haveStringOutput('(a . b)'));
+      to(output('(a b c)'));
+  this.expect("(write (cons 'a 'b))").to(output('(a . b)'));
 };
 
 
