@@ -97,8 +97,7 @@ r5js.test.JsInterop.prototype['testDisplayPrimitivesToJs'] = function() {
   this.expect('(display 42)').to(output('42'));
   this.expect('(display #t)').to(output('#t'));
   this.expect('(display #f)').to(output('#f'));
-  this.expect('(display "hello, world")').
-      to(output('hello, world'));
+  this.expect('(display "hello, world")').to(output('hello, world'));
   this.expect("(display 'hello)").to(output('hello'));
   this.expect('(display (quote hello))').to(output('hello'));
   this.expect('(display #\\a)').to(output('a'));
@@ -111,8 +110,7 @@ r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
   this.expect('(write 42)').to(output('42'));
   this.expect('(write #t)').to(output('#t'));
   this.expect('(write #f)').to(output('#f'));
-  this.expect('(write "hello, world")').
-      to(output('"hello, world"'));
+  this.expect('(write "hello, world")').to(output('"hello, world"'));
   this.expect("(write 'hello)").to(output('hello'));
   this.expect('(write (quote hello))').to(output('hello'));
   this.expect('(write #\\a)').to(output('#\\a'));
@@ -172,8 +170,7 @@ r5js.test.JsInterop.prototype['testDisplayRecursiveTypesToJs'] = function() {
 r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
   this.expect('(write #())').to(output('#()'));
   this.expect("(write '())").to(output('()'));
-  this.expect("(write (list '() '() '() '(42)))").
-      to(output('(() () () (42))'));
+  this.expect("(write (list '() '() '() '(42)))").to(output('(() () () (42))'));
   this.expect('(write (list 1 2 3))').to(output('(1 2 3)'));
   this.expect("(write (cons 'a (cons 'b (cons 'c '()))))").
       to(output('(a b c)'));
