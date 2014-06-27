@@ -20,7 +20,6 @@ goog.setTestOnly('r5js.test.JsInterop');
 goog.require('Throw');
 goog.require('expect');
 goog.require('goog.Promise');
-goog.require('goog.functions');
 goog.require('goog.string');
 goog.require('goog.testing.asserts');
 goog.require('haveJsValue');
@@ -53,18 +52,7 @@ goog.inherits(r5js.test.JsInterop, r5js.test.SyncPromiseTestSuite);
 
 /** @override */
 r5js.test.JsInterop.prototype.expect = function(input) {
-  /* TODO bl: without the goog.functions.identity callback,
-    rejected evaluation promises end up invoking goog.promise's
-    unhandled rejection handler. By default, the unhandled rejection handler
-    throws an exception on the next tick, which is fine for browsers
-    (it ends up on the console) but terminates execution for Node.
-
-    After auditing all my goog.Promise#then call sites, I haven't been able
-    to figure out why the unhandled rejection handler is getting called.
-    It seems that goog.promise.removeUnhandledRejection_ is getting called
-    after goog.promise.addUnhandledRejection_, by which time it is too late. */
-  return goog.base(this, 'expect', input,
-      this.evaluator_.evaluate(input).thenCatch(goog.functions.identity));
+  return goog.base(this, 'expect', input, this.evaluator_.evaluate(input));
 };
 
 

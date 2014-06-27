@@ -28,8 +28,34 @@ goog.require('tdd.TestType');
 
 
 /**
+ * {@link tdd.TestSuite} implementation for writing Promise-based unit tests
+ * with a synchronous syntax. Use with caution.
  *
- * @param {string} name
+ * When writing tests for asynchronous code, it is usually essential to deal
+ * with the asynchronicity up-front. For example, it is essential to exercise
+ * both the resolution and rejection branches for Promise-based APIs.
+ *
+ * There is at least one counterexample: when the APIs are asynchronous
+ * but the tests exercise behavior for which asynchronicity is not an essential
+ * concern.
+ *
+ * For example, {@link r5js.Evaluator} is a Promise-based API, but the
+ * tests in {@link r5js.test.JsInterop} only deal with one evaluation at a time,
+ * checking (hundreds of times) that a certain string evaluates to an expected
+ * value. The relationship between one run of the evaluator and the next
+ * is not under test.
+ *
+ * It would be possible to write these tests with a normal {@link tdd.TestSuite}
+ * implementation, manually managing the (long) chain of Promises and
+ * returning the last one to the test framework. But that would diminish
+ * the tests' readability.
+ *
+ * Instead, this class allows test authors to write straight-line code
+ * through the use of {@link #expect}. Test methods are run synchronously
+ * at first to collect the Promises created by {@link #expect}, and then the
+ * promise chains are kicked off.
+ *
+ * @param {string} name Name of the test suite.
  * @implements {tdd.ManualTestSuite}
  * @constructor
  */
@@ -129,8 +155,18 @@ r5js.test.SyncPromiseTestSuite.isTestMethod_ = function(name, val) {
  * @protected
  */
 r5js.test.SyncPromiseTestSuite.prototype.expect = function(input, promise) {
+  /* TODO bl: without the goog.functions.identity callback,
+     rejected evaluation promises end up invoking goog.promise's
+     unhandled rejection handler. By default, the unhandled rejection handler
+     throws an exception on the next tick, which is fine for browsers
+     (it ends up on the console) but terminates execution for Node.
+
+     After auditing all my goog.Promise#then call sites, I haven't been able
+     to figure out why the unhandled rejection handler is getting called.
+     It seems that goog.promise.removeUnhandledRejection_ is getting called
+     after goog.promise.addUnhandledRejection_, by which time it is too late. */
   var expectation = new r5js.test.SyncPromiseTestSuite.Expectation_(
-      input, promise);
+      input, promise.thenCatch(goog.functions.identity));
   this.getTestMethodUnderConstruction_().addExpectation(expectation);
   return expectation;
 };
@@ -191,7 +227,7 @@ r5js.test.SyncPromiseTestSuite.Expectation_.prototype.resolveOrReject_ =
 /**
  * @param {string} name The test method's name.
  * @param {!Function} func The test method.
- * @param {!r5js.test.SyncPromiseTestSuite} parent TODO bl remove
+ * @param {!r5js.test.SyncPromiseTestSuite} parent TODO bl remove.
  * @struct
  * @constructor
  * @private
