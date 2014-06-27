@@ -134,7 +134,7 @@ r5js.Environment.prototype.get = function(name) {
     // If the current environment has no binding for the name, look one level up
     return this.enclosingEnv_.get(name);
   } else {
-    throw r5js.error.unboundVariable(name + ' in env');
+    throw r5js.error.unboundVariable(name);
   }
 };
 

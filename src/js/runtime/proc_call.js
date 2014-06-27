@@ -81,7 +81,7 @@ r5js.ProcCall.prototype.operandsInContinuationPassingStyle_ = function() {
     if (cur instanceof r5js.Datum) {
       if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
         throw r5js.error.illegalEmptyApplication(
-            this.operatorName_.getPayload());
+            /** @type {string} */ (this.operatorName_.getPayload()));
       } else if (!(cur instanceof r5js.ast.Literal ||
           cur instanceof r5js.ast.Quote ||
           cur instanceof r5js.ast.Vector)) {

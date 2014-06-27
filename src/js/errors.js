@@ -22,12 +22,14 @@ goog.require('goog.functions');
 
 /**
  * @param {!r5js.Error.Type} type
+ * @param {string} msg Human-readable error message.
  * @param {...*} var_args
  * @struct
  * @constructor
  */
-r5js.Error = function(type, var_args) {
+r5js.Error = function(type, msg, var_args) {
   /** @const */ this.type = type;
+  /** @const */ this.msg = msg;
 };
 
 
@@ -68,7 +70,9 @@ r5js.error.equals = function(e1, e2) {
  * @return {!r5js.Error}
  */
 r5js.error.unboundVariable = function(name) {
-  return new r5js.Error(r5js.Error.Type.UNBOUND_VARIABLE, name);
+  return new r5js.Error(
+      r5js.Error.Type.UNBOUND_VARIABLE,
+      name + ' is not defined');
 };
 
 
@@ -80,8 +84,9 @@ r5js.error.unboundVariable = function(name) {
  * @return {!r5js.Error}
  */
 r5js.error.tooFewVarargs = function(name, minNumArgs, actualNumArgs) {
-  return new r5js.Error(r5js.Error.Type.TOO_FEW_VARARGS,
-      name, minNumArgs, actualNumArgs);
+  return new r5js.Error(
+      r5js.Error.Type.TOO_FEW_VARARGS,
+      name + ': want >= ' + minNumArgs + ' args, got ' + actualNumArgs);
 };
 
 
@@ -93,8 +98,9 @@ r5js.error.tooFewVarargs = function(name, minNumArgs, actualNumArgs) {
  * @return {!r5js.Error}
  */
 r5js.error.tooManyVarargs = function(name, maxNumArgs, actualNumArgs) {
-  return new r5js.Error(r5js.Error.Type.TOO_MANY_VARARGS,
-      name, maxNumArgs, actualNumArgs);
+  return new r5js.Error(
+      r5js.Error.Type.TOO_MANY_VARARGS,
+      name + ': want <= ' + maxNumArgs + ' args, got ' + actualNumArgs);
 };
 
 
@@ -105,8 +111,9 @@ r5js.error.tooManyVarargs = function(name, maxNumArgs, actualNumArgs) {
  * @return {!r5js.Error}
  */
 r5js.error.incorrectNumArgs = function(name, expectedNumArgs, actualNumArgs) {
-  return new r5js.Error(r5js.Error.Type.INCORRECT_NUM_ARGS,
-      name, expectedNumArgs, actualNumArgs);
+  return new r5js.Error(
+      r5js.Error.Type.INCORRECT_NUM_ARGS,
+      name + ': want ' + expectedNumArgs + ' args, got ' + actualNumArgs);
 };
 
 
@@ -132,8 +139,10 @@ r5js.error.internalInterpreterError = function(msg) {
  */
 r5js.error.argumentTypeError = function(
     arg, argIndex, procName, expectedType, actualType) {
-  return new r5js.Error(r5js.Error.Type.ARGUMENT_TYPE_ERROR,
-      arg, argIndex, procName, expectedType, actualType);
+  return new r5js.Error(
+      r5js.Error.Type.ARGUMENT_TYPE_ERROR,
+      procName + ': argument ' + argIndex + ': want ' +
+          expectedType + ', got ' + actualType);
 };
 
 
@@ -143,7 +152,9 @@ r5js.error.argumentTypeError = function(
  * @return {!r5js.Error}
  */
 r5js.error.macro = function(keyword, msg) {
-  return new r5js.Error(r5js.Error.Type.MACRO, keyword, msg);
+  return new r5js.Error(
+      r5js.Error.Type.MACRO,
+      'macro ' + keyword + ': ' + msg);
 };
 
 
@@ -153,7 +164,8 @@ r5js.error.macro = function(keyword, msg) {
  */
 r5js.error.unimplementedOption = function(what) {
   return new r5js.Error(
-      r5js.Error.Type.UNIMPLEMENTED_OPTION, what);
+      r5js.Error.Type.UNIMPLEMENTED_OPTION,
+      'unimplemented: ' + what);
 };
 
 
@@ -167,12 +179,12 @@ r5js.error.quasiquote = function(what) {
 
 
 /**
- * @param {*} where Object that caused the empty application.
+ * @param {string} what Object that caused the empty application.
  * @return {!r5js.Error}
  */
-r5js.error.illegalEmptyApplication = function(where) {
+r5js.error.illegalEmptyApplication = function(what) {
   return new r5js.Error(
-      r5js.Error.Type.ILLEGAL_EMPTY_APPLICATION, where);
+      r5js.Error.Type.ILLEGAL_EMPTY_APPLICATION, what);
 };
 
 
@@ -181,7 +193,7 @@ r5js.error.illegalEmptyApplication = function(where) {
  * @return {!r5js.Error}
  */
 r5js.error.parse = function(what) {
-  return new r5js.Error(r5js.Error.Type.PARSE, what);
+  return new r5js.Error(r5js.Error.Type.PARSE, 'parse error: ' + what);
 };
 
 
@@ -190,7 +202,7 @@ r5js.error.parse = function(what) {
  * @return {!r5js.Error}
  */
 r5js.error.read = function(token) {
-  return new r5js.Error(r5js.Error.Type.READ, token);
+  return new r5js.Error(r5js.Error.Type.READ, 'read error: ' + token);
 };
 
 
@@ -219,5 +231,5 @@ r5js.error.immutable = function(what) {
  * @return {!r5js.Error}
  */
 r5js.error.scan = function(what) {
-  return new r5js.Error(r5js.Error.Type.SCAN, what);
+  return new r5js.Error(r5js.Error.Type.SCAN, 'scan error: ' + what);
 };
