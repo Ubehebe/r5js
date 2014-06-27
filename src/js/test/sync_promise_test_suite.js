@@ -48,7 +48,10 @@ goog.require('tdd.TestType');
  * It would be possible to write these tests with a normal {@link tdd.TestSuite}
  * implementation, manually managing the (long) chain of Promises and
  * returning the last one to the test framework. But that would diminish
- * the tests' readability.
+ * the tests' readability. It would also be possible to use a special
+ * synchronous version of the API just for testing
+ * (see {@link r5js.sync.Evaluator}), then the tests would no longer cover
+ * the production API directly.
  *
  * Instead, this class allows test authors to write straight-line code
  * through the use of {@link #expect}. Test methods are run synchronously
