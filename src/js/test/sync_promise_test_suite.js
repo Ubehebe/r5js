@@ -178,7 +178,7 @@ r5js.test.SyncPromiseTestSuite.prototype.expect = function(input, promise) {
 
 /**
  * @param {string} input
- * @param {!goog.Promise.<!r5js.JsonValue>} evalPromise
+ * @param {!goog.Promise.<string>} evalPromise
  * @struct
  * @constructor
  * @private

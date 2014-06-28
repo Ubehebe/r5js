@@ -32,7 +32,7 @@ goog.provide('r5js.platform.html5.message');
  * To avoid several pitfalls (for example, functions can't be serialized),
  * we stick to a simple structure and use type tags.
  * @param {number} id Message id.
- * @param {string|!r5js.JsonValue|!r5js.Error} content Message content.
+ * @param {string|!r5js.Error} content Message content.
  * @struct
  * @constructor
  */
@@ -65,12 +65,12 @@ r5js.platform.html5.message.newEvalRequest = function(id, request) {
 
 /**
  * @param {number} id Message id.
- * @param {!r5js.JsonValue} jsonValue Message content.
+ * @param {string} value Message content.
  * @return {!r5js.platform.html5.Message}
  */
-r5js.platform.html5.message.newEvalResponse = function(id, jsonValue) {
+r5js.platform.html5.message.newEvalResponse = function(id, value) {
   return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.EVAL_RESPONSE, id, jsonValue);
+      r5js.platform.html5.MessageType.EVAL_RESPONSE, id, value);
 };
 
 

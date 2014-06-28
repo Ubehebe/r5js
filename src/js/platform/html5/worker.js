@@ -51,16 +51,16 @@ r5js.platform.html5.Worker.evaluator_;
  */
 r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
   r5js.platform.html5.Worker.getEvaluator_().then(function(evaluator) {
-    /** @type {r5js.JsonValue} */ var jsonValue;
+    /** @type {string} */ var value;
     try {
-      jsonValue = evaluator.evaluate(message.content);
+      value = evaluator.evaluate(message.content);
     } catch (e) {
       postMessage(
           r5js.platform.html5.message.newEvalError(message.id, e));
       return;
     }
     postMessage(
-        r5js.platform.html5.message.newEvalResponse(message.id, jsonValue));
+        r5js.platform.html5.message.newEvalResponse(message.id, value));
   });
 };
 

@@ -38,7 +38,7 @@ r5js.sync.EvaluatorImpl = function(pipeline, inputPort, outputPort) {
 
 /** @override */
 r5js.sync.EvaluatorImpl.prototype.evaluate = function(input) {
-  return r5js.valutil.toJson(
+  return r5js.valutil.toWriteString(
       this.pipeline_.Eval(
       this.pipeline_.desugar(
       this.pipeline_.parse(/** @type {!r5js.Datum} */ (

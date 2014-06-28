@@ -20,7 +20,7 @@ goog.setTestOnly('evalTo');
 
 /**
  * @param {string} value
- * @return {!tdd.matchers.Matcher.<!r5js.JsonValue>}
+ * @return {!tdd.matchers.Matcher.<string>}
  */
 evalTo = function(value) {
   return new r5js.test.matchers.EvaluatesTo_(value);
@@ -30,7 +30,7 @@ evalTo = function(value) {
 
 /**
  * @param {string} expectedValue
- * @implements {tdd.matchers.Matcher.<!r5js.JsonValue>}
+ * @implements {tdd.matchers.Matcher.<string>}
  * @struct
  * @constructor
  * @private
@@ -41,16 +41,16 @@ r5js.test.matchers.EvaluatesTo_ = function(expectedValue) {
 
 
 /** @override */
-r5js.test.matchers.EvaluatesTo_.prototype.matches = function(input) {
-  return this.expectedValue_ === input.writeValue;
+r5js.test.matchers.EvaluatesTo_.prototype.matches = function(actualValue) {
+  return this.expectedValue_ === actualValue;
 };
 
 
 /** @override */
 r5js.test.matchers.EvaluatesTo_.prototype.getFailureMessage =
-    function(input) {
+    function(actualValue) {
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
-      input.writeValue;
+      actualValue;
 };

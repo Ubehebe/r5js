@@ -30,6 +30,6 @@ r5js.Evaluator = function() {};
 
 /**
  * @param {string} input
- * @return {!goog.Promise.<!r5js.JsonValue>}
+ * @return {!goog.Promise.<string>}
  */
 r5js.Evaluator.prototype.evaluate = function(input) {};

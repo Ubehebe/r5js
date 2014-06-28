@@ -23,7 +23,7 @@ r5js.sync.Evaluator = function() {};
 
 /**
  * @param {string} input
- * @return {!r5js.JsonValue}
+ * @return {string}
  * @throws {!r5js.Error}
  */
 r5js.sync.Evaluator.prototype.evaluate = function(input) {};

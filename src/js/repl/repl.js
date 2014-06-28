@@ -53,7 +53,7 @@ r5js.Repl.prototype.handleInputLine = function(inputLine) {
     }
   }, undefined /* opt_onRejected */, this
   ).then(
-      function(jsonValue) { this.terminal_.print(jsonValue.writeValue); },
+      function(value) { this.terminal_.print(value); },
       function(error) {
         this.terminal_.error((/** @type {!r5js.Error} */ (error)).msg);
       }, this
