@@ -23,7 +23,7 @@ goog.require('goog.Promise');
 goog.require('goog.string');
 goog.require('goog.testing.asserts');
 goog.require('output');
-goog.require('haveStringValue');
+goog.require('evalTo');
 goog.require('r5js.DatumType');
 goog.require('r5js.error');
 goog.require('r5js.parse.Terminals');
@@ -56,16 +56,16 @@ r5js.test.JsInterop.prototype.expect = function(input) {
 
 
 r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
-  this.expect('42').to(haveStringValue('42'));
-  this.expect('42').to(haveStringValue('42'));
-  this.expect('#t').to(haveStringValue('#t'));
-  this.expect('#f').to(haveStringValue('#f'));
-  this.expect('"hello, world"').to(haveStringValue('"hello, world"'));
-  this.expect("'hello").to(haveStringValue('hello'));
-  this.expect('(quote hello)').to(haveStringValue('hello'));
-  this.expect('#\\a').to(haveStringValue('#\\a'));
-  this.expect('#\\space').to(haveStringValue('#\\space'));
-  this.expect('#\\newline').to(haveStringValue('#\\newline'));
+  this.expect('42').to(evalTo('42'));
+  this.expect('42').to(evalTo('42'));
+  this.expect('#t').to(evalTo('#t'));
+  this.expect('#f').to(evalTo('#f'));
+  this.expect('"hello, world"').to(evalTo('"hello, world"'));
+  this.expect("'hello").to(evalTo('hello'));
+  this.expect('(quote hello)').to(evalTo('hello'));
+  this.expect('#\\a').to(evalTo('#\\a'));
+  this.expect('#\\space').to(evalTo('#\\space'));
+  this.expect('#\\newline').to(evalTo('#\\newline'));
 };
 
 
@@ -96,27 +96,27 @@ r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
 
 
 r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
-  this.expect('(+ 1 1)').to(haveStringValue('2'));
-  this.expect('(procedure? procedure?)').to(haveStringValue('#t'));
+  this.expect('(+ 1 1)').to(evalTo('2'));
+  this.expect('(procedure? procedure?)').to(evalTo('#t'));
   this.expect('(string-append "hello " "world")').
-      to(haveStringValue('"hello world"'));
-  this.expect("'a").to(haveStringValue('a'));
-  this.expect("''a").to(haveStringValue("'a"));
-  this.expect("'''a").to(haveStringValue("''a"));
-  this.expect("''''a").to(haveStringValue("'''a"));
-  this.expect("'''''a").to(haveStringValue("''''a"));
+      to(evalTo('"hello world"'));
+  this.expect("'a").to(evalTo('a'));
+  this.expect("''a").to(evalTo("'a"));
+  this.expect("'''a").to(evalTo("''a"));
+  this.expect("''''a").to(evalTo("'''a"));
+  this.expect("'''''a").to(evalTo("''''a"));
 };
 
 
 r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
-  this.expect('#()').to(haveStringValue('#()'));
-  this.expect("'()").to(haveStringValue('()'));
+  this.expect('#()').to(evalTo('#()'));
+  this.expect("'()").to(evalTo('()'));
   this.expect("(list '() '() '() '(42))").
-      to(haveStringValue('(() () () (42))'));
-  this.expect('(list 1 2 3)').to(haveStringValue('(1 2 3)'));
+      to(evalTo('(() () () (42))'));
+  this.expect('(list 1 2 3)').to(evalTo('(1 2 3)'));
   this.expect("(cons 'a (cons 'b (cons 'c '())))").
-      to(haveStringValue('(a b c)'));
-  this.expect("(cons 'a 'b)").to(haveStringValue('(a . b)'));
+      to(evalTo('(a b c)'));
+  this.expect("(cons 'a 'b)").to(evalTo('(a . b)'));
 };
 
 
@@ -149,38 +149,38 @@ r5js.test.JsInterop.prototype['testWriteRecursiveTypesToJs'] = function() {
  */
 r5js.test.JsInterop.prototype['testNonStandardExternalRepresentations'] =
     function() {
-  this.expect('+').not().to(haveStringValue(''));
-  this.expect('(lambda (x) x)').not().to(haveStringValue(''));
-  this.expect('(current-input-port)').not().to(haveStringValue(''));
-  this.expect('(current-output-port)').not().to(haveStringValue(''));
+  this.expect('+').not().to(evalTo(''));
+  this.expect('(lambda (x) x)').not().to(evalTo(''));
+  this.expect('(current-input-port)').not().to(evalTo(''));
+  this.expect('(current-output-port)').not().to(evalTo(''));
   this.expect('(scheme-report-environment 5)').
-      not().to(haveStringValue(''));
-  this.expect('(null-environment 5)').not().to(haveStringValue(''));
+      not().to(evalTo(''));
+  this.expect('(null-environment 5)').not().to(evalTo(''));
 };
 
 
 r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
-  this.expect('').to(haveStringValue(''));
-  this.expect(' ').to(haveStringValue(''));
-  this.expect('\n').to(haveStringValue(''));
-  this.expect('\t').to(haveStringValue(''));
-  this.expect('    \t \n\n\n   ').to(haveStringValue(''));
-  this.expect('(define x 1)').to(haveStringValue(''));
-  this.expect('(define x 1) (set! x 2)').to(haveStringValue(''));
-  this.expect('(define x (cons 1 2)) (set-car! x x)').to(haveStringValue(''));
-  this.expect('(define x (cons 1 2)) (set-cdr! x x)').to(haveStringValue(''));
-  this.expect('(if #f #t)').to(haveStringValue(''));
-  this.expect('(write "foo")').to(haveStringValue(''));
-  this.expect('(display 42)').to(haveStringValue(''));
-  this.expect('(write-char #\\a)').to(haveStringValue(''));
+  this.expect('').to(evalTo(''));
+  this.expect(' ').to(evalTo(''));
+  this.expect('\n').to(evalTo(''));
+  this.expect('\t').to(evalTo(''));
+  this.expect('    \t \n\n\n   ').to(evalTo(''));
+  this.expect('(define x 1)').to(evalTo(''));
+  this.expect('(define x 1) (set! x 2)').to(evalTo(''));
+  this.expect('(define x (cons 1 2)) (set-car! x x)').to(evalTo(''));
+  this.expect('(define x (cons 1 2)) (set-cdr! x x)').to(evalTo(''));
+  this.expect('(if #f #t)').to(evalTo(''));
+  this.expect('(write "foo")').to(evalTo(''));
+  this.expect('(display 42)').to(evalTo(''));
+  this.expect('(write-char #\\a)').to(evalTo(''));
   this.expect('(close-input-port (current-input-port))').
-      to(haveStringValue(''));
+      to(evalTo(''));
   this.expect('(close-input-port (open-input-file "foo"))').
-      to(haveStringValue(''));
+      to(evalTo(''));
   this.expect('(close-output-port (open-output-file "foo"))').
-      to(haveStringValue(''));
+      to(evalTo(''));
   this.expect('(close-output-port (current-output-port))').
-      to(haveStringValue(''));
+      to(evalTo(''));
 };
 
 r5js.test.JsInterop.prototype['testErrors'] = function() {

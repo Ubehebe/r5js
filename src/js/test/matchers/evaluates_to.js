@@ -14,16 +14,16 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('haveStringValue');
-goog.setTestOnly('haveStringValue');
+goog.provide('evalTo');
+goog.setTestOnly('evalTo');
 
 
 /**
  * @param {string} value
  * @return {!tdd.matchers.Matcher.<!r5js.JsonValue>}
  */
-haveStringValue = function(value) {
-  return new r5js.test.matchers.HasStringValue_(value);
+evalTo = function(value) {
+  return new r5js.test.matchers.EvaluatesTo_(value);
 };
 
 
@@ -35,19 +35,19 @@ haveStringValue = function(value) {
  * @constructor
  * @private
  */
-r5js.test.matchers.HasStringValue_ = function(expectedValue) {
+r5js.test.matchers.EvaluatesTo_ = function(expectedValue) {
   /** @const @private */ this.expectedValue_ = expectedValue;
 };
 
 
 /** @override */
-r5js.test.matchers.HasStringValue_.prototype.matches = function(input) {
+r5js.test.matchers.EvaluatesTo_.prototype.matches = function(input) {
   return this.expectedValue_ === input.writeValue;
 };
 
 
 /** @override */
-r5js.test.matchers.HasStringValue_.prototype.getFailureMessage =
+r5js.test.matchers.EvaluatesTo_.prototype.getFailureMessage =
     function(input) {
   return 'want ' +
       this.expectedValue_ +
