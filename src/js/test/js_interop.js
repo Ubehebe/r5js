@@ -22,7 +22,6 @@ goog.require('expect');
 goog.require('goog.Promise');
 goog.require('goog.string');
 goog.require('goog.testing.asserts');
-goog.require('haveJsValue');
 goog.require('output');
 goog.require('haveStringValue');
 goog.require('r5js.DatumType');
@@ -57,26 +56,15 @@ r5js.test.JsInterop.prototype.expect = function(input) {
 
 
 r5js.test.JsInterop.prototype['testReturnPrimitivesToJs'] = function() {
-  this.expect('42').to(haveJsValue(42));
   this.expect('42').to(haveStringValue('42'));
-  this.expect('#t').to(haveJsValue(true));
-  this.expect('42').to(haveJsValue(42));
   this.expect('42').to(haveStringValue('42'));
-  this.expect('#t').to(haveJsValue(true));
   this.expect('#t').to(haveStringValue('#t'));
-  this.expect('#f').to(haveJsValue(false));
   this.expect('#f').to(haveStringValue('#f'));
-  this.expect('"hello, world"').to(haveJsValue('hello, world'));
   this.expect('"hello, world"').to(haveStringValue('"hello, world"'));
-  this.expect("'hello").to(haveJsValue('hello'));
   this.expect("'hello").to(haveStringValue('hello'));
-  this.expect('(quote hello)').to(haveJsValue('hello'));
   this.expect('(quote hello)').to(haveStringValue('hello'));
-  this.expect('#\\a').to(haveJsValue('a'));
   this.expect('#\\a').to(haveStringValue('#\\a'));
-  this.expect('#\\space').to(haveJsValue(' '));
   this.expect('#\\space').to(haveStringValue('#\\space'));
-  this.expect('#\\newline').to(haveJsValue('\n'));
   this.expect('#\\newline').to(haveStringValue('#\\newline'));
 };
 
@@ -108,12 +96,8 @@ r5js.test.JsInterop.prototype['testWritePrimitivesToJs'] = function() {
 
 
 r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
-  this.expect('(+ 1 1)').to(haveJsValue(2));
   this.expect('(+ 1 1)').to(haveStringValue('2'));
-  this.expect('(procedure? procedure?)').to(haveJsValue(true));
   this.expect('(procedure? procedure?)').to(haveStringValue('#t'));
-  this.expect('(string-append "hello " "world")').
-      to(haveJsValue('hello world'));
   this.expect('(string-append "hello " "world")').
       to(haveStringValue('"hello world"'));
   this.expect("'a").to(haveStringValue('a'));
@@ -125,20 +109,13 @@ r5js.test.JsInterop.prototype['testSanityChecks'] = function() {
 
 
 r5js.test.JsInterop.prototype['testReturnRecursiveTypesToJs'] = function() {
-  this.expect('#()').to(haveJsValue([]));
   this.expect('#()').to(haveStringValue('#()'));
-  this.expect("'()").to(haveJsValue([]));
   this.expect("'()").to(haveStringValue('()'));
-  this.expect("(list '() '() '() '(42))").to(haveJsValue([[], [], [], [42]]));
   this.expect("(list '() '() '() '(42))").
       to(haveStringValue('(() () () (42))'));
-  this.expect('(list 1 2 3)').to(haveJsValue([1, 2, 3]));
   this.expect('(list 1 2 3)').to(haveStringValue('(1 2 3)'));
   this.expect("(cons 'a (cons 'b (cons 'c '())))").
-      to(haveJsValue(['a', 'b', 'c']));
-  this.expect("(cons 'a (cons 'b (cons 'c '())))").
       to(haveStringValue('(a b c)'));
-  this.expect("(cons 'a 'b)").not().to(haveJsValue(['a', 'b']));
   this.expect("(cons 'a 'b)").to(haveStringValue('(a . b)'));
 };
 
@@ -183,48 +160,25 @@ r5js.test.JsInterop.prototype['testNonStandardExternalRepresentations'] =
 
 
 r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
-  this.expect('').to(haveJsValue(undefined));
   this.expect('').to(haveStringValue(''));
-  this.expect(' ').to(haveJsValue(undefined));
   this.expect(' ').to(haveStringValue(''));
-  this.expect('\n').to(haveJsValue(undefined));
   this.expect('\n').to(haveStringValue(''));
-  this.expect('\t').to(haveJsValue(undefined));
   this.expect('\t').to(haveStringValue(''));
-  this.expect('    \t \n\n\n   ').to(haveJsValue(undefined));
   this.expect('    \t \n\n\n   ').to(haveStringValue(''));
-  this.expect('(define x 1)').to(haveJsValue(undefined));
   this.expect('(define x 1)').to(haveStringValue(''));
-  this.expect('(define x 1) (set! x 2)').to(haveJsValue(undefined));
   this.expect('(define x 1) (set! x 2)').to(haveStringValue(''));
-  this.expect('(define x (cons 1 2)) (set-car! x x)').
-      to(haveJsValue(undefined));
   this.expect('(define x (cons 1 2)) (set-car! x x)').to(haveStringValue(''));
-  this.expect('(define x (cons 1 2)) (set-cdr! x x)').
-      to(haveJsValue(undefined));
   this.expect('(define x (cons 1 2)) (set-cdr! x x)').to(haveStringValue(''));
-  this.expect('(if #f #t)').to(haveJsValue(undefined));
   this.expect('(if #f #t)').to(haveStringValue(''));
-  this.expect('(write "foo")').to(haveJsValue(undefined));
   this.expect('(write "foo")').to(haveStringValue(''));
-  this.expect('(display 42)').to(haveJsValue(undefined));
   this.expect('(display 42)').to(haveStringValue(''));
-  this.expect('(write-char #\\a)').to(haveJsValue(undefined));
   this.expect('(write-char #\\a)').to(haveStringValue(''));
   this.expect('(close-input-port (current-input-port))').
-      to(haveJsValue(undefined));
-  this.expect('(close-input-port (current-input-port))').
       to(haveStringValue(''));
-  this.expect('(close-input-port (open-input-file "foo"))').
-      to(haveJsValue(undefined));
   this.expect('(close-input-port (open-input-file "foo"))').
       to(haveStringValue(''));
   this.expect('(close-output-port (open-output-file "foo"))').
-      to(haveJsValue(undefined));
-  this.expect('(close-output-port (open-output-file "foo"))').
       to(haveStringValue(''));
-  this.expect('(close-output-port (current-output-port))').
-      to(haveJsValue(undefined));
   this.expect('(close-output-port (current-output-port))').
       to(haveStringValue(''));
 };
