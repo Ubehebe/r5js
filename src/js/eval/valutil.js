@@ -25,122 +25,29 @@ goog.require('r5js.ast.Quote');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
-
-/** @typedef {{
-* type: string,
-* value: ?,
-* writeValue: string
-* }}
-*/
-r5js.JsonValue;
-
-
-/** @const @private {!r5js.JsonValue} */ r5js.UNSPECIFIED_JSON_VALUE_ = {
-  type: 'unspecified',
-  value: undefined,
-  writeValue: ''
-};
-
-
-/**
- * Maps Scheme values to idiomatic JSON values:
- * @param {!r5js.runtime.Value} value
- * @return {!r5js.JsonValue}
+/*
+ * Implementation note: a richer representation of Scheme values would
+ * be useful for any embedded use of the interpreter. I tried a few times
+ * to design a richer API, but it was never very good. There were two main
+ * difficulties. First, because {@link r5js.Evaluator#evaluate} is asynchronous,
+ * the interpreter should be able to run in a client-server fashion.
+ * (For example, in {@link r5js.platform.Html5}, the actual interpreter
+ * runs in a web worker, and communicates with a client stub via postMessage.)
+ * This restricts the external representation of Scheme values.
+ * Simply passing {@link r5js.runtime.Value} instances does not work,
+ * because the HTML5 structured clone algorithm does not serialize functions
+ * (and many {@link r5js.runtime.Value} implementations have rich method sets).
+ *
+ * The second and more fundamental problem is that the Scheme and JavaScript
+ * type systems don't align very well beyond booleans, numbers, and strings.
+ * JavaScript doesn't distinguish between lists and vectors or among
+ * characters, strings, and symbols. For other Scheme values, there is
+ * no reasonable representation in JavaScript: ports, procedures, environment
+ * specifiers. (The evaluator cannot simply hand over its internal
+ * reprsentations of these due to the first problem above.) So I ended up
+ * mapping these to the JavaScript undefined value, and this didn't feel
+ * satisfactory.
  */
-r5js.valutil.toJson = function(value) {
-  var type = typeof value;
-  switch (type) {
-    case 'number': // fallthrough
-    case 'boolean':
-      return {
-        type: type,
-        value: value,
-        writeValue: r5js.valutil.toWriteString(value)
-      };
-    case 'string':
-      return {
-        type: r5js.DatumType.SYMBOL,
-        value: value,
-        writeValue: r5js.valutil.toWriteString(value)
-      };
-    case 'object':
-      if (value === r5js.runtime.UNSPECIFIED_VALUE) {
-        return r5js.UNSPECIFIED_JSON_VALUE_;
-      } else if (value instanceof r5js.Ref) {
-        return r5js.valutil.toJson(value.deref());
-      } else if (value instanceof r5js.ast.Quote) {
-        return {
-          type: 'datum', // TODO bl not a Scheme value
-          value: undefined,
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (value instanceof r5js.ast.List) {
-        return {
-          type: 'list', // TODO bl not a Scheme value. Should be PAIR.
-          value: value.mapChildren(r5js.valutil.toJson),
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (value instanceof r5js.ast.DottedList) {
-        return {
-          type: 'dotted-list', // TODO bl not a Scheme value. Should be PAIR.
-          value: undefined,
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (value instanceof r5js.ast.Vector) {
-        return {
-          type: r5js.DatumType.VECTOR,
-          value: value.mapChildren(r5js.valutil.toJson),
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (value instanceof r5js.ast.String) {
-        return {
-          type: r5js.DatumType.STRING,
-          value: value.getPayload(),
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (value instanceof r5js.ast.Character) {
-        return {
-          type: r5js.DatumType.CHARACTER,
-          value: value.getPayload(),
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (value instanceof r5js.ast.Lambda) {
-        return {
-          type: r5js.DatumType.PROCEDURE,
-          value: undefined,
-          writeValue: r5js.valutil.toWriteString(value.unwrap())
-        };
-      } else if (value instanceof r5js.UserDefinedProcedure) {
-        return {
-          type: r5js.DatumType.PROCEDURE,
-          value: undefined,
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (r5js.InputPort.isImplementedBy(value)) {
-        return {
-          type: r5js.DatumType.INPUT_PORT,
-          value: undefined,
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (r5js.OutputPort.isImplementedBy(value)) {
-        return {
-          type: r5js.DatumType.OUTPUT_PORT,
-          value: undefined,
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (value instanceof r5js.Environment) {
-        return {
-          type: r5js.DatumType.ENVIRONMENT_SPECIFIER,
-          value: undefined,
-          writeValue: r5js.valutil.toWriteString(value)
-        };
-      } else if (value instanceof r5js.Datum) {
-        return r5js.valutil.toJson(value.unwrap());
-      }
-    default:
-      return r5js.UNSPECIFIED_JSON_VALUE_;
-  }
-};
 
 
 /**
