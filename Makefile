@@ -35,6 +35,10 @@ test_opts = type=unit verbose
 node_repl_main_class = r5js.repl.main
 node_repl_outfile = $(outdir)/node-repl.js
 
+# Android-related paths.
+# TODO bl: should there be an Android "main class"?
+android_outfile = $(outdir)/r5js-android.js
+
 # Target platform. This corresponds to r5js.PLATFORM in src/js/platform.js.
 # Choices: html5, node.
 PLATFORM = node
@@ -135,6 +139,21 @@ compile-node-repl:
 		--externs=externs/stream.js \
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		> $(node_repl_outfile)
+
+# Compiles the Android port.
+.PHONY: compile-android
+compile-android:
+	@mkdir -p $(outdir)
+	@find $(src) -name "*\.js" \
+	| xargs printf "\-\-input %s " \
+	| xargs $(builder) --root=$(src) --root=$(closure_root) \
+	| xargs printf "\-\-js %s " \
+	| xargs $(compiler) \
+		--js $(closure_root)/closure/goog/deps.js \
+		--define r5js.PLATFORM=\'android\' \
+		--externs=custom-externs/android.js \
+		--compilation_level ADVANCED_OPTIMIZATIONS \
+		> $(android_outfile)
 
 # Compiles the test suite.
 .PHONY: compile-tests
