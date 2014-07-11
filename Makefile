@@ -153,6 +153,7 @@ android:
 		--closure_entry_point=$(android_main_class) \
 		--define r5js.PLATFORM=\'android\' \
 		--externs=custom-externs/android.js \
+		--formatting=PRETTY_PRINT \
 		> $(android_outfile)
 
 # Compiles the test suite.
