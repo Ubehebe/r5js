@@ -32,11 +32,11 @@ test_outfile = $(outdir)/test-all.js
 test_opts = type=unit verbose
 
 # Node-related paths.
-repl_main_class = r5js.repl.main
+node_repl_main_class = r5js.repl.main
 node_repl_outfile = $(outdir)/node-repl.js
 
 # Android-related paths.
-# TODO bl: should there be an Android "main class"?
+android_main_class = r5js.platform.android.main
 android_outfile = $(outdir)/r5js-android.js
 
 # Target platform. This corresponds to r5js.PLATFORM in src/js/platform.js.
@@ -128,7 +128,7 @@ compile-node-repl:
 	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
-		--closure_entry_point=$(repl_main_class) \
+		--closure_entry_point=$(node_repl_main_class) \
 		--define r5js.PLATFORM=\'node\' \
 		--externs=externs/buffer.js \
 		--externs=externs/core.js \
@@ -141,8 +141,8 @@ compile-node-repl:
 		> $(node_repl_outfile)
 
 # Compiles the Android port.
-.PHONY: compile-android
-compile-android:
+.PHONY: android
+android:
 	@mkdir -p $(outdir)
 	@find $(src) -name "*\.js" \
 	| xargs printf "\-\-input %s " \
@@ -150,10 +150,9 @@ compile-android:
 	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
-		--closure_entry_point=$(repl_main_class) \
+		--closure_entry_point=$(android_main_class) \
 		--define r5js.PLATFORM=\'android\' \
 		--externs=custom-externs/android.js \
-		--compilation_level ADVANCED_OPTIMIZATIONS \
 		> $(android_outfile)
 
 # Compiles the test suite.
@@ -191,7 +190,7 @@ node-repl: compile-node-repl
 node-repl:
 	@command -v node > /dev/null 2>&1 || \
 		{ echo >&2 "node is required for testing."; exit 1; }
-	@node -e "require('./build/node-repl').$(repl_main_class)();"
+	@node -e "require('./build/node-repl').$(node_repl_main_class)();"
 
 # Launches an HTTP server to serve the test suite to browsers.
 # The test suite can be reached at /test/test.html.
