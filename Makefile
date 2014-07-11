@@ -32,7 +32,7 @@ test_outfile = $(outdir)/test-all.js
 test_opts = type=unit verbose
 
 # Node-related paths.
-node_repl_main_class = r5js.repl.main
+repl_main_class = r5js.repl.main
 node_repl_outfile = $(outdir)/node-repl.js
 
 # Android-related paths.
@@ -128,7 +128,7 @@ compile-node-repl:
 	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
-		--closure_entry_point=$(node_repl_main_class) \
+		--closure_entry_point=$(repl_main_class) \
 		--define r5js.PLATFORM=\'node\' \
 		--externs=externs/buffer.js \
 		--externs=externs/core.js \
@@ -150,6 +150,7 @@ compile-android:
 	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
+		--closure_entry_point=$(repl_main_class) \
 		--define r5js.PLATFORM=\'android\' \
 		--externs=custom-externs/android.js \
 		--compilation_level ADVANCED_OPTIMIZATIONS \
@@ -190,7 +191,7 @@ node-repl: compile-node-repl
 node-repl:
 	@command -v node > /dev/null 2>&1 || \
 		{ echo >&2 "node is required for testing."; exit 1; }
-	@node -e "require('./build/node-repl').$(node_repl_main_class)();"
+	@node -e "require('./build/node-repl').$(repl_main_class)();"
 
 # Launches an HTTP server to serve the test suite to browsers.
 # The test suite can be reached at /test/test.html.

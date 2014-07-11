@@ -5,6 +5,7 @@ goog.require('goog.Promise');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
 goog.require('r5js.error');
+goog.require('r5js.platform.android.Terminal');
 goog.require('r5js.platform.node.Evaluator');
 goog.require('r5js.test.SchemeSources');
 
@@ -64,7 +65,7 @@ r5js.platform.Android.prototype.newEvaluator =
 
 /** @override */
 r5js.platform.Android.prototype.getTerminal = function() {
-  throw r5js.error.unimplementedOption('getTerminal');
+  return new r5js.platform.android.Terminal();
 };
 
 

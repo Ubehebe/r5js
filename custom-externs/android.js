@@ -34,3 +34,11 @@ AndroidSchemePlatform.getNegativeTests = function() {};
 
 /** @return {string} */
 AndroidSchemePlatform.getOtherTests = function() {};
+
+
+/** @param {string} s */
+AndroidSchemePlatform.print = function(s) {};
+
+
+/** @param {string} s */
+AndroidSchemePlatform.error = function(s) {};
