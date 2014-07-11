@@ -87,6 +87,7 @@ typecheck:
 		--externs=externs/process.js \
 		--externs=externs/readline.js \
 		--externs=externs/stream.js \
+		--externs=custom-externs/android.js \
 		--warning_level VERBOSE \
 		--jscomp_error accessControls \
 		--jscomp_error ambiguousFunctionDecl \
