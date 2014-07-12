@@ -32,5 +32,12 @@ r5js.OutputPort.addImplementation(r5js.platform.android.OutputPort);
 r5js.platform.android.OutputPort.prototype.close = goog.nullFunction;
 
 
-/** @override */
-r5js.platform.android.OutputPort.prototype.write = AndroidSchemePlatform.print;
+/**
+ * TODO bl: defining write directly as AndroidSchemePlatform.print
+ * causes an error I've never seen before: "NPMethod called on non-NPObject".
+ * Probably has to do with cross-language bindings.
+ * @override
+ */
+r5js.platform.android.OutputPort.prototype.write = function(str) {
+  AndroidSchemePlatform.print(str);
+};
