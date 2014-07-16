@@ -151,6 +151,7 @@ android:
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
 		--closure_entry_point=$(android_main_class) \
+		--closure_entry_point=$(test_main_class) \
 		--define r5js.PLATFORM=\'android\' \
 		--externs=custom-externs/android.js \
 		--formatting=PRETTY_PRINT \
