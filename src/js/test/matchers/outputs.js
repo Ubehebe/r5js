@@ -29,10 +29,8 @@ goog.require('r5js.valutil');
  * @return {!tdd.matchers.Matcher}
  */
 output = function(output) {
-  return new r5js.test.matchers.HasOutput_(
-      output,
-      /** @type {!r5js.OutputSavingPort} */ (
-          r5js.test.matchers.HasOutput_.sharedOutputPort_));
+  return new HasOutput_(output,
+      /** @type {!r5js.OutputSavingPort} */ (HasOutput_.sharedOutputPort_));
 };
 
 
@@ -45,7 +43,7 @@ output = function(output) {
  * @constructor
  * @private
  */
-r5js.test.matchers.HasOutput_ = function(expectedOutput, outputPort) {
+var HasOutput_ = function(expectedOutput, outputPort) {
   /** @const @private */ this.expectedOutput_ = expectedOutput;
   /** @private {?string} */ this.actualOutput_ = null;
   /** @const @private */ this.outputPort_ = outputPort;
@@ -53,18 +51,18 @@ r5js.test.matchers.HasOutput_ = function(expectedOutput, outputPort) {
 
 
 /** @private {r5js.OutputSavingPort} */
-r5js.test.matchers.HasOutput_.sharedOutputPort_ = null;
+HasOutput_.sharedOutputPort_ = null;
 
 
 /** @override */
-r5js.test.matchers.HasOutput_.prototype.matches = function(input) {
+HasOutput_.prototype.matches = function(input) {
   this.actualOutput_ = this.outputPort_.dequeueOutput();
   return this.actualOutput_ === this.expectedOutput_;
 };
 
 
 /** @override */
-r5js.test.matchers.HasOutput_.prototype.getFailureMessage =
+HasOutput_.prototype.getFailureMessage =
     function(input) {
   return 'want ' + this.expectedOutput_ + ' got ' + this.actualOutput_;
 };
@@ -75,5 +73,5 @@ r5js.test.matchers.HasOutput_.prototype.getFailureMessage =
  * @suppress {accessControls}
  */
 r5js.test.matchers.setOutputPort = function(outputPort) {
-  r5js.test.matchers.HasOutput_.sharedOutputPort_ = outputPort;
+  HasOutput_.sharedOutputPort_ = outputPort;
 };

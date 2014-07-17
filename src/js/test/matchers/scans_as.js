@@ -25,7 +25,7 @@ goog.require('r5js.Scanner');
  * @return {!tdd.matchers.Matcher.<string>}
  */
 scanAs = function(expectedType) {
-  return new r5js.test.matchers.ScansAs_(expectedType);
+  return new ScansAs_(expectedType);
 };
 
 
@@ -37,13 +37,13 @@ scanAs = function(expectedType) {
  * @constructor
  * @private
  */
-r5js.test.matchers.ScansAs_ = function(expectedType) {
+var ScansAs_ = function(expectedType) {
   /** @const @private */ this.expectedType_ = expectedType;
 };
 
 
 /** @override */
-r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
+ScansAs_.prototype.matches = function(value) {
   try {
     var scanner = new r5js.Scanner(value);
     var token = scanner.nextToken();
@@ -61,6 +61,6 @@ r5js.test.matchers.ScansAs_.prototype.matches = function(value) {
 
 
 /** @override */
-r5js.test.matchers.ScansAs_.prototype.getFailureMessage = function(value) {
+ScansAs_.prototype.getFailureMessage = function(value) {
   return 'expected ' + value + ' to scan as ' + this.expectedType_;
 };

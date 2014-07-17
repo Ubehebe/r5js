@@ -26,7 +26,7 @@ goog.require('r5js.error');
  * @return {!tdd.matchers.Matcher.<!r5js.Error>}
  */
 Throw = function(error) {
-  return new r5js.test.matchers.Throws_(error);
+  return new Throws_(error);
 };
 
 
@@ -38,21 +38,21 @@ Throw = function(error) {
  * @constructor
  * @private
  */
-r5js.test.matchers.Throws_ = function(expectedError) {
+var Throws_ = function(expectedError) {
   /** @const @private */ this.expectedError_ = expectedError;
   /** @private */ this.actualError_ = null;
 };
 
 
 /** @override */
-r5js.test.matchers.Throws_.prototype.matches = function(actualError) {
+Throws_.prototype.matches = function(actualError) {
   return r5js.error.equals(
       this.expectedError_, this.actualError_ = actualError);
 };
 
 
 /** @override */
-r5js.test.matchers.Throws_.prototype.getFailureMessage = function(input) {
+Throws_.prototype.getFailureMessage = function(input) {
   return input +
       ': want\n' +
       this.expectedError_.toString() +

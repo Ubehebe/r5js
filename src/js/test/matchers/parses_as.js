@@ -29,7 +29,7 @@ goog.require('r5js.parse.bnf');
  * @return {!tdd.matchers.Matcher}
  */
 parseAs = function(expectedType) {
-  return new r5js.test.matchers.ParsesAs_(expectedType);
+  return new ParsesAs_(expectedType);
 };
 
 
@@ -41,7 +41,7 @@ parseAs = function(expectedType) {
  * @constructor
  * @private
  */
-r5js.test.matchers.ParsesAs_ = function(expectedType) {
+var ParsesAs_ = function(expectedType) {
   /** @const @private {!r5js.parse.Nonterminal} */
   this.expectedType_ = expectedType;
 
@@ -51,7 +51,7 @@ r5js.test.matchers.ParsesAs_ = function(expectedType) {
 
 
 /** @override */
-r5js.test.matchers.ParsesAs_.prototype.matches = function(value) {
+ParsesAs_.prototype.matches = function(value) {
   var datumRoot;
   try {
     datumRoot = new r5js.ReaderImpl(
@@ -70,7 +70,7 @@ r5js.test.matchers.ParsesAs_.prototype.matches = function(value) {
 
 
 /** @override */
-r5js.test.matchers.ParsesAs_.prototype.getFailureMessage = function(value) {
+ParsesAs_.prototype.getFailureMessage = function(value) {
   return 'expected ' +
       value +
       ' to parse as ' +

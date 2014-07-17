@@ -23,7 +23,7 @@ goog.setTestOnly('evalTo');
  * @return {!tdd.matchers.Matcher.<string>}
  */
 evalTo = function(value) {
-  return new r5js.test.matchers.EvaluatesTo_(value);
+  return new EvaluatesTo_(value);
 };
 
 
@@ -35,20 +35,19 @@ evalTo = function(value) {
  * @constructor
  * @private
  */
-r5js.test.matchers.EvaluatesTo_ = function(expectedValue) {
+var EvaluatesTo_ = function(expectedValue) {
   /** @const @private */ this.expectedValue_ = expectedValue;
 };
 
 
 /** @override */
-r5js.test.matchers.EvaluatesTo_.prototype.matches = function(actualValue) {
+EvaluatesTo_.prototype.matches = function(actualValue) {
   return this.expectedValue_ === actualValue;
 };
 
 
 /** @override */
-r5js.test.matchers.EvaluatesTo_.prototype.getFailureMessage =
-    function(actualValue) {
+EvaluatesTo_.prototype.getFailureMessage = function(actualValue) {
   return 'want ' +
       this.expectedValue_ +
       ' got ' +
