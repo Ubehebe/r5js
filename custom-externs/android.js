@@ -41,4 +41,12 @@ AndroidSchemePlatform.print = function(s) {};
 
 
 /** @param {string} s */
+AndroidSchemePlatform.returnValue = function(s) {};
+
+
+/** @param {string} s */
 AndroidSchemePlatform.error = function(s) {};
+
+
+/** @param {number} statusCode */
+AndroidSchemePlatform.exit = function(statusCode) {};

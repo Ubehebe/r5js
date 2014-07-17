@@ -39,7 +39,9 @@ r5js.platform.Android.prototype.getTestSources = function() {
 
 
 /** @override */
-r5js.platform.Android.prototype.exit = goog.nullFunction;
+r5js.platform.Android.prototype.exit = function(statusCode) {
+  AndroidSchemePlatform.exit(statusCode);
+};
 
 
 /**
