@@ -1,7 +1,3 @@
-version = `cat VERSION`
-output = build/gay-lisp-$(version).js
-unit_tests = build/unit_tests.scm
-
 # Closure Library-related paths.
 closure_root = closure-library
 closure_bin  = $(closure_root)/closure/bin/build
