@@ -55,6 +55,12 @@ r5js.test.SchemeTestDriver.prototype.toString = function() {
 
 
 /** @override */
+r5js.test.SchemeTestDriver.prototype.estimateSize = function() {
+  return 52; // TODO bl how to do this without evaluating?
+};
+
+
+/** @override */
 r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
   this.logger_ = logger;
   var platform = r5js.Platform.get();
@@ -225,6 +231,11 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.onWrite_ = function(
 /** @override */
 r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.getType =
     goog.functions.constant(tdd.TestType.UNIT);
+
+
+/** @override */
+r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.estimateSize =
+    goog.functions.constant(1);
 
 
 /** @override */

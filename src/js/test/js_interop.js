@@ -18,12 +18,12 @@ goog.setTestOnly('r5js.test.JsInterop');
 
 
 goog.require('Throw');
+goog.require('evalTo');
 goog.require('expect');
 goog.require('goog.Promise');
 goog.require('goog.string');
 goog.require('goog.testing.asserts');
 goog.require('output');
-goog.require('evalTo');
 goog.require('r5js.DatumType');
 goog.require('r5js.error');
 goog.require('r5js.parse.Terminals');
@@ -52,6 +52,12 @@ goog.inherits(r5js.test.JsInterop, r5js.test.SyncPromiseTestSuite);
 /** @override */
 r5js.test.JsInterop.prototype.expect = function(input) {
   return goog.base(this, 'expect', input, this.evaluator_.evaluate(input));
+};
+
+
+/** @override */
+r5js.test.JsInterop.prototype.estimateSize = function() {
+  return 10; // TODO bl manually count
 };
 
 

@@ -82,6 +82,12 @@ r5js.test.SyncPromiseTestSuite.prototype.getType = goog.functions.constant(
 
 
 /** @override */
+r5js.test.SyncPromiseTestSuite.prototype.estimateSize = function() {
+  return 0; // TODO bl better estimate
+};
+
+
+/** @override */
 r5js.test.SyncPromiseTestSuite.prototype.toString = function() {
   return this.name_;
 };
