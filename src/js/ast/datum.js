@@ -248,7 +248,7 @@ r5js.Datum.prototype.sequence = function(env) {
  * @constructor
  */
 r5js.ast.Literal = function() {
-  goog.base(this);
+  r5js.ast.Literal.base(this, 'constructor');
 };
 goog.inherits(r5js.ast.Literal, r5js.Datum);
 

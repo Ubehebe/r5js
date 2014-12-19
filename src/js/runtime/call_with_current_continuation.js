@@ -28,7 +28,8 @@ goog.require('r5js.ProcCall');
  * @constructor
  */
 r5js.CallWithCurrentContinuation = function(operatorName, continuation) {
-  goog.base(this, operatorName, null /* firstOperand */);
+  r5js.CallWithCurrentContinuation.base(
+      this, 'constructor', operatorName, null /* firstOperand */);
 
   /** @const @private */ this.continuation_ = continuation;
 };

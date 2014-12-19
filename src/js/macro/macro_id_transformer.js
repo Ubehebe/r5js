@@ -134,7 +134,7 @@ r5js.MacroIdTransformer_.prototype.getDatum = function() {
  * @constructor
  */
 r5js.PatternIdTransformer = function(datum) {
-  goog.base(this, datum);
+  r5js.PatternIdTransformer.base(this, 'constructor', datum);
 };
 goog.inherits(r5js.PatternIdTransformer, r5js.MacroIdTransformer_);
 
@@ -161,7 +161,7 @@ r5js.PatternIdTransformer.prototype.collectNestingLevels = function(
  * @constructor
  */
 r5js.TemplateIdTransformer = function(datum) {
-  goog.base(this, datum);
+  r5js.TemplateIdTransformer.base(this, 'constructor', datum);
 };
 goog.inherits(r5js.TemplateIdTransformer, r5js.MacroIdTransformer_);
 

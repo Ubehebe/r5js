@@ -41,7 +41,7 @@ goog.require('tdd.TestType');
  * @constructor
  */
 r5js.test.JsInterop = function(evaluator, outputPort) {
-  goog.base(this, 'r5js.test.JsInterop');
+  r5js.test.JsInterop.base(this, 'constructor', 'r5js.test.JsInterop');
   /** @const @private */ this.evaluator_ = evaluator;
   /** @const @private */ this.outputPort_ = outputPort;
   r5js.test.matchers.setOutputPort(outputPort);
@@ -51,7 +51,8 @@ goog.inherits(r5js.test.JsInterop, r5js.test.SyncPromiseTestSuite);
 
 /** @override */
 r5js.test.JsInterop.prototype.expect = function(input) {
-  return goog.base(this, 'expect', input, this.evaluator_.evaluate(input));
+  return r5js.test.JsInterop.base(
+      this, 'expect', input, this.evaluator_.evaluate(input));
 };
 
 

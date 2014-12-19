@@ -42,7 +42,7 @@ goog.require('r5js.error');
  * @constructor
  */
 r5js.IdShim = function(payload, opt_continuationName) {
-  goog.base(this, opt_continuationName);
+  r5js.IdShim.base(this, 'constructor', opt_continuationName);
   /** @const @private */ this.firstOperand_ = payload;
 };
 goog.inherits(r5js.IdShim, r5js.ProcCallLike);

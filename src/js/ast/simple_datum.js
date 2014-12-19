@@ -28,7 +28,7 @@ goog.require('r5js.ast.Literal');
  * @template T
  */
 r5js.ast.SimpleDatum = function(payload) {
-  goog.base(this);
+  r5js.ast.SimpleDatum.base(this, 'constructor');
 
   /** @protected {T} */ this.payload = payload;
 };
@@ -60,7 +60,7 @@ r5js.ast.SimpleDatum.prototype.setPayload = function(payload) {
 /** @override */
 r5js.ast.SimpleDatum.prototype.clone = function(parent) {
   var clone = /** @type {!r5js.ast.SimpleDatum} */ (
-      goog.base(this, 'clone', parent));
+      r5js.ast.SimpleDatum.base(this, 'clone', parent));
   clone.setPayload(this.payload);
   return clone;
 };

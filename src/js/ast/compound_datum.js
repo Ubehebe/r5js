@@ -30,7 +30,7 @@ goog.require('r5js.parse.Nonterminals');
  * @constructor
  */
 r5js.ast.CompoundDatum = function() {
-  goog.base(this);
+  r5js.ast.CompoundDatum.base(this, 'constructor');
 
   /** @private {r5js.Datum} */ this.firstChild_ = null;
 
@@ -71,7 +71,7 @@ r5js.ast.CompoundDatum.prototype.clearFirstChild = function() {
 /** @override */
 r5js.ast.CompoundDatum.prototype.clone = function(parent) {
   var ans = /** @type {!r5js.ast.CompoundDatum} */ (
-      goog.base(this, 'clone', parent));
+      r5js.ast.CompoundDatum.base(this, 'clone', parent));
   if (this.firstChild_) {
     var buf = new r5js.SiblingBuffer();
     this.forEachChild(function(child) {
@@ -117,7 +117,7 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIds = function(helper) {
       cur.fixParserSensitiveIds(helper);
     }
   }
-  goog.base(this, 'fixParserSensitiveIds', helper);
+  r5js.ast.CompoundDatum.base(this, 'fixParserSensitiveIds', helper);
 };
 
 
@@ -234,7 +234,7 @@ r5js.ast.CompoundDatum.prototype.firstSublist = function() {
 
 /** @override */
 r5js.ast.CompoundDatum.prototype.resetDesugars = function() {
-  goog.base(this, 'resetDesugars');
+  r5js.ast.CompoundDatum.base(this, 'resetDesugars');
   this.forEachChild(function(child) { child.resetDesugars(); });
 };
 

@@ -52,7 +52,7 @@ r5js.InMemoryPortBuffer.prototype.getChar = function() {
 };
 
 
-/** @return {string?} */
+/** @return {?string} */
 r5js.InMemoryPortBuffer.prototype.peekChar = function() {
   return this.buffer_.length ? this.buffer_.charAt(0) : null;
 };

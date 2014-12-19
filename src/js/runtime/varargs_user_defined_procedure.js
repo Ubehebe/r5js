@@ -37,7 +37,8 @@ goog.require('r5js.error');
  */
 r5js.VarargsUserDefinedProcedure = function(
     formalsArray, bodyStart, env, opt_name) {
-  goog.base(this, formalsArray, bodyStart, env, opt_name);
+  r5js.VarargsUserDefinedProcedure.base(
+      this, 'constructor', formalsArray, bodyStart, env, opt_name);
 };
 goog.inherits(r5js.VarargsUserDefinedProcedure, r5js.UserDefinedProcedure);
 

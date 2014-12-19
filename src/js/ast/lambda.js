@@ -28,7 +28,7 @@ goog.require('r5js.ast.SimpleDatum');
  * @constructor
  */
 r5js.ast.Lambda = function(name, procedure) {
-  goog.base(this, procedure);
+  r5js.ast.Lambda.base(this, 'constructor', procedure);
 
   /** @const @private */ this.name_ = name;
 };

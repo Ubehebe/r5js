@@ -27,7 +27,7 @@ goog.require('r5js.ast.SimpleDatum');
  * @constructor
  */
 r5js.ast.Macro = function(macro) {
-  goog.base(this, macro);
+  r5js.ast.Macro.base(this, 'constructor', macro);
 };
 goog.inherits(r5js.ast.Macro, r5js.ast.SimpleDatum);
 

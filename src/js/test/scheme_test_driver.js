@@ -128,7 +128,8 @@ r5js.test.SchemeTestDriver.prototype.onWrite_ = function(str) {
  */
 r5js.test.SchemeTestDriver.ResultStruct_ = function(
     name, numSucceeded, numFailed) {
-  goog.base(this, numSucceeded, numFailed, 0 /* TODO bl */);
+  r5js.test.SchemeTestDriver.ResultStruct_.base(
+      this, 'constructor', numSucceeded, numFailed, 0 /* TODO bl */);
   /** @const @private */ this.name_ = name;
 };
 goog.inherits(r5js.test.SchemeTestDriver.ResultStruct_, tdd.ResultStruct);

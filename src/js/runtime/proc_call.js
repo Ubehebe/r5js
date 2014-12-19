@@ -45,7 +45,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  * @constructor
  */
 r5js.ProcCall = function(operatorName, firstOperand, opt_lastResultName) {
-  goog.base(this, opt_lastResultName);
+  r5js.ProcCall.base(this, 'constructor', opt_lastResultName);
 
   /** @const @private */ this.operatorName_ = operatorName;
   /** @const @private */ this.firstOperand_ = firstOperand;

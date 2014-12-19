@@ -29,7 +29,7 @@ goog.require('r5js.ast.SimpleDatum');
  * @constructor
  */
 r5js.Ref = function(deref) {
-  goog.base(this, deref);
+  r5js.Ref.base(this, 'constructor', deref);
 };
 goog.inherits(r5js.Ref, r5js.ast.SimpleDatum);
 

@@ -27,6 +27,6 @@ goog.require('r5js.ast.SimpleDatum');
  * @constructor
  */
 r5js.ast.Number = function(x) {
-  goog.base(this, x);
+  r5js.ast.Number.base(this, 'constructor', x);
 };
 goog.inherits(r5js.ast.Number, r5js.ast.SimpleDatum);

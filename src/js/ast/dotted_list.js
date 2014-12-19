@@ -31,7 +31,7 @@ goog.require('r5js.ast.CompoundDatum');
  * @constructor
  */
 r5js.ast.DottedList = function(firstChild) {
-  goog.base(this);
+  r5js.ast.DottedList.base(this, 'constructor');
   if (firstChild) {
     this.setFirstChild(firstChild);
   }

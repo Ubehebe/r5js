@@ -210,7 +210,7 @@ r5js.ListLikeTransformer.Base_.prototype.toSiblingBuffer_ = function(bindings) {
  * @constructor
  */
 r5js.QuoteTransformer = function() {
-  goog.base(this, r5js.ast.Quote);
+  r5js.QuoteTransformer.base(this, 'constructor', r5js.ast.Quote);
 };
 goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer.Base_);
 
@@ -231,7 +231,7 @@ r5js.QuoteTransformer.prototype.collectNestingLevels = goog.nullFunction;
  * @constructor
  */
 r5js.VectorTransformer = function() {
-  goog.base(this, r5js.ast.Vector);
+  r5js.VectorTransformer.base(this, 'constructor', r5js.ast.Vector);
 };
 goog.inherits(r5js.VectorTransformer, r5js.ListLikeTransformer.Base_);
 
@@ -251,7 +251,7 @@ r5js.VectorTransformer.prototype.couldMatch = function(inputDatum) {
  * @constructor
  */
 r5js.ListTransformer = function() {
-  goog.base(this, r5js.ast.List);
+  r5js.ListTransformer.base(this, 'constructor', r5js.ast.List);
 };
 goog.inherits(r5js.ListTransformer, r5js.ListLikeTransformer.Base_);
 
@@ -271,7 +271,7 @@ r5js.ListTransformer.prototype.couldMatch = function(inputDatum) {
  * @constructor
  */
 r5js.DottedListTransformer = function() {
-  goog.base(this, r5js.ast.DottedList);
+  r5js.DottedListTransformer.base(this, 'constructor', r5js.ast.DottedList);
 };
 goog.inherits(r5js.DottedListTransformer, r5js.ListLikeTransformer.Base_);
 

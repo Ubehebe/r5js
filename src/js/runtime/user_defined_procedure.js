@@ -45,7 +45,7 @@ goog.require('r5js.parse.Terminals');
  * @constructor
  */
 r5js.UserDefinedProcedure = function(formalsArray, bodyStart, env, opt_name) {
-  goog.base(this);
+  r5js.UserDefinedProcedure.base(this, 'constructor');
   /** @const @protected */
   this.formalsArray = formalsArray;
 

@@ -35,7 +35,7 @@ goog.require('r5js.ast.CompoundDatum');
  * which affects parsing. Only the runtime primitive procedures can do this.
  */
 r5js.ast.Vector = function(firstChildOrArray) {
-  goog.base(this);
+  r5js.ast.Vector.base(this, 'constructor');
 
   /** @private */ this.arrayBacked_ = goog.isArray(firstChildOrArray);
 

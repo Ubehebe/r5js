@@ -32,7 +32,7 @@ goog.require('r5js.parse.Terminals');
  * @constructor
  */
 r5js.ast.Quote = function(firstChild) {
-  goog.base(this);
+  r5js.ast.Quote.base(this, 'constructor');
   if (firstChild) {
     this.setFirstChild(firstChild.setImmutable());
   }

@@ -29,7 +29,7 @@ goog.require('r5js.parse.Terminals');
  * @constructor
  */
 r5js.ast.Identifier = function(name) {
-  goog.base(this, name);
+  r5js.ast.Identifier.base(this, 'constructor', name);
 };
 goog.inherits(r5js.ast.Identifier, r5js.ast.SimpleDatum);
 

@@ -27,7 +27,7 @@ goog.require('r5js.ast.CompoundDatum');
  * @constructor
  */
 r5js.ast.UnquoteSplicing = function(firstChild) {
-  goog.base(this);
+  r5js.ast.UnquoteSplicing.base(this, 'constructor');
   if (firstChild) {
     this.setFirstChild(firstChild);
   }
@@ -38,5 +38,6 @@ goog.inherits(r5js.ast.UnquoteSplicing, r5js.ast.CompoundDatum);
 /** @override */
 r5js.ast.UnquoteSplicing.prototype.setQuasiquotationLevel = function(qqLevel) {
   this.qqLevel = qqLevel;
-  return goog.base(this, 'setQuasiquotationLevel', qqLevel - 1);
+  return r5js.ast.UnquoteSplicing.base(
+      this, 'setQuasiquotationLevel', qqLevel - 1);
 };

@@ -34,7 +34,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  * @constructor
  */
 r5js.Assignment = function(firstOperand) {
-  goog.base(this);
+  r5js.Assignment.base(this, 'constructor');
 
   /** @const @private */ this.firstOperand_ = firstOperand;
 };
@@ -104,7 +104,7 @@ r5js.Assignment.prototype.mutateEnv = function(name, val) {
  * @constructor
  */
 r5js.TopLevelAssignment = function(firstOperand) {
-  goog.base(this, firstOperand);
+  r5js.TopLevelAssignment.base(this, 'constructor', firstOperand);
 };
 goog.inherits(r5js.TopLevelAssignment, r5js.Assignment);
 
@@ -123,7 +123,7 @@ r5js.TopLevelAssignment.prototype.mutateEnv = function(name, val) {
  * @constructor
  */
 r5js.TopLevelSyntaxAssignment = function(firstOperand) {
-  goog.base(this, firstOperand);
+  r5js.TopLevelSyntaxAssignment.base(this, 'constructor', firstOperand);
 };
 goog.inherits(r5js.TopLevelSyntaxAssignment, r5js.TopLevelAssignment);
 

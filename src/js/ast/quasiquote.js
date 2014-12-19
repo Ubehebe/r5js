@@ -35,7 +35,7 @@ goog.require('r5js.parse.Terminals');
  * @constructor
  */
 r5js.ast.Quasiquote = function(firstChild) {
-  goog.base(this);
+  r5js.ast.Quasiquote.base(this, 'constructor');
   if (firstChild) {
     this.setFirstChild(firstChild);
   }
@@ -114,5 +114,5 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
 /** @override */
 r5js.ast.Quasiquote.prototype.setQuasiquotationLevel = function(qqLevel) {
   this.qqLevel = qqLevel + 1;
-  return goog.base(this, 'setQuasiquotationLevel', this.qqLevel);
+  return r5js.ast.Quasiquote.base(this, 'setQuasiquotationLevel', this.qqLevel);
 };

@@ -30,7 +30,7 @@ goog.require('r5js.ProcCallLike');
  * @constructor
  */
 r5js.Branch = function(testResultName, consequent, alternate) {
-  goog.base(this);
+  r5js.Branch.base(this, 'constructor');
   /** @const @private */ this.testResultName_ = testResultName;
   /** @const @private */ this.consequent_ = consequent;
   /** @const @private */ this.alternate_ = alternate;

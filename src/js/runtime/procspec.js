@@ -278,7 +278,7 @@ r5js.procspec.JUST_UNWRAP_ARGS_ = new r5js.procspec.JustUnwrapArgs_();
  */
 r5js.procspec.PrimitiveProcedure_ = function(
     fn, numArgChecker, typeChecker) {
-  goog.base(this);
+  r5js.procspec.PrimitiveProcedure_.base(this, 'constructor');
   /** @const @private {function(!r5js.Datum):?} */
   this.fn_ = fn;
 
@@ -364,7 +364,8 @@ r5js.procspec.PrimitiveProcedure_.prototype.evaluate = function(
  * @private
  */
 r5js.procspec.NeedsCurrentPorts_ = function(fn, numArgChecker, typeChecker) {
-  goog.base(this, fn, numArgChecker, typeChecker);
+  r5js.procspec.NeedsCurrentPorts_.base(
+      this, 'constructor', fn, numArgChecker, typeChecker);
 };
 goog.inherits(
     r5js.procspec.NeedsCurrentPorts_, r5js.procspec.PrimitiveProcedure_);
@@ -401,7 +402,8 @@ r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
  * @private
  */
 r5js.procspec.HasSpecialEvalLogic_ = function(fn, numArgChecker, typeChecker) {
-  goog.base(this, fn, numArgChecker, typeChecker);
+  r5js.procspec.HasSpecialEvalLogic_.base(
+      this, 'constructor', fn, numArgChecker, typeChecker);
 };
 goog.inherits(
     r5js.procspec.HasSpecialEvalLogic_, r5js.procspec.PrimitiveProcedure_);
