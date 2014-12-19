@@ -36,7 +36,7 @@ r5js.ITransformer.prototype.collectNestingLevels = function(
 
 /**
  * @param {!r5js.Datum} inputDatum The input datum.
- * @param {!Object.<string, boolean>} literalIds Dictionary of literal ids.
+ * @param {!Object<string, boolean>} literalIds Dictionary of literal ids.
  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
  * @param {!r5js.IEnvironment} useEnv Use environment.
  * @param {!r5js.TemplateBindings} bindings Template bindings.

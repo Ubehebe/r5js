@@ -24,7 +24,7 @@ goog.provide('r5js.RenameHelper');
  * @constructor
  */
 r5js.RenameHelper = function(parent) {
-  /** @const @private {!Object.<string, string>} */ this.bindings_ = {};
+  /** @const @private {!Object<string, string>} */ this.bindings_ = {};
   /** @const @private */ this.parent_ = parent;
 };
 

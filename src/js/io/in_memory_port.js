@@ -151,7 +151,7 @@ r5js.InMemoryInputPort.prototype.readChar = function() {
  */
 r5js.InMemoryOutputPort = function(buffer) {
   /** @const @private */ this.buffer_ = buffer;
-  /** @const @private {!Array.<string>} */ this.outputs_ = [];
+  /** @const @private {!Array<string>} */ this.outputs_ = [];
 };
 r5js.OutputPort.addImplementation(r5js.InMemoryOutputPort);
 

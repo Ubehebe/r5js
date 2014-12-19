@@ -47,10 +47,10 @@ r5js.Datum = function() {
      */
   this.parent_ = null;
 
-  /** @const @private {!Array.<!r5js.parse.Nonterminal>} */
+  /** @const @private {!Array<!r5js.parse.Nonterminal>} */
   this.nonterminals_ = [];
 
-  /** @const @private {!Array.<!r5js.DesugarFunc>} */
+  /** @const @private {!Array<!r5js.DesugarFunc>} */
   this.desugars_ = [];
 
   /** @private {number} */

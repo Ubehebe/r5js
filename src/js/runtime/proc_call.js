@@ -195,7 +195,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
 
 
 /**
- * @return {!Array.<!r5js.runtime.Value>}
+ * @return {!Array<!r5js.runtime.Value>}
  * TODO bl: this method is confused.
  */
 r5js.ProcCall.prototype.evalArgs = function() {
@@ -249,7 +249,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
  * Later on the trampoline, we reach (+ _0). We have to know that _0 refers
  * to an array of values, not a single value.
  *
- * @return {Array.<!r5js.runtime.Value>}
+ * @return {Array<!r5js.runtime.Value>}
  * @private
  */
 r5js.ProcCall.prototype.evalArgsCallWithValues_ = function() {

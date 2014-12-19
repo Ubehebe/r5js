@@ -22,7 +22,7 @@ goog.require('r5js.Scanner');
 
 /**
  * @param {function(new: r5js.Datum, ?)} expectedType
- * @return {!tdd.matchers.Matcher.<string>}
+ * @return {!tdd.matchers.Matcher<string>}
  */
 scanAs = function(expectedType) {
   return new ScansAs_(expectedType);
@@ -32,7 +32,7 @@ scanAs = function(expectedType) {
 
 /**
  * @param {function(new: r5js.Datum, ?)} expectedType
- * @implements {tdd.matchers.Matcher.<string>}
+ * @implements {tdd.matchers.Matcher<string>}
  * @struct
  * @constructor
  * @private

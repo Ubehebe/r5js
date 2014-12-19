@@ -23,7 +23,7 @@ goog.require('r5js.error');
 
 /**
  * @param {!r5js.Error} error
- * @return {!tdd.matchers.Matcher.<!r5js.Error>}
+ * @return {!tdd.matchers.Matcher<!r5js.Error>}
  */
 Throw = function(error) {
   return new Throws_(error);
@@ -33,7 +33,7 @@ Throw = function(error) {
 
 /**
  * @param {!r5js.Error} expectedError
- * @implements {tdd.matchers.Matcher.<!r5js.Error>}
+ * @implements {tdd.matchers.Matcher<!r5js.Error>}
  * @struct
  * @constructor
  * @private

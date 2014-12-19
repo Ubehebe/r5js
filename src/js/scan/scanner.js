@@ -57,7 +57,7 @@ r5js.Scanner = function(text) {
    */
   this.needDelimiter_ = false;
 
-  /** @const @private {!Array.<!r5js.Token>} */
+  /** @const @private {!Array<!r5js.Token>} */
   this.readyTokens_ = [];
 
   /** @private {number} */
@@ -66,7 +66,7 @@ r5js.Scanner = function(text) {
 
 
 /**
- * @param {Array.<string>} matchArray
+ * @param {Array<string>} matchArray
  * @return {boolean} TODO bl.
  * @private
  */
@@ -165,7 +165,7 @@ r5js.Scanner.prototype.readNextToken_ = function() {
 
 
 /**
- * @param {!Array.<string>} matchArray
+ * @param {!Array<string>} matchArray
  * @return {r5js.Token}
  * @private
  */

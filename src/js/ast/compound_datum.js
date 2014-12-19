@@ -258,7 +258,7 @@ r5js.ast.CompoundDatum.prototype.forEachChild = function(
  * @param {function(this:SCOPE, !r5js.Datum):T} f Function for transforming
  * an individual child.
  * @param {SCOPE=} opt_context Optional receiver for f.
- * @return {!Array.<T>} Array of transformed children.
+ * @return {!Array<T>} Array of transformed children.
  * @template SCOPE,T
  */
 r5js.ast.CompoundDatum.prototype.mapChildren = function(f, opt_context) {

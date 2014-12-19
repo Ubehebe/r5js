@@ -156,14 +156,14 @@ r5js.procspec.ArgumentTypeCheckerAndUnwrapper_.prototype.checkAndUnwrapArgs =
 
 
 /**
- * @param {!Array.<!r5js.Type>} argtypes
+ * @param {!Array<!r5js.Type>} argtypes
  * @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_}
  * @struct
  * @constructor
  * @private
  */
 r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_ = function(argtypes) {
-  /** @const @private {!Array.<!r5js.Type>} */
+  /** @const @private {!Array<!r5js.Type>} */
   this.argtypes_ = argtypes;
 };
 

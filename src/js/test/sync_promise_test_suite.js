@@ -66,7 +66,7 @@ r5js.test.SyncPromiseTestSuite = function(name) {
 
   /** @const @private */ this.name_ = name;
   /** @private {goog.log.Logger} */ this.logger_ = null;
-  /** @const @private {!Array.<!r5js.test.SyncPromiseTestSuite.Method_>} */
+  /** @const @private {!Array<!r5js.test.SyncPromiseTestSuite.Method_>} */
   this.testMethods_ = [];
 
   /** @private */ this.numSucceeded_ = 0;
@@ -123,7 +123,7 @@ r5js.test.SyncPromiseTestSuite.prototype.reportOutcome_ = function(success) {
 
 
 /**
- * @return {!goog.Promise.<!tdd.ResultStruct>}
+ * @return {!goog.Promise<!tdd.ResultStruct>}
  * @private
  */
 r5js.test.SyncPromiseTestSuite.prototype.runNextTestMethod_ = function() {
@@ -159,7 +159,7 @@ r5js.test.SyncPromiseTestSuite.isTestMethod_ = function(name, val) {
 
 /**
  * @param {string} input
- * @param {!goog.Promise.<?>} promise
+ * @param {!goog.Promise<?>} promise
  * @return {!r5js.test.SyncPromiseTestSuite.Expectation_}
  * @protected
  */
@@ -184,7 +184,7 @@ r5js.test.SyncPromiseTestSuite.prototype.expect = function(input, promise) {
 
 /**
  * @param {string} input
- * @param {!goog.Promise.<string>} evalPromise
+ * @param {!goog.Promise<string>} evalPromise
  * @struct
  * @constructor
  * @private
@@ -210,7 +210,7 @@ r5js.test.SyncPromiseTestSuite.Expectation_.prototype.to = function(matcher) {
 };
 
 
-/** @return {!goog.Promise.<?>} */
+/** @return {!goog.Promise<?>} */
 r5js.test.SyncPromiseTestSuite.Expectation_.prototype.getPromise = function() {
   return this.promise_.then(
       this.resolveOrReject_, this.resolveOrReject_, this);
@@ -219,7 +219,7 @@ r5js.test.SyncPromiseTestSuite.Expectation_.prototype.getPromise = function() {
 
 /**
  * @param {?} valueOrReason
- * @return {!goog.Promise.<?>}
+ * @return {!goog.Promise<?>}
  * @private
  */
 r5js.test.SyncPromiseTestSuite.Expectation_.prototype.resolveOrReject_ =
@@ -246,7 +246,7 @@ r5js.test.SyncPromiseTestSuite.Method_ = function(name, func, parent) {
   /** @const @private */ this.func_ = func;
   /** @const @private */ this.parent_ = parent;
   /**
-     * @private {!Array.<!r5js.test.SyncPromiseTestSuite.Expectation_>}
+     * @private {!Array<!r5js.test.SyncPromiseTestSuite.Expectation_>}
      * @const
      */
   this.expectations_ = [];
@@ -262,7 +262,7 @@ r5js.test.SyncPromiseTestSuite.Method_.prototype.addExpectation = function(
 };
 
 
-/** @return {!goog.Promise.<?>} */
+/** @return {!goog.Promise<?>} */
 r5js.test.SyncPromiseTestSuite.Method_.prototype.runNextExpectation =
     function() {
   var expectation = this.expectations_.shift();

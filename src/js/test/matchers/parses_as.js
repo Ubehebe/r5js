@@ -36,7 +36,7 @@ parseAs = function(expectedType) {
 
 /**
  * @param {!r5js.parse.Nonterminal} expectedType
- * @implements {tdd.matchers.Matcher.<string>}
+ * @implements {tdd.matchers.Matcher<string>}
  * @struct
  * @constructor
  * @private

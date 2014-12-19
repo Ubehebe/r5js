@@ -34,7 +34,7 @@ goog.require('r5js.parse.Terminals');
  * @param {r5js.Datum} literalIdentifiers
  * @param {r5js.Datum} rules
  * @param {!r5js.IEnvironment} definitionEnv
- * @param {!Array.<!r5js.Transformer>=} opt_transformers
+ * @param {!Array<!r5js.Transformer>=} opt_transformers
  * @implements {r5js.runtime.ObjectValue} TODO bl almost certainly wrong
  * @struct
  * @constructor
@@ -44,7 +44,7 @@ r5js.Macro = function(
   /** @private {!r5js.IEnvironment} */
   this.definitionEnv_ = definitionEnv;
 
-  /** @const @private {!Object.<string, boolean>} */
+  /** @const @private {!Object<string, boolean>} */
   this.literalIdentifiers_ = {};
 
   for (var curId = literalIdentifiers; curId; curId = curId.getNextSibling()) {
@@ -52,7 +52,7 @@ r5js.Macro = function(
         curId)).getPayload()] = true;
   }
 
-  /** @const @private {!Array.<!r5js.Transformer>} */
+  /** @const @private {!Array<!r5js.Transformer>} */
   this.transformers_ = opt_transformers || [];
 
   if (!opt_transformers) {

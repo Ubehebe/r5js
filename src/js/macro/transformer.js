@@ -34,10 +34,10 @@ r5js.Transformer = function(pattern, template) {
   /** @const @private {string} */
   this.name_ = pattern.getName();
 
-  /** @const @private {!Object.<string, number>} */
+  /** @const @private {!Object<string, number>} */
   this.patternIds_ = {};
 
-  /** @const @private {!Object.<string, boolean>} */
+  /** @const @private {!Object<string, boolean>} */
   this.templateRenameCandidates_ = {};
 
   this.pattern_.collectNestingLevels(0, this);
@@ -47,7 +47,7 @@ r5js.Transformer = function(pattern, template) {
 
 /**
  * @param {!r5js.Datum} inputDatum The input datum.
- * @param {!Object.<string, boolean>} literalIds Dictionary of literal ids.
+ * @param {!Object<string, boolean>} literalIds Dictionary of literal ids.
  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
  * @param {!r5js.IEnvironment} useEnv Use environment.
  * @param {!r5js.TemplateBindings} bindings Template bindings.
@@ -72,7 +72,7 @@ r5js.Transformer.prototype.getTemplate = function() {
 };
 
 
-/** @return {!Object.<string, number>} */
+/** @return {!Object<string, number>} */
 r5js.Transformer.prototype.getPatternIds = function() {
   return this.patternIds_;
 };
@@ -96,7 +96,7 @@ r5js.Transformer.prototype.setEllipsisLevel = function(patternId, level) {
 };
 
 
-/** @return {!Object.<string, boolean>} */
+/** @return {!Object<string, boolean>} */
 r5js.Transformer.prototype.getTemplateRenameCandidates = function() {
   return this.templateRenameCandidates_;
 };

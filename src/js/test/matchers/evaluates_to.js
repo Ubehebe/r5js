@@ -20,7 +20,7 @@ goog.setTestOnly('evalTo');
 
 /**
  * @param {string} value
- * @return {!tdd.matchers.Matcher.<string>}
+ * @return {!tdd.matchers.Matcher<string>}
  */
 evalTo = function(value) {
   return new EvaluatesTo_(value);
@@ -30,7 +30,7 @@ evalTo = function(value) {
 
 /**
  * @param {string} expectedValue
- * @implements {tdd.matchers.Matcher.<string>}
+ * @implements {tdd.matchers.Matcher<string>}
  * @struct
  * @constructor
  * @private

@@ -38,7 +38,7 @@ goog.require('r5js.test.SchemeSources');
  */
 r5js.platform.Html5 = function(jqConsole) {
   /** @const @private */ this.jqConsole_ = jqConsole;
-  /** @const @private {!Object.<string, !r5js.InMemoryPortBuffer>} */
+  /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
   this.buffers_ = {};
 };
 
@@ -50,7 +50,7 @@ r5js.platform.Html5.prototype.exit = goog.nullFunction;
 /**
  * @param {!r5js.InputPort=} opt_inputPort
  * @param {!r5js.OutputPort=} opt_outputPort
- * @return {!goog.Promise.<!r5js.Evaluator>}
+ * @return {!goog.Promise<!r5js.Evaluator>}
  * @override TODO bl why is it necessary to repeat the doc?
  */
 r5js.platform.Html5.prototype.newEvaluator =

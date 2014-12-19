@@ -57,7 +57,7 @@ r5js.parse.bnf.DesugarableRule = function() {};
 
 /**
  * @param {function(T, !r5js.IEnvironment)} desugarFn
- * @return {!r5js.parse.bnf.DesugarableRule.<T>} This rule, for chaining.
+ * @return {!r5js.parse.bnf.DesugarableRule<T>} This rule, for chaining.
  */
 r5js.parse.bnf.DesugarableRule.prototype.desugar = function(desugarFn) {};
 
@@ -128,7 +128,7 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
 
 /**
  * @param {!r5js.parse.Nonterminal} nonterminal
- * @implements {r5js.parse.bnf.DesugarableRule.<!r5js.Datum>}
+ * @implements {r5js.parse.bnf.DesugarableRule<!r5js.Datum>}
  * @struct
  * @constructor
  * @private
@@ -254,7 +254,7 @@ r5js.parse.bnf.matchDatum = function(predicate) {
 
 
 /**
- * @param {!Array.<!r5js.parse.bnf.Rule>} rules
+ * @param {!Array<!r5js.parse.bnf.Rule>} rules
  * @implements {r5js.parse.bnf.Rule}
  * @struct
  * @constructor
@@ -290,14 +290,14 @@ r5js.parse.bnf.choice = function(var_args) {
 
 
 /**
- * @param {!Array.<!r5js.parse.bnf.Rule>} rules
- * @implements {r5js.parse.bnf.DesugarableRule.<!r5js.ast.CompoundDatum>}
+ * @param {!Array<!r5js.parse.bnf.Rule>} rules
+ * @implements {r5js.parse.bnf.DesugarableRule<!r5js.ast.CompoundDatum>}
  * @struct
  * @constructor
  * @private
  */
 r5js.parse.bnf.Seq_ = function(rules) {
-  /** @const @private {!Array.<!r5js.parse.bnf.Rule>} */
+  /** @const @private {!Array<!r5js.parse.bnf.Rule>} */
   this.rules_ = r5js.parse.bnf.Seq_.rewriteImproperList_(rules);
 
   /** @private {function(!r5js.ast.CompoundDatum, !r5js.IEnvironment)|null} */
@@ -356,7 +356,7 @@ r5js.parse.bnf.seq = function(var_args) {
 
 /**
  * @param {...!r5js.parse.bnf.Rule} var_args
- * @return {!r5js.parse.bnf.DesugarableRule.<!r5js.ast.CompoundDatum>}
+ * @return {!r5js.parse.bnf.DesugarableRule<!r5js.ast.CompoundDatum>}
  */
 r5js.parse.bnf.list = function(var_args) {
   var rules = [];
@@ -372,7 +372,7 @@ r5js.parse.bnf.list = function(var_args) {
 /**
  * @param {!r5js.parse.bnf.Rule} beforeDot
  * @param {!r5js.parse.bnf.Rule} afterDot
- * @return {!r5js.parse.bnf.DesugarableRule.<!r5js.ast.CompoundDatum>}
+ * @return {!r5js.parse.bnf.DesugarableRule<!r5js.ast.CompoundDatum>}
  */
 r5js.parse.bnf.dottedList = function(beforeDot, afterDot) {
   var rules = [
@@ -386,7 +386,7 @@ r5js.parse.bnf.dottedList = function(beforeDot, afterDot) {
 
 /**
  * @param {...!r5js.parse.bnf.Rule} var_args
- * @return {!r5js.parse.bnf.DesugarableRule.<!r5js.ast.CompoundDatum>}
+ * @return {!r5js.parse.bnf.DesugarableRule<!r5js.ast.CompoundDatum>}
  */
 r5js.parse.bnf.vector = function(var_args) {
   var rules = [];
@@ -406,8 +406,8 @@ r5js.parse.bnf.vector = function(var_args) {
  * Proper and improper lists are both represented as first-child-next-sibling
  * linked lists; the only difference is the type ('(' vs. '.('). So we rewrite
  * the parse rules to conform to the reader's knowledge.
- * @param {!Array.<!r5js.parse.bnf.Rule>} rules
- * @return {!Array.<!r5js.parse.bnf.Rule>} The modified rules array.
+ * @param {!Array<!r5js.parse.bnf.Rule>} rules
+ * @return {!Array<!r5js.parse.bnf.Rule>} The modified rules array.
  * @private
  */
 r5js.parse.bnf.Seq_.rewriteImproperList_ = function(rules) {

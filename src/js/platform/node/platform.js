@@ -48,14 +48,14 @@ goog.require('r5js.test.SchemeSources');
  * @constructor
  */
 r5js.platform.Node = function() {
-  /** @const @private {!Object.<string, !r5js.InMemoryPortBuffer>} */
+  /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
   this.buffers_ = {};
 };
 
 
 /**
  * @param {string} url
- * @return {!goog.Promise.<string>}
+ * @return {!goog.Promise<string>}
  * @private
  */
 r5js.platform.Node.fetchUrl_ = function(url) {
@@ -84,7 +84,7 @@ r5js.platform.Node.prototype.exit = function(statusCode) {
 /**
  * @param {!r5js.InputPort=} opt_inputPort
  * @param {!r5js.OutputPort=} opt_outputPort
- * @return {!goog.Promise.<!r5js.Evaluator>}
+ * @return {!goog.Promise<!r5js.Evaluator>}
  * @override TODO bl why is it necessary to repeat the doc?
  */
 r5js.platform.Node.prototype.newEvaluator =

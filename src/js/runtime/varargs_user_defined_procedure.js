@@ -25,7 +25,7 @@ goog.require('r5js.error');
 
 
 /**
- * @param {!Array.<string>} formalsArray The procedure's formal parameters,
+ * @param {!Array<string>} formalsArray The procedure's formal parameters,
  * in order.
  * @param {r5js.Datum} bodyStart
  * @param {!r5js.IEnvironment} env

@@ -39,10 +39,10 @@ r5js.Environment = function(enclosingEnv) {
 
   /** @const @private */ this.enclosingEnv_ = enclosingEnv;
 
-  /** @const @private {!Object.<string,!r5js.runtime.Value>} */
+  /** @const @private {!Object<string,!r5js.runtime.Value>} */
   this.bindings_ = {};
 
-  /** @private {!Object.<string, !r5js.UserDefinedProcedure>} */
+  /** @private {!Object<string, !r5js.UserDefinedProcedure>} */
   this.closures_ = {};
 
   /** @private */ this.redefsOk_ = false;

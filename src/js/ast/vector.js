@@ -22,7 +22,7 @@ goog.require('r5js.ast.CompoundDatum');
 
 
 /**
- * @param {!r5js.Datum|!Array.<!r5js.Datum>} firstChildOrArray
+ * @param {!r5js.Datum|!Array<!r5js.Datum>} firstChildOrArray
  * @extends {r5js.ast.CompoundDatum}
  * @struct
  * @constructor
@@ -39,9 +39,9 @@ r5js.ast.Vector = function(firstChildOrArray) {
 
   /** @private */ this.arrayBacked_ = goog.isArray(firstChildOrArray);
 
-  /** @const @private {!Array.<!r5js.Datum>} */ this.array_ =
+  /** @const @private {!Array<!r5js.Datum>} */ this.array_ =
       this.arrayBacked_ ?
-      /** @type {!Array.<!r5js.Datum>} */ (firstChildOrArray) :
+      /** @type {!Array<!r5js.Datum>} */ (firstChildOrArray) :
       [];
 
   if (firstChildOrArray instanceof r5js.Datum) {

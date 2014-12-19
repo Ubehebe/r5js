@@ -191,14 +191,14 @@ r5js.read.bnf.onePrimitive = function(ctor) {
 
 
 /**
- * @param {!Array.<!r5js.read.bnf.Rule>} rules
+ * @param {!Array<!r5js.read.bnf.Rule>} rules
  * @implements {r5js.read.bnf.Rule}
  * @struct
  * @constructor
  * @private
  */
 r5js.read.bnf.Seq_ = function(rules) {
-  /** @const @private {!Array.<!r5js.read.bnf.Rule>} */
+  /** @const @private {!Array<!r5js.read.bnf.Rule>} */
   this.rules_ = rules;
 
   /** @private {function(new: r5js.Datum, !r5js.Datum)|null} */
@@ -285,14 +285,14 @@ r5js.read.bnf.seq = function(var_args) {
 
 
 /**
- * @param {!Array.<!r5js.read.bnf.Rule>} rules
+ * @param {!Array<!r5js.read.bnf.Rule>} rules
  * @implements {r5js.read.bnf.Rule}
  * @struct
  * @constructor
  * @private
  */
 r5js.read.bnf.Choice_ = function(rules) {
-  /** @const @private {!Array.<!r5js.read.bnf.Rule>} */
+  /** @const @private {!Array<!r5js.read.bnf.Rule>} */
   this.rules_ = rules;
 };
 

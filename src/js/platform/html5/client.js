@@ -40,7 +40,7 @@ r5js.platform.html5.Client = function(scriptName, outputPort) {
 
   /** @private */ this.messageIdCounter_ = 0;
 
-  /** @const @private {!Array.<!goog.promise.Resolver.<?>>} */
+  /** @const @private {!Array<!goog.promise.Resolver<?>>} */
   this.resolvers_ = [];
 };
 

@@ -24,7 +24,7 @@ goog.require('r5js.parse.Terminals');
 
 /**
  * @param {string} name
- * @extends {r5js.ast.SimpleDatum.<string>}
+ * @extends {r5js.ast.SimpleDatum<string>}
  * @struct
  * @constructor
  */

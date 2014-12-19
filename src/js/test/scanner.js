@@ -97,7 +97,7 @@ r5js.test.Scanner.prototype['testStrings'] = function() {
 
 
 /**
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  * @private
  */
 r5js.test.Scanner.getValidNumberTokens_ = function() {
@@ -118,7 +118,7 @@ r5js.test.Scanner.getValidNumberTokens_ = function() {
 
 
 /**
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  * @private
  */
 r5js.test.Scanner.getValidNumberPrefixes_ = function() {
@@ -137,7 +137,7 @@ r5js.test.Scanner.getValidNumberPrefixes_ = function() {
 
 
 /**
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  * @private
  */
 r5js.test.Scanner.getValidNumberSuffixes_ = function() {

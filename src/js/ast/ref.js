@@ -24,7 +24,7 @@ goog.require('r5js.ast.SimpleDatum');
  * TODO bl this class should not exist. It's used only as a shim in
  * {@link r5js.Environment#get}.
  * @param {!r5js.Datum} deref Datum to dereference.
- * @extends {r5js.ast.SimpleDatum.<!r5js.Datum>}
+ * @extends {r5js.ast.SimpleDatum<!r5js.Datum>}
  * @struct
  * @constructor
  */

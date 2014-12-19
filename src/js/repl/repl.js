@@ -23,7 +23,7 @@ goog.require('r5js.valutil');
 /**
  * @param {!r5js.Terminal} terminal
  * @param {!r5js.Evaluator} evaluator
- * @param {function(string): !goog.Promise.<boolean>} isLineComplete
+ * @param {function(string): !goog.Promise<boolean>} isLineComplete
  * @struct
  * @constructor
  */

@@ -28,7 +28,7 @@ r5js.platform.android.outputPort_ = null;
 r5js.platform.android.returnValuePort_ = null;
 
 
-/** @private {goog.Promise.<!r5js.Evaluator>} */
+/** @private {goog.Promise<!r5js.Evaluator>} */
 r5js.platform.android.evaluator_ = null;
 
 

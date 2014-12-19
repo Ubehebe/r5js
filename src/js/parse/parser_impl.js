@@ -242,7 +242,7 @@ r5js.ParserImpl.desugarMacroBlock_ = function(datum, env, operatorName) {
 };
 
 
-/** @const {!Object.<!r5js.parse.Nonterminal, !r5js.parse.bnf.Rule>} */
+/** @const {!Object<!r5js.parse.Nonterminal, !r5js.parse.bnf.Rule>} */
 r5js.ParserImpl.grammar = {};
 
 

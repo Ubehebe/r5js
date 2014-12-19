@@ -25,7 +25,7 @@ goog.provide('r5js.Terminal');
 r5js.Terminal = function() {};
 
 
-/** @return {!goog.Promise.<string>} The next line of input. */
+/** @return {!goog.Promise<string>} The next line of input. */
 r5js.Terminal.prototype.getNextLineOfInput = function() {};
 
 

@@ -22,7 +22,7 @@ goog.require('r5js.ast.SimpleDatum');
 
 /**
  * @param {!r5js.Macro} macro
- * @extends {r5js.ast.SimpleDatum.<!r5js.Macro>}
+ * @extends {r5js.ast.SimpleDatum<!r5js.Macro>}
  * @struct
  * @constructor
  */

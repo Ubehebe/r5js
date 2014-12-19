@@ -19,7 +19,7 @@ goog.require('r5js.test.SchemeSources');
  * @constructor
  */
 r5js.platform.Android = function() {
-  /** @const @private {!Object.<string, !r5js.InMemoryPortBuffer>} */
+  /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
   this.buffers_ = {};
 };
 
@@ -52,7 +52,7 @@ r5js.platform.Android.prototype.exit = function(statusCode) {
 /**
  * @param {!r5js.InputPort=} opt_inputPort
  * @param {!r5js.OutputPort=} opt_outputPort
- * @return {!goog.Promise.<!r5js.Evaluator>}
+ * @return {!goog.Promise<!r5js.Evaluator>}
  * @override TODO bl why is it necessary to repeat the doc?
  */
 r5js.platform.Android.prototype.newEvaluator =

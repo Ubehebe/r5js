@@ -59,7 +59,7 @@ r5js.ListLikeTransformer.prototype.getName = function() {};
 r5js.ListLikeTransformer.Base_ = function(ctor) {
   /** @const @private */ this.ctor_ = ctor;
 
-  /** @const @private {!Array.<!r5js.ITransformer>} */
+  /** @const @private {!Array<!r5js.ITransformer>} */
   this.subtransformers_ = [];
 };
 
@@ -108,7 +108,7 @@ r5js.ListLikeTransformer.Base_.prototype.toDatum = function(bindings) {
 
 /**
  * @param {!r5js.Datum} inputDatum The input datum.
- * @param {!Object.<string, boolean>} literalIds Dictionary of literal ids.
+ * @param {!Object<string, boolean>} literalIds Dictionary of literal ids.
  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
  * @param {!r5js.IEnvironment} useEnv Use environment.
  * @param {!r5js.TemplateBindings} bindings Template bindings.

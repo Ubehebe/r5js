@@ -23,7 +23,7 @@ goog.require('goog.Promise');
 
 /**
  * @param {?} jqconsole
- * @param {function(string):!goog.Promise.<boolean>} isLineComplete Function
+ * @param {function(string):!goog.Promise<boolean>} isLineComplete Function
  * to determine if a given line of user input is complete (= ready to be
  * evaluated).
  * @implements {r5js.Terminal}

@@ -38,7 +38,7 @@ goog.scope(function() {
 var _ = r5js.read.bnf;
 
 
-/** @type {!Object.<string, !r5js.read.bnf.Rule>} */
+/** @type {!Object<string, !r5js.read.bnf.Rule>} */
 r5js.read.grammar = {};
 
 

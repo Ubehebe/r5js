@@ -40,7 +40,7 @@ goog.require('r5js.platform.html5.MessageType');
 goog.require('r5js.platform.html5.OutputPort');
 
 
-/** @private {goog.Promise.<!r5js.sync.Evaluator>} */
+/** @private {goog.Promise<!r5js.sync.Evaluator>} */
 r5js.platform.html5.Worker.evaluator_;
 
 
@@ -66,7 +66,7 @@ r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
 
 
 /**
- * @return {!goog.Promise.<!r5js.sync.Evaluator>}
+ * @return {!goog.Promise<!r5js.sync.Evaluator>}
  * @private
  */
 r5js.platform.html5.Worker.getEvaluator_ = function() {

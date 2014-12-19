@@ -23,7 +23,7 @@ goog.require('r5js.ast.SimpleDatum');
 /**
  * @param {string} name Name of the procedure.
  * @param {!r5js.Procedure} procedure TODO bl.
- * @extends {r5js.ast.SimpleDatum.<!r5js.Procedure>}
+ * @extends {r5js.ast.SimpleDatum<!r5js.Procedure>}
  * @struct
  * @constructor
  */

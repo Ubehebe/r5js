@@ -80,17 +80,17 @@ goog.require('r5js.error');
  * with "incorporation". Do we even need it?
  *
  * @param {!r5js.IEnvironment} letSyntaxEnv TODO bl.
- * @param {!Object.<string, number>} patternIds TODO bl.
- * @param {!Object.<string, boolean>} templateRenameCandidates TODO bl.
+ * @param {!Object<string, number>} patternIds TODO bl.
+ * @param {!Object<string, boolean>} templateRenameCandidates TODO bl.
  * @struct
  * @constructor
  */
 r5js.TemplateBindings = function(
     letSyntaxEnv, patternIds, templateRenameCandidates) {
-  /** @const @private {!Object.<string,!r5js.Datum>} */
+  /** @const @private {!Object<string,!r5js.Datum>} */
   this.bindings_ = {};
 
-  /** @const @private {!Array.<!r5js.TemplateBindings>} */
+  /** @const @private {!Array<!r5js.TemplateBindings>} */
   this.children_ = [];
 
   /** @private {number} */
@@ -99,13 +99,13 @@ r5js.TemplateBindings = function(
   /** @const @private {!r5js.IEnvironment} */
   this.letSyntaxEnv_ = letSyntaxEnv;
 
-  /** @const @private {!Object.<string, number>} */
+  /** @const @private {!Object<string, number>} */
   this.patternIds_ = patternIds;
 
-  /** @const @private {!Object.<string, boolean>} */
+  /** @const @private {!Object<string, boolean>} */
   this.templateRenameCandidates_ = templateRenameCandidates;
 
-  /** @const @private {!Object.<*,*>} */
+  /** @const @private {!Object<*,*>} */
   this.renameInTemplate_ = {};
 };
 
@@ -290,13 +290,13 @@ r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
 };
 
 
-/** @return {!Object.<string, number>} */
+/** @return {!Object<string, number>} */
 r5js.TemplateBindings.prototype.getPatternIds = function() {
   return this.patternIds_;
 };
 
 
-/** @return {!Object.<string, boolean>} */
+/** @return {!Object<string, boolean>} */
 r5js.TemplateBindings.prototype.getTemplateRenameCandidates = function() {
   return this.templateRenameCandidates_;
 };

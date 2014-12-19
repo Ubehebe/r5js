@@ -57,7 +57,7 @@ goog.require('r5js.valutil');
 /** @private {r5js.Platform} */ r5js.PrimitiveProcedures.platform_;
 
 
-/** @const @private {!Object.<string, !r5js.procspec.PrimitiveProcedure_>} */
+/** @const @private {!Object<string, !r5js.procspec.PrimitiveProcedure_>} */
 r5js.PrimitiveProcedures.registry_ = {};
 
 

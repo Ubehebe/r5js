@@ -31,13 +31,13 @@ r5js.SchemeSources = function(syntax, procedures) {
 };
 
 
-/** @private {goog.Promise.<!r5js.SchemeSources>} */
+/** @private {goog.Promise<!r5js.SchemeSources>} */
 r5js.SchemeSources.sources_ = null;
 
 
 /**
- * @param {function(string):!goog.Promise.<string>} urlFetcher
- * @return {!goog.Promise.<!r5js.SchemeSources>}
+ * @param {function(string):!goog.Promise<string>} urlFetcher
+ * @return {!goog.Promise<!r5js.SchemeSources>}
  */
 r5js.SchemeSources.get = function(urlFetcher) {
   if (!r5js.SchemeSources.sources_) {

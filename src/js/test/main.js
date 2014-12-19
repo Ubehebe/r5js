@@ -27,8 +27,8 @@ goog.setTestOnly('r5js.test.readSandbox');
 
 goog.require('goog.log');
 goog.require('r5js.InMemoryInputPort');
-goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.InMemoryOutputPort');
+goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.ParserImpl');
 goog.require('r5js.Platform');
 goog.require('r5js.ReaderImpl');
@@ -46,8 +46,8 @@ goog.require('tdd.logTo');
 
 /**
  * Main entry point for the test suite.
- * @param {!Array.<string>=} opt_argv Optional command-line arguments.
- * @param {!Object.<string, string>=} opt_env Optional command-line environment.
+ * @param {!Array<string>=} opt_argv Optional command-line arguments.
+ * @param {!Object<string, string>=} opt_env Optional command-line environment.
  */
 r5js.test.main = function(opt_argv, opt_env) {
   var testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env) ?
@@ -124,14 +124,14 @@ r5js.test.evalSandbox = function(text) {
 };
 
 
-/** @private {goog.Promise.<!r5js.Evaluator>} */
+/** @private {goog.Promise<!r5js.Evaluator>} */
 r5js.test.evaluator_ = null;
 
 
 /**
  * @param {!r5js.InputPort=} opt_inputPort
  * @param {!r5js.OutputPort=} opt_outputPort
- * @return {!goog.Promise.<!r5js.Evaluator>}
+ * @return {!goog.Promise<!r5js.Evaluator>}
  * @private
  */
 r5js.test.getEvaluator_ = function(opt_inputPort, opt_outputPort) {
@@ -146,7 +146,7 @@ r5js.test.getEvaluator_ = function(opt_inputPort, opt_outputPort) {
 /**
  * @param {!r5js.Evaluator} evaluator
  * @param {!r5js.OutputSavingPort} outputPort
- * @return {!Array.<!tdd.TestSuite>}
+ * @return {!Array<!tdd.TestSuite>}
  * @private
  */
 r5js.test.getTestSuites_ = function(evaluator, outputPort) {
