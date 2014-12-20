@@ -16,7 +16,7 @@
 goog.provide('r5js.ast.Quote');
 
 
-goog.require('r5js.Pair');
+goog.require('r5js.IPair');
 goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
@@ -26,7 +26,7 @@ goog.require('r5js.parse.Terminals');
 
 /**
  * @param {r5js.Datum} firstChild
- * @implements {r5js.Pair}
+ * @implements {r5js.IPair}
  * @extends {r5js.ast.CompoundDatum}
  * @struct
  * @constructor
@@ -38,7 +38,7 @@ r5js.ast.Quote = function(firstChild) {
   }
 };
 goog.inherits(r5js.ast.Quote, r5js.ast.CompoundDatum);
-r5js.Pair.addImplementation(r5js.ast.Quote);
+r5js.IPair.addImplementation(r5js.ast.Quote);
 
 
 /** @const @private {!r5js.runtime.Value} */

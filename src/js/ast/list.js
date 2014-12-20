@@ -16,7 +16,7 @@
 goog.provide('r5js.ast.List');
 
 
-goog.require('r5js.Pair');
+goog.require('r5js.IPair');
 // TODO bl circular dependency goog.require('r5js.ast.DottedList');
 // TODO bl circular dependency goog.require('r5js.CdrHelper');
 goog.require('r5js.SiblingBuffer');
@@ -26,7 +26,7 @@ goog.require('r5js.ast.CompoundDatum');
 
 /**
  * @param {r5js.Datum} firstChild
- * @implements {r5js.Pair}
+ * @implements {r5js.IPair}
  * @extends {r5js.ast.CompoundDatum}
  * @struct
  * @constructor
@@ -42,7 +42,7 @@ r5js.ast.List = function(firstChild) {
   /** @private */ this.dotted_ = false;
 };
 goog.inherits(r5js.ast.List, r5js.ast.CompoundDatum);
-r5js.Pair.addImplementation(r5js.ast.List);
+r5js.IPair.addImplementation(r5js.ast.List);
 
 
 /** Marks dirty. */

@@ -13,38 +13,38 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.Pair');
+goog.provide('r5js.IPair');
 
 
 
 /** @interface */
-r5js.Pair = function() {};
+r5js.IPair = function() {};
 
 
 /** @return {!r5js.runtime.Value} */
-r5js.Pair.prototype.car = function() {};
+r5js.IPair.prototype.car = function() {};
 
 
 /** @return {!r5js.runtime.Value} */
-r5js.Pair.prototype.cdr = function() {};
+r5js.IPair.prototype.cdr = function() {};
 
 
 /** @const @private */
-r5js.Pair.IMPLEMENTED_BY_PROP_ = '$r5js.Pair';
+r5js.IPair.IMPLEMENTED_BY_PROP_ = '$r5js.IPair';
 
 
 /**
  * @param {*} obj
  * @return {boolean}
  */
-r5js.Pair.isImplementedBy = function(obj) {
-  return !!(obj && obj[r5js.Pair.IMPLEMENTED_BY_PROP_]);
+r5js.IPair.isImplementedBy = function(obj) {
+  return !!(obj && obj[r5js.IPair.IMPLEMENTED_BY_PROP_]);
 };
 
 
 /**
- * @param {function(new: r5js.Pair, ...)} ctor
+ * @param {function(new: r5js.IPair, ...)} ctor
  */
-r5js.Pair.addImplementation = function(ctor) {
-  ctor.prototype[r5js.Pair.IMPLEMENTED_BY_PROP_] = true;
+r5js.IPair.addImplementation = function(ctor) {
+  ctor.prototype[r5js.IPair.IMPLEMENTED_BY_PROP_] = true;
 };

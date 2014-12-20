@@ -99,7 +99,7 @@ PrimitiveProcedures['output-port?'] = _.unary(function(port) {
 });
 
 PrimitiveProcedures['pair?'] = _.unary(function(node) {
-  return r5js.Pair.isImplementedBy(node) &&
+  return r5js.IPair.isImplementedBy(node) &&
       !!node.getFirstChild(); // 3.2: (pair? '()) => #f
 });
 

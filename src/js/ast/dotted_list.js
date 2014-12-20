@@ -17,7 +17,7 @@ goog.provide('r5js.ast.DottedList');
 
 
 goog.require('r5js.CdrHelper');
-goog.require('r5js.Pair');
+goog.require('r5js.IPair');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.CompoundDatum');
 
@@ -25,7 +25,7 @@ goog.require('r5js.ast.CompoundDatum');
 
 /**
  * @param {r5js.Datum} firstChild
- * @implements {r5js.Pair}
+ * @implements {r5js.IPair}
  * @extends {r5js.ast.CompoundDatum}
  * @struct
  * @constructor
@@ -37,7 +37,7 @@ r5js.ast.DottedList = function(firstChild) {
   }
 };
 goog.inherits(r5js.ast.DottedList, r5js.ast.CompoundDatum);
-r5js.Pair.addImplementation(r5js.ast.DottedList);
+r5js.IPair.addImplementation(r5js.ast.DottedList);
 
 
 /** @override */
