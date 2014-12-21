@@ -62,8 +62,6 @@ r5js.IdShim.prototype.evalAndAdvance = function(
       resultStruct.setNext(next);
     }
     return; // TODO bl odd control flow
-  } else if (this.firstOperand_.isImproperList()) {
-    throw r5js.error.internalInterpreterError('TODO bl');
   } else {
     ans = this.firstOperand_;
   }
