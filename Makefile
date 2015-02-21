@@ -118,13 +118,11 @@ typecheck:
 .PHONY: compile-node-repl
 compile-node-repl:
 	@mkdir -p $(outdir)
-	@find $(src) -name "*\.js" \
-	| xargs printf "\-\-input %s " \
-	| xargs $(builder) --root=$(src) --root=$(closure_root) \
+	@find $(src) $(closure_root) -name "*\.js" \
 	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
-		--js $(closure_root)/closure/goog/deps.js \
 		--closure_entry_point=$(node_repl_main_class) \
+		--only_closure_dependencies \
 		--define r5js.PLATFORM=\'node\' \
 		--externs=externs/buffer.js \
 		--externs=externs/core.js \
@@ -140,14 +138,13 @@ compile-node-repl:
 .PHONY: android
 android:
 	@mkdir -p $(outdir)
-	@find $(src) -name "*\.js" \
-	| xargs printf "\-\-input %s " \
-	| xargs $(builder) --root=$(src) --root=$(closure_root) \
+	@find $(src) $(closure_root) -name "*\.js" \
 	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
 		--closure_entry_point=$(android_main_class) \
 		--closure_entry_point=$(test_main_class) \
+		--only_closure_dependencies \
 		--define r5js.PLATFORM=\'android\' \
 		--externs=custom-externs/android.js \
 		--compilation_level ADVANCED_OPTIMIZATIONS \
@@ -157,12 +154,11 @@ android:
 .PHONY: compile-tests
 compile-tests:
 	@mkdir -p $(outdir)
-	@find $(src) -name "*\.js" \
-	| xargs printf "\-\-input %s " \
-	| xargs $(builder) --root=$(src) --root=$(closure_root) \
+	@find $(src) $(closure_root) -name "*\.js" \
 	| xargs printf "\-\-js %s " \
 	| xargs $(compiler) \
 		--js $(closure_root)/closure/goog/deps.js \
+		--only_closure_dependencies \
 		--closure_entry_point=$(test_main_class) \
 		--define r5js.PLATFORM=\'$(PLATFORM)\' \
 		--externs=externs/buffer.js \
