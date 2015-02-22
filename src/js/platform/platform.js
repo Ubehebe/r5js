@@ -16,11 +16,6 @@
 goog.provide('r5js.Platform');
 
 
-goog.require('r5js.platform.Android');
-goog.require('r5js.platform.Html5');
-goog.require('r5js.platform.Node');
-
-
 
 /**
  * Abstraction of the (JavaScript) platform that the Scheme implementation
@@ -74,24 +69,3 @@ r5js.Platform.prototype.getTestSources = function() {};
  * under. This should only be used in {@link r5js.Platform#get}.
  */
 goog.define('r5js.PLATFORM', 'html5');
-
-
-/** @return {!r5js.Platform} */
-r5js.Platform.get = function() {
-  // Because the Closure Compiler does aggressive dead code elimination,
-  // this switch is effectively evaluated at compile time, not runtime.
-  // r5js.PLATFORM can be defined as a command-line flag to the compiler,
-  // so the switch simplifies to string literal comparisons, which can be done
-  // by the compiler.
-  // Note: small changes in this function (for example, adding a default case)
-  // can defeat the compiler's dead code elimination. Modify with care
-  // and ensure the size of the compiled JS makes sense.
-  switch (r5js.PLATFORM) {
-    case 'html5':
-      return new r5js.platform.Html5(arguments[0] /* TODO bl improve */);
-    case 'node':
-      return new r5js.platform.Node();
-    case 'android': // TODO bl this is increasing the size of other targets!
-      return new r5js.platform.Android();
-  }
-};

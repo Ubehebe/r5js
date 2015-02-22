@@ -63,7 +63,7 @@ r5js.test.SchemeTestDriver.prototype.estimateSize = function() {
 /** @override */
 r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
   this.logger_ = logger;
-  var platform = r5js.Platform.get();
+  var platform = r5js.curPlatform();
   var result = this.result_;
   var onWrite = this.onWrite_.bind(this);
   /** @type {r5js.test.SchemeSources} */ var sources;
@@ -248,7 +248,7 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.toString =
 r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.execute =
     function(logger) {
   this.logger_ = logger;
-  return r5js.Platform.get().newEvaluator(
+  return r5js.curPlatform().newEvaluator(
       r5js.InputPort.NULL,
       new r5js.CallbackBackedPort(this.onWrite_.bind(this)))
       .then(function(evaluator) {

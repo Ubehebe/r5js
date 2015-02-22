@@ -30,9 +30,9 @@ goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.ParserImpl');
-goog.require('r5js.Platform');
 goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
+goog.require('r5js.curPlatform');
 goog.require('r5js.test.JsInterop');
 goog.require('r5js.test.Parser');
 goog.require('r5js.test.Scanner');
@@ -67,7 +67,7 @@ r5js.test.main = function(opt_argv, opt_env) {
 r5js.test.main1 = function(testConfig) {
   var logger = goog.log.getLogger('r5js.test.main');
   var runner = new tdd.Runner(testConfig, logger);
-  var platform = r5js.Platform.get();
+  var platform = r5js.curPlatform();
 
   var buffer = new r5js.InMemoryPortBuffer();
   var stdin = new r5js.InMemoryInputPort(buffer);
@@ -135,11 +135,9 @@ r5js.test.evaluator_ = null;
  * @private
  */
 r5js.test.getEvaluator_ = function(opt_inputPort, opt_outputPort) {
-  if (!r5js.test.evaluator_) {
-    r5js.test.evaluator_ = r5js.Platform.get().newEvaluator(
-        opt_inputPort, opt_outputPort);
-  }
-  return r5js.test.evaluator_;
+  return r5js.test.evaluator_ ||
+      (r5js.test.evaluator_ = r5js.curPlatform().newEvaluator(
+      opt_inputPort, opt_outputPort));
 };
 
 

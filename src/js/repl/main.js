@@ -20,14 +20,14 @@ goog.require('goog.Promise');
 goog.require('goog.array');
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.InputPort');
-goog.require('r5js.Platform');
 goog.require('r5js.Repl');
+goog.require('r5js.curPlatform');
 goog.require('r5js.replutil');
 
 
 /** The main REPL method. */
 r5js.repl.main = function() {
-  var platform = r5js.Platform.get.apply(null, goog.array.toArray(arguments));
+  var platform = r5js.curPlatform.apply(null, goog.array.toArray(arguments));
   /** @type {r5js.Terminal} */ var terminal;
   var stdin = r5js.InputPort.NULL;
   var stdout = new r5js.CallbackBackedPort(function(output) {

@@ -17,7 +17,7 @@ goog.provide('r5js.platform.android.main');
 
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.InputPort');
-goog.require('r5js.Platform');
+goog.require('r5js.curPlatform');
 
 
 /** @private {r5js.OutputPort} */
@@ -42,7 +42,7 @@ r5js.platform.android.main = function(input) {
         new r5js.CallbackBackedPort(function(s) {
       AndroidSchemePlatform.print(s);
     });
-    r5js.platform.android.evaluator_ = r5js.Platform.get().newEvaluator(
+    r5js.platform.android.evaluator_ = r5js.curPlatform().newEvaluator(
         r5js.InputPort.NULL, r5js.platform.android.outputPort_);
   }
   r5js.platform.android.evaluator_.then(function(evaluator) {
