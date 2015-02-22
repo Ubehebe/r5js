@@ -23,6 +23,7 @@ goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
 goog.require('scanAs');
+goog.require('tdd.TestSuite');
 goog.require('tdd.TestType');
 
 

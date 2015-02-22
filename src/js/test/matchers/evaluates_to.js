@@ -18,6 +18,9 @@ goog.provide('evalTo');
 goog.setTestOnly('evalTo');
 
 
+goog.require('tdd.matchers.Matcher');
+
+
 /**
  * @param {string} value
  * @return {!tdd.matchers.Matcher<string>}

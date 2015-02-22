@@ -25,6 +25,7 @@ goog.require('r5js.EllipsisTransformer');
 goog.require('r5js.IdShim');
 goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
+goog.require('r5js.Parser');
 goog.require('r5js.PatternIdTransformer');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');

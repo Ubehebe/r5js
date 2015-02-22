@@ -16,6 +16,9 @@
 goog.provide('r5js.Procedure');
 
 
+goog.require('r5js.runtime.ObjectValue');
+
+
 
 /**
  * @implements {r5js.runtime.ObjectValue}

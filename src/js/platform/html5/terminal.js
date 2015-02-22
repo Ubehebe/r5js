@@ -18,6 +18,7 @@ goog.provide('r5js.platform.html5.Terminal');
 
 
 goog.require('goog.Promise');
+goog.require('r5js.Terminal');
 
 
 

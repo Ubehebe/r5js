@@ -22,6 +22,7 @@ goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.OutputPort');
+goog.require('r5js.Platform');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.platform.html5.Client');
 goog.require('r5js.platform.html5.Terminal');

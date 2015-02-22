@@ -27,6 +27,7 @@ goog.require('r5js.ast.List');
 goog.require('r5js.error');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.runtime.ObjectValue');
 
 
 

@@ -22,6 +22,7 @@ goog.require('r5js.ParserImpl');
 goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.parse.bnf');
+goog.require('tdd.matchers.Matcher');
 
 
 /**

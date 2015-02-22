@@ -17,6 +17,7 @@
 goog.provide('r5js.EllipsisTransformer');
 
 
+goog.require('r5js.ITransformer');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 

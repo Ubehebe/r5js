@@ -1,6 +1,7 @@
 goog.provide('r5js.platform.android.Terminal');
 
 
+goog.require('r5js.Terminal');
 goog.require('r5js.error');
 
 

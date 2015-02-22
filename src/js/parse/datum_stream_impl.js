@@ -15,6 +15,8 @@
 
 goog.provide('r5js.DatumStreamImpl');
 
+goog.require('r5js.DatumStream');
+
 
 
 /**

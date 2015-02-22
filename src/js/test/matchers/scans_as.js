@@ -18,6 +18,7 @@ goog.setTestOnly('scanAs');
 
 
 goog.require('r5js.Scanner');
+goog.require('tdd.matchers.Matcher');
 
 
 /**

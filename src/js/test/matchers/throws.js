@@ -19,6 +19,7 @@ goog.setTestOnly('Throw');
 
 
 goog.require('r5js.error');
+goog.require('tdd.matchers.Matcher');
 
 
 /**

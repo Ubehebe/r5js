@@ -20,6 +20,7 @@ goog.provide('r5js.PipelineImpl');
 
 goog.require('r5js.Environment');
 goog.require('r5js.ParserImpl');
+goog.require('r5js.Pipeline');
 goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.VACUOUS_PROGRAM');

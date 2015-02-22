@@ -18,6 +18,7 @@ goog.provide('r5js.Scanner');
 
 
 goog.require('r5js.Datum');
+goog.require('r5js.TokenStream');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');

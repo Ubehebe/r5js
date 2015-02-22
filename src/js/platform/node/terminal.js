@@ -2,6 +2,7 @@ goog.provide('r5js.platform.node.Terminal');
 
 
 goog.require('goog.Promise');
+goog.require('r5js.Terminal');
 
 
 

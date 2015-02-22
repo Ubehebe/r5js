@@ -19,6 +19,7 @@ goog.provide('r5js.platform.html5.Client');
 
 goog.require('goog.Promise');
 goog.require('goog.events.EventType');
+goog.require('r5js.Evaluator');
 goog.require('r5js.platform.html5.MessageType');
 
 

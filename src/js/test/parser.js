@@ -20,6 +20,7 @@ goog.setTestOnly('r5js.test.Parser');
 goog.require('expect');
 goog.require('parseAs');
 goog.require('r5js.parse.Nonterminals');
+goog.require('tdd.TestSuite');
 goog.require('tdd.TestType');
 
 

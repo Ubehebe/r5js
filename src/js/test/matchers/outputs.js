@@ -22,6 +22,7 @@ goog.setTestOnly('r5js.test.matchers.setOutputPort');
 goog.require('goog.array');
 goog.require('r5js.OutputSavingPort');
 goog.require('r5js.valutil');
+goog.require('tdd.matchers.Matcher');
 
 
 /**

@@ -18,6 +18,7 @@ goog.provide('r5js.PatternIdTransformer');
 goog.provide('r5js.TemplateIdTransformer');
 
 
+goog.require('r5js.ITransformer');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.error');
 

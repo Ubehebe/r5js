@@ -20,6 +20,7 @@ goog.require('goog.Promise');
 goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.InMemoryPortBuffer');
+goog.require('r5js.Platform');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
 goog.require('r5js.platform.node.Evaluator');

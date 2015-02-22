@@ -17,6 +17,7 @@
 goog.provide('r5js.sync.EvaluatorImpl');
 
 
+goog.require('r5js.sync.Evaluator');
 goog.require('r5js.valutil');
 
 

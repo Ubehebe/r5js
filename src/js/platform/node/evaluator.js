@@ -18,6 +18,7 @@ goog.provide('r5js.platform.node.Evaluator');
 
 
 goog.require('goog.Promise');
+goog.require('r5js.Evaluator');
 
 
 
