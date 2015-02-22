@@ -100,7 +100,7 @@ r5js.EllipsisTransformer.prototype.toDatum = function(bindings) {
     buf.appendSibling(success);
   }
   bindings.resetCurChild();
-  return buf.toSiblings();
+  return /** @type {!r5js.Datum} */ (buf.toSiblings());
 };
 
 

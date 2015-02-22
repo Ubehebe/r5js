@@ -73,11 +73,15 @@ r5js.PipelineImpl.prototype.parse = function(root, opt_nonterminal) {
 
 /** @override */
 r5js.PipelineImpl.prototype.desugar = function(root) {
-  return root.desugar(this.env_, false);
+  return /** @type {!r5js.ProcCallLike} */ (root.desugar(this.env_, false));
 };
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {checkTypes} TODO bl the compiler believes the ternary
+ * always evaluates to false.
+ */
 r5js.PipelineImpl.prototype.Eval = function(
     continuable, inputPort, outputPort) {
   // r5js.VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of

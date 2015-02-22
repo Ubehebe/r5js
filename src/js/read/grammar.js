@@ -118,5 +118,5 @@ r5js.ReaderImpl.prototype.read = function() {
   if (nextToken) {
     throw r5js.error.read(nextToken);
   }
-  return ans;
+  return /** @type {!r5js.Datum} */ (ans);
 };

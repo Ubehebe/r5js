@@ -83,7 +83,7 @@ r5js.DatumStreamImpl.EMPTY_LIST_SENTINEL_ = new Object();
 /** @override */
 r5js.DatumStreamImpl.prototype.getNextDatum = function() {
   return this.next_ === r5js.DatumStreamImpl.EMPTY_LIST_SENTINEL_ ?
-      null : this.next_;
+      null : /** @type {!r5js.Datum} */ (this.next_);
 };
 
 

@@ -99,7 +99,10 @@ r5js.ListLikeTransformer.Base_.prototype.couldMatch = function(inputDatum) {
 };
 
 
-/** @override */
+/**
+ * @override
+ * @suppress {checkTypes} TODO bl suspicious false return value
+ */
 r5js.ListLikeTransformer.Base_.prototype.toDatum = function(bindings) {
   var siblingBuffer = this.toSiblingBuffer_(bindings);
   return siblingBuffer ? siblingBuffer.toList(this.ctor_) : false;

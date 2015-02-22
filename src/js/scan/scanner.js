@@ -100,9 +100,6 @@ r5js.Scanner.prototype.checkpoint = function() {
 r5js.Scanner.prototype.nextToken = function() {
   while (this.nextTokenIndex_ >= this.readyTokens_.length) {
     var token = this.readNextToken_();
-    if (!token) {
-      return null;
-    }
     this.readyTokens_.push(token);
   }
   return this.readyTokens_[this.nextTokenIndex_++];
