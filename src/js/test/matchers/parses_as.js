@@ -29,7 +29,7 @@ goog.require('tdd.matchers.Matcher');
  * @param {!r5js.parse.Nonterminal} expectedType
  * @return {!tdd.matchers.Matcher}
  */
-parseAs = function(expectedType) {
+var parseAs = function(expectedType) {
   return new ParsesAs_(expectedType);
 };
 

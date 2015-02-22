@@ -25,7 +25,7 @@ goog.require('tdd.matchers.Matcher');
  * @param {string} value
  * @return {!tdd.matchers.Matcher<string>}
  */
-evalTo = function(value) {
+var evalTo = function(value) {
   return new EvaluatesTo_(value);
 };
 

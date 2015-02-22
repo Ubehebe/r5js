@@ -26,7 +26,7 @@ goog.require('tdd.matchers.Matcher');
  * @param {!r5js.Error} error
  * @return {!tdd.matchers.Matcher<!r5js.Error>}
  */
-Throw = function(error) {
+var Throw = function(error) {
   return new Throws_(error);
 };
 

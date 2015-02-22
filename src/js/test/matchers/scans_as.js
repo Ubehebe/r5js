@@ -25,7 +25,7 @@ goog.require('tdd.matchers.Matcher');
  * @param {function(new: r5js.Datum, ?)} expectedType
  * @return {!tdd.matchers.Matcher<string>}
  */
-scanAs = function(expectedType) {
+var scanAs = function(expectedType) {
   return new ScansAs_(expectedType);
 };
 
