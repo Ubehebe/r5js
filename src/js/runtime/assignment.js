@@ -13,6 +13,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+goog.provide('r5js.Assignment');
+goog.provide('r5js.TopLevelAssignment');
+goog.provide('r5js.TopLevelSyntaxAssignment');
 goog.provide('r5js.newAssignment');
 goog.provide('r5js.newTopLevelAssignment');
 goog.provide('r5js.newTopLevelSyntaxAssignment');

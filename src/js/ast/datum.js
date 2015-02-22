@@ -18,6 +18,7 @@ goog.provide('r5js.VACUOUS_PROGRAM');
 goog.provide('r5js.ast.Literal');
 
 
+// TODO bl circular dependency goog.require('r5js.IdShim');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.ObjectValue');

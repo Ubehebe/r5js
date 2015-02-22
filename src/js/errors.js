@@ -14,6 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
+goog.provide('r5js.Error');
 goog.provide('r5js.error');
 
 goog.require('goog.functions');

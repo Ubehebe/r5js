@@ -17,6 +17,7 @@
 
 
 
+goog.provide('r5js.platform.html5.Message');
 goog.provide('r5js.platform.html5.MessageType');
 goog.provide('r5js.platform.html5.message');
 

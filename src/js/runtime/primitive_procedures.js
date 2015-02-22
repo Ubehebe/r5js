@@ -29,6 +29,7 @@ goog.require('r5js.IEnvironment');
 goog.require('r5js.IdShim');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
+goog.require('r5js.ParserImpl');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');

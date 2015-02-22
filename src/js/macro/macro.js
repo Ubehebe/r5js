@@ -19,6 +19,7 @@ goog.provide('r5js.Macro');
 
 goog.require('goog.functions');
 goog.require('r5js.ProcCallLike');
+// TODO bl circular dependency goog.require('r5js.Environment');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
