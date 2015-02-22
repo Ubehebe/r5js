@@ -20,6 +20,7 @@ goog.provide('r5js.ast.Literal');
 
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.runtime.ObjectValue');
 
 
 /** @typedef {function(!r5js.Datum, !r5js.IEnvironment):
@@ -367,3 +368,11 @@ r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
  * @const
  */
 r5js.VACUOUS_PROGRAM = new r5js.Datum();
+
+
+/** @const {!r5js.runtime.Value} */
+r5js.runtime.UNSPECIFIED_VALUE = new r5js.Datum();
+
+
+/** @const {!r5js.runtime.Value} */
+r5js.runtime.EOF = new r5js.Datum();
