@@ -2,7 +2,6 @@ package r5js;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.CheckEventfulObjectDisposal;
-import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
@@ -34,7 +33,8 @@ public final class Main {
         OPTIONS.setCheckSuspiciousCode(true);
         OPTIONS.setCheckSymbols(true);
         OPTIONS.setCheckTypes(true);
-        OPTIONS.setLanguage(CompilerOptions.LanguageMode.ECMASCRIPT5);
+        OPTIONS.setClosurePass(true);
+        OPTIONS.setLanguage(CompilerOptions.LanguageMode.ECMASCRIPT5_STRICT);
         OPTIONS.setReportMissingOverride(ERROR);
         OPTIONS.setInferConst(true);
         OPTIONS.setInferTypes(true);
@@ -50,6 +50,10 @@ public final class Main {
         List<SourceFile> inputs = getSourceFiles();
 
         Result result = compiler.compile(externs, inputs, OPTIONS);
+        if (result.success) {
+            String compiled = compiler.toSource();
+            Files.write(Paths.get("r5js.js" /* TODO bl */), compiled.getBytes());
+        }
     }
 
     private static List<SourceFile> getExterns() throws IOException {
