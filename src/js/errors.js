@@ -18,6 +18,7 @@ goog.provide('r5js.Error');
 goog.provide('r5js.error');
 
 goog.require('goog.functions');
+goog.require('r5js.Token');
 
 
 
