@@ -109,15 +109,7 @@ r5js.ListLikeTransformer.Base_.prototype.toDatum = function(bindings) {
 };
 
 
-/**
- * @param {!r5js.Datum} inputDatum The input datum.
- * @param {!Object<string, boolean>} literalIds Dictionary of literal ids.
- * @param {!r5js.IEnvironment} definitionEnv Definition environment.
- * @param {!r5js.IEnvironment} useEnv Use environment.
- * @param {!r5js.TemplateBindings} bindings Template bindings.
- * @return {boolean} True iff the transformer is a match (?)
- * TODO bl: what is the use of the value type in the literalIds dictionary?
- */
+/** @override */
 r5js.ListLikeTransformer.Base_.prototype.matchInput = function(
     inputDatum, literalIds, definitionEnv, useEnv, bindings) {
   var len = this.subtransformers_.length;

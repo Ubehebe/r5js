@@ -54,12 +54,7 @@ r5js.PipelineImpl.prototype.read = function(scanner) {
 };
 
 
-/**
- * @param {!r5js.Datum} root
- * @param {!r5js.parse.Nonterminal=} opt_nonterminal
- * @return {!r5js.Datum}
- * TODO bl: why does the compiler not accept an. @override here?
- */
+/** @override */
 r5js.PipelineImpl.prototype.parse = function(root, opt_nonterminal) {
   var parser = new r5js.ParserImpl(root);
   var ans = goog.isDef(opt_nonterminal) ?

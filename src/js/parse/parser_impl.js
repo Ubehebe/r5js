@@ -140,10 +140,7 @@ r5js.ParserImpl = function(root) {
 };
 
 
-/**
- * @param {!r5js.parse.Nonterminal=} opt_nonterminal
- * @return {r5js.Datum}
- */
+/** @override */
 r5js.ParserImpl.prototype.parse = function(opt_nonterminal) {
   var nonterminal = opt_nonterminal ||
       r5js.parse.Nonterminals.PROGRAM;
