@@ -51,6 +51,7 @@
 
     <build>
         <sourceDirectory>src/java</sourceDirectory>
+        <testSourceDirectory>test/java</testSourceDirectory>
         <resources>
             <resource>
                 <directory>src/js</directory>
