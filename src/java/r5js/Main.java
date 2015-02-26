@@ -1,8 +1,6 @@
 package r5js;
 
 import com.google.common.collect.ImmutableList;
-import com.google.javascript.jscomp.CheckEventfulObjectDisposal;
-import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 
@@ -16,40 +14,15 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.javascript.jscomp.CheckLevel.ERROR;
-
 public final class Main {
-
-    private static final CompilerOptions OPTIONS = new CompilerOptions();
-    static {
-        OPTIONS.setAggressiveVarCheck(ERROR);
-        OPTIONS.setBrokenClosureRequiresLevel(ERROR);
-        OPTIONS.setCheckEventfulObjectDisposalPolicy(
-                CheckEventfulObjectDisposal.DisposalCheckingPolicy.AGGRESSIVE);
-        OPTIONS.setCheckGlobalNamesLevel(ERROR);
-        OPTIONS.setCheckGlobalThisLevel(ERROR);
-        OPTIONS.setCheckProvides(ERROR);
-        OPTIONS.setCheckRequires(ERROR);
-        OPTIONS.setCheckSuspiciousCode(true);
-        OPTIONS.setCheckSymbols(true);
-        OPTIONS.setCheckTypes(true);
-        OPTIONS.setClosurePass(true);
-        OPTIONS.setLanguage(CompilerOptions.LanguageMode.ECMASCRIPT5_STRICT);
-        OPTIONS.setReportMissingOverride(ERROR);
-        OPTIONS.setInferConst(true);
-        OPTIONS.setInferTypes(true);
-        OPTIONS.setManageClosureDependencies(ImmutableList.of(EntryPoints.TEST));
-    }
-
 
     public static void main(String[] args) throws IOException {
         Compiler compiler = new Compiler(System.err);
-        compiler.disableThreads();
 
         List<SourceFile> externs = getExterns();
         List<SourceFile> inputs = getSourceFiles();
 
-        Result result = compiler.compile(externs, inputs, OPTIONS);
+        Result result = compiler.compile(externs, inputs);
         if (result.success) {
             String compiled = compiler.toSource();
             Files.write(Paths.get("r5js.js" /* TODO bl */), compiled.getBytes());
