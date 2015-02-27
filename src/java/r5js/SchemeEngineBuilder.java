@@ -59,7 +59,10 @@ final class SchemeEngineBuilder {
                         .setDependencySorting(true)
                         .setEntryPoints(platform.closureEntryPoints));
         OPTIONS.setDefineToStringLiteral(PLATFORM_DEFINITION, platform.closureDefineName);
-        Result underlying = compiler.compile(getExterns(), getSourceFiles(), OPTIONS);
+        List<SourceFile> sourceFiles = getSourceFiles().stream()
+                .filter(platform::relevant)
+                .collect(Collectors.toList());
+        Result underlying = compiler.compile(getExterns(), sourceFiles, OPTIONS);
         return CompilationResult.fromUnderlying(underlying, compiler);
     }
 
@@ -104,7 +107,7 @@ final class SchemeEngineBuilder {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 String filename = file.toString();
-                if (filename.endsWith(".js")) {
+                if (filename.endsWith(".js") && !filename.contains("platform/")) {
                     sourceFiles.add(SourceFile.fromFile(file.toFile()));
                 }
                 return FileVisitResult.CONTINUE;
