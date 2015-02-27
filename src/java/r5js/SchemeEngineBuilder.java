@@ -45,7 +45,6 @@ final class SchemeEngineBuilder {
 
     SchemeEngineBuilder() {
         compiler = new Compiler();
-        compiler.disableThreads(); // TODO bl shouldn't be necessary
     }
 
     CompilationResult build(Platform platform) throws IOException {
