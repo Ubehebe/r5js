@@ -12,12 +12,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.javascript.jscomp.CheckLevel.ERROR;
 
 final class SchemeEngineBuilder {
+
+    private static final String PLATFORM_DEFINITION = "r5js.PLATFORM";
 
     private static final CompilerOptions OPTIONS = new CompilerOptions();
     static {
@@ -58,6 +59,7 @@ final class SchemeEngineBuilder {
                         .setDependencyPruning(true)
                         .setDependencySorting(true)
                         .setEntryPoints(platform.closureEntryPoints));
+        OPTIONS.setDefineToStringLiteral(PLATFORM_DEFINITION, platform.closureDefineName);
         Result underlying = compiler.compile(getExterns(), getSourceFiles(), OPTIONS);
         return CompilationResult.fromUnderlying(underlying, compiler);
     }
@@ -133,18 +135,20 @@ final class SchemeEngineBuilder {
 
     public static class CompilationResult {
         public final boolean success;
-        public final Optional<String> compiled;
+        public final String compiled;
         public final ImmutableList<JSError> errors;
         public final ImmutableList<JSError> warnings;
 
         CompilationResult(
-                Optional<String> compiled,
+                boolean success,
+                String compiled,
                 ImmutableList<JSError> errors,
                 ImmutableList<JSError> warnings) {
-            this.success = compiled.isPresent();
+            this.success = success;
             this.compiled = compiled;
             this.errors = errors;
             this.warnings = warnings;
+            System.out.printf("%d%n", compiled != null ? compiled.length() : 0);
         }
 
         static CompilationResult fromUnderlying(Result underlying, Compiler compiler) {
@@ -152,9 +156,8 @@ final class SchemeEngineBuilder {
             ImmutableList<JSError> warnings = onlyRelevant(underlying.warnings);
             boolean success = errors.isEmpty() && warnings.isEmpty();
             return new CompilationResult(
-                    success
-                            ? Optional.of(compiler.toSource())
-                            : Optional.empty(),
+                    success,
+                    success ? compiler.toSource() : null,
                     errors,
                     warnings);
         }

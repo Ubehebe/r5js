@@ -3,9 +3,9 @@ package r5js;
 import com.google.common.collect.ImmutableList;
 
 enum Platform {
-    ANDROID("android", ImmutableList.<String>of()),
-    HTML5("html5", ImmutableList.<String>of()),
-    NODE("node", ImmutableList.<String>of());
+    ANDROID("android", ImmutableList.of("r5js.test.main")),
+    HTML5("html5", ImmutableList.of("r5js.test.main")),
+    NODE("node", ImmutableList.of("r5js.test.main"));
 
     final String closureDefineName;
     final ImmutableList<String> closureEntryPoints;
