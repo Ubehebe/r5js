@@ -1,5 +1,4 @@
 goog.provide('r5js.curPlatform');
-goog.provide('r5js.platform.Android');
 
 
 goog.require('goog.Promise');
@@ -19,15 +18,16 @@ goog.require('r5js.test.SchemeSources');
  * @implements {r5js.Platform}
  * @struct
  * @constructor
+ * @private
  */
-r5js.platform.Android = function() {
+r5js.platform.Android_ = function() {
   /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
   this.buffers_ = {};
 };
 
 
 /** @override */
-r5js.platform.Android.prototype.getSources = function() {
+r5js.platform.Android_.prototype.getSources = function() {
   return goog.Promise.resolve(new r5js.SchemeSources(
       AndroidSchemePlatform.getR5RSSyntax(),
       AndroidSchemePlatform.getR5RSProcedures()));
@@ -35,7 +35,7 @@ r5js.platform.Android.prototype.getSources = function() {
 
 
 /** @override */
-r5js.platform.Android.prototype.getTestSources = function() {
+r5js.platform.Android_.prototype.getTestSources = function() {
   return goog.Promise.resolve(new r5js.test.SchemeSources(
       AndroidSchemePlatform.getTestFramework(),
       AndroidSchemePlatform.getTestFrameworkTests(),
@@ -46,7 +46,7 @@ r5js.platform.Android.prototype.getTestSources = function() {
 
 
 /** @override */
-r5js.platform.Android.prototype.exit = function(statusCode) {
+r5js.platform.Android_.prototype.exit = function(statusCode) {
   AndroidSchemePlatform.exit(statusCode);
 };
 
@@ -57,7 +57,7 @@ r5js.platform.Android.prototype.exit = function(statusCode) {
  * @return {!goog.Promise<!r5js.Evaluator>}
  * @override TODO bl why is it necessary to repeat the doc?
  */
-r5js.platform.Android.prototype.newEvaluator =
+r5js.platform.Android_.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {
   return this.getSources().then(function(sources) {
     return r5js.boot(
@@ -73,13 +73,13 @@ r5js.platform.Android.prototype.newEvaluator =
 
 
 /** @override */
-r5js.platform.Android.prototype.getTerminal = function() {
+r5js.platform.Android_.prototype.getTerminal = function() {
   return new r5js.platform.android.Terminal();
 };
 
 
 /** @override */
-r5js.platform.Android.prototype.newInputPort = function(name) {
+r5js.platform.Android_.prototype.newInputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = new r5js.InMemoryPortBuffer();
   }
@@ -88,7 +88,7 @@ r5js.platform.Android.prototype.newInputPort = function(name) {
 
 
 /** @override */
-r5js.platform.Android.prototype.newOutputPort = function(name) {
+r5js.platform.Android_.prototype.newOutputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = new r5js.InMemoryPortBuffer();
   }
@@ -98,5 +98,5 @@ r5js.platform.Android.prototype.newOutputPort = function(name) {
 
 /** @return {!r5js.Platform} */
 r5js.curPlatform = function() {
-    return new r5js.platform.Android();
+  return new r5js.platform.Android_();
 };

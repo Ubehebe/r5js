@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 goog.provide('r5js.curPlatform');
-goog.provide('r5js.platform.Html5');
 
 
 goog.require('goog.Promise');
@@ -37,8 +36,9 @@ goog.require('r5js.test.SchemeSources');
  * @implements {r5js.Platform}
  * @struct
  * @constructor
+ * @private
  */
-r5js.platform.Html5 = function(jqConsole) {
+r5js.platform.Html5_ = function(jqConsole) {
   /** @const @private */ this.jqConsole_ = jqConsole;
   /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
   this.buffers_ = {};
@@ -46,7 +46,7 @@ r5js.platform.Html5 = function(jqConsole) {
 
 
 /** @override */
-r5js.platform.Html5.prototype.exit = goog.nullFunction;
+r5js.platform.Html5_.prototype.exit = goog.nullFunction;
 
 
 /**
@@ -55,7 +55,7 @@ r5js.platform.Html5.prototype.exit = goog.nullFunction;
  * @return {!goog.Promise<!r5js.Evaluator>}
  * @override TODO bl why is it necessary to repeat the doc?
  */
-r5js.platform.Html5.prototype.newEvaluator =
+r5js.platform.Html5_.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {
   return goog.Promise.resolve(
       /** @type {!r5js.Evaluator} */(new r5js.platform.html5.Client(
@@ -65,7 +65,7 @@ r5js.platform.Html5.prototype.newEvaluator =
 
 
 /** @override */
-r5js.platform.Html5.prototype.newInputPort = function(name) {
+r5js.platform.Html5_.prototype.newInputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = new r5js.InMemoryPortBuffer();
   }
@@ -74,7 +74,7 @@ r5js.platform.Html5.prototype.newInputPort = function(name) {
 
 
 /** @override */
-r5js.platform.Html5.prototype.newOutputPort = function(name) {
+r5js.platform.Html5_.prototype.newOutputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = new r5js.InMemoryPortBuffer();
   }
@@ -83,7 +83,7 @@ r5js.platform.Html5.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.platform.Html5.prototype.getTerminal = function() {
+r5js.platform.Html5_.prototype.getTerminal = function() {
   return new r5js.platform.html5.Terminal(
       this.jqConsole_, function(line) {
         return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
@@ -92,19 +92,19 @@ r5js.platform.Html5.prototype.getTerminal = function() {
 
 
 /** @override */
-r5js.platform.Html5.prototype.getSources = function() {
+r5js.platform.Html5_.prototype.getSources = function() {
   return r5js.SchemeSources.get(goog.labs.net.xhr.get);
 };
 
 
 /** @override */
-r5js.platform.Html5.prototype.getTestSources = function() {
+r5js.platform.Html5_.prototype.getTestSources = function() {
   return r5js.test.SchemeSources.get(goog.labs.net.xhr.get);
 };
 
 
 /** @return {!r5js.Platform} */
 r5js.curPlatform = function() {
-    return new r5js.platform.Html5(arguments[0] /* TODO bl improve */);
+  return new r5js.platform.Html5_(arguments[0] /* TODO bl improve */);
 };
 

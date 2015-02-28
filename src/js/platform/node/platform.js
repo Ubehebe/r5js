@@ -14,7 +14,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 goog.provide('r5js.curPlatform');
-goog.provide('r5js.platform.Node');
 
 
 goog.require('goog.Promise');
@@ -48,8 +47,9 @@ goog.require('r5js.test.SchemeSources');
  * @implements {r5js.Platform}
  * @struct
  * @constructor
+ * @private
  */
-r5js.platform.Node = function() {
+r5js.platform.Node_ = function() {
   /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
   this.buffers_ = {};
 };
@@ -60,7 +60,7 @@ r5js.platform.Node = function() {
  * @return {!goog.Promise<string>}
  * @private
  */
-r5js.platform.Node.fetchUrl_ = function(url) {
+r5js.platform.Node_.fetchUrl_ = function(url) {
   return new goog.Promise(function(resolve, reject) {
     // TODO bl: move this declaration to the top of this file, instead of
     // repeating it in each method that needs it. This will require changing
@@ -78,7 +78,7 @@ r5js.platform.Node.fetchUrl_ = function(url) {
 
 
 /** @override */
-r5js.platform.Node.prototype.exit = function(statusCode) {
+r5js.platform.Node_.prototype.exit = function(statusCode) {
   process.exit(statusCode);
 };
 
@@ -89,7 +89,7 @@ r5js.platform.Node.prototype.exit = function(statusCode) {
  * @return {!goog.Promise<!r5js.Evaluator>}
  * @override TODO bl why is it necessary to repeat the doc?
  */
-r5js.platform.Node.prototype.newEvaluator =
+r5js.platform.Node_.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {
   return this.getSources().then(function(sources) {
     return r5js.boot(
@@ -105,7 +105,7 @@ r5js.platform.Node.prototype.newEvaluator =
 
 
 /** @override */
-r5js.platform.Node.prototype.newInputPort = function(name) {
+r5js.platform.Node_.prototype.newInputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = new r5js.InMemoryPortBuffer();
   }
@@ -114,7 +114,7 @@ r5js.platform.Node.prototype.newInputPort = function(name) {
 
 
 /** @override */
-r5js.platform.Node.prototype.newOutputPort = function(name) {
+r5js.platform.Node_.prototype.newOutputPort = function(name) {
   if (!(name in this.buffers_)) {
     this.buffers_[name] = new r5js.InMemoryPortBuffer();
   }
@@ -123,26 +123,26 @@ r5js.platform.Node.prototype.newOutputPort = function(name) {
 
 
 /** @override */
-r5js.platform.Node.prototype.getTerminal = function() {
+r5js.platform.Node_.prototype.getTerminal = function() {
   return new r5js.platform.node.Terminal();
 };
 
 
 /** @override */
-r5js.platform.Node.prototype.getSources = function() {
-  return r5js.SchemeSources.get(r5js.platform.Node.fetchUrl_);
+r5js.platform.Node_.prototype.getSources = function() {
+  return r5js.SchemeSources.get(r5js.platform.Node_.fetchUrl_);
 };
 
 
 /** @override */
-r5js.platform.Node.prototype.getTestSources = function() {
-  return r5js.test.SchemeSources.get(r5js.platform.Node.fetchUrl_);
+r5js.platform.Node_.prototype.getTestSources = function() {
+  return r5js.test.SchemeSources.get(r5js.platform.Node_.fetchUrl_);
 };
 
 
 /** @return {!r5js.Platform} */
 r5js.curPlatform = function() {
-    return new r5js.platform.Node();
+  return new r5js.platform.Node_();
 };
 
 

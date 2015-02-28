@@ -31,7 +31,7 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  * to design a richer API, but it was never very good. There were two main
  * difficulties. First, because {@link r5js.Evaluator#evaluate} is asynchronous,
  * the interpreter should be able to run in a client-server fashion.
- * (For example, in {@link r5js.platform.Html5}, the actual interpreter
+ * (For example, in {@link r5js.platform.Html5_}, the actual interpreter
  * runs in a web worker, and communicates with a client stub via postMessage.)
  * This restricts the external representation of Scheme values.
  * Simply passing {@link r5js.runtime.Value} instances does not work,
