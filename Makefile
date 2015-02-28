@@ -170,14 +170,6 @@ compile-tests:
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		> $(test_outfile)
 
-# Runs the test suite from Node.
-.PHONY: test
-test: compile-tests
-test:
-	@command -v node > /dev/null 2>&1 || \
-		{ echo >&2 "node is required for testing."; exit 1; }
-	@node -e "require('./build/test-all').r5js.test.main(process.argv, process.env);" $(test_opts)
-
 # Runs the Node-based REPL.
 .PHONY: node-repl
 node-repl: compile-node-repl
