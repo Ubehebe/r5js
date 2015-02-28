@@ -6,7 +6,7 @@ import java.nio.file.Path;
 
 enum Platform {
     ANDROID("android", ImmutableList.of("r5js.test.main")),
-    HTML5("html5", ImmutableList.of("r5js.test.main")),
+    HTML5("html5", ImmutableList.of("r5js.test.main", "r5js.platform.html5.Worker")),
     NODE("node", ImmutableList.of("r5js.test.main"));
 
     final String closureDefineName;
