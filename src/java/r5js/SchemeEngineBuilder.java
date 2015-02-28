@@ -12,6 +12,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.javascript.jscomp.CheckLevel.ERROR;
@@ -57,12 +58,10 @@ final class SchemeEngineBuilder {
                 new DependencyOptions()
                         .setDependencyPruning(true)
                         .setDependencySorting(true)
-                        .setEntryPoints(platform.closureEntryPoints));
+                        .setEntryPoints(platform.closureEntryPoints)
+                        .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
         OPTIONS.setDefineToStringLiteral(PLATFORM_DEFINITION, platform.closureDefineName);
-        List<SourceFile> sourceFiles = getSourceFiles().stream()
-                .filter(platform::relevant)
-                .collect(Collectors.toList());
-        Result underlying = compiler.compile(getExterns(), sourceFiles, OPTIONS);
+        Result underlying = compiler.compile(getExterns(), getSourceFiles(platform), OPTIONS);
         return CompilationResult.fromUnderlying(underlying, compiler);
     }
 
@@ -74,12 +73,12 @@ final class SchemeEngineBuilder {
     }
 
     private static boolean isRelevant(JSError error) {
-        return error.sourceName.startsWith("src/js");
+        return error.sourceName != null && error.sourceName.startsWith("src/js");
     }
 
     private static List<SourceFile> getExterns() throws IOException {
         List<SourceFile> externs = new ArrayList<>();
-        collectJsFilesIn("closure-compiler/externs", externs);
+        collectJsFilesIn("closure-compiler/externs", externs, ignore -> true);
         ImmutableList.of(
                 "externs/buffer.js",
                 "externs/core.js",
@@ -95,20 +94,19 @@ final class SchemeEngineBuilder {
         return externs;
     }
 
-    private static List<SourceFile> getSourceFiles() throws IOException {
+    private static List<SourceFile> getSourceFiles(Platform platform) throws IOException {
         List<SourceFile> sourceFiles = new ArrayList<>();
-        collectJsFilesIn("src/js", sourceFiles);
-        collectJsFilesIn("closure-library", sourceFiles);
+        collectJsFilesIn("src/js", sourceFiles, platform::relevant);
+        collectJsFilesIn("closure-library", sourceFiles, path -> path.getFileName().toString().endsWith(".js"));
         return sourceFiles;
     }
 
-    private static void collectJsFilesIn(String root, List<SourceFile> sourceFiles) throws IOException {
+    private static void collectJsFilesIn(String root, List<SourceFile> sourceFiles, Predicate<Path> filter) throws IOException {
         Files.walkFileTree(Paths.get(root), new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                String filename = file.toString();
-                if (filename.endsWith(".js") && !filename.contains("platform/")) {
-                    sourceFiles.add(SourceFile.fromFile(file.toFile()));
+            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+                if (filter.test(path)) {
+                    sourceFiles.add(SourceFile.fromFile(path.toFile()));
                 }
                 return FileVisitResult.CONTINUE;
             }
