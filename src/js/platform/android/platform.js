@@ -8,8 +8,8 @@ goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.Platform');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
+goog.require('r5js.platform.android.Evaluator');
 goog.require('r5js.platform.android.Terminal');
-goog.require('r5js.platform.node.Evaluator');
 goog.require('r5js.test.SchemeSources');
 
 
@@ -66,7 +66,7 @@ r5js.platform.Android.prototype.newEvaluator =
         opt_inputPort,
         opt_outputPort);
   }, undefined /* opt_onRejected */, this).then(function(syncEvaluator) {
-    return new r5js.platform.node.Evaluator(syncEvaluator);
+    return new r5js.platform.android.Evaluator(syncEvaluator);
   });
 };
 
