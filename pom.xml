@@ -86,6 +86,8 @@
                     <mainClass>r5js.Main</mainClass>
                     <!-- Remove annoying "Warning: killAfter is now deprecated. Do you need it ? Please comment on MEXEC-6." -->
                     <killAfter>-1</killAfter>
+                    <executable>maven</executable>
+                    <commandlineArgs>-client -XX:+TieredCompilation</commandlineArgs>
                 </configuration>
             </plugin>
         </plugins>
