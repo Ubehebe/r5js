@@ -2,6 +2,7 @@ package r5js;
 
 import com.google.common.collect.ImmutableList;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 enum Platform {
@@ -30,5 +31,9 @@ enum Platform {
 
         Path parent = path.getParent();
         return parent.endsWith("platform") || parent.endsWith(closureDefineName);
+    }
+
+    byte[] build() throws IOException {
+        return SchemeEngineBuilder.build(this);
     }
 }

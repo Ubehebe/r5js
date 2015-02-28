@@ -1,13 +1,25 @@
 package r5js;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteStreams;
-import com.google.javascript.jscomp.*;
+import com.google.javascript.jscomp.CheckEventfulObjectDisposal;
+import com.google.javascript.jscomp.CheckLevel;
+import com.google.javascript.jscomp.ClosureCodingConvention;
+import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
+import com.google.javascript.jscomp.CompilerOptions;
+import com.google.javascript.jscomp.DependencyOptions;
+import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.PrintStreamErrorManager;
+import com.google.javascript.jscomp.Result;
+import com.google.javascript.jscomp.SourceFile;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,18 +54,11 @@ final class SchemeEngineBuilder {
         CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(OPTIONS);
     }
 
-    private final Compiler compiler;
+    private SchemeEngineBuilder() {}
 
-    SchemeEngineBuilder() {
-        compiler = new Compiler();
-    }
-
-    CompilationResult build(Platform platform) throws IOException {
-        return build(platform, new PrintStream(ByteStreams.nullOutputStream()));
-    }
-
-    CompilationResult build(Platform platform, PrintStream err) throws IOException {
-        compiler.setErrorManager(new ErrorManager(err));
+    static byte[] build(Platform platform) throws IOException {
+        Compiler compiler = new Compiler();
+        compiler.setErrorManager(new ErrorManager(System.err));
         OPTIONS.setDependencyOptions(
                 new DependencyOptions()
                         .setDependencyPruning(true)
@@ -62,7 +67,11 @@ final class SchemeEngineBuilder {
                         .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
         OPTIONS.setDefineToStringLiteral(PLATFORM_DEFINITION, platform.closureDefineName);
         Result underlying = compiler.compile(getExterns(), getSourceFiles(platform), OPTIONS);
-        return CompilationResult.fromUnderlying(underlying, compiler);
+        CompilationResult result = CompilationResult.fromUnderlying(underlying, compiler);
+        if (!result.success) {
+            throw new IllegalStateException();
+        }
+        return result.compiled.getBytes();
     }
 
     private static ImmutableList<JSError> onlyRelevant(JSError[] errors) {
@@ -97,7 +106,8 @@ final class SchemeEngineBuilder {
     private static List<SourceFile> getSourceFiles(Platform platform) throws IOException {
         List<SourceFile> sourceFiles = new ArrayList<>();
         collectJsFilesIn("src/js", sourceFiles, platform::relevant);
-        collectJsFilesIn("closure-library", sourceFiles, path -> path.getFileName().toString().endsWith(".js"));
+        collectJsFilesIn("closure-library", sourceFiles, path -> path.getFileName().toString()
+                .endsWith(".js"));
         return sourceFiles;
     }
 
@@ -148,7 +158,6 @@ final class SchemeEngineBuilder {
             this.compiled = compiled;
             this.errors = errors;
             this.warnings = warnings;
-            System.out.printf("%d%n", compiled != null ? compiled.length() : 0);
         }
 
         static CompilationResult fromUnderlying(Result underlying, Compiler compiler) {
