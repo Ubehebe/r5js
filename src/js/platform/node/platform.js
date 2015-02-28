@@ -13,6 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+goog.provide('r5js.curPlatform');
 goog.provide('r5js.platform.Node');
 
 
@@ -136,6 +137,12 @@ r5js.platform.Node.prototype.getSources = function() {
 /** @override */
 r5js.platform.Node.prototype.getTestSources = function() {
   return r5js.test.SchemeSources.get(r5js.platform.Node.fetchUrl_);
+};
+
+
+/** @return {!r5js.Platform} */
+r5js.curPlatform = function() {
+    return new r5js.platform.Node();
 };
 
 

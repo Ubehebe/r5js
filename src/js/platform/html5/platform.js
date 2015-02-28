@@ -13,6 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+goog.provide('r5js.curPlatform');
 goog.provide('r5js.platform.Html5');
 
 
@@ -99,5 +100,11 @@ r5js.platform.Html5.prototype.getSources = function() {
 /** @override */
 r5js.platform.Html5.prototype.getTestSources = function() {
   return r5js.test.SchemeSources.get(goog.labs.net.xhr.get);
+};
+
+
+/** @return {!r5js.Platform} */
+r5js.curPlatform = function() {
+    return new r5js.platform.Html5(arguments[0] /* TODO bl improve */);
 };
 

@@ -62,10 +62,3 @@ r5js.Platform.prototype.getSources = function() {};
 
 /** @return {!goog.Promise<!r5js.test.SchemeSources>} */
 r5js.Platform.prototype.getTestSources = function() {};
-
-
-/**
- * @define {string} The environment that the application expects to be running
- * under. This should only be used in {@link r5js.Platform#get}.
- */
-goog.define('r5js.PLATFORM', 'html5');

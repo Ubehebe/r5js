@@ -1,3 +1,4 @@
+goog.provide('r5js.curPlatform');
 goog.provide('r5js.platform.Android');
 
 
@@ -92,4 +93,10 @@ r5js.platform.Android.prototype.newOutputPort = function(name) {
     this.buffers_[name] = new r5js.InMemoryPortBuffer();
   }
   return new r5js.InMemoryOutputPort(this.buffers_[name]);
+};
+
+
+/** @return {!r5js.Platform} */
+r5js.curPlatform = function() {
+    return new r5js.platform.Android();
 };
