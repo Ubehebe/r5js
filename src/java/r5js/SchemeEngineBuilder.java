@@ -31,8 +31,6 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
 
 final class SchemeEngineBuilder {
 
-    private static final String PLATFORM_DEFINITION = "r5js.PLATFORM";
-
     private static final CompilerOptions OPTIONS = new CompilerOptions();
     static {
         OPTIONS.setAggressiveVarCheck(ERROR);
@@ -65,7 +63,6 @@ final class SchemeEngineBuilder {
                         .setDependencySorting(true)
                         .setEntryPoints(platform.closureEntryPoints)
                         .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
-        OPTIONS.setDefineToStringLiteral(PLATFORM_DEFINITION, platform.closureDefineName);
         Result underlying = compiler.compile(getExterns(), getSourceFiles(platform), OPTIONS);
         CompilationResult result = CompilationResult.fromUnderlying(underlying, compiler);
         if (!result.success) {
