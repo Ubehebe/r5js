@@ -24,7 +24,6 @@ goog.require('r5js.Platform');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
 goog.require('r5js.platform.node.Evaluator');
-goog.require('r5js.platform.node.Terminal');
 goog.require('r5js.test.SchemeSources');
 
 
@@ -119,12 +118,6 @@ r5js.platform.Node_.prototype.newOutputPort = function(name) {
     this.buffers_[name] = new r5js.InMemoryPortBuffer();
   }
   return new r5js.InMemoryOutputPort(this.buffers_[name]);
-};
-
-
-/** @override */
-r5js.platform.Node_.prototype.getTerminal = function() {
-  return new r5js.platform.node.Terminal();
 };
 
 

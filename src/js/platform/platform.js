@@ -52,10 +52,6 @@ r5js.Platform.prototype.newInputPort = function(name) {};
 r5js.Platform.prototype.newOutputPort = function(name) {};
 
 
-/** @return {!r5js.Terminal} */
-r5js.Platform.prototype.getTerminal = function() {};
-
-
 /** @return {!goog.Promise<!r5js.SchemeSources>} */
 r5js.Platform.prototype.getSources = function() {};
 

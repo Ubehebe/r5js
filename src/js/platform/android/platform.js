@@ -9,7 +9,6 @@ goog.require('r5js.Platform');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
 goog.require('r5js.platform.android.Evaluator');
-goog.require('r5js.platform.android.Terminal');
 goog.require('r5js.test.SchemeSources');
 
 
@@ -69,12 +68,6 @@ r5js.platform.Android_.prototype.newEvaluator =
   }, undefined /* opt_onRejected */, this).then(function(syncEvaluator) {
     return new r5js.platform.android.Evaluator(syncEvaluator);
   });
-};
-
-
-/** @override */
-r5js.platform.Android_.prototype.getTerminal = function() {
-  return new r5js.platform.android.Terminal();
 };
 
 
