@@ -1,9 +1,6 @@
 [submodule "mockterm"]
 	path = mockterm
 	url = https://github.com/Ubehebe/term.js.git
-[submodule "closure-compiler"]
-	path = closure-compiler
-	url = https://github.com/google/closure-compiler
 [submodule "closure-library"]
 	path = closure-library
 	url = https://github.com/google/closure-library

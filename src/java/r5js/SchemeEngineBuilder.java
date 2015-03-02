@@ -15,6 +15,7 @@ import com.google.javascript.jscomp.SourceFile;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,9 +24,12 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static com.google.javascript.jscomp.CheckLevel.ERROR;
 
@@ -84,7 +88,7 @@ final class SchemeEngineBuilder {
 
     private static List<SourceFile> getExterns() throws IOException {
         List<SourceFile> externs = new ArrayList<>();
-        collectJsFilesIn("closure-compiler/externs", externs, ignore -> true);
+        addExternsFromZip(externs);
         ImmutableList.of(
                 "externs/buffer.js",
                 "externs/core.js",
@@ -106,6 +110,19 @@ final class SchemeEngineBuilder {
         collectJsFilesIn("closure-library", sourceFiles, path -> path.getFileName().toString()
                 .endsWith(".js"));
         return sourceFiles;
+    }
+
+    private static void addExternsFromZip(List<SourceFile> sourceFiles) throws IOException {
+        try (ZipFile zip = new ZipFile("target/dependency/externs.zip")) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                sourceFiles.add(SourceFile.fromInputStream(
+                        entry.getName(),
+                        zip.getInputStream(entry),
+                        StandardCharsets.UTF_8));
+            }
+        }
     }
 
     private static void collectJsFilesIn(String root, List<SourceFile> sourceFiles, Predicate<Path> filter) throws IOException {
