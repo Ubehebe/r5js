@@ -82,12 +82,7 @@ r5js.platform.Node_.prototype.exit = function(statusCode) {
 };
 
 
-/**
- * @param {!r5js.InputPort=} opt_inputPort
- * @param {!r5js.OutputPort=} opt_outputPort
- * @return {!goog.Promise<!r5js.Evaluator>}
- * @override TODO bl why is it necessary to repeat the doc?
- */
+/** @override */
 r5js.platform.Node_.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {
   return this.getSources().then(function(sources) {
