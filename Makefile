@@ -71,49 +71,6 @@ fix:
 	| grep "\.js" \
 	| xargs fixjsstyle --strict
 
-# Runs the Closure Compiler on the codebase as strictly as possible.
-.PHONY: typecheck
-typecheck:
-	@find $(src) -name "*.js" \
-	| xargs printf "\-\-input %s " \
-	| xargs $(builder) --root=$(src) --root=$(closure_root) \
-	| xargs printf "\-\-js %s " \
-	| xargs $(compiler) \
-		--js $(closure_root)/closure/goog/deps.js \
-		--externs=externs/buffer.js \
-		--externs=externs/core.js \
-		--externs=externs/events.js \
-		--externs=externs/fs.js \
-		--externs=externs/process.js \
-		--externs=externs/readline.js \
-		--externs=externs/stream.js \
-		--externs=custom-externs/android.js \
-		--warning_level VERBOSE \
-		--jscomp_error accessControls \
-		--jscomp_error ambiguousFunctionDecl \
-		--jscomp_error checkRegExp \
-		--jscomp_error checkTypes \
-		--jscomp_error checkVars \
-		--jscomp_error const \
-		--jscomp_error constantProperty \
-		--jscomp_error deprecated \
-		--jscomp_error duplicateMessage \
-		--jscomp_error globalThis \
-		--jscomp_error internetExplorerChecks \
-		--jscomp_error invalidCasts \
-		--jscomp_error misplacedTypeAnnotation \
-		--jscomp_error missingProperties \
-		--jscomp_error nonStandardJsDocs \
-		--jscomp_error suspiciousCode \
-		--jscomp_error strictModuleDepCheck \
-		--jscomp_error typeInvalidation \
-		--jscomp_error undefinedNames \
-		--jscomp_error undefinedVars \
-		--jscomp_error unknownDefines \
-		--jscomp_error uselessCode \
-		--jscomp_error visibility \
-		> /dev/null
-
 # Compiles the Node-based REPL.
 .PHONY: compile-node-repl
 compile-node-repl:
