@@ -23,6 +23,8 @@ final class DevServer {
                     + "</html>\n")
             .getBytes();
 
+    private static byte[] compiledApp;
+
     public static void main(String[] args) throws IOException {
         InetSocketAddress address = new InetSocketAddress(8080);
         HttpServer server = HttpServer.create(address, 0);
@@ -41,12 +43,19 @@ final class DevServer {
                     break;
                 case "/test.js":
                     exchange.sendResponseHeaders(200, 0);
-                    out.write("var x = 42;".getBytes());
+                    out.write(getCompiledJs());
                     break;
                 default:
                     exchange.sendResponseHeaders(404, -1);
                     break;
             }
         }
+    }
+
+    private static synchronized byte[] getCompiledJs() throws IOException {
+        if (compiledApp == null) {
+            compiledApp = Platform.HTML5.build();
+        }
+        return compiledApp;
     }
 }
