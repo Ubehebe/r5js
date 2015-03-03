@@ -38,20 +38,6 @@ r5js.Platform.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {};
 
 
-/**
- * @param {string} name
- * @return {!r5js.InputPort}
- */
-r5js.Platform.prototype.newInputPort = function(name) {};
-
-
-/**
- * @param {string} name
- * @return {!r5js.OutputPort}
- */
-r5js.Platform.prototype.newOutputPort = function(name) {};
-
-
 /** @return {!goog.Promise<!r5js.SchemeSources>} */
 r5js.Platform.prototype.getSources = function() {};
 

@@ -18,9 +18,6 @@ goog.provide('r5js.curPlatform');
 
 goog.require('goog.Promise');
 goog.require('goog.labs.net.xhr');
-goog.require('r5js.InMemoryInputPort');
-goog.require('r5js.InMemoryOutputPort');
-goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.OutputPort');
 goog.require('r5js.Platform');
 goog.require('r5js.SchemeSources');
@@ -39,8 +36,6 @@ goog.require('r5js.test.SchemeSources');
  */
 r5js.platform.Html5_ = function(jqConsole) {
   /** @const @private */ this.jqConsole_ = jqConsole;
-  /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
-  this.buffers_ = {};
 };
 
 
@@ -60,24 +55,6 @@ r5js.platform.Html5_.prototype.newEvaluator =
       /** @type {!r5js.Evaluator} */(new r5js.platform.html5.Client(
           '../src/js/platform/html5/worker.js',
           opt_outputPort || r5js.OutputPort.NULL)));
-};
-
-
-/** @override */
-r5js.platform.Html5_.prototype.newInputPort = function(name) {
-  if (!(name in this.buffers_)) {
-    this.buffers_[name] = new r5js.InMemoryPortBuffer();
-  }
-  return new r5js.InMemoryInputPort(this.buffers_[name]);
-};
-
-
-/** @override */
-r5js.platform.Html5_.prototype.newOutputPort = function(name) {
-  if (!(name in this.buffers_)) {
-    this.buffers_[name] = new r5js.InMemoryPortBuffer();
-  }
-  return new r5js.InMemoryOutputPort(this.buffers_[name]);
 };
 
 

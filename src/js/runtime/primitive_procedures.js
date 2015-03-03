@@ -30,6 +30,7 @@ goog.require('r5js.IdShim');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.ParserImpl');
+goog.require('r5js.PortManager');
 goog.require('r5js.ProcCall');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
@@ -56,6 +57,8 @@ goog.require('r5js.valutil');
 /** @private {r5js.IEnvironment} */ r5js.PrimitiveProcedures.r5RSEnv_;
 
 /** @private {r5js.Platform} */ r5js.PrimitiveProcedures.platform_;
+
+/** @private {r5js.PortManager} */ r5js.PrimitiveProcedures.portManager_;
 
 
 /** @const @private {!Object<string, !r5js.procspec.PrimitiveProcedure_>} */
@@ -702,11 +705,12 @@ PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
 });
 
 PrimitiveProcedures['open-input-file'] = _.unary(function(datum) {
-  return r5js.PrimitiveProcedures.platform_.newInputPort(datum.getPayload());
+  return r5js.PrimitiveProcedures.portManager_.newInputPort(datum.getPayload());
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['open-output-file'] = _.unary(function(datum) {
-  return r5js.PrimitiveProcedures.platform_.newOutputPort(datum.getPayload());
+  return r5js.PrimitiveProcedures.portManager_.newOutputPort(
+      datum.getPayload());
 }, r5js.DatumType.STRING);
 
 PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
@@ -1066,6 +1070,7 @@ r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv, platform) {
   r5js.PrimitiveProcedures.nullEnv_ = nullEnv;
   r5js.PrimitiveProcedures.r5RSEnv_ = r5RSEnv;
   r5js.PrimitiveProcedures.platform_ = platform;
+  r5js.PrimitiveProcedures.portManager_ = new r5js.PortManager();
   for (var name in r5js.PrimitiveProcedures.registry_) {
     var proc = r5js.PrimitiveProcedures.registry_[name];
     proc.setDebugName(name);

@@ -2,9 +2,6 @@ goog.provide('r5js.curPlatform');
 
 
 goog.require('goog.Promise');
-goog.require('r5js.InMemoryInputPort');
-goog.require('r5js.InMemoryOutputPort');
-goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.Platform');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
@@ -19,10 +16,7 @@ goog.require('r5js.test.SchemeSources');
  * @constructor
  * @private
  */
-r5js.platform.Android_ = function() {
-  /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
-  this.buffers_ = {};
-};
+r5js.platform.Android_ = function() {};
 
 
 /** @override */
@@ -68,24 +62,6 @@ r5js.platform.Android_.prototype.newEvaluator =
   }, undefined /* opt_onRejected */, this).then(function(syncEvaluator) {
     return new r5js.platform.android.Evaluator(syncEvaluator);
   });
-};
-
-
-/** @override */
-r5js.platform.Android_.prototype.newInputPort = function(name) {
-  if (!(name in this.buffers_)) {
-    this.buffers_[name] = new r5js.InMemoryPortBuffer();
-  }
-  return new r5js.InMemoryInputPort(this.buffers_[name]);
-};
-
-
-/** @override */
-r5js.platform.Android_.prototype.newOutputPort = function(name) {
-  if (!(name in this.buffers_)) {
-    this.buffers_[name] = new r5js.InMemoryPortBuffer();
-  }
-  return new r5js.InMemoryOutputPort(this.buffers_[name]);
 };
 
 
