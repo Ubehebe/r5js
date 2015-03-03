@@ -49,7 +49,8 @@ final class SchemeEngineBuilder {
         OPTIONS.setCheckSymbols(true);
         OPTIONS.setCheckTypes(true);
         OPTIONS.setCodingConvention(new ClosureCodingConvention());
-        OPTIONS.setLanguage(CompilerOptions.LanguageMode.ECMASCRIPT5_STRICT);
+        OPTIONS.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT6_STRICT);
+        OPTIONS.setLanguageOut(CompilerOptions.LanguageMode.ECMASCRIPT5_STRICT);
         OPTIONS.setReportMissingOverride(ERROR);
         OPTIONS.setInferConst(true);
         OPTIONS.setInferTypes(true);
