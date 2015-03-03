@@ -107,18 +107,15 @@ final class SchemeEngineBuilder {
 
     private static List<SourceFile> getSourceFiles(Platform platform) throws IOException {
         List<SourceFile> sourceFiles = new ArrayList<>();
+//        sourceFiles.add(SchemeSource.SYNTAX.bundle());
+//        sourceFiles.add(SchemeSource.PROCEDURES.bundle());
         collectJsFilesIn("src/js", sourceFiles, platform::relevant);
         collectJsFilesIn("closure-library", sourceFiles, path -> path.getFileName().toString()
                 .endsWith(".js"));
         return sourceFiles;
     }
 
-    private static SourceFile getSchemeSource(String name) throws IOException {
-        Path path = Paths.get(name);
-        byte[] bytes = Files.readAllBytes(path);
-        String blah = new String(bytes, StandardCharsets.UTF_8);
-        return SourceFile.fromCode(name, "preamble " + blah);
-    }
+
 
     private static void addExternsFromZip(List<SourceFile> sourceFiles) throws IOException {
         try (ZipFile zip = new ZipFile("target/dependency/externs.zip")) {
