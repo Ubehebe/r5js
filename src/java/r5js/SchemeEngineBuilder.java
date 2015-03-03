@@ -113,6 +113,13 @@ final class SchemeEngineBuilder {
         return sourceFiles;
     }
 
+    private static SourceFile getSchemeSource(String name) throws IOException {
+        Path path = Paths.get(name);
+        byte[] bytes = Files.readAllBytes(path);
+        String blah = new String(bytes, StandardCharsets.UTF_8);
+        return SourceFile.fromCode(name, "preamble " + blah);
+    }
+
     private static void addExternsFromZip(List<SourceFile> sourceFiles) throws IOException {
         try (ZipFile zip = new ZipFile("target/dependency/externs.zip")) {
             Enumeration<? extends ZipEntry> entries = zip.entries();
