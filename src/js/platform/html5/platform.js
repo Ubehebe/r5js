@@ -20,6 +20,8 @@ goog.require('goog.Promise');
 goog.require('goog.labs.net.xhr');
 goog.require('r5js.OutputPort');
 goog.require('r5js.Platform');
+// TODO bl not needed by this file. Workaround for circular dep elsewhere.
+goog.require('r5js.PrimitiveProcedures');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.platform.html5.Client');
 goog.require('r5js.replutil');
