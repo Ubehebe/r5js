@@ -14,30 +14,36 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 /**
- * @fileoverview Driver to run the (uncompiled) tests from inside a web worker.
+ * @fileoverview Driver to run the tests from inside a web worker.
  * @suppress {undefinedVars|globalThis} due to the unusual web worker setup.
  */
 
 
-// See bootstrap/webworkers.js in the Closure Library for discussion.
-CLOSURE_BASE_PATH = '../../../../closure-library/closure/goog/';
-importScripts(
-    CLOSURE_BASE_PATH + 'bootstrap/webworkers.js',
-    CLOSURE_BASE_PATH + 'base.js',
-    '../../../../build/deps.js');
-
-
-// TODO bl: nothing goog.requires this name, but typechecking appears
-// not to work for this file unless it has a goog.provide.
 goog.provide('r5js.platform.html5.Worker');
 
+
 goog.require('goog.events.EventType');
+goog.require('r5js.InputPort');
 goog.require('r5js.boot');
 goog.require('r5js.curPlatform');
-goog.require('r5js.valutil');
-goog.require('r5js.InputPort');
 goog.require('r5js.platform.html5.MessageType');
 goog.require('r5js.platform.html5.OutputPort');
+goog.require('r5js.valutil');
+
+
+/**
+ * Main entry point for the HTML5 worker.
+ */
+r5js.platform.html5.Worker = function() {
+  addEventListener(goog.events.EventType.MESSAGE, function(e) {
+    var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
+    switch (message.type) {
+      case r5js.platform.html5.MessageType.EVAL_REQUEST:
+        r5js.platform.html5.Worker.handleEvalRequest_(message);
+        break;
+    }
+  }, false);
+};
 
 
 /** @private {goog.Promise<!r5js.sync.Evaluator>} */
@@ -90,11 +96,6 @@ r5js.platform.html5.Worker.getEvaluator_ = function() {
 };
 
 
-addEventListener(goog.events.EventType.MESSAGE, function(e) {
-  var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
-  switch (message.type) {
-    case r5js.platform.html5.MessageType.EVAL_REQUEST:
-      r5js.platform.html5.Worker.handleEvalRequest_(message);
-      break;
-  }
-}, false);
+// Invoke the entry point immediately. This script is running in a worker.
+r5js.platform.html5.Worker();
+
