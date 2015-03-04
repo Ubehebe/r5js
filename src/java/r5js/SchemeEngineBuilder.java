@@ -35,48 +35,59 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
 
 final class SchemeEngineBuilder {
 
-    private static final CompilerOptions OPTIONS = new CompilerOptions();
-    static {
-        OPTIONS.setAggressiveVarCheck(ERROR);
-        OPTIONS.setBrokenClosureRequiresLevel(ERROR);
-        OPTIONS.setCheckEventfulObjectDisposalPolicy(
+    private static CompilerOptions compilerOptions() {
+        CompilerOptions options = new CompilerOptions();
+        options.setAggressiveVarCheck(ERROR);
+        options.setBrokenClosureRequiresLevel(ERROR);
+        options.setCheckEventfulObjectDisposalPolicy(
                 CheckEventfulObjectDisposal.DisposalCheckingPolicy.AGGRESSIVE);
-        OPTIONS.setCheckGlobalNamesLevel(ERROR);
-        OPTIONS.setCheckGlobalThisLevel(ERROR);
-        OPTIONS.setCheckProvides(ERROR);
-        OPTIONS.setCheckRequires(ERROR);
-        OPTIONS.setCheckSuspiciousCode(true);
-        OPTIONS.setCheckSymbols(true);
-        OPTIONS.setCheckTypes(true);
-        OPTIONS.setCodingConvention(new ClosureCodingConvention());
-        OPTIONS.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT6_STRICT);
-        OPTIONS.setLanguageOut(CompilerOptions.LanguageMode.ECMASCRIPT5_STRICT);
-        OPTIONS.setReportMissingOverride(ERROR);
-        OPTIONS.setInferConst(true);
-        OPTIONS.setInferTypes(true);
-        CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(OPTIONS);
+        options.setCheckGlobalNamesLevel(ERROR);
+        options.setCheckGlobalThisLevel(ERROR);
+        options.setCheckProvides(ERROR);
+        options.setCheckRequires(ERROR);
+        options.setCheckSuspiciousCode(true);
+        options.setCheckSymbols(true);
+        options.setCheckTypes(true);
+        options.setCodingConvention(new ClosureCodingConvention());
+        options.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT6_STRICT);
+        options.setLanguageOut(CompilerOptions.LanguageMode.ECMASCRIPT5_STRICT);
+        options.setReportMissingOverride(ERROR);
+        options.setInferConst(true);
+        options.setInferTypes(true);
+        CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+        return options;
     }
 
     private SchemeEngineBuilder() {}
 
-    static byte[] build(Platform platform) throws IOException {
+    static ImmutableList<CompilationUnit.Output> build(Platform platform) throws IOException {
+        ImmutableList.Builder<CompilationUnit.Output> outputs = new ImmutableList.Builder<>();
+        for (CompilationUnit.Input input : platform.inputs) {
+            outputs.add(build(input, platform));
+        }
+        return outputs.build();
+    }
+
+    private static CompilationUnit.Output build(
+            CompilationUnit.Input input, Platform platform) throws IOException {
         Compiler compiler = new Compiler();
         compiler.setErrorManager(new ErrorManager(System.err));
-        OPTIONS.setDependencyOptions(
+        CompilerOptions options = compilerOptions();
+        options.setDependencyOptions(
                 new DependencyOptions()
                         .setDependencyPruning(true)
                         .setDependencySorting(true)
-                        .setEntryPoints(platform.closureEntryPoints)
+                        .setEntryPoints(ImmutableList.of(input.closureEntryPoint))
                         .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
         if (platform == Platform.HTML5) {
-            OPTIONS.setDefineToStringLiteral("r5js.platform.html5.Client.WORKER_SCRIPT", "TODO bl");
+            options.setDefineToStringLiteral("r5js.platform.html5.Client.WORKER_SCRIPT", "TODO bl");
         }
-        Result underlying = compiler.compile(getExterns(), getSourceFiles(platform), OPTIONS);
+        Result underlying = compiler.compile(getExterns(), getSourceFiles(platform), options);
         CompilationResult result = CompilationResult.fromUnderlying(underlying, compiler);
         if (!result.success) {
             throw new IllegalStateException();
         }
-        return result.compiled.getBytes();
+        return CompilationUnit.Output.from(input, result.compiled.getBytes());
     }
 
     private static ImmutableList<JSError> onlyRelevant(JSError[] errors) {

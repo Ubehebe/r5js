@@ -6,14 +6,18 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 enum Platform {
-    ANDROID(ImmutableList.of("r5js.test.main")),
-    HTML5(ImmutableList.of("r5js.test.main", "r5js.platform.html5.Worker")),
-    NODE( ImmutableList.of("r5js.test.main"));
+    ANDROID(
+            compilationUnit("r5js-android.js", "r5js.test.main")),
+    HTML5(
+            compilationUnit("r5js-html5.js", "r5js.test.main"),
+            compilationUnit("r5js-worker.js", "r5js.platform.html5.Worker")),
+    NODE(
+            compilationUnit("r5js-node.js", "r5js.test.main"));
 
-    final ImmutableList<String> closureEntryPoints;
+    final ImmutableList<CompilationUnit.Input> inputs;
 
-    Platform(ImmutableList<String> closureEntryPoints) {
-        this.closureEntryPoints = closureEntryPoints;
+    Platform(CompilationUnit.Input... inputs) {
+        this.inputs = ImmutableList.copyOf(inputs);
     }
 
     boolean relevant(Path path) {
@@ -31,7 +35,12 @@ enum Platform {
         return parent.endsWith("platform") || parent.endsWith(toString().toLowerCase());
     }
 
-    byte[] build() throws IOException {
+    ImmutableList<CompilationUnit.Output> build() throws IOException {
         return SchemeEngineBuilder.build(this);
+    }
+
+    private static CompilationUnit.Input compilationUnit(
+            String buildArtifactName, String closureEntryPoint) {
+        return new CompilationUnit.Input(buildArtifactName, closureEntryPoint);
     }
 }

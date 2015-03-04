@@ -1,5 +1,6 @@
 package r5js;
 
+import com.google.common.collect.ImmutableList;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -23,7 +24,7 @@ final class DevServer {
                     + "</html>\n")
             .getBytes();
 
-    private static byte[] compiledApp;
+    private static ImmutableList<CompilationUnit.Output> compiledApp;
 
     public static void main(String[] args) throws IOException {
         InetSocketAddress address = new InetSocketAddress(8080);
@@ -36,23 +37,19 @@ final class DevServer {
 
     private static void handle(HttpExchange exchange) throws IOException {
         try (OutputStream out = exchange.getResponseBody()) {
-            switch (exchange.getRequestURI().toString()) {
-                case "/":
+            for (CompilationUnit.Output output : getCompiledJs()) {
+                if (exchange.getRequestURI().toString().substring(1).equals(output.buildArtifactName)) {
                     exchange.sendResponseHeaders(200, 0);
-                    out.write(INDEX);
-                    break;
-                case "/test.js":
-                    exchange.sendResponseHeaders(200, 0);
-                    out.write(getCompiledJs());
-                    break;
-                default:
-                    exchange.sendResponseHeaders(404, -1);
-                    break;
+                    out.write(output.bytes);
+                    return;
+                }
             }
+            exchange.sendResponseHeaders(404, -1);
         }
     }
 
-    private static synchronized byte[] getCompiledJs() throws IOException {
+    private static synchronized ImmutableList<CompilationUnit.Output> getCompiledJs()
+            throws IOException {
         if (compiledApp == null) {
             compiledApp = Platform.HTML5.build();
         }
