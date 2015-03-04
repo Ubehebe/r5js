@@ -6,15 +6,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 enum Platform {
-    ANDROID("android", ImmutableList.of("r5js.test.main")),
-    HTML5("html5", ImmutableList.of("r5js.test.main", "r5js.platform.html5.Worker")),
-    NODE("node", ImmutableList.of("r5js.test.main"));
+    ANDROID(ImmutableList.of("r5js.test.main")),
+    HTML5(ImmutableList.of("r5js.test.main", "r5js.platform.html5.Worker")),
+    NODE( ImmutableList.of("r5js.test.main"));
 
-    final String closureDefineName;
     final ImmutableList<String> closureEntryPoints;
 
-    Platform(String closureDefineName, ImmutableList<String> closureEntryPoints) {
-        this.closureDefineName = closureDefineName;
+    Platform(ImmutableList<String> closureEntryPoints) {
         this.closureEntryPoints = closureEntryPoints;
     }
 
@@ -30,7 +28,7 @@ enum Platform {
         }
 
         Path parent = path.getParent();
-        return parent.endsWith("platform") || parent.endsWith(closureDefineName);
+        return parent.endsWith("platform") || parent.endsWith(toString().toLowerCase());
     }
 
     byte[] build() throws IOException {
