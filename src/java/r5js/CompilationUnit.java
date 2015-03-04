@@ -27,4 +27,11 @@ final class CompilationUnit {
             return new Output(input.buildArtifactName, bytes);
         }
     }
+
+
+    static final CompilationUnit.Input HTML5_CLIENT
+            = new Input("r5js-html5.js", "r5js.test.main");
+
+    static final CompilationUnit.Input HTML5_WORKER
+            = new Input("r5js-worker.js", "r5js.platform.html5.Worker");
 }

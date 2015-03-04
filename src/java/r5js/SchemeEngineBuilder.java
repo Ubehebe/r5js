@@ -79,8 +79,9 @@ final class SchemeEngineBuilder {
                         .setDependencySorting(true)
                         .setEntryPoints(ImmutableList.of(input.closureEntryPoint))
                         .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
-        if (platform == Platform.HTML5) {
-            options.setDefineToStringLiteral("r5js.platform.html5.Client.WORKER_SCRIPT", "TODO bl");
+        if (input == CompilationUnit.HTML5_CLIENT) {
+            options.setDefineToStringLiteral(
+                    "r5js.platform.html5.Client.WORKER_SCRIPT", input.buildArtifactName);
         }
         Result underlying = compiler.compile(getExterns(), getSourceFiles(platform), options);
         CompilationResult result = CompilationResult.fromUnderlying(underlying, compiler);

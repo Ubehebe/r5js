@@ -16,7 +16,9 @@ final class DevServer {
                     + "<html>\n"
                     + "<head>\n"
                     + "<title>r5js tests (compiled)</title>\n"
-                    + "<script src=\"test.js\"></script>\n"
+                    + "<script src=\""
+                    + CompilationUnit.HTML5_CLIENT.buildArtifactName
+                    +"\"></script>\n"
                     + "</head>\n"
                     + "<body>\n"
                     + "<button onclick=\"r5js.test.main()\">Run Tests</button>\n"
@@ -37,8 +39,14 @@ final class DevServer {
 
     private static void handle(HttpExchange exchange) throws IOException {
         try (OutputStream out = exchange.getResponseBody()) {
+            String url = exchange.getRequestURI().toString();
+            if ("/".equals(url)) {
+                exchange.sendResponseHeaders(200, 0);
+                out.write(INDEX);
+                return;
+            }
             for (CompilationUnit.Output output : getCompiledJs()) {
-                if (exchange.getRequestURI().toString().substring(1).equals(output.buildArtifactName)) {
+                if (url.substring(1).equals(output.buildArtifactName)) {
                     exchange.sendResponseHeaders(200, 0);
                     out.write(output.bytes);
                     return;
