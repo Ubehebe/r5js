@@ -68,6 +68,9 @@ final class SchemeEngineBuilder {
                         .setDependencySorting(true)
                         .setEntryPoints(platform.closureEntryPoints)
                         .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
+        if (platform == Platform.HTML5) {
+            OPTIONS.setDefineToStringLiteral("r5js.platform.html5.Client.WORKER_SCRIPT", "TODO bl");
+        }
         Result underlying = compiler.compile(getExterns(), getSourceFiles(platform), OPTIONS);
         CompilationResult result = CompilationResult.fromUnderlying(underlying, compiler);
         if (!result.success) {

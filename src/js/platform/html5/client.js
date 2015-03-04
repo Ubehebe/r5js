@@ -25,14 +25,14 @@ goog.require('r5js.platform.html5.MessageType');
 
 
 /**
- * @param {string} scriptName
  * @param {!r5js.OutputPort} outputPort
  * @implements {r5js.Evaluator}
  * @struct
  * @constructor
  */
-r5js.platform.html5.Client = function(scriptName, outputPort) {
-  /** @const @private */ this.worker_ = new Worker(scriptName);
+r5js.platform.html5.Client = function(outputPort) {
+  /** @const @private */ this.worker_ =
+      new Worker(r5js.platform.html5.Client.WORKER_SCRIPT);
 
   /** @const @private */ this.outputPort_ = outputPort;
 
@@ -44,6 +44,10 @@ r5js.platform.html5.Client = function(scriptName, outputPort) {
   /** @const @private {!Array<!goog.promise.Resolver<?>>} */
   this.resolvers_ = [];
 };
+
+
+/** @define {string} Location of the worker script. */
+goog.define('r5js.platform.html5.Client.WORKER_SCRIPT', '');
 
 
 /** @override */
