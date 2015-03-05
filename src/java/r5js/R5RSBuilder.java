@@ -1,15 +1,11 @@
 package r5js;
 
 import com.google.common.collect.ImmutableList;
-import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.Compiler;
-import com.google.javascript.jscomp.JSError;
-import com.google.javascript.jscomp.PrintStreamErrorManager;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -18,11 +14,9 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -57,17 +51,6 @@ final class R5RSBuilder {
             throw new IllegalStateException();
         }
         return CompilationUnit.Output.from(input, result.compiled.getBytes());
-    }
-
-    private static ImmutableList<JSError> onlyRelevant(JSError[] errors) {
-        return ImmutableList.copyOf(
-                Arrays.stream(errors)
-                        .filter(R5RSBuilder::isRelevant)
-                        .collect(Collectors.toList()));
-    }
-
-    private static boolean isRelevant(JSError error) {
-        return error.sourceName != null && error.sourceName.startsWith("src/js");
     }
 
     private static List<SourceFile> getExterns(CompilationUnit input) throws IOException {
@@ -113,54 +96,5 @@ final class R5RSBuilder {
                 return FileVisitResult.CONTINUE;
             }
         });
-    }
-
-    private static class ErrorManager extends PrintStreamErrorManager {
-        public ErrorManager(PrintStream stream) {
-            super(stream);
-        }
-
-        @Override
-        public void println(CheckLevel level, JSError error) {
-            if (isRelevant(error)) {
-                super.println(level, error);
-            }
-        }
-
-        @Override
-        public void report(CheckLevel level, JSError error) {
-            if (isRelevant(error)) {
-                super.report(level, error);
-            }
-        }
-    }
-
-    public static class CompilationResult {
-        public final boolean success;
-        public final String compiled;
-        public final ImmutableList<JSError> errors;
-        public final ImmutableList<JSError> warnings;
-
-        CompilationResult(
-                boolean success,
-                String compiled,
-                ImmutableList<JSError> errors,
-                ImmutableList<JSError> warnings) {
-            this.success = success;
-            this.compiled = compiled;
-            this.errors = errors;
-            this.warnings = warnings;
-        }
-
-        static CompilationResult fromUnderlying(Result underlying, Compiler compiler) {
-            ImmutableList<JSError> errors = onlyRelevant(underlying.errors);
-            ImmutableList<JSError> warnings = onlyRelevant(underlying.warnings);
-            boolean success = errors.isEmpty() && warnings.isEmpty();
-            return new CompilationResult(
-                    success,
-                    success ? compiler.toSource() : null,
-                    errors,
-                    warnings);
-        }
     }
 }
