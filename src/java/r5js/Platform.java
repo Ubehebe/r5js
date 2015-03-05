@@ -5,16 +5,30 @@ import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.file.Path;
 
-enum Platform {
+import static r5js.CompilationUnit.HTML5_CLIENT;
+import static r5js.CompilationUnit.HTML5_WORKER;
 
-    ANDROID(compilationUnit("r5js-android.js", "r5js.test.main")),
-    HTML5(CompilationUnit.HTML5_CLIENT, CompilationUnit.HTML5_WORKER),
-    NODE(compilationUnit("r5js-node.js", "r5js.test.main"));
+final class Platform {
 
+    static final Platform ANDROID = new Builder("android")
+            .compilationUnit("r5js-android.js", "r5js.test.main")
+            .build();
+
+    static final Platform HTML5 = new Builder("html5")
+            .compilationUnit(HTML5_CLIENT)
+            .compilationUnit(HTML5_WORKER)
+            .build();
+
+    static final Platform NODE = new Builder("node")
+            .compilationUnit("r5js-node.js", "r5js.test.main")
+            .build();
+
+    final String name;
     final ImmutableList<CompilationUnit.Input> inputs;
 
-    Platform(CompilationUnit.Input... inputs) {
-        this.inputs = ImmutableList.copyOf(inputs);
+    Platform(String name, ImmutableList<CompilationUnit.Input> inputs) {
+        this.name = name;
+        this.inputs = inputs;
     }
 
     boolean relevant(Path path) {
@@ -29,15 +43,33 @@ enum Platform {
         }
 
         Path parent = path.getParent();
-        return parent.endsWith("platform") || parent.endsWith(toString().toLowerCase());
+        return parent.endsWith("platform") || parent.endsWith(name);
     }
 
     ImmutableList<CompilationUnit.Output> build() throws IOException {
         return R5RSBuilder.build(this);
     }
 
-    private static CompilationUnit.Input compilationUnit(
-            String buildArtifactName, String closureEntryPoint) {
-        return new CompilationUnit.Input(buildArtifactName, closureEntryPoint);
+    private static final class Builder {
+        final ImmutableList.Builder<CompilationUnit.Input> inputs = new ImmutableList.Builder<>();
+        final String name;
+
+        Builder(String name) {
+            this.name = name;
+        }
+
+        Builder compilationUnit(String buildArtifactName, String closureEntryPoint) {
+            inputs.add(new CompilationUnit.Input(buildArtifactName, closureEntryPoint));
+            return this;
+        }
+
+        Builder compilationUnit(CompilationUnit.Input input) {
+            inputs.add(input);
+            return this;
+        }
+
+        Platform build() {
+            return new Platform(name, inputs.build());
+        }
     }
 }
