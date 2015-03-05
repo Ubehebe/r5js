@@ -92,7 +92,7 @@ final class R5RSBuilder {
                     "r5js.platform.html5.Client.WORKER_SCRIPT",
                     CompilationUnit.HTML5_WORKER.buildArtifactName);
         }
-        Result underlying = compiler.compile(getExterns(), getSourceFiles(platform), options);
+        Result underlying = compiler.compile(getExterns(input), getSourceFiles(platform), options);
         CompilationResult result = CompilationResult.fromUnderlying(underlying, compiler);
         if (!result.success) {
             throw new IllegalStateException();
@@ -111,13 +111,10 @@ final class R5RSBuilder {
         return error.sourceName != null && error.sourceName.startsWith("src/js");
     }
 
-    private static List<SourceFile> getExterns() throws IOException {
+    private static List<SourceFile> getExterns(CompilationUnit.Input input) throws IOException {
         List<SourceFile> externs = new ArrayList<>();
         addExternsFromZip(externs);
-        ImmutableList.of(
-                "externs/process.js",
-                "custom-externs/android.js")
-                .stream()
+        input.externs.stream()
                 .map(SourceFile::fromFile)
                 .forEach(externs::add);
         return externs;
@@ -133,8 +130,6 @@ final class R5RSBuilder {
                 .endsWith(".js"));
         return sourceFiles;
     }
-
-
 
     private static void addExternsFromZip(List<SourceFile> sourceFiles) throws IOException {
         try (ZipFile zip = new ZipFile("target/dependency/externs.zip")) {

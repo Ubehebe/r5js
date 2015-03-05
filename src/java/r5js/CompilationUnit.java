@@ -1,5 +1,7 @@
 package r5js;
 
+import com.google.common.collect.ImmutableList;
+
 final class CompilationUnit {
 
     private CompilationUnit() {}
@@ -7,10 +9,14 @@ final class CompilationUnit {
     static final class Input {
         final String buildArtifactName;
         final String closureEntryPoint;
+        final ImmutableList<String> externs;
 
-        Input(String buildArtifactName, String closureEntryPoint) {
+        Input(String buildArtifactName, String closureEntryPoint, String... externs) {
             this.buildArtifactName = buildArtifactName;
             this.closureEntryPoint = closureEntryPoint;
+            this.externs = externs == null
+                    ? ImmutableList.of()
+                    : ImmutableList.copyOf(externs);
         }
     }
 
