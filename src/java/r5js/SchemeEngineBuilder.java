@@ -79,9 +79,12 @@ final class SchemeEngineBuilder {
                         .setDependencySorting(true)
                         .setEntryPoints(ImmutableList.of(input.closureEntryPoint))
                         .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
+        // The HTML5 client compilation unit requires a reference to the URL of the worker
+        // compilation unit to start the Web Worker.
         if (input == CompilationUnit.HTML5_CLIENT) {
             options.setDefineToStringLiteral(
-                    "r5js.platform.html5.Client.WORKER_SCRIPT", input.buildArtifactName);
+                    "r5js.platform.html5.Client.WORKER_SCRIPT",
+                    CompilationUnit.HTML5_WORKER.buildArtifactName);
         }
         Result underlying = compiler.compile(getExterns(), getSourceFiles(platform), options);
         CompilationResult result = CompilationResult.fromUnderlying(underlying, compiler);
