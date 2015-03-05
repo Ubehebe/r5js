@@ -5,34 +5,12 @@ import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static r5js.CompilationUnit.HTML5_CLIENT;
-import static r5js.CompilationUnit.HTML5_WORKER;
-
 final class Platform {
-
-    static final Platform ANDROID = new Builder("android")
-            .compilationUnit(
-                    new CompilationUnit.Builder("r5js-android.js", "r5js.test.main")
-                            .extern("custom-externs/android.js")
-                            .build())
-            .build();
-
-    static final Platform HTML5 = new Builder("html5")
-            .compilationUnit(HTML5_CLIENT)
-            .compilationUnit(HTML5_WORKER)
-            .build();
-
-    static final Platform NODE = new Builder("node")
-            .compilationUnit(
-                    new CompilationUnit.Builder("r5js-node.js", "r5js.test.main")
-                            .extern("externs/process.js")
-                            .build())
-            .build();
 
     final String name;
     final ImmutableList<CompilationUnit> inputs;
 
-    Platform(String name, ImmutableList<CompilationUnit> inputs) {
+    private Platform(String name, ImmutableList<CompilationUnit> inputs) {
         this.name = name;
         this.inputs = inputs;
     }
@@ -56,7 +34,7 @@ final class Platform {
         return R5RSBuilder.build(this);
     }
 
-    private static final class Builder {
+    static final class Builder {
         final ImmutableList.Builder<CompilationUnit> inputs = new ImmutableList.Builder<>();
         final String name;
 

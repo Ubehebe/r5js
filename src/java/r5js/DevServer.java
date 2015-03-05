@@ -59,7 +59,7 @@ final class DevServer {
     private static synchronized ImmutableList<CompilationUnit.Output> getCompiledJs()
             throws IOException {
         if (compiledApp == null) {
-            compiledApp = Platform.HTML5.build();
+            compiledApp = Platforms.HTML5.build();
         }
         return compiledApp;
     }
