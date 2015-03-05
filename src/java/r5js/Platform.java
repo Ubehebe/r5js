@@ -11,7 +11,10 @@ import static r5js.CompilationUnit.HTML5_WORKER;
 final class Platform {
 
     static final Platform ANDROID = new Builder("android")
-            .compilationUnit("r5js-android.js", "r5js.test.main", "custom-externs/android.js")
+            .compilationUnit(
+                    new CompilationUnit.Input.Builder("r5js-android.js", "r5js.test.main")
+                            .extern("custom-externs/android.js")
+                            .build())
             .build();
 
     static final Platform HTML5 = new Builder("html5")
@@ -20,7 +23,10 @@ final class Platform {
             .build();
 
     static final Platform NODE = new Builder("node")
-            .compilationUnit("r5js-node.js", "r5js.test.main", "externs/process.js")
+            .compilationUnit(
+                    new CompilationUnit.Input.Builder("r5js-node.js", "r5js.test.main")
+                            .extern("externs/process.js")
+                            .build())
             .build();
 
     final String name;
@@ -56,11 +62,6 @@ final class Platform {
 
         Builder(String name) {
             this.name = name;
-        }
-
-        Builder compilationUnit(String buildArtifactName, String closureEntryPoint, String... externs) {
-            inputs.add(new CompilationUnit.Input(buildArtifactName, closureEntryPoint, externs));
-            return this;
         }
 
         Builder compilationUnit(CompilationUnit.Input input) {

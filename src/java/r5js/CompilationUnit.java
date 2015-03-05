@@ -11,12 +11,30 @@ final class CompilationUnit {
         final String closureEntryPoint;
         final ImmutableList<String> externs;
 
-        Input(String buildArtifactName, String closureEntryPoint, String... externs) {
+        private Input(String buildArtifactName, String closureEntryPoint, ImmutableList<String> externs) {
             this.buildArtifactName = buildArtifactName;
             this.closureEntryPoint = closureEntryPoint;
-            this.externs = externs == null
-                    ? ImmutableList.of()
-                    : ImmutableList.copyOf(externs);
+            this.externs = externs;
+        }
+
+        static final class Builder {
+            private final String buildArtifactName;
+            private final String closureEntryPoint;
+            private final ImmutableList.Builder<String> externs = new ImmutableList.Builder<>();
+
+            Builder(String buildArtifactName, String closureEntryPoint) {
+                this.buildArtifactName = buildArtifactName;
+                this.closureEntryPoint = closureEntryPoint;
+            }
+
+            Builder extern(String extern) {
+                externs.add(extern);
+                return this;
+            }
+
+            Input build() {
+                return new Input(buildArtifactName, closureEntryPoint, externs.build());
+            }
         }
     }
 
@@ -34,10 +52,9 @@ final class CompilationUnit {
         }
     }
 
-
     static final CompilationUnit.Input HTML5_CLIENT
-            = new Input("r5js-html5.js", "r5js.test.main");
+            = new Input.Builder("r5js-html5.js", "r5js.test.main").build();
 
     static final CompilationUnit.Input HTML5_WORKER
-            = new Input("r5js-worker.js", "r5js.platform.html5.Worker");
+            = new Input.Builder("r5js-worker.js", "r5js.platform.html5.Worker").build();
 }
