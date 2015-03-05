@@ -10,8 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 enum SchemeSource {
-    SYNTAX("src/scm/r5rs-syntax.scm", "SYNTAX"),
-    PROCEDURES("src/scm/r5rs-procedures.scm", "PROCEDURES");
+    SYNTAX("src/scm/r5rs-syntax.scm"),
+    PROCEDURES("src/scm/r5rs-procedures.scm");
 
     private static final Escaper ESCAPER = Escapers.builder()
             .addEscape('"', "\\\"")
@@ -19,17 +19,15 @@ enum SchemeSource {
             .build();
 
     private final String filename;
-    private final String googProvidedName;
 
-    SchemeSource(String filename, String googProvidedName) {
+    SchemeSource(String filename) {
         this.filename = filename;
-        this.googProvidedName = googProvidedName;
     }
 
     private String format(String contents) {
         String escaped = ESCAPER.escape(contents);
         return String.format("goog.provide('%s');%n/** @const */var %s = \"%s\";%n",
-                googProvidedName, googProvidedName, escaped);
+                name(), name(), escaped);
     }
 
     SourceFile bundle() throws IOException {
