@@ -17,7 +17,7 @@ final class DevServer {
                     + "<head>\n"
                     + "<title>r5js tests (compiled)</title>\n"
                     + "<script src=\""
-                    + CompilationUnit.HTML5_CLIENT.buildArtifactName
+                    + CompilationUnit.HTML5_CLIENT.getBuildArtifactName()
                     +"\"></script>\n"
                     + "</head>\n"
                     + "<body>\n"

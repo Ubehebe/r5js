@@ -13,6 +13,41 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
 
 final class CompilationUnit {
 
+    private final String buildArtifactName;
+    private final String closureEntryPoint;
+    private final ImmutableList<String> externs;
+    private final UnaryOperator<CompilerOptions> customCompilerOptions;
+
+    private CompilationUnit(
+            String buildArtifactName,
+            String closureEntryPoint,
+            ImmutableList<String> externs,
+            UnaryOperator<CompilerOptions> customCompilerOptions) {
+        this.buildArtifactName = buildArtifactName;
+        this.closureEntryPoint = closureEntryPoint;
+        this.externs = externs;
+        this.customCompilerOptions = customCompilerOptions;
+    }
+
+    String getBuildArtifactName() {
+        return buildArtifactName;
+    }
+
+    ImmutableList<String> getExterns() {
+        return externs;
+    }
+
+    CompilerOptions getCompilerOptions() {
+        CompilerOptions options = defaultCompilerOptions();
+        options.setDependencyOptions(
+                new DependencyOptions()
+                        .setDependencyPruning(true)
+                        .setDependencySorting(true)
+                        .setEntryPoints(ImmutableList.of(closureEntryPoint))
+                        .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
+        return customCompilerOptions.apply(options);
+    }
+
     private static CompilerOptions defaultCompilerOptions() {
         CompilerOptions options = new CompilerOptions();
         options.setAggressiveVarCheck(ERROR);
@@ -34,33 +69,6 @@ final class CompilationUnit {
         options.setInferTypes(true);
         CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
         return options;
-    }
-
-    final String buildArtifactName;
-    final String closureEntryPoint;
-    final ImmutableList<String> externs;
-    final UnaryOperator<CompilerOptions> customCompilerOptions;
-
-    private CompilationUnit(
-            String buildArtifactName,
-            String closureEntryPoint,
-            ImmutableList<String> externs,
-            UnaryOperator<CompilerOptions> customCompilerOptions) {
-        this.buildArtifactName = buildArtifactName;
-        this.closureEntryPoint = closureEntryPoint;
-        this.externs = externs;
-        this.customCompilerOptions = customCompilerOptions;
-    }
-
-    CompilerOptions getCompilerOptions() {
-        CompilerOptions options = defaultCompilerOptions();
-        options.setDependencyOptions(
-                new DependencyOptions()
-                        .setDependencyPruning(true)
-                        .setDependencySorting(true)
-                        .setEntryPoints(ImmutableList.of(closureEntryPoint))
-                        .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
-        return customCompilerOptions.apply(options);
     }
 
     static final class Builder {

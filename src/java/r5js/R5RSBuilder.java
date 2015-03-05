@@ -73,7 +73,7 @@ final class R5RSBuilder {
     private static List<SourceFile> getExterns(CompilationUnit input) throws IOException {
         List<SourceFile> externs = new ArrayList<>();
         addDefaultCompilerExterns(externs);
-        input.externs.stream()
+        input.getExterns().stream()
                 .map(SourceFile::fromFile)
                 .forEach(externs::add);
         return externs;
