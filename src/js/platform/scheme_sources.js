@@ -33,10 +33,7 @@ r5js.SchemeSources = function(syntax, procedures) {
 };
 
 
-/**
- * @param {function(string):!goog.Promise<string>} urlFetcher
- * @return {!goog.Promise<!r5js.SchemeSources>}
- */
-r5js.SchemeSources.get = function(urlFetcher) {
+/** @return {!goog.Promise<!r5js.SchemeSources>} */
+r5js.SchemeSources.get = function() {
   return goog.Promise.resolve(new r5js.SchemeSources(SYNTAX, PROCEDURES));
 };

@@ -49,11 +49,8 @@ r5js.test.SchemeSources = function(
 };
 
 
-/**
- * @param {function(string):!goog.Promise<string>} urlFetcher
- * @return {!goog.Promise<!r5js.test.SchemeSources>}
- */
-r5js.test.SchemeSources.get = function(urlFetcher) {
+/** @return {!goog.Promise<!r5js.test.SchemeSources>} */
+r5js.test.SchemeSources.get = function() {
   return goog.Promise.resolve(
       new r5js.test.SchemeSources(
       TEST_FRAMEWORK,

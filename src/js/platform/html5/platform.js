@@ -17,7 +17,6 @@ goog.provide('r5js.curPlatform');
 
 
 goog.require('goog.Promise');
-goog.require('goog.labs.net.xhr');
 goog.require('r5js.OutputPort');
 goog.require('r5js.Platform');
 // TODO bl not needed by this file. Workaround for circular dep elsewhere.
@@ -56,13 +55,13 @@ r5js.platform.Html5_.prototype.newEvaluator =
 
 /** @override */
 r5js.platform.Html5_.prototype.getSources = function() {
-  return r5js.SchemeSources.get(goog.labs.net.xhr.get);
+  return r5js.SchemeSources.get();
 };
 
 
 /** @override */
 r5js.platform.Html5_.prototype.getTestSources = function() {
-  return r5js.test.SchemeSources.get(goog.labs.net.xhr.get);
+  return r5js.test.SchemeSources.get();
 };
 
 

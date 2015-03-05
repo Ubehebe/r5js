@@ -48,28 +48,6 @@ goog.require('r5js.test.SchemeSources');
 r5js.platform.Node_ = function() {};
 
 
-/**
- * @param {string} url
- * @return {!goog.Promise<string>}
- * @private
- */
-r5js.platform.Node_.fetchUrl_ = function(url) {
-  return new goog.Promise(function(resolve, reject) {
-    // TODO bl: move this declaration to the top of this file, instead of
-    // repeating it in each method that needs it. This will require changing
-    // the build process to omit files not needed by a particular target.
-    var fs = require('fs');
-    fs.readFile('.' + url, function(err, data) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data.toString());
-      }
-    });
-  });
-};
-
-
 /** @override */
 r5js.platform.Node_.prototype.exit = function(statusCode) {
   process.exit(statusCode);
@@ -94,13 +72,13 @@ r5js.platform.Node_.prototype.newEvaluator =
 
 /** @override */
 r5js.platform.Node_.prototype.getSources = function() {
-  return r5js.SchemeSources.get(r5js.platform.Node_.fetchUrl_);
+  return r5js.SchemeSources.get();
 };
 
 
 /** @override */
 r5js.platform.Node_.prototype.getTestSources = function() {
-  return r5js.test.SchemeSources.get(r5js.platform.Node_.fetchUrl_);
+  return r5js.test.SchemeSources.get();
 };
 
 
