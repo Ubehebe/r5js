@@ -15,6 +15,8 @@
 
 goog.provide('r5js.SchemeSources');
 
+goog.require('PROCEDURES');
+goog.require('SYNTAX');
 goog.require('goog.Promise');
 
 
@@ -31,32 +33,10 @@ r5js.SchemeSources = function(syntax, procedures) {
 };
 
 
-/** @private {goog.Promise<!r5js.SchemeSources>} */
-r5js.SchemeSources.sources_ = null;
-
-
 /**
  * @param {function(string):!goog.Promise<string>} urlFetcher
  * @return {!goog.Promise<!r5js.SchemeSources>}
  */
 r5js.SchemeSources.get = function(urlFetcher) {
-  if (!r5js.SchemeSources.sources_) {
-    r5js.SchemeSources.sources_ = goog.Promise.all([
-      r5js.SchemeSources.urls_.SYNTAX,
-      r5js.SchemeSources.urls_.PROCEDURES
-    ].map(urlFetcher)).then(function(sources) {
-      return new r5js.SchemeSources(sources[0], sources[1]);
-    });
-  }
-  return r5js.SchemeSources.sources_;
-};
-
-
-/**
- * @enum {string}
- * @private
- */
-r5js.SchemeSources.urls_ = {
-  SYNTAX: '/src/scm/r5rs-syntax.scm',
-  PROCEDURES: '/src/scm/r5rs-procedures.scm'
+  return goog.Promise.resolve(new r5js.SchemeSources(SYNTAX, PROCEDURES));
 };

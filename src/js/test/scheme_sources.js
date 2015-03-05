@@ -17,6 +17,11 @@ goog.provide('r5js.test.SchemeSources');
 goog.setTestOnly('r5js.test.SchemeSources');
 
 
+goog.require('NEGATIVE_TESTS');
+goog.require('OTHER_TESTS');
+goog.require('R5RS_TESTS');
+goog.require('TEST_FRAMEWORK');
+goog.require('TEST_FRAMEWORK_TESTS');
 goog.require('goog.Promise');
 
 
@@ -44,50 +49,16 @@ r5js.test.SchemeSources = function(
 };
 
 
-/** @private {r5js.test.SchemeSources} */
-r5js.test.SchemeSources.sources_ = null;
-
-
 /**
  * @param {function(string):!goog.Promise<string>} urlFetcher
  * @return {!goog.Promise<!r5js.test.SchemeSources>}
  */
 r5js.test.SchemeSources.get = function(urlFetcher) {
-  if (r5js.test.SchemeSources.sources_) {
-    return goog.Promise.resolve(r5js.test.SchemeSources.sources_);
-  } else {
-    return goog.Promise.all([
-      r5js.test.SchemeSources.urls_.TEST_FRAMEWORK,
-      r5js.test.SchemeSources.urls_.TEST_FRAMEWORK_TESTS,
-      r5js.test.SchemeSources.urls_.R5RS_TESTS,
-      r5js.test.SchemeSources.urls_.NEGATIVE_TESTS,
-      r5js.test.SchemeSources.urls_.OTHER_TESTS
-    ].map(function(url) {
-      return urlFetcher(url);
-    })).then(function(sources) {
-      if (!r5js.test.SchemeSources.sources_) {
-        r5js.test.SchemeSources.sources_ = new r5js.test.SchemeSources(
-            sources[0],
-            sources[1],
-            sources[2],
-            sources[3],
-            sources[4]);
-      }
-      return r5js.test.SchemeSources.sources_;
-    });
-  }
+  return goog.Promise.resolve(
+      new r5js.test.SchemeSources(
+      TEST_FRAMEWORK,
+      TEST_FRAMEWORK_TESTS,
+      R5RS_TESTS,
+      NEGATIVE_TESTS,
+      OTHER_TESTS));
 };
-
-
-/**
- * @enum {string}
- * @private
- */
-r5js.test.SchemeSources.urls_ = {
-  TEST_FRAMEWORK: '/src/scm/unit-test.scm',
-  TEST_FRAMEWORK_TESTS: '/src/scm/unit-test-tests.scm',
-  R5RS_TESTS: '/src/scm/r5rs-tests.scm',
-  NEGATIVE_TESTS: '/src/scm/negative-tests.scm',
-  OTHER_TESTS: '/src/scm/other-tests.scm'
-};
-
