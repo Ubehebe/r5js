@@ -1,13 +1,8 @@
 package r5js;
 
 import com.google.common.collect.ImmutableList;
-import com.google.javascript.jscomp.CheckEventfulObjectDisposal;
 import com.google.javascript.jscomp.CheckLevel;
-import com.google.javascript.jscomp.ClosureCodingConvention;
-import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
-import com.google.javascript.jscomp.CompilerOptions;
-import com.google.javascript.jscomp.DependencyOptions;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.PrintStreamErrorManager;
 import com.google.javascript.jscomp.Result;
@@ -31,8 +26,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static com.google.javascript.jscomp.CheckLevel.ERROR;
-
 
 /**
  * Builds the project. This includes locating the sources, dependencies, and externs,
@@ -40,29 +33,6 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
  * blob, and reporting errors.
  */
 final class R5RSBuilder {
-
-    private static CompilerOptions compilerOptions() {
-        CompilerOptions options = new CompilerOptions();
-        options.setAggressiveVarCheck(ERROR);
-        options.setBrokenClosureRequiresLevel(ERROR);
-        options.setCheckEventfulObjectDisposalPolicy(
-                CheckEventfulObjectDisposal.DisposalCheckingPolicy.AGGRESSIVE);
-        options.setCheckGlobalNamesLevel(ERROR);
-        options.setCheckGlobalThisLevel(ERROR);
-        options.setCheckProvides(ERROR);
-        options.setCheckRequires(ERROR);
-        options.setCheckSuspiciousCode(true);
-        options.setCheckSymbols(true);
-        options.setCheckTypes(true);
-        options.setCodingConvention(new ClosureCodingConvention());
-        options.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT6_STRICT);
-        options.setLanguageOut(CompilerOptions.LanguageMode.ECMASCRIPT5_STRICT);
-        options.setReportMissingOverride(ERROR);
-        options.setInferConst(true);
-        options.setInferTypes(true);
-        CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
-        return options;
-    }
 
     private R5RSBuilder() {}
 
@@ -78,21 +48,10 @@ final class R5RSBuilder {
             CompilationUnit.Input input, Platform platform) throws IOException {
         Compiler compiler = new Compiler();
         compiler.setErrorManager(new ErrorManager(System.err));
-        CompilerOptions options = compilerOptions();
-        options.setDependencyOptions(
-                new DependencyOptions()
-                        .setDependencyPruning(true)
-                        .setDependencySorting(true)
-                        .setEntryPoints(ImmutableList.of(input.closureEntryPoint))
-                        .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
-        // The HTML5 client compilation unit requires a reference to the URL of the worker
-        // compilation unit to start the Web Worker.
-        if (input == CompilationUnit.HTML5_CLIENT) {
-            options.setDefineToStringLiteral(
-                    "r5js.platform.html5.Client.WORKER_SCRIPT",
-                    CompilationUnit.HTML5_WORKER.buildArtifactName);
-        }
-        Result underlying = compiler.compile(getExterns(input), getSourceFiles(platform), options);
+        Result underlying = compiler.compile(
+                getExterns(input),
+                getSourceFiles(platform),
+                input.getCompilerOptions());
         CompilationResult result = CompilationResult.fromUnderlying(underlying, compiler);
         if (!result.success) {
             throw new IllegalStateException();
@@ -113,7 +72,7 @@ final class R5RSBuilder {
 
     private static List<SourceFile> getExterns(CompilationUnit.Input input) throws IOException {
         List<SourceFile> externs = new ArrayList<>();
-        addExternsFromZip(externs);
+        addDefaultCompilerExterns(externs);
         input.externs.stream()
                 .map(SourceFile::fromFile)
                 .forEach(externs::add);
@@ -131,7 +90,7 @@ final class R5RSBuilder {
         return sourceFiles;
     }
 
-    private static void addExternsFromZip(List<SourceFile> sourceFiles) throws IOException {
+    private static void addDefaultCompilerExterns(List<SourceFile> sourceFiles) throws IOException {
         try (ZipFile zip = new ZipFile("target/dependency/externs.zip")) {
             Enumeration<? extends ZipEntry> entries = zip.entries();
             while (entries.hasMoreElements()) {
