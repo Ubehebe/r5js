@@ -33,7 +33,13 @@ import java.util.zip.ZipFile;
 
 import static com.google.javascript.jscomp.CheckLevel.ERROR;
 
-final class SchemeEngineBuilder {
+
+/**
+ * Builds the project. This includes locating the sources, dependencies, and externs,
+ * compiling the JavaScript sources, bundling the Scheme sources into the JavaScript
+ * blob, and reporting errors.
+ */
+final class R5RSBuilder {
 
     private static CompilerOptions compilerOptions() {
         CompilerOptions options = new CompilerOptions();
@@ -58,7 +64,7 @@ final class SchemeEngineBuilder {
         return options;
     }
 
-    private SchemeEngineBuilder() {}
+    private R5RSBuilder() {}
 
     static ImmutableList<CompilationUnit.Output> build(Platform platform) throws IOException {
         ImmutableList.Builder<CompilationUnit.Output> outputs = new ImmutableList.Builder<>();
@@ -97,7 +103,7 @@ final class SchemeEngineBuilder {
     private static ImmutableList<JSError> onlyRelevant(JSError[] errors) {
         return ImmutableList.copyOf(
                 Arrays.stream(errors)
-                        .filter(SchemeEngineBuilder::isRelevant)
+                        .filter(R5RSBuilder::isRelevant)
                         .collect(Collectors.toList()));
     }
 
