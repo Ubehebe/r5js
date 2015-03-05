@@ -115,13 +115,7 @@ final class R5RSBuilder {
         List<SourceFile> externs = new ArrayList<>();
         addExternsFromZip(externs);
         ImmutableList.of(
-                "externs/buffer.js",
-                "externs/core.js",
-                "externs/events.js",
-                "externs/fs.js",
                 "externs/process.js",
-                "externs/readline.js",
-                "externs/stream.js",
                 "custom-externs/android.js")
                 .stream()
                 .map(SourceFile::fromFile)
