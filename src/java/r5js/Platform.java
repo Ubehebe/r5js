@@ -12,7 +12,7 @@ final class Platform {
 
     static final Platform ANDROID = new Builder("android")
             .compilationUnit(
-                    new CompilationUnit.Input.Builder("r5js-android.js", "r5js.test.main")
+                    new CompilationUnit.Builder("r5js-android.js", "r5js.test.main")
                             .extern("custom-externs/android.js")
                             .build())
             .build();
@@ -24,15 +24,15 @@ final class Platform {
 
     static final Platform NODE = new Builder("node")
             .compilationUnit(
-                    new CompilationUnit.Input.Builder("r5js-node.js", "r5js.test.main")
+                    new CompilationUnit.Builder("r5js-node.js", "r5js.test.main")
                             .extern("externs/process.js")
                             .build())
             .build();
 
     final String name;
-    final ImmutableList<CompilationUnit.Input> inputs;
+    final ImmutableList<CompilationUnit> inputs;
 
-    Platform(String name, ImmutableList<CompilationUnit.Input> inputs) {
+    Platform(String name, ImmutableList<CompilationUnit> inputs) {
         this.name = name;
         this.inputs = inputs;
     }
@@ -57,14 +57,14 @@ final class Platform {
     }
 
     private static final class Builder {
-        final ImmutableList.Builder<CompilationUnit.Input> inputs = new ImmutableList.Builder<>();
+        final ImmutableList.Builder<CompilationUnit> inputs = new ImmutableList.Builder<>();
         final String name;
 
         Builder(String name) {
             this.name = name;
         }
 
-        Builder compilationUnit(CompilationUnit.Input input) {
+        Builder compilationUnit(CompilationUnit input) {
             inputs.add(input);
             return this;
         }

@@ -38,14 +38,14 @@ final class R5RSBuilder {
 
     static ImmutableList<CompilationUnit.Output> build(Platform platform) throws IOException {
         ImmutableList.Builder<CompilationUnit.Output> outputs = new ImmutableList.Builder<>();
-        for (CompilationUnit.Input input : platform.inputs) {
+        for (CompilationUnit input : platform.inputs) {
             outputs.add(build(input, platform));
         }
         return outputs.build();
     }
 
     private static CompilationUnit.Output build(
-            CompilationUnit.Input input, Platform platform) throws IOException {
+            CompilationUnit input, Platform platform) throws IOException {
         Compiler compiler = new Compiler();
         compiler.setErrorManager(new ErrorManager(System.err));
         Result underlying = compiler.compile(
@@ -70,7 +70,7 @@ final class R5RSBuilder {
         return error.sourceName != null && error.sourceName.startsWith("src/js");
     }
 
-    private static List<SourceFile> getExterns(CompilationUnit.Input input) throws IOException {
+    private static List<SourceFile> getExterns(CompilationUnit input) throws IOException {
         List<SourceFile> externs = new ArrayList<>();
         addDefaultCompilerExterns(externs);
         input.externs.stream()

@@ -13,8 +13,6 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
 
 final class CompilationUnit {
 
-    private CompilationUnit() {}
-
     private static CompilerOptions defaultCompilerOptions() {
         CompilerOptions options = new CompilerOptions();
         options.setAggressiveVarCheck(ERROR);
@@ -38,62 +36,60 @@ final class CompilationUnit {
         return options;
     }
 
-    static final class Input {
-        final String buildArtifactName;
-        final String closureEntryPoint;
-        final ImmutableList<String> externs;
-        final UnaryOperator<CompilerOptions> customCompilerOptions;
+    final String buildArtifactName;
+    final String closureEntryPoint;
+    final ImmutableList<String> externs;
+    final UnaryOperator<CompilerOptions> customCompilerOptions;
 
-        private Input(
-                String buildArtifactName,
-                String closureEntryPoint,
-                ImmutableList<String> externs,
-                UnaryOperator<CompilerOptions> customCompilerOptions) {
+    private CompilationUnit(
+            String buildArtifactName,
+            String closureEntryPoint,
+            ImmutableList<String> externs,
+            UnaryOperator<CompilerOptions> customCompilerOptions) {
+        this.buildArtifactName = buildArtifactName;
+        this.closureEntryPoint = closureEntryPoint;
+        this.externs = externs;
+        this.customCompilerOptions = customCompilerOptions;
+    }
+
+    CompilerOptions getCompilerOptions() {
+        CompilerOptions options = defaultCompilerOptions();
+        options.setDependencyOptions(
+                new DependencyOptions()
+                        .setDependencyPruning(true)
+                        .setDependencySorting(true)
+                        .setEntryPoints(ImmutableList.of(closureEntryPoint))
+                        .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
+        return customCompilerOptions.apply(options);
+    }
+
+    static final class Builder {
+        private final String buildArtifactName;
+        private final String closureEntryPoint;
+        private final ImmutableList.Builder<String> externs = new ImmutableList.Builder<>();
+        private UnaryOperator<CompilerOptions> customCompilerOptions = UnaryOperator.identity();
+
+        Builder(String buildArtifactName, String closureEntryPoint) {
             this.buildArtifactName = buildArtifactName;
             this.closureEntryPoint = closureEntryPoint;
-            this.externs = externs;
-            this.customCompilerOptions = customCompilerOptions;
         }
 
-        CompilerOptions getCompilerOptions() {
-            CompilerOptions options = defaultCompilerOptions();
-            options.setDependencyOptions(
-                    new DependencyOptions()
-                            .setDependencyPruning(true)
-                            .setDependencySorting(true)
-                            .setEntryPoints(ImmutableList.of(closureEntryPoint))
-                            .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
-            return customCompilerOptions.apply(options);
+        Builder extern(String extern) {
+            externs.add(extern);
+            return this;
         }
 
-        static final class Builder {
-            private final String buildArtifactName;
-            private final String closureEntryPoint;
-            private final ImmutableList.Builder<String> externs = new ImmutableList.Builder<>();
-            private UnaryOperator<CompilerOptions> customCompilerOptions = UnaryOperator.identity();
+        Builder customCompilerOptions(UnaryOperator<CompilerOptions> options) {
+            customCompilerOptions = options;
+            return this;
+        }
 
-            Builder(String buildArtifactName, String closureEntryPoint) {
-                this.buildArtifactName = buildArtifactName;
-                this.closureEntryPoint = closureEntryPoint;
-            }
-
-            Builder extern(String extern) {
-                externs.add(extern);
-                return this;
-            }
-
-            Builder customCompilerOptions(UnaryOperator<CompilerOptions> options) {
-                customCompilerOptions = options;
-                return this;
-            }
-
-            Input build() {
-                return new Input(
-                        buildArtifactName,
-                        closureEntryPoint,
-                        externs.build(),
-                        customCompilerOptions);
-            }
+        CompilationUnit build() {
+            return new CompilationUnit(
+                    buildArtifactName,
+                    closureEntryPoint,
+                    externs.build(),
+                    customCompilerOptions);
         }
     }
 
@@ -106,13 +102,12 @@ final class CompilationUnit {
             this.bytes = bytes;
         }
 
-        static Output from(Input input, byte[] bytes) {
+        static Output from(CompilationUnit input, byte[] bytes) {
             return new Output(input.buildArtifactName, bytes);
         }
     }
 
-    static final CompilationUnit.Input HTML5_CLIENT
-            = new Input.Builder("r5js-html5.js", "r5js.test.main")
+    static final CompilationUnit HTML5_CLIENT = new Builder("r5js-html5.js", "r5js.test.main")
             .customCompilerOptions(options -> {
                 // The HTML5 client compilation unit requires a reference to the URL of the worker
                 // compilation unit to start the Web Worker.
@@ -123,6 +118,6 @@ final class CompilationUnit {
             })
             .build();
 
-    static final CompilationUnit.Input HTML5_WORKER
-            = new Input.Builder("r5js-worker.js", "r5js.platform.html5.Worker").build();
+    static final CompilationUnit HTML5_WORKER
+            = new Builder("r5js-worker.js", "r5js.platform.html5.Worker").build();
 }
