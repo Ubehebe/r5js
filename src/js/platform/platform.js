@@ -36,11 +36,3 @@ r5js.Platform.prototype.exit = function(statusCode) {};
  */
 r5js.Platform.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {};
-
-
-/** @return {!goog.Promise<!r5js.SchemeSources>} */
-r5js.Platform.prototype.getSources = function() {};
-
-
-/** @return {!goog.Promise<!r5js.test.SchemeSources>} */
-r5js.Platform.prototype.getTestSources = function() {};

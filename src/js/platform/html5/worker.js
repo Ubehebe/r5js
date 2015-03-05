@@ -24,6 +24,7 @@ goog.provide('r5js.platform.html5.Worker');
 
 goog.require('goog.events.EventType');
 goog.require('r5js.InputPort');
+goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
 goog.require('r5js.curPlatform');
 goog.require('r5js.platform.html5.MessageType');
@@ -82,7 +83,7 @@ r5js.platform.html5.Worker.getEvaluator_ = function() {
       postMessage(r5js.platform.html5.message.output(value));
     });
     var platform = r5js.curPlatform();
-    r5js.platform.html5.Worker.evaluator_ = platform.getSources().
+    r5js.platform.html5.Worker.evaluator_ = r5js.SchemeSources.get().
         then(function(sources) {
               return r5js.boot(
                   sources.syntax,

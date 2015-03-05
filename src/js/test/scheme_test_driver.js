@@ -21,6 +21,7 @@ goog.require('expect');
 goog.require('goog.Promise');
 goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.Platform');
+goog.require('r5js.test.SchemeSources');
 goog.require('r5js.valutil');
 goog.require('tdd.LogLevel');
 goog.require('tdd.LogRecord');
@@ -70,7 +71,7 @@ r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
   /** @type {r5js.Evaluator} */ var evaluator;
 
   return goog.Promise.all([
-    platform.getTestSources(),
+    r5js.test.SchemeSources.get(),
     platform.newEvaluator(r5js.InputPort.NULL,
         new r5js.CallbackBackedPort(onWrite))]).then(function(resolved) {
     sources = resolved[0];

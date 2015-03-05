@@ -57,7 +57,7 @@ r5js.platform.Node_.prototype.exit = function(statusCode) {
 /** @override */
 r5js.platform.Node_.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {
-  return this.getSources().then(function(sources) {
+  return r5js.SchemeSources.get().then(function(sources) {
     return r5js.boot(
         sources.syntax,
         sources.procedures,
@@ -67,18 +67,6 @@ r5js.platform.Node_.prototype.newEvaluator =
   }, undefined /* opt_onRejected */, this).then(function(syncEvaluator) {
     return new r5js.platform.node.Evaluator(syncEvaluator);
   });
-};
-
-
-/** @override */
-r5js.platform.Node_.prototype.getSources = function() {
-  return r5js.SchemeSources.get();
-};
-
-
-/** @override */
-r5js.platform.Node_.prototype.getTestSources = function() {
-  return r5js.test.SchemeSources.get();
 };
 
 

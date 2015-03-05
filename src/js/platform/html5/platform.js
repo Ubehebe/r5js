@@ -53,18 +53,6 @@ r5js.platform.Html5_.prototype.newEvaluator =
 };
 
 
-/** @override */
-r5js.platform.Html5_.prototype.getSources = function() {
-  return r5js.SchemeSources.get();
-};
-
-
-/** @override */
-r5js.platform.Html5_.prototype.getTestSources = function() {
-  return r5js.test.SchemeSources.get();
-};
-
-
 /** @return {!r5js.Platform} */
 r5js.curPlatform = function() {
   return new r5js.platform.Html5_(arguments[0] /* TODO bl improve */);
