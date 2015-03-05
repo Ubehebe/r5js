@@ -125,8 +125,9 @@ final class SchemeEngineBuilder {
 
     private static List<SourceFile> getSourceFiles(Platform platform) throws IOException {
         List<SourceFile> sourceFiles = new ArrayList<>();
-//        sourceFiles.add(SchemeSource.SYNTAX.bundle());
-//        sourceFiles.add(SchemeSource.PROCEDURES.bundle());
+        for (SchemeSource schemeSource : SchemeSource.values()) {
+            sourceFiles.add(schemeSource.bundle());
+        }
         collectJsFilesIn("src/js", sourceFiles, platform::relevant);
         collectJsFilesIn("closure-library", sourceFiles, path -> path.getFileName().toString()
                 .endsWith(".js"));

@@ -11,11 +11,19 @@ import java.nio.file.Paths;
 
 enum SchemeSource {
     SYNTAX("src/scm/r5rs-syntax.scm"),
-    PROCEDURES("src/scm/r5rs-procedures.scm");
+    PROCEDURES("src/scm/r5rs-procedures.scm"),
+
+    TEST_FRAMEWORK("src/scm/unit-test.scm"),
+
+    TEST_FRAMEWORK_TESTS("src/scm/unit-test-tests.scm"),
+    R5RS_TESTS("src/scm/r5rs-tests.scm"),
+    NEGATIVE_TESTS("src/scm/negative-tests.scm"),
+    OTHER_TESTS("src/scm/other-tests.scm");
 
     private static final Escaper ESCAPER = Escapers.builder()
             .addEscape('"', "\\\"")
             .addEscape('\n', "\\n")
+            .addEscape('\\', "\\\\")
             .build();
 
     private final String filename;
