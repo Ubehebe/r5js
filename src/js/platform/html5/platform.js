@@ -48,8 +48,8 @@ r5js.platform.Html5_.prototype.exit = goog.nullFunction;
 r5js.platform.Html5_.prototype.newEvaluator =
     function(opt_inputPort, opt_outputPort) {
   return goog.Promise.resolve(
-      /** @type {!r5js.Evaluator} */(new r5js.platform.html5.Client(
-          opt_outputPort || r5js.OutputPort.NULL)));
+      new r5js.platform.html5.Client(
+          opt_outputPort || r5js.OutputPort.NULL));
 };
 
 
