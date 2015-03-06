@@ -58,9 +58,6 @@ final class DevServer {
     private static synchronized CompilationResult getCompiledJs() throws IOException {
         if (compiledApp == null) {
             compiledApp = Platforms.HTML5.build();
-            if (!compiledApp.success) {
-                throw new IllegalStateException();
-            }
         }
         return compiledApp;
     }

@@ -28,6 +28,7 @@ final class Platform {
      * Builds the project. This includes locating the sources, dependencies, and externs,
      * compiling the JavaScript sources, bundling the Scheme sources into the JavaScript
      * blob, and reporting errors.
+     * @throws java.lang.IllegalStateException if compilation fails.
      */
     CompilationResult build() throws IOException {
         List<SourceFile> sourceFiles = getSourceFiles();
@@ -35,7 +36,11 @@ final class Platform {
         for (CompilationUnit input : inputs) {
             builder.add(input.compile(sourceFiles));
         }
-        return new CompilationResult(builder.build());
+        CompilationResult result = new CompilationResult(builder.build());
+        if (!result.success) {
+            throw new IllegalStateException();
+        }
+        return result;
     }
 
     private boolean relevant(Path path) {
