@@ -74,7 +74,7 @@ r5js.boot = function(
      Ugh. */
 
   var r5RSEnv = nullEnv.clone();
-  r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv, platform);
+  r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv);
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
   return new r5js.sync.EvaluatorImpl(

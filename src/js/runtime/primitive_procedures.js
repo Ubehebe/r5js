@@ -56,8 +56,6 @@ goog.require('r5js.valutil');
 
 /** @private {r5js.IEnvironment} */ r5js.PrimitiveProcedures.r5RSEnv_;
 
-/** @private {r5js.Platform} */ r5js.PrimitiveProcedures.platform_;
-
 /** @private {r5js.PortManager} */ r5js.PrimitiveProcedures.portManager_;
 
 
@@ -1064,12 +1062,10 @@ r5js.PrimitiveProcedures.getActualType_ = function(arg) {
 /**
  * @param {!r5js.IEnvironment} nullEnv
  * @param {!r5js.IEnvironment} r5RSEnv
- * @param {!r5js.Platform} platform JavaScript execution environment.
  */
-r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv, platform) {
+r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv) {
   r5js.PrimitiveProcedures.nullEnv_ = nullEnv;
   r5js.PrimitiveProcedures.r5RSEnv_ = r5RSEnv;
-  r5js.PrimitiveProcedures.platform_ = platform;
   r5js.PrimitiveProcedures.portManager_ = new r5js.PortManager();
   for (var name in r5js.PrimitiveProcedures.registry_) {
     var proc = r5js.PrimitiveProcedures.registry_[name];
