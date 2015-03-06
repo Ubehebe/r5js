@@ -88,7 +88,6 @@ r5js.platform.html5.Worker.getEvaluator_ = function() {
               return r5js.boot(
                   sources.syntax,
                   sources.procedures,
-                  platform,
                   inputPort,
                   outputPort);
         });
