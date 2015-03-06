@@ -32,7 +32,7 @@ final class Platform {
      */
     CompilationResult build() throws IOException {
         List<SourceFile> sourceFiles = getSourceFiles();
-        ImmutableList.Builder<CompilationUnit.Output> builder = new ImmutableList.Builder<>();
+        ImmutableList.Builder<CompilationUnitOutput> builder = new ImmutableList.Builder<>();
         for (CompilationUnit input : inputs) {
             builder.add(input.compile(sourceFiles));
         }

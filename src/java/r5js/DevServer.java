@@ -44,7 +44,7 @@ final class DevServer {
                 out.write(INDEX);
                 return;
             }
-            for (CompilationUnit.Output output : getCompiledJs().outputs) {
+            for (CompilationUnitOutput output : getCompiledJs().outputs) {
                 if (url.substring(1).equals(output.buildArtifactName)) {
                     exchange.sendResponseHeaders(200, 0);
                     out.write(output.bytes);

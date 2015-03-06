@@ -79,7 +79,7 @@ final class CompilationUnit {
         return customCompilerOptions.apply(options);
     }
 
-    Output compile(List<SourceFile> sources) throws IOException {
+    CompilationUnitOutput compile(List<SourceFile> sources) throws IOException {
         Compiler compiler = new Compiler();
         compiler.setErrorManager(new ErrorManager(System.err));
         Result underlying = compiler.compile(
@@ -88,7 +88,7 @@ final class CompilationUnit {
                 getCompilerOptions());
         ImmutableList<JSError> errors = onlyRelevant(underlying.errors);
         ImmutableList<JSError> warnings = onlyRelevant(underlying.warnings);
-        return new Output(
+        return new CompilationUnitOutput(
                 buildArtifactName,
                 compiler.toSource().getBytes(StandardCharsets.UTF_8),
                 errors,
@@ -152,28 +152,6 @@ final class CompilationUnit {
                     closureEntryPoint,
                     externs.build(),
                     customCompilerOptions);
-        }
-    }
-
-    static final class Output {
-        final String buildArtifactName;
-        final byte[] bytes;
-        final ImmutableList<JSError> errors;
-        final ImmutableList<JSError> warnings;
-
-        Output(
-                String buildArtifactName,
-                byte[] bytes,
-                ImmutableList<JSError> errors,
-                ImmutableList<JSError> warnings) {
-            this.buildArtifactName = buildArtifactName;
-            this.bytes = bytes;
-            this.errors = errors;
-            this.warnings = warnings;
-        }
-
-        boolean success() {
-            return errors.isEmpty() && warnings.isEmpty();
         }
     }
 

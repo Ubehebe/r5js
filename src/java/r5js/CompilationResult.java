@@ -4,11 +4,12 @@ import com.google.common.collect.ImmutableList;
 
 final class CompilationResult {
 
-    final ImmutableList<CompilationUnit.Output> outputs;
+    final ImmutableList<CompilationUnitOutput> outputs;
     final boolean success;
 
-    CompilationResult(ImmutableList<CompilationUnit.Output> outputs) {
+    CompilationResult(ImmutableList<CompilationUnitOutput> outputs) {
         this.outputs = outputs;
-        this.success = outputs.stream().allMatch(CompilationUnit.Output::success);
+        this.success = outputs.stream().allMatch(CompilationUnitOutput::success);
     }
+
 }
