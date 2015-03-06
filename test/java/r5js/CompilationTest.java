@@ -18,6 +18,12 @@ public class CompilationTest {
     }
 
     @Test
+    public void nashorn() throws IOException {
+        Platforms.NASHORN.build().outputs.forEach(output ->
+                System.out.printf("%s\t%d%n", output.buildArtifactName, output.bytes.length));
+    }
+
+    @Test
     public void node() throws IOException {
         Platforms.NODE.build().outputs.forEach(output ->
                 System.out.printf("%s\t%d%n", output.buildArtifactName, output.bytes.length));

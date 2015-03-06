@@ -16,6 +16,12 @@ interface Platforms {
             .compilationUnit(HTML5_WORKER)
             .build();
 
+    static final Platform NASHORN = new Platform.Builder("nashorn")
+            .compilationUnit(
+                    new CompilationUnit.Builder("r5js-nashorn.js", "r5js.test.main")
+                    .build())
+            .build();
+
     static final Platform NODE = new Platform.Builder("node")
             .compilationUnit(
                     new CompilationUnit.Builder("r5js-node.js", "r5js.test.main")
