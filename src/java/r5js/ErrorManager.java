@@ -13,15 +13,19 @@ final class ErrorManager extends PrintStreamErrorManager {
 
     @Override
     public void println(CheckLevel level, JSError error) {
-        if (CompilationResult.isRelevant(error)) {
+        if (isRelevant(error)) {
             super.println(level, error);
         }
     }
 
     @Override
     public void report(CheckLevel level, JSError error) {
-        if (CompilationResult.isRelevant(error)) {
+        if (isRelevant(error)) {
             super.report(level, error);
         }
+    }
+
+    static boolean isRelevant(JSError error) {
+        return error.sourceName != null && error.sourceName.startsWith("src/js");
     }
 }

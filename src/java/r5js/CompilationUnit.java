@@ -4,10 +4,23 @@ import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.CheckEventfulObjectDisposal;
 import com.google.javascript.jscomp.ClosureCodingConvention;
 import com.google.javascript.jscomp.CompilationLevel;
+import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.DependencyOptions;
+import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.Result;
+import com.google.javascript.jscomp.SourceFile;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static com.google.javascript.jscomp.CheckLevel.ERROR;
 
@@ -33,11 +46,29 @@ final class CompilationUnit {
         return buildArtifactName;
     }
 
-    ImmutableList<String> getExterns() {
+    private List<SourceFile> getExterns() throws IOException {
+        List<SourceFile> externs = new ArrayList<>();
+        addDefaultCompilerExterns(externs);
+        this.externs.stream()
+                .map(SourceFile::fromFile)
+                .forEach(externs::add);
         return externs;
     }
 
-    CompilerOptions getCompilerOptions() {
+    private static void addDefaultCompilerExterns(List<SourceFile> sourceFiles) throws IOException {
+        try (ZipFile zip = new ZipFile("target/dependency/externs.zip")) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                sourceFiles.add(SourceFile.fromInputStream(
+                        entry.getName(),
+                        zip.getInputStream(entry),
+                        StandardCharsets.UTF_8));
+            }
+        }
+    }
+
+    private CompilerOptions getCompilerOptions() {
         CompilerOptions options = defaultCompilerOptions();
         options.setDependencyOptions(
                 new DependencyOptions()
@@ -46,6 +77,29 @@ final class CompilationUnit {
                         .setEntryPoints(ImmutableList.of(closureEntryPoint))
                         .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
         return customCompilerOptions.apply(options);
+    }
+
+    Output compile(List<SourceFile> sources) throws IOException {
+        Compiler compiler = new Compiler();
+        compiler.setErrorManager(new ErrorManager(System.err));
+        Result underlying = compiler.compile(
+                getExterns(),
+                sources,
+                getCompilerOptions());
+        ImmutableList<JSError> errors = onlyRelevant(underlying.errors);
+        ImmutableList<JSError> warnings = onlyRelevant(underlying.warnings);
+        return new Output(
+                buildArtifactName,
+                compiler.toSource().getBytes(StandardCharsets.UTF_8),
+                errors,
+                warnings);
+    }
+
+    private static ImmutableList<JSError> onlyRelevant(JSError[] errors) {
+        return ImmutableList.copyOf(
+                Arrays.stream(errors)
+                        .filter(ErrorManager::isRelevant)
+                        .collect(Collectors.toList()));
     }
 
     private static CompilerOptions defaultCompilerOptions() {
@@ -104,14 +158,22 @@ final class CompilationUnit {
     static final class Output {
         final String buildArtifactName;
         final byte[] bytes;
+        final ImmutableList<JSError> errors;
+        final ImmutableList<JSError> warnings;
 
-        private Output(String buildArtifactName, byte[] bytes) {
+        Output(
+                String buildArtifactName,
+                byte[] bytes,
+                ImmutableList<JSError> errors,
+                ImmutableList<JSError> warnings) {
             this.buildArtifactName = buildArtifactName;
             this.bytes = bytes;
+            this.errors = errors;
+            this.warnings = warnings;
         }
 
-        static Output from(CompilationUnit input, byte[] bytes) {
-            return new Output(input.buildArtifactName, bytes);
+        boolean success() {
+            return errors.isEmpty() && warnings.isEmpty();
         }
     }
 

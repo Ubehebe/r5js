@@ -1,6 +1,5 @@
 package r5js;
 
-import com.google.common.collect.ImmutableList;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -26,7 +25,7 @@ final class DevServer {
                     + "</html>\n")
             .getBytes();
 
-    private static ImmutableList<CompilationUnit.Output> compiledApp;
+    private static CompilationResult compiledApp;
 
     public static void main(String[] args) throws IOException {
         InetSocketAddress address = new InetSocketAddress(8080);
@@ -45,7 +44,7 @@ final class DevServer {
                 out.write(INDEX);
                 return;
             }
-            for (CompilationUnit.Output output : getCompiledJs()) {
+            for (CompilationUnit.Output output : getCompiledJs().outputs) {
                 if (url.substring(1).equals(output.buildArtifactName)) {
                     exchange.sendResponseHeaders(200, 0);
                     out.write(output.bytes);
@@ -56,10 +55,12 @@ final class DevServer {
         }
     }
 
-    private static synchronized ImmutableList<CompilationUnit.Output> getCompiledJs()
-            throws IOException {
+    private static synchronized CompilationResult getCompiledJs() throws IOException {
         if (compiledApp == null) {
             compiledApp = Platforms.HTML5.build();
+            if (!compiledApp.success) {
+                throw new IllegalStateException();
+            }
         }
         return compiledApp;
     }
