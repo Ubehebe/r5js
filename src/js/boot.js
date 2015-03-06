@@ -35,8 +35,6 @@ goog.require('r5js.trampoline');
  * and is connected to the given ports.
  * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
  * @param {string} procLib Scheme source code for the R5RS procedure library.
- * @param {!r5js.Platform} platform Abstraction of JS environment, used for
- * creating new ports.
  * @param {!r5js.InputPort=} opt_inputPort Optional input port that the new
  * evaluator will be connected to. If not given, defaults to
  * {@link r5js.InputPort.NULL}.
@@ -46,7 +44,7 @@ goog.require('r5js.trampoline');
  * @return {!r5js.sync.Evaluator}
  */
 r5js.boot = function(
-    syntaxLib, procLib, platform, opt_inputPort, opt_outputPort) {
+    syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   var nullEnv = new r5js.Environment(null /* enclosingEnv */);
   r5js.boot.installSchemeSource_(syntaxLib, nullEnv);
   nullEnv.seal();
