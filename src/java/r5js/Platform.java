@@ -50,7 +50,9 @@ final class Platform {
         }
 
         Path parent = path.getParent();
-        return parent.endsWith("platform") || parent.endsWith(name);
+        return parent.endsWith("platform")
+                || parent.endsWith("common")
+                || parent.endsWith(name);
     }
 
 

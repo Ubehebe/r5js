@@ -20,7 +20,7 @@ goog.require('goog.Promise');
 goog.require('r5js.Platform');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.boot');
-goog.require('r5js.platform.node.Evaluator');
+goog.require('r5js.platform.common.Evaluator');
 goog.require('r5js.test.SchemeSources');
 
 
@@ -65,7 +65,7 @@ r5js.platform.Node_.prototype.newEvaluator =
         opt_inputPort,
         opt_outputPort);
   }, undefined /* opt_onRejected */, this).then(function(syncEvaluator) {
-    return new r5js.platform.node.Evaluator(syncEvaluator);
+    return new r5js.platform.common.Evaluator(syncEvaluator);
   });
 };
 

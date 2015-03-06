@@ -1,4 +1,4 @@
-/* Copyright 2011-2014 Brendan Linn
+/* Copyright 2011-2015 Brendan Linn
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-goog.provide('r5js.platform.android.Evaluator');
+goog.provide('r5js.platform.common.Evaluator');
 
 
 goog.require('goog.Promise');
@@ -23,18 +23,21 @@ goog.require('r5js.Evaluator');
 
 
 /**
+ * Evaluator implementation that simply wraps a synchronous evaluator
+ * in promises. This is appropriate for most non-web platforms, since these
+ * typically can run JavaScript synchronously off the main thread.
  * @param {!r5js.sync.Evaluator} evaluator
  * @implements {r5js.Evaluator}
  * @struct
  * @constructor
  */
-r5js.platform.android.Evaluator = function(evaluator) {
+r5js.platform.common.Evaluator = function(evaluator) {
   /** @const @private */ this.evaluator_ = evaluator;
 };
 
 
 /** @override */
-r5js.platform.android.Evaluator.prototype.evaluate = function(input) {
+r5js.platform.common.Evaluator.prototype.evaluate = function(input) {
   try {
     return goog.Promise.resolve(this.evaluator_.evaluate(input));
   } catch (e) {
