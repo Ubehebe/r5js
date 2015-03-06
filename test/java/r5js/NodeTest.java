@@ -11,7 +11,7 @@ public final class NodeTest {
 
     @Test
     public void runTestsInNode() throws Exception {
-        byte[] bytes = Platforms.NODE.build().outputs.get(0).bytes;
+        byte[] bytes = Platforms.NODE.build().outputs.get(0).getBytes();
         File tmp = File.createTempFile("test-all", ".js");
         Files.write(tmp.toPath(), bytes);
 

@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.JSError;
 
 final class CompilationUnitOutput {
-    final String buildArtifactName;
-    final byte[] bytes;
+    private final String buildArtifactName;
+    private final byte[] bytes;
     final ImmutableList<JSError> errors;
     final ImmutableList<JSError> warnings;
 
@@ -22,5 +22,13 @@ final class CompilationUnitOutput {
 
     boolean success() {
         return errors.isEmpty() && warnings.isEmpty();
+    }
+
+    String getBuildArtifactName() {
+        return buildArtifactName;
+    }
+
+    byte[] getBytes() {
+        return bytes;
     }
 }
