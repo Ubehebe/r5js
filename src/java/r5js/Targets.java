@@ -6,7 +6,7 @@ import static r5js.CompilationUnit.HTML5_WORKER;
 interface Targets {
     static final Target ANDROID_TESTS = new Target.Builder("android")
             .compilationUnit(
-                    new CompilationUnit.Builder("r5js-android.js", "r5js.test.main")
+                    new CompilationUnit.Builder("android-tests.js", "r5js.test.main")
                             .extern("custom-externs/android.js")
                             .build())
             .build();
@@ -18,13 +18,13 @@ interface Targets {
 
     static final Target NASHORN_TESTS = new Target.Builder("nashorn")
             .compilationUnit(
-                    new CompilationUnit.Builder("r5js-nashorn.js", "r5js.test.main")
+                    new CompilationUnit.Builder("nashorn-tests.js", "r5js.test.main")
                     .build())
             .build();
 
     static final Target NODE_TESTS = new Target.Builder("node")
             .compilationUnit(
-                    new CompilationUnit.Builder("r5js-node.js", "r5js.test.main")
+                    new CompilationUnit.Builder("node-tests.js", "r5js.test.main")
                             .extern("externs/process.js")
                             .build())
             .build();
