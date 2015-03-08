@@ -27,17 +27,17 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
 final class CompilationUnit {
 
     private final String buildArtifactName;
-    private final String closureEntryPoint;
+    private final EntryPoint entryPoint;
     private final ImmutableList<String> externs;
     private final UnaryOperator<CompilerOptions> customCompilerOptions;
 
     private CompilationUnit(
             String buildArtifactName,
-            String closureEntryPoint,
+            EntryPoint entryPoint,
             ImmutableList<String> externs,
             UnaryOperator<CompilerOptions> customCompilerOptions) {
         this.buildArtifactName = buildArtifactName;
-        this.closureEntryPoint = closureEntryPoint;
+        this.entryPoint = entryPoint;
         this.externs = externs;
         this.customCompilerOptions = customCompilerOptions;
     }
@@ -74,7 +74,7 @@ final class CompilationUnit {
                 new DependencyOptions()
                         .setDependencyPruning(true)
                         .setDependencySorting(true)
-                        .setEntryPoints(ImmutableList.of(closureEntryPoint))
+                        .setEntryPoints(ImmutableList.of(entryPoint.getEntryPoint()))
                         .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
         return customCompilerOptions.apply(options);
     }
@@ -127,13 +127,13 @@ final class CompilationUnit {
 
     static final class Builder {
         private final String buildArtifactName;
-        private final String closureEntryPoint;
+        private final EntryPoint entryPoint;
         private final ImmutableList.Builder<String> externs = new ImmutableList.Builder<>();
         private UnaryOperator<CompilerOptions> customCompilerOptions = UnaryOperator.identity();
 
-        Builder(String buildArtifactName, String closureEntryPoint) {
+        Builder(String buildArtifactName, EntryPoint entryPoint) {
             this.buildArtifactName = buildArtifactName;
-            this.closureEntryPoint = closureEntryPoint;
+            this.entryPoint = entryPoint;
         }
 
         Builder extern(String extern) {
@@ -149,13 +149,13 @@ final class CompilationUnit {
         CompilationUnit build() {
             return new CompilationUnit(
                     buildArtifactName,
-                    closureEntryPoint,
+                    entryPoint,
                     externs.build(),
                     customCompilerOptions);
         }
     }
 
-    static final CompilationUnit HTML5_CLIENT = new Builder("html5-tests.js", "r5js.test.main")
+    static final CompilationUnit HTML5_CLIENT = new Builder("html5-tests.js", EntryPoint.TEST_MAIN)
             .customCompilerOptions(options -> {
                 // The HTML5_TESTS client compilation unit requires a reference to the URL of the worker
                 // compilation unit to start the Web Worker.
@@ -167,5 +167,5 @@ final class CompilationUnit {
             .build();
 
     static final CompilationUnit HTML5_WORKER
-            = new Builder("worker-tests.js", "r5js.platform.html5.Worker").build();
+            = new Builder("worker-tests.js", EntryPoint.HTML5_WORKER).build();
 }
