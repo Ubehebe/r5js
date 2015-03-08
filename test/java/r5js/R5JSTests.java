@@ -43,7 +43,7 @@ public final class R5JSTests extends Application {
     public void init() throws Exception {
         scriptEngine = new NashornScriptEngineFactory().getScriptEngine();
         r5jsSource = new String(
-                Platforms.NASHORN.build().outputs.get(0).getBytes(),
+                Targets.NASHORN_TESTS.build().outputs.get(0).getBytes(),
                 StandardCharsets.UTF_8);
     }
 

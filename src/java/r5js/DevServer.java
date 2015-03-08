@@ -57,7 +57,7 @@ final class DevServer {
 
     private static synchronized CompilationResult getCompiledJs() throws IOException {
         if (compiledApp == null) {
-            compiledApp = Platforms.HTML5.build();
+            compiledApp = Targets.HTML5_TESTS.build();
         }
         return compiledApp;
     }

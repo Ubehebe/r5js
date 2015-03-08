@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-final class Platform {
+final class Target {
 
     private final String name;
     private final ImmutableList<CompilationUnit> inputs;
 
-    private Platform(String name, ImmutableList<CompilationUnit> inputs) {
+    private Target(String name, ImmutableList<CompilationUnit> inputs) {
         this.name = name;
         this.inputs = inputs;
     }
@@ -98,8 +98,8 @@ final class Platform {
             return this;
         }
 
-        Platform build() {
-            return new Platform(name, inputs.build());
+        Target build() {
+            return new Target(name, inputs.build());
         }
     }
 }

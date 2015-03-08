@@ -157,7 +157,7 @@ final class CompilationUnit {
 
     static final CompilationUnit HTML5_CLIENT = new Builder("r5js-html5.js", "r5js.test.main")
             .customCompilerOptions(options -> {
-                // The HTML5 client compilation unit requires a reference to the URL of the worker
+                // The HTML5_TESTS client compilation unit requires a reference to the URL of the worker
                 // compilation unit to start the Web Worker.
                 options.setDefineToStringLiteral(
                         "r5js.platform.html5.Client.WORKER_SCRIPT",
