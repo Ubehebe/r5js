@@ -17,6 +17,10 @@ public class CompilationTest {
         Targets.NASHORN_TESTS.build().outputs.forEach(CompilationTest::print);
     }
 
+    @Test public void nodeRepl() throws IOException {
+        Targets.NODE_REPL.build().outputs.forEach(CompilationTest::print);
+    }
+
     @Test public void nodeTests() throws IOException {
         Targets.NODE_TESTS.build().outputs.forEach(CompilationTest::print);
     }

@@ -22,6 +22,13 @@ interface Targets {
                     .build())
             .build();
 
+    static final Target NODE_REPL = new Target.Builder("node")
+            .compilationUnit(
+                    new CompilationUnit.Builder("node-repl.js", EntryPoint.REPL_MAIN)
+                            .extern("externs/process.js")
+                            .build())
+            .build();
+
     static final Target NODE_TESTS = new Target.Builder("node")
             .compilationUnit(
                     new CompilationUnit.Builder("node-tests.js", EntryPoint.TEST_MAIN)
