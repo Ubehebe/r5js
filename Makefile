@@ -57,22 +57,6 @@ fix:
 	| grep "\.js" \
 	| xargs fixjsstyle --strict
 
-# Compiles the Android port.
-.PHONY: android
-android:
-	@mkdir -p $(outdir)
-	@find $(src) $(closure_root) -name "*\.js" \
-	| xargs printf "\-\-js %s " \
-	| xargs $(compiler) \
-		--js $(closure_root)/closure/goog/deps.js \
-		--closure_entry_point=$(android_main_class) \
-		--closure_entry_point=$(test_main_class) \
-		--only_closure_dependencies \
-		--define r5js.PLATFORM=\'android\' \
-		--externs=custom-externs/android.js \
-		--compilation_level ADVANCED_OPTIMIZATIONS \
-		> $(android_outfile)
-
 # Runs the Node-based REPL.
 .PHONY: node-repl
 node-repl: compile-node-repl

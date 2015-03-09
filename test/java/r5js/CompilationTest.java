@@ -5,6 +5,11 @@ import org.junit.Test;
 import java.io.IOException;
 
 public class CompilationTest {
+
+    @Test public void androidRepl() throws IOException {
+        Targets.ANDROID_REPL.build().outputs.forEach(CompilationTest::print);
+    }
+
     @Test public void androidTests() throws IOException{
         Targets.ANDROID_TESTS.build().outputs.forEach(CompilationTest::print);
     }

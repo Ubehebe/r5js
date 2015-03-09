@@ -4,6 +4,14 @@ import static r5js.CompilationUnit.HTML5_CLIENT;
 import static r5js.CompilationUnit.HTML5_WORKER;
 
 interface Targets {
+
+    static final Target ANDROID_REPL = new Target.Builder("android")
+            .compilationUnit(
+                    new CompilationUnit.Builder("android.js", EntryPoint.ANDROID_MAIN)
+                            .extern("custom-externs/android.js")
+                            .build())
+            .build();
+
     static final Target ANDROID_TESTS = new Target.Builder("android")
             .compilationUnit(
                     new CompilationUnit.Builder("android-tests.js", EntryPoint.TEST_MAIN)
