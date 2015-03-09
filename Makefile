@@ -1,8 +1,5 @@
 # Closure Library-related paths.
 closure_root = closure-library
-closure_bin  = $(closure_root)/closure/bin/build
-builder      = $(closure_bin)/closurebuilder.py
-depswriter   = $(closure_bin)/depswriter.py
 
 # Closure Compiler-related paths.
 compiler_jar  = closure-compiler/build/compiler.jar
@@ -12,13 +9,8 @@ compiler      = java -client -XX:+TieredCompilation -jar $(compiler_jar)
 src = src/js
 
 # Output-related paths.
-main_class = r5js.main
 outdir = build
 deps = $(outdir)/deps.js
-
-# Static server-related paths.
-static_port = 8888
-static_root = http://localhost:$(static_port)
 
 # Test-related paths.
 test_main_class = r5js.test.main
@@ -47,12 +39,6 @@ setup:
 	cd closure-compiler && ant
 	cd closure-library && chmod a+x closure/bin/build/*.py
 
-# Brings the Closure JS dependencies up-to-date.
-.PHONY: deps
-deps:
-	@mkdir -p $(outdir)
-	@$(depswriter) --root_with_prefix="$(src) ../../../$(src)" > $(deps)
-
 # Runs the Closure linter on staged JS changes.
 .PHONY: lint
 lint:
@@ -71,26 +57,6 @@ fix:
 	| grep "\.js" \
 	| xargs fixjsstyle --strict
 
-# Compiles the Node-based REPL.
-.PHONY: compile-node-repl
-compile-node-repl:
-	@mkdir -p $(outdir)
-	@find $(src) $(closure_root) -name "*\.js" \
-	| xargs printf "\-\-js %s " \
-	| xargs $(compiler) \
-		--closure_entry_point=$(node_repl_main_class) \
-		--only_closure_dependencies \
-		--define r5js.PLATFORM=\'node\' \
-		--externs=externs/buffer.js \
-		--externs=externs/core.js \
-		--externs=externs/events.js \
-		--externs=externs/fs.js \
-		--externs=externs/process.js \
-		--externs=externs/readline.js \
-		--externs=externs/stream.js \
-		--compilation_level ADVANCED_OPTIMIZATIONS \
-		> $(node_repl_outfile)
-
 # Compiles the Android port.
 .PHONY: android
 android:
@@ -107,26 +73,6 @@ android:
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		> $(android_outfile)
 
-# Compiles the test suite.
-.PHONY: compile-tests
-compile-tests:
-	@mkdir -p $(outdir)
-	@find $(src) $(closure_root) -name "*\.js" \
-	| xargs printf "\-\-js %s " \
-	| xargs $(compiler) \
-		--js $(closure_root)/closure/goog/deps.js \
-		--only_closure_dependencies \
-		--closure_entry_point=$(test_main_class) \
-		--define r5js.PLATFORM=\'$(PLATFORM)\' \
-		--externs=externs/buffer.js \
-		--externs=externs/core.js \
-		--externs=externs/events.js \
-		--externs=externs/fs.js \
-		--externs=externs/process.js \
-		--externs=externs/stream.js \
-		--compilation_level ADVANCED_OPTIMIZATIONS \
-		> $(test_outfile)
-
 # Runs the Node-based REPL.
 .PHONY: node-repl
 node-repl: compile-node-repl
@@ -134,16 +80,6 @@ node-repl:
 	@command -v node > /dev/null 2>&1 || \
 		{ echo >&2 "node is required for testing."; exit 1; }
 	@node -e "require('./build/node-repl').$(node_repl_main_class)();"
-
-# Launches an HTTP server to serve the test suite to browsers.
-# The test suite can be reached at /test/test.html.
-# (The test suite cannot be served directly from the filesystem because
-# it uses Ajax, which doesn't work for file:// URLs.
-.PHONY: test-server
-test-server: deps
-	@command -v python > /dev/null 2>&1 || \
-		{ echo >&2 "python is required for running the test server."; exit 1; }
-	@python -m SimpleHTTPServer $(static_port)
 
 # Cleans everything up.
 .PHONY: clean
