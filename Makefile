@@ -23,10 +23,6 @@ test_opts = type=unit verbose
 node_repl_main_class = r5js.repl.main
 node_repl_outfile = $(outdir)/node-repl.js
 
-# Android-related paths.
-android_main_class = r5js.platform.android.main
-android_outfile = $(outdir)/r5js-android.js
-
 # Target platform. This corresponds to r5js.PLATFORM in src/js/platform.js.
 # Choices: html5, node.
 PLATFORM = node
@@ -59,13 +55,7 @@ fix:
 
 # Runs the Node-based REPL.
 .PHONY: node-repl
-node-repl: compile-node-repl
 node-repl:
 	@command -v node > /dev/null 2>&1 || \
 		{ echo >&2 "node is required for testing."; exit 1; }
-	@node -e "require('./build/node-repl').$(node_repl_main_class)();"
-
-# Cleans everything up.
-.PHONY: clean
-clean:
-	@rm -rf $(outdir)
+	@node -e "require('./target/node-repl').$(node_repl_main_class)();"
