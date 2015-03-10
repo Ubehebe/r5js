@@ -4,21 +4,15 @@
     <id>out</id>
     <formats>
         <format>dir</format>
+        <format>zip</format>
     </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}</directory>
+            <directory>${project.basedir}/target</directory>
             <includes>
-                <include>README*</include>
-                <include>LICENSE*</include>
-                <include>NOTICE*</include>
-                <include>pom.xml</include>
+                <include>*.js</include>
             </includes>
-            <useDefaultExcludes>true</useDefaultExcludes>
-        </fileSet>
-        <fileSet>
-            <directory>${project.basedir}/src</directory>
-            <useDefaultExcludes>true</useDefaultExcludes>
         </fileSet>
     </fileSets>
 </assembly>

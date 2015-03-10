@@ -7,7 +7,7 @@ if [ $ret_code != 0 ]; then
     echo 'lint errors, aborting commit'
     exit $ret_code
 fi
-eval 'mvn -q clean test'
+eval 'mvn -q clean install'
 ret_code=$?
 if [ $ret_code != 0 ]; then
     echo 'failure(s) in tests, aborting commit'
