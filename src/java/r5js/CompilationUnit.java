@@ -105,6 +105,7 @@ final class CompilationUnit {
     private static CompilerOptions defaultCompilerOptions() {
         CompilerOptions options = new CompilerOptions();
         options.setAggressiveVarCheck(ERROR);
+        options.setAmbiguateProperties(true);
         options.setBrokenClosureRequiresLevel(ERROR);
         options.setCheckEventfulObjectDisposalPolicy(
                 CheckEventfulObjectDisposal.DisposalCheckingPolicy.AGGRESSIVE);
@@ -116,6 +117,7 @@ final class CompilationUnit {
         options.setCheckSymbols(true);
         options.setCheckTypes(true);
         options.setCodingConvention(new ClosureCodingConvention());
+        options.setDisambiguateProperties(true);
         options.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT6_STRICT);
         options.setLanguageOut(CompilerOptions.LanguageMode.ECMASCRIPT5_STRICT);
         options.setReportMissingOverride(ERROR);
