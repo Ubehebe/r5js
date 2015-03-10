@@ -53,14 +53,6 @@
     <build>
         <sourceDirectory>src/java</sourceDirectory>
         <testSourceDirectory>test/java</testSourceDirectory>
-        <resources>
-            <resource>
-                <directory>src/js</directory>
-            </resource>
-            <resource>
-                <directory>src/scm</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
