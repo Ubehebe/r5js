@@ -10,6 +10,7 @@
     <fileSets>
         <fileSet>
             <directory>${project.basedir}/target</directory>
+            <outputDirectory>.</outputDirectory>
             <includes>
                 <include>*.js</include>
             </includes>

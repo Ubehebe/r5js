@@ -7,6 +7,7 @@
     <groupId>com.github.ubehebe</groupId>
     <artifactId>r5js</artifactId>
     <version>0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <repositories>
         <repository>
@@ -87,6 +88,22 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -98,6 +115,19 @@
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <phase>generate-resources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>test</phase>
                     </execution>
                 </executions>
             </plugin>
