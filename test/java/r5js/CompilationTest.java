@@ -36,6 +36,9 @@ public class CompilationTest {
     private static void writeOut(CompilationUnitOutput output) {
         System.out.printf("%s\t%d%n", output.getBuildArtifactName(), output.getBytes().length);
         try {
+            // It's a bit odd for a unit test to write directly to the Maven target directory.
+            // The "right" way to do this would be a custom Maven plugin that builds the JavaScript,
+            // but I don't think it's worth the complexity yet.
             Files.write(Paths.get("target", output.getBuildArtifactName()), output.getBytes());
         } catch (IOException e) {
             throw Throwables.propagate(e);
