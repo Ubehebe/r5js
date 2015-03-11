@@ -12,7 +12,6 @@ import com.google.javascript.jscomp.SourceFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
@@ -42,16 +41,18 @@ final class CompilationUnit {
         return buildArtifactName;
     }
 
-    private List<SourceFile> getExterns(ImmutableList<String> platformExterns) throws IOException {
-        List<SourceFile> externs = new ArrayList<>();
+    private ImmutableList<SourceFile> getExterns(ImmutableList<String> platformExterns)
+            throws IOException {
+        ImmutableList.Builder<SourceFile> externs = new ImmutableList.Builder<>();
         addDefaultCompilerExterns(externs);
         platformExterns.stream()
                 .map(SourceFile::fromFile)
                 .forEach(externs::add);
-        return externs;
+        return externs.build();
     }
 
-    private static void addDefaultCompilerExterns(List<SourceFile> sourceFiles) throws IOException {
+    private static void addDefaultCompilerExterns(ImmutableList.Builder<SourceFile> sourceFiles)
+            throws IOException {
         try (ZipFile zip = new ZipFile("target/dependency/externs.zip")) {
             Enumeration<? extends ZipEntry> entries = zip.entries();
             while (entries.hasMoreElements()) {
@@ -147,8 +148,8 @@ final class CompilationUnit {
 
     static final CompilationUnit HTML5_CLIENT = new Builder("html5-tests.js", EntryPoint.TEST_MAIN)
             .customCompilerOptions(options -> {
-                // The HTML5_TESTS client compilation unit requires a reference to the URL of the worker
-                // compilation unit to start the Web Worker.
+                // HTML5_CLIENT requires a reference to the URL of the worker compilation unit
+                // to start the Web Worker.
                 options.setDefineToStringLiteral(
                         "r5js.platform.html5.Client.WORKER_SCRIPT",
                         CompilationUnit.HTML5_WORKER.buildArtifactName);
