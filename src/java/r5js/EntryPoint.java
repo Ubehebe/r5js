@@ -13,7 +13,11 @@ enum EntryPoint {
         this.jsSymbol = jsSymbol;
     }
 
-    public String getEntryPoint() {
+    String getEntryPoint() {
         return jsSymbol;
+    }
+
+    CompilationUnit.Builder named(String buildArtifactName) {
+        return new CompilationUnit.Builder(buildArtifactName, this);
     }
 }

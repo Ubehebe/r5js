@@ -146,7 +146,7 @@ final class CompilationUnit {
         }
     }
 
-    static final CompilationUnit HTML5_CLIENT = new Builder("html5-tests.js", EntryPoint.TEST_MAIN)
+    static final CompilationUnit HTML5_CLIENT = EntryPoint.TEST_MAIN.named("html5-tests.js")
             .customCompilerOptions(options -> {
                 // HTML5_CLIENT requires a reference to the URL of the worker compilation unit
                 // to start the Web Worker.
@@ -157,6 +157,5 @@ final class CompilationUnit {
             })
             .build();
 
-    static final CompilationUnit HTML5_WORKER
-            = new Builder("worker.js", EntryPoint.HTML5_WORKER).build();
+    static final CompilationUnit HTML5_WORKER = EntryPoint.HTML5_WORKER.named("worker.js").build();
 }

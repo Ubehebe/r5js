@@ -12,15 +12,11 @@ import static r5js.Platform.NODE;
 interface Targets {
 
     static final Target ANDROID_REPL = Target.forPlatform(ANDROID)
-            .compilationUnit(
-                    new CompilationUnit.Builder("android.js", ANDROID_MAIN)
-                            .build())
+            .compilationUnit(ANDROID_MAIN.named("android.js").build())
             .build();
 
     static final Target ANDROID_TESTS = Target.forPlatform(ANDROID)
-            .compilationUnit(
-                    new CompilationUnit.Builder("android-tests.js", TEST_MAIN)
-                            .build())
+            .compilationUnit(TEST_MAIN.named("android-tests.js").build())
             .build();
 
     static final Target HTML5_WORKER = Target.forPlatform(HTML5)
@@ -28,8 +24,7 @@ interface Targets {
             .build();
 
     static final Target HTML5_REPL = HTML5_WORKER.plus()
-            .compilationUnit(new CompilationUnit.Builder("html5-repl.js", REPL_MAIN)
-                    .build())
+            .compilationUnit(REPL_MAIN.named("html5-repl.js").build())
             .build();
 
     static final Target HTML5_TESTS = HTML5_WORKER.plus()
@@ -37,20 +32,14 @@ interface Targets {
             .build();
 
     static final Target NASHORN_TESTS = Target.forPlatform(NASHORN)
-            .compilationUnit(
-                    new CompilationUnit.Builder("nashorn-tests.js", TEST_MAIN)
-                    .build())
+            .compilationUnit(TEST_MAIN.named("nashorn-tests.js").build())
             .build();
 
     static final Target NODE_REPL = Target.forPlatform(NODE)
-            .compilationUnit(
-                    new CompilationUnit.Builder("node-repl.js", REPL_MAIN)
-                            .build())
+            .compilationUnit(REPL_MAIN.named("node-repl.js").build())
             .build();
 
     static final Target NODE_TESTS = Target.forPlatform(NODE)
-            .compilationUnit(
-                    new CompilationUnit.Builder("node-tests.js", TEST_MAIN)
-                            .build())
+            .compilationUnit(TEST_MAIN.named("node-tests.js").build())
             .build();
 }
