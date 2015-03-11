@@ -7,7 +7,6 @@ import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.DependencyOptions;
-import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 
@@ -18,7 +17,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -88,21 +87,13 @@ final class CompilationUnit {
                 getExterns(platformExterns),
                 sources,
                 getCompilerOptions());
-        ImmutableList<JSError> errors = onlyRelevant(underlying.errors);
-        ImmutableList<JSError> warnings = onlyRelevant(underlying.warnings);
-        if (!errors.isEmpty() || !warnings.isEmpty()) {
-            throw new IllegalStateException();
-        }
+        Stream.concat(Arrays.stream(underlying.warnings), Arrays.stream(underlying.errors))
+                .filter(ErrorManager::isRelevant)
+                .findAny()
+                .ifPresent(ignore -> { throw new IllegalStateException(); });
         return new CompilationUnitOutput(
                 buildArtifactName,
                 compiler.toSource().getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static ImmutableList<JSError> onlyRelevant(JSError[] errors) {
-        return ImmutableList.copyOf(
-                Arrays.stream(errors)
-                        .filter(ErrorManager::isRelevant)
-                        .collect(Collectors.toList()));
     }
 
     private static CompilerOptions defaultCompilerOptions() {
