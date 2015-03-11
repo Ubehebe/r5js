@@ -1,7 +1,6 @@
 package r5js;
 
 import static r5js.CompilationUnit.HTML5_CLIENT;
-import static r5js.CompilationUnit.HTML5_WORKER;
 
 interface Targets {
 
@@ -19,15 +18,17 @@ interface Targets {
                             .build())
             .build();
 
-    static final Target HTML5_REPL = new Target.Builder("html5")
-            .compilationUnit(HTML5_WORKER)
+    static final Target HTML5_WORKER = new Target.Builder("html5")
+            .compilationUnit(CompilationUnit.HTML5_WORKER)
+            .build();
+
+    static final Target HTML5_REPL = HTML5_WORKER.plus()
             .compilationUnit(new CompilationUnit.Builder("html5-repl.js", EntryPoint.REPL_MAIN)
                     .build())
             .build();
 
-    static final Target HTML5_TESTS = new Target.Builder("html5")
+    static final Target HTML5_TESTS = HTML5_WORKER.plus()
             .compilationUnit(HTML5_CLIENT)
-            .compilationUnit(HTML5_WORKER)
             .build();
 
     static final Target NASHORN_TESTS = new Target.Builder("nashorn")

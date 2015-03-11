@@ -43,6 +43,14 @@ final class Target {
         return result;
     }
 
+    Builder plus() {
+        Builder builder = new Builder(name);
+        for (CompilationUnit input : inputs) {
+            builder.compilationUnit(input);
+        }
+        return builder;
+    }
+
     private boolean relevant(Path path) {
         return path.getFileName().toString().endsWith(".js")
                 && (path.startsWith("closure-library")

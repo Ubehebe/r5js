@@ -25,6 +25,10 @@ public class CompilationTest {
         Targets.HTML5_TESTS.build().outputs.forEach(CompilationTest::writeOut);
     }
 
+    @Test public void html5Worker() throws IOException {
+        Targets.HTML5_WORKER.build().outputs.forEach(CompilationTest::writeOut);
+    }
+
     @Test public void nashornTests() throws IOException {
         Targets.NASHORN_TESTS.build().outputs.forEach(CompilationTest::writeOut);
     }
