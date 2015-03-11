@@ -19,6 +19,12 @@ interface Targets {
                             .build())
             .build();
 
+    static final Target HTML5_REPL = new Target.Builder("html5")
+            .compilationUnit(HTML5_WORKER)
+            .compilationUnit(new CompilationUnit.Builder("html5-repl.js", EntryPoint.REPL_MAIN)
+                    .build())
+            .build();
+
     static final Target HTML5_TESTS = new Target.Builder("html5")
             .compilationUnit(HTML5_CLIENT)
             .compilationUnit(HTML5_WORKER)

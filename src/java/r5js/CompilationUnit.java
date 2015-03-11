@@ -170,5 +170,5 @@ final class CompilationUnit {
             .build();
 
     static final CompilationUnit HTML5_WORKER
-            = new Builder("worker-tests.js", EntryPoint.HTML5_WORKER).build();
+            = new Builder("worker.js", EntryPoint.HTML5_WORKER).build();
 }

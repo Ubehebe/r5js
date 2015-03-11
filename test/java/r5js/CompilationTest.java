@@ -17,6 +17,10 @@ public class CompilationTest {
         Targets.ANDROID_TESTS.build().outputs.forEach(CompilationTest::writeOut);
     }
 
+    @Test public void html5Repl() throws IOException {
+        Targets.HTML5_REPL.build().outputs.forEach(CompilationTest::writeOut);
+    }
+
     @Test public void html5Tests() throws IOException {
         Targets.HTML5_TESTS.build().outputs.forEach(CompilationTest::writeOut);
     }
