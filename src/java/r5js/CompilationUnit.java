@@ -28,17 +28,14 @@ final class CompilationUnit {
 
     private final String buildArtifactName;
     private final EntryPoint entryPoint;
-    private final ImmutableList<String> externs;
     private final UnaryOperator<CompilerOptions> customCompilerOptions;
 
     private CompilationUnit(
             String buildArtifactName,
             EntryPoint entryPoint,
-            ImmutableList<String> externs,
             UnaryOperator<CompilerOptions> customCompilerOptions) {
         this.buildArtifactName = buildArtifactName;
         this.entryPoint = entryPoint;
-        this.externs = externs;
         this.customCompilerOptions = customCompilerOptions;
     }
 
@@ -46,10 +43,10 @@ final class CompilationUnit {
         return buildArtifactName;
     }
 
-    private List<SourceFile> getExterns() throws IOException {
+    private List<SourceFile> getExterns(ImmutableList<String> platformExterns) throws IOException {
         List<SourceFile> externs = new ArrayList<>();
         addDefaultCompilerExterns(externs);
-        this.externs.stream()
+        platformExterns.stream()
                 .map(SourceFile::fromFile)
                 .forEach(externs::add);
         return externs;
@@ -83,11 +80,12 @@ final class CompilationUnit {
      * @throws IOException if the externs cannot be fetched
      * @throws java.lang.IllegalStateException if compilation results in errors or warnings
      */
-    CompilationUnitOutput compile(List<SourceFile> sources) throws IOException {
+    CompilationUnitOutput compile(List<SourceFile> sources, ImmutableList<String> platformExterns)
+            throws IOException {
         Compiler compiler = new Compiler();
         compiler.setErrorManager(new ErrorManager(System.err));
         Result underlying = compiler.compile(
-                getExterns(),
+                getExterns(platformExterns),
                 sources,
                 getCompilerOptions());
         ImmutableList<JSError> errors = onlyRelevant(underlying.errors);
@@ -136,17 +134,11 @@ final class CompilationUnit {
     static final class Builder {
         private final String buildArtifactName;
         private final EntryPoint entryPoint;
-        private final ImmutableList.Builder<String> externs = new ImmutableList.Builder<>();
         private UnaryOperator<CompilerOptions> customCompilerOptions = UnaryOperator.identity();
 
         Builder(String buildArtifactName, EntryPoint entryPoint) {
             this.buildArtifactName = buildArtifactName;
             this.entryPoint = entryPoint;
-        }
-
-        Builder extern(String extern) {
-            externs.add(extern);
-            return this;
         }
 
         Builder customCompilerOptions(UnaryOperator<CompilerOptions> options) {
@@ -158,7 +150,6 @@ final class CompilationUnit {
             return new CompilationUnit(
                     buildArtifactName,
                     entryPoint,
-                    externs.build(),
                     customCompilerOptions);
         }
     }

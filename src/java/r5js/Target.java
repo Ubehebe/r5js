@@ -16,11 +16,11 @@ import java.util.function.Predicate;
 
 final class Target {
 
-    private final String name;
+    private final Platform platform;
     private final ImmutableList<CompilationUnit> inputs;
 
-    private Target(String name, ImmutableList<CompilationUnit> inputs) {
-        this.name = name;
+    private Target(Platform platform, ImmutableList<CompilationUnit> inputs) {
+        this.platform = platform;
         this.inputs = inputs;
     }
 
@@ -34,14 +34,17 @@ final class Target {
         List<SourceFile> sourceFiles = getSourceFiles();
         ImmutableList.Builder<CompilationUnitOutput> builder = new ImmutableList.Builder<>();
         for (CompilationUnit input : inputs) {
-            builder.add(input.compile(sourceFiles));
+            builder.add(input.compile(sourceFiles, platform.externs()));
         }
-        CompilationResult result = new CompilationResult(builder.build());
-        return result;
+        return new CompilationResult(builder.build());
+    }
+
+    static Builder forPlatform(Platform platform) {
+        return new Builder(platform);
     }
 
     Builder plus() {
-        Builder builder = new Builder(name);
+        Builder builder = new Builder(platform);
         for (CompilationUnit input : inputs) {
             builder.compilationUnit(input);
         }
@@ -62,7 +65,7 @@ final class Target {
         Path parent = path.getParent();
         return parent.endsWith("platform")
                 || parent.endsWith("common")
-                || parent.endsWith(name);
+                || parent.endsWith(platform.toString());
     }
 
 
@@ -92,10 +95,10 @@ final class Target {
 
     static final class Builder {
         final ImmutableList.Builder<CompilationUnit> inputs = new ImmutableList.Builder<>();
-        final String name;
+        final Platform platform;
 
-        Builder(String name) {
-            this.name = name;
+        private Builder(Platform platform) {
+            this.platform = platform;
         }
 
         Builder compilationUnit(CompilationUnit input) {
@@ -104,7 +107,7 @@ final class Target {
         }
 
         Target build() {
-            return new Target(name, inputs.build());
+            return new Target(platform, inputs.build());
         }
     }
 }
