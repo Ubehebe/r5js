@@ -37,9 +37,6 @@ final class Target {
             builder.add(input.compile(sourceFiles));
         }
         CompilationResult result = new CompilationResult(builder.build());
-        if (!result.success) {
-            throw new IllegalStateException();
-        }
         return result;
     }
 

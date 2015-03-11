@@ -79,6 +79,10 @@ final class CompilationUnit {
         return customCompilerOptions.apply(options);
     }
 
+    /**
+     * @throws IOException if the externs cannot be fetched
+     * @throws java.lang.IllegalStateException if compilation results in errors or warnings
+     */
     CompilationUnitOutput compile(List<SourceFile> sources) throws IOException {
         Compiler compiler = new Compiler();
         compiler.setErrorManager(new ErrorManager(System.err));
@@ -88,11 +92,12 @@ final class CompilationUnit {
                 getCompilerOptions());
         ImmutableList<JSError> errors = onlyRelevant(underlying.errors);
         ImmutableList<JSError> warnings = onlyRelevant(underlying.warnings);
+        if (!errors.isEmpty() || !warnings.isEmpty()) {
+            throw new IllegalStateException();
+        }
         return new CompilationUnitOutput(
                 buildArtifactName,
-                compiler.toSource().getBytes(StandardCharsets.UTF_8),
-                errors,
-                warnings);
+                compiler.toSource().getBytes(StandardCharsets.UTF_8));
     }
 
     private static ImmutableList<JSError> onlyRelevant(JSError[] errors) {
