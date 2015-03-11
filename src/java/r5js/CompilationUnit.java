@@ -117,7 +117,8 @@ final class CompilationUnit {
         options.setCheckSymbols(true);
         options.setCheckTypes(true);
         options.setCodingConvention(new ClosureCodingConvention());
-        options.setDisambiguateProperties(true);
+        // TODO bl this breaks the HTML5 port at runtime! Find out why.
+        // options.setDisambiguateProperties(true);
         options.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT6_STRICT);
         options.setLanguageOut(CompilerOptions.LanguageMode.ECMASCRIPT5_STRICT);
         options.setReportMissingOverride(ERROR);
