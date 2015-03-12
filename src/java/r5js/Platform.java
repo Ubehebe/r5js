@@ -2,6 +2,13 @@ package r5js;
 
 import com.google.common.collect.ImmutableList;
 
+/**
+ * A platform represents the JavaScript environment in which a specific {@link Target}
+ * runs.
+ *
+ * <p>Platforms have platform-specific capabilities, which are made known to the compiler
+ * through extern files.
+ */
 enum Platform {
     ANDROID("custom-externs/android.js"),
     HTML5,

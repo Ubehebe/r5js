@@ -22,6 +22,9 @@ import java.util.zip.ZipFile;
 
 import static com.google.javascript.jscomp.CheckLevel.ERROR;
 
+/**
+ * A compilation unit is a set of JavaScript files that are compiled together.
+ */
 final class CompilationUnit {
 
     private final String buildArtifactName;

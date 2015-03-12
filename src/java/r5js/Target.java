@@ -14,6 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * A target is the conceptual unit of deployment.
+ *
+ * <p>A target is targeted to a specific {@link Platform}.
+ *
+ * <p>Targets normally contain a single {@link CompilationUnit}, but can contain
+ * multiple compilation units when required by the platform.
+ * (For example, {@link Targets#HTML5_TESTS} contains one compilation unit for
+ * the web worker that actually runs the interpreter, and another "client" compilation unit
+ * for interacting with the worker.)
+ */
 final class Target {
 
     private final Platform platform;
@@ -25,7 +36,7 @@ final class Target {
     }
 
     /**
-     * Builds the project. This includes locating the sources, dependencies, and externs,
+     * Builds the target. This includes locating the sources, dependencies, and externs,
      * compiling the JavaScript sources, bundling the Scheme sources into the JavaScript
      * blob, and reporting errors.
      * @throws java.lang.IllegalStateException if compilation fails.
