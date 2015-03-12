@@ -1,6 +1,5 @@
 package r5js;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.SourceFile;
@@ -27,16 +26,16 @@ import java.util.function.Predicate;
  * the web worker that actually runs the interpreter, and another "client" compilation unit
  * for interacting with the worker.)
  */
-final class Target {
+final class Target<T extends Platform> {
 
     private final Platform platform;
     private final ImmutableList<CompilationUnit> inputs;
-    private final ImmutableList<Target> upstreamTargets;
+    private final ImmutableList<Target<T>> upstreamTargets;
 
     private Target(
-            Platform platform,
+            T platform,
             ImmutableList<CompilationUnit> inputs,
-            ImmutableList<Target> upstreamTargets) {
+            ImmutableList<Target<T>> upstreamTargets) {
         this.platform = platform;
         this.inputs = inputs;
         this.upstreamTargets = upstreamTargets;
@@ -66,8 +65,12 @@ final class Target {
         return upstream.merge(new TargetOutput(builder.build()));
     }
 
-    static Builder forPlatform(Platform platform) {
-        return new Builder(platform);
+    static <T extends Platform> Builder<T> forPlatform(Class<T> platformClass) {
+        try {
+            return new Builder<>(platformClass.newInstance());
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw Throwables.propagate(e);
+        }
     }
 
     private boolean relevant(Path path) {
@@ -84,7 +87,7 @@ final class Target {
         Path parent = path.getParent();
         return parent.endsWith("platform")
                 || parent.endsWith("common")
-                || parent.endsWith(platform.toString());
+                || parent.endsWith(platform.getClass().getSimpleName().toLowerCase());
     }
 
 
@@ -112,32 +115,27 @@ final class Target {
         });
     }
 
-    static final class Builder {
+    static final class Builder<T extends Platform> {
         final ImmutableList.Builder<CompilationUnit> inputs = new ImmutableList.Builder<>();
-        final ImmutableList.Builder<Target> upstreamTargets = new ImmutableList.Builder<>();
-        final Platform platform;
+        final ImmutableList.Builder<Target<T>> upstreamTargets = new ImmutableList.Builder<>();
+        final T platform;
 
-        private Builder(Platform platform) {
+        private Builder(T platform) {
             this.platform = platform;
         }
 
-        Builder include(Target dependency) {
-            Preconditions.checkState(
-                    platform == dependency.platform,
-                    "platform of upstream target %s not compatible with target %s",
-                    dependency.platform,
-                    platform);
+        Builder<T> include(Target<T> dependency) {
             upstreamTargets.add(dependency);
             return this;
         }
 
-        Builder compilationUnit(CompilationUnit input) {
+        Builder<T> compilationUnit(CompilationUnit input) {
             inputs.add(input);
             return this;
         }
 
-        Target build() {
-            return new Target(platform, inputs.build(), upstreamTargets.build());
+        Target<T> build() {
+            return new Target<>(platform, inputs.build(), upstreamTargets.build());
         }
     }
 }
