@@ -17,7 +17,7 @@ enum EntryPoint {
         return jsSymbol;
     }
 
-    CompilationUnit.Builder named(String buildArtifactName) {
-        return new CompilationUnit.Builder(buildArtifactName, this);
+    CompilationUnit named(String buildArtifactName) {
+        return new CompilationUnit.Builder(buildArtifactName, this).build();
     }
 }
