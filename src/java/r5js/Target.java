@@ -41,13 +41,13 @@ final class Target {
      * blob, and reporting errors.
      * @throws java.lang.IllegalStateException if compilation fails.
      */
-    CompilationResult build() throws IOException {
+    TargetOutput build() throws IOException {
         List<SourceFile> sourceFiles = getSourceFiles();
         ImmutableList.Builder<CompilationUnitOutput> builder = new ImmutableList.Builder<>();
         for (CompilationUnit input : inputs) {
             builder.add(input.compile(sourceFiles, platform.externs()));
         }
-        return new CompilationResult(builder.build());
+        return new TargetOutput(builder.build());
     }
 
     static Builder forPlatform(Platform platform) {

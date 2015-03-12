@@ -25,7 +25,7 @@ final class DevServer {
                     + "</html>\n")
             .getBytes();
 
-    private static CompilationResult compiledApp;
+    private static TargetOutput compiledApp;
 
     public static void main(String[] args) throws IOException {
         InetSocketAddress address = new InetSocketAddress(8080);
@@ -55,9 +55,11 @@ final class DevServer {
         }
     }
 
-    private static synchronized CompilationResult getCompiledJs() throws IOException {
+    private static synchronized TargetOutput getCompiledJs() throws IOException {
         if (compiledApp == null) {
-            compiledApp = Targets.HTML5_TESTS.build();
+            TargetOutput html5Repl = Targets.HTML5_REPL.build();
+            TargetOutput html5Tests = Targets.HTML5_TESTS.build();
+
         }
         return compiledApp;
     }
