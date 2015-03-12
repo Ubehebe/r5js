@@ -1,6 +1,6 @@
 package r5js;
 
-import static r5js.CompilationUnit.HTML5_CLIENT;
+import static r5js.CompilationUnit.HTML5_TEST_RUNNER;
 import static r5js.EntryPoint.ANDROID_MAIN;
 import static r5js.EntryPoint.REPL_MAIN;
 import static r5js.EntryPoint.TEST_MAIN;
@@ -30,7 +30,7 @@ interface Targets {
 
     static final Target HTML5_TESTS = Target.forPlatform(HTML5)
             .include(HTML5_WORKER)
-            .compilationUnit(HTML5_CLIENT)
+            .compilationUnit(HTML5_TEST_RUNNER)
             .build();
 
     static final Target NASHORN_TESTS = Target.forPlatform(NASHORN)
