@@ -4,7 +4,6 @@ import static r5js.CompilationUnit.HTML5_TEST_RUNNER;
 import static r5js.EntryPoint.ANDROID_MAIN;
 import static r5js.EntryPoint.REPL_MAIN;
 import static r5js.EntryPoint.TEST_MAIN;
-
 import static r5js.Platform.Android;
 import static r5js.Platform.Html5;
 import static r5js.Platform.Nashorn;
@@ -26,7 +25,7 @@ interface Targets {
 
     static final Target<Html5> HTML5_REPL = Target.forPlatform(Html5.class)
             .include(HTML5_WORKER)
-            .compilationUnit(REPL_MAIN.named("html5-repl.js"))
+            .compilationUnit(CompilationUnit.HTML5_REPL)
             .build();
 
     static final Target<Html5> HTML5_TESTS = Target.forPlatform(Html5.class)

@@ -39,8 +39,4 @@ interface Platform {
             return ImmutableList.of("externs/process.js");
         }
     }
-//    @Override
-//    public String toString() {
-//        return super.toString().toLowerCase();
-
 }

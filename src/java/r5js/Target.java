@@ -2,6 +2,7 @@ package r5js;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.SourceFile;
 
 import java.io.IOException;
@@ -48,11 +49,27 @@ final class Target<T extends Platform> {
      * @throws java.lang.RuntimeException if compilation fails.
      */
     TargetOutput build() {
-        // TODO bl avoid building same compilation unit twice in case of dag
-        TargetOutput upstream = upstreamTargets.stream()
-                .map(Target::build)
+        // A real dependency system would have to topologically sort the dependencies,
+        // but all we're using includes for is avoiding building the same target twice.
+        // Hence deduping is sufficient.
+        return dedupDeps()
+                .stream()
+                .map(Target::buildIgnoringDeps)
                 .reduce(new TargetOutput(ImmutableList.of()), TargetOutput::merge);
+    }
 
+    private ImmutableSet<Target> dedupDeps() {
+        ImmutableSet.Builder<Target> deduped = new ImmutableSet.Builder<>();
+        dedupDeps(deduped);
+        return deduped.build();
+    }
+
+    private void dedupDeps(ImmutableSet.Builder<Target> deduped) {
+        deduped.add(this);
+        upstreamTargets.forEach(target -> target.dedupDeps(deduped));
+    }
+
+    private TargetOutput buildIgnoringDeps() {
         ImmutableList.Builder<CompilationUnitOutput> builder = new ImmutableList.Builder<>();
         try {
             List<SourceFile> sourceFiles = getSourceFiles();
@@ -62,7 +79,7 @@ final class Target<T extends Platform> {
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
-        return upstream.merge(new TargetOutput(builder.build()));
+        return new TargetOutput(builder.build());
     }
 
     static <T extends Platform> Builder<T> forPlatform(Class<T> platformClass) {

@@ -149,6 +149,18 @@ final class CompilationUnit {
         }
     }
 
+    static final CompilationUnit HTML5_REPL = new Builder("html5-repl.js", EntryPoint.REPL_MAIN)
+            .customCompilerOptions(options -> {
+                // HTML5_REPL requires a reference to the URL of the worker compilation unit
+                // to start the Web Worker.
+                options.setDefineToStringLiteral(
+                        "r5js.platform.html5.Client.WORKER_SCRIPT",
+                        CompilationUnit.HTML5_WORKER.buildArtifactName);
+                return options;
+            })
+            .build();
+
+
     static final CompilationUnit HTML5_TEST_RUNNER = new Builder("html5-tests.js", EntryPoint.TEST_MAIN)
             .customCompilerOptions(options -> {
                 // HTML5_TEST_RUNNER requires a reference to the URL of the worker compilation unit
