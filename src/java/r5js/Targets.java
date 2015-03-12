@@ -33,6 +33,11 @@ interface Targets {
             .compilationUnit(HTML5_TEST_RUNNER)
             .build();
 
+    static final Target HTML5_ALL = Target.forPlatform(HTML5)
+            .include(HTML5_REPL)
+            .include(HTML5_TESTS)
+            .build();
+
     static final Target NASHORN_TESTS = Target.forPlatform(NASHORN)
             .compilationUnit(TEST_MAIN.named("nashorn-tests.js"))
             .build();

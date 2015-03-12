@@ -1,6 +1,7 @@
 package r5js;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.SourceFile;
 
@@ -30,25 +31,39 @@ final class Target {
 
     private final Platform platform;
     private final ImmutableList<CompilationUnit> inputs;
+    private final ImmutableList<Target> upstreamTargets;
 
-    private Target(Platform platform, ImmutableList<CompilationUnit> inputs) {
+    private Target(
+            Platform platform,
+            ImmutableList<CompilationUnit> inputs,
+            ImmutableList<Target> upstreamTargets) {
         this.platform = platform;
         this.inputs = inputs;
+        this.upstreamTargets = upstreamTargets;
     }
 
     /**
      * Builds the target. This includes locating the sources, dependencies, and externs,
      * compiling the JavaScript sources, bundling the Scheme sources into the JavaScript
      * blob, and reporting errors.
-     * @throws java.lang.IllegalStateException if compilation fails.
+     * @throws java.lang.RuntimeException if compilation fails.
      */
-    TargetOutput build() throws IOException {
-        List<SourceFile> sourceFiles = getSourceFiles();
+    TargetOutput build() {
+        // TODO bl avoid building same compilation unit twice in case of dag
+        TargetOutput upstream = upstreamTargets.stream()
+                .map(Target::build)
+                .reduce(new TargetOutput(ImmutableList.of()), TargetOutput::merge);
+
         ImmutableList.Builder<CompilationUnitOutput> builder = new ImmutableList.Builder<>();
-        for (CompilationUnit input : inputs) {
-            builder.add(input.compile(sourceFiles, platform.externs()));
+        try {
+            List<SourceFile> sourceFiles = getSourceFiles();
+            for (CompilationUnit input : inputs) {
+                builder.add(input.compile(sourceFiles, platform.externs()));
+            }
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
         }
-        return new TargetOutput(builder.build());
+        return upstream.merge(new TargetOutput(builder.build()));
     }
 
     static Builder forPlatform(Platform platform) {
@@ -99,6 +114,7 @@ final class Target {
 
     static final class Builder {
         final ImmutableList.Builder<CompilationUnit> inputs = new ImmutableList.Builder<>();
+        final ImmutableList.Builder<Target> upstreamTargets = new ImmutableList.Builder<>();
         final Platform platform;
 
         private Builder(Platform platform) {
@@ -111,7 +127,7 @@ final class Target {
                     "platform of upstream target %s not compatible with target %s",
                     dependency.platform,
                     platform);
-            dependency.inputs.forEach(inputs::add);
+            upstreamTargets.add(dependency);
             return this;
         }
 
@@ -121,7 +137,7 @@ final class Target {
         }
 
         Target build() {
-            return new Target(platform, inputs.build());
+            return new Target(platform, inputs.build(), upstreamTargets.build());
         }
     }
 }
