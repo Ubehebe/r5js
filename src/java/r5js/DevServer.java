@@ -11,18 +11,20 @@ import java.util.concurrent.Executors;
 final class DevServer {
 
     private static final byte[] INDEX = (
+            String.format(
             "<!DOCTYPE html>\n"
                     + "<html>\n"
                     + "<head>\n"
-                    + "<title>r5js tests (compiled)</title>\n"
-                    + "<script src=\""
-                    + CompilationUnit.HTML5_TEST_RUNNER.getBuildArtifactName()
-                    +"\"></script>\n"
+                    + "<title>r5js</title>\n"
+                    + "<script src=\"%s\"></script>\n" // test runner
+                    + "<script src=\"%s\"></script>\n" // repl
                     + "</head>\n"
                     + "<body>\n"
                     + "<button onclick=\"r5js.test.main()\">Run Tests</button>\n"
                     + "</body>\n"
-                    + "</html>\n")
+                    + "</html>\n",
+                    CompilationUnit.HTML5_TEST_RUNNER.getBuildArtifactName(),
+                    CompilationUnit.HTML5_REPL.getBuildArtifactName()))
             .getBytes();
 
     private static TargetOutput compiledApp;
@@ -57,9 +59,7 @@ final class DevServer {
 
     private static synchronized TargetOutput getCompiledJs() throws IOException {
         if (compiledApp == null) {
-            TargetOutput html5Repl = Targets.HTML5_REPL.build();
-            TargetOutput html5Tests = Targets.HTML5_TESTS.build();
-
+            compiledApp = Targets.HTML5_ALL.build();
         }
         return compiledApp;
     }
