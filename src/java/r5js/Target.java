@@ -14,6 +14,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -30,15 +31,15 @@ import java.util.function.Predicate;
 final class Target<T extends Platform> {
 
     private final Platform platform;
-    private final ImmutableList<CompilationUnit> inputs;
+    private final Optional<CompilationUnit> compilationUnit;
     private final ImmutableList<Target<T>> upstreamTargets;
 
     private Target(
             T platform,
-            ImmutableList<CompilationUnit> inputs,
+            Optional<CompilationUnit> compilationUnit,
             ImmutableList<Target<T>> upstreamTargets) {
         this.platform = platform;
-        this.inputs = inputs;
+        this.compilationUnit = compilationUnit;
         this.upstreamTargets = upstreamTargets;
     }
 
@@ -70,16 +71,18 @@ final class Target<T extends Platform> {
     }
 
     private TargetOutput buildIgnoringDeps() {
-        ImmutableList.Builder<CompilationUnitOutput> builder = new ImmutableList.Builder<>();
-        try {
-            List<SourceFile> sourceFiles = getSourceFiles();
-            for (CompilationUnit input : inputs) {
-                builder.add(input.compile(sourceFiles, platform.externs()));
+        Optional<CompilationUnitOutput> output = compilationUnit.map(unit -> {
+            try {
+                List<SourceFile> sourceFiles = getSourceFiles();
+                return unit.compile(sourceFiles, platform.externs());
+            } catch (IOException e) {
+                throw Throwables.propagate(e);
             }
-        } catch (IOException e) {
-            throw Throwables.propagate(e);
-        }
-        return new TargetOutput(builder.build());
+        });
+
+        ImmutableList<CompilationUnitOutput> outputs = output.map(ImmutableList::of)
+                .orElse(ImmutableList.of());
+        return new TargetOutput(outputs);
     }
 
     static <T extends Platform> Builder<T> forPlatform(Class<T> platformClass) {
@@ -133,9 +136,9 @@ final class Target<T extends Platform> {
     }
 
     static final class Builder<T extends Platform> {
-        final ImmutableList.Builder<CompilationUnit> inputs = new ImmutableList.Builder<>();
         final ImmutableList.Builder<Target<T>> upstreamTargets = new ImmutableList.Builder<>();
         final T platform;
+        Optional<CompilationUnit> input = Optional.empty();
 
         private Builder(T platform) {
             this.platform = platform;
@@ -147,12 +150,12 @@ final class Target<T extends Platform> {
         }
 
         Builder<T> compilationUnit(CompilationUnit input) {
-            inputs.add(input);
+            this.input = Optional.of(input);
             return this;
         }
 
         Target<T> build() {
-            return new Target<>(platform, inputs.build(), upstreamTargets.build());
+            return new Target<>(platform, input, upstreamTargets.build());
         }
     }
 }
