@@ -23,11 +23,13 @@ interface Targets {
             .compilationUnit(CompilationUnit.HTML5_WORKER)
             .build();
 
-    static final Target HTML5_REPL = HTML5_WORKER.plus()
+    static final Target HTML5_REPL = Target.forPlatform(HTML5)
+            .include(HTML5_WORKER)
             .compilationUnit(REPL_MAIN.named("html5-repl.js"))
             .build();
 
-    static final Target HTML5_TESTS = HTML5_WORKER.plus()
+    static final Target HTML5_TESTS = Target.forPlatform(HTML5)
+            .include(HTML5_WORKER)
             .compilationUnit(HTML5_CLIENT)
             .build();
 

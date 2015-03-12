@@ -1,5 +1,6 @@
 package r5js;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.SourceFile;
 
@@ -54,14 +55,6 @@ final class Target {
         return new Builder(platform);
     }
 
-    Builder plus() {
-        Builder builder = new Builder(platform);
-        for (CompilationUnit input : inputs) {
-            builder.compilationUnit(input);
-        }
-        return builder;
-    }
-
     private boolean relevant(Path path) {
         return path.getFileName().toString().endsWith(".js")
                 && (path.startsWith("closure-library")
@@ -110,6 +103,16 @@ final class Target {
 
         private Builder(Platform platform) {
             this.platform = platform;
+        }
+
+        Builder include(Target dependency) {
+            Preconditions.checkState(
+                    platform == dependency.platform,
+                    "platform of upstream target %s not compatible with target %s",
+                    dependency.platform,
+                    platform);
+            dependency.inputs.forEach(inputs::add);
+            return this;
         }
 
         Builder compilationUnit(CompilationUnit input) {
