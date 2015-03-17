@@ -4,7 +4,8 @@ enum EntryPoint {
 
     ANDROID_MAIN("r5js.platform.android.main"),
     HTML5_WORKER("r5js.platform.html5.Worker"),
-    REPL_MAIN("r5js.repl.main"),
+    HTML5_REPL_MAIN("r5js.platform.html5.repl"),
+    NODE_REPL_MAIN("r5js.platform.node.repl"),
     TEST_MAIN("r5js.test.main");
 
     private final String jsSymbol;

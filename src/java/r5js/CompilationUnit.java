@@ -149,7 +149,7 @@ final class CompilationUnit {
         }
     }
 
-    static final CompilationUnit HTML5_REPL = new Builder("html5-repl.js", EntryPoint.REPL_MAIN)
+    static final CompilationUnit HTML5_REPL = new Builder("html5-repl.js", EntryPoint.HTML5_REPL_MAIN)
             .customCompilerOptions(options -> {
                 // HTML5_REPL requires a reference to the URL of the worker compilation unit
                 // to start the Web Worker.

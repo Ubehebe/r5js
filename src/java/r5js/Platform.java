@@ -36,7 +36,10 @@ interface Platform {
     static final class Node implements Platform {
         @Override
         public ImmutableList<String> externs() {
-            return ImmutableList.of("externs/process.js");
+            return ImmutableList.of(
+                    "externs/core.js",
+                    "externs/process.js",
+                    "externs/readline.js");
         }
     }
 }

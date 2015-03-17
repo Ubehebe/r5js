@@ -23,6 +23,7 @@ goog.require('r5js.Platform');
 goog.require('r5js.PrimitiveProcedures');
 goog.require('r5js.SchemeSources');
 goog.require('r5js.platform.html5.Client');
+goog.require('r5js.platform.html5.Terminal');
 goog.require('r5js.replutil');
 goog.require('r5js.test.SchemeSources');
 
@@ -42,6 +43,18 @@ r5js.platform.Html5_ = function(jqConsole) {
 
 /** @override */
 r5js.platform.Html5_.prototype.exit = goog.nullFunction;
+
+
+/**
+* @return {!r5js.Terminal}
+* @package
+*/
+r5js.platform.Html5_.prototype.getTerminal = function() {
+  return new r5js.platform.html5.Terminal(
+      this.jqConsole_, function(line) {
+        return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
+      });
+};
 
 
 /** @override */

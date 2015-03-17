@@ -13,7 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.repl.main');
+goog.provide('r5js.platform.node.repl');
 
 
 goog.require('goog.Promise');
@@ -26,8 +26,9 @@ goog.require('r5js.replutil');
 
 
 /** The main REPL method. */
-r5js.repl.main = function() {
-  var platform = r5js.curPlatform.apply(null, goog.array.toArray(arguments));
+r5js.platform.node.repl = function() {
+  var platform = /** @type {!r5js.platform.Node_} */ (
+      r5js.curPlatform.apply(null, goog.array.toArray(arguments)));
   /** @type {r5js.Terminal} */ var terminal;
   var stdin = r5js.InputPort.NULL;
   var stdout = new r5js.CallbackBackedPort(function(output) {
@@ -43,6 +44,6 @@ r5js.repl.main = function() {
 };
 
 
-goog.exportSymbol('r5js.repl.main', r5js.repl.main);
+goog.exportSymbol('r5js.repl.main', r5js.platform.node.repl);
 // nodejs hack. See comment in goog.promise.testSuiteAdapter.
 goog.exportSymbol('setTimeout', setTimeout);
