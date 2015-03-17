@@ -9,6 +9,7 @@ import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.DependencyOptions;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.WarningLevel;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -123,6 +124,7 @@ final class CompilationUnit {
         options.setInferConst(true);
         options.setInferTypes(true);
         CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+        WarningLevel.VERBOSE.setOptionsForWarningLevel(options);
         return options;
     }
 
