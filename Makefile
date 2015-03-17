@@ -42,7 +42,7 @@ lint:
 		{ echo >&2 "gjslint is required for linting."; exit 1; }
 	@git diff --name-only --cached --diff-filter=MA \
 	| grep "\.js" \
-	| xargs gjslint --strict
+	| xargs gjslint --strict --custom_jsdoc_tags=package
 
 # Applies lint fixes suggested by gjslint.
 .PHONY: fix
