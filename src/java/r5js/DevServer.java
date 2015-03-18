@@ -17,6 +17,7 @@ final class DevServer {
     private static final String JQCONSOLE_DIV_ID = "jqconsole";
     private static final String JQCONSOLE_BOOT_SCRIPT = String.format(
             "$(function() { r5js.repl.main($('#%s').jqconsole()); });", JQCONSOLE_DIV_ID);
+    private static final String JQCONSOLE_CSS = "position: relative; width: 100%; height: 100px;";
 
     private static final byte[] INDEX = (
             String.format(
@@ -26,13 +27,14 @@ final class DevServer {
                     + "<title>r5js</title>\n"
                     + "<script src=\"%s\"></script>\n" // test runner
                     + "<script src=\"%s\"></script>\n" // repl
-                    + "<script src=\"%s\"></script>\n" // jQuery
-                    + "<script src=\"%s\"></script>\n" // jqConsole
-                    + "<script>%s</script>"
+                    + "<script src=\"%s\"></script>\n" // JQUERY_URL
+                    + "<script src=\"%s\"></script>\n" // JQCONSOLE_URL
+                    + "<script>%s</script>" // JQCONSOLE_BOOT_SCRIPT
                     + "</head>\n"
                     + "<body>\n"
                     + "<button onclick=\"r5js.test.main()\">Run Tests</button>\n"
-                    + "<div id=\"%s\" />"
+                    + "<div id=\"%s\" " // JQCONSOLE_DIV_ID
+                    + "style=\"%s\" />" // JQCONSOLE_CSS
                     + "</body>\n"
                     + "</html>\n",
                     CompilationUnit.HTML5_TEST_RUNNER.getBuildArtifactName(),
@@ -40,7 +42,8 @@ final class DevServer {
                     JQUERY_URL,
                     JQCONSOLE_URL,
                     JQCONSOLE_BOOT_SCRIPT,
-                    JQCONSOLE_DIV_ID))
+                    JQCONSOLE_DIV_ID,
+                    JQCONSOLE_CSS))
             .getBytes();
 
     private static TargetOutput compiledApp;
