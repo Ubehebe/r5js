@@ -1,32 +1,3 @@
-# Closure Library-related paths.
-closure_root = closure-library
-
-# Closure Compiler-related paths.
-compiler_jar  = closure-compiler/build/compiler.jar
-compiler      = java -client -XX:+TieredCompilation -jar $(compiler_jar)
-
-# Input-related paths.
-src = src/js
-
-# Output-related paths.
-outdir = build
-deps = $(outdir)/deps.js
-
-# Test-related paths.
-test_main_class = r5js.test.main
-test_outfile = $(outdir)/test-all.js
-# test_opts can be overridden from the command line. Example:
-# make test test_opts="type=integration verbose"
-test_opts = type=unit verbose
-
-# Node-related paths.
-node_repl_main_class = r5js.repl.main
-node_repl_outfile = $(outdir)/node-repl.js
-
-# Target platform. This corresponds to r5js.PLATFORM in src/js/platform.js.
-# Choices: html5, node.
-PLATFORM = node
-
 # First-time setup: clones submodules, builds compiler, etc.
 .PHONY: setup
 setup:
@@ -58,4 +29,5 @@ fix:
 node-repl:
 	@command -v node > /dev/null 2>&1 || \
 		{ echo >&2 "node is required for testing."; exit 1; }
-	@node -e "require('./target/node-repl').$(node_repl_main_class)();"
+	@mvn -q install
+	@node -e "require('./target/node-repl').r5js.repl.main();"
