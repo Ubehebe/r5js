@@ -26,8 +26,11 @@ goog.require('r5js.platform.html5.Terminal');
 goog.require('r5js.replutil');
 
 
-/** The main REPL method. */
-r5js.platform.html5.repl = function() {
+/**
+ * The main REPL method.
+ * @param {?} jqConsole
+ */
+r5js.platform.html5.repl = function(jqConsole) {
   var platform = /** @type {!r5js.platform.Html5_} */ (
       r5js.curPlatform.apply(null, goog.array.toArray(arguments)));
   /** @type {r5js.Terminal} */ var terminal;
@@ -39,7 +42,7 @@ r5js.platform.html5.repl = function() {
     var isLineComplete = function(line) {
       return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
     };
-    terminal = platform.getTerminal();
+    terminal = platform.getTerminal(jqConsole);
     new r5js.Repl(terminal, evaluator, isLineComplete).start();
   });
 };

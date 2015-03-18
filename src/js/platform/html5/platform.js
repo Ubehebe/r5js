@@ -30,15 +30,12 @@ goog.require('r5js.test.SchemeSources');
 
 
 /**
- * @param {?} jqConsole
  * @implements {r5js.Platform}
  * @struct
  * @constructor
  * @private
  */
-r5js.platform.Html5_ = function(jqConsole) {
-  /** @const @private */ this.jqConsole_ = jqConsole;
-};
+r5js.platform.Html5_ = function() {};
 
 
 /** @override */
@@ -46,12 +43,13 @@ r5js.platform.Html5_.prototype.exit = goog.nullFunction;
 
 
 /**
-* @return {!r5js.Terminal}
-* @package
-*/
-r5js.platform.Html5_.prototype.getTerminal = function() {
+ * @param {?} jqConsole
+ * @return {!r5js.Terminal}
+ * @package
+ */
+r5js.platform.Html5_.prototype.getTerminal = function(jqConsole) {
   return new r5js.platform.html5.Terminal(
-      this.jqConsole_, function(line) {
+      jqConsole, function(line) {
         return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
       });
 };
@@ -68,6 +66,6 @@ r5js.platform.Html5_.prototype.newEvaluator =
 
 /** @return {!r5js.Platform} */
 r5js.curPlatform = function() {
-  return new r5js.platform.Html5_(arguments[0] /* TODO bl improve */);
+  return new r5js.platform.Html5_();
 };
 
