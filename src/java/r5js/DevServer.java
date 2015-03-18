@@ -6,9 +6,17 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.Executors;
 
 final class DevServer {
+
+    private static final String JQUERY_URL = "https://code.jquery.com/jquery-1.11.2.min.js";
+    private static final String JQCONSOLE_URL = "jqconsole.js";
+    private static final String JQCONSOLE_DIV_ID = "jqconsole";
+    private static final String JQCONSOLE_BOOT_SCRIPT = String.format(
+            "$(function() { r5js.repl.main($('#%s').jqconsole()); });", JQCONSOLE_DIV_ID);
 
     private static final byte[] INDEX = (
             String.format(
@@ -18,13 +26,21 @@ final class DevServer {
                     + "<title>r5js</title>\n"
                     + "<script src=\"%s\"></script>\n" // test runner
                     + "<script src=\"%s\"></script>\n" // repl
+                    + "<script src=\"%s\"></script>\n" // jQuery
+                    + "<script src=\"%s\"></script>\n" // jqConsole
+                    + "<script>%s</script>"
                     + "</head>\n"
                     + "<body>\n"
                     + "<button onclick=\"r5js.test.main()\">Run Tests</button>\n"
+                    + "<div id=\"%s\" />"
                     + "</body>\n"
                     + "</html>\n",
                     CompilationUnit.HTML5_TEST_RUNNER.getBuildArtifactName(),
-                    CompilationUnit.HTML5_REPL.getBuildArtifactName()))
+                    CompilationUnit.HTML5_REPL.getBuildArtifactName(),
+                    JQUERY_URL,
+                    JQCONSOLE_URL,
+                    JQCONSOLE_BOOT_SCRIPT,
+                    JQCONSOLE_DIV_ID))
             .getBytes();
 
     private static TargetOutput compiledApp;
@@ -44,6 +60,10 @@ final class DevServer {
             if ("/".equals(url)) {
                 exchange.sendResponseHeaders(200, 0);
                 out.write(INDEX);
+                return;
+            } else if (url.endsWith(JQCONSOLE_URL)) {
+                exchange.sendResponseHeaders(200, 0);
+                out.write(Files.readAllBytes(Paths.get("jq-console", "jqconsole.min.js")));
                 return;
             }
             for (CompilationUnitOutput output : getCompiledJs().outputs) {
