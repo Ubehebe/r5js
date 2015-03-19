@@ -58,7 +58,7 @@ r5js.platform.html5.Terminal.prototype.multilineCallback_ = function(
  */
 r5js.platform.html5.Terminal.prototype.getNextLineOfInput = function() {
   return new goog.Promise(function(resolve) {
-    this.jqconsole_.Prompt(
+    this.jqconsole_['Prompt'](
         true /* history_enabled */,
         resolve,
         this.multilineCallback_.bind(this),
@@ -72,7 +72,7 @@ r5js.platform.html5.Terminal.prototype.getNextLineOfInput = function() {
  * @suppress {checkTypes} for the jqconsole integration
  */
 r5js.platform.html5.Terminal.prototype.print = function(msg) {
-  this.jqconsole_.Write(msg + '\n', 'jqconsole-output');
+  this.jqconsole_['Write'](msg + '\n', 'jqconsole-output');
 };
 
 
@@ -81,5 +81,5 @@ r5js.platform.html5.Terminal.prototype.print = function(msg) {
  * @suppress {checkTypes} for the jqconsole integration
  */
 r5js.platform.html5.Terminal.prototype.error = function(msg) {
-  this.jqconsole_.Write(msg + '\n', 'jqconsole-error');
+  this.jqconsole_['Write'](msg + '\n', 'jqconsole-error');
 };

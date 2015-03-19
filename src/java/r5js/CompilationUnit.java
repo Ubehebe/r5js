@@ -124,6 +124,10 @@ final class CompilationUnit {
         options.setInferConst(true);
         options.setInferTypes(true);
         CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+
+        // TODO bl: collapseProperties breaks the HTML5 and node REPLs. Investigate.
+        options.setCollapseProperties(false);
+
         WarningLevel.VERBOSE.setOptionsForWarningLevel(options);
         return options;
     }
