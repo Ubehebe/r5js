@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 final class DevServer {
@@ -44,7 +46,9 @@ final class DevServer {
                     JQCONSOLE_CSS))
             .getBytes();
 
-    private static TargetOutput compiledApp;
+    private static final Map<String, byte[]> files = new HashMap<>();
+
+    private static boolean hasCompiled = false;
 
     public static void main(String[] args) throws IOException {
         InetSocketAddress address = new InetSocketAddress(8080);
@@ -56,32 +60,35 @@ final class DevServer {
     }
 
     private static void handle(HttpExchange exchange) throws IOException {
-        try (OutputStream out = exchange.getResponseBody()) {
-            String url = exchange.getRequestURI().toString();
-            if ("/".equals(url)) {
-                exchange.sendResponseHeaders(200, 0);
-                out.write(INDEX);
-                return;
-            } else if (url.endsWith(JQCONSOLE_URL)) {
-                exchange.sendResponseHeaders(200, 0);
-                out.write(Files.readAllBytes(Paths.get("jq-console", "jqconsole.min.js")));
-                return;
-            }
-            for (CompilationUnitOutput output : getCompiledJs().outputs) {
-                if (url.substring(1).equals(output.getBuildArtifactName())) {
-                    exchange.sendResponseHeaders(200, 0);
-                    out.write(output.getBytes());
-                    return;
-                }
-            }
+        maybeCompile();
+        String url = exchange.getRequestURI().toString();
+        byte[] bytes = files.get(url);
+        if (bytes == null) {
             exchange.sendResponseHeaders(404, -1);
+            return;
+        }
+        exchange.sendResponseHeaders(200, 0);
+        try (OutputStream out = exchange.getResponseBody()) {
+            out.write(bytes);
         }
     }
 
-    private static synchronized TargetOutput getCompiledJs() throws IOException {
-//        if (compiledApp == null) {
-//            compiledApp = Targets.HTML5_WORKER.build().merge(Targets.HTML5_DEV_CLIENT.build());
-//        } TODO bl
-        return compiledApp;
+    private static synchronized void maybeCompile() throws IOException {
+        if (hasCompiled) {
+            return;
+        }
+
+        files.put("/", INDEX);
+
+        files.put("/" + JQCONSOLE_URL,
+                Files.readAllBytes(Paths.get("jq-console", "jqconsole.min.js")));
+
+        CompilationUnitOutput worker = CompilationUnits.HTML5_WORKER.compile();
+        files.put("/" + worker.getBuildArtifactName(), worker.getBytes());
+
+        CompilationUnitOutput client = CompilationUnits.HTML5_DEV_CLIENT.compile();
+        files.put("/" + client.getBuildArtifactName(), client.getBytes());
+
+        hasCompiled = true;
     }
 }
