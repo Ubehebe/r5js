@@ -42,16 +42,14 @@ final class Target {
     TargetOutput build() {
         CompilationUnitOutput output;
         try {
-            List<SourceFile> sourceFiles
-                    = SourceFileCollector.forPlatform(compilationUnit.platform).getSourceFiles();
-            output = compilationUnit.compile(sourceFiles);
+            output = compilationUnit.compile();
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
         return new TargetOutput(ImmutableList.of(output));
     }
 
-    static <T extends Platform> Target of(CompilationUnit input) {
+    static Target of(CompilationUnit input) {
         return new Target(input);
     }
 }

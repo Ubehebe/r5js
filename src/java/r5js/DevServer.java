@@ -37,8 +37,8 @@ final class DevServer {
                     + "style=\"%s\" />" // JQCONSOLE_CSS
                     + "</body>\n"
                     + "</html>\n",
-                    CompilationUnit.HTML5_TEST_RUNNER.getBuildArtifactName(),
-                    CompilationUnit.HTML5_REPL.getBuildArtifactName(),
+                    CompilationUnits.HTML5_TEST_RUNNER.getBuildArtifactName(),
+                    CompilationUnits.HTML5_REPL.getBuildArtifactName(),
                     JQUERY_URL,
                     JQCONSOLE_URL,
                     JQCONSOLE_BOOT_SCRIPT,
@@ -81,9 +81,9 @@ final class DevServer {
     }
 
     private static synchronized TargetOutput getCompiledJs() throws IOException {
-        if (compiledApp == null) {
-            compiledApp = Targets.HTML5_WORKER.build().merge(Targets.HTML5_CLIENT.build());
-        }
+//        if (compiledApp == null) {
+//            compiledApp = Targets.HTML5_WORKER.build().merge(Targets.HTML5_CLIENT.build());
+//        } TODO bl
         return compiledApp;
     }
 }

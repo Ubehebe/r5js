@@ -10,28 +10,28 @@ import java.nio.file.Paths;
 public class CompilationTest {
 
     @Test public void androidRepl() throws IOException {
-        Targets.ANDROID_REPL.build().outputs.forEach(CompilationTest::writeOut);
+        writeOut(CompilationUnits.ANDROID_REPL.compile());
     }
 
     @Test public void androidTests() throws IOException{
-        Targets.ANDROID_TESTS.build().outputs.forEach(CompilationTest::writeOut);
+        writeOut(CompilationUnits.ANDROID_TESTS.compile());
     }
 
     @Test public void html5() throws IOException {
-        Targets.HTML5_WORKER.build().outputs.forEach(CompilationTest::writeOut);
-        Targets.HTML5_CLIENT.build().outputs.forEach(CompilationTest::writeOut);
+        writeOut(CompilationUnits.HTML5_WORKER.compile());
+        writeOut(CompilationUnits.HTML5_TEST_RUNNER.compile());
     }
 
     @Test public void nashornTests() throws IOException {
-        Targets.NASHORN_TESTS.build().outputs.forEach(CompilationTest::writeOut);
+        writeOut(CompilationUnits.NASHORN_TESTS.compile());
     }
 
     @Test public void nodeRepl() throws IOException {
-        Targets.NODE_REPL.build().outputs.forEach(CompilationTest::writeOut);
+        writeOut(CompilationUnits.NODE_REPL.compile());
     }
 
     @Test public void nodeTests() throws IOException {
-        Targets.NODE_TESTS.build().outputs.forEach(CompilationTest::writeOut);
+        writeOut(CompilationUnits.NODE_TESTS.compile());
     }
 
     private static void writeOut(CompilationUnitOutput output) {

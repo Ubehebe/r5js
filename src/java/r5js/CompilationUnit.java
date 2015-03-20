@@ -31,7 +31,7 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
  */
 final class CompilationUnit {
 
-    private final String buildArtifactName;
+    final String buildArtifactName;
     final Platform platform;
     private final ImmutableList<String> entryPoints;
     private final UnaryOperator<CompilerOptions> customCompilerOptions;
@@ -96,8 +96,9 @@ final class CompilationUnit {
      * @throws IOException if the externs cannot be fetched
      * @throws java.lang.IllegalStateException if compilation results in errors or warnings
      */
-    CompilationUnitOutput compile(List<SourceFile> sources)
+    CompilationUnitOutput compile()
             throws IOException {
+        List<SourceFile> sources = SourceFileCollector.forPlatform(platform).getSourceFiles();
         Compiler compiler = new Compiler();
         compiler.setErrorManager(new ErrorManager(System.err));
         Result underlying = compiler.compile(
@@ -175,36 +176,4 @@ final class CompilationUnit {
                     customCompilerOptions);
         }
     }
-
-    static final CompilationUnit HTML5_REPL
-            = CompilationUnit.of("html5-repl.js", new Platform.Html5())
-            .entryPoint(EntryPoint.HTML5_REPL_MAIN)
-            .customCompilerOptions(options -> {
-                // HTML5_CLIENT requires a reference to the URL of the worker compilation unit
-                // to start the Web Worker.
-                options.setDefineToStringLiteral(
-                        "r5js.platform.html5.Client.WORKER_SCRIPT",
-                        CompilationUnit.HTML5_WORKER.buildArtifactName);
-                return options;
-            })
-            .build();
-
-
-    static final CompilationUnit HTML5_TEST_RUNNER
-            = CompilationUnit.of("html5-tests.js", new Platform.Html5())
-            .entryPoint(EntryPoint.TEST_MAIN)
-            .customCompilerOptions(options -> {
-                // HTML5_TEST_RUNNER requires a reference to the URL of the worker compilation unit
-                // to start the Web Worker.
-                options.setDefineToStringLiteral(
-                        "r5js.platform.html5.Client.WORKER_SCRIPT",
-                        CompilationUnit.HTML5_WORKER.buildArtifactName);
-                return options;
-            })
-            .build();
-
-    static final CompilationUnit HTML5_WORKER
-            = CompilationUnit.of("worker.js", new Platform.Html5())
-            .entryPoint(EntryPoint.HTML5_WORKER)
-            .build();
 }
