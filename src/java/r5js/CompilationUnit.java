@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -31,16 +32,22 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
 final class CompilationUnit {
 
     private final String buildArtifactName;
-    private final EntryPoint entryPoint;
+    private final ImmutableList<String> entryPoints;
     private final UnaryOperator<CompilerOptions> customCompilerOptions;
 
     private CompilationUnit(
             String buildArtifactName,
-            EntryPoint entryPoint,
+            ImmutableList<EntryPoint> entryPoints,
             UnaryOperator<CompilerOptions> customCompilerOptions) {
         this.buildArtifactName = buildArtifactName;
-        this.entryPoint = entryPoint;
+        this.entryPoints = ImmutableList.copyOf(entryPoints.stream()
+                .map(EntryPoint::getEntryPoint)
+                .collect(Collectors.toList()));
         this.customCompilerOptions = customCompilerOptions;
+    }
+
+    static Builder named(String buildArtifactName) {
+        return new Builder(buildArtifactName);
     }
 
     String getBuildArtifactName() {
@@ -77,7 +84,7 @@ final class CompilationUnit {
                 new DependencyOptions()
                         .setDependencyPruning(true)
                         .setDependencySorting(true)
-                        .setEntryPoints(ImmutableList.of(entryPoint.getEntryPoint()))
+                        .setEntryPoints(entryPoints)
                         .setMoocherDropping(true)); // There are moochers in the Closure Library >:|
         return customCompilerOptions.apply(options);
     }
@@ -138,12 +145,16 @@ final class CompilationUnit {
 
     static final class Builder {
         private final String buildArtifactName;
-        private final EntryPoint entryPoint;
+        private final ImmutableList.Builder<EntryPoint> entryPoints = new ImmutableList.Builder<>();
         private UnaryOperator<CompilerOptions> customCompilerOptions = UnaryOperator.identity();
 
-        Builder(String buildArtifactName, EntryPoint entryPoint) {
+        private Builder(String buildArtifactName) {
             this.buildArtifactName = buildArtifactName;
-            this.entryPoint = entryPoint;
+        }
+
+        Builder entryPoint(EntryPoint entryPoint) {
+            this.entryPoints.add(entryPoint);
+            return this;
         }
 
         Builder customCompilerOptions(UnaryOperator<CompilerOptions> options) {
@@ -154,12 +165,13 @@ final class CompilationUnit {
         CompilationUnit build() {
             return new CompilationUnit(
                     buildArtifactName,
-                    entryPoint,
+                    entryPoints.build(),
                     customCompilerOptions);
         }
     }
 
-    static final CompilationUnit HTML5_REPL = new Builder("html5-repl.js", EntryPoint.HTML5_REPL_MAIN)
+    static final CompilationUnit HTML5_REPL = CompilationUnit.named("html5-repl.js")
+            .entryPoint(EntryPoint.HTML5_REPL_MAIN)
             .customCompilerOptions(options -> {
                 // HTML5_REPL requires a reference to the URL of the worker compilation unit
                 // to start the Web Worker.
@@ -171,7 +183,8 @@ final class CompilationUnit {
             .build();
 
 
-    static final CompilationUnit HTML5_TEST_RUNNER = new Builder("html5-tests.js", EntryPoint.TEST_MAIN)
+    static final CompilationUnit HTML5_TEST_RUNNER = CompilationUnit.named("html5-tests.js")
+            .entryPoint(EntryPoint.TEST_MAIN)
             .customCompilerOptions(options -> {
                 // HTML5_TEST_RUNNER requires a reference to the URL of the worker compilation unit
                 // to start the Web Worker.
@@ -182,5 +195,6 @@ final class CompilationUnit {
             })
             .build();
 
-    static final CompilationUnit HTML5_WORKER = EntryPoint.HTML5_WORKER.named("worker.js");
+    static final CompilationUnit HTML5_WORKER
+            = CompilationUnit.named("worker.js").entryPoint(EntryPoint.HTML5_WORKER).build();
 }
