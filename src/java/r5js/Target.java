@@ -26,12 +26,12 @@ import java.util.function.Predicate;
  * the web worker that actually runs the interpreter, and another "client" compilation unit
  * for interacting with the worker.)
  */
-final class Target<T extends Platform> {
+final class Target {
 
     private final Platform platform;
     private final CompilationUnit compilationUnit;
 
-    private Target(T platform, CompilationUnit compilationUnit) {
+    private Target(Platform platform, CompilationUnit compilationUnit) {
         this.platform = platform;
         this.compilationUnit = compilationUnit;
     }
@@ -53,9 +53,9 @@ final class Target<T extends Platform> {
         return new TargetOutput(ImmutableList.of(output));
     }
 
-    static <T extends Platform> Target<T> of(Class<T> platformClass, CompilationUnit input) {
+    static <T extends Platform> Target of(Class<T> platformClass, CompilationUnit input) {
         try {
-            return new Builder<>(platformClass.newInstance(), input).build();
+            return new Builder(platformClass.newInstance(), input).build();
         } catch (IllegalAccessException | InstantiationException e) {
             throw Throwables.propagate(e);
         }
@@ -101,17 +101,17 @@ final class Target<T extends Platform> {
         });
     }
 
-    static final class Builder<T extends Platform> {
-        final T platform;
+    static final class Builder {
+        final Platform platform;
         final CompilationUnit input;
 
-        private Builder(T platform, CompilationUnit input) {
+        private Builder(Platform platform, CompilationUnit input) {
             this.platform = platform;
             this.input = input;
         }
 
-        Target<T> build() {
-            return new Target<>(platform, input);
+        Target build() {
+            return new Target(platform, input);
         }
     }
 }
