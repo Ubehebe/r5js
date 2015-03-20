@@ -13,7 +13,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -30,9 +29,9 @@ import java.util.function.Predicate;
 final class Target<T extends Platform> {
 
     private final Platform platform;
-    private final Optional<CompilationUnit> compilationUnit;
+    private final CompilationUnit compilationUnit;
 
-    private Target(T platform, Optional<CompilationUnit> compilationUnit) {
+    private Target(T platform, CompilationUnit compilationUnit) {
         this.platform = platform;
         this.compilationUnit = compilationUnit;
     }
@@ -44,18 +43,14 @@ final class Target<T extends Platform> {
      * @throws java.lang.RuntimeException if compilation fails.
      */
     TargetOutput build() {
-        Optional<CompilationUnitOutput> output = compilationUnit.map(unit -> {
-            try {
-                List<SourceFile> sourceFiles = getSourceFiles();
-                return unit.compile(sourceFiles, platform.externs());
-            } catch (IOException e) {
-                throw Throwables.propagate(e);
-            }
-        });
-
-        ImmutableList<CompilationUnitOutput> outputs = output.map(ImmutableList::of)
-                .orElse(ImmutableList.of());
-        return new TargetOutput(outputs);
+        CompilationUnitOutput output;
+        try {
+            List<SourceFile> sourceFiles = getSourceFiles();
+            output = compilationUnit.compile(sourceFiles, platform.externs());
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
+        return new TargetOutput(ImmutableList.of(output));
     }
 
     static <T extends Platform> Builder<T> forPlatform(Class<T> platformClass) {
@@ -108,14 +103,14 @@ final class Target<T extends Platform> {
 
     static final class Builder<T extends Platform> {
         final T platform;
-        Optional<CompilationUnit> input = Optional.empty();
+        CompilationUnit input;
 
         private Builder(T platform) {
             this.platform = platform;
         }
 
         Builder<T> compilationUnit(CompilationUnit input) {
-            this.input = Optional.of(input);
+            this.input = input;
             return this;
         }
 
