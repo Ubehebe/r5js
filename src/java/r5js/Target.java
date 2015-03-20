@@ -27,12 +27,9 @@ import java.util.function.Predicate;
  * for interacting with the worker.)
  */
 final class Target {
-
-    private final Platform platform;
     private final CompilationUnit compilationUnit;
 
-    private Target(Platform platform, CompilationUnit compilationUnit) {
-        this.platform = platform;
+    private Target(CompilationUnit compilationUnit) {
         this.compilationUnit = compilationUnit;
     }
 
@@ -46,19 +43,15 @@ final class Target {
         CompilationUnitOutput output;
         try {
             List<SourceFile> sourceFiles = getSourceFiles();
-            output = compilationUnit.compile(sourceFiles, platform.externs());
+            output = compilationUnit.compile(sourceFiles);
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
         return new TargetOutput(ImmutableList.of(output));
     }
 
-    static <T extends Platform> Target of(Class<T> platformClass, CompilationUnit input) {
-        try {
-            return new Target(platformClass.newInstance(), input);
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw Throwables.propagate(e);
-        }
+    static <T extends Platform> Target of(CompilationUnit input) {
+        return new Target(input);
     }
 
     private boolean relevant(Path path) {
@@ -75,7 +68,10 @@ final class Target {
         Path parent = path.getParent();
         return parent.endsWith("platform")
                 || parent.endsWith("common")
-                || parent.endsWith(platform.getClass().getSimpleName().toLowerCase());
+                || parent.endsWith(compilationUnit.platform
+                .getClass()
+                .getSimpleName()
+                .toLowerCase());
     }
 
     private List<SourceFile> getSourceFiles() throws IOException {

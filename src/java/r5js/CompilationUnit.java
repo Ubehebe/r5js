@@ -32,33 +32,36 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
 final class CompilationUnit {
 
     private final String buildArtifactName;
+    final Platform platform;
     private final ImmutableList<String> entryPoints;
     private final UnaryOperator<CompilerOptions> customCompilerOptions;
 
     private CompilationUnit(
             String buildArtifactName,
+            Platform platform,
             ImmutableList<EntryPoint> entryPoints,
             UnaryOperator<CompilerOptions> customCompilerOptions) {
         this.buildArtifactName = buildArtifactName;
+        this.platform = platform;
         this.entryPoints = ImmutableList.copyOf(entryPoints.stream()
                 .map(EntryPoint::getEntryPoint)
                 .collect(Collectors.toList()));
         this.customCompilerOptions = customCompilerOptions;
     }
 
-    static Builder named(String buildArtifactName) {
-        return new Builder(buildArtifactName);
+    static Builder of(String buildArtifactName, Platform platform) {
+        return new Builder(buildArtifactName, platform);
     }
 
     String getBuildArtifactName() {
         return buildArtifactName;
     }
 
-    private ImmutableList<SourceFile> getExterns(ImmutableList<String> platformExterns)
+    private ImmutableList<SourceFile> getExterns()
             throws IOException {
         ImmutableList.Builder<SourceFile> externs = new ImmutableList.Builder<>();
         addDefaultCompilerExterns(externs);
-        platformExterns.stream()
+        platform.externs().stream()
                 .map(SourceFile::fromFile)
                 .forEach(externs::add);
         return externs.build();
@@ -93,12 +96,12 @@ final class CompilationUnit {
      * @throws IOException if the externs cannot be fetched
      * @throws java.lang.IllegalStateException if compilation results in errors or warnings
      */
-    CompilationUnitOutput compile(List<SourceFile> sources, ImmutableList<String> platformExterns)
+    CompilationUnitOutput compile(List<SourceFile> sources)
             throws IOException {
         Compiler compiler = new Compiler();
         compiler.setErrorManager(new ErrorManager(System.err));
         Result underlying = compiler.compile(
-                getExterns(platformExterns),
+                getExterns(),
                 sources,
                 getCompilerOptions());
         Stream.concat(Arrays.stream(underlying.warnings), Arrays.stream(underlying.errors))
@@ -145,11 +148,13 @@ final class CompilationUnit {
 
     static final class Builder {
         private final String buildArtifactName;
+        private final Platform platform;
         private final ImmutableList.Builder<EntryPoint> entryPoints = new ImmutableList.Builder<>();
         private UnaryOperator<CompilerOptions> customCompilerOptions = UnaryOperator.identity();
 
-        private Builder(String buildArtifactName) {
+        private Builder(String buildArtifactName, Platform platform) {
             this.buildArtifactName = buildArtifactName;
+            this.platform = platform;
         }
 
         Builder entryPoint(EntryPoint entryPoint) {
@@ -165,12 +170,14 @@ final class CompilationUnit {
         CompilationUnit build() {
             return new CompilationUnit(
                     buildArtifactName,
+                    platform,
                     entryPoints.build(),
                     customCompilerOptions);
         }
     }
 
-    static final CompilationUnit HTML5_REPL = CompilationUnit.named("html5-repl.js")
+    static final CompilationUnit HTML5_REPL
+            = CompilationUnit.of("html5-repl.js", new Platform.Html5())
             .entryPoint(EntryPoint.HTML5_REPL_MAIN)
             .customCompilerOptions(options -> {
                 // HTML5_CLIENT requires a reference to the URL of the worker compilation unit
@@ -183,7 +190,8 @@ final class CompilationUnit {
             .build();
 
 
-    static final CompilationUnit HTML5_TEST_RUNNER = CompilationUnit.named("html5-tests.js")
+    static final CompilationUnit HTML5_TEST_RUNNER
+            = CompilationUnit.of("html5-tests.js", new Platform.Html5())
             .entryPoint(EntryPoint.TEST_MAIN)
             .customCompilerOptions(options -> {
                 // HTML5_TEST_RUNNER requires a reference to the URL of the worker compilation unit
@@ -196,5 +204,7 @@ final class CompilationUnit {
             .build();
 
     static final CompilationUnit HTML5_WORKER
-            = CompilationUnit.named("worker.js").entryPoint(EntryPoint.HTML5_WORKER).build();
+            = CompilationUnit.of("worker.js", new Platform.Html5())
+            .entryPoint(EntryPoint.HTML5_WORKER)
+            .build();
 }
