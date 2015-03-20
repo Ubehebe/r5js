@@ -2,7 +2,6 @@ package r5js;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.SourceFile;
 
 import java.io.IOException;
@@ -32,15 +31,10 @@ final class Target<T extends Platform> {
 
     private final Platform platform;
     private final Optional<CompilationUnit> compilationUnit;
-    private final ImmutableList<Target<T>> upstreamTargets;
 
-    private Target(
-            T platform,
-            Optional<CompilationUnit> compilationUnit,
-            ImmutableList<Target<T>> upstreamTargets) {
+    private Target(T platform, Optional<CompilationUnit> compilationUnit) {
         this.platform = platform;
         this.compilationUnit = compilationUnit;
-        this.upstreamTargets = upstreamTargets;
     }
 
     /**
@@ -50,27 +44,6 @@ final class Target<T extends Platform> {
      * @throws java.lang.RuntimeException if compilation fails.
      */
     TargetOutput build() {
-        // A real dependency system would have to topologically sort the dependencies,
-        // but all we're using includes for is avoiding building the same target twice.
-        // Hence deduping is sufficient.
-        return dedupDeps()
-                .stream()
-                .map(Target::buildIgnoringDeps)
-                .reduce(new TargetOutput(ImmutableList.of()), TargetOutput::merge);
-    }
-
-    private ImmutableSet<Target> dedupDeps() {
-        ImmutableSet.Builder<Target> deduped = new ImmutableSet.Builder<>();
-        dedupDeps(deduped);
-        return deduped.build();
-    }
-
-    private void dedupDeps(ImmutableSet.Builder<Target> deduped) {
-        deduped.add(this);
-        upstreamTargets.forEach(target -> target.dedupDeps(deduped));
-    }
-
-    private TargetOutput buildIgnoringDeps() {
         Optional<CompilationUnitOutput> output = compilationUnit.map(unit -> {
             try {
                 List<SourceFile> sourceFiles = getSourceFiles();
@@ -110,8 +83,6 @@ final class Target<T extends Platform> {
                 || parent.endsWith(platform.getClass().getSimpleName().toLowerCase());
     }
 
-
-
     private List<SourceFile> getSourceFiles() throws IOException {
         List<SourceFile> sourceFiles = new ArrayList<>();
         for (SchemeSource schemeSource : SchemeSource.values()) {
@@ -136,17 +107,11 @@ final class Target<T extends Platform> {
     }
 
     static final class Builder<T extends Platform> {
-        final ImmutableList.Builder<Target<T>> upstreamTargets = new ImmutableList.Builder<>();
         final T platform;
         Optional<CompilationUnit> input = Optional.empty();
 
         private Builder(T platform) {
             this.platform = platform;
-        }
-
-        Builder<T> include(Target<T> dependency) {
-            upstreamTargets.add(dependency);
-            return this;
         }
 
         Builder<T> compilationUnit(CompilationUnit input) {
@@ -155,7 +120,7 @@ final class Target<T extends Platform> {
         }
 
         Target<T> build() {
-            return new Target<>(platform, input, upstreamTargets.build());
+            return new Target<>(platform, input);
         }
     }
 }

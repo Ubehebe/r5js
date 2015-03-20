@@ -82,7 +82,7 @@ final class DevServer {
 
     private static synchronized TargetOutput getCompiledJs() throws IOException {
         if (compiledApp == null) {
-            compiledApp = Targets.HTML5_ALL.build();
+            compiledApp = Targets.HTML5_WORKER.build().merge(Targets.HTML5_CLIENT.build());
         }
         return compiledApp;
     }

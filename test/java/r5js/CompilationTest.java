@@ -18,7 +18,8 @@ public class CompilationTest {
     }
 
     @Test public void html5() throws IOException {
-        Targets.HTML5_ALL.build().outputs.forEach(CompilationTest::writeOut);
+        Targets.HTML5_WORKER.build().outputs.forEach(CompilationTest::writeOut);
+        Targets.HTML5_CLIENT.build().outputs.forEach(CompilationTest::writeOut);
     }
 
     @Test public void nashornTests() throws IOException {

@@ -173,7 +173,7 @@ final class CompilationUnit {
     static final CompilationUnit HTML5_REPL = CompilationUnit.named("html5-repl.js")
             .entryPoint(EntryPoint.HTML5_REPL_MAIN)
             .customCompilerOptions(options -> {
-                // HTML5_REPL requires a reference to the URL of the worker compilation unit
+                // HTML5_CLIENT requires a reference to the URL of the worker compilation unit
                 // to start the Web Worker.
                 options.setDefineToStringLiteral(
                         "r5js.platform.html5.Client.WORKER_SCRIPT",
