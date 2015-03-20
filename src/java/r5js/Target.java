@@ -53,9 +53,9 @@ final class Target<T extends Platform> {
         return new TargetOutput(ImmutableList.of(output));
     }
 
-    static <T extends Platform> Builder<T> forPlatform(Class<T> platformClass) {
+    static <T extends Platform> Target<T> of(Class<T> platformClass, CompilationUnit input) {
         try {
-            return new Builder<>(platformClass.newInstance());
+            return new Builder<>(platformClass.newInstance(), input).build();
         } catch (IllegalAccessException | InstantiationException e) {
             throw Throwables.propagate(e);
         }
@@ -103,15 +103,11 @@ final class Target<T extends Platform> {
 
     static final class Builder<T extends Platform> {
         final T platform;
-        CompilationUnit input;
+        final CompilationUnit input;
 
-        private Builder(T platform) {
+        private Builder(T platform, CompilationUnit input) {
             this.platform = platform;
-        }
-
-        Builder<T> compilationUnit(CompilationUnit input) {
             this.input = input;
-            return this;
         }
 
         Target<T> build() {
