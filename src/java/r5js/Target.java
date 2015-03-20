@@ -55,7 +55,7 @@ final class Target {
 
     static <T extends Platform> Target of(Class<T> platformClass, CompilationUnit input) {
         try {
-            return new Builder(platformClass.newInstance(), input).build();
+            return new Target(platformClass.newInstance(), input);
         } catch (IllegalAccessException | InstantiationException e) {
             throw Throwables.propagate(e);
         }
@@ -99,19 +99,5 @@ final class Target {
                 return FileVisitResult.CONTINUE;
             }
         });
-    }
-
-    static final class Builder {
-        final Platform platform;
-        final CompilationUnit input;
-
-        private Builder(Platform platform, CompilationUnit input) {
-            this.platform = platform;
-            this.input = input;
-        }
-
-        Target build() {
-            return new Target(platform, input);
-        }
     }
 }
