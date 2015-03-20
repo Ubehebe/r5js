@@ -42,7 +42,8 @@ final class Target {
     TargetOutput build() {
         CompilationUnitOutput output;
         try {
-            List<SourceFile> sourceFiles = getSourceFiles();
+            List<SourceFile> sourceFiles
+                    = SourceFileCollector.forPlatform(compilationUnit.platform).getSourceFiles();
             output = compilationUnit.compile(sourceFiles);
         } catch (IOException e) {
             throw Throwables.propagate(e);
@@ -52,48 +53,5 @@ final class Target {
 
     static <T extends Platform> Target of(CompilationUnit input) {
         return new Target(input);
-    }
-
-    private boolean relevant(Path path) {
-        return path.getFileName().toString().endsWith(".js")
-                && (path.startsWith("closure-library")
-                || (path.startsWith("src/js") && isRelevantSourcePath(path)));
-    }
-
-    private boolean isRelevantSourcePath(Path path) {
-        if (!path.startsWith("src/js/platform")) {
-            return true;
-        }
-
-        Path parent = path.getParent();
-        return parent.endsWith("platform")
-                || parent.endsWith("common")
-                || parent.endsWith(compilationUnit.platform
-                .getClass()
-                .getSimpleName()
-                .toLowerCase());
-    }
-
-    private List<SourceFile> getSourceFiles() throws IOException {
-        List<SourceFile> sourceFiles = new ArrayList<>();
-        for (SchemeSource schemeSource : SchemeSource.values()) {
-            sourceFiles.add(schemeSource.bundle());
-        }
-        collectJsFilesIn("src/js", sourceFiles, this::relevant);
-        collectJsFilesIn("closure-library", sourceFiles, path -> path.getFileName().toString()
-                .endsWith(".js"));
-        return sourceFiles;
-    }
-
-    private static void collectJsFilesIn(String root, List<SourceFile> sourceFiles, Predicate<Path> filter) throws IOException {
-        Files.walkFileTree(Paths.get(root), new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-                if (filter.test(path)) {
-                    sourceFiles.add(SourceFile.fromFile(path.toFile()));
-                }
-                return FileVisitResult.CONTINUE;
-            }
-        });
     }
 }
