@@ -19,24 +19,16 @@ interface CompilationUnits {
             .entryPoint(EntryPoint.HTML5_WORKER)
             .build();
 
-    static final CompilationUnit HTML5_TEST_RUNNER = CompilationUnit.of(
+    /**
+     * This contains {@link r5js.EntryPoint#TEST_MAIN}, so it isn't suitable to serve
+     * in a production app.
+     */
+    static final CompilationUnit HTML5_DEV_CLIENT = CompilationUnit.of(
             "html5-tests.js", new Platform.Html5())
             .entryPoint(EntryPoint.TEST_MAIN)
-            .customCompilerOptions(options -> {
-                // HTML5_TEST_RUNNER requires a reference to the URL of the worker compilation unit
-                // to start the Web Worker.
-                options.setDefineToStringLiteral(
-                        "r5js.platform.html5.Client.WORKER_SCRIPT",
-                        HTML5_WORKER.buildArtifactName);
-                return options;
-            })
-            .build();
-
-    static final CompilationUnit HTML5_REPL = CompilationUnit.of(
-            "html5-repl.js", new Platform.Html5())
             .entryPoint(EntryPoint.HTML5_REPL_MAIN)
             .customCompilerOptions(options -> {
-                // HTML5_CLIENT requires a reference to the URL of the worker compilation unit
+                // HTML5_DEV_CLIENT requires a reference to the URL of the worker compilation unit
                 // to start the Web Worker.
                 options.setDefineToStringLiteral(
                         "r5js.platform.html5.Client.WORKER_SCRIPT",
