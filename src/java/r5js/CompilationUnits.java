@@ -24,7 +24,7 @@ interface CompilationUnits {
      * in a production app.
      */
     static final CompilationUnit HTML5_DEV_CLIENT = CompilationUnit.of(
-            "html5-tests.js", new Platform.Html5())
+            "html5-devclient.js", new Platform.Html5())
             .entryPoint(EntryPoint.TEST_MAIN)
             .entryPoint(EntryPoint.HTML5_REPL_MAIN)
             .customCompilerOptions(options -> {
