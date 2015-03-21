@@ -59,7 +59,7 @@ final class CompilationUnit {
             throws IOException {
         ImmutableList.Builder<SourceFile> externs = new ImmutableList.Builder<>();
         addDefaultCompilerExterns(externs);
-        platform.externs().stream()
+        platform.getExterns().stream()
                 .map(SourceFile::fromFile)
                 .forEach(externs::add);
         return externs.build();

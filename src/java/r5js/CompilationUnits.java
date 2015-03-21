@@ -5,17 +5,17 @@ import static r5js.EntryPoint.TEST_MAIN;
 
 interface CompilationUnits {
     static final CompilationUnit ANDROID_REPL = CompilationUnit.of(
-            "android.js", new Platform.Android())
+            "android.js", Platform.ANDROID)
             .entryPoint(ANDROID_MAIN)
             .build();
 
     static final CompilationUnit ANDROID_TESTS = CompilationUnit.of(
-            "android-tests.js", new Platform.Android())
+            "android-tests.js", Platform.ANDROID)
             .entryPoint(TEST_MAIN)
             .build();
 
     static final CompilationUnit HTML5_WORKER = CompilationUnit.of(
-            "worker.js", new Platform.Html5())
+            "worker.js", Platform.HTML5)
             .entryPoint(EntryPoint.HTML5_WORKER)
             .build();
 
@@ -24,7 +24,7 @@ interface CompilationUnits {
      * in a production app.
      */
     static final CompilationUnit HTML5_DEV_CLIENT = CompilationUnit.of(
-            "html5-devclient.js", new Platform.Html5())
+            "html5-devclient.js", Platform.HTML5)
             .entryPoint(EntryPoint.TEST_MAIN)
             .entryPoint(EntryPoint.HTML5_REPL_MAIN)
             .customCompilerOptions(options -> {
@@ -38,17 +38,17 @@ interface CompilationUnits {
             .build();
 
     static final CompilationUnit NASHORN_TESTS = CompilationUnit.of(
-            "nashorn-tests.js", new Platform.Nashorn())
+            "nashorn-tests.js", Platform.NASHORN)
             .entryPoint(TEST_MAIN)
             .build();
 
     static final CompilationUnit NODE_REPL = CompilationUnit.of(
-            "node-repl.js", new Platform.Node())
+            "node-repl.js", Platform.NODE)
             .entryPoint(EntryPoint.NODE_REPL_MAIN)
             .build();
 
     static final CompilationUnit NODE_TESTS = CompilationUnit.of(
-            "node-tests.js", new Platform.Node())
+            "node-tests.js", Platform.NODE)
             .entryPoint(TEST_MAIN)
             .build();
 }

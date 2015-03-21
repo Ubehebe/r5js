@@ -62,6 +62,6 @@ final class SourceFileCollector {
         Path parent = path.getParent();
         return parent.endsWith("platform")
                 || parent.endsWith("common")
-                || parent.endsWith(platform.getClass().getSimpleName().toLowerCase());
+                || parent.endsWith(platform.name().toLowerCase());
     }
 }

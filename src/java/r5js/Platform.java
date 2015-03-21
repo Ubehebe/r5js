@@ -9,37 +9,23 @@ import com.google.common.collect.ImmutableList;
  * <p>Platforms have platform-specific capabilities, which are made known to the compiler
  * through extern files.
  */
-interface Platform {
-    ImmutableList<String> externs();
+enum Platform {
 
-    static final class Android implements Platform {
-        @Override
-        public ImmutableList<String> externs() {
-            return ImmutableList.of("custom-externs/android.js");
-        }
+    ANDROID(ImmutableList.of("custom-externs/android.js")),
+    HTML5(ImmutableList.<String>of()),
+    NASHORN(ImmutableList.<String>of()),
+    NODE(ImmutableList.of(
+            "externs/core.js",
+            "externs/process.js",
+            "externs/readline.js"));
+
+    private final ImmutableList<String> externs;
+
+    Platform(ImmutableList<String> externs) {
+        this.externs = externs;
     }
 
-    static final class Html5 implements Platform {
-        @Override
-        public ImmutableList<String> externs() {
-            return ImmutableList.of(/* nothing special */);
-        }
-    }
-
-    static final class Nashorn implements Platform {
-        @Override
-        public ImmutableList<String> externs() {
-            return ImmutableList.of(/* nothing special */);
-        }
-    }
-
-    static final class Node implements Platform {
-        @Override
-        public ImmutableList<String> externs() {
-            return ImmutableList.of(
-                    "externs/core.js",
-                    "externs/process.js",
-                    "externs/readline.js");
-        }
+    public ImmutableList<String> getExterns() {
+        return externs;
     }
 }
