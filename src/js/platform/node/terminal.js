@@ -10,13 +10,16 @@ goog.require('r5js.Terminal');
  * @implements {r5js.Terminal}
  * @struct
  * @constructor
- * @suppress {checkTypes} TODO bl my Node version is 0.6x, but the externs
- * I'm using are for 0.10x, which has an incompatible readline API.
  */
 r5js.platform.node.Terminal = function() {
   var readline = require('readline');
   /** @private @const */
-  this.readline_ = readline.createInterface(process.stdin, process.stdout);
+  this.readline_ = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: true,
+    completer: goog.nullFunction
+  });
   this.readline_.setPrompt(
       r5js.platform.node.Terminal.PROMPT_,
       r5js.platform.node.Terminal.PROMPT_.length);
