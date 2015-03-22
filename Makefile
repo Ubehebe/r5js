@@ -1,11 +1,3 @@
-# First-time setup: clones submodules, builds compiler, etc.
-.PHONY: setup
-setup:
-	git submodule init
-	git submodule update
-	cd closure-compiler && ant
-	cd closure-library && chmod a+x closure/bin/build/*.py
-
 # Runs the Closure linter on staged JS changes.
 .PHONY: lint
 lint:
