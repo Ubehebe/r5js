@@ -3,7 +3,7 @@ package r5js;
 import com.google.common.collect.ImmutableList;
 
 /**
- * A platform represents the JavaScript environment in which a specific {@link Target}
+ * A platform represents the JavaScript environment in which a specific {@link r5js.CompilationUnit}
  * runs.
  *
  * <p>Platforms have platform-specific capabilities, which are made known to the compiler
@@ -16,6 +16,7 @@ enum Platform {
     NASHORN(ImmutableList.<String>of()),
     NODE(ImmutableList.of(
             "externs/core.js",
+            "externs/events.js",
             "externs/process.js",
             "externs/readline.js"));
 
