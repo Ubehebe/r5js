@@ -24,52 +24,50 @@ goog.provide('r5js.SiblingBuffer');
  * @struct
  * @constructor
  */
-r5js.SiblingBuffer = function() {
-  /** @private {r5js.Datum} */
-  this.first_ = null;
+r5js.SiblingBuffer = class {
+    constructor() {
+        /** @private {r5js.Datum} */
+        this.first_ = null;
 
-  /** @private {r5js.Datum} */
-  this.last_ = null;
-};
+        /** @private {r5js.Datum} */
+        this.last_ = null;
+    }
 
+    /** @return {boolean} True iff the buffer is empty. */
+    isEmpty() {
+        return !this.first_;
+    }
 
-/** @return {boolean} True iff the buffer is empty. */
-r5js.SiblingBuffer.prototype.isEmpty = function() {
-  return !this.first_;
-};
+    /**
+     * @param {!r5js.Datum} node Node to append.
+     * @return {!r5js.SiblingBuffer} This object, for chaining.
+     */
+    appendSibling(node) {
+        if (!this.first_) {
+            this.first_ = node;
+            this.last_ = node.lastSibling();
+        } else {
+            this.last_.setNextSibling(node);
+            this.last_ = node.lastSibling();
+        }
+        return this;
+    }
 
+    /** @return {r5js.Datum} */
+    toSiblings() {
+        return this.first_;
+    }
 
-/**
- * @param {!r5js.Datum} node Node to append.
- * @return {!r5js.SiblingBuffer} This object, for chaining.
- */
-r5js.SiblingBuffer.prototype.appendSibling = function(node) {
-  if (!this.first_) {
-    this.first_ = node;
-    this.last_ = node.lastSibling();
-  } else {
-    this.last_.setNextSibling(node);
-    this.last_ = node.lastSibling();
-  }
-  return this;
-};
-
-
-/** @return {r5js.Datum} */
-r5js.SiblingBuffer.prototype.toSiblings = function() {
-  return this.first_;
-};
-
-
-/**
- * @param {function(new: r5js.ast.CompoundDatum, !r5js.Datum)} ctor
- * Constructor to use for the returned list.
- * @return {!r5js.ast.CompoundDatum}
- */
-r5js.SiblingBuffer.prototype.toList = function(ctor) {
-  var ans = new ctor(/** @type {!r5js.Datum} */ (this.first_));
-  if (this.last_ && ans) {
-    this.last_.setParent(ans);
-  }
-  return ans;
+    /**
+     * @param {function(new: r5js.ast.CompoundDatum, !r5js.Datum)} ctor
+     * Constructor to use for the returned list.
+     * @return {!r5js.ast.CompoundDatum}
+     */
+    toList(ctor) {
+        var ans = new ctor(/** @type {!r5js.Datum} */ (this.first_));
+        if (this.last_ && ans) {
+            this.last_.setParent(ans);
+        }
+        return ans;
+    }
 };
