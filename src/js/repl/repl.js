@@ -27,38 +27,43 @@ goog.require('r5js.valutil');
  * @struct
  * @constructor
  */
-r5js.Repl = function(terminal, evaluator, isLineComplete) {
-  /** @const @private */ this.terminal_ = terminal;
-  /** @const @private */ this.evaluator_ = evaluator;
-  /** @const @private */ this.isLineComplete_ = isLineComplete;
-  /** @private */ this.awaitingEval_ = '';
-};
-
-
-/** Starts the read-eval-print loop. */
-r5js.Repl.prototype.start = function() {
-  this.terminal_.getNextLineOfInput().then(
-      this.handleInputLine, undefined /* opt_onRejected */, this);
-};
-
-
-/** @param {string} inputLine */
-r5js.Repl.prototype.handleInputLine = function(inputLine) {
-  this.isLineComplete_(this.awaitingEval_ += inputLine + ' '
-  ).then(function(complete) {
-    if (complete) {
-      var toEval = this.awaitingEval_;
-      this.awaitingEval_ = '';
-      return this.evaluator_.evaluate(toEval);
+r5js.Repl = class {
+    /**
+     * @param {!r5js.Terminal} terminal
+     * @param {!r5js.Evaluator} evaluator
+     * @param {function(string): !goog.Promise<boolean>} isLineComplete
+     */
+    constructor(terminal, evaluator, isLineComplete) {
+        /** @const @private */ this.terminal_ = terminal;
+        /** @const @private */ this.evaluator_ = evaluator;
+        /** @const @private */ this.isLineComplete_ = isLineComplete;
+        /** @private */ this.awaitingEval_ = '';
     }
-  }, undefined /* opt_onRejected */, this
-  ).then(
-      function(value) { this.terminal_.print(value); },
-      function(error) {
-        this.terminal_.error((/** @type {!r5js.Error} */ (error)).msg);
-      }, this
-  ).thenAlways(function() {
-    this.terminal_.getNextLineOfInput().then(
-        this.handleInputLine, undefined /* opt_onRejected */, this);
-  }, this);
+
+    /** Starts the read-eval-print loop. */
+    start() {
+        this.terminal_.getNextLineOfInput().then(
+            this.handleInputLine, undefined /* opt_onRejected */, this);
+    }
+
+    /** @param {string} inputLine */
+    handleInputLine(inputLine) {
+        this.isLineComplete_(this.awaitingEval_ += inputLine + ' '
+        ).then(function(complete) {
+                if (complete) {
+                    var toEval = this.awaitingEval_;
+                    this.awaitingEval_ = '';
+                    return this.evaluator_.evaluate(toEval);
+                }
+            }, undefined /* opt_onRejected */, this
+        ).then(
+            function(value) { this.terminal_.print(value); },
+            function(error) {
+                this.terminal_.error((/** @type {!r5js.Error} */ (error)).msg);
+            }, this
+        ).thenAlways(function() {
+                this.terminal_.getNextLineOfInput().then(
+                    this.handleInputLine, undefined /* opt_onRejected */, this);
+            }, this);
+    }
 };
