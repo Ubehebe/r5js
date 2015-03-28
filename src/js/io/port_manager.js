@@ -27,32 +27,31 @@ goog.require('r5js.InMemoryPortBuffer');
  * @struct
  * @constructor
  */
-r5js.PortManager = function() {
-  /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
-  this.buffers_ = {};
+r5js.PortManager = class {
+    constructor() {
+        /** @const @private {!Object<string, !r5js.InMemoryPortBuffer>} */
+        this.buffers_ = {};
+    }
+
+    /**
+     * @param {string} name
+     * @return {!r5js.InputPort}
+     */
+    newInputPort(name) {
+        if (!(name in this.buffers_)) {
+            this.buffers_[name] = new r5js.InMemoryPortBuffer();
+        }
+        return new r5js.InMemoryInputPort(this.buffers_[name]);
+    }
+
+    /**
+     * @param {string} name
+     * @return {!r5js.OutputPort}
+     */
+    newOutputPort(name) {
+        if (!(name in this.buffers_)) {
+            this.buffers_[name] = new r5js.InMemoryPortBuffer();
+        }
+        return new r5js.InMemoryOutputPort(this.buffers_[name]);
+    }
 };
-
-
-/**
- * @param {string} name
- * @return {!r5js.InputPort}
- */
-r5js.PortManager.prototype.newInputPort = function(name) {
-  if (!(name in this.buffers_)) {
-    this.buffers_[name] = new r5js.InMemoryPortBuffer();
-  }
-  return new r5js.InMemoryInputPort(this.buffers_[name]);
-};
-
-
-/**
- * @param {string} name
- * @return {!r5js.OutputPort}
- */
-r5js.PortManager.prototype.newOutputPort = function(name) {
-  if (!(name in this.buffers_)) {
-    this.buffers_[name] = new r5js.InMemoryPortBuffer();
-  }
-  return new r5js.InMemoryOutputPort(this.buffers_[name]);
-};
-
