@@ -27,24 +27,24 @@ goog.require('r5js.ProcCallLike');
  * @struct
  * @constructor
  */
-r5js.ContinuableHelper = function() {
-  /** @private {r5js.ProcCallLike} */ this.firstProcCallLike_ = null;
-  /** @private {r5js.ProcCallLike} */ this.lastProcCallLike_ = null;
-};
+r5js.ContinuableHelper = class {
+    constructor() {
+        /** @private {r5js.ProcCallLike} */ this.firstProcCallLike_ = null;
+        /** @private {r5js.ProcCallLike} */ this.lastProcCallLike_ = null;
+    }
 
+    /** @param {!r5js.ProcCallLike} procCallLike A continuable object. */
+    appendProcCallLike(procCallLike) {
+        if (!this.firstProcCallLike_) {
+            this.firstProcCallLike_ = procCallLike;
+        } else {
+            this.lastProcCallLike_.setNext(procCallLike);
+        }
+        this.lastProcCallLike_ = r5js.ProcCallLike.getLast(procCallLike);
+    }
 
-/** @param {!r5js.ProcCallLike} procCallLike A continuable object. */
-r5js.ContinuableHelper.prototype.appendProcCallLike = function(procCallLike) {
-  if (!this.firstProcCallLike_) {
-    this.firstProcCallLike_ = procCallLike;
-  } else {
-    this.lastProcCallLike_.setNext(procCallLike);
-  }
-  this.lastProcCallLike_ = r5js.ProcCallLike.getLast(procCallLike);
-};
-
-
-/** @return {r5js.ProcCallLike} */
-r5js.ContinuableHelper.prototype.toContinuable = function() {
-  return this.firstProcCallLike_;
+    /** @return {r5js.ProcCallLike} */
+    toContinuable() {
+        return this.firstProcCallLike_;
+    }
 };
