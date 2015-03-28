@@ -1,12 +1,12 @@
 #!/bin/sh
 # (ln -s this file to .git/hooks/pre-commit.)
-echo 'linting...'
-eval 'make lint'
-ret_code=$?
-if [ $ret_code != 0 ]; then
-    echo 'lint errors, aborting commit'
-    exit $ret_code
-fi
+#echo 'linting...'
+#eval 'make lint'
+#ret_code=$?
+#if [ $ret_code != 0 ]; then
+#    echo 'lint errors, aborting commit'
+#    exit $ret_code
+#fi
 eval 'mvn -q clean install'
 ret_code=$?
 if [ $ret_code != 0 ]; then
