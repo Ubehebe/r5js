@@ -32,9 +32,8 @@ r5js.runtime.PrimitiveValue;
 /**
  * Interface for Scheme values that this implementation represents with
  * JavaScript objects.
- * @interface
  */
-r5js.runtime.ObjectValue = function() {};
+r5js.runtime.ObjectValue = /** @interface */ class {};
 
 
 /**
