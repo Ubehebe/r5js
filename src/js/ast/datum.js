@@ -210,57 +210,57 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
 
     return first;
   }
+
+  /**
+   * @param {!r5js.Datum} other
+   * @return {boolean} Whether the two datums are equivalent in the sense of eqv?
+   * For most kinds of datum, this means reference equality.
+   * @see R5RS 6.1
+   */
+  eqv(other) {
+    return this === other;
+  }
+
+  /**
+   * Datums representing identifiers, strings, and characters
+   * all have payloads of type string. If they all unwrapped as JavaScript
+   * strings, it would be impossible to re-wrap them correctly
+   * (noninjective mapping). We choose to store identifiers unwrapped
+   * because they're expected to be more common than the other two.
+   *
+   * Environment specifiers cannot be unwrapped to their Environment
+   * payloads because Environment values in Environments already have
+   * a meaning, namely, a redirect to look up the name in some other
+   * Environment.
+   *
+   * Finally, the vector stuff may need to be overhauled.
+   * @return {?} TODO bl.
+   */
+  unwrap() {
+    return this;
+  }
+
+  /**
+   * @return {!r5js.Datum} The last sibling of this Datum, or this Datum if it's
+   * the last sibling.
+   */
+  lastSibling() {
+    return this.nextSibling_ ? this.nextSibling_.lastSibling() : this;
+  }
+
+  /**
+   * TODO bl: document what this method does.
+   * @param {!r5js.RenameHelper} helper A rename helper.
+   */
+  fixParserSensitiveIds(helper) {
+    if (this.nextSibling_) {
+      this.nextSibling_.fixParserSensitiveIds(helper);
+    }
+  }
+
 };
 
-/**
- * @extends {r5js.Datum}
- * @struct
- * @constructor
- */
-r5js.ast.Literal = function() {
-  r5js.ast.Literal.base(this, 'constructor');
-};
-goog.inherits(r5js.ast.Literal, r5js.Datum);
-
-
-/**
- * @param {!r5js.Datum} other
- * @return {boolean} Whether the two datums are equivalent in the sense of eqv?
- * For most kinds of datum, this means reference equality.
- * @see R5RS 6.1
- */
-r5js.Datum.prototype.eqv = function(other) {
-  return this === other;
-};
-
-
-/**
- * Datums representing identifiers, strings, and characters
- * all have payloads of type string. If they all unwrapped as JavaScript
- * strings, it would be impossible to re-wrap them correctly
- * (noninjective mapping). We choose to store identifiers unwrapped
- * because they're expected to be more common than the other two.
- *
- * Environment specifiers cannot be unwrapped to their Environment
- * payloads because Environment values in Environments already have
- * a meaning, namely, a redirect to look up the name in some other
- * Environment.
- *
- * Finally, the vector stuff may need to be overhauled.
- * @return {?} TODO bl.
- */
-r5js.Datum.prototype.unwrap = function() {
-  return this;
-};
-
-
-/**
- * @return {!r5js.Datum} The last sibling of this Datum, or this Datum if it's
- * the last sibling.
- */
-r5js.Datum.prototype.lastSibling = function() {
-  return this.nextSibling_ ? this.nextSibling_.lastSibling() : this;
-};
+r5js.ast.Literal = class extends r5js.Datum {};
 
 
 /** @return {string} */
@@ -319,15 +319,6 @@ function isParserSensitiveId(name) {
 }
 
 
-/**
- * TODO bl: document what this method does.
- * @param {!r5js.RenameHelper} helper A rename helper.
- */
-r5js.Datum.prototype.fixParserSensitiveIds = function(helper) {
-  if (this.nextSibling_) {
-    this.nextSibling_.fixParserSensitiveIds(helper);
-  }
-};
 
 
 /**
