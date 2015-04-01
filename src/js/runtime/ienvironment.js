@@ -46,119 +46,109 @@ goog.provide('r5js.IEnvironment');
  * If you know your key should retrieve a SchemeProcedure or JavaScript
  * function, you can use {@link r5js.IEnvironment.getProcedure} to avoid the
  * wrapping and unwrapping.
- *
- * @extends {r5js.runtime.ObjectValue}
- * @interface
  */
-r5js.IEnvironment = function() {};
+r5js.IEnvironment = /** @interface @extends {r5js.runtime.ObjectValue} */ class {
+ /**
+  * @param {string} name Name of the binding.
+  * @param {!r5js.runtime.Value} val Value of the binding.
+  */
+ addBinding(name, val) {}
 
+ /**
+  * Used exclusively during desugaring of lambda expressions.
+  *
+  * Lambda expressions have much in common with procedure definitions,
+  * even though they don't introduce a new binding (in a programmer-visible
+  * way, at least). For example:
+  *
+  * (define (foo x) (define (bar y) (+ x y)) bar)
+  *
+  * (define (foo x) (lambda (y) (+ x y)))
+  *
+  * With either definition of foo, we must have
+  *
+  * ((foo 10) 11) => 22
+  *
+  * With internal definitions, this is easy. The grammar of Scheme says that
+  * all internal definitions must precede all expressions in a procedure body,
+  * so the {@link r5js.UserDefinedProcedure} constructor can intercept all the
+  * definitions and deal with them appropriately.
+  *
+  * Lambda expressions, however, can appear anywhere in a procedure's body,
+  * so we deal with them in a generic way here. Using the second definition of
+  * foo above as an example, here's what happens:
+  *
+  * - During parsing of foo, we create a new {@link r5js.IEnvironment}
+  *   for the procedure (say, fooEnv), and note all foo's lambdas in fooEnv,
+  *   using {@link r5js.IEnvironment.addClosure}.
+  * - Later, when we want to evaluate (foo 10), we create a new
+  *   {@link r5js.IEnvironment} hanging off fooEnv (say, tmp-fooEnv).
+  *   (We have to do this to support multiple active calls to the same
+  *   procedure.) We copy all of fooEnv's closures into tmp-fooEnv as actual
+  *   bound {@link r5js.UserDefinedProcedure}s, using
+  *   {@link r5js.Environment.addClosuresFrom}.
+  *   We also bind the arguments (in this case x = 10) in tmp-fooEnv,
+  *   then advance to foo's body.
+  *
+  * In this way, when we get to the body of the lambda expression, both x and y
+  * are already in scope. The key point is that the environment
+  * of (lambda (y) (+ x y)) points back to the environment representing the
+  * _execution_ of foo (tmp-fooEnv), not the Environment representing foo itself
+  * (fooEnv).
+  *
+  * @param {string} name Name of the binding to install this closure under.
+  * @param {!r5js.UserDefinedProcedure} proc Closure to install.
+  * TODO bl: consider renaming to addSchemeProcedure?
+  */
+ addClosure(name, proc) {}
 
-/**
- * @param {string} name Name of the binding.
- * @param {!r5js.runtime.Value} val Value of the binding.
- */
-r5js.IEnvironment.prototype.addBinding = function(name, val) {};
+ /**
+  * @param {string} name Name of binding to get.
+  * @return {?r5js.runtime.Value} Value of binding, if any.
+  */
+ get(name) {}
 
+ /**
+  * @param {string} name Name of the procedure to get.
+  * @return {?r5js.runtime.Value} Value of binding, if any.
+  */
+ getProcedure(name) {}
 
-/**
- * Used exclusively during desugaring of lambda expressions.
- *
- * Lambda expressions have much in common with procedure definitions,
- * even though they don't introduce a new binding (in a programmer-visible
- * way, at least). For example:
- *
- * (define (foo x) (define (bar y) (+ x y)) bar)
- *
- * (define (foo x) (lambda (y) (+ x y)))
- *
- * With either definition of foo, we must have
- *
- * ((foo 10) 11) => 22
- *
- * With internal definitions, this is easy. The grammar of Scheme says that
- * all internal definitions must precede all expressions in a procedure body,
- * so the {@link r5js.UserDefinedProcedure} constructor can intercept all the
- * definitions and deal with them appropriately.
- *
- * Lambda expressions, however, can appear anywhere in a procedure's body,
- * so we deal with them in a generic way here. Using the second definition of
- * foo above as an example, here's what happens:
- *
- * - During parsing of foo, we create a new {@link r5js.IEnvironment}
- *   for the procedure (say, fooEnv), and note all foo's lambdas in fooEnv,
- *   using {@link r5js.IEnvironment.addClosure}.
- * - Later, when we want to evaluate (foo 10), we create a new
- *   {@link r5js.IEnvironment} hanging off fooEnv (say, tmp-fooEnv).
- *   (We have to do this to support multiple active calls to the same
- *   procedure.) We copy all of fooEnv's closures into tmp-fooEnv as actual
- *   bound {@link r5js.UserDefinedProcedure}s, using
- *   {@link r5js.Environment.addClosuresFrom}.
- *   We also bind the arguments (in this case x = 10) in tmp-fooEnv,
- *   then advance to foo's body.
- *
- * In this way, when we get to the body of the lambda expression, both x and y
- * are already in scope. The key point is that the environment
- * of (lambda (y) (+ x y)) points back to the environment representing the
- * _execution_ of foo (tmp-fooEnv), not the Environment representing foo itself
- * (fooEnv).
- *
- * @param {string} name Name of the binding to install this closure under.
- * @param {!r5js.UserDefinedProcedure} proc Closure to install.
- * TODO bl: consider renaming to addSchemeProcedure?
- */
-r5js.IEnvironment.prototype.addClosure = function(name, proc) {};
+ /**
+  * @param {string} name Name of the binding to look up.
+  * @return {boolean} True iff the environment, or any of its enclosing
+  * environments, has a binding for the name.
+  */
+ hasBindingRecursive(name) {}
 
+ /**
+  * R5RS 5.2.1: "At the top level of a program, a definition
+  *
+  * (define <variable> <expression>)
+  *
+  * has essentially the same effect as the assignment expression
+  *
+  * (set! <variable> <expression>)
+  *
+  * if <variable> is bound. If <variable> is not bound, however, then
+  * the definition will bind <variable> to a new location before performing
+  * the assignment, whereas it would be an error to perform a set! on
+  * an unbound variable."
+  *
+  * We use the isTopLevel parameter to perform the override mentioned.
+  *
+  * @param {string} name Name of the binding.
+  * @param {!r5js.runtime.Value} newVal New value of the binding.
+  * @param {boolean} isTopLevel True iff the binding should be top-level.
+  */
+ mutate(name, newVal, isTopLevel) {}
 
-/**
- * @param {string} name Name of binding to get.
- * @return {?r5js.runtime.Value} Value of binding, if any.
- */
-r5js.IEnvironment.prototype.get = function(name) {};
-
-
-/**
- * @param {string} name Name of the procedure to get.
- * @return {?r5js.runtime.Value} Value of binding, if any.
- */
-r5js.IEnvironment.prototype.getProcedure = function(name) {};
-
-
-/**
- * @param {string} name Name of the binding to look up.
- * @return {boolean} True iff the environment, or any of its enclosing
- * environments, has a binding for the name.
- */
-r5js.IEnvironment.prototype.hasBindingRecursive = function(name) {};
-
-
-/**
- * R5RS 5.2.1: "At the top level of a program, a definition
- *
- * (define <variable> <expression>)
- *
- * has essentially the same effect as the assignment expression
- *
- * (set! <variable> <expression>)
- *
- * if <variable> is bound. If <variable> is not bound, however, then
- * the definition will bind <variable> to a new location before performing
- * the assignment, whereas it would be an error to perform a set! on
- * an unbound variable."
- *
- * We use the isTopLevel parameter to perform the override mentioned.
- *
- * @param {string} name Name of the binding.
- * @param {!r5js.runtime.Value} newVal New value of the binding.
- * @param {boolean} isTopLevel True iff the binding should be top-level.
- */
-r5js.IEnvironment.prototype.mutate = function(name, newVal, isTopLevel) {};
-
-
-/**
- * Just for environments defined in the standard; users shouldn't be able to
- * add to them.
- */
-r5js.IEnvironment.prototype.seal = function() {};
+ /**
+  * Just for environments defined in the standard; users shouldn't be able to
+  * add to them.
+  */
+ seal() {}
+};
 
 
 /** @const @private */

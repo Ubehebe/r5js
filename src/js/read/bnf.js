@@ -32,18 +32,15 @@ goog.require('r5js.parse.Terminals');
 
 
 
-/** @interface */
-r5js.read.bnf.Rule = function() {};
-
-
-/**
- * @param {!r5js.TokenStream} tokenStream
- * @return {r5js.Datum} The datum extracted from the token stream, or null if
- * reading was unsuccessful. Note that this may not be a proper tree:
- * rules like {@link r5js.read.bnf.AtLeast_} should return a list of siblings.
- */
-r5js.read.bnf.Rule.prototype.match = function(tokenStream) {};
-
+r5js.read.bnf.Rule = /** @interface */ class {
+  /**
+   * @param {!r5js.TokenStream} tokenStream
+   * @return {r5js.Datum} The datum extracted from the token stream, or null if
+   * reading was unsuccessful. Note that this may not be a proper tree:
+   * rules like {@link r5js.read.bnf.AtLeast_} should return a list of siblings.
+   */
+  match(tokenStream) {}
+};
 
 
 /**

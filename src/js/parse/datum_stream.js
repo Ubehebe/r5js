@@ -17,25 +17,19 @@ goog.provide('r5js.DatumStream');
 
 
 
-/** @interface */
-r5js.DatumStream = function() {};
+r5js.DatumStream = /** @interface */ class {
+ /** @return {r5js.Datum} The next datum, or null if there is none. */
+ getNextDatum() {}
 
+ /** @param {!r5js.Datum} next */
+ advanceTo(next) {}
 
-/** @return {r5js.Datum} The next datum, or null if there is none. */
-r5js.DatumStream.prototype.getNextDatum = function() {};
+ /** Advances to child. */
+ advanceToChild() {}
 
+ /** Advances to sibling. */
+ advanceToNextSibling() {}
 
-/** @param {!r5js.Datum} next */
-r5js.DatumStream.prototype.advanceTo = function(next) {};
-
-
-/** Advances to child. */
-r5js.DatumStream.prototype.advanceToChild = function() {};
-
-
-/** Advances to sibling. */
-r5js.DatumStream.prototype.advanceToNextSibling = function() {};
-
-
-/** @return {boolean} True iff the advance worked. */
-r5js.DatumStream.prototype.maybeAdvanceToNextSiblingOfParent = function() {};
+ /** @return {boolean} True iff the advance worked. */
+ maybeAdvanceToNextSiblingOfParent() {}
+};
