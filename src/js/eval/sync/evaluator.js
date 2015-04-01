@@ -16,14 +16,11 @@
 goog.provide('r5js.sync.Evaluator');
 
 
-
-/** @interface */
-r5js.sync.Evaluator = function() {};
-
-
-/**
- * @param {string} input
- * @return {string}
- * @throws {!r5js.Error}
- */
-r5js.sync.Evaluator.prototype.evaluate = function(input) {};
+r5js.sync.Evaluator = /** @interface */ class {
+ /**
+  * @param {string} input
+  * @return {string}
+  * @throws {!r5js.Error}
+  */
+ evaluate(input) {}
+};

@@ -18,44 +18,38 @@ goog.provide('r5js.Pipeline');
 
 
 
-/** @interface */
-r5js.Pipeline = function() {};
+r5js.Pipeline = /** @interface */ class {
+ /**
+  * @param {string} string The string to scan.
+  * @return {!r5js.TokenStream} A token stream representing the input string.
+  */
+ scan(string) {}
 
+ /**
+  * @param {!r5js.TokenStream} tokenStream A token input stream.
+  * @return {r5js.Datum} The root of the datum tree, or null if reading failed.
+  */
+ read(tokenStream) {}
 
-/**
- * @param {string} string The string to scan.
- * @return {!r5js.TokenStream} A token stream representing the input string.
- */
-r5js.Pipeline.prototype.scan = function(string) {};
+ /**
+  * @param {!r5js.Datum} root The root to parse.
+  * @param {!r5js.parse.Nonterminal=} opt_nonterminal The nonterminal
+  * that should be the root of the parse tree.
+  * @return {!r5js.Datum}
+  */
+ parse(root, opt_nonterminal) {}
 
+ /**
+  * @param {!r5js.Datum} root The root to desugar.
+  * @return {!r5js.ProcCallLike}
+  */
+ desugar(root) {}
 
-/**
- * @param {!r5js.TokenStream} tokenStream A token input stream.
- * @return {r5js.Datum} The root of the datum tree, or null if reading failed.
- */
-r5js.Pipeline.prototype.read = function(tokenStream) {};
-
-
-/**
- * @param {!r5js.Datum} root The root to parse.
- * @param {!r5js.parse.Nonterminal=} opt_nonterminal The nonterminal
- * that should be the root of the parse tree.
- * @return {!r5js.Datum}
- */
-r5js.Pipeline.prototype.parse = function(root, opt_nonterminal) {};
-
-
-/**
- * @param {!r5js.Datum} root The root to desugar.
- * @return {!r5js.ProcCallLike}
- */
-r5js.Pipeline.prototype.desugar = function(root) {};
-
-
-/**
- * @param {!r5js.ProcCallLike} continuable The continuable to evaluate.
- * @param {!r5js.InputPort} inputPort Port to use as current-input-port.
- * @param {!r5js.OutputPort} outputPort Port to use as current-output-port.
- * @return {!r5js.runtime.Value}
- */
-r5js.Pipeline.prototype.Eval = function(continuable, inputPort, outputPort) {};
+ /**
+  * @param {!r5js.ProcCallLike} continuable The continuable to evaluate.
+  * @param {!r5js.InputPort} inputPort Port to use as current-input-port.
+  * @param {!r5js.OutputPort} outputPort Port to use as current-output-port.
+  * @return {!r5js.runtime.Value}
+  */
+ Eval(continuable, inputPort, outputPort) {}
+};

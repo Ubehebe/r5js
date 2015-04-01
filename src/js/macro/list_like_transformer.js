@@ -29,24 +29,16 @@ goog.require('r5js.ast.Vector');
 
 
 
-/**
- * @interface
- * @extends {r5js.ITransformer}
- */
-r5js.ListLikeTransformer = function() {};
+r5js.ListLikeTransformer = /** @interface @extends {r5js.ITransformer} */ class {
+    /**
+     * @param {!r5js.ITransformer} subtransformer
+     * @return {!r5js.ListLikeTransformer} This object, for chaining.
+     */
+    addSubtransformer(subtransformer) {}
 
-
-/**
- * @param {!r5js.ITransformer} subtransformer
- * @return {!r5js.ListLikeTransformer} This object, for chaining.
- */
-r5js.ListLikeTransformer.prototype.addSubtransformer =
-    function(subtransformer) {};
-
-
-/** @return {string} */
-r5js.ListLikeTransformer.prototype.getName = function() {};
-
+    /** @return {string} */
+    getName() {}
+};
 
 
 /**

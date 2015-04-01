@@ -21,41 +21,34 @@ goog.require('r5js.runtime.EOF');
 
 
 
-/** @interface */
-r5js.InputPort = function() {};
+r5js.InputPort = /** @interface */ class {
+ /** @return {boolean} */
+ isCharReady() {}
 
+ /**
+  * @return {r5js.ast.Character} The next character, or null if there are
+  * no more characters.
+  */
+ peekChar() {}
 
-/** @return {boolean} */
-r5js.InputPort.prototype.isCharReady = function() {};
+ /**
+  * @return {?r5js.runtime.Value} The next value, or null if there are
+  * no more values.
+  */
+ read() {}
 
+ /**
+  * @return {r5js.ast.Character} The next character, or null if there are
+  * no more characters.
+  */
+ readChar() {}
 
-/**
- * @return {r5js.ast.Character} The next character, or null if there are
- * no more characters.
- */
-r5js.InputPort.prototype.peekChar = function() {};
-
-
-/**
- * @return {?r5js.runtime.Value} The next value, or null if there are
- * no more values.
- */
-r5js.InputPort.prototype.read = function() {};
-
-
-/**
- * @return {r5js.ast.Character} The next character, or null if there are
- * no more characters.
- */
-r5js.InputPort.prototype.readChar = function() {};
-
-
-/** @see R5RS 6.6.1 */
-r5js.InputPort.prototype.close = function() {};
+ /** @see R5RS 6.6.1 */
+ close() {}
+};
 
 
 /** @const @private */ r5js.InputPort.IMPLEMENTED_BY_PROP_ = '$r5js.InputPort';
-
 
 /**
  * @param {*} obj

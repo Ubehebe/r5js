@@ -31,15 +31,13 @@ goog.require('r5js.parse.Terminals');
 
 
 
-/** @interface */
-r5js.parse.bnf.Rule = function() {};
-
-
-/**
- * @param {!r5js.DatumStream} datumStream
- * @return {boolean|!r5js.Datum} True iff the parse succeeded.
- */
-r5js.parse.bnf.Rule.prototype.match = function(datumStream) {};
+r5js.parse.bnf.Rule = /** @interface */ class {
+  /**
+   * @param {!r5js.DatumStream} datumStream
+   * @return {boolean|!r5js.Datum} True iff the parse succeeded.
+   */
+  match(datumStream) {}
+};
 
 
 
@@ -48,19 +46,14 @@ r5js.parse.bnf.Rule.prototype.match = function(datumStream) {};
  * This method allows the parser to specify post-parsing actions ("desugaring")
  * on the successfully parsed AST. The generic type of the desugarable rule
  * is the type of the datum passed to the desugar function.
- * @interface
- * @extends {r5js.parse.bnf.Rule}
- * @template T
  */
-r5js.parse.bnf.DesugarableRule = function() {};
-
-
-/**
- * @param {function(T, !r5js.IEnvironment)} desugarFn
- * @return {!r5js.parse.bnf.DesugarableRule<T>} This rule, for chaining.
- */
-r5js.parse.bnf.DesugarableRule.prototype.desugar = function(desugarFn) {};
-
+r5js.parse.bnf.DesugarableRule = /** @interface @extends {r5js.parse.bnf.Rule} @template T */ class {
+  /**
+   * @param {function(T, !r5js.IEnvironment)} desugarFn
+   * @return {!r5js.parse.bnf.DesugarableRule<T>} This rule, for chaining.
+   */
+  desugar(desugarFn) {}
+};
 
 
 /**

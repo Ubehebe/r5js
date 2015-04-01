@@ -17,14 +17,9 @@ goog.provide('r5js.OutputSavingPort');
 
 
 
-/**
- * @extends {r5js.OutputPort}
- * @interface
- */
-r5js.OutputSavingPort = function() {};
-
-
-/** @return {?string} */
-r5js.OutputSavingPort.prototype.dequeueOutput = function() {};
+r5js.OutputSavingPort = /** @interface @extends {r5js.OutputPort} */ class {
+ /** @return {?string} */
+ dequeueOutput() {}
+};
 
 

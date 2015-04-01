@@ -31,18 +31,14 @@ goog.provide('r5js.OutputPort');
  * An implementation could, for example, convert the Scheme value
  * to some suitable value in the target environment, which need not be
  * a string. This is what {@link r5js.OutputSavingPort} does, for example.
- *
- * @interface
  */
-r5js.OutputPort = function() {};
+r5js.OutputPort = /** @interface */ class {
+ /** @param {string} str String to write. */
+ write(str) {}
 
-
-/** @param {string} str String to write. */
-r5js.OutputPort.prototype.write = function(str) {};
-
-
-/** @see R5RS 6.6.1 */
-r5js.OutputPort.prototype.close = function() {};
+ /** @see R5RS 6.6.1 */
+ close() {}
+};
 
 
 /** @const @private */
