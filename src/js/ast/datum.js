@@ -1,18 +1,3 @@
-/* Copyright 2011-2014 Brendan Linn
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 goog.provide('r5js.Datum');
 goog.provide('r5js.VACUOUS_PROGRAM');
 goog.provide('r5js.ast.Literal');
@@ -33,216 +18,199 @@ r5js.DesugarFunc;
 
 
 /**
- * @implements {r5js.runtime.ObjectValue} TODO bl remove.
+ * TODO bl remove the "implements ObjectValue".
  * This illustrates the fundamental confusion between runtime values
  * and the AST.
- * @struct
- * @constructor
  */
-r5js.Datum = function() {
-  /** @private {r5js.Datum} */
-  this.nextSibling_ = null;
+r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
+  constructor() {
+    /** @private {r5js.Datum} */
+    this.nextSibling_ = null;
 
-  /**
+    /**
      * Only for last children.
      * @private {r5js.Datum}
      */
-  this.parent_ = null;
+    this.parent_ = null;
 
-  /** @const @private {!Array<!r5js.parse.Nonterminal>} */
-  this.nonterminals_ = [];
+    /** @const @private {!Array<!r5js.parse.Nonterminal>} */
+    this.nonterminals_ = [];
 
-  /** @const @private {!Array<!r5js.DesugarFunc>} */
-  this.desugars_ = [];
+    /** @const @private {!Array<!r5js.DesugarFunc>} */
+    this.desugars_ = [];
 
-  /** @private {number} */
-  this.nextDesugar_ = -1;
+    /** @private {number} */
+    this.nextDesugar_ = -1;
 
-  /** @private */ this.immutable_ = false;
-};
+    /** @private */ this.immutable_ = false;
+  }
 
+  /**
+   * @return {!r5js.Datum} This object, for chaining.
+   */
+  setImmutable() {
+    this.immutable_ = true;
+    return this;
+  }
 
-/**
- * @return {!r5js.Datum} This object, for chaining.
- */
-r5js.Datum.prototype.setImmutable = function() {
-  this.immutable_ = true;
-  return this;
-};
+  /** @return {r5js.Datum} */
+  getParent() {
+    return this.parent_;
+  }
 
+  /** @param {!r5js.Datum} parent */
+  setParent(parent) {
+    this.parent_ = parent;
+  }
 
-/** @return {r5js.Datum} */
-r5js.Datum.prototype.getParent = function() {
-  return this.parent_;
-};
+  /** @return {r5js.Datum} */
+  getNextSibling() {
+    return this.nextSibling_;
+  }
 
+  /** @param {!r5js.Datum} nextSibling */
+  setNextSibling(nextSibling) {
+    this.nextSibling_ = nextSibling;
+  }
 
-/** @param {!r5js.Datum} parent */
-r5js.Datum.prototype.setParent = function(parent) {
-  this.parent_ = parent;
-};
+  /**
+   * @return {boolean} True iff {@link #setImmutable} has been called
+   * on this Datum.
+   */
+  isImmutable() {
+    return this.immutable_;
+  }
 
+  /**
+   * @param {r5js.Datum} parent Datum to use for the parent of the clone, if any.
+   * @return {!r5js.Datum} A new clone of this Datum object.
+   */
+  clone(parent) {
 
-/** @return {r5js.Datum} */
-r5js.Datum.prototype.getNextSibling = function() {
-  return this.nextSibling_;
-};
-
-
-/** @param {!r5js.Datum} nextSibling */
-r5js.Datum.prototype.setNextSibling = function(nextSibling) {
-  this.nextSibling_ = nextSibling;
-};
-
-
-/**
- * @return {boolean} True iff {@link r5js.Datum.setImmutable} has been called
- * on this Datum.
- */
-r5js.Datum.prototype.isImmutable = function() {
-  return this.immutable_;
-};
-
-
-/**
- * @param {r5js.Datum} parent Datum to use for the parent of the clone, if any.
- * @return {!r5js.Datum} A new clone of this Datum object.
- */
-r5js.Datum.prototype.clone = function(parent) {
-
-  /* Invariant: although cyclical Datum structures can be created by
+    /* Invariant: although cyclical Datum structures can be created by
      the programmer (through set-cdr!, etc.), they will never be cloned.
      They are created by mutation, i.e. once a value is already bound in an
      Environment, and once that happens, we never clone it again. */
 
-  var ans = new this.constructor();
+    var ans = new this.constructor();
 
-  if (this.parent_) {
-    ans.parent_ = this.parent_;
+    if (this.parent_) {
+      ans.parent_ = this.parent_;
+    }
+    // We only need the parent_ pointer on the last sibling.
+    if (!this.nextSibling_) {
+      ans.parent_ = parent;
+    }
+    if (this.immutable_) {
+      ans.immutable_ = true;
+    }
+
+    return ans;
   }
-  // We only need the parent_ pointer on the last sibling.
-  if (!this.nextSibling_) {
-    ans.parent_ = parent;
-  }
-  if (this.immutable_) {
-    ans.immutable_ = true;
+
+  /** @param {!r5js.parse.Nonterminal} type */
+  setParse(type) {
+    this.nonterminals_.push(type);
   }
 
-  return ans;
-};
+  /** @param {!r5js.DesugarFunc} desugarFunc */
+  setDesugar(desugarFunc) {
+    this.desugars_.push(desugarFunc);
+    ++this.nextDesugar_;
+  }
 
-
-/** @param {!r5js.parse.Nonterminal} type */
-r5js.Datum.prototype.setParse = function(type) {
-  this.nonterminals_.push(type);
-};
-
-
-/** @param {!r5js.DesugarFunc} desugarFunc */
-r5js.Datum.prototype.setDesugar = function(desugarFunc) {
-  this.desugars_.push(desugarFunc);
-  ++this.nextDesugar_;
-};
-
-
-/** @return {?r5js.parse.Nonterminal} */
-r5js.Datum.prototype.peekParse = function() {
-  var len = this.nonterminals_.length;
-  return len > 0 ? this.nonterminals_[len - 1] : null;
-};
-
-
-/**
- * @param {!r5js.parse.Nonterminal} nonterminal
- * @return {boolean} True iff this Datum parses as the given nonterminal.
- * @protected
- */
-r5js.Datum.prototype.hasParse = function(nonterminal) {
-  if (this.nonterminals_) {
+  /** @return {?r5js.parse.Nonterminal} */
+  peekParse() {
     var len = this.nonterminals_.length;
-    for (var i = 0; i < len; ++i) {
-      if (this.nonterminals_[i] === nonterminal) {
-        return true;
+    return len > 0 ? this.nonterminals_[len - 1] : null;
+  }
+
+  /**
+   * @param {!r5js.parse.Nonterminal} nonterminal
+   * @return {boolean} True iff this Datum parses as the given nonterminal.
+   * @protected
+   */
+  hasParse(nonterminal) {
+    if (this.nonterminals_) {
+      var len = this.nonterminals_.length;
+      for (var i = 0; i < len; ++i) {
+        if (this.nonterminals_[i] === nonterminal) {
+          return true;
+        }
       }
     }
+    return false;
   }
-  return false;
-};
 
-
-/**
- * @return {boolean} True if this datum represents an improper list.
- * TODO bl: remove. Callers shouldn't be dispatching on this. Rather, the
- * list/dotted list behavior differences should be built into the Datum
- * subclasses.
- */
-r5js.Datum.prototype.isImproperList = function() {
-  return false;
-};
-
-
-/**
- * TODO bl: document why you would call this method.
- */
-r5js.Datum.prototype.resetDesugars = function() {
-  if (this.nextDesugar_ === -1) {
-    this.nextDesugar_ += this.desugars_.length;
+  /**
+   * @return {boolean} True if this datum represents an improper list.
+   * TODO bl: remove. Callers shouldn't be dispatching on this. Rather, the
+   * list/dotted list behavior differences should be built into the Datum
+   * subclasses.
+   */
+  isImproperList() {
+    return false;
   }
-};
 
-
-/**
- * @param {!r5js.IEnvironment} env TODO bl.
- * @param {boolean=} opt_forceContinuationWrapper TODO bl document.
- * @return {!r5js.Datum|!r5js.ProcCallLike|!r5js.ITransformer|!r5js.Macro|null}
- * @suppress {checkTypes} TODO bl
- */
-r5js.Datum.prototype.desugar = function(env, opt_forceContinuationWrapper) {
-  var desugarFn = (this.desugars_ && this.nextDesugar_ >= 0) ?
-      this.desugars_[this.nextDesugar_--] : null;
-  var ans = desugarFn ? desugarFn(this, env) : this;
-  if (opt_forceContinuationWrapper && (ans instanceof r5js.Datum)) {
-    ans = new r5js.IdShim(ans);
-  }
-  return ans;
-};
-
-
-/**
- * @param {!r5js.IEnvironment} env TODO bl.
- * @return {r5js.ProcCallLike}
- */
-r5js.Datum.prototype.sequence = function(env) {
-  /** @type {r5js.ProcCallLike} */ var first = null;
-  var desugared;
-  /** @type {r5js.ProcCallLike} */ var curEnd;
-  for (var cur = this; cur; cur = cur.nextSibling_) {
-    if (desugared = cur.desugar(env)) {
-
-      /* Nodes that have no desugar functions (for example, variables
-             and literals) desugar as themselves. Sometimes this is OK
-             (for example in Datum.sequenceOperands), but here we need to be
-             able to connect the Continuable objects correctly, so we
-             wrap them. */
-      var desugaredProcCallLike = /**@type {!r5js.ProcCallLike} */ (
-          desugared instanceof r5js.Datum ?
-          new r5js.IdShim(desugared) :
-          desugared);
-
-      if (!first) {
-        first = desugaredProcCallLike;
-      } else if (curEnd) {
-        curEnd.setNext(desugaredProcCallLike);
-      }
-
-      curEnd = r5js.ProcCallLike.getLast(desugaredProcCallLike);
+  /**
+   * TODO bl: document why you would call this method.
+   */
+  resetDesugars() {
+    if (this.nextDesugar_ === -1) {
+      this.nextDesugar_ += this.desugars_.length;
     }
   }
 
-  return first;
+  /**
+   * @param {!r5js.IEnvironment} env TODO bl.
+   * @param {boolean=} opt_forceContinuationWrapper TODO bl document.
+   * @return {!r5js.Datum|!r5js.ProcCallLike|!r5js.ITransformer|!r5js.Macro|null}
+   * @suppress {checkTypes} TODO bl
+   */
+  desugar(env, opt_forceContinuationWrapper) {
+    var desugarFn = (this.desugars_ && this.nextDesugar_ >= 0) ?
+        this.desugars_[this.nextDesugar_--] : null;
+    var ans = desugarFn ? desugarFn(this, env) : this;
+    if (opt_forceContinuationWrapper && (ans instanceof r5js.Datum)) {
+      ans = new r5js.IdShim(ans);
+    }
+    return ans;
+  }
+
+  /**
+   * @param {!r5js.IEnvironment} env TODO bl.
+   * @return {r5js.ProcCallLike}
+   */
+  sequence(env) {
+    /** @type {r5js.ProcCallLike} */ var first = null;
+    var desugared;
+    /** @type {r5js.ProcCallLike} */ var curEnd;
+    for (var cur = this; cur; cur = cur.nextSibling_) {
+      if (desugared = cur.desugar(env)) {
+
+        /* Nodes that have no desugar functions (for example, variables
+         and literals) desugar as themselves. Sometimes this is OK
+         (for example in Datum.sequenceOperands), but here we need to be
+         able to connect the Continuable objects correctly, so we
+         wrap them. */
+        var desugaredProcCallLike = /**@type {!r5js.ProcCallLike} */ (
+            desugared instanceof r5js.Datum ?
+                new r5js.IdShim(desugared) :
+                desugared);
+
+        if (!first) {
+          first = desugaredProcCallLike;
+        } else if (curEnd) {
+          curEnd.setNext(desugaredProcCallLike);
+        }
+
+        curEnd = r5js.ProcCallLike.getLast(desugaredProcCallLike);
+      }
+    }
+
+    return first;
+  }
 };
-
-
 
 /**
  * @extends {r5js.Datum}
