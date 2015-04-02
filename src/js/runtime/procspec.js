@@ -1,12 +1,9 @@
 goog.provide('r5js.procspec');
 
-
 goog.require('goog.array');
 goog.require('r5js.Procedure');
 goog.require('r5js.datumutil');
 goog.require('r5js.error');
-
-
 
 r5js.procspec.NumArgChecker_ = /** @private @interface */ class {
     /**
@@ -16,83 +13,58 @@ r5js.procspec.NumArgChecker_ = /** @private @interface */ class {
     checkNumArgs(numArgs, nameToShowInErrorMessage) {}
 };
 
+r5js.procspec.Exactly_ = /** @private @implements {r5js.procspec.NumArgChecker_} */ class {
+    /** @param {number} numArgs */
+    constructor(numArgs) {
+        /** @const @private {number} */
+        this.numArgs_ = numArgs;
+    }
 
-
-/**
- * @param {number} numArgs
- * @implements {r5js.procspec.NumArgChecker_}
- * @struct
- * @constructor
- * @private
- */
-r5js.procspec.Exactly_ = function(numArgs) {
-  /** @const @private {number} */
-  this.numArgs_ = numArgs;
+    /** @override */
+    checkNumArgs(numArgs, nameToShowInErrorMessage) {
+        if (numArgs !== this.numArgs_) {
+            throw r5js.error.incorrectNumArgs(
+                nameToShowInErrorMessage, this.numArgs_, numArgs);
+        }
+    }
 };
 
+r5js.procspec.AtLeast_ = /** @private @implements {r5js.procspec.NumArgChecker_} */ class {
+    /** @param {number} min */
+    constructor(min) {
+        this.min_ = min;
+    }
 
-/** @override */
-r5js.procspec.Exactly_.prototype.checkNumArgs = function(
-    numArgs, nameToShowInErrorMessage) {
-  if (numArgs !== this.numArgs_) {
-    throw r5js.error.incorrectNumArgs(
-        nameToShowInErrorMessage, this.numArgs_, numArgs);
-  }
+    /** @override */
+    checkNumArgs(numArgs, nameToShowInErrorMessage) {
+        if (numArgs < this.min_) {
+            throw r5js.error.tooFewVarargs(
+                nameToShowInErrorMessage, this.min_, numArgs);
+        }
+    }
 };
 
+r5js.procspec.Between_ = /** @private @implements {r5js.procspec.NumArgChecker_} */ class {
+    /**
+     * @param {number} minArgs
+     * @param {number} maxArgs
+     */
+    constructor(minArgs, maxArgs) {
+        /** @const @private */ this.minArgs_ = minArgs;
+        /** @const @private */ this.maxArgs_ = maxArgs;
+    }
 
-
-/**
- * @param {number} min
- * @implements {r5js.procspec.NumArgChecker_}
- * @struct
- * @constructor
- * @private
- */
-r5js.procspec.AtLeast_ = function(min) {
-  this.min_ = min;
-};
-
-
-/** @override */
-r5js.procspec.AtLeast_.prototype.checkNumArgs = function(
-    numArgs, nameToShowInErrorMessage) {
-  if (numArgs < this.min_) {
-    throw r5js.error.tooFewVarargs(
-        nameToShowInErrorMessage, this.min_, numArgs);
-  }
-};
-
-
-
-/**
- * @param {number} minArgs
- * @param {number} maxArgs
- * @implements {r5js.procspec.NumArgChecker_}
- * @struct
- * @constructor
- * @private
- */
-r5js.procspec.Between_ = function(minArgs, maxArgs) {
-  /** @const @private {number} */
-  this.minArgs_ = minArgs;
-
-  /** @const @private {number} */
-  this.maxArgs_ = maxArgs;
-};
-
-
-/** @override */
-r5js.procspec.Between_.prototype.checkNumArgs = function(
-    numArgs, nameToShowInErrorMessage) {
-  if (numArgs < this.minArgs_) {
-    throw r5js.error.tooFewVarargs(
-        nameToShowInErrorMessage, this.minArgs_, numArgs);
-  }
-  if (numArgs > this.maxArgs_) {
-    throw r5js.error.tooManyVarargs(
-        nameToShowInErrorMessage, this.maxArgs_, numArgs);
-  }
+    /** @override */
+    checkNumArgs(numArgs, nameToShowInErrorMessage) {
+        if (numArgs < this.minArgs_) {
+            throw r5js.error.tooFewVarargs(
+                nameToShowInErrorMessage, this.minArgs_, numArgs);
+        }
+        if (numArgs > this.maxArgs_) {
+            throw r5js.error.tooManyVarargs(
+                nameToShowInErrorMessage, this.maxArgs_, numArgs);
+        }
+    }
 };
 
 
@@ -126,244 +98,193 @@ r5js.procspec.ArgumentTypeCheckerAndUnwrapper_ = /** @private @interface */ clas
     checkAndUnwrapArgs(args, nameToShowInErrorMessage) {}
 };
 
+r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_ =
+    /** @private @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */ class {
 
+        /** @param {!Array<!r5js.Type>} argtypes */
+        constructor(argtypes) {
+            /** @const @private {!Array<!r5js.Type>} */
+            this.argtypes_ = argtypes;
+        }
 
-/**
- * @param {!Array<!r5js.Type>} argtypes
- * @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_}
- * @struct
- * @constructor
- * @private
- */
-r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_ = function(argtypes) {
-  /** @const @private {!Array<!r5js.Type>} */
-  this.argtypes_ = argtypes;
-};
+        /**
+         * @override
+         * @suppress {accessControls|checkTypes} for r5js.PrimitiveProcedures_
+         */
+        checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
+            var unwrappedArgs = [];
+            for (var i = 0; i < this.argtypes_.length; ++i) {
+                var arg = args[i];
+                var expectedType = this.argtypes_[i];
+                if (!r5js.PrimitiveProcedures.registry_[expectedType + '?'].fn_.call(
+                        null, arg)) {
+                    var actualType = r5js.PrimitiveProcedures.getActualType_(arg);
+                    throw r5js.error.argumentTypeError(
+                        arg, i, nameToShowInErrorMessage, expectedType, actualType);
+                }
+                unwrappedArgs.push(arg instanceof r5js.Datum ? arg.unwrap() : arg);
+            }
+            return unwrappedArgs;
+        }
+    };
 
-
-/**
- * @override
- * @suppress {accessControls|checkTypes} for r5js.PrimitiveProcedures_
- */
-r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_.prototype.
-    checkAndUnwrapArgs = function(args, nameToShowInErrorMessage) {
-  var unwrappedArgs = [];
-  for (var i = 0; i < this.argtypes_.length; ++i) {
-    var arg = args[i];
-    var expectedType = this.argtypes_[i];
-    if (!r5js.PrimitiveProcedures.registry_[expectedType + '?'].fn_.call(
-        null, arg)) {
-      var actualType = r5js.PrimitiveProcedures.getActualType_(arg);
-      throw r5js.error.argumentTypeError(
-          arg, i, nameToShowInErrorMessage, expectedType, actualType);
+r5js.procspec.NoTypeChecking_ =
+    /** @private @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */ class {
+    /** @override */
+    checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
+        return args;
     }
-    unwrappedArgs.push(arg instanceof r5js.Datum ? arg.unwrap() : arg);
-  }
-  return unwrappedArgs;
 };
 
+r5js.procspec.AllArgsOfType_ =
+    /** @private @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */ class {
+        /** @param {!r5js.Type} type */
+        constructor(type) {
+            /** @const @private */ this.type_ = type;
+        }
 
-
-/**
- * @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_}
- * @struct
- * @constructor
- * @private
- */
-r5js.procspec.NoTypeChecking_ = function() {};
-
-
-/** @override */
-r5js.procspec.NoTypeChecking_.prototype.checkAndUnwrapArgs = function(
-    args, nameToShowInErrorMessage) {
-  return args;
-};
-
-
-
-/**
- * @param {!r5js.Type} type
- * @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_}
- * @struct
- * @constructor
- * @private
- */
-r5js.procspec.AllArgsOfType_ = function(type) {
-  /** @const @private {!r5js.Type} */
-  this.type_ = type;
-};
-
+        /**
+         * @override
+         * @suppress {accessControls} TODO bl
+         */
+        checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
+            var argtype = this.type_;
+            return goog.array.map(args, function (arg, i) {
+                if (!(/** @type {!r5js.procspec.PrimitiveProcedure_} */ (
+                        r5js.PrimitiveProcedures.registry_[argtype + '?'])).fn_.call(
+                        null, arg)) {
+                    throw r5js.error.argumentTypeError(
+                        arg, i, nameToShowInErrorMessage, argtype,
+                        r5js.PrimitiveProcedures.getActualType_(arg));
+                }
+                return arg instanceof r5js.Datum ? arg.unwrap() : arg;
+            });
+        }
+    };
 
 /** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
 r5js.procspec.NO_TYPE_RESTRICTIONS_ = new r5js.procspec.NoTypeChecking_();
 
-
-/**
- * @override
- * @suppress {accessControls} TODO bl
- */
-r5js.procspec.AllArgsOfType_.prototype.checkAndUnwrapArgs = function(
-    args, nameToShowInErrorMessage) {
-  var argtype = this.type_;
-  return goog.array.map(args, function(arg, i) {
-    if (!(/** @type {!r5js.procspec.PrimitiveProcedure_} */ (
-        r5js.PrimitiveProcedures.registry_[argtype + '?'])).fn_.call(
-            null, arg)) {
-      throw r5js.error.argumentTypeError(
-          arg, i, nameToShowInErrorMessage, argtype,
-          r5js.PrimitiveProcedures.getActualType_(arg));
-    }
-    return arg instanceof r5js.Datum ? arg.unwrap() : arg;
-  });
-};
-
-
-
 /**
  * @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_}
  * @struct
  * @constructor
  * @private
  */
-r5js.procspec.JustUnwrapArgs_ = function() {};
+r5js.procspec.JustUnwrapArgs_ =
+    /** @private @implements {r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */ class {
 
-
-/** @override */
-r5js.procspec.JustUnwrapArgs_.prototype.checkAndUnwrapArgs = function(
-    args, nameToShowInErrorMessage) {
-  return args;
-};
-
+        /** @override */
+        checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
+            return args;
+        }
+    };
 
 /** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
 r5js.procspec.JUST_UNWRAP_ARGS_ = new r5js.procspec.JustUnwrapArgs_();
 
+r5js.procspec.PrimitiveProcedure_ = /** @private */ class extends r5js.Procedure {
+    /**
+     * @param {!Function} fn TODO bl narrow type?
+     * @param {!r5js.procspec.NumArgChecker_} numArgChecker
+     * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
+     */
+    constructor(fn, numArgChecker, typeChecker) {
+        /** @const @private {function(!r5js.Datum):?} */
+        this.fn_ = fn;
 
+        /** @const @private {!r5js.procspec.NumArgChecker_} */
+        this.numArgChecker_ = numArgChecker;
 
-/**
- * @param {!Function} fn TODO bl narrow type?
- * @param {!r5js.procspec.NumArgChecker_} numArgChecker
- * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
- * @extends {r5js.Procedure}
- * @struct
- * @constructor
- * @private
- */
-r5js.procspec.PrimitiveProcedure_ = function(
-    fn, numArgChecker, typeChecker) {
-  r5js.procspec.PrimitiveProcedure_.base(this, 'constructor');
-  /** @const @private {function(!r5js.Datum):?} */
-  this.fn_ = fn;
+        /** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
+        this.typeChecker_ = typeChecker;
 
-  /** @const @private {!r5js.procspec.NumArgChecker_} */
-  this.numArgChecker_ = numArgChecker;
-
-  /** @const @private {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} */
-  this.typeChecker_ = typeChecker;
-
-  /** @private {string} */
-  this.debugName_ = '';
-};
-goog.inherits(r5js.procspec.PrimitiveProcedure_, r5js.Procedure);
-
-
-/**
- * Procedures have no deep need to know their names, as they are only bindings
- * and can change: (set! car cdr). This method exists only to increase
- * the usefulness of error messages thrown from primitive procedures.
- * @param {string} name
- */
-r5js.procspec.PrimitiveProcedure_.prototype.setDebugName = function(name) {
-  this.debugName_ = name;
-};
-
-
-/** @return {string} */
-r5js.procspec.PrimitiveProcedure_.prototype.getDebugName = function() {
-  return this.debugName_;
-};
-
-
-/**
- * @param {!goog.array.ArrayLike} userArgs
- * @param {!r5js.ProcCallLike} procCallLike
- * @param {!r5js.TrampolineHelper} trampolineHelper
- * @protected
- */
-r5js.procspec.PrimitiveProcedure_.prototype.call = function(
-    userArgs, procCallLike, trampolineHelper) {
-  this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
-  var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
-      userArgs, this.debugName_);
-  var ans = this.fn_.apply(null, unwrappedArgs);
-  procCallLike.bindResult(ans);
-  trampolineHelper.setValue(ans);
-  var nextContinuable = procCallLike.getNext();
-  if (nextContinuable) {
-    trampolineHelper.setNext(nextContinuable);
-  }
-};
-
-
-/**
- * Primitive procedure, represented by JavaScript function:
- * (+ x y [ans ...]). We perform the action ("+"), bind the
- * result to the continuation's result name ("ans"), and advance
- * to the next continuable ("...").
- * @override
- */
-r5js.procspec.PrimitiveProcedure_.prototype.evaluate = function(
-    args, procCallLike, trampolineHelper, env) {
-  args = args.map(/** @type {!Function} */ (
-      r5js.datumutil.wrapValue));
-  // todo bl document why we're doing this...
-  for (var i = 0; i < args.length; ++i) {
-    if (args[i] instanceof r5js.Ref) {
-      args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
+        /** @private {string} */
+        this.debugName_ = '';
     }
-  }
-  this.call(args, procCallLike, trampolineHelper);
+
+    /**
+     * Procedures have no deep need to know their names, as they are only bindings
+     * and can change: (set! car cdr). This method exists only to increase
+     * the usefulness of error messages thrown from primitive procedures.
+     * @param {string} name
+     */
+    setDebugName(name) {
+        this.debugName_ = name;
+    }
+
+    /** @return {string} */
+    getDebugName() {
+        return this.debugName_;
+    }
+
+    /**
+     * @param {!goog.array.ArrayLike} userArgs
+     * @param {!r5js.ProcCallLike} procCallLike
+     * @param {!r5js.TrampolineHelper} trampolineHelper
+     * @protected
+     */
+    call(userArgs, procCallLike, trampolineHelper) {
+        this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
+        var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
+            userArgs, this.debugName_);
+        var ans = this.fn_.apply(null, unwrappedArgs);
+        procCallLike.bindResult(ans);
+        trampolineHelper.setValue(ans);
+        var nextContinuable = procCallLike.getNext();
+        if (nextContinuable) {
+            trampolineHelper.setNext(nextContinuable);
+        }
+    }
+
+    /**
+     * Primitive procedure, represented by JavaScript function:
+     * (+ x y [ans ...]). We perform the action ("+"), bind the
+     * result to the continuation's result name ("ans"), and advance
+     * to the next continuable ("...").
+     * @override
+     */
+    evaluate(args, procCallLike, trampolineHelper, env) {
+        args = args.map(/** @type {!Function} */ (
+            r5js.datumutil.wrapValue));
+        // todo bl document why we're doing this...
+        for (var i = 0; i < args.length; ++i) {
+            if (args[i] instanceof r5js.Ref) {
+                args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
+            }
+        }
+        this.call(args, procCallLike, trampolineHelper);
+    }
 };
 
+r5js.procspec.NeedsCurrentPorts_ = /** @private */ class extends r5js.procspec.PrimitiveProcedure_ {
+    /**
+     * @param {!Function} fn
+     * @param {!r5js.procspec.NumArgChecker_} numArgChecker
+     * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
+     */
+    constructor(fn, numArgChecker, typeChecker) {
+        super(fn, numArgChecker, typeChecker);
+    }
 
-
-/**
- * @param {!Function} fn
- * @param {!r5js.procspec.NumArgChecker_} numArgChecker
- * @param {!r5js.procspec.ArgumentTypeCheckerAndUnwrapper_} typeChecker
- * @extends {r5js.procspec.PrimitiveProcedure_}
- * @struct
- * @constructor
- * @private
- */
-r5js.procspec.NeedsCurrentPorts_ = function(fn, numArgChecker, typeChecker) {
-  r5js.procspec.NeedsCurrentPorts_.base(
-      this, 'constructor', fn, numArgChecker, typeChecker);
+    /** @override */
+    call(userArgs, procCallLike, trampolineHelper) {
+        this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
+        var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
+            userArgs, this.debugName_);
+        var args = goog.array.concat(
+            trampolineHelper.getInputPort(),
+            trampolineHelper.getOutputPort(),
+            goog.array.toArray(unwrappedArgs));
+        var ans = this.fn_.apply(null, args);
+        procCallLike.bindResult(ans);
+        trampolineHelper.setValue(ans);
+        var nextContinuable = procCallLike.getNext();
+        if (nextContinuable) {
+            trampolineHelper.setNext(nextContinuable);
+        }
+    }
 };
-goog.inherits(
-    r5js.procspec.NeedsCurrentPorts_, r5js.procspec.PrimitiveProcedure_);
-
-
-/** @override */
-r5js.procspec.NeedsCurrentPorts_.prototype.call = function(
-    userArgs, procCallLike, trampolineHelper) {
-  this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
-  var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
-      userArgs, this.debugName_);
-  var args = goog.array.concat(
-      trampolineHelper.getInputPort(),
-      trampolineHelper.getOutputPort(),
-      goog.array.toArray(unwrappedArgs));
-  var ans = this.fn_.apply(null, args);
-  procCallLike.bindResult(ans);
-  trampolineHelper.setValue(ans);
-  var nextContinuable = procCallLike.getNext();
-  if (nextContinuable) {
-    trampolineHelper.setNext(nextContinuable);
-  }
-};
-
-
 
 /**
  * @param {!Function} fn
