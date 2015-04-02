@@ -1,40 +1,22 @@
-/* Copyright 2011-2014 Brendan Linn
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 goog.provide('r5js.Ref');
 
 
 goog.require('r5js.ast.SimpleDatum');
 
 
-
 /**
  * TODO bl this class should not exist. It's used only as a shim in
  * {@link r5js.Environment#get}.
- * @param {!r5js.Datum} deref Datum to dereference.
- * @extends {r5js.ast.SimpleDatum<!r5js.Datum>}
- * @struct
- * @constructor
  */
-r5js.Ref = function(deref) {
-  r5js.Ref.base(this, 'constructor', deref);
-};
-goog.inherits(r5js.Ref, r5js.ast.SimpleDatum);
+r5js.Ref = /** @extends {r5js.ast.SimpleDatum<!r5js.Datum>} */
+ class extends r5js.ast.SimpleDatum {
+ /** @param {!r5js.Datum} deref Datum to dereference. */
+ constructor(deref) {
+  super(deref);
+ }
 
-
-/** @return {!r5js.Datum} */
-r5js.Ref.prototype.deref = function() {
+ /** @return {!r5js.Datum} */
+ deref() {
   return this.payload;
+ }
 };
