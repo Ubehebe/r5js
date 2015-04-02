@@ -19,23 +19,18 @@ goog.provide('r5js.ast.Lambda');
 goog.require('r5js.ast.SimpleDatum');
 
 
+r5js.ast.Lambda = /** @extends {r5js.ast.SimpleDatum<!r5js.Procedure>} */ class extends r5js.ast.SimpleDatum {
+    /**
+     * @param {string} name Name of the procedure.
+     * @param {!r5js.Procedure} procedure TODO bl.
+     */
+    constructor(name, procedure) {
+        super(procedure);
+        /** @const @private */ this.name_ = name;
+    }
 
-/**
- * @param {string} name Name of the procedure.
- * @param {!r5js.Procedure} procedure TODO bl.
- * @extends {r5js.ast.SimpleDatum<!r5js.Procedure>}
- * @struct
- * @constructor
- */
-r5js.ast.Lambda = function(name, procedure) {
-  r5js.ast.Lambda.base(this, 'constructor', procedure);
-
-  /** @const @private */ this.name_ = name;
-};
-goog.inherits(r5js.ast.Lambda, r5js.ast.SimpleDatum);
-
-
-/** @return {string} */
-r5js.ast.Lambda.prototype.getName = function() {
-  return this.name_;
+    /** @return {string} */
+    getName() {
+        return this.name_;
+    }
 };
