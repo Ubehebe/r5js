@@ -12,8 +12,11 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 final class SourceFileCollector {
+
+    private static final Predicate<String> CLOSURE_SOURCE_FILE = Pattern.compile("(?!_test)\\.js$").asPredicate();
 
     private final Platform platform;
 
@@ -31,8 +34,8 @@ final class SourceFileCollector {
             sourceFiles.add(schemeSource.bundle());
         }
         collectJsFilesIn("src/js", sourceFiles, this::relevant);
-        collectJsFilesIn("closure-library", sourceFiles, path -> path.getFileName().toString()
-                .endsWith(".js"));
+        collectJsFilesIn("closure-library", sourceFiles, path ->
+                CLOSURE_SOURCE_FILE.test(path.getFileName().toString()));
         return sourceFiles;
     }
 
