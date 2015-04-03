@@ -95,32 +95,23 @@ r5js.MacroIdTransformer_ = /** @private */ class {
     }
 };
 
-/**
- * @param {!r5js.ast.SimpleDatum} datum
- * @implements {r5js.ITransformer}
- * @extends {r5js.MacroIdTransformer_}
- * @struct
- * @constructor
- */
-r5js.PatternIdTransformer = function(datum) {
-  r5js.PatternIdTransformer.base(this, 'constructor', datum);
+r5js.PatternIdTransformer = /** @implements {r5js.ITransformer} */ class extends r5js.MacroIdTransformer_ {
+    /** @param {!r5js.ast.SimpleDatum} datum */
+    constructor(datum) {
+        super(datum);
+    }
+
+    /** @override */
+    collectNestingLevels(ellipsisLevel, transformer) {
+        if (!(this.datum instanceof r5js.ast.Identifier)) {
+            return;
+        }
+        var name = /** @type {string} */ (this.datum.getPayload());
+        if (name !== transformer.getName()) {
+            transformer.setEllipsisLevel(name, ellipsisLevel);
+        }
+    }
 };
-goog.inherits(r5js.PatternIdTransformer, r5js.MacroIdTransformer_);
-
-
-/** @override */
-r5js.PatternIdTransformer.prototype.collectNestingLevels = function(
-    ellipsisLevel, transformer) {
-  if (!(this.datum instanceof r5js.ast.Identifier)) {
-    return;
-  }
-  var name = /** @type {string} */ (this.datum.getPayload());
-  if (name !== transformer.getName()) {
-    transformer.setEllipsisLevel(name, ellipsisLevel);
-  }
-};
-
-
 
 /**
  * @param {!r5js.ast.SimpleDatum} datum
