@@ -16,7 +16,6 @@
 goog.provide('r5js.IdShim');
 
 
-goog.require('r5js.Macro');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
@@ -72,13 +71,6 @@ r5js.IdShim.prototype.evalAndAdvance = function(
   }
 
   var nextContinuable = this.getNext();
-
-  /* If we're at the end of the continuable-continuation chain and we're
-     trying to return a macro object off the trampoline, that's an error.
-     The input was a bare macro name. */
-  if (!nextContinuable && ans instanceof r5js.Macro) {
-    throw r5js.error.macro('TODO bl', 'bad macro syntax');
-  }
 
   if (nextContinuable) {
     resultStruct.setNext(nextContinuable);
