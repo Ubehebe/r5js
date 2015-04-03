@@ -1,21 +1,17 @@
-goog.provide('r5js.SchemeSources');
+goog.module('r5js.SchemeSources');
 
-goog.require('PROCEDURES');
-goog.require('SYNTAX');
-goog.require('goog.Promise');
+const procedures = goog.require('PROCEDURES');
+const syntax = goog.require('SYNTAX');
+const promise = goog.require('goog.Promise');
 
 r5js.SchemeSources = class {
-    /**
-     * @param {string} syntax
-     * @param {string} procedures
-     */
-    constructor(syntax, procedures) {
+    constructor() {
         /** @const */ this.syntax = syntax;
         /** @const */ this.procedures = procedures;
     }
 
     /** @return {!goog.Promise<!r5js.SchemeSources>} */
     static get() {
-        return goog.Promise.resolve(new r5js.SchemeSources(SYNTAX, PROCEDURES));
+        return promise.resolve(new r5js.SchemeSources());
     }
 };
