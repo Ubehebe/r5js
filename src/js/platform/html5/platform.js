@@ -29,40 +29,30 @@ goog.require('r5js.test.SchemeSources');
 
 
 
-/**
- * @implements {r5js.Platform}
- * @struct
- * @constructor
- * @private
- */
-r5js.platform.Html5_ = function() {};
+r5js.platform.Html5_ = /** @private @implements {r5js.Platform} */ class {
+    /** @override */
+    exit() {
+    }
 
+    /**
+     * @param {?} jqConsole
+     * @return {!r5js.Terminal}
+     * @package
+     */
+    getTerminal(jqConsole) {
+        return new r5js.platform.html5.Terminal(
+            jqConsole, function (line) {
+                return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
+            });
+    }
 
-/** @override */
-r5js.platform.Html5_.prototype.exit = goog.nullFunction;
-
-
-/**
- * @param {?} jqConsole
- * @return {!r5js.Terminal}
- * @package
- */
-r5js.platform.Html5_.prototype.getTerminal = function(jqConsole) {
-  return new r5js.platform.html5.Terminal(
-      jqConsole, function(line) {
-        return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
-      });
+    /** @override */
+    newEvaluator(opt_inputPort, opt_outputPort) {
+        return goog.Promise.resolve(
+            new r5js.platform.html5.Client(
+                opt_outputPort || r5js.OutputPort.NULL));
+    }
 };
-
-
-/** @override */
-r5js.platform.Html5_.prototype.newEvaluator =
-    function(opt_inputPort, opt_outputPort) {
-  return goog.Promise.resolve(
-      new r5js.platform.html5.Client(
-          opt_outputPort || r5js.OutputPort.NULL));
-};
-
 
 /** @return {!r5js.Platform} */
 r5js.curPlatform = function() {
