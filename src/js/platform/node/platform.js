@@ -1,26 +1,8 @@
-/* Copyright 2011-2014 Brendan Linn
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 goog.provide('r5js.curPlatform');
-
 
 goog.require('r5js.Platform');
 goog.require('r5js.platform.common.newEvaluator');
 goog.require('r5js.platform.node.Terminal');
-
-
 
 /**
  * NodeJS-specific environment facilities.
@@ -37,31 +19,26 @@ goog.require('r5js.platform.node.Terminal');
  * to a file isn't even discussed.)
  *
  * Proper filesystem access through Node will be added for R6RS.
- * @implements {r5js.Platform}
- * @struct
- * @constructor
- * @private
  */
-r5js.platform.Node_ = function() {};
+r5js.platform.Node_ = /** @private @implements {r5js.Platform} */ class {
+    /** @override */
+    exit(statusCode) {
+        process.exit(statusCode);
+    }
 
+    /**
+     * @return {!r5js.Terminal}
+     * @package
+     */
+    getTerminal() {
+        return new r5js.platform.node.Terminal();
+    }
 
-/** @override */
-r5js.platform.Node_.prototype.exit = function(statusCode) {
-  process.exit(statusCode);
+    /** @override */
+    newEvaluator(opt_inputPort, opt_outputPort) {
+        return r5js.platform.common.newEvaluator(opt_inputPort, opt_outputPort);
+    }
 };
-
-
-/**
- * @return {!r5js.Terminal}
- * @package
-*/
-r5js.platform.Node_.prototype.getTerminal = function() {
-  return new r5js.platform.node.Terminal();
-};
-
-
-/** @override */
-r5js.platform.Node_.prototype.newEvaluator = r5js.platform.common.newEvaluator;
 
 
 /** @return {!r5js.Platform} */
