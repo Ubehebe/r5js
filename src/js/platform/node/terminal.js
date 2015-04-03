@@ -1,9 +1,10 @@
-goog.provide('r5js.platform.node.Terminal');
+goog.module('r5js.platform.node.Terminal');
 
-goog.require('goog.Promise');
-goog.require('r5js.Terminal');
+const promise = goog.require('goog.Promise');
+const terminal = goog.require('r5js.Terminal');
 
-r5js.platform.node.Terminal = /** @implements {r5js.Terminal} */ class {
+/** @implements {r5js.Terminal} */
+class Terminal {
   constructor() {
     var readline = require('readline');
     /** @private @const */
@@ -14,15 +15,15 @@ r5js.platform.node.Terminal = /** @implements {r5js.Terminal} */ class {
       completer: goog.nullFunction
     });
     this.readline_.setPrompt(
-        r5js.platform.node.Terminal.PROMPT_,
-        r5js.platform.node.Terminal.PROMPT_.length);
+        Terminal.PROMPT_,
+        Terminal.PROMPT_.length);
     this.readline_.on('close', this.handleClose_.bind(this));
     this.readline_.prompt();
   }
 
   /** @override */
   getNextLineOfInput() {
-    return new goog.Promise(function (resolve) {
+    return new promise(function(resolve) {
       this.readline_.once('line', resolve);
     }, this);
   }
@@ -43,7 +44,9 @@ r5js.platform.node.Terminal = /** @implements {r5js.Terminal} */ class {
   handleClose_() {
     process.exit(0);
   }
-};
+}
 
 
-/** @const @private */ r5js.platform.node.Terminal.PROMPT_ = '>> ';
+/** @const @private */ Terminal.PROMPT_ = '>> ';
+
+exports = Terminal;
