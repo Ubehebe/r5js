@@ -1,30 +1,19 @@
 goog.provide('r5js.curPlatform');
 
-
 goog.require('r5js.Platform');
 goog.require('r5js.platform.common.newEvaluator');
 
+r5js.platform.Android_ = /** @private @implements {r5js.Platform} */ class {
+    /** @override */
+    exit(statusCode) {
+        AndroidSchemePlatform.exit(statusCode);
+    }
 
-
-/**
- * @implements {r5js.Platform}
- * @struct
- * @constructor
- * @private
- */
-r5js.platform.Android_ = function() {};
-
-
-/** @override */
-r5js.platform.Android_.prototype.exit = function(statusCode) {
-  AndroidSchemePlatform.exit(statusCode);
+    /** @override */
+    newEvaluator(opt_inputPort, opt_outputPort) {
+        return r5js.platform.common.newEvaluator(opt_inputPort, opt_outputPort);
+    }
 };
-
-
-/** @override */
-r5js.platform.Android_.prototype.newEvaluator =
-    r5js.platform.common.newEvaluator;
-
 
 /** @return {!r5js.Platform} */
 r5js.curPlatform = function() {
