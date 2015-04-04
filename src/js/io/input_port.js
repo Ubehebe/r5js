@@ -1,27 +1,7 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.InputPort');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.InputPort');
-
-
-goog.require('goog.functions');
-goog.require('r5js.runtime.EOF');
-
-
-
-r5js.InputPort = /** @interface */ class {
+/** @interface */
+class InputPort {
  /** @return {boolean} */
  isCharReady() {}
 
@@ -45,58 +25,57 @@ r5js.InputPort = /** @interface */ class {
 
  /** @see R5RS 6.6.1 */
  close() {}
-};
 
+ /**
+  * @param {*} obj
+  * @return {boolean}
+  * TODO bl temporary shim. Remove.
+  */
+ static isImplementedBy(obj) {
+  return !!(obj && obj[InputPort.IMPLEMENTED_BY_PROP_]);
+ }
 
-/** @const @private */ r5js.InputPort.IMPLEMENTED_BY_PROP_ = '$r5js.InputPort';
+ /** @param {function(new: InputPort, ...)} ctor */
+ static addImplementation(ctor) {
+  ctor.prototype[InputPort.IMPLEMENTED_BY_PROP_] = true;
+ }
+}
 
-/**
- * @param {*} obj
- * @return {boolean}
- * TODO bl temporary shim. Remove.
- */
-r5js.InputPort.isImplementedBy = function(obj) {
-  return !!(obj && obj[r5js.InputPort.IMPLEMENTED_BY_PROP_]);
-};
-
-
-/** @param {function(new: r5js.InputPort, ...)} ctor */
-r5js.InputPort.addImplementation = function(ctor) {
-  ctor.prototype[r5js.InputPort.IMPLEMENTED_BY_PROP_] = true;
-};
-
+/** @const @private */ InputPort.IMPLEMENTED_BY_PROP_ = '$r5js.InputPort';
 
 
 /**
  * An input port that has no available input.
- * @implements {r5js.InputPort}
- * @struct
- * @constructor
- * @private
+ * @implements {InputPort}
  */
-r5js.InputPort.Null_ = function() {};
-r5js.InputPort.addImplementation(r5js.InputPort.Null_);
+class NullInputPort {
+ /** @override */
+ isCharReady() {
+  return false;
+ }
 
+ /** @override */
+ peekChar() {
+  return null;
+ }
 
-/** @override */
-r5js.InputPort.Null_.prototype.isCharReady = goog.functions.FALSE;
+ /** @override */
+ read() {
+  return null;
+ }
 
+ /** @override */
+ readChar() {
+  return null;
+ }
 
-/** @override */
-r5js.InputPort.Null_.prototype.peekChar = goog.functions.NULL;
+ /** @override */
+ close() {}
+}
 
-
-/** @override */
-r5js.InputPort.Null_.prototype.read = goog.functions.NULL;
-
-
-/** @override */
-r5js.InputPort.Null_.prototype.readChar = goog.functions.NULL;
-
-
-/** @override */
-r5js.InputPort.Null_.prototype.close = goog.nullFunction;
-
+InputPort.addImplementation(NullInputPort);
 
 /** @const {!r5js.InputPort} */
-r5js.InputPort.NULL = new r5js.InputPort.Null_();
+InputPort.NULL = new NullInputPort();
+
+exports = InputPort;
