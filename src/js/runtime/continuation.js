@@ -1,6 +1,7 @@
-goog.provide('r5js.Continuation');
+goog.module('r5js.Continuation');
 
-
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 
 /**
  * Example: (g (f x y) z) desugared is
@@ -12,12 +13,12 @@ goog.provide('r5js.Continuation');
  * c.lastResultName is f'
  * c.nextContinuable is (g f' z ...)
  */
-r5js.Continuation = class {
+class Continuation {
 
     /**
      * @param {string} resultName Optional name to use for the last result.
      *     If not given, a unique name will be created.
-     * @param {r5js.ProcCallLike} next
+     * @param {ProcCallLike} next
      */
     constructor(resultName, next) {
         /** @const @private */ this.lastResultName_ = resultName;
@@ -26,8 +27,8 @@ r5js.Continuation = class {
 
     /**
      * @param {?} arg
-     * @param {!r5js.ProcCallLike} procCallLike
-     * @param {!r5js.TrampolineHelper} trampolineHelper
+     * @param {!ProcCallLike} procCallLike
+     * @param {!TrampolineHelper} trampolineHelper
      */
     evaluate(arg, procCallLike, trampolineHelper) {
         procCallLike.getEnv().addBinding(this.lastResultName_, arg);
@@ -35,7 +36,7 @@ r5js.Continuation = class {
         if (this.nextContinuable_) {
             trampolineHelper.setNext(this.nextContinuable_);
         }
-        r5js.Continuation.repairInfiniteLoop(procCallLike, trampolineHelper);
+        Continuation.repairInfiniteLoop(procCallLike, trampolineHelper);
     }
 
     /**
@@ -63,8 +64,8 @@ r5js.Continuation = class {
      * We clearly have to cut out the first part of this chain to avoid an
      * infinite loop.
      *
-     * @param {!r5js.ProcCallLike} procCall
-     * @param {!r5js.TrampolineHelper} trampolineHelper
+     * @param {!ProcCallLike} procCall
+     * @param {!TrampolineHelper} trampolineHelper
      * @protected
      */
     static repairInfiniteLoop(procCall, trampolineHelper) {
@@ -75,10 +76,12 @@ r5js.Continuation = class {
                 if (prev) {
                     // TODO bl remove cast. At least one test relies on
                     // setNext(null) here.
-                    prev.setNext(/** @type {!r5js.ProcCallLike} */ (tmp.getNext()));
+                    prev.setNext(/** @type {!ProcCallLike} */ (tmp.getNext()));
                 }
                 return;
             }
         }
     }
-};
+}
+
+exports = Continuation;
