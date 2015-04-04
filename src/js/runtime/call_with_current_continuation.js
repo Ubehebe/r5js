@@ -1,11 +1,13 @@
-goog.provide('r5js.CallWithCurrentContinuation');
+goog.module('r5js.CallWithCurrentContinuation');
 
-goog.require('r5js.ProcCall');
+const Continuation = goog.require('r5js.Continuation');
+const Identifier = goog.require('r5js.ast.Identifier');
+const ProcCall = goog.require('r5js.ProcCall');
 
-r5js.CallWithCurrentContinuation = class extends r5js.ProcCall {
+class CallWithCurrentContinuation extends ProcCall {
     /**
-     * @param {!r5js.ast.Identifier} operatorName
-     * @param {!r5js.Continuation} continuation
+     * @param {!Identifier} operatorName
+     * @param {!Continuation} continuation
      */
     constructor(operatorName, continuation) {
         super(operatorName, null /* firstOperand */);
@@ -16,4 +18,6 @@ r5js.CallWithCurrentContinuation = class extends r5js.ProcCall {
     evalArgs() {
         return [this.continuation_];
     }
-};
+}
+
+exports = CallWithCurrentContinuation;
