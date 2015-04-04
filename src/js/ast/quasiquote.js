@@ -77,9 +77,9 @@ r5js.ast.Quasiquote.prototype.eqv = function(other) {
 r5js.ast.Quasiquote.prototype.processQuasiquote = function(
     env, cpsName, parserProvider) {
 
-  var newCalls = new r5js.ContinuableHelper();
+  const newCalls = new r5js.ContinuableHelper();
 
-  var qqLevel = this.qqLevel;
+  const qqLevel = this.qqLevel;
 
   this.replaceChildren(
       function(node) {
@@ -89,23 +89,23 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
       },
       function(node) {
         node = /** @type {!r5js.ast.CompoundDatum} */ (node); // TODO bl
-        var asContinuable = (/** @type {!r5js.ProcCallLike} */ (parserProvider(
+        const asContinuable = (/** @type {!r5js.ProcCallLike} */ (parserProvider(
             /** @type {!r5js.Datum} */(node.getFirstChild())).
                 parse(r5js.parse.Nonterminals.EXPRESSION).
                 desugar(env, true)));
         /* Throw out the last result name and replace it with another
              identifier (also illegal in Scheme) that will let us know if it's
              unquotation or unquotation with splicing. */
-        var name = (node instanceof r5js.ast.Unquote ?
-                r5js.parse.Terminals.COMMA :
-                r5js.parse.Terminals.COMMA_AT) + '' + goog.getUid(new Object());
-        var last = r5js.ProcCallLike.getLast(asContinuable);
+        const name = (node instanceof r5js.ast.Unquote
+                ? r5js.parse.Terminals.COMMA
+                : r5js.parse.Terminals.COMMA_AT) + '' + goog.getUid(new Object());
+        const last = r5js.ProcCallLike.getLast(asContinuable);
         last.setResultName(name);
         newCalls.appendProcCallLike(asContinuable);
         return new r5js.ast.Identifier(name);
       });
 
-  var newDatum = new r5js.ast.Quote(this.getFirstChild());
+  const newDatum = new r5js.ast.Quote(this.getFirstChild());
 
   newCalls.appendProcCallLike(new r5js.IdShim(newDatum, cpsName));
   return /** @type {!r5js.ProcCallLike} */ (newCalls.toContinuable());

@@ -104,13 +104,13 @@ r5js.test.Scanner.prototype['testStrings'] = function() {
 r5js.test.Scanner.getValidNumberTokens_ = function() {
   /* TODO bl: adding in these prefixes creates a huge number of test cases
      (more than 30,000) with about half of them failing.
-    var prefixes = r5js.test.Scanner.getValidNumberPrefixes_(); */
-  var suffixes = r5js.test.Scanner.getValidNumberSuffixes_();
-  var validDecimals = ['8762', '-3', '4987566###', '.765', '.549867#', '0.',
+    let prefixes = r5js.test.Scanner.getValidNumberPrefixes_(); */
+  const suffixes = r5js.test.Scanner.getValidNumberSuffixes_();
+  const validDecimals = ['8762', '-3', '4987566###', '.765', '.549867#', '0.',
     '37.###', '565.54', '3765.4499##', '4##.', '56#.', '587##.#'];
-  var validNumberTokens = [];
-  for (var i = 0; i < validDecimals.length; ++i) {
-    for (var j = 0; j < suffixes.length; ++j) {
+  const validNumberTokens = [];
+  for (let i = 0; i < validDecimals.length; ++i) {
+    for (let j = 0; j < suffixes.length; ++j) {
       validNumberTokens.push(validDecimals[i] + suffixes[j]);
     }
   }
@@ -123,10 +123,10 @@ r5js.test.Scanner.getValidNumberTokens_ = function() {
  * @private
  */
 r5js.test.Scanner.getValidNumberPrefixes_ = function() {
-  var bases = ['', '#b', '#B', '#o', '#O', '#d', '#D', '#x', '#X'];
-  var exactnesses = ['', '#e', '#E', '#i', '#I'];
-  var prefixes = [];
-  var i, j;
+  const bases = ['', '#b', '#B', '#o', '#O', '#d', '#D', '#x', '#X'];
+  const exactnesses = ['', '#e', '#E', '#i', '#I'];
+  const prefixes = [];
+  let i, j;
   for (i = 0; i < bases.length; ++i) {
     for (j = 0; j < exactnesses.length; ++j) {
       prefixes.push(bases[i] + exactnesses[j]);
@@ -142,12 +142,12 @@ r5js.test.Scanner.getValidNumberPrefixes_ = function() {
  * @private
  */
 r5js.test.Scanner.getValidNumberSuffixes_ = function() {
-  var exponentMarkers = ['e', 's', 'f', 'd', 'l', 'E', 'S', 'F', 'D', 'L'];
-  var signs = ['', '+', '-'];
-  var suffixes = [''];
+  const exponentMarkers = ['e', 's', 'f', 'd', 'l', 'E', 'S', 'F', 'D', 'L'];
+  const signs = ['', '+', '-'];
+  const suffixes = [''];
 
-  for (var i = 0; i < exponentMarkers.length; ++i) {
-    for (var j = 0; j < signs.length; ++j) {
+  for (let i = 0; i < exponentMarkers.length; ++i) {
+    for (let j = 0; j < signs.length; ++j) {
       suffixes.push(exponentMarkers[i] + signs[j] + '2387');
     }
   }

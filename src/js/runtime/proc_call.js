@@ -64,7 +64,7 @@ r5js.ProcCall.prototype.getFirstOperand = function() {
  * @private
  */
 r5js.ProcCall.prototype.reconstructDatum_ = function() {
-  var op = new r5js.ast.Identifier(this.operatorName_.getPayload());
+  const op = new r5js.ast.Identifier(this.operatorName_.getPayload());
   if (this.firstOperand_) {
     op.setNextSibling(this.firstOperand_);
   }
@@ -77,7 +77,7 @@ r5js.ProcCall.prototype.reconstructDatum_ = function() {
  * @private
  */
 r5js.ProcCall.prototype.operandsInContinuationPassingStyle_ = function() {
-  for (var cur = this.firstOperand_; cur; cur = cur.getNextSibling()) {
+  for (let cur = this.firstOperand_; cur; cur = cur.getNextSibling()) {
     if (cur instanceof r5js.Datum) {
       if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
         throw r5js.error.illegalEmptyApplication(
@@ -113,11 +113,11 @@ r5js.ProcCall.prototype.operandsInContinuationPassingStyle_ = function() {
  */
 r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
 
-  var newCallChain = new r5js.ContinuableHelper();
-  var finalArgs = new r5js.SiblingBuffer();
-  var maybeContinuable;
+  const newCallChain = new r5js.ContinuableHelper();
+  const finalArgs = new r5js.SiblingBuffer();
+  let maybeContinuable;
 
-  for (var arg = this.firstOperand_; arg; arg = arg.getNextSibling()) {
+  for (let arg = this.firstOperand_; arg; arg = arg.getNextSibling()) {
     arg.resetDesugars();
     if (arg instanceof r5js.ast.Quote) {
       finalArgs.appendSibling(arg.clone(null /* parent */));
@@ -140,7 +140,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
               maybeContinuable).getResultName()));
       newCallChain.appendProcCallLike(maybeContinuable);
     } else {
-      var clonedArg = arg.clone(null /* parent */);
+      const clonedArg = arg.clone(null /* parent */);
       if (clonedArg instanceof r5js.ast.CompoundDatum) {
         clonedArg.clearFirstChild();
       }
@@ -151,9 +151,9 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
   newCallChain.appendProcCallLike(
       new r5js.ProcCall(this.operatorName_, finalArgs.toSiblings()));
 
-  var ans = newCallChain.toContinuable();
-  var lastContinuable = r5js.ProcCallLike.getLast(ans);
-  var next = this.getNext();
+  const ans = newCallChain.toContinuable();
+  const lastContinuable = r5js.ProcCallLike.getLast(ans);
+  const next = this.getNext();
   if (next) {
     lastContinuable.setNext(next);
   }
@@ -169,21 +169,21 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
  */
 r5js.ProcCall.prototype.evalAndAdvance = function(
     resultStruct, env, parserProvider) {
-  var proc = this.getEnv().getProcedure(/** @type {string} */ (
+  const proc = this.getEnv().getProcedure(/** @type {string} */ (
       this.operatorName_.getPayload()));
 
   if (proc instanceof r5js.Procedure) {
     if (!this.operandsInContinuationPassingStyle_()) {
       this.cpsify_(resultStruct, parserProvider);
     } else {
-      var args = this.evalArgs();
+      const args = this.evalArgs();
       proc.evaluate(args, this, resultStruct, env);
     }
   } else if (proc instanceof r5js.Macro) {
-    var rawDatum = this.reconstructDatum_();
+    const rawDatum = this.reconstructDatum_();
     proc.evaluate(rawDatum, this, resultStruct, parserProvider);
   } else if (proc instanceof r5js.Continuation) {
-    var fakeArg = this.evalArgs()[0]; // TODO bl
+    const fakeArg = this.evalArgs()[0]; // TODO bl
     proc.evaluate(fakeArg, this, resultStruct);
   } else {
     throw r5js.error.notAProcedure(
@@ -199,17 +199,17 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
  * TODO bl: this method is confused.
  */
 r5js.ProcCall.prototype.evalArgs = function() {
-  var maybeArray;
+  let maybeArray;
   if (maybeArray = this.evalArgsCallWithValues_()) {
     return maybeArray;
   }
 
-  var args = [];
+  const args = [];
 
-  for (var cur = this.firstOperand_; cur; cur = cur.getNextSibling()) {
+  for (let cur = this.firstOperand_; cur; cur = cur.getNextSibling()) {
     if (cur instanceof r5js.ast.Identifier) {
-      var name = cur.getPayload();
-      var toPush = this.getEnv().get(name);
+      const name = cur.getPayload();
+      const toPush = this.getEnv().get(name);
       /* Macros are not first-class citizens in Scheme; they cannot
              be passed as arguments. Internally, however, we do just that
              for convenience. The isLetOrLetrecSyntax flag discriminates
@@ -255,7 +255,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
 r5js.ProcCall.prototype.evalArgsCallWithValues_ = function() {
   if (this.firstOperand_ instanceof r5js.ast.Identifier &&
       !this.firstOperand_.getNextSibling()) {
-    var maybeArray = this.getEnv().get(
+    const maybeArray = this.getEnv().get(
         /** @type {string} */ (this.firstOperand_.getPayload()));
     if (maybeArray instanceof Array) {
       return maybeArray;

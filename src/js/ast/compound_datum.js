@@ -70,10 +70,10 @@ r5js.ast.CompoundDatum.prototype.clearFirstChild = function() {
 
 /** @override */
 r5js.ast.CompoundDatum.prototype.clone = function(parent) {
-  var ans = /** @type {!r5js.ast.CompoundDatum} */ (
+  const ans = /** @type {!r5js.ast.CompoundDatum} */ (
       r5js.ast.CompoundDatum.base(this, 'clone', parent));
   if (this.firstChild_) {
-    var buf = new r5js.SiblingBuffer();
+    const buf = new r5js.SiblingBuffer();
     this.forEachChild(function(child) {
       buf.appendSibling(child.clone(ans));
     });
@@ -90,7 +90,7 @@ r5js.ast.CompoundDatum.prototype.clone = function(parent) {
  * @return {boolean}
  */
 r5js.ast.CompoundDatum.prototype.isEqual = function(other) {
-  var thisChild, otherChild;
+  let thisChild, otherChild;
   for (thisChild = this.firstChild_, otherChild = other.firstChild_;
       thisChild && otherChild;
       thisChild = thisChild.getNextSibling(),
@@ -113,7 +113,7 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIds = function(helper) {
   } else if (this.hasParse(r5js.parse.Nonterminals.DEFINITION)) {
     this.fixParserSensitiveIdsDef_(helper);
   } else {
-    for (var cur = this.firstChild_; cur; cur = cur.getNextSibling()) {
+    for (let cur = this.firstChild_; cur; cur = cur.getNextSibling()) {
       cur.fixParserSensitiveIds(helper);
     }
   }
@@ -128,12 +128,11 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIds = function(helper) {
  */
 r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsLambda_ = function(
     helper) {
-  var formalRoot = this.at(r5js.parse.Nonterminals.FORMALS);
-  var newHelper = new r5js.RenameHelper(helper);
-  var id;
+  const formalRoot = this.at(r5js.parse.Nonterminals.FORMALS);
+  const newHelper = new r5js.RenameHelper(helper);
 
   if (formalRoot instanceof r5js.ast.Identifier) { // (lambda x ...)
-    id = formalRoot.getPayload();
+    let id = formalRoot.getPayload();
     if (isParserSensitiveId(id)) {
       formalRoot.setPayload(newHelper.addRenameBinding(id));
     }
@@ -141,7 +140,7 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsLambda_ = function(
     (/** @type {!r5js.ast.CompoundDatum} */ (formalRoot)).forEachChild(
         function(child) {
           child = /** @type {!r5js.ast.Identifier} */ (child);
-          id = child.getPayload();
+         let  id = child.getPayload();
           if (isParserSensitiveId(id)) {
             child.setPayload(newHelper.addRenameBinding(id));
           }
@@ -158,9 +157,9 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsLambda_ = function(
  * @private
  */
 r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
-  var maybeVar = /** @type {r5js.ast.Identifier} */ (
+  const maybeVar = /** @type {r5js.ast.Identifier} */ (
       this.at(r5js.parse.Nonterminals.VARIABLE));
-  var id;
+  let id;
 
   if (maybeVar) { // (define foo +)
     id = maybeVar.getPayload();
@@ -168,11 +167,11 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
       maybeVar.setPayload(helper.addRenameBinding(id));
     }
   } else { // (define (foo x y) (+ x y))
-    var vars = /** @type {!r5js.ast.CompoundDatum} */ (
+    const vars = /** @type {!r5js.ast.CompoundDatum} */ (
         this.firstChild_.getNextSibling());
-    var name = /** @type {!r5js.ast.Identifier} */ (vars.firstChild_);
-    var newHelper = new r5js.RenameHelper(helper);
-    for (var cur = name.getNextSibling(); cur; cur = cur.getNextSibling()) {
+    const name = /** @type {!r5js.ast.Identifier} */ (vars.firstChild_);
+    const newHelper = new r5js.RenameHelper(helper);
+    for (let cur = name.getNextSibling(); cur; cur = cur.getNextSibling()) {
       cur = /** @type {!r5js.ast.Identifier} */ (cur);
       id = cur.getPayload();
       if (isParserSensitiveId(id)) {
@@ -180,7 +179,7 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
       }
     }
     vars.getNextSibling().fixParserSensitiveIds(newHelper);
-    var namePayload = name.getPayload();
+    const namePayload = name.getPayload();
     if (isParserSensitiveId(namePayload)) {
       name.setPayload(helper.addRenameBinding(namePayload));
     }
@@ -193,7 +192,7 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
  * @return {r5js.Datum}
  */
 r5js.ast.CompoundDatum.prototype.at = function(type) {
-  for (var cur = this.firstChild_; cur; cur = cur.getNextSibling()) {
+  for (let cur = this.firstChild_; cur; cur = cur.getNextSibling()) {
     if (cur.peekParse() === type) {
       return cur;
     }
@@ -223,7 +222,7 @@ r5js.ast.CompoundDatum.prototype.getCdrHelper = function() {
  * itself a list, or null if no such datum exists.
  */
 r5js.ast.CompoundDatum.prototype.firstSublist = function() {
-  for (var child = this.firstChild_; child; child = child.getNextSibling()) {
+  for (let child = this.firstChild_; child; child = child.getNextSibling()) {
     if (child instanceof r5js.ast.CompoundDatum) {
       return child;
     }
@@ -246,7 +245,7 @@ r5js.ast.CompoundDatum.prototype.resetDesugars = function() {
  */
 r5js.ast.CompoundDatum.prototype.forEachChild = function(
     callback, opt_context) {
-  for (var cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
+  for (let cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
     callback.call(opt_context, cur);
   }
 };
@@ -262,8 +261,8 @@ r5js.ast.CompoundDatum.prototype.forEachChild = function(
  * @template SCOPE,T
  */
 r5js.ast.CompoundDatum.prototype.mapChildren = function(f, opt_context) {
-  var ans = [];
-  for (var cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
+  const ans = [];
+  for (let cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
     ans.push(f.call(opt_context, cur));
   }
   return ans;
@@ -286,7 +285,7 @@ r5js.ast.CompoundDatum.prototype.replaceChildren = function(
        cur;
        prev = cur, cur = cur.getNextSibling()) {
     if (predicate(/** @type {!r5js.Datum} */(cur))) {
-      var tmp = cur.getNextSibling();
+      const tmp = cur.getNextSibling();
       cur.setNextSibling(null);
       /* We have to assign to cur so prev will be set correctly
              in the next iteration. */

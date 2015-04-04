@@ -49,7 +49,7 @@ r5js.ast.Identifier = /** @extends {r5js.ast.SimpleDatum<string>} */ class exten
     /** @override */
     fixParserSensitiveIds(helper) {
         if (isParserSensitiveId(this.payload)) {
-            var renamedAs = helper.getRenameBinding(this.payload);
+            const renamedAs = helper.getRenameBinding(this.payload);
             if (renamedAs) {
                 this.setPayload(renamedAs);
             }

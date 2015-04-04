@@ -37,21 +37,20 @@ goog.require('r5js.parse.Terminals');
  * @suppress {checkTypes} for setNextSibling(null)
  */
 r5js.datumutil.extractDefinition = function(datum) {
-  var variable = datum.at(r5js.parse.Nonterminals.VARIABLE);
+  let variable = datum.at(r5js.parse.Nonterminals.VARIABLE);
   if (variable) {
-    var expr = datum.at(r5js.parse.Nonterminals.EXPRESSION);
+    const expr = datum.at(r5js.parse.Nonterminals.EXPRESSION);
     variable.setNextSibling(null); // TODO bl
     return new r5js.SiblingBuffer().
         appendSibling(variable).
             appendSibling(/** @type {!r5js.Datum} */(expr)).
             toList(r5js.ast.List);
   } else {
-    var formalsList = datum.getFirstChild().getNextSibling();
+    const formalsList = datum.getFirstChild().getNextSibling();
     variable = formalsList.getFirstChild();
-    var bodyStart = formalsList.getNextSibling();
+    const bodyStart = formalsList.getNextSibling();
     formalsList.setFirstChild(formalsList.getFirstChild().getNextSibling());
-    var lambda = r5js.datumutil.prepareLambdaForDefinition_(
-        bodyStart, formalsList);
+    const lambda = r5js.datumutil.prepareLambdaForDefinition_(bodyStart, formalsList);
     variable.setNextSibling(null); // TODO bl
     return new r5js.SiblingBuffer().
         appendSibling(variable).
@@ -69,7 +68,7 @@ r5js.datumutil.extractDefinition = function(datum) {
  * @suppress {checkTypes} for setNextSibling(null)
  */
 r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
-  var buffer = new r5js.SiblingBuffer();
+  const buffer = new r5js.SiblingBuffer();
   buffer.appendSibling(new r5js.ast.Identifier(r5js.parse.Terminals.LAMBDA));
   if (formalsList.isImproperList() &&
       !formalsList.getFirstChild().getNextSibling()) {

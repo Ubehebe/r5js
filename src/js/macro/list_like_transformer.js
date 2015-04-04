@@ -76,7 +76,7 @@ r5js.ListLikeTransformer.Base_.prototype.getName = function() {
 /** @override */
 r5js.ListLikeTransformer.Base_.prototype.collectNestingLevels = function(
     ellipsisLevel, transformer) {
-  for (var i = 0; i < this.subtransformers_.length; ++i) {
+  for (let i = 0; i < this.subtransformers_.length; ++i) {
     this.subtransformers_[i].collectNestingLevels(ellipsisLevel, transformer);
   }
 };
@@ -96,7 +96,7 @@ r5js.ListLikeTransformer.Base_.prototype.couldMatch = function(inputDatum) {
  * @suppress {checkTypes} TODO bl suspicious false return value
  */
 r5js.ListLikeTransformer.Base_.prototype.toDatum = function(bindings) {
-  var siblingBuffer = this.toSiblingBuffer_(bindings);
+  const siblingBuffer = this.toSiblingBuffer_(bindings);
   return siblingBuffer ? siblingBuffer.toList(this.ctor_) : false;
 };
 
@@ -104,10 +104,9 @@ r5js.ListLikeTransformer.Base_.prototype.toDatum = function(bindings) {
 /** @override */
 r5js.ListLikeTransformer.Base_.prototype.matchInput = function(
     inputDatum, literalIds, definitionEnv, useEnv, bindings) {
-  var len = this.subtransformers_.length;
-  var maybeEllipsis =
-      this.subtransformers_[len - 1] instanceof r5js.EllipsisTransformer &&
-          this.subtransformers_[len - 1];
+  const len = this.subtransformers_.length;
+  const maybeEllipsis = this.subtransformers_[len - 1] instanceof r5js.EllipsisTransformer
+      && this.subtransformers_[len - 1];
 
   if (!this.couldMatch(inputDatum)) {
     return false;
@@ -172,12 +171,11 @@ r5js.ListLikeTransformer.Base_.prototype.matchInput = function(
  * @private
  */
 r5js.ListLikeTransformer.Base_.prototype.toSiblingBuffer_ = function(bindings) {
+  const buf = new r5js.SiblingBuffer();
+  const len = this.subtransformers_.length;
 
-  var buf = new r5js.SiblingBuffer();
-  var len = this.subtransformers_.length;
-
-  for (var i = 0; i < len; ++i) {
-    var success = /** @type {!r5js.Datum|boolean} */ (
+  for (let i = 0; i < len; ++i) {
+    const success = /** @type {!r5js.Datum|boolean} */ (
         this.subtransformers_[i].toDatum(bindings));
     if (success === false) {
       return null;
@@ -274,8 +272,8 @@ r5js.DottedListTransformer.prototype.couldMatch = function(inputDatum) {
 r5js.DottedListTransformer.prototype.matchInput = function(
     inputDatum, literalIds, definitionEnv, useEnv, bindings) {
   inputDatum = /** @type {!r5js.ast.CompoundDatum} */ (inputDatum);
-  var len = this.subtransformers_.length;
-  var maybeEllipsis =
+  const len = this.subtransformers_.length;
+  let maybeEllipsis =
       this.subtransformers_[len - 1] instanceof r5js.EllipsisTransformer &&
           this.subtransformers_[len - 1];
 
@@ -328,7 +326,7 @@ r5js.DottedListTransformer.prototype.matchInput = function(
         literalIds, definitionEnv, useEnv, bindings);
   } else {
     // Dotted-list patterns cannot end in ellipses.
-    var toMatchAgainst;
+    let toMatchAgainst;
 
     if (inputDatum instanceof r5js.ast.List) {
       toMatchAgainst = new r5js.SiblingBuffer().

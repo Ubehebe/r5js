@@ -52,8 +52,8 @@ r5js.ast.DottedList.prototype.car = function() {
 
 /** @override */
 r5js.ast.DottedList.prototype.cdr = function() {
-  var startOfCdr = this.getFirstChild().getNextSibling();
-  var ans;
+  const startOfCdr = this.getFirstChild().getNextSibling();
+  let ans;
   if (startOfCdr) {
     if (startOfCdr.getNextSibling()) {
       ans = new r5js.SiblingBuffer().

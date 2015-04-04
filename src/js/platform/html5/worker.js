@@ -37,7 +37,7 @@ goog.require('r5js.valutil');
  */
 r5js.platform.html5.Worker = function() {
   addEventListener(goog.events.EventType.MESSAGE, function(e) {
-    var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
+    const message = /** @type {!r5js.platform.html5.Message} */ (e.data);
     switch (message.type) {
       case r5js.platform.html5.MessageType.EVAL_REQUEST:
         r5js.platform.html5.Worker.handleEvalRequest_(message);
@@ -58,7 +58,7 @@ r5js.platform.html5.Worker.evaluator_;
  */
 r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
   r5js.platform.html5.Worker.getEvaluator_().then(function(evaluator) {
-    /** @type {string} */ var value;
+    /** @type {string} */ let value;
     try {
       value = evaluator.evaluate(message.content);
     } catch (e) {
@@ -78,11 +78,10 @@ r5js.platform.html5.Worker.handleEvalRequest_ = function(message) {
  */
 r5js.platform.html5.Worker.getEvaluator_ = function() {
   if (!r5js.platform.html5.Worker.evaluator_) {
-    var inputPort = r5js.InputPort.NULL;
-    var outputPort = new r5js.platform.html5.OutputPort(function(value) {
+    const inputPort = r5js.InputPort.NULL;
+    const outputPort = new r5js.platform.html5.OutputPort(function(value) {
       postMessage(r5js.platform.html5.message.output(value));
     });
-    var platform = r5js.curPlatform();
     r5js.platform.html5.Worker.evaluator_ = r5js.SchemeSources.get().
         then(function(sources) {
               return r5js.boot(

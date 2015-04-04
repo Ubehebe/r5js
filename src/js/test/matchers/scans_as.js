@@ -25,7 +25,7 @@ goog.require('tdd.matchers.Matcher');
  * @param {function(new: r5js.Datum, ?)} expectedType
  * @return {!tdd.matchers.Matcher<string>}
  */
-var scanAs = function(expectedType) {
+const scanAs = function(expectedType) {
   return new ScansAs_(expectedType);
 };
 
@@ -38,7 +38,7 @@ var scanAs = function(expectedType) {
  * @constructor
  * @private
  */
-var ScansAs_ = function(expectedType) {
+const ScansAs_ = function(expectedType) {
   /** @const @private */ this.expectedType_ = expectedType;
 };
 
@@ -46,8 +46,8 @@ var ScansAs_ = function(expectedType) {
 /** @override */
 ScansAs_.prototype.matches = function(value) {
   try {
-    var scanner = new r5js.Scanner(value);
-    var token = scanner.nextToken();
+    const scanner = new r5js.Scanner(value);
+    const token = scanner.nextToken();
     // There should be exactly one token in the input.
     // (For example, 1+2 should fail to scan as one number token,
     // even though the whole input scans.)

@@ -126,7 +126,7 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
     throw r5js.error.internalInterpreterError('invariant incorrect');
   } else if (val instanceof r5js.ast.Macro) {
     // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
-    var fakeName = newCpsName();
+    const fakeName = newCpsName();
     this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
     this.bindings_[name] = new r5js.ast.Identifier(fakeName);
   } else {
@@ -164,7 +164,7 @@ r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
  */
 r5js.TemplateBindings.prototype.maybeRenameId_ = function(datum) {
   if (datum instanceof r5js.ast.Identifier) {
-    var id = /** @type {string} */ (datum.getPayload());
+    const id = /** @type {string} */ (datum.getPayload());
     if (this.templateRenameCandidates_[id]) {
       this.renameInTemplate_[id] = true;
     }
@@ -190,7 +190,7 @@ r5js.TemplateBindings.prototype.addChildBindings = function(child) {
  * @private
  */
 r5js.TemplateBindings.prototype.hasNoneOf_ = function(other) {
-  for (var name in other.bindings_) {
+  for (const name in other.bindings_) {
     if (name in this.bindings_) {
       return false;
     }
@@ -225,10 +225,10 @@ r5js.TemplateBindings.prototype.incorporateChild = function(child) {
      have any of the bindings.
 
      todo bl: i have no idea why this heuristic seems to work. */
-  for (var i = 0; i < this.children_.length; ++i) {
-    var candidate = this.children_[i];
+  for (let i = 0; i < this.children_.length; ++i) {
+    const candidate = this.children_[i];
     if (candidate.hasNoneOf_(child)) {
-      for (var name in child.bindings_) {
+      for (const name in child.bindings_) {
         candidate.addTemplateBinding(name, child.bindings_[name]);
       }
       return this;
@@ -260,9 +260,9 @@ r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
     throw r5js.error.internalInterpreterError('invariant incorrect');
 
   if (datum instanceof r5js.ast.Identifier) {
-    var name = /** @type {string} */(datum.getPayload());
+    const name = /** @type {string} */(datum.getPayload());
 
-    var maybe = this.bindings_[name];
+    const maybe = this.bindings_[name];
     if (maybe) {
       return maybe.clone(null /* parent */);
     } else if (this.patternIds_[name] !== undefined) {

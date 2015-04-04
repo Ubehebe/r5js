@@ -70,7 +70,7 @@ r5js.read.bnf.One_.TERMINAL_SENTINEL = new r5js.Datum();
 /** @override */
 r5js.read.bnf.One_.prototype.match = function(tokenStream) {
   // The rule will be found in the grammar iff it is a nonterminal.
-  var rule = r5js.read.grammar[this.type_];
+  const rule = r5js.read.grammar[this.type_];
   return rule ? rule.match(tokenStream) : this.matchTerminal_(tokenStream);
 };
 
@@ -81,7 +81,7 @@ r5js.read.bnf.One_.prototype.match = function(tokenStream) {
  * @private
  */
 r5js.read.bnf.One_.prototype.matchTerminal_ = function(tokenStream) {
-  var token = tokenStream.nextToken();
+  const token = tokenStream.nextToken();
   return token === this.type_ ?
       r5js.read.bnf.One_.TERMINAL_SENTINEL :
       null;
@@ -107,10 +107,10 @@ r5js.read.bnf.AtLeast_ = function(type, minRepetitions) {
 
 /** @override */
 r5js.read.bnf.AtLeast_.prototype.match = function(tokenStream) {
-  var siblingBuffer = new r5js.SiblingBuffer();
-  var rule = r5js.read.grammar[this.type_];
-  var checkpoint = tokenStream.checkpoint();
-  var num = 0, cur;
+  const siblingBuffer = new r5js.SiblingBuffer();
+  const rule = r5js.read.grammar[this.type_];
+  const checkpoint = tokenStream.checkpoint();
+  let num = 0, cur;
 
   while (cur = rule.match(tokenStream)) {
     siblingBuffer.appendSibling(cur);
@@ -172,7 +172,7 @@ r5js.read.bnf.OnePrimitive_ = function(ctor) {
 
 /** @override */
 r5js.read.bnf.OnePrimitive_.prototype.match = function(tokenStream) {
-  var token = tokenStream.nextToken();
+  const token = tokenStream.nextToken();
   return token instanceof this.ctor_ ? token : null;
 };
 
@@ -215,11 +215,11 @@ r5js.read.bnf.Seq_.prototype.named = function(ctor) {
 
 /** @override */
 r5js.read.bnf.Seq_.prototype.match = function(tokenStream) {
-  var siblingBuffer = new r5js.SiblingBuffer();
-  var checkpoint = tokenStream.checkpoint();
-  for (var i = 0; i < this.rules_.length; ++i) {
-    var rule = this.rules_[i];
-    var parsed = rule.match(tokenStream);
+  const siblingBuffer = new r5js.SiblingBuffer();
+  const checkpoint = tokenStream.checkpoint();
+  for (let i = 0; i < this.rules_.length; ++i) {
+    const rule = this.rules_[i];
+    const parsed = rule.match(tokenStream);
     if (parsed === r5js.read.bnf.One_.TERMINAL_SENTINEL) {
       continue;
     } else if (parsed === r5js.VACUOUS_PROGRAM) {
@@ -249,11 +249,11 @@ r5js.read.bnf.Seq_.maybeCanonicalize = function(datum) {
   if (!(datum instanceof r5js.ast.List) || !datum.getFirstChild()) {
     return datum;
   }
-  var firstChildToStrip = datum.getFirstChild();
+  const firstChildToStrip = datum.getFirstChild();
   if (!(firstChildToStrip instanceof r5js.ast.SimpleDatum)) {
     return datum;
   }
-  var realFirstChild = firstChildToStrip.getNextSibling();
+  const realFirstChild = firstChildToStrip.getNextSibling();
   switch (firstChildToStrip.getPayload()) {
     case r5js.parse.Terminals.QUOTE:
       return new r5js.ast.Quote(realFirstChild);
@@ -296,9 +296,9 @@ r5js.read.bnf.Choice_ = function(rules) {
 
 /** @override */
 r5js.read.bnf.Choice_.prototype.match = function(tokenStream) {
-  for (var i = 0; i < this.rules_.length; ++i) {
-    var checkpoint = tokenStream.checkpoint();
-    var newDatum;
+  for (let i = 0; i < this.rules_.length; ++i) {
+    const checkpoint = tokenStream.checkpoint();
+    let newDatum;
     if (newDatum = this.rules_[i].match(tokenStream)) {
       return newDatum;
     } else {

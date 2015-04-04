@@ -45,7 +45,7 @@ goog.inherits(r5js.VarargsUserDefinedProcedure, r5js.UserDefinedProcedure);
 
 /** @override */
 r5js.VarargsUserDefinedProcedure.prototype.checkNumArgs = function(numActuals) {
-  var minNumArgs = this.formalsArray.length - 1;
+  const minNumArgs = this.formalsArray.length - 1;
   if (numActuals < minNumArgs) {
     throw r5js.error.tooFewVarargs(this.toString(), minNumArgs, numActuals);
   }
@@ -54,7 +54,7 @@ r5js.VarargsUserDefinedProcedure.prototype.checkNumArgs = function(numActuals) {
 
 /** @override */
 r5js.VarargsUserDefinedProcedure.prototype.bindArgs = function(args, env) {
-  var name, i;
+  let name, i;
 
   for (i = 0; i < this.formalsArray.length - 1; ++i) {
     name = this.formalsArray[i];
@@ -64,8 +64,8 @@ r5js.VarargsUserDefinedProcedure.prototype.bindArgs = function(args, env) {
   if (this.formalsArray.length > 0) {
     name = this.formalsArray[i];
     // Roll up the remaining arguments into a list
-    var siblingBuffer = new r5js.SiblingBuffer();
-    for (var j = i; j < args.length; ++j) {
+    let siblingBuffer = new r5js.SiblingBuffer();
+    for (let j = i; j < args.length; ++j) {
       siblingBuffer.appendSibling(r5js.datumutil.wrapValue(args[j]));
     }
     env.addBinding(name, siblingBuffer.toList(r5js.ast.List));

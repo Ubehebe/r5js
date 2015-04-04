@@ -31,15 +31,15 @@ goog.require('r5js.replutil');
  * @param {?} jqConsole
  */
 r5js.platform.html5.repl = function(jqConsole) {
-  var platform = /** @type {!r5js.platform.Html5_} */ (
+  const platform = /** @type {!r5js.platform.Html5_} */ (
       r5js.curPlatform.apply(null, goog.array.toArray(arguments)));
-  /** @type {r5js.Terminal} */ var terminal;
-  var stdin = r5js.InputPort.NULL;
-  var stdout = new r5js.CallbackBackedPort(function(output) {
+  /** @type {r5js.Terminal} */ let terminal = null;
+  const stdin = r5js.InputPort.NULL;
+  const stdout = new r5js.CallbackBackedPort(function(output) {
     terminal.print(output);
   });
   platform.newEvaluator(stdin, stdout).then(function(evaluator) {
-    var isLineComplete = function(line) {
+    const isLineComplete = function(line) {
       return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
     };
     terminal = platform.getTerminal(jqConsole);

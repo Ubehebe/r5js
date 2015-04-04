@@ -37,7 +37,7 @@ r5js.RenameHelper = class {
      * @return {string} A new name for the given name.
      */
     addRenameBinding(from) {
-        var to = newCpsName();
+        const to = newCpsName();
         this.bindings_[from] = to;
         return to;
     }
@@ -48,7 +48,7 @@ r5js.RenameHelper = class {
      * has no such binding.
      */
     getRenameBinding(name) {
-        var maybe = this.bindings_[name];
+        const maybe = this.bindings_[name];
         if (maybe) {
             return maybe;
         } else if (this.parent_) {
@@ -60,7 +60,7 @@ r5js.RenameHelper = class {
 
     /** @return {boolean} True iff the helper was used. */
     wasUsed() {
-        for (var name in this.bindings_) {
+        for (const name in this.bindings_) {
             return true;
         }
         return false;

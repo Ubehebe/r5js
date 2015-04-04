@@ -6,7 +6,7 @@ const terminal = goog.require('r5js.Terminal');
 /** @implements {r5js.Terminal} */
 class Terminal {
   constructor() {
-    var readline = require('readline');
+    const readline = require('readline');
     /** @private @const */
     this.readline_ = readline.createInterface({
       input: process.stdin,

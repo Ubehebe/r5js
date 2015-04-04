@@ -80,8 +80,8 @@ r5js.ast.List.prototype.eqv = function(other) {
     return true;
   }
 
-  var thisHelper = this.getCdrHelper();
-  var otherHelper = other.getCdrHelper();
+  const thisHelper = this.getCdrHelper();
+  let otherHelper = other.getCdrHelper();
   if (thisHelper && otherHelper) {
     return thisHelper.equals(otherHelper);
   } else if (thisHelper && other instanceof r5js.ast.CompoundDatum) {
@@ -105,8 +105,8 @@ r5js.ast.List.prototype.car = function() {
  * @suppress {checkTypes} for setNextSibling(null).
  */
 r5js.ast.List.prototype.cdr = function() {
-  var startOfCdr = this.getFirstChild().getNextSibling();
-  var ans;
+  const startOfCdr = this.getFirstChild().getNextSibling();
+  let ans;
   if (startOfCdr) {
     if (startOfCdr.getNextSibling() || !this.dirty_) {
       // TODO bl investigate why this is happening

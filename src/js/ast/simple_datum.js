@@ -59,7 +59,7 @@ r5js.ast.SimpleDatum.prototype.setPayload = function(payload) {
 
 /** @override */
 r5js.ast.SimpleDatum.prototype.clone = function(parent) {
-  var clone = /** @type {!r5js.ast.SimpleDatum} */ (
+  const clone = /** @type {!r5js.ast.SimpleDatum} */ (
       r5js.ast.SimpleDatum.base(this, 'clone', parent));
   clone.setPayload(this.payload);
   return clone;

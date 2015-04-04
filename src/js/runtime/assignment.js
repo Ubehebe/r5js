@@ -50,14 +50,14 @@ goog.inherits(r5js.Assignment, r5js.ProcCallLike);
  */
 r5js.Assignment.prototype.evalAndAdvance = function(
     resultStruct, envBuffer, parserProvider) {
-  var src = this.getEnv().get(/** @type {string} */ (
+  const src = this.getEnv().get(/** @type {string} */ (
       this.firstOperand_.getNextSibling().getPayload()));
   this.checkForImproperSyntaxAssignment(src);
   this.mutateEnv(/** @type {string} */ (this.firstOperand_.getPayload()), src);
   // R5RS 4.1.6: the value of an assignment is unspecified.
   resultStruct.setValue(r5js.runtime.UNSPECIFIED_VALUE);
   this.bindResult(r5js.runtime.UNSPECIFIED_VALUE);
-  var nextContinuable = this.getNext();
+  const nextContinuable = this.getNext();
   if (nextContinuable) {
     resultStruct.setNext(nextContinuable);
   }
@@ -142,7 +142,7 @@ r5js.TopLevelSyntaxAssignment.prototype.checkForImproperSyntaxAssignment =
  * @return {!r5js.ProcCallLike}
  */
 r5js.newAssignment = function(dstName, srcName) {
-  var operands = new r5js.SiblingBuffer()
+  const operands = new r5js.SiblingBuffer()
         .appendSibling(new r5js.ast.Identifier(dstName))
         .appendSibling(new r5js.ast.Identifier(srcName))
         .toSiblings();
@@ -156,7 +156,7 @@ r5js.newAssignment = function(dstName, srcName) {
  * @return {!r5js.ProcCallLike}
  */
 r5js.newTopLevelAssignment = function(dstName, srcName) {
-  var operands = new r5js.SiblingBuffer()
+  const operands = new r5js.SiblingBuffer()
         .appendSibling(new r5js.ast.Identifier(dstName))
         .appendSibling(new r5js.ast.Identifier(srcName))
         .toSiblings();
@@ -170,7 +170,7 @@ r5js.newTopLevelAssignment = function(dstName, srcName) {
  * @return {!r5js.ProcCallLike}
  */
 r5js.newTopLevelSyntaxAssignment = function(dstName, srcName) {
-  var operands = new r5js.SiblingBuffer()
+  const operands = new r5js.SiblingBuffer()
         .appendSibling(new r5js.ast.Identifier(dstName))
         .appendSibling(new r5js.ast.Identifier(srcName))
         .toSiblings();

@@ -50,13 +50,13 @@ goog.inherits(r5js.IdShim, r5js.ProcCallLike);
 /** @override */
 r5js.IdShim.prototype.evalAndAdvance = function(
     resultStruct, env, parserProvider) {
-  var ans;
+  let ans;
   if (this.firstOperand_ instanceof r5js.ast.Identifier) {
     ans = this.tryIdentifier_(this.firstOperand_);
   } else if (this.firstOperand_ instanceof r5js.ast.Quote) {
     ans = this.tryQuote_(this.firstOperand_);
   } else if (this.firstOperand_ instanceof r5js.ast.Quasiquote) {
-    var next = this.tryQuasiquote_(this.firstOperand_, parserProvider);
+    const next = this.tryQuasiquote_(this.firstOperand_, parserProvider);
     if (next) {
       resultStruct.setNext(next);
     }
@@ -70,7 +70,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
     resultStruct.setValue(ans);
   }
 
-  var nextContinuable = this.getNext();
+  const nextContinuable = this.getNext();
 
   if (nextContinuable) {
     resultStruct.setNext(nextContinuable);
@@ -94,18 +94,18 @@ r5js.IdShim.prototype.tryIdentifier_ = function(id) {
  * @private
  */
 r5js.IdShim.prototype.tryQuote_ = function(quote) {
-  var env = this.getEnv();
+  const env = this.getEnv();
   // Do the appropriate substitutions.
-  var ans = quote.replaceChildren(
+  const ans = quote.replaceChildren(
       function(node) {
         return node instanceof r5js.ast.Identifier && node.shouldUnquote();
       },
       function(node) {
-        var result = env.get(
+        const result = env.get(
             /** @type {string} */ ((
             /** @type {!r5js.ast.Identifier} */ (node)).
             getPayload()));
-        var ans = result === null ?
+        let ans = result === null ?
             r5js.runtime.UNSPECIFIED_VALUE :
             r5js.datumutil.wrapValue(result);
         // TODO bl document why we're doing this
@@ -140,11 +140,11 @@ r5js.IdShim.prototype.tryQuote_ = function(quote) {
  * @private
  */
 r5js.IdShim.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
-  var continuable = quasiquote.processQuasiquote(
+  const continuable = quasiquote.processQuasiquote(
       /** @type {!r5js.IEnvironment} */ (this.getEnv()),
       this.getResultName(),
       parserProvider);
-  var next = this.getNext();
+  const next = this.getNext();
   if (next) {
     r5js.ProcCallLike.appendProcCallLike(continuable, next);
   }

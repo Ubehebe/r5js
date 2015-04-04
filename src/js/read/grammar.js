@@ -36,7 +36,7 @@ goog.require('r5js.read.bnf');
 
 
 goog.scope(function() {
-var _ = r5js.read.bnf;
+const _ = r5js.read.bnf;
 
 
 /** @type {!Object<string, !r5js.read.bnf.Rule>} */
@@ -112,10 +112,10 @@ r5js.ReaderImpl = function(scanner) {
 
 /** @override */
 r5js.ReaderImpl.prototype.read = function() {
-  var ans = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()].
+  const ans = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()].
       match(this.scanner_);
   // All of the input tokens must be consumed for success.
-  var nextToken = this.scanner_.nextToken();
+  const nextToken = this.scanner_.nextToken();
   if (nextToken) {
     throw r5js.error.read(nextToken);
   }

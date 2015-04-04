@@ -107,13 +107,12 @@ goog.require('r5js.TrampolineHelper');
  * @return {!r5js.runtime.Value}
  */
 r5js.trampoline = function(procCallLike, startingEnv, inputPort, outputPort) {
-
-  var cur = procCallLike;
-  var resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
-  var prevEnv = startingEnv;
+  let cur = procCallLike;
+  const resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
+  let prevEnv = startingEnv;
 
   while (cur) {
-    var curEnv = cur.getEnv();
+    let curEnv = cur.getEnv();
     /* If the procedure call has no attached environment, we use
        the environment left over from the previous action on the trampoline. */
     if (!curEnv && prevEnv) {

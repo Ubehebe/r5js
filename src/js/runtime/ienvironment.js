@@ -39,8 +39,8 @@ goog.provide('r5js.IEnvironment');
  * A drawback is that comparisons on stuff retrieved from an Environment
  * may need to be unwrapped:
  *
- * var x = env.get('foo');
- * var y = env.get('foo');
+ * let x = env.get('foo');
+ * let y = env.get('foo');
  * x == y // false if foo is a SchemeProcedure or JavaScript function!
  *
  * If you know your key should retrieve a SchemeProcedure or JavaScript

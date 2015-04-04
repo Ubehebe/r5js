@@ -92,7 +92,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
      They are created by mutation, i.e. once a value is already bound in an
      Environment, and once that happens, we never clone it again. */
 
-    var ans = new this.constructor();
+    const ans = new this.constructor();
 
     if (this.parent_) {
       ans.parent_ = this.parent_;
@@ -121,7 +121,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
 
   /** @return {?r5js.parse.Nonterminal} */
   peekParse() {
-    var len = this.nonterminals_.length;
+    const len = this.nonterminals_.length;
     return len > 0 ? this.nonterminals_[len - 1] : null;
   }
 
@@ -132,8 +132,8 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
    */
   hasParse(nonterminal) {
     if (this.nonterminals_) {
-      var len = this.nonterminals_.length;
-      for (var i = 0; i < len; ++i) {
+      const len = this.nonterminals_.length;
+      for (let i = 0; i < len; ++i) {
         if (this.nonterminals_[i] === nonterminal) {
           return true;
         }
@@ -168,9 +168,10 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
    * @suppress {checkTypes} TODO bl
    */
   desugar(env, opt_forceContinuationWrapper) {
-    var desugarFn = (this.desugars_ && this.nextDesugar_ >= 0) ?
-        this.desugars_[this.nextDesugar_--] : null;
-    var ans = desugarFn ? desugarFn(this, env) : this;
+    const desugarFn = (this.desugars_ && this.nextDesugar_ >= 0)
+        ? this.desugars_[this.nextDesugar_--]
+        : null;
+    let ans = desugarFn ? desugarFn(this, env) : this;
     if (opt_forceContinuationWrapper && (ans instanceof r5js.Datum)) {
       ans = new r5js.IdShim(ans);
     }
@@ -182,10 +183,10 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
    * @return {r5js.ProcCallLike}
    */
   sequence(env) {
-    /** @type {r5js.ProcCallLike} */ var first = null;
-    var desugared;
-    /** @type {r5js.ProcCallLike} */ var curEnd;
-    for (var cur = this; cur; cur = cur.nextSibling_) {
+    /** @type {r5js.ProcCallLike} */ let first = null;
+    let desugared;
+    /** @type {r5js.ProcCallLike} */ let curEnd = null;
+    for (let cur = this; cur; cur = cur.nextSibling_) {
       if (desugared = cur.desugar(env)) {
 
         /* Nodes that have no desugar functions (for example, variables
@@ -193,7 +194,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
          (for example in Datum.sequenceOperands), but here we need to be
          able to connect the Continuable objects correctly, so we
          wrap them. */
-        var desugaredProcCallLike = /**@type {!r5js.ProcCallLike} */ (
+        const desugaredProcCallLike = /**@type {!r5js.ProcCallLike} */ (
             desugared instanceof r5js.Datum ?
                 new r5js.IdShim(desugared) :
                 desugared);

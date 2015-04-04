@@ -64,7 +64,7 @@ r5js.SiblingBuffer = class {
      * @return {!r5js.ast.CompoundDatum}
      */
     toList(ctor) {
-        var ans = new ctor(/** @type {!r5js.Datum} */ (this.first_));
+        const ans = new ctor(/** @type {!r5js.Datum} */ (this.first_));
         if (this.last_ && ans) {
             this.last_.setParent(ans);
         }

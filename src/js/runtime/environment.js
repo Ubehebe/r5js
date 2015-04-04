@@ -45,13 +45,13 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
                 'interpreter bootstrapping');
         }
 
-        var cloned = new r5js.Environment(null /* enclosingEnv */);
+        const cloned = new r5js.Environment(null /* enclosingEnv */);
 
-        for (var name_ in this.bindings_) {
-            var val = this.bindings_[name_];
-            cloned.bindings_[name_] = val instanceof r5js.Macro ?
-                val.clone(cloned) :
-                val;
+        for (let name_ in this.bindings_) {
+            const val = this.bindings_[name_];
+            cloned.bindings_[name_] = val instanceof r5js.Macro
+                ? val.clone(cloned)
+                : val;
         }
 
         return cloned;
@@ -66,7 +66,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
     /** @override */
     get(name) {
         if (name in this.bindings_) {
-            var binding = this.bindings_[name];
+            const binding = this.bindings_[name];
             if (r5js.IEnvironment.isImplementedBy(binding) &&
                 binding.hasBindingRecursive(name)) {
                 // Redirects for free ids in macro transcriptions
@@ -112,7 +112,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
      */
     getProcedure(name) {
         if (name in this.bindings_) {
-            var binding = this.bindings_[name];
+            const binding = this.bindings_[name];
             if (r5js.IEnvironment.isImplementedBy(binding)) {
                 return binding.getProcedure(name);
             } else if (binding instanceof r5js.Continuation ||
@@ -140,7 +140,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
          some kind of infinite loop. I'm not entirely clear about what loop, though,
          since SchemeProcedure.prototype.cloneWithEnv itself does not do a lot
          of copying. */
-        for (var name in other.closures_) {
+        for (const name in other.closures_) {
             this.addBinding(name, other.closures_[name].cloneWithEnv(this));
         }
         return this;
@@ -200,7 +200,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
 
     /** @override */
     mutate(name, newVal, isTopLevel) {
-        var maybeBinding = this.bindings_[name];
+        const maybeBinding = this.bindings_[name];
         if (maybeBinding != null || isTopLevel) {
             if (r5js.IEnvironment.isImplementedBy(maybeBinding)) {
                 maybeBinding.mutate(name, newVal, isTopLevel);

@@ -52,8 +52,8 @@ goog.define('r5js.platform.html5.Client.WORKER_SCRIPT', '');
 
 /** @override */
 r5js.platform.html5.Client.prototype.evaluate = function(input) {
-  var resolver = goog.Promise.withResolver();
-  var messageId = ++this.messageIdCounter_;
+  const resolver = goog.Promise.withResolver();
+  const messageId = ++this.messageIdCounter_;
   this.resolvers_[messageId] = resolver;
   this.worker_.postMessage(
       r5js.platform.html5.message.newEvalRequest(messageId, input));
@@ -67,7 +67,7 @@ r5js.platform.html5.Client.prototype.evaluate = function(input) {
  */
 r5js.platform.html5.Client.prototype.onMessage_ = function(e) {
   e = /** @type {!MessageEvent} */ (e);
-  var message = /** @type {!r5js.platform.html5.Message} */ (e.data);
+  const message = /** @type {!r5js.platform.html5.Message} */ (e.data);
   switch (message.type) {
     case r5js.platform.html5.MessageType.EVAL_RESPONSE:
       this.resolvers_[message.id].resolve(message.content);

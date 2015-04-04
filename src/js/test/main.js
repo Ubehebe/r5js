@@ -50,7 +50,7 @@ goog.require('tdd.logTo');
  * @param {!Object<string, string>=} opt_env Optional command-line environment.
  */
 r5js.test.main = function(opt_argv, opt_env) {
-  var testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env) ?
+  const testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env) ?
       tdd.RunnerConfig.fromFlags(opt_argv, opt_env) :
       r5js.test.main.defaultConfig_();
   r5js.test.main1(testConfig);
@@ -65,13 +65,13 @@ r5js.test.main = function(opt_argv, opt_env) {
  * @param {!tdd.RunnerConfig} testConfig
  */
 r5js.test.main1 = function(testConfig) {
-  var logger = goog.log.getLogger('r5js.test.main');
-  var runner = new tdd.Runner(testConfig, logger);
-  var platform = r5js.curPlatform();
+  const logger = goog.log.getLogger('r5js.test.main');
+  const runner = new tdd.Runner(testConfig, logger);
+  const platform = r5js.curPlatform();
 
-  var buffer = new r5js.InMemoryPortBuffer();
-  var stdin = new r5js.InMemoryInputPort(buffer);
-  var stdout = new r5js.InMemoryOutputPort(buffer);
+  const buffer = new r5js.InMemoryPortBuffer();
+  const stdin = new r5js.InMemoryInputPort(buffer);
+  const stdout = new r5js.InMemoryOutputPort(buffer);
 
   r5js.test.getEvaluator_(stdin, stdout).then(function(evaluator) {
     r5js.test.getTestSuites_(evaluator, stdout).
@@ -93,7 +93,7 @@ r5js.test.main1 = function(testConfig) {
  * @private
  */
 r5js.test.main.defaultConfig_ = function() {
-  var logWriter = tdd.logTo(goog.global.console);
+  const logWriter = tdd.logTo(goog.global.console);
   return new tdd.RunnerConfig().
       setTestTypesToRun([tdd.TestType.UNIT, tdd.TestType.INTEGRATION])
       .addFailureHandler(logWriter)
@@ -109,7 +109,7 @@ r5js.test.readSandbox = function(text) {
 
 /** @param {string} text Text to parse. */
 r5js.test.parseSandbox = function(text) {
-  var datumRoot = new r5js.ReaderImpl(new r5js.Scanner(text)).read();
+  let datumRoot = new r5js.ReaderImpl(new r5js.Scanner(text)).read();
   if (datumRoot) {
     new r5js.ParserImpl(datumRoot).parse();
   }

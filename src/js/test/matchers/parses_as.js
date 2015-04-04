@@ -29,7 +29,7 @@ goog.require('tdd.matchers.Matcher');
  * @param {!r5js.parse.Nonterminal} expectedType
  * @return {!tdd.matchers.Matcher}
  */
-var parseAs = function(expectedType) {
+const parseAs = function(expectedType) {
   return new ParsesAs_(expectedType);
 };
 
@@ -42,7 +42,7 @@ var parseAs = function(expectedType) {
  * @constructor
  * @private
  */
-var ParsesAs_ = function(expectedType) {
+const ParsesAs_ = function(expectedType) {
   /** @const @private {!r5js.parse.Nonterminal} */
   this.expectedType_ = expectedType;
 
@@ -53,14 +53,14 @@ var ParsesAs_ = function(expectedType) {
 
 /** @override */
 ParsesAs_.prototype.matches = function(value) {
-  var datumRoot;
+  let datumRoot;
   try {
     datumRoot = new r5js.ReaderImpl(
         new r5js.Scanner(value)).read();
   } catch (e) {
     return false;
   }
-  var actualResult = (datumRoot instanceof r5js.Datum) &&
+  const actualResult = (datumRoot instanceof r5js.Datum) &&
       new r5js.ParserImpl(datumRoot).parse(this.expectedType_);
   if (actualResult && actualResult.peekParse) {
     this.actualType_ = /** @type {!r5js.parse.Nonterminal} */ (

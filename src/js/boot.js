@@ -45,7 +45,7 @@ goog.require('r5js.trampoline');
  */
 r5js.boot = function(
     syntaxLib, procLib, opt_inputPort, opt_outputPort) {
-  var nullEnv = new r5js.Environment(null /* enclosingEnv */);
+  const nullEnv = new r5js.Environment(null /* enclosingEnv */);
   r5js.boot.installSchemeSource_(syntaxLib, nullEnv);
   nullEnv.seal();
 
@@ -71,7 +71,7 @@ r5js.boot = function(
      (remembering to clone the macros and set their backlinks correctly).
      Ugh. */
 
-  var r5RSEnv = nullEnv.clone();
+  const r5RSEnv = nullEnv.clone();
   r5js.PrimitiveProcedures.install(nullEnv, r5RSEnv);
   r5js.boot.installSchemeSource_(procLib, r5RSEnv);
   r5RSEnv.seal();
@@ -89,7 +89,7 @@ r5js.boot = function(
  * @private
  */
 r5js.boot.installSchemeSource_ = function(lib, env) {
-  var continuable = /** @type {!r5js.ProcCallLike} */ (new r5js.ParserImpl(
+  const continuable = /** @type {!r5js.ProcCallLike} */ (new r5js.ParserImpl(
       /** @type {!r5js.Datum} */ (new r5js.ReaderImpl(
       new r5js.Scanner(lib)).read())).parse().desugar(env));
   r5js.trampoline(continuable, env, r5js.InputPort.NULL, r5js.OutputPort.NULL);

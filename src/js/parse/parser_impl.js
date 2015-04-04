@@ -142,9 +142,9 @@ r5js.ParserImpl = function(root) {
 
 /** @override */
 r5js.ParserImpl.prototype.parse = function(opt_nonterminal) {
-  var nonterminal = opt_nonterminal ||
-      r5js.parse.Nonterminals.PROGRAM;
-  var parsedRoot = /** @type {!r5js.Datum} */ (
+  const nonterminal = opt_nonterminal
+      || r5js.parse.Nonterminals.PROGRAM;
+  const parsedRoot = /** @type {!r5js.Datum} */ (
       r5js.ParserImpl.grammar[nonterminal].match(this.datumStream_));
   if (parsedRoot) {
     /* Special case for non-vacuous but malformed programs.
@@ -180,7 +180,7 @@ r5js.ParserImpl.maybeFixParserSensitiveIds_ = function(root) {
     return root;
   }
   r5js.ParserImpl.fixParserSensitiveIds_ = false;
-  var helper = new r5js.RenameHelper(null /* parent */);
+  const helper = new r5js.RenameHelper(null /* parent */);
   root.fixParserSensitiveIds(helper);
   return helper.wasUsed() ? new r5js.ParserImpl(root).parse() : root;
 };
@@ -215,15 +215,14 @@ r5js.ParserImpl.fixParserSensitiveIds_;
  * @private
  */
 r5js.ParserImpl.desugarMacroBlock_ = function(datum, env, operatorName) {
-
-  var letBindings = new r5js.SiblingBuffer();
+  const letBindings = new r5js.SiblingBuffer();
 
   datum.firstSublist().forEachChild(function(spec) {
     spec = /** @type {!r5js.ast.CompoundDatum} */ (spec); // TODO bl
-    var kw = spec.at(r5js.parse.Nonterminals.KEYWORD).clone(null /* parent */);
-    var macro = /** @type {!r5js.Macro} */ (
+    const kw = spec.at(r5js.parse.Nonterminals.KEYWORD).clone(null /* parent */);
+    const macro = /** @type {!r5js.Macro} */ (
         spec.at(r5js.parse.Nonterminals.TRANSFORMER_SPEC).desugar(env));
-    var buf = new r5js.SiblingBuffer();
+    const buf = new r5js.SiblingBuffer();
     /* We have to wrap the SchemeMacro object in a Datum to get it into
          the parse tree. */
     buf.appendSibling(kw);
@@ -231,7 +230,7 @@ r5js.ParserImpl.desugarMacroBlock_ = function(datum, env, operatorName) {
     letBindings.appendSibling(buf.toList(r5js.ast.List));
   });
 
-  var _let = new r5js.SiblingBuffer();
+  const _let = new r5js.SiblingBuffer();
   _let.appendSibling(
       letBindings.toList(r5js.ast.List)
   ).appendSibling(
@@ -247,9 +246,9 @@ r5js.ParserImpl.grammar = {};
 
 
 goog.scope(function() {
-var _ = r5js.parse.bnf;
-var Terminals = r5js.parse.Terminals;
-var Nonterminals = r5js.parse.Nonterminals;
+const _ = r5js.parse.bnf;
+const Terminals = r5js.parse.Terminals;
+const Nonterminals = r5js.parse.Nonterminals;
 
 
 /* <expression> -> <variable>
@@ -311,7 +310,7 @@ r5js.ParserImpl.grammar[Nonterminals.EXPRESSION] =
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 r5js.ParserImpl.grammar[Nonterminals.VARIABLE] = _.seq(
     _.matchDatum(function(datum) {
-      var isIdentifier = datum instanceof r5js.ast.Identifier;
+      const isIdentifier = datum instanceof r5js.ast.Identifier;
       if (isIdentifier && isParserSensitiveId(
           (/** @type {!r5js.ast.Identifier} */(datum)).getPayload())) {
         r5js.ParserImpl.fixParserSensitiveIds_ = true;
@@ -342,7 +341,7 @@ r5js.ParserImpl.grammar[Nonterminals.DATUM] = _.seq(
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 r5js.ParserImpl.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
     _.matchDatum(function(datum) {
-      var ans = (datum instanceof r5js.ast.SimpleDatum &&
+      const ans = (datum instanceof r5js.ast.SimpleDatum &&
           !(datum instanceof r5js.ast.Identifier)) ||
           datum instanceof r5js.ast.Vector /* TODO bl document */;
       if (datum instanceof r5js.ast.String) {
@@ -361,9 +360,9 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
     _.zeroOrMore(Nonterminals.OPERAND)).
         desugar(function(node, env) {
 
-      var operatorNode = node.at(Nonterminals.OPERATOR);
+      const operatorNode = node.at(Nonterminals.OPERATOR);
       // will be null if 0 operands
-      var operands = node.at(Nonterminals.OPERAND);
+      const operands = node.at(Nonterminals.OPERAND);
 
       if (operatorNode instanceof r5js.ast.Identifier) {
         return new r5js.ProcCall(operatorNode, operands);
@@ -371,10 +370,10 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
 
     // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
       else {
-        var desugaredOp = /** @type {!r5js.ProcCallLike} */ (
+        const desugaredOp = /** @type {!r5js.ProcCallLike} */ (
             operatorNode.desugar(env));
-        var last = r5js.ProcCallLike.getLast(desugaredOp);
-        var opName = last.getResultName();
+        const last = r5js.ProcCallLike.getLast(desugaredOp);
+        const opName = last.getResultName();
         last.setNext(new r5js.ProcCall(
             new r5js.ast.Identifier(opName), operands));
         return desugaredOp;
@@ -400,9 +399,9 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
     _.zeroOrMore(Nonterminals.DEFINITION),
     _.oneOrMore(Nonterminals.EXPRESSION)).
         desugar(function(node, env) {
-      var formalRoot = node.at(Nonterminals.FORMALS);
-      var formals;
-      var treatAsDotted = false;
+      const formalRoot = node.at(Nonterminals.FORMALS);
+      let formals;
+      let treatAsDotted = false;
 
       // (lambda (x y) ...)
       if (formalRoot instanceof r5js.ast.List) {
@@ -434,11 +433,11 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
         treatAsDotted = true;
       }
 
-      var name = newAnonymousLambdaName();
-      var proc = treatAsDotted ?
-          new r5js.VarargsUserDefinedProcedure(
-              formals, formalRoot.getNextSibling(), env, name) :
-          new r5js.UserDefinedProcedure(
+      const name = newAnonymousLambdaName();
+      const proc = treatAsDotted
+          ? new r5js.VarargsUserDefinedProcedure(
+          formals, formalRoot.getNextSibling(), env, name)
+          : new r5js.UserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name);
       env.addClosure(name, proc);
       return new r5js.IdShim(new r5js.ast.Identifier(name));
@@ -498,10 +497,10 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      var variable = node.at(Nonterminals.VARIABLE);
-      var desugaredExpr = variable.getNextSibling().desugar(env, true);
-      var last = r5js.ProcCallLike.getLast(desugaredExpr);
-      var cpsName = last.getResultName();
+      const variable = node.at(Nonterminals.VARIABLE);
+      const desugaredExpr = variable.getNextSibling().desugar(env, true);
+      const last = r5js.ProcCallLike.getLast(desugaredExpr);
+      const cpsName = last.getResultName();
       last.setNext(
           r5js.newTopLevelAssignment(variable.getPayload(), cpsName));
       return desugaredExpr;
@@ -519,14 +518,14 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      var def = r5js.datumutil.extractDefinition(node);
-      var name = def.getFirstChild();
-      var lambda = name.getNextSibling();
-      var formalRoot = lambda.getFirstChild().getNextSibling();
-      var formals = formalRoot.mapChildren(function(child) {
+      const def = r5js.datumutil.extractDefinition(node);
+      const name = def.getFirstChild();
+      const lambda = name.getNextSibling();
+      const formalRoot = lambda.getFirstChild().getNextSibling();
+      const formals = formalRoot.mapChildren(function(child) {
         return child.getPayload();
       });
-      var anonymousName = newAnonymousLambdaName();
+      const anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
           new r5js.UserDefinedProcedure(
@@ -548,16 +547,16 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      var def = r5js.datumutil.extractDefinition(node);
-      var name = def.getFirstChild();
-      var lambda = name.getNextSibling();
-      var formalRoot = lambda.getFirstChild().getNextSibling();
-      var formals = formalRoot instanceof r5js.ast.CompoundDatum ?
+      const def = r5js.datumutil.extractDefinition(node);
+      const name = def.getFirstChild();
+      const lambda = name.getNextSibling();
+      const formalRoot = lambda.getFirstChild().getNextSibling();
+      const formals = formalRoot instanceof r5js.ast.CompoundDatum ?
           formalRoot.mapChildren(function(child) {
             return child.getPayload();
           }) :
           [formalRoot.getPayload()];
-      var anonymousName = newAnonymousLambdaName();
+      const anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
           new r5js.VarargsUserDefinedProcedure(
@@ -570,7 +569,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
         _.one(Terminals.BEGIN),
         _.zeroOrMore(Nonterminals.DEFINITION)).
     desugar(function(node, env) {
-      var def = node.at(Nonterminals.DEFINITION);
+      const def = node.at(Nonterminals.DEFINITION);
       return def && def.sequence(env);
         }));
 
@@ -583,14 +582,14 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
         _.one(Nonterminals.CONSEQUENT),
         _.one(Nonterminals.ALTERNATE)).
     desugar(function(node, env) {
-      var test = /** @type {!r5js.ProcCallLike} */ (
+      const test = /** @type {!r5js.ProcCallLike} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
-      var consequent = /** @type {!r5js.ProcCall} */ (
+      const consequent = /** @type {!r5js.ProcCall} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
-      var alternate = /** @type {!r5js.ProcCall} */ (
+      const alternate = /** @type {!r5js.ProcCall} */ (
           node.at(Nonterminals.ALTERNATE).desugar(env, true));
-      var testEndpoint = r5js.ProcCallLike.getLast(test);
-      var branch = new r5js.Branch(testEndpoint.getResultName(),
+      const testEndpoint = r5js.ProcCallLike.getLast(test);
+      const branch = new r5js.Branch(testEndpoint.getResultName(),
           consequent, alternate);
       testEndpoint.setNext(branch);
       return test;
@@ -600,13 +599,13 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
         _.one(Nonterminals.TEST),
         _.one(Nonterminals.CONSEQUENT)).
     desugar(/** @suppress {checkTypes} */function(node, env) {
-      var test = /** @type {!r5js.ProcCallLike} */ (
+      const test = /** @type {!r5js.ProcCallLike} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
-      var consequent = /** @type {!r5js.ProcCallLike} */ (
+      const consequent = /** @type {!r5js.ProcCallLike} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
-      var testEndpoint = r5js.ProcCallLike.getLast(test);
-      var branch = new r5js.Branch(
+      const testEndpoint = r5js.ProcCallLike.getLast(test);
+      const branch = new r5js.Branch(
           testEndpoint.getResultName(),
           consequent,
           new r5js.IdShim(r5js.runtime.UNSPECIFIED_VALUE));
@@ -637,12 +636,12 @@ r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
     _.one(Nonterminals.EXPRESSION)).
         desugar(function(node, env) {
       // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
-      var variable = /** @type {!r5js.ast.SimpleDatum} */ (
+      const variable = /** @type {!r5js.ast.SimpleDatum} */ (
           node.at(Nonterminals.VARIABLE));
-      var desugaredExpr = /** @type {!r5js.ProcCallLike} */ (
+      const desugaredExpr = /** @type {!r5js.ProcCallLike} */ (
           variable.getNextSibling().desugar(env, true));
-      var lastContinuable = r5js.ProcCallLike.getLast(desugaredExpr);
-      var cpsName = lastContinuable.getResultName();
+      const lastContinuable = r5js.ProcCallLike.getLast(desugaredExpr);
+      const cpsName = lastContinuable.getResultName();
       lastContinuable.setNext(r5js.newAssignment(
           /** @type {string} */ (variable.getPayload()), cpsName));
       return desugaredExpr;
@@ -776,9 +775,9 @@ r5js.ParserImpl.grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
       /*4.3.2: It is an error for ... to appear in <literals>.
                 So we can reuse the pattern-identifier nonterminal
                 to check this in the parser. Win! */
-      var ids = (/** @type {!r5js.ast.CompoundDatum} */ (node)).firstSublist().
+      const ids = (/** @type {!r5js.ast.CompoundDatum} */ (node)).firstSublist().
           at(Nonterminals.PATTERN_IDENTIFIER);
-      var rules = node.at(Nonterminals.SYNTAX_RULE);
+      const rules = node.at(Nonterminals.SYNTAX_RULE);
       // todo bl implement: It is an error for the same pattern
       // variable to appear more than once in a <pattern>.
       return new r5js.Macro(ids, /** @type {!r5js.Datum} */(rules), env);
@@ -804,11 +803,11 @@ r5js.ParserImpl.grammar[Nonterminals.PATTERN] = _.choice(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS)).
     desugar(function(node, env) {
-      var ans = new r5js.ListTransformer();
-      for (var cur = node.at(Nonterminals.PATTERN);
+      const ans = new r5js.ListTransformer();
+      for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        var nextSibling = cur.getNextSibling();
+        const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof r5js.ast.SimpleDatum &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
@@ -826,11 +825,11 @@ r5js.ParserImpl.grammar[Nonterminals.PATTERN] = _.choice(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS)).
     desugar(function(node, env) {
-      var ans = new r5js.VectorTransformer();
-      for (var cur = node.at(Nonterminals.PATTERN);
+      const ans = new r5js.VectorTransformer();
+      for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        var nextSibling = cur.getNextSibling();
+        const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof r5js.ast.Identifier &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
@@ -850,8 +849,8 @@ r5js.ParserImpl.grammar[Nonterminals.PATTERN] = _.choice(
     }),
     _.list(_.zeroOrMore(Nonterminals.PATTERN)).
     desugar(function(node, env) {
-      var ans = new r5js.ListTransformer();
-      for (var cur = node.at(Nonterminals.PATTERN);
+      const ans = new r5js.ListTransformer();
+      for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
@@ -866,8 +865,8 @@ r5js.ParserImpl.grammar[Nonterminals.PATTERN] = _.choice(
         _.one(Nonterminals.PATTERN),
         _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
-      var ans = new r5js.DottedListTransformer();
-      for (var cur = node.at(Nonterminals.PATTERN);
+      const ans = new r5js.DottedListTransformer();
+      for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
@@ -877,8 +876,8 @@ r5js.ParserImpl.grammar[Nonterminals.PATTERN] = _.choice(
     }),
     _.vector(_.zeroOrMore(Nonterminals.PATTERN)).
     desugar(function(node, env) {
-      var ans = new r5js.VectorTransformer();
-      for (var cur = node.at(Nonterminals.PATTERN);
+      const ans = new r5js.VectorTransformer();
+      for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
@@ -938,11 +937,11 @@ r5js.ParserImpl.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.oneOrMore(Nonterminals.TEMPLATE),
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      var ans = new r5js.DottedListTransformer();
-      for (var cur = node.at(Nonterminals.TEMPLATE);
+      const ans = new r5js.DottedListTransformer();
+      for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
-        var nextSibling = cur.getNextSibling();
+        const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof r5js.ast.Identifier &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
@@ -959,11 +958,11 @@ r5js.ParserImpl.grammar[Nonterminals.TEMPLATE] = _.choice(
     }),
     _.list(_.zeroOrMore(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      var ans = new r5js.ListTransformer();
-      for (var cur = node.at(Nonterminals.TEMPLATE);
+      const ans = new r5js.ListTransformer();
+      for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
-        var nextSibling = cur.getNextSibling();
+        const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof r5js.ast.Identifier &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
@@ -979,11 +978,11 @@ r5js.ParserImpl.grammar[Nonterminals.TEMPLATE] = _.choice(
     }),
     _.vector(_.zeroOrMore(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      var ans = new r5js.VectorTransformer();
-      for (var cur = node.at(Nonterminals.TEMPLATE);
+      const ans = new r5js.VectorTransformer();
+      for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
-        var nextSibling = cur.getNextSibling();
+        const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof r5js.ast.Identifier &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
@@ -1001,7 +1000,7 @@ r5js.ParserImpl.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Terminals.TICK),
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      var ans = new r5js.QuoteTransformer();
+      const ans = new r5js.QuoteTransformer();
       ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
           node.at(Nonterminals.TEMPLATE).desugar(env)));
       return ans;
@@ -1045,7 +1044,7 @@ r5js.ParserImpl.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
         _.one(Terminals.BEGIN),
         _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
     desugar(function(node, env) {
-      var firstCommand = node.at(Nonterminals.COMMAND_OR_DEFINITION);
+      const firstCommand = node.at(Nonterminals.COMMAND_OR_DEFINITION);
       return firstCommand && firstCommand.sequence(env);
         }),
     _.one(Nonterminals.COMMAND));
@@ -1062,13 +1061,13 @@ r5js.ParserImpl.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
     _.one(Nonterminals.KEYWORD),
     _.one(Nonterminals.TRANSFORMER_SPEC)).
         desugar(function(node, env) {
-      var kw = (/** @type {!r5js.ast.Identifier} */ (node.at(
+      const kw = (/** @type {!r5js.ast.Identifier} */ (node.at(
           Nonterminals.KEYWORD))).getPayload();
-      var macro = /** @type {!r5js.Macro} */ (
+      const macro = /** @type {!r5js.Macro} */ (
           node.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
       if (!macro.allPatternsBeginWith(kw))
         throw r5js.error.macro(kw, 'all patterns must begin with ' + kw);
-      var anonymousName = newAnonymousLambdaName();
+      const anonymousName = newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
       return r5js.newTopLevelSyntaxAssignment(kw, anonymousName);
     });

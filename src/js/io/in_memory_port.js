@@ -45,7 +45,7 @@ r5js.InMemoryPortBuffer.prototype.isEmpty = function() {
 
 /** @return {?string} */
 r5js.InMemoryPortBuffer.prototype.getChar = function() {
-  var c = this.peekChar();
+  const c = this.peekChar();
   if (c) {
     this.buffer_ = this.buffer_.substr(1);
   }
@@ -61,7 +61,7 @@ r5js.InMemoryPortBuffer.prototype.peekChar = function() {
 
 /** @return {string} */
 r5js.InMemoryPortBuffer.prototype.getAndClear = function() {
-  var retval = this.buffer_;
+  const retval = this.buffer_;
   this.buffer_ = '';
   return retval;
 };
@@ -102,13 +102,13 @@ r5js.InMemoryInputPort.prototype.close = function() {
 
 /** @override */
 r5js.InMemoryInputPort.prototype.read = function() {
-  var maybeDatum = this.readLeftoverDatum_();
+  const maybeDatum = this.readLeftoverDatum_();
   if (maybeDatum) {
     return maybeDatum;
   } else if (this.buffer_.isEmpty()) {
     return null;
   } else {
-    var text = this.buffer_.getAndClear();
+    const text = this.buffer_.getAndClear();
     this.leftoverDatum_ = new r5js.ReaderImpl(
         new r5js.Scanner(text)).read();
     return this.read();
@@ -121,7 +121,7 @@ r5js.InMemoryInputPort.prototype.read = function() {
  * @private
  */
 r5js.InMemoryInputPort.prototype.readLeftoverDatum_ = function() {
-  var retval = this.leftoverDatum_;
+  const retval = this.leftoverDatum_;
   if (retval) {
     this.leftoverDatum_ = this.leftoverDatum_.getNextSibling();
   }
@@ -131,14 +131,14 @@ r5js.InMemoryInputPort.prototype.readLeftoverDatum_ = function() {
 
 /** @override */
 r5js.InMemoryInputPort.prototype.peekChar = function() {
-  var c = this.buffer_.peekChar();
+  const c = this.buffer_.peekChar();
   return c ? new r5js.ast.Character(c) : null;
 };
 
 
 /** @override */
 r5js.InMemoryInputPort.prototype.readChar = function() {
-  var c = this.buffer_.getChar();
+  const c = this.buffer_.getChar();
   return c ? new r5js.ast.Character(c) : null;
 };
 

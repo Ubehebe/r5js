@@ -96,8 +96,8 @@ r5js.test.SyncPromiseTestSuite.prototype.toString = function() {
 /** @override */
 r5js.test.SyncPromiseTestSuite.prototype.execute = function(logger) {
   this.logger_ = logger;
-  for (var key in this) {
-    var method = this[key];
+  for (const key in this) {
+    const method = this[key];
     if (r5js.test.SyncPromiseTestSuite.isTestMethod_(key, method)) {
       this.testMethods_.push(new r5js.test.SyncPromiseTestSuite.Method_(
           key, method, this /* TODO bl remove */));
@@ -127,7 +127,7 @@ r5js.test.SyncPromiseTestSuite.prototype.reportOutcome_ = function(success) {
  * @private
  */
 r5js.test.SyncPromiseTestSuite.prototype.runNextTestMethod_ = function() {
-  var testMethod = this.testMethods_.shift();
+  const testMethod = this.testMethods_.shift();
   return testMethod ?
       testMethod.runNextExpectation() :
       goog.Promise.resolve(
@@ -174,7 +174,7 @@ r5js.test.SyncPromiseTestSuite.prototype.expect = function(input, promise) {
      to figure out why the unhandled rejection handler is getting called.
      It seems that goog.promise.removeUnhandledRejection_ is getting called
      after goog.promise.addUnhandledRejection_, by which time it is too late. */
-  var expectation = new r5js.test.SyncPromiseTestSuite.Expectation_(
+  const expectation = new r5js.test.SyncPromiseTestSuite.Expectation_(
       input, promise.thenCatch(goog.functions.identity));
   this.getTestMethodUnderConstruction_().addExpectation(expectation);
   return expectation;
@@ -224,7 +224,7 @@ r5js.test.SyncPromiseTestSuite.Expectation_.prototype.getPromise = function() {
  */
 r5js.test.SyncPromiseTestSuite.Expectation_.prototype.resolveOrReject_ =
     function(valueOrReason) {
-  var matches = this.matcher_.matches(valueOrReason);
+  const matches = this.matcher_.matches(valueOrReason);
   return ((this.invert_ && matches) || (!this.invert_ && !matches)) ?
       goog.Promise.reject(
           this.input_ + ': ' + this.matcher_.getFailureMessage(valueOrReason)) :
@@ -265,7 +265,7 @@ r5js.test.SyncPromiseTestSuite.Method_.prototype.addExpectation = function(
 /** @return {!goog.Promise<?>} */
 r5js.test.SyncPromiseTestSuite.Method_.prototype.runNextExpectation =
     function() {
-  var expectation = this.expectations_.shift();
+  const expectation = this.expectations_.shift();
   if (expectation) {
     return expectation.getPromise().
         thenCatch(this.onRejected, this).

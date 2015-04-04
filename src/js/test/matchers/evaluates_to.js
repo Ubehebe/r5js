@@ -25,7 +25,7 @@ goog.require('tdd.matchers.Matcher');
  * @param {string} value
  * @return {!tdd.matchers.Matcher<string>}
  */
-var evalTo = function(value) {
+const evalTo = function(value) {
   return new EvaluatesTo_(value);
 };
 
@@ -38,7 +38,7 @@ var evalTo = function(value) {
  * @constructor
  * @private
  */
-var EvaluatesTo_ = function(expectedValue) {
+const EvaluatesTo_ = function(expectedValue) {
   /** @const @private */ this.expectedValue_ = expectedValue;
 };
 

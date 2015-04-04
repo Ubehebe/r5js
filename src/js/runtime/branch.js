@@ -67,7 +67,7 @@ r5js.Branch.prototype.evalAndAdvance = function(
 
   /* Branches always use the old environment left by the previous action
     on the trampoline. */
-  var testResult = env.get(this.testResultName_);
+  const testResult = env.get(this.testResultName_);
   if (testResult === false) {
     this.alternateLastContinuable_.setNext(
         /** @type {!r5js.ProcCallLike} */ (this.getNext()));

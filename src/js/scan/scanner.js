@@ -78,9 +78,9 @@ r5js.Scanner.prototype.shouldMatchAgain_ = function(matchArray) {
     throw r5js.error.scan(this.text_.substr(
         this.start_, this.tokenRegex_.lastIndex - this.start_));
   } else {
-    var indexOfWhitespace = 7;
+    const indexOfWhitespace = 7;
     this.start_ = this.tokenRegex_.lastIndex;
-    var ans = !!matchArray[indexOfWhitespace];
+    const ans = !!matchArray[indexOfWhitespace];
     /* Whitespace counts as a delimiter, so if the previous token needed
          a delimiter, we just found one. */
     if (ans) {
@@ -100,7 +100,7 @@ r5js.Scanner.prototype.checkpoint = function() {
 /** @override */
 r5js.Scanner.prototype.nextToken = function() {
   while (this.nextTokenIndex_ >= this.readyTokens_.length) {
-    var token = this.readNextToken_();
+    const token = this.readNextToken_();
     this.readyTokens_.push(token);
   }
   return this.readyTokens_[this.nextTokenIndex_++];
@@ -122,8 +122,8 @@ r5js.Scanner.prototype.nextToken = function() {
  * @suppress {checkTypes} for setNextSibling(null) TODO bl remove
  */
 r5js.Scanner.prototype.restore = function(checkpoint) {
-  for (var i = checkpoint + 1; i < this.readyTokens_.length; ++i) {
-    var token = this.readyTokens_[i];
+  for (let i = checkpoint + 1; i < this.readyTokens_.length; ++i) {
+    const token = this.readyTokens_[i];
     if (token instanceof r5js.Datum) {
       token.setNextSibling(null);
     }
@@ -139,7 +139,7 @@ r5js.Scanner.prototype.restore = function(checkpoint) {
  */
 r5js.Scanner.prototype.readNextToken_ = function() {
 
-  var match;
+  let match;
 
   do {
     match = this.tokenRegex_.exec(this.text_);
@@ -170,7 +170,7 @@ r5js.Scanner.prototype.readNextToken_ = function() {
 r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
   /* See the return value of Scanner.prototype.token for the significance
      of the magic numbers here. */
-  var payload = matchArray[0];
+  const payload = matchArray[0];
 
   if (this.needDelimiter_ && !matchArray[6]) {
     /* If the previous token required a delimiter but we didn't get
@@ -210,11 +210,11 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
     // TODO bl: there seem to be no tests exercising string unescaping.
     // Add some.
     //      replace(/\\(["\\])/g, "$1");
-    var actualPayload = payload.substr(1, payload.length - 2);
+    const actualPayload = payload.substr(1, payload.length - 2);
     return new r5js.ast.String(actualPayload);
   } else if (matchArray[1]) {
     this.needDelimiter_ = true;
-    var numericPayload = r5js.Scanner.NUMBER_FUNNY_BUSINESS_.test(payload) ?
+    const numericPayload = r5js.Scanner.NUMBER_FUNNY_BUSINESS_.test(payload) ?
         r5js.Scanner.parseNumericPayload_(payload) :
         parseFloat(payload);
     return new r5js.ast.Number(numericPayload);
@@ -228,7 +228,7 @@ r5js.Scanner.prototype.matchToToken_ = function(matchArray) {
  * @private
  */
 r5js.Scanner.normalizeCharacterPayload_ = function(payload) {
-  var afterSlash = payload.substr(2);
+  const afterSlash = payload.substr(2);
   if (afterSlash.length === 1) {
     return afterSlash;
   /* R5RS 6.3.4: "Case is significant in #\<character>, but not in
@@ -259,12 +259,12 @@ r5js.Scanner.parseNumericPayload_ = function(payload) {
      exactness annotations have no semantic significance. */
   payload = payload.replace(/#i|#e/i, '');
 
-  var originalLength = payload.length;
+  const originalLength = payload.length;
 
   if (r5js.Scanner.NUMBER_FORBIDDEN_.test(payload))
     throw r5js.error.scan('unsupported number literal: ' + payload);
 
-  var base = 10;
+  let base = 10;
   if ((payload = payload.replace(/#x/i, '')).length < originalLength) {
     base = 16;
   } else if ((payload = payload.replace(/#d/i, '')).length < originalLength) {
@@ -279,7 +279,7 @@ r5js.Scanner.parseNumericPayload_ = function(payload) {
      rule, but don't appear to have any semantic significance. */
   payload = payload.replace('#', '');
 
-  var maybeRational = payload.split('/');
+  const maybeRational = payload.split('/');
   if (maybeRational.length === 2) {
     return parseInt(maybeRational[0], base) / parseInt(maybeRational[1], base);
   } else {
@@ -314,106 +314,106 @@ r5js.Scanner.parseNumericPayload_ = function(payload) {
  */
 r5js.Scanner.newTokenRegex_ = function() {
 
-  var letter = '[a-z]';
-  var specialInitial = '[\\!\\$%&\\*\/\\:<\\=\\>\\?\\^_~]';
-  var initial = '(?:' + letter + '|' + specialInitial + ')';
-  var specialSubsequent = '[\\+\\-\\.@]';
-  var subsequent = '(?:' + initial + '|\\d|' + specialSubsequent + ')';
-  var peculiarIdentifier = '(?:\\+|\\-|\\.\\.\\.)';
+  const letter = '[a-z]';
+  const specialInitial = '[\\!\\$%&\\*\/\\:<\\=\\>\\?\\^_~]';
+  const initial = '(?:' + letter + '|' + specialInitial + ')';
+  const specialSubsequent = '[\\+\\-\\.@]';
+  const subsequent = '(?:' + initial + '|\\d|' + specialSubsequent + ')';
+  const peculiarIdentifier = '(?:\\+|\\-|\\.\\.\\.)';
 
-  var identifier = '((?:' + initial + subsequent + '*' + ')|' +
+  const identifier = '((?:' + initial + subsequent + '*' + ')|' +
       peculiarIdentifier + ')';
-  var bool = '(#t|#f)';
-  var character = '(#\\\\space|#\\\\newline|#\\\\.)';
-  var string = '(\"(?:[^\"\\\\]|\\\\\\\"|\\\\\\\\)*\")';
+  const bool = '(#t|#f)';
+  const character = '(#\\\\space|#\\\\newline|#\\\\.)';
+  const string = '(\"(?:[^\"\\\\]|\\\\\\\"|\\\\\\\\)*\")';
 
   /* Tabs and carriage returns are not part of the R5RS whitespace syntax,
     but I've included them here for sanity's sake. */
-  var intertokenSpace = '((?:[ \n\r\t]|;.*$|;.*[\n\r])+)';
-  var specialTokens = "([\\(\\)'`\\.]|#\\(|,@|,)";
+  const intertokenSpace = '((?:[ \n\r\t]|;.*$|;.*[\n\r])+)';
+  const specialTokens = "([\\(\\)'`\\.]|#\\(|,@|,)";
 
-  var radix2 = '#b';
-  var radix8 = '#o';
-  var radix10 = '#d';
-  var radix16 = '#x';
+  const radix2 = '#b';
+  const radix8 = '#o';
+  const radix10 = '#d';
+  const radix16 = '#x';
 
-  var digit2 = '[01]';
-  var digit8 = '[0-7]';
-  var digit10 = '\\d';
-  var digit16 = '[\\da-f]';
+  const digit2 = '[01]';
+  const digit8 = '[0-7]';
+  const digit10 = '\\d';
+  const digit16 = '[\\da-f]';
 
-  var uinteger2 = '(?:' + digit2 + '+' + '#*)';
-  var uinteger8 = '(?:' + digit8 + '+' + '#*)';
-  var uinteger10 = '(?:' + digit10 + '+' + '#*)';
-  var uinteger16 = '(?:' + digit16 + '+' + '#*)';
+  const uinteger2 = '(?:' + digit2 + '+' + '#*)';
+  const uinteger8 = '(?:' + digit8 + '+' + '#*)';
+  const uinteger10 = '(?:' + digit10 + '+' + '#*)';
+  const uinteger16 = '(?:' + digit16 + '+' + '#*)';
 
-  var exponentMarker = '[esfdl]';
-  var sign = '[\\-\\+]';
-  var suffix = '(?:' + exponentMarker + sign + '?' + digit10 + '+)';
+  const exponentMarker = '[esfdl]';
+  const sign = '[\\-\\+]';
+  const suffix = '(?:' + exponentMarker + sign + '?' + digit10 + '+)';
 
-  var decimal10 = '(?:' +
+  const decimal10 = '(?:' +
       '\\.' + digit10 + '+' + '#*' + suffix + '?' + '|' +
       digit10 + '+\\.' + digit10 + '*#*' + suffix + '?|' +
       digit10 + '+' + '#+\\.#*' + suffix + '?|' +
       uinteger10 + suffix + '?)';
 
-  var exactness = '(?:#i|#e)';
+  const exactness = '(?:#i|#e)';
 
-  var prefix2 = '(?:' +
+  const prefix2 = '(?:' +
       radix2 + exactness + '?|' +
       exactness + '?' + radix2 + ')';
-  var prefix8 = '(?:' +
+  const prefix8 = '(?:' +
       radix8 + exactness + '?|' +
       exactness + '?' + radix8 + ')';
-  var prefix10 = '(?:' +
+  const prefix10 = '(?:' +
       radix10 + exactness + '?|' +
       exactness + '?' + radix10 + '|' +
       exactness + ')';
-  var prefix16 = '(?:' +
+  const prefix16 = '(?:' +
       radix16 + exactness + '?|' +
       exactness + '?' + radix16 + ')';
 
-  var ureal2 = '(?:' +
+  const ureal2 = '(?:' +
       uinteger2 + '\\/' + uinteger2 + '|' +
       uinteger2 + ')';
-  var ureal8 = '(?:' +
+  const ureal8 = '(?:' +
       uinteger8 + '\\/' + uinteger8 + '|' +
       uinteger8 + ')';
-  var ureal10 = '(?:' +
+  const ureal10 = '(?:' +
       uinteger10 + '\\/' + uinteger10 + '|' +
       decimal10 + '|' + uinteger10 + ')';
-  var ureal16 = '(?:' +
+  const ureal16 = '(?:' +
       uinteger16 + '\\/' + uinteger16 + '|' +
       uinteger16 + ')';
 
-  var real2 = '(?:' + sign + '?' + ureal2 + ')';
-  var real8 = '(?:' + sign + '?' + ureal8 + ')';
-  var real10 = '(?:' + sign + '?' + ureal10 + ')';
-  var real16 = '(?:' + sign + '?' + ureal16 + ')';
+  const real2 = '(?:' + sign + '?' + ureal2 + ')';
+  const real8 = '(?:' + sign + '?' + ureal8 + ')';
+  const real10 = '(?:' + sign + '?' + ureal10 + ')';
+  const real16 = '(?:' + sign + '?' + ureal16 + ')';
 
-  var complex2 = '(?:' +
+  const complex2 = '(?:' +
       real2 + '@' + real2 + '|' +
       real2 + '[\\+\\-]' + ureal2 + 'i|' +
       real2 + '[\\+\\-]i|[\\\\-]+' + ureal2 + 'i|[\\+\\-]i|' + real2 + ')';
-  var complex8 = '(?:' +
+  const complex8 = '(?:' +
       real8 + '@' + real8 + '|' +
       real8 + '[\\+\\-]' + ureal8 + 'i|' +
       real8 + '[\\+\\-]i|[\\\\-]+' + ureal8 + 'i|[\\+\\-]i|' + real8 + ')';
-  var complex10 = '(?:' +
+  const complex10 = '(?:' +
       real10 + '@' + real10 + '|' +
       real10 + '[\\+\\-]' + ureal10 + 'i|' +
       real10 + '[\\+\\-]i|[\\\\-]+' + ureal10 + 'i|[\\+\\-]i|' + real10 + ')';
-  var complex16 = '(?:' +
+  const complex16 = '(?:' +
       real16 + '@' + real16 + '|' +
       real16 + '[\\+\\-]' + ureal16 + 'i|' +
       real16 + '[\\+\\-]i|[\\\\-]+' + ureal16 + 'i|[\\+\\-]i|' + real16 + ')';
 
-  var num2 = '(?:' + prefix2 + complex2 + ')';
-  var num8 = '(?:' + prefix8 + complex8 + ')';
-  var num10 = '(?:' + prefix10 + '?' + complex10 + ')';
-  var num16 = '(?:' + prefix16 + complex16 + ')';
+  const num2 = '(?:' + prefix2 + complex2 + ')';
+  const num8 = '(?:' + prefix8 + complex8 + ')';
+  const num10 = '(?:' + prefix10 + '?' + complex10 + ')';
+  const num16 = '(?:' + prefix16 + complex16 + ')';
 
-  var number = '(' + num10 + '|' + num16 + '|' + num8 + '|' + num2 + ')';
+  const number = '(' + num10 + '|' + num16 + '|' + num8 + '|' + num2 + ')';
 
   return new RegExp(
       number /* index 1 in exec array */ + '|' +

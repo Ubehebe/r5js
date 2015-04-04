@@ -91,7 +91,7 @@ r5js.valutil.toString_ = function(includeSigils, value) {
         return r5js.valutil.toString_(includeSigils, value.deref());
       } else if (value instanceof r5js.ast.List ||
           value instanceof r5js.ast.DottedList) {
-        var children = value.mapChildren(
+        const children = value.mapChildren(
             goog.partial(r5js.valutil.toString_, includeSigils));
         if ((value instanceof r5js.ast.List && value.isImproperList()) ||
             value instanceof r5js.ast.DottedList) {
@@ -101,7 +101,7 @@ r5js.valutil.toString_ = function(includeSigils, value) {
             children.join(' ') +
             r5js.parse.Terminals.RPAREN;
       } else if (value instanceof r5js.ast.Vector) {
-        var childStrings = value.mapChildren(
+        const childStrings = value.mapChildren(
             goog.partial(r5js.valutil.toString_, includeSigils)).join(' ');
         return r5js.parse.Terminals.LPAREN_VECTOR +
             childStrings +
@@ -113,7 +113,7 @@ r5js.valutil.toString_ = function(includeSigils, value) {
       } else if (value instanceof r5js.ast.Character) {
         if (includeSigils) {
           // Special cases for space and newline: R5RS 6.3.4
-          var payload = value.getPayload();
+          const payload = value.getPayload();
           if (payload === ' ') {
             return '#\\space';
           } else if (payload === '\n') {

@@ -63,7 +63,7 @@ r5js.CdrHelper = class {
         }
         this.startOfCdr_.setNextSibling(cdr);
         if (!(cdr instanceof r5js.ast.List)) {
-            var cur = this;
+            let cur = this;
             do {
                 if (cur.head_ instanceof r5js.ast.List) {
                     cur.head_.markDotted();

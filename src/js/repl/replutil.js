@@ -32,8 +32,8 @@ r5js.replutil.isLineComplete = function(input) {
   }
 
   try {
-    var tokenStream = r5js.replutil.pipeline_.scan(input);
-    var datum = r5js.replutil.pipeline_.parse(
+    const tokenStream = r5js.replutil.pipeline_.scan(input);
+    const datum = r5js.replutil.pipeline_.parse(
         /** @type {!r5js.Datum} */ (r5js.replutil.pipeline_.read(tokenStream)));
     return !tokenStream.nextToken() && !!datum;
   } catch (x) {
@@ -62,8 +62,8 @@ r5js.replutil.isLineComplete = function(input) {
          we should not wait for more input, it might be a better idea
          to equip the programmer with a button or key to flush the
          line buffer. */
-    var lparens = input.match(/\(/g);
-    var rparens = input.match(/\)/g);
+    const lparens = input.match(/\(/g);
+    const rparens = input.match(/\)/g);
     return !!(lparens && rparens && lparens.length === rparens.length);
   }
 };

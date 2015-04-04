@@ -55,13 +55,13 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
      * @private
      */
     setupBody_(bodyStart) {
-        var helper = new r5js.UserDefinedProcedure.LetrecBindingsHelper_();
-        var letrecBindings = helper.collectLetrecBindings(bodyStart);
+        const helper = new r5js.UserDefinedProcedure.LetrecBindingsHelper_();
+        const letrecBindings = helper.collectLetrecBindings(bodyStart);
         if (letrecBindings.isEmpty()) {
             return /** @type {!r5js.ProcCallLike} */ (
                 helper.getLast().sequence(this.env_));
         } else {
-            var letrec = new r5js.ast.List(letrecBindings.toSiblings());
+            const letrec = new r5js.ast.List(letrecBindings.toSiblings());
             letrec.setNextSibling(/** @type {!r5js.Datum} */ (helper.getLast()));
             return new r5js.ProcCall(new r5js.ast.Identifier('letrec'), letrec);
         }
@@ -74,7 +74,7 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
      * @suppress {const} for reassignment to body_ and last_.
      */
     cloneWithEnv(env) {
-        var ans = new this.constructor(this.formalsArray, null /* bodyStart */, env);
+        const ans = new this.constructor(this.formalsArray, null /* bodyStart */, env);
         ans.env_.setClosuresFrom(this.env_); // non-cloning ok?
         ans.body_ = this.body_;
         ans.last_ = this.last_;
@@ -144,7 +144,7 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
      * @protected
      */
     bindArgs(args, env) {
-        for (var i = 0; i < this.formalsArray.length; ++i) {
+        for (let i = 0; i < this.formalsArray.length; ++i) {
             env.addBinding(this.formalsArray[i], args[i]);
         }
     }
@@ -176,16 +176,15 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
      * @override
      */
     evaluate(args, procCallLike, trampolineHelper, env) {
-
-        var procCallEnv = procCallLike.getEnv();
+        const procCallEnv = procCallLike.getEnv();
 
         /* If we're at a tail call we can reuse the existing environment.
          Otherwise create a new environment pointing back to the current one. */
-        var newEnv = this.isTailCall_(procCallLike) ?
+        const newEnv = this.isTailCall_(procCallLike) ?
             procCallEnv.allowRedefs() :
             new r5js.Environment(this.env_).addClosuresFrom(this.env_);
 
-        var next = procCallLike.getNext();
+        const next = procCallLike.getNext();
         /* Remember to discard the new environment
          at the end of the procedure call. */
         if (procCallEnv && next && !next.getEnv()) {
@@ -222,7 +221,7 @@ r5js.UserDefinedProcedure.LetrecBindingsHelper_ = /** @private */ class {
              cur && cur.peekParse() === r5js.parse.Nonterminals.DEFINITION;
              cur = cur.getNextSibling()) {
             cur = /** @type {!r5js.ast.CompoundDatum} */ (cur);
-            var firstChild = cur.getFirstChild();
+            const firstChild = cur.getFirstChild();
             if (firstChild instanceof r5js.ast.Identifier &&
                 firstChild.getPayload() === r5js.parse.Terminals.DEFINE) {
                 this.bindings_.appendSibling(r5js.datumutil.extractDefinition(cur));
@@ -244,7 +243,7 @@ r5js.UserDefinedProcedure.LetrecBindingsHelper_ = /** @private */ class {
             return;
         }
 
-        var firstChild = node.getFirstChild();
+        const firstChild = node.getFirstChild();
 
         if (firstChild instanceof r5js.ast.Identifier &&
             firstChild.getPayload() === r5js.parse.Terminals.DEFINE) {

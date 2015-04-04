@@ -51,7 +51,7 @@ r5js.Repl = class {
         this.isLineComplete_(this.awaitingEval_ += inputLine + ' '
         ).then(function(complete) {
                 if (complete) {
-                    var toEval = this.awaitingEval_;
+                    const toEval = this.awaitingEval_;
                     this.awaitingEval_ = '';
                     return this.evaluator_.evaluate(toEval);
                 }

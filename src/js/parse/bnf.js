@@ -77,8 +77,8 @@ r5js.parse.bnf.OneTerminal_.prototype.match = function(datumStream) {
     return datumStream.maybeAdvanceToNextSiblingOfParent();
   }
 
-  var next = datumStream.getNextDatum();
-  var match = false;
+  const next = datumStream.getNextDatum();
+  let match = false;
   switch (this.terminal_) {
     case r5js.parse.Terminals.LPAREN:
       match = next instanceof r5js.ast.List;
@@ -142,7 +142,7 @@ r5js.parse.bnf.OneNonterminal_.prototype.desugar = function(desugarFunc) {
 
 /** @override */
 r5js.parse.bnf.OneNonterminal_.prototype.match = function(datumStream) {
-  var parsed = r5js.ParserImpl.grammar[this.nonterminal_].match(datumStream);
+  const parsed = r5js.ParserImpl.grammar[this.nonterminal_].match(datumStream);
   if (parsed instanceof r5js.Datum) {
     parsed.setParse(this.nonterminal_);
     if (this.desugarFunc_) {
@@ -182,8 +182,8 @@ r5js.parse.bnf.AtLeast_ = function(nonterminal, minRepetitions) {
 
 /** @override */
 r5js.parse.bnf.AtLeast_.prototype.match = function(datumStream) {
-  var numParsed = 0;
-  var parsed;
+  let numParsed = 0;
+  let parsed;
   while (parsed = r5js.ParserImpl.grammar[this.nonterminal_].
       match(datumStream)) {
     parsed.setParse(this.nonterminal_);
@@ -226,7 +226,7 @@ r5js.parse.bnf.MatchDatum_ = function(predicate) {
 
 /** @override */
 r5js.parse.bnf.MatchDatum_.prototype.match = function(datumStream) {
-  var next = datumStream.getNextDatum();
+  const next = datumStream.getNextDatum();
   if (next && this.predicate_(next)) {
     datumStream.advanceToNextSibling();
     return true;
@@ -260,9 +260,9 @@ r5js.parse.bnf.Choice_ = function(rules) {
 
 /** @override */
 r5js.parse.bnf.Choice_.prototype.match = function(datumStream) {
-  var parsed;
-  for (var i = 0; i < this.rules_.length; ++i) {
-    var rule = this.rules_[i];
+  let parsed;
+  for (let i = 0; i < this.rules_.length; ++i) {
+    const rule = this.rules_[i];
     if (parsed = rule.match(datumStream)) {
       return parsed;
     }
@@ -304,16 +304,16 @@ r5js.parse.bnf.Seq_ = function(rules) {
  * and {@link r5js.Datum#setDesugar}. TODO bl.
  */
 r5js.parse.bnf.Seq_.prototype.match = function(datumStream) {
-  var root = datumStream.getNextDatum();
+  const root = datumStream.getNextDatum();
 
-  for (var i = 0; i < this.rules_.length; ++i) {
+  for (let i = 0; i < this.rules_.length; ++i) {
     if (!this.rules_[i].match(datumStream)) {
       datumStream.advanceTo(/** @type {!r5js.Datum} */ (root));
       return false;
     }
   }
 
-  var nextSibling = /** just in case of an empty program */ root &&
+  const nextSibling = /** just in case of an empty program */ root &&
       root.getNextSibling();
   datumStream.advanceTo(/** @type {!r5js.Datum} */ (nextSibling));
 
@@ -339,8 +339,8 @@ r5js.parse.bnf.Seq_.prototype.desugar = function(desugarFunc) {
 r5js.parse.bnf.seq = function(var_args) {
   // Copy the arguments into a real array so that rewriteImproperList_
   // can use Array.prototype.splice.
-  var rules = [];
-  for (var i = 0; i < arguments.length; ++i) {
+  const rules = [];
+  for (let i = 0; i < arguments.length; ++i) {
     rules.push(arguments[i]);
   }
   return new r5js.parse.bnf.Seq_(rules);
@@ -352,9 +352,9 @@ r5js.parse.bnf.seq = function(var_args) {
  * @return {!r5js.parse.bnf.DesugarableRule<!r5js.ast.CompoundDatum>}
  */
 r5js.parse.bnf.list = function(var_args) {
-  var rules = [];
+  const rules = [];
   rules.push(r5js.parse.bnf.one(r5js.parse.Terminals.LPAREN));
-  for (var i = 0; i < arguments.length; ++i) {
+  for (let i = 0; i < arguments.length; ++i) {
     rules.push(arguments[i]);
   }
   rules.push(r5js.parse.bnf.one(r5js.parse.Terminals.RPAREN));
@@ -368,7 +368,7 @@ r5js.parse.bnf.list = function(var_args) {
  * @return {!r5js.parse.bnf.DesugarableRule<!r5js.ast.CompoundDatum>}
  */
 r5js.parse.bnf.dottedList = function(beforeDot, afterDot) {
-  var rules = [
+  const rules = [
     r5js.parse.bnf.one(r5js.parse.Terminals.LPAREN),
     beforeDot,
     r5js.parse.bnf.one(r5js.parse.Terminals.DOT),
@@ -382,9 +382,9 @@ r5js.parse.bnf.dottedList = function(beforeDot, afterDot) {
  * @return {!r5js.parse.bnf.DesugarableRule<!r5js.ast.CompoundDatum>}
  */
 r5js.parse.bnf.vector = function(var_args) {
-  var rules = [];
+  const rules = [];
   rules.push(r5js.parse.bnf.one(r5js.parse.Terminals.LPAREN_VECTOR));
-  for (var i = 0; i < arguments.length; ++i) {
+  for (let i = 0; i < arguments.length; ++i) {
     rules.push(arguments[i]);
   }
   rules.push(r5js.parse.bnf.one(r5js.parse.Terminals.RPAREN));
@@ -407,7 +407,7 @@ r5js.parse.bnf.Seq_.rewriteImproperList_ = function(rules) {
   // example: (define (x . y) 1) => (define .( x . ) 1)
   /* No RHS in the grammar has more than one dot.
      This will break if such a rule is added. */
-  var indexOfDot = goog.array.findIndex(rules, function(rule) {
+  const indexOfDot = goog.array.findIndex(rules, function(rule) {
     return rule instanceof r5js.parse.bnf.OneTerminal_ &&
         rule.terminal_ === r5js.parse.Terminals.DOT;
   });
@@ -417,8 +417,8 @@ r5js.parse.bnf.Seq_.rewriteImproperList_ = function(rules) {
   }
 
   // Find the closest opening paren to the left of the dot and rewrite it as .(
-  for (var i = indexOfDot - 1; i >= 0; --i) {
-    var rule = rules[i];
+  for (let i = indexOfDot - 1; i >= 0; --i) {
+    const rule = rules[i];
     if (rule instanceof r5js.parse.bnf.OneTerminal_ &&
         rule.terminal_ === r5js.parse.Terminals.LPAREN) {
       rules[i] = r5js.parse.bnf.one(r5js.parse.Terminals.LPAREN_DOT);

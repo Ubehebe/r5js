@@ -64,9 +64,9 @@ r5js.test.SchemeTestDriver.prototype.estimateSize = function() {
 /** @override */
 r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
   this.logger_ = logger;
-  var platform = r5js.curPlatform();
-  var result = this.result_;
-  var onWrite = this.onWrite_.bind(this);
+  const platform = r5js.curPlatform();
+  let result = this.result_;
+  const onWrite = this.onWrite_.bind(this);
   /** @type {r5js.test.SchemeSources} */ var sources;
   /** @type {r5js.Evaluator} */ var evaluator;
 
@@ -100,7 +100,7 @@ r5js.test.SchemeTestDriver.prototype.execute = function(logger) {
  * @private
  */
 r5js.test.SchemeTestDriver.prototype.onWrite_ = function(str) {
-  var result = r5js.test.SchemeTestDriver.stringToResultStruct_(str);
+  let result = r5js.test.SchemeTestDriver.stringToResultStruct_(str);
   if (result) {
     this.logger_.logRecord(new tdd.LogRecord(
         result.getNumFailed() ? tdd.LogLevel.FAILURE : tdd.LogLevel.SUCCESS,
@@ -145,14 +145,14 @@ goog.inherits(r5js.test.SchemeTestDriver.ResultStruct_, tdd.ResultStruct);
  * @private
  */
 r5js.test.SchemeTestDriver.stringToResultStruct_ = function(str) {
-  var regex = /\((.+) \((\d+) tests\) \((\d+) failed\)\)/;
-  var matches = regex.exec(str);
+  const regex = /\((.+) \((\d+) tests\) \((\d+) failed\)\)/;
+  const matches = regex.exec(str);
   if (!matches) {
     return null;
   }
-  var name = matches[1];
-  var numSucceeded = parseInt(matches[2], 10);
-  var numFailed = parseInt(matches[3], 10);
+  const name = matches[1];
+  const numSucceeded = parseInt(matches[2], 10);
+  const numFailed = parseInt(matches[3], 10);
   return new r5js.test.SchemeTestDriver.ResultStruct_(
       name, numSucceeded, numFailed);
 };
@@ -167,14 +167,13 @@ r5js.test.SchemeTestDriver.stringToResultStruct_ = function(str) {
  * @private
  */
 r5js.test.SchemeTestDriver.stringToFailureMessage_ = function(str) {
-  var match = /\(fail .+ \(input (.*)\) \(want (.*)\) \(got (.*)\)\)/.
-      exec(str);
+  const match = /\(fail .+ \(input (.*)\) \(want (.*)\) \(got (.*)\)\)/.exec(str);
   if (!match) {
     return null;
   }
-  var input = match[1];
-  var want = match[2];
-  var got = match[3];
+  const input = match[1];
+  const want = match[2];
+  const got = match[3];
   return 'input ' + input + ': want ' + want + ', got ' + got;
 };
 
@@ -219,7 +218,7 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.resultIsExpected_ =
  */
 r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.onWrite_ = function(
     str) {
-  var result = r5js.test.SchemeTestDriver.stringToResultStruct_(str);
+  const result = r5js.test.SchemeTestDriver.stringToResultStruct_(str);
   if (result) {
     this.logger_.logRecord(new tdd.LogRecord(
         tdd.LogLevel.SUCCESS,

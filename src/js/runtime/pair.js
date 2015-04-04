@@ -71,10 +71,10 @@ r5js.runtime.Pair = /** @implements {r5js.runtime.ObjectValue} */ class {
         if (!array.length) {
             return r5js.runtime.NIL;
         }
-        var cars = array.map(function (elem) {
+        const cars = array.map(function (elem) {
             return new r5js.runtime.Pair(elem);
         });
-        for (var i = 0; i < cars.length - 1; ++i) {
+        for (let i = 0; i < cars.length - 1; ++i) {
             cars[i].setCdr(cars[i + 1]);
         }
         return cars[0];

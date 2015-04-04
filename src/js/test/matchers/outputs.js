@@ -29,7 +29,7 @@ goog.require('tdd.matchers.Matcher');
  * @param {string} output
  * @return {!tdd.matchers.Matcher}
  */
-var output = function(output) {
+const output = function(output) {
   return new HasOutput_(output,
       /** @type {!r5js.OutputSavingPort} */ (HasOutput_.sharedOutputPort_));
 };
@@ -44,7 +44,7 @@ var output = function(output) {
  * @constructor
  * @private
  */
-var HasOutput_ = function(expectedOutput, outputPort) {
+const HasOutput_ = function(expectedOutput, outputPort) {
   /** @const @private */ this.expectedOutput_ = expectedOutput;
   /** @private {?string} */ this.actualOutput_ = null;
   /** @const @private */ this.outputPort_ = outputPort;

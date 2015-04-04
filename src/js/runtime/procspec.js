@@ -112,13 +112,13 @@ r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_ =
          * @suppress {accessControls|checkTypes} for r5js.PrimitiveProcedures_
          */
         checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
-            var unwrappedArgs = [];
-            for (var i = 0; i < this.argtypes_.length; ++i) {
-                var arg = args[i];
-                var expectedType = this.argtypes_[i];
+            const unwrappedArgs = [];
+            for (let i = 0; i < this.argtypes_.length; ++i) {
+                const arg = args[i];
+                const expectedType = this.argtypes_[i];
                 if (!r5js.PrimitiveProcedures.registry_[expectedType + '?'].fn_.call(
                         null, arg)) {
-                    var actualType = r5js.PrimitiveProcedures.getActualType_(arg);
+                    const actualType = r5js.PrimitiveProcedures.getActualType_(arg);
                     throw r5js.error.argumentTypeError(
                         arg, i, nameToShowInErrorMessage, expectedType, actualType);
                 }
@@ -148,7 +148,7 @@ r5js.procspec.AllArgsOfType_ =
          * @suppress {accessControls} TODO bl
          */
         checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
-            var argtype = this.type_;
+            const argtype = this.type_;
             return goog.array.map(args, function (arg, i) {
                 if (!(/** @type {!r5js.procspec.PrimitiveProcedure_} */ (
                         r5js.PrimitiveProcedures.registry_[argtype + '?'])).fn_.call(
@@ -226,12 +226,12 @@ r5js.procspec.PrimitiveProcedure_ = /** @private */ class extends r5js.Procedure
      */
     call(userArgs, procCallLike, trampolineHelper) {
         this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
-        var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
+        const unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
             userArgs, this.debugName_);
-        var ans = this.fn_.apply(null, unwrappedArgs);
+        const ans = this.fn_.apply(null, unwrappedArgs);
         procCallLike.bindResult(ans);
         trampolineHelper.setValue(ans);
-        var nextContinuable = procCallLike.getNext();
+        const nextContinuable = procCallLike.getNext();
         if (nextContinuable) {
             trampolineHelper.setNext(nextContinuable);
         }
@@ -248,7 +248,7 @@ r5js.procspec.PrimitiveProcedure_ = /** @private */ class extends r5js.Procedure
         args = args.map(/** @type {!Function} */ (
             r5js.datumutil.wrapValue));
         // todo bl document why we're doing this...
-        for (var i = 0; i < args.length; ++i) {
+        for (let i = 0; i < args.length; ++i) {
             if (args[i] instanceof r5js.Ref) {
                 args[i] = (/** @type {!r5js.Ref} */ (args[i])).deref();
             }
@@ -270,16 +270,16 @@ r5js.procspec.NeedsCurrentPorts_ = /** @private */ class extends r5js.procspec.P
     /** @override */
     call(userArgs, procCallLike, trampolineHelper) {
         this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
-        var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
+        const unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
             userArgs, this.debugName_);
-        var args = goog.array.concat(
+        const args = goog.array.concat(
             trampolineHelper.getInputPort(),
             trampolineHelper.getOutputPort(),
             goog.array.toArray(unwrappedArgs));
-        var ans = this.fn_.apply(null, args);
+        const ans = this.fn_.apply(null, args);
         procCallLike.bindResult(ans);
         trampolineHelper.setValue(ans);
-        var nextContinuable = procCallLike.getNext();
+        const nextContinuable = procCallLike.getNext();
         if (nextContinuable) {
             trampolineHelper.setNext(nextContinuable);
         }
@@ -307,9 +307,9 @@ goog.inherits(
 r5js.procspec.HasSpecialEvalLogic_.prototype.call = function(
     userArgs, procCallLike, trampolineHelper) {
   this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
-  var unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
+  const unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
       userArgs, this.debugName_);
-  var args = goog.array.concat(
+  const args = goog.array.concat(
       goog.array.toArray(unwrappedArgs),
       procCallLike, trampolineHelper);
   this.fn_.apply(null, args);
@@ -341,16 +341,16 @@ r5js.procspec.unary = function(fn, opt_argtype) {
  * TODO bl: make the template types mean something
  */
 r5js.procspec.binary = function(fn, opt_argtype1, opt_argtype2) {
-  var argtypes = [];
+  const argtypes = [];
   if (goog.isDef(opt_argtype1)) {
     argtypes.push(opt_argtype1);
   }
   if (goog.isDef(opt_argtype2)) {
     argtypes.push(opt_argtype2);
   }
-  var typeChecker = argtypes.length === 0 ?
-      r5js.procspec.NO_TYPE_RESTRICTIONS_ :
-      new r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes);
+  const typeChecker = argtypes.length === 0
+      ? r5js.procspec.NO_TYPE_RESTRICTIONS_
+      : new r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes);
   return new r5js.procspec.PrimitiveProcedure_(
       fn, r5js.procspec.EXACTLY_2_ARGS_, typeChecker);
 };
@@ -366,7 +366,7 @@ r5js.procspec.binary = function(fn, opt_argtype1, opt_argtype2) {
  * TODO bl make the template types mean something
  */
 r5js.procspec.ternary = function(fn, opt_argtype1, opt_argtype2, opt_argtype3) {
-  var argtypes = [];
+  const argtypes = [];
   if (opt_argtype1) {
     argtypes.push(opt_argtype1);
   }
@@ -376,9 +376,9 @@ r5js.procspec.ternary = function(fn, opt_argtype1, opt_argtype2, opt_argtype3) {
   if (opt_argtype3) {
     argtypes.push(opt_argtype3);
   }
-  var typeChecker = argtypes.length ?
-      new r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes) :
-      r5js.procspec.NO_TYPE_RESTRICTIONS_;
+  const typeChecker = argtypes.length
+      ? new r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_(argtypes)
+      : r5js.procspec.NO_TYPE_RESTRICTIONS_;
   return new r5js.procspec.PrimitiveProcedure_(
       fn, r5js.procspec.EXACTLY_3_ARGS_, typeChecker);
 };

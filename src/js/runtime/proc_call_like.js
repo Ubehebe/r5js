@@ -61,7 +61,7 @@ r5js.ProcCallLike = class {
         /* If the next procedure call already has an environment,
          bind the result there. Otherwise, bind it in the current
          environment; it will be carried forward by the EnvBuffer. */
-        var envToUse = (this.next_ && this.next_.getEnv()) || this.env_;
+        const envToUse = (this.next_ && this.next_.getEnv()) || this.env_;
         envToUse.addBinding(this.resultName_, val);
     }
 
@@ -70,7 +70,7 @@ r5js.ProcCallLike = class {
      * @return {!r5js.ProcCallLike}
      */
     static getLast(procCallLike) {
-        var maybeNext = procCallLike.getNext();
+        const maybeNext = procCallLike.getNext();
         return maybeNext ? r5js.ProcCallLike.getLast(maybeNext) : procCallLike;
     }
 
