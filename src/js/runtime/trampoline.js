@@ -1,25 +1,14 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.trampoline');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-goog.provide('r5js.trampoline');
-
-
-goog.require('r5js.ParserImpl');
-goog.require('r5js.TrampolineHelper');
-
+const Datum = goog.require('r5js.Datum');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const InputPort = goog.require('r5js.InputPort');
+const OutputPort = goog.require('r5js.OutputPort');
+const Parser = goog.require('r5js.Parser');
+const ParserImpl = goog.require('r5js.ParserImpl');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const TrampolineHelper = goog.require('r5js.TrampolineHelper');
+const Value = goog.require('r5js.runtime.Value');
 
 /**
  * This is the main evaluation function.
@@ -100,15 +89,15 @@ goog.require('r5js.TrampolineHelper');
  *
  * (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  *
- * @param {!r5js.ProcCallLike} procCallLike The continuable object to evaluate.
- * @param {!r5js.IEnvironment} startingEnv Environment to start evaluation from.
- * @param {!r5js.InputPort} inputPort Input port.
- * @param {!r5js.OutputPort} outputPort Output port.
- * @return {!r5js.runtime.Value}
+ * @param {!ProcCallLike} procCallLike The continuable object to evaluate.
+ * @param {!IEnvironment} startingEnv Environment to start evaluation from.
+ * @param {!InputPort} inputPort Input port.
+ * @param {!OutputPort} outputPort Output port.
+ * @return {!Value}
  */
-r5js.trampoline = function(procCallLike, startingEnv, inputPort, outputPort) {
+function trampoline(procCallLike, startingEnv, inputPort, outputPort) {
   let cur = procCallLike;
-  const resultStruct = new r5js.TrampolineHelper(inputPort, outputPort);
+  const resultStruct = new TrampolineHelper(inputPort, outputPort);
   let prevEnv = startingEnv;
 
   while (cur) {
@@ -120,7 +109,7 @@ r5js.trampoline = function(procCallLike, startingEnv, inputPort, outputPort) {
     }
     cur.evalAndAdvance(
         resultStruct,
-        /** @type {!r5js.IEnvironment} */ (prevEnv),
+        /** @type {!IEnvironment} */ (prevEnv),
         parserProvider);
     /* Save the environment we used in case the next action on the trampoline
        needs it. */
@@ -133,13 +122,14 @@ r5js.trampoline = function(procCallLike, startingEnv, inputPort, outputPort) {
   }
 
   return resultStruct.getValue();
-};
-
+}
 
 /**
- * @param {!r5js.Datum} datum Root of the parse tree.
- * @return {!r5js.Parser} New parser that will parse the given datum.
+ * @param {!Datum} datum Root of the parse tree.
+ * @return {!Parser} New parser that will parse the given datum.
  */
 function parserProvider(datum) {
-  return new r5js.ParserImpl(datum);
+  return new ParserImpl(datum);
 }
+
+exports = trampoline;
