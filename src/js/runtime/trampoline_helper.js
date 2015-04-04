@@ -1,20 +1,22 @@
-goog.provide('r5js.TrampolineHelper');
+goog.module('r5js.TrampolineHelper');
 
-goog.require('r5js.runtime.UNSPECIFIED_VALUE');
+const InputPort = goog.require('r5js.InputPort');
+const OutputPort = goog.require('r5js.OutputPort');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
+const Value = goog.require('r5js.runtime.Value');
 
-
-
-r5js.TrampolineHelper = class {
+class TrampolineHelper {
     /**
-     * @param {!r5js.InputPort} inputPort
-     * @param {!r5js.OutputPort} outputPort
+     * @param {!InputPort} inputPort
+     * @param {!OutputPort} outputPort
      */
     constructor(inputPort, outputPort) {
         /** @const @private */ this.inputPort_ = inputPort;
         /** @const @private */ this.outputPort_ = outputPort;
-        /** @private {r5js.ProcCallLike} */ this.beforeThunk_ = null;
-        /** @private {r5js.ProcCallLike} */ this.nextContinuable_ = null;
-        /** @private {!r5js.runtime.Value} */
+        /** @private {ProcCallLike} */ this.beforeThunk_ = null;
+        /** @private {ProcCallLike} */ this.nextContinuable_ = null;
+        /** @private {!Value} */
         this.value_ = r5js.runtime.UNSPECIFIED_VALUE;
     }
 
@@ -23,43 +25,45 @@ r5js.TrampolineHelper = class {
         this.nextContinuable_ = null;
     }
 
-    /** @return {r5js.ProcCallLike} */
+    /** @return {ProcCallLike} */
     getBeforeThunk() {
         return this.beforeThunk_;
     }
 
-    /** @param {r5js.ProcCallLike} beforeThunk */
+    /** @param {ProcCallLike} beforeThunk */
     setBeforeThunk(beforeThunk) {
         this.beforeThunk_ = beforeThunk;
     }
 
-    /** @return {r5js.ProcCallLike} */
+    /** @return {ProcCallLike} */
     getNextProcCallLike() {
         return this.nextContinuable_;
     }
 
-    /** @param {!r5js.ProcCallLike} procCallLike */
+    /** @param {!ProcCallLike} procCallLike */
     setNext(procCallLike) {
         this.nextContinuable_ = procCallLike;
     }
 
-    /** @return {!r5js.runtime.Value} */
+    /** @return {!Value} */
     getValue() {
         return this.value_;
     }
 
-    /** @param {!r5js.runtime.Value} value */
+    /** @param {!Value} value */
     setValue(value) {
         this.value_ = value;
     }
 
-    /** @return {!r5js.InputPort} */
+    /** @return {!InputPort} */
     getInputPort() {
         return this.inputPort_;
     }
 
-    /** @return {!r5js.OutputPort} */
+    /** @return {!OutputPort} */
     getOutputPort() {
         return this.outputPort_;
     }
-};
+}
+
+exports = TrampolineHelper;
