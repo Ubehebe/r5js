@@ -1,28 +1,27 @@
-goog.provide('r5js.UserDefinedProcedure');
+goog.module('r5js.UserDefinedProcedure');
 
+const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const Datum = goog.require('r5js.Datum');
+const datumutil = goog.require('r5js.datumutil');
+const Environment = goog.require('r5js.Environment');
+const error = goog.require('r5js.error');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const Identifier = goog.require('r5js.ast.Identifier');
+const List = goog.require('r5js.ast.List');
+const Nonterminals = goog.require('r5js.parse.Nonterminals');
+const ProcCall = goog.require('r5js.ProcCall');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const Procedure = goog.require('r5js.Procedure');
+const Quote = goog.require('r5js.ast.Quote');
+const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const Terminals = goog.require('r5js.parse.Terminals');
+const Value = goog.require('r5js.runtime.Value');
 
-goog.require('r5js.Environment');
-goog.require('r5js.ProcCall');
-goog.require('r5js.ProcCallLike');
-goog.require('r5js.Procedure');
-goog.require('r5js.SiblingBuffer');
-goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.List');
-goog.require('r5js.ast.Quote');
-goog.require('r5js.datumutil');
-goog.require('r5js.error');
-goog.require('r5js.parse.Nonterminals');
-goog.require('r5js.parse.Terminals');
-
-
-
-r5js.UserDefinedProcedure = class extends r5js.Procedure {
+class UserDefinedProcedure extends Procedure {
     /**
-     * @param {!Array<string>} formalsArray The procedure's formal parameters,
-     *        in order.
-     * @param {r5js.Datum} bodyStart
-     * @param {!r5js.IEnvironment} env An environment.
+     * @param {!Array<string>} formalsArray The procedure's formal parameters, in order.
+     * @param {Datum} bodyStart
+     * @param {!IEnvironment} env An environment.
      * @param {string=} opt_name The procedure's name. It has no semantic
      *     importance; it's just used for pretty-printing debugs and messages
      *     to the user. If not given, one will be created.
@@ -31,17 +30,19 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
         /** @const @protected */
         this.formalsArray = formalsArray;
 
-        /** @const @private {!r5js.IEnvironment} */
+        /** @const @private {!IEnvironment} */
         this.env_ = new r5js.Environment(env);
 
-        /** @const @private {r5js.ProcCallLike}*/
+        /** @const @private {ProcCallLike}*/
         this.body_ = bodyStart ? this.setupBody_(bodyStart) : null;
 
-        /** @const @private {r5js.ProcCallLike} */
-        this.last_ = this.body_ ? r5js.ProcCallLike.getLast(this.body_) : null;
+        /** @const @private {ProcCallLike} */
+        this.last_ = this.body_ ? ProcCallLike.getLast(this.body_) : null;
 
         /** @const @private */
-        this.name_ = goog.isDef(opt_name) ? opt_name : ('' + goog.getUid(this));
+        this.name_ = goog.isDef(opt_name)
+            ? opt_name
+            : ('' + goog.getUid(this));
     }
 
     /** @return {string} */
@@ -50,27 +51,26 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
     }
 
     /**
-     * @param {!r5js.Datum} bodyStart
-     * @return {!r5js.ProcCallLike}
+     * @param {!Datum} bodyStart
+     * @return {!ProcCallLike}
      * @private
      */
     setupBody_(bodyStart) {
-        const helper = new r5js.UserDefinedProcedure.LetrecBindingsHelper_();
+        const helper = new LetrecBindingsHelper();
         const letrecBindings = helper.collectLetrecBindings(bodyStart);
         if (letrecBindings.isEmpty()) {
-            return /** @type {!r5js.ProcCallLike} */ (
+            return /** @type {!ProcCallLike} */ (
                 helper.getLast().sequence(this.env_));
         } else {
-            const letrec = new r5js.ast.List(letrecBindings.toSiblings());
-            letrec.setNextSibling(/** @type {!r5js.Datum} */ (helper.getLast()));
-            return new r5js.ProcCall(new r5js.ast.Identifier('letrec'), letrec);
+            const letrec = new List(letrecBindings.toSiblings());
+            letrec.setNextSibling(/** @type {!Datum} */ (helper.getLast()));
+            return new ProcCall(new Identifier('letrec'), letrec);
         }
     }
 
     /**
-     * @param {!r5js.Environment} env Environment to clone with.
-     * @return {!r5js.UserDefinedProcedure} A clone of this procedure,
-     * with the given environment.
+     * @param {!Environment} env Environment to clone with.
+     * @return {!UserDefinedProcedure} A clone of this procedure, with the given environment.
      * @suppress {const} for reassignment to body_ and last_.
      */
     cloneWithEnv(env) {
@@ -82,7 +82,7 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
     }
 
     /**
-     * @param {!r5js.ProcCallLike} procCallLike
+     * @param {!ProcCallLike} procCallLike
      * @private
      * @suppress {checkTypes} procCallLike.getNext() can return null,
      * but apparently this is required. TODO bl investigate.
@@ -98,7 +98,7 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
     }
 
     /**
-     * @param {!r5js.ProcCallLike} procCallLike
+     * @param {!ProcCallLike} procCallLike
      * @return {boolean} True iff this procedure is in tail position.
      * @private
      * TODO bl are we sure this covers all forms of tail recursion in R5RS?
@@ -117,7 +117,7 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
     }
 
     /**
-     * @param {!r5js.IEnvironment} env The environment to set.
+     * @param {!IEnvironment} env The environment to set.
      * @private
      */
     setEnv_(env) {
@@ -139,8 +139,8 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
     }
 
     /**
-     * @param {!Array<!r5js.runtime.Value>} args
-     * @param {!r5js.IEnvironment} env
+     * @param {!Array<!Value>} args
+     * @param {!IEnvironment} env
      * @protected
      */
     bindArgs(args, env) {
@@ -201,30 +201,29 @@ r5js.UserDefinedProcedure = class extends r5js.Procedure {
         trampolineHelper.setNext(
             /** @type {!r5js.ProcCallLike} */ (this.body_));
     }
-};
+}
 
-
-r5js.UserDefinedProcedure.LetrecBindingsHelper_ = /** @private */ class {
+class LetrecBindingsHelper {
     constructor() {
-        /** @const @private */ this.bindings_ = new r5js.SiblingBuffer();
-        /** @private {r5js.Datum} */ this.last_ = null;
+        /** @const @private */ this.bindings_ = new SiblingBuffer();
+        /** @private {Datum} */ this.last_ = null;
     }
 
     /**
      * R5RS 5.2.2: "A <body> containing internal definitions can always be
      * converted into a completely equivalent letrec expression."
-     * @param {!r5js.Datum} bodyStart
-     * @return {!r5js.SiblingBuffer}
+     * @param {!Datum} bodyStart
+     * @return {!SiblingBuffer}
      */
     collectLetrecBindings(bodyStart) {
         for (var cur = bodyStart;
-             cur && cur.peekParse() === r5js.parse.Nonterminals.DEFINITION;
+             cur && cur.peekParse() === Nonterminals.DEFINITION;
              cur = cur.getNextSibling()) {
-            cur = /** @type {!r5js.ast.CompoundDatum} */ (cur);
+            cur = /** @type {!CompoundDatum} */ (cur);
             const firstChild = cur.getFirstChild();
-            if (firstChild instanceof r5js.ast.Identifier &&
-                firstChild.getPayload() === r5js.parse.Terminals.DEFINE) {
-                this.bindings_.appendSibling(r5js.datumutil.extractDefinition(cur));
+            if (firstChild instanceof Identifier &&
+                firstChild.getPayload() === Terminals.DEFINE) {
+                this.bindings_.appendSibling(datumutil.extractDefinition(cur));
             } else {
                 cur.forEachChild(this.collectLetrecBindingsForChild_, this);
             }
@@ -233,29 +232,28 @@ r5js.UserDefinedProcedure.LetrecBindingsHelper_ = /** @private */ class {
         return this.bindings_;
     }
 
-    /**
-     * @param {!r5js.Datum} node
-     * @private
-     */
+    /** @param {!Datum} node */
     collectLetrecBindingsForChild_(node) {
-        if (!(node instanceof r5js.ast.CompoundDatum) ||
-            node instanceof r5js.ast.Quote) {
+        if (!(node instanceof CompoundDatum)
+            || node instanceof Quote) {
             return;
         }
 
         const firstChild = node.getFirstChild();
 
-        if (firstChild instanceof r5js.ast.Identifier &&
-            firstChild.getPayload() === r5js.parse.Terminals.DEFINE) {
-            this.bindings_.appendSibling(r5js.datumutil.extractDefinition(node));
-        } else if (node instanceof r5js.ast.CompoundDatum) {
+        if (firstChild instanceof Identifier
+            && firstChild.getPayload() === Terminals.DEFINE) {
+            this.bindings_.appendSibling(datumutil.extractDefinition(node));
+        } else if (node instanceof CompoundDatum) {
             node.forEachChild(this.collectLetrecBindingsForChild_, this);
         }
     }
 
-    /** @return {r5js.Datum} */
+    /** @return {Datum} */
     getLast() {
         return this.last_;
     }
-};
+}
+
+exports = UserDefinedProcedure;
 
