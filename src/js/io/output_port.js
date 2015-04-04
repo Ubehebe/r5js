@@ -37,7 +37,6 @@ class OutputPort {
  }
 }
 
-
 /** @const @private */
 OutputPort.IMPLEMENTED_BY_PROP_ = '$r5js.OutputPort';
 
