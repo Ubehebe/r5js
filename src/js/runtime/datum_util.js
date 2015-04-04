@@ -1,87 +1,70 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.datumutil');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.datumutil');
-
-
-goog.require('r5js.SiblingBuffer');
-goog.require('r5js.ast.Boolean');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.List');
-goog.require('r5js.ast.Number');
-goog.require('r5js.error');
-goog.require('r5js.parse.Nonterminals');
-goog.require('r5js.parse.Terminals');
-
+const Boolean = goog.require('r5js.ast.Boolean');
+const Datum = goog.require('r5js.Datum');
+const error = goog.require('r5js.error');
+const Identifier = goog.require('r5js.ast.Identifier');
+const List = goog.require('r5js.ast.List');
+const Number = goog.require('r5js.ast.Number');
+const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const Nonterminals = goog.require('r5js.parse.Nonterminals');
+const Terminals = goog.require('r5js.parse.Terminals');
+const Value = goog.require('r5js.runtime.Value');
 
 /**
  * Munges definitions to get them in a form suitable for let-type bindings.
  * Example:
  * (define (foo x y z) ...) => (foo (lambda (x y z) ...))
- * @param {!r5js.Datum} datum Datum to extract the definition from.
+ * @param {!Datum} datum Datum to extract the definition from.
  * TODO bl: you can't extract a definition from an arbitrary datum.
  * Make more strongly typed.
- * @return {!r5js.Datum} A datum representing the given datum's definition.
+ * @return {!Datum} A datum representing the given datum's definition.
  * @suppress {checkTypes} for setNextSibling(null)
  */
-r5js.datumutil.extractDefinition = function(datum) {
-  let variable = datum.at(r5js.parse.Nonterminals.VARIABLE);
+function extractDefinition(datum) {
+  let variable = datum.at(Nonterminals.VARIABLE);
   if (variable) {
-    const expr = datum.at(r5js.parse.Nonterminals.EXPRESSION);
+    const expr = datum.at(Nonterminals.EXPRESSION);
     variable.setNextSibling(null); // TODO bl
-    return new r5js.SiblingBuffer().
-        appendSibling(variable).
-            appendSibling(/** @type {!r5js.Datum} */(expr)).
-            toList(r5js.ast.List);
+    return new SiblingBuffer()
+        .appendSibling(variable)
+        .appendSibling(/** @type {!Datum} */(expr))
+        .toList(List);
   } else {
     const formalsList = datum.getFirstChild().getNextSibling();
     variable = formalsList.getFirstChild();
     const bodyStart = formalsList.getNextSibling();
     formalsList.setFirstChild(formalsList.getFirstChild().getNextSibling());
-    const lambda = r5js.datumutil.prepareLambdaForDefinition_(bodyStart, formalsList);
+    const lambda = prepareLambdaForDefinition_(bodyStart, formalsList);
     variable.setNextSibling(null); // TODO bl
-    return new r5js.SiblingBuffer().
-        appendSibling(variable).
-            appendSibling(lambda).
-            toList(r5js.ast.List);
+    return new SiblingBuffer()
+        .appendSibling(variable)
+        .appendSibling(lambda)
+        .toList(List);
   }
-};
-
+}
 
 /**
- * @param {!r5js.Datum} bodyStart
- * @param {!r5js.Datum} formalsList
- * @return {!r5js.Datum}
+ * @param {!Datum} bodyStart
+ * @param {!Datum} formalsList
+ * @return {!Datum}
  * @private
  * @suppress {checkTypes} for setNextSibling(null)
  */
-r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
-  const buffer = new r5js.SiblingBuffer();
-  buffer.appendSibling(new r5js.ast.Identifier(r5js.parse.Terminals.LAMBDA));
-  if (formalsList.isImproperList() &&
-      !formalsList.getFirstChild().getNextSibling()) {
-    buffer.appendSibling(new r5js.ast.Identifier(
+function prepareLambdaForDefinition_(bodyStart, formalsList) {
+  const buffer = new SiblingBuffer();
+  buffer.appendSibling(new Identifier(Terminals.LAMBDA));
+  if (formalsList.isImproperList()
+      && !formalsList.getFirstChild().getNextSibling()) {
+    buffer.appendSibling(new Identifier(
         /** @type {string} */ (formalsList.getFirstChild().getPayload())));
   } else {
     formalsList.setNextSibling(null);
     buffer.appendSibling(formalsList);
   }
   buffer.appendSibling(bodyStart);
-  return buffer.toList(r5js.ast.List);
-};
-
+  return buffer.toList(List);
+}
 
 /**
  * Environments bind names to values, and this implementation represents
@@ -96,24 +79,27 @@ r5js.datumutil.prepareLambdaForDefinition_ = function(bodyStart, formalsList) {
  * not JavaScript numbers.
  * @see {r5js.VarargsUserDefinedProcedure#bindArgs}
  *
- * @param {!r5js.runtime.Value} result The value to potentially wrap.
- * @return {!r5js.Datum} The value, wrapped in a {@link r5js.Datum}
+ * @param {!Value} result The value to potentially wrap.
+ * @return {!Datum} The value, wrapped in a {@link r5js.Datum}
  * if necessary.
  */
-r5js.datumutil.wrapValue = function(result) {
+function wrapValue(result) {
   switch (typeof result) {
     case 'boolean':
-      return new r5js.ast.Boolean(result);
+      return new Boolean(result);
     case 'number':
-      return new r5js.ast.Number(result);
+      return new Number(result);
     case 'object':
-      return /** @type {!r5js.Datum} */ (result);
+      return /** @type {!Datum} */ (result);
     case 'string':
-      return new r5js.ast.Identifier(result);
+      return new Identifier(result);
     default:
-      throw r5js.error.internalInterpreterError(
+      throw error.internalInterpreterError(
           'cannot deduce type from value ' +
           result +
           ': noninjective mapping from values to types');
   }
-};
+}
+
+exports.extractDefinition = extractDefinition;
+exports.wrapValue = wrapValue;
