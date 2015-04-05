@@ -1,47 +1,50 @@
-goog.provide('r5js.PipelineImpl');
+goog.module('r5js.PipelineImpl');
 
-goog.require('r5js.Environment');
-goog.require('r5js.ParserImpl');
-goog.require('r5js.Pipeline');
-goog.require('r5js.ReaderImpl');
-goog.require('r5js.Scanner');
-goog.require('r5js.VACUOUS_PROGRAM');
-goog.require('r5js.error');
-goog.require('r5js.runtime.UNSPECIFIED_VALUE');
-goog.require('r5js.trampoline');
+const Environment = goog.require('r5js.Environment');
+const error = goog.require('r5js.error');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const ParserImpl = goog.require('r5js.ParserImpl');
+const Pipeline = goog.require('r5js.Pipeline');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const ReaderImpl = goog.require('r5js.ReaderImpl');
+const Scanner = goog.require('r5js.Scanner');
+const trampoline = goog.require('r5js.trampoline');
+const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
+const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 
-r5js.PipelineImpl = /** @implements {r5js.Pipeline} */ class {
-    /** @param {!r5js.IEnvironment} rootEnv The root environment. */
+/** @implements {Pipeline} */
+class PipelineImpl {
+    /** @param {!IEnvironment} rootEnv The root environment. */
     constructor(rootEnv) {
-        /** @const @private {!r5js.IEnvironment} */
-        this.env_ = new r5js.Environment(rootEnv);
+        /** @const @private {!IEnvironment} */
+        this.env_ = new Environment(rootEnv);
     }
 
     /** @override */
     scan(string) {
-        return new r5js.Scanner(string);
+        return new Scanner(string);
     }
 
     /** @override */
     read(scanner) {
-        return new r5js.ReaderImpl(scanner).read();
+        return new ReaderImpl(scanner).read();
     }
 
     /** @override */
     parse(root, opt_nonterminal) {
-        var parser = new r5js.ParserImpl(root);
-        var ans = goog.isDef(opt_nonterminal) ?
-            parser.parse(opt_nonterminal) :
-            parser.parse();
+        var parser = new ParserImpl(root);
+        var ans = goog.isDef(opt_nonterminal)
+            ? parser.parse(opt_nonterminal)
+            : parser.parse();
         if (!ans) {
-            throw r5js.error.parse(root);
+            throw error.parse(root);
         }
         return ans;
     }
 
     /** @override */
     desugar(root) {
-        return /** @type {!r5js.ProcCallLike} */ (root.desugar(this.env_, false));
+        return /** @type {!ProcCallLike} */ (root.desugar(this.env_, false));
     }
 
     /**
@@ -50,10 +53,12 @@ r5js.PipelineImpl = /** @implements {r5js.Pipeline} */ class {
      * always evaluates to false.
      */
     Eval(continuable, inputPort, outputPort) {
-        // r5js.VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of
+        // VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of
         // a special case that I don't care.
-        return continuable === r5js.VACUOUS_PROGRAM ?
-            r5js.runtime.UNSPECIFIED_VALUE :
-            r5js.trampoline(continuable, this.env_, inputPort, outputPort);
+        return continuable === VACUOUS_PROGRAM
+            ? UNSPECIFIED_VALUE
+            : trampoline(continuable, this.env_, inputPort, outputPort);
     }
-};
+}
+
+exports = PipelineImpl;
