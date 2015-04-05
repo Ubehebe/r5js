@@ -1,28 +1,11 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.TemplateBindings');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-goog.provide('r5js.TemplateBindings');
-
-
-goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.Macro');
-goog.require('r5js.error');
-
-
+const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const Datum = goog.require('r5js.Datum');
+const Identifier = goog.require('r5js.ast.Identifier');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const Macro = goog.require('r5js.ast.Macro');
+const error = goog.require('r5js.error');
 
 /**
  * My approach for supporting nested ellipses in macro transcriptions
@@ -78,234 +61,223 @@ goog.require('r5js.error');
  *
  * TODO bl: explain -- or ideally remove -- all the crazy logic dealing
  * with "incorporation". Do we even need it?
- *
- * @param {!r5js.IEnvironment} letSyntaxEnv TODO bl.
- * @param {!Object<string, number>} patternIds TODO bl.
- * @param {!Object<string, boolean>} templateRenameCandidates TODO bl.
- * @struct
- * @constructor
  */
-r5js.TemplateBindings = function(
-    letSyntaxEnv, patternIds, templateRenameCandidates) {
-  /** @const @private {!Object<string,!r5js.Datum>} */
-  this.bindings_ = {};
+class TemplateBindings {
+    /**
+     * @param {!IEnvironment} letSyntaxEnv TODO bl.
+     * @param {!Object<string, number>} patternIds TODO bl.
+     * @param {!Object<string, boolean>} templateRenameCandidates TODO bl.
+     */
+    constructor(letSyntaxEnv, patternIds, templateRenameCandidates) {
+        /** @const @private {!Object<string,!Datum>} */
+        this.bindings_ = {};
 
-  /** @const @private {!Array<!r5js.TemplateBindings>} */
-  this.children_ = [];
+        /** @const @private {!Array<!TemplateBindings>} */
+        this.children_ = [];
 
-  /** @private {number} */
-  this.curChild_ = 0;
+        /** @private {number} */
+        this.curChild_ = 0;
 
-  /** @const @private {!r5js.IEnvironment} */
-  this.letSyntaxEnv_ = letSyntaxEnv;
+        /** @const @private {!IEnvironment} */
+        this.letSyntaxEnv_ = letSyntaxEnv;
 
-  /** @const @private {!Object<string, number>} */
-  this.patternIds_ = patternIds;
+        /** @const @private {!Object<string, number>} */
+        this.patternIds_ = patternIds;
 
-  /** @const @private {!Object<string, boolean>} */
-  this.templateRenameCandidates_ = templateRenameCandidates;
+        /** @const @private {!Object<string, boolean>} */
+        this.templateRenameCandidates_ = templateRenameCandidates;
 
-  /** @const @private {!Object<*,*>} */
-  this.renameInTemplate_ = {};
-};
-
-
-/** @return {!r5js.TemplateBindings} This object, for chaining. */
-r5js.TemplateBindings.prototype.resetCurChild = function() {
-  this.curChild_ = 0;
-  return this;
-};
-
-
-/**
- * @param {string} name
- * @param {!r5js.Datum} val
- */
-r5js.TemplateBindings.prototype.addTemplateBinding = function(name, val) {
-  if (name in this.bindings_) {
-    throw r5js.error.internalInterpreterError('invariant incorrect');
-  } else if (val instanceof r5js.ast.Macro) {
-    // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
-    const fakeName = newCpsName();
-    this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
-    this.bindings_[name] = new r5js.ast.Identifier(fakeName);
-  } else {
-    this.bindings_[name] = val;
-  }
-
-  if (val instanceof r5js.ast.Identifier) {
-    this.maybeRenameId_(val);
-  } else if (val instanceof r5js.ast.CompoundDatum) {
-    val.forEachChild(this.maybeRenameId_, this);
-  }
-};
-
-
-/**
- * We have to check the datum to be bound for conflicts with identifiers
- * in the template. Example:
- *
- * (define-syntax or
- * (syntax-rules ()
- * (or test1 test2 ...)
- * (let ((x test1)) (if x x (or test2 ...)))))
- *
- * (let ((x 4) (y 3)) (or x y))
- *
- * The identifier x occurs in the template but not the pattern, so it will
- * appear in templateRenameCandidates (see Transformer.prototype.setupIds).
- * Then, during pattern matching, addTemplateBinding(test1, x) will be
- * called. This should signal that, during transcription, any occurrence of
- * the _template's_ x should be safely renamed.
- * @see {r5js.Macro#transcribe}.
- *
- * @param {!r5js.Datum} datum
- * @private
- */
-r5js.TemplateBindings.prototype.maybeRenameId_ = function(datum) {
-  if (datum instanceof r5js.ast.Identifier) {
-    const id = /** @type {string} */ (datum.getPayload());
-    if (this.templateRenameCandidates_[id]) {
-      this.renameInTemplate_[id] = true;
-    }
-  } else if (datum instanceof r5js.ast.CompoundDatum) {
-    datum.forEachChild(this.maybeRenameId_, this);
-  }
-};
-
-
-/**
- * @param {!r5js.TemplateBindings} child Child bindings.
- * @return {!r5js.TemplateBindings} This object, for chaining.
- */
-r5js.TemplateBindings.prototype.addChildBindings = function(child) {
-  this.children_.push(child);
-  return this;
-};
-
-
-/**
- * @param {!r5js.TemplateBindings} other Other template bindings.
- * @return {boolean}
- * @private
- */
-r5js.TemplateBindings.prototype.hasNoneOf_ = function(other) {
-  for (const name in other.bindings_) {
-    if (name in this.bindings_) {
-      return false;
-    }
-  }
-  return true;
-};
-
-
-/**
- * Try to incorporate the child's bindings in an existing child
- * if there's room, otherwise just tack the child on to the parent.
- * @param {!r5js.TemplateBindings} child Child bindings.
- * @return {r5js.TemplateBindings}
- */
-r5js.TemplateBindings.prototype.addOrIncorporateChild = function(child) {
-  return this.incorporateChild(child) || this.addChildBindings(child);
-};
-
-
-/**
- * @param {!r5js.TemplateBindings} child Child bindings.
- * @return {r5js.TemplateBindings} This object, or null.
- */
-r5js.TemplateBindings.prototype.incorporateChild = function(child) {
-
-  // We only incorporate flat TemplateBindings objects.
-  if (child.children_.length > 0) {
-    return null;
-  }
-
-  /* Dump all the child's bindings in the first child that doesn't
-     have any of the bindings.
-
-     todo bl: i have no idea why this heuristic seems to work. */
-  for (let i = 0; i < this.children_.length; ++i) {
-    const candidate = this.children_[i];
-    if (candidate.hasNoneOf_(child)) {
-      for (const name in child.bindings_) {
-        candidate.addTemplateBinding(name, child.bindings_[name]);
-      }
-      return this;
-    }
-  }
-
-  return null;
-};
-
-
-/** @return {r5js.TemplateBindings} */
-r5js.TemplateBindings.prototype.getNextChild = function() {
-  if (this.curChild_ < this.children_.length) {
-    return this.children_[this.curChild_++];
-  } else {
-    this.curChild_ = 0;   // reset for next time
-    return null;
-  }
-};
-
-
-/**
- * @param {!r5js.Datum} datum
- * @return {!r5js.Datum|boolean}
- * TODO bl document what this does.
- */
-r5js.TemplateBindings.prototype.resolveDatum = function(datum) {
-  if (!this.patternIds_)
-    throw r5js.error.internalInterpreterError('invariant incorrect');
-
-  if (datum instanceof r5js.ast.Identifier) {
-    const name = /** @type {string} */(datum.getPayload());
-
-    const maybe = this.bindings_[name];
-    if (maybe) {
-      return maybe.clone(null /* parent */);
-    } else if (this.patternIds_[name] !== undefined) {
-      /* It's important to return false here, instead of some other
-         "falsey" value like null. This value is immediately returned by
-         IdOrLiteralTransformer.prototype.matchInput. Meanwhile,
-         EllipsisTransformer.prototype.matchInput returns
-         new r5js.SiblingBuffer().toList() when it has successfully matched the
-         ellipsis zero times, which is not a failure. And if you look at
-         the implementation, you will see there is a good reason that
-
-         new r5js.SiblingBuffer().toList() === null.
-
-         So we have to return something different.
-
-         Static types would be useful here. */
-      return false;
-    } else {
-      return datum.clone(null /* parent */);
+        /** @const @private {!Object<*,*>} */
+        this.renameInTemplate_ = {};
     }
 
-  } else {
-    return datum.clone(null /* parent */);
-  }
-};
+    /** @return {!TemplateBindings} This object, for chaining. */
+    resetCurChild() {
+        this.curChild_ = 0;
+        return this;
+    }
 
+    /**
+     * @param {string} name
+     * @param {!Datum} val
+     */
+    addTemplateBinding(name, val) {
+        if (name in this.bindings_) {
+            throw error.internalInterpreterError('invariant incorrect');
+        } else if (val instanceof Macro) {
+            // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
+            const fakeName = newCpsName();
+            this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
+            this.bindings_[name] = new Identifier(fakeName);
+        } else {
+            this.bindings_[name] = val;
+        }
 
-/** @return {!Object<string, number>} */
-r5js.TemplateBindings.prototype.getPatternIds = function() {
-  return this.patternIds_;
-};
+        if (val instanceof Identifier) {
+            this.maybeRenameId_(val);
+        } else if (val instanceof CompoundDatum) {
+            val.forEachChild(this.maybeRenameId_, this);
+        }
+    }
 
+    /**
+     * We have to check the datum to be bound for conflicts with identifiers
+     * in the template. Example:
+     *
+     * (define-syntax or
+     * (syntax-rules ()
+     * (or test1 test2 ...)
+     * (let ((x test1)) (if x x (or test2 ...)))))
+     *
+     * (let ((x 4) (y 3)) (or x y))
+     *
+     * The identifier x occurs in the template but not the pattern, so it will
+     * appear in templateRenameCandidates (see Transformer.prototype.setupIds).
+     * Then, during pattern matching, addTemplateBinding(test1, x) will be
+     * called. This should signal that, during transcription, any occurrence of
+     * the _template's_ x should be safely renamed.
+     * @see {r5js.Macro#transcribe}.
+     *
+     * @param {!Datum} datum
+     * @private
+     */
+    maybeRenameId_(datum) {
+        if (datum instanceof Identifier) {
+            const id = /** @type {string} */ (datum.getPayload());
+            if (this.templateRenameCandidates_[id]) {
+                this.renameInTemplate_[id] = true;
+            }
+        } else if (datum instanceof CompoundDatum) {
+            datum.forEachChild(this.maybeRenameId_, this);
+        }
+    }
 
-/** @return {!Object<string, boolean>} */
-r5js.TemplateBindings.prototype.getTemplateRenameCandidates = function() {
-  return this.templateRenameCandidates_;
-};
+    /**
+     * @param {!TemplateBindings} child Child bindings.
+     * @return {!TemplateBindings} This object, for chaining.
+     */
+    addChildBindings(child) {
+        this.children_.push(child);
+        return this;
+    }
 
+    /**
+     * @param {!TemplateBindings} other Other template bindings.
+     * @return {boolean}
+     * @private
+     */
+    hasNoneOf_(other) {
+        for (const name in other.bindings_) {
+            if (name in this.bindings_) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-/**
- * @param {string} id
- * @return {*} TODO bl.
- */
-r5js.TemplateBindings.prototype.wasRenamed = function(id) {
-  return this.renameInTemplate_[id];
-};
+    /**
+     * Try to incorporate the child's bindings in an existing child
+     * if there's room, otherwise just tack the child on to the parent.
+     * @param {!TemplateBindings} child Child bindings.
+     * @return {TemplateBindings}
+     */
+    addOrIncorporateChild(child) {
+        return this.incorporateChild(child) || this.addChildBindings(child);
+    }
+
+    /**
+     * @param {!TemplateBindings} child Child bindings.
+     * @return {TemplateBindings} This object, or null.
+     */
+    incorporateChild(child) {
+        // We only incorporate flat TemplateBindings objects.
+        if (child.children_.length > 0) {
+            return null;
+        }
+
+        /* Dump all the child's bindings in the first child that doesn't
+         have any of the bindings.
+
+         todo bl: i have no idea why this heuristic seems to work. */
+        for (let i = 0; i < this.children_.length; ++i) {
+            const candidate = this.children_[i];
+            if (candidate.hasNoneOf_(child)) {
+                for (const name in child.bindings_) {
+                    candidate.addTemplateBinding(name, child.bindings_[name]);
+                }
+                return this;
+            }
+        }
+
+        return null;
+    }
+
+    /** @return {TemplateBindings} */
+    getNextChild() {
+        if (this.curChild_ < this.children_.length) {
+            return this.children_[this.curChild_++];
+        } else {
+            this.curChild_ = 0;   // reset for next time
+            return null;
+        }
+    }
+
+    /**
+     * @param {!Datum} datum
+     * @return {!Datum|boolean}
+     * TODO bl document what this does.
+     */
+    resolveDatum(datum) {
+        if (!this.patternIds_)
+            throw error.internalInterpreterError('invariant incorrect');
+
+        if (datum instanceof Identifier) {
+            const name = /** @type {string} */(datum.getPayload());
+
+            const maybe = this.bindings_[name];
+            if (maybe) {
+                return maybe.clone(null /* parent */);
+            } else if (this.patternIds_[name] !== undefined) {
+                /* It's important to return false here, instead of some other
+                 "falsey" value like null. This value is immediately returned by
+                 IdOrLiteralTransformer.prototype.matchInput. Meanwhile,
+                 EllipsisTransformer.prototype.matchInput returns
+                 new r5js.SiblingBuffer().toList() when it has successfully matched the
+                 ellipsis zero times, which is not a failure. And if you look at
+                 the implementation, you will see there is a good reason that
+
+                 new r5js.SiblingBuffer().toList() === null.
+
+                 So we have to return something different.
+
+                 Static types would be useful here. */
+                return false;
+            } else {
+                return datum.clone(null /* parent */);
+            }
+
+        } else {
+            return datum.clone(null /* parent */);
+        }
+    }
+
+    /** @return {!Object<string, number>} */
+    getPatternIds() {
+        return this.patternIds_;
+    }
+
+    /** @return {!Object<string, boolean>} */
+    getTemplateRenameCandidates() {
+        return this.templateRenameCandidates_;
+    }
+
+    /**
+     * @param {string} id
+     * @return {*} TODO bl.
+     */
+    wasRenamed(id) {
+        return this.renameInTemplate_[id];
+    }
+}
+
+exports = TemplateBindings;
