@@ -1,14 +1,15 @@
 goog.module('r5js.EllipsisTransformer');
 
+const Datum = goog.require('r5js.Datum');
 const ITransformer = goog.require('r5js.ITransformer');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 
-/** @implements {r5js.ITransformer} */
+/** @implements {ITransformer} */
 class EllipsisTransformer {
-    /** @param {!r5js.ITransformer} subtransformer Subtransformer. */
+    /** @param {!ITransformer} subtransformer */
     constructor(subtransformer) {
-        /** @const @private {!r5js.ITransformer} */
+        /** @const @private {!ITransformer} */
         this.subtransformer_ = subtransformer;
     }
 
@@ -76,7 +77,7 @@ class EllipsisTransformer {
             buf.appendSibling(success);
         }
         bindings.resetCurChild();
-        return /** @type {!r5js.Datum} */ (buf.toSiblings());
+        return /** @type {!Datum} */ (buf.toSiblings());
     }
 
     /** @override */
