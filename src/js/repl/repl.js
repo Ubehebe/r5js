@@ -1,37 +1,15 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.Repl');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const Error = goog.require('r5js.Error');
+const Evaluator = goog.require('r5js.Evaluator');
+const Promise = goog.require('goog.Promise');
+const Terminal = goog.require('r5js.Terminal');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.Repl');
-
-
-goog.require('r5js.valutil');
-
-
-
-/**
- * @param {!r5js.Terminal} terminal
- * @param {!r5js.Evaluator} evaluator
- * @param {function(string): !goog.Promise<boolean>} isLineComplete
- * @struct
- * @constructor
- */
-r5js.Repl = class {
+class Repl {
     /**
-     * @param {!r5js.Terminal} terminal
-     * @param {!r5js.Evaluator} evaluator
-     * @param {function(string): !goog.Promise<boolean>} isLineComplete
+     * @param {!Terminal} terminal
+     * @param {!Evaluator} evaluator
+     * @param {function(string): !Promise<boolean>} isLineComplete
      */
     constructor(terminal, evaluator, isLineComplete) {
         /** @const @private */ this.terminal_ = terminal;
@@ -59,11 +37,13 @@ r5js.Repl = class {
         ).then(
             function(value) { this.terminal_.print(value); },
             function(error) {
-                this.terminal_.error((/** @type {!r5js.Error} */ (error)).msg);
+                this.terminal_.error((/** @type {!Error} */ (error)).msg);
             }, this
         ).thenAlways(function() {
                 this.terminal_.getNextLineOfInput().then(
                     this.handleInputLine, undefined /* opt_onRejected */, this);
             }, this);
     }
-};
+}
+
+exports = Repl;
