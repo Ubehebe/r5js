@@ -1,48 +1,36 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.ITransformer');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const Datum = goog.require('r5js.Datum');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const ObjectValue = goog.require('r5js.runtime.ObjectValue');
+const TemplateBindings = goog.require('r5js.TemplateBindings');
+const Transformer = goog.require('r5js.Transformer');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-goog.provide('r5js.ITransformer');
-
-
-
-/**
- * TODO bl inappropriately extends ObjectValue.
- */
-r5js.ITransformer = /** @interface @extends {r5js.runtime.ObjectValue} */ class {
+/** @interface @extends {ObjectValue} TODO bl inappropriate */
+class ITransformer {
  /**
   * @param {number} ellipsisLevel Nesting level of ellipses, passed as the last
   * argument to the callback.
-  * @param {!r5js.Transformer} transformer
+  * @param {!Transformer} transformer
   */
  collectNestingLevels(ellipsisLevel, transformer) {}
 
  /**
-  * @param {!r5js.Datum} inputDatum The input datum.
+  * @param {!Datum} inputDatum The input datum.
   * @param {!Object<string, boolean>} literalIds Dictionary of literal ids.
-  * @param {!r5js.IEnvironment} definitionEnv Definition environment.
-  * @param {!r5js.IEnvironment} useEnv Use environment.
-  * @param {!r5js.TemplateBindings} bindings Template bindings.
+  * @param {!IEnvironment} definitionEnv Definition environment.
+  * @param {!IEnvironment} useEnv Use environment.
+  * @param {!TemplateBindings} bindings Template bindings.
   * @return {boolean} True iff the transformer is a match (?)
   * TODO bl: what is the use of the value type in the literalIds dictionary?
   */
  matchInput(inputDatum, literalIds, definitionEnv, useEnv, bindings) {}
 
  /**
-  * @param {!r5js.TemplateBindings} bindings Template bindings.
-  * @return {!r5js.Datum}
+  * @param {!TemplateBindings} bindings Template bindings.
+  * @return {!Datum}
   */
  toDatum(bindings) {}
-};
+}
+
+exports = ITransformer;
