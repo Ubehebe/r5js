@@ -47,7 +47,7 @@ const Vector = goog.require('r5js.ast.Vector');
  * @return {string}
  */
 function toDisplayString(value) {
-  return toString_(false /* includeSigils */, value);
+  return toString(false /* includeSigils */, value);
 }
 
 /**
@@ -55,16 +55,15 @@ function toDisplayString(value) {
  * @return {string}
  */
 function toWriteString(value) {
-  return toString_(true /* includeSigils */, value);
+  return toString(true /* includeSigils */, value);
 }
 
 /**
  * @param {boolean} includeSigils
  * @param {!Value} value
  * @return {string}
- * @private
  */
-function toString_(includeSigils, value) {
+function toString(includeSigils, value) {
   switch (typeof value) {
     case 'number':
       return value + '';
@@ -78,10 +77,10 @@ function toString_(includeSigils, value) {
       } else if (value === EOF) {
         return '<eof>';
       } else if (value instanceof Ref) {
-        return toString_(includeSigils, value.deref());
+        return toString(includeSigils, value.deref());
       } else if (value instanceof List || value instanceof DottedList) {
         const children = value.mapChildren(
-            goog.partial(toString_, includeSigils));
+            goog.partial(toString, includeSigils));
         if ((value instanceof List && value.isImproperList())
             || value instanceof DottedList) {
           children.splice(children.length - 1, 0, Terminals.DOT);
@@ -91,7 +90,7 @@ function toString_(includeSigils, value) {
             Terminals.RPAREN;
       } else if (value instanceof Vector) {
         const childStrings = value.mapChildren(
-            goog.partial(toString_, includeSigils)).join(' ');
+            goog.partial(toString, includeSigils)).join(' ');
         return Terminals.LPAREN_VECTOR +
             childStrings +
             Terminals.RPAREN;
@@ -114,7 +113,7 @@ function toString_(includeSigils, value) {
           return value.getPayload();
         }
       } else if (value instanceof Quote) {
-        return Terminals.TICK + toString_(
+        return Terminals.TICK + toString(
             includeSigils,
             /** @type {!Value} */ (value.getFirstChild()));
       } else if (value instanceof UserDefinedProcedure) {
@@ -126,7 +125,7 @@ function toString_(includeSigils, value) {
       } else if (OutputPort.isImplementedBy(value)) {
         return '<output-port>';
       } else if (value instanceof Datum) {
-        return toString_(includeSigils, value.unwrap());
+        return toString(includeSigils, value.unwrap());
       } else if (value instanceof Environment) {
         return '<environment-specifier>';
       }
