@@ -14,12 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 goog.provide('r5js.Assignment');
-goog.provide('r5js.TopLevelAssignment');
-goog.provide('r5js.TopLevelSyntaxAssignment');
 goog.provide('r5js.newAssignment');
-goog.provide('r5js.newTopLevelAssignment');
-goog.provide('r5js.newTopLevelSyntaxAssignment');
-
 
 goog.require('r5js.Macro');
 goog.require('r5js.ProcCallLike');
@@ -100,41 +95,6 @@ r5js.Assignment.prototype.mutateEnv = function(name, val) {
 
 
 
-/**
- * @param {r5js.Datum} firstOperand
- * @extends {r5js.Assignment}
- * @struct
- * @constructor
- */
-r5js.TopLevelAssignment = function(firstOperand) {
-  r5js.TopLevelAssignment.base(this, 'constructor', firstOperand);
-};
-goog.inherits(r5js.TopLevelAssignment, r5js.Assignment);
-
-
-/** @override */
-r5js.TopLevelAssignment.prototype.mutateEnv = function(name, val) {
-  this.getEnv().mutate(name, val, true /* isTopLevel */);
-};
-
-
-
-/**
- * @param {r5js.Datum} firstOperand
- * @extends {r5js.TopLevelAssignment}
- * @struct
- * @constructor
- */
-r5js.TopLevelSyntaxAssignment = function(firstOperand) {
-  r5js.TopLevelSyntaxAssignment.base(this, 'constructor', firstOperand);
-};
-goog.inherits(r5js.TopLevelSyntaxAssignment, r5js.TopLevelAssignment);
-
-
-/** @override */
-r5js.TopLevelSyntaxAssignment.prototype.checkForImproperSyntaxAssignment =
-    goog.nullFunction;
-
 
 /**
  * @param {string} dstName
@@ -148,35 +108,6 @@ r5js.newAssignment = function(dstName, srcName) {
         .toSiblings();
   return new r5js.Assignment(operands);
 };
-
-
-/**
- * @param {string} dstName
- * @param {string} srcName
- * @return {!r5js.ProcCallLike}
- */
-r5js.newTopLevelAssignment = function(dstName, srcName) {
-  const operands = new r5js.SiblingBuffer()
-        .appendSibling(new r5js.ast.Identifier(dstName))
-        .appendSibling(new r5js.ast.Identifier(srcName))
-        .toSiblings();
-  return new r5js.TopLevelAssignment(operands);
-};
-
-
-/**
- * @param {string} dstName
- * @param {string} srcName
- * @return {!r5js.ProcCallLike}
- */
-r5js.newTopLevelSyntaxAssignment = function(dstName, srcName) {
-  const operands = new r5js.SiblingBuffer()
-        .appendSibling(new r5js.ast.Identifier(dstName))
-        .appendSibling(new r5js.ast.Identifier(srcName))
-        .toSiblings();
-  return new r5js.TopLevelSyntaxAssignment(operands);
-};
-
 
 
 

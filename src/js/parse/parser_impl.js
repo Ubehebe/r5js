@@ -33,6 +33,8 @@ goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateIdTransformer');
+goog.require('r5js.TopLevelAssignment');
+goog.require('r5js.TopLevelSyntaxAssignment');
 goog.require('r5js.UserDefinedProcedure');
 goog.require('r5js.VACUOUS_PROGRAM');
 goog.require('r5js.VarargsUserDefinedProcedure');
@@ -502,7 +504,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
       const last = r5js.ProcCallLike.getLast(desugaredExpr);
       const cpsName = last.getResultName();
       last.setNext(
-          r5js.newTopLevelAssignment(variable.getPayload(), cpsName));
+          r5js.TopLevelAssignment.of(variable.getPayload(), cpsName));
       return desugaredExpr;
     }),
     _.list(
@@ -530,7 +532,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
           anonymousName,
           new r5js.UserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name));
-      return r5js.newTopLevelAssignment(name.getPayload(), anonymousName);
+      return r5js.TopLevelAssignment.of(name.getPayload(), anonymousName);
     }),
     _.list(
         _.one(Terminals.DEFINE),
@@ -561,7 +563,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
           anonymousName,
           new r5js.VarargsUserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name));
-      return r5js.newTopLevelAssignment(
+      return r5js.TopLevelAssignment.of(
           /** @type {string} */(name.getPayload()), // TODO bl
           anonymousName);
     }),
@@ -1069,7 +1071,7 @@ r5js.ParserImpl.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
         throw r5js.error.macro(kw, 'all patterns must begin with ' + kw);
       const anonymousName = newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
-      return r5js.newTopLevelSyntaxAssignment(kw, anonymousName);
+      return r5js.TopLevelSyntaxAssignment.of(kw, anonymousName);
     });
 
 });  // goog.scope
