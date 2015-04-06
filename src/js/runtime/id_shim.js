@@ -13,7 +13,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.IdShim');
+goog.provide('r5js.idShim');
 
 
 goog.require('r5js.ProcCallLike');
@@ -22,6 +22,7 @@ goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.error');
+goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
 
@@ -39,16 +40,17 @@ goog.require('r5js.error');
  * @extends {r5js.ProcCallLike}
  * @struct
  * @constructor
+ * @private
  */
-r5js.IdShim = function(payload, opt_continuationName) {
-  r5js.IdShim.base(this, 'constructor', opt_continuationName);
+r5js.IdShim_ = function(payload, opt_continuationName) {
+  r5js.IdShim_.base(this, 'constructor', opt_continuationName);
   /** @const @private */ this.firstOperand_ = payload;
 };
-goog.inherits(r5js.IdShim, r5js.ProcCallLike);
+goog.inherits(r5js.IdShim_, r5js.ProcCallLike);
 
 
 /** @override */
-r5js.IdShim.prototype.evalAndAdvance = function(
+r5js.IdShim_.prototype.evalAndAdvance = function(
     resultStruct, env, parserProvider) {
   let ans;
   if (this.firstOperand_ instanceof r5js.ast.Identifier) {
@@ -83,7 +85,7 @@ r5js.IdShim.prototype.evalAndAdvance = function(
  * @return {?r5js.runtime.Value}
  * @private
  */
-r5js.IdShim.prototype.tryIdentifier_ = function(id) {
+r5js.IdShim_.prototype.tryIdentifier_ = function(id) {
   return this.getEnv().get(/** @type {string} */ (id.getPayload()));
 };
 
@@ -93,7 +95,7 @@ r5js.IdShim.prototype.tryIdentifier_ = function(id) {
  * @return {?r5js.runtime.Value}
  * @private
  */
-r5js.IdShim.prototype.tryQuote_ = function(quote) {
+r5js.IdShim_.prototype.tryQuote_ = function(quote) {
   const env = this.getEnv();
   // Do the appropriate substitutions.
   const ans = quote.replaceChildren(
@@ -139,7 +141,7 @@ r5js.IdShim.prototype.tryQuote_ = function(quote) {
  * @return {r5js.ProcCallLike}
  * @private
  */
-r5js.IdShim.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
+r5js.IdShim_.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
   const continuable = quasiquote.processQuasiquote(
       /** @type {!r5js.IEnvironment} */ (this.getEnv()),
       this.getResultName(),
@@ -149,4 +151,14 @@ r5js.IdShim.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
     r5js.ProcCallLike.appendProcCallLike(continuable, next);
   }
   return continuable;
+};
+
+
+/**
+ * @param {r5js.Datum} payload
+ * @param {string=} opt_continuationName Optional name of the continuation.
+ * @return {!r5js.ProcCallLike}
+ */
+r5js.idShim = function(payload, opt_continuationName) {
+    return new r5js.IdShim_(payload, opt_continuationName);
 };

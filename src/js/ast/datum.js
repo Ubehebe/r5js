@@ -172,7 +172,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
         : null;
     let ans = desugarFn ? desugarFn(this, env) : this;
     if (opt_forceContinuationWrapper && (ans instanceof r5js.Datum)) {
-      ans = new r5js.IdShim(ans);
+      ans = r5js.idShim(ans);
     }
     return ans;
   }
@@ -195,7 +195,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
          wrap them. */
         const desugaredProcCallLike = /**@type {!r5js.ProcCallLike} */ (
             desugared instanceof r5js.Datum ?
-                new r5js.IdShim(desugared) :
+                r5js.idShim(desugared) :
                 desugared);
 
         if (!first) {

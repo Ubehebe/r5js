@@ -26,7 +26,7 @@ goog.require('r5js.DatumType');
 goog.require('r5js.DynamicWindContinuation');
 goog.require('r5js.Environment');
 goog.require('r5js.IEnvironment');
-goog.require('r5js.IdShim');
+goog.require('r5js.idShim');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.ParserImpl');
@@ -885,7 +885,7 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
 
       r5js.ProcCallLike.appendProcCallLike(
           procCallAfter,
-          new r5js.IdShim(
+          r5js.idShim(
               new r5js.ast.Identifier(procCallThunk.getResultName())));
       r5js.ProcCallLike.getLast(procCallAfter).setNext(
           /** @type {!r5js.ProcCallLike} */ (procCallLike.getNext()));
