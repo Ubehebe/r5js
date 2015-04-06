@@ -230,18 +230,21 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.onWrite_ = function(
 
 
 /** @override */
-r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.getType =
-    goog.functions.constant(tdd.TestType.UNIT);
+r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.getType = function() {
+        return tdd.TestType.UNIT;
+};
 
 
 /** @override */
-r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.estimateSize =
-    goog.functions.constant(1);
+r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.estimateSize = function() {
+    return 1;
+};
 
 
 /** @override */
-r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.toString =
-    goog.functions.constant('r5js.test.SchemeTestDriver.TestFrameworkTest_');
+r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.toString = function() {
+    return 'r5js.test.SchemeTestDriver.TestFrameworkTest_';
+};
 
 
 /** @override */
