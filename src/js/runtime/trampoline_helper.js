@@ -16,8 +16,7 @@ class TrampolineHelper {
         /** @const @private */ this.outputPort_ = outputPort;
         /** @private {ProcCallLike} */ this.beforeThunk_ = null;
         /** @private {ProcCallLike} */ this.nextContinuable_ = null;
-        /** @private {!Value} */
-        this.value_ = r5js.runtime.UNSPECIFIED_VALUE;
+        /** @private {!Value} */ this.value_ = UNSPECIFIED_VALUE;
     }
 
     /** Clears the object's state. TODO bl: not {@link beforeThunk}? */

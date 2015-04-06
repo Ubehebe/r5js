@@ -319,9 +319,6 @@ function isParserSensitiveId(name) {
   }
 }
 
-
-
-
 /**
  * According to the R5RS grammar, a sequence of zero datums is a valid program.
  * This object is used to prevent the interpreter from returning null
@@ -329,11 +326,3 @@ function isParserSensitiveId(name) {
  * @const
  */
 r5js.VACUOUS_PROGRAM = new r5js.Datum();
-
-
-/** @const {!r5js.runtime.Value} */
-r5js.runtime.UNSPECIFIED_VALUE = new r5js.Datum();
-
-
-/** @const {!r5js.runtime.Value} */
-r5js.runtime.EOF = new r5js.Datum();

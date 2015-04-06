@@ -13,10 +13,8 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-goog.provide('r5js.runtime.EOF');
 goog.provide('r5js.runtime.ObjectValue');
 goog.provide('r5js.runtime.PrimitiveValue');
-goog.provide('r5js.runtime.UNSPECIFIED_VALUE');
 goog.provide('r5js.runtime.Value');
 
 
