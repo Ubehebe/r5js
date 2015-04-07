@@ -19,11 +19,7 @@ goog.provide('r5js.idShim');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
-goog.require('r5js.ast.Quasiquote');
-goog.require('r5js.ast.Quote');
 goog.require('r5js.error');
-goog.require('r5js.QuasiquoteShim');
-goog.require('r5js.QuoteShim');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 /**
@@ -85,11 +81,5 @@ r5js.IdShim_.prototype.tryIdentifier_ = function(id) {
  * @return {!r5js.ProcCallLike}
  */
 r5js.idShim = function(payload, opt_continuationName) {
-    if (payload instanceof r5js.ast.Quasiquote) {
-        return new r5js.QuasiquoteShim(payload, opt_continuationName);
-    } else if (payload instanceof r5js.ast.Quote) {
-        return new r5js.QuoteShim(payload, opt_continuationName);
-    } else {
-        return new r5js.IdShim_(payload, opt_continuationName);
-    }
+    return new r5js.IdShim_(payload, opt_continuationName);
 };
