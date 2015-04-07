@@ -22,6 +22,7 @@ goog.require('r5js.ast.List');
 goog.require('r5js.ast.Quasiquote');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.error');
+goog.require('r5js.QuasiquoteShim');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 /**
@@ -151,50 +152,6 @@ r5js.QuoteShim_.prototype.tryQuote_ = function(quote) {
         new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
 };
 
-
-/**
- * TODO bl the purpose of this class is unclear.
- * @param {!r5js.ast.Quasiquote} payload
- * @param {string=} opt_continuationName Optional name of the continuation.
- * @extends {r5js.ProcCallLike}
- * @struct
- * @constructor
- * @private
- */
-r5js.QuasiquoteShim_ = function(payload, opt_continuationName) {
-    r5js.QuasiquoteShim_.base(this, 'constructor', opt_continuationName);
-        /** @const @private */ this.firstOperand_ = payload;
-};
-goog.inherits(r5js.QuasiquoteShim_, r5js.ProcCallLike);
-
-/** @override */
-r5js.QuasiquoteShim_.prototype.evalAndAdvance = function(resultStruct, env, parserProvider) {
-    const next = this.tryQuasiquote_(this.firstOperand_, parserProvider);
-    if (next) {
-        resultStruct.setNext(next);
-    }
-};
-
-/**
- * @param {!r5js.ast.Quasiquote} quasiquote
- * @param {function(!r5js.Datum):!r5js.Parser} parserProvider
- * @return {r5js.ProcCallLike}
- * @private
- */
-r5js.QuasiquoteShim_.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
-    const continuable = quasiquote.processQuasiquote(
-        /** @type {!r5js.IEnvironment} */ (this.getEnv()),
-        this.getResultName(),
-        parserProvider);
-    const next = this.getNext();
-    if (next) {
-        r5js.ProcCallLike.appendProcCallLike(continuable, next);
-    }
-    return continuable;
-};
-
-
-
 /**
  * @param {r5js.Datum} payload
  * @param {string=} opt_continuationName Optional name of the continuation.
@@ -202,7 +159,7 @@ r5js.QuasiquoteShim_.prototype.tryQuasiquote_ = function(quasiquote, parserProvi
  */
 r5js.idShim = function(payload, opt_continuationName) {
     if (payload instanceof r5js.ast.Quasiquote) {
-        return new r5js.QuasiquoteShim_(payload, opt_continuationName);
+        return new r5js.QuasiquoteShim(payload, opt_continuationName);
     } else if (payload instanceof r5js.ast.Quote) {
         return new r5js.QuoteShim_(payload, opt_continuationName);
     } else {
