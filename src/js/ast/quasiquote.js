@@ -24,8 +24,9 @@ goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.parse.Nonterminals');
+goog.require('r5js.QuasiquoteShim');
+goog.require('r5js.QuoteShim');
 goog.require('r5js.parse.Terminals');
-// TODO bl circular dependency goog.require('r5js.IdShim');
 
 
 
@@ -107,7 +108,7 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
 
   const newDatum = new r5js.ast.Quote(this.getFirstChild());
 
-  newCalls.appendProcCallLike(r5js.idShim(newDatum, cpsName));
+  newCalls.appendProcCallLike(new r5js.QuoteShim(newDatum, cpsName));
   return /** @type {!r5js.ProcCallLike} */ (newCalls.toContinuable());
 };
 
@@ -116,4 +117,9 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
 r5js.ast.Quasiquote.prototype.setQuasiquotationLevel = function(qqLevel) {
   this.qqLevel = qqLevel + 1;
   return r5js.ast.Quasiquote.base(this, 'setQuasiquotationLevel', this.qqLevel);
+};
+
+/** @override */
+r5js.ast.Quasiquote.prototype.toProcCallLike = function() {
+    return new r5js.QuasiquoteShim(this);
 };

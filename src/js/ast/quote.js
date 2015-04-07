@@ -21,6 +21,7 @@ goog.require('r5js.ast.CompoundDatum');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.QuoteShim');
 
 
 
@@ -59,3 +60,8 @@ r5js.ast.Quote.prototype.cdr = function() {
 
 /** @override */
 r5js.ast.Quote.prototype.fixParserSensitiveIds = goog.nullFunction;
+
+/** @override */
+r5js.ast.Quote.prototype.toProcCallLike = function() {
+    return new r5js.QuoteShim(this);
+};

@@ -172,7 +172,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
         : null;
     let ans = desugarFn ? desugarFn(this, env) : this;
     if (opt_forceContinuationWrapper && (ans instanceof r5js.Datum)) {
-      ans = r5js.idShim(ans);
+      ans = ans.toProcCallLike();
     }
     return ans;
   }
@@ -194,9 +194,9 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
          able to connect the Continuable objects correctly, so we
          wrap them. */
         const desugaredProcCallLike = /**@type {!r5js.ProcCallLike} */ (
-            desugared instanceof r5js.Datum ?
-                r5js.idShim(desugared) :
-                desugared);
+            desugared instanceof r5js.Datum
+                ? desugared.toProcCallLike()
+                : desugared);
 
         if (!first) {
           first = desugaredProcCallLike;
@@ -256,6 +256,11 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
     if (this.nextSibling_) {
       this.nextSibling_.fixParserSensitiveIds(helper);
     }
+  }
+
+  /** @return {!r5js.ProcCallLike} */
+  toProcCallLike() {
+    return r5js.idShim(this);
   }
 
 };
