@@ -24,8 +24,6 @@ goog.require('r5js.ast.Quote');
 goog.require('r5js.error');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
-
-
 /**
  * If a nonterminal in the grammar has no associated desugar function,
  * desugaring it will be a no-op. That is often the right behavior,
@@ -52,31 +50,20 @@ goog.inherits(r5js.IdShim_, r5js.ProcCallLike);
 /** @override */
 r5js.IdShim_.prototype.evalAndAdvance = function(
     resultStruct, env, parserProvider) {
-  let ans;
-  if (this.firstOperand_ instanceof r5js.ast.Identifier) {
-    ans = this.tryIdentifier_(this.firstOperand_);
-  } else if (this.firstOperand_ instanceof r5js.ast.Quote) {
-    ans = this.tryQuote_(this.firstOperand_);
-  } else if (this.firstOperand_ instanceof r5js.ast.Quasiquote) {
-    const next = this.tryQuasiquote_(this.firstOperand_, parserProvider);
-    if (next) {
-      resultStruct.setNext(next);
+    const ans = this.firstOperand_ instanceof r5js.ast.Identifier
+        ? this.tryIdentifier_(this.firstOperand_)
+        : this.firstOperand_;
+
+    if (ans !== null) {
+        this.bindResult(ans);
+        resultStruct.setValue(ans);
     }
-    return; // TODO bl odd control flow
-  } else {
-    ans = this.firstOperand_;
-  }
 
-  if (ans !== null) {
-    this.bindResult(ans);
-    resultStruct.setValue(ans);
-  }
+    const nextContinuable = this.getNext();
 
-  const nextContinuable = this.getNext();
-
-  if (nextContinuable) {
-    resultStruct.setNext(nextContinuable);
-  }
+    if (nextContinuable) {
+        resultStruct.setNext(nextContinuable);
+    }
 };
 
 
@@ -91,49 +78,102 @@ r5js.IdShim_.prototype.tryIdentifier_ = function(id) {
 
 
 /**
+ * TODO bl the purpose of this class is unclear.
+ * @param {!r5js.ast.Quote} payload
+ * @param {string=} opt_continuationName Optional name of the continuation.
+ * @extends {r5js.ProcCallLike}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.QuoteShim_ = function(payload, opt_continuationName) {
+    r5js.QuoteShim_.base(this, 'constructor', opt_continuationName);
+    /** @const @private */ this.firstOperand_ = payload;
+};
+goog.inherits(r5js.QuoteShim_, r5js.ProcCallLike);
+
+/** @override */
+r5js.QuoteShim_.prototype.evalAndAdvance = function(resultStruct, env, parserProvider) {
+    const ans = this.tryQuote_(this.firstOperand_);
+    if (ans !== null) {
+        this.bindResult(ans);
+        resultStruct.setValue(ans);
+    }
+
+    const nextContinuable = this.getNext();
+
+    if (nextContinuable) {
+        resultStruct.setNext(nextContinuable);
+    }
+};
+
+/**
  * @param {!r5js.ast.Quote} quote
  * @return {?r5js.runtime.Value}
  * @private
  */
-r5js.IdShim_.prototype.tryQuote_ = function(quote) {
-  const env = this.getEnv();
-  // Do the appropriate substitutions.
-  const ans = quote.replaceChildren(
-      function(node) {
-        return node instanceof r5js.ast.Identifier && node.shouldUnquote();
-      },
-      function(node) {
-        const result = env.get(
-            /** @type {string} */ ((
-            /** @type {!r5js.ast.Identifier} */ (node)).
-            getPayload()));
-        let ans = result === null ?
-            r5js.runtime.UNSPECIFIED_VALUE :
-            r5js.datumutil.wrapValue(result);
-        // TODO bl document why we're doing this
-        if (ans instanceof r5js.Ref) {
-          ans = ans.deref();
-        }
-        if (node instanceof r5js.ast.Identifier &&
-                node.shouldUnquoteSplice()) {
-          if (ans instanceof r5js.ast.List) {
-            if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
-              ans = ans.getFirstChild();
-            } else { // `(1 ,@(list) 2) => (1 2)
-              ans = null;
+r5js.QuoteShim_.prototype.tryQuote_ = function(quote) {
+    const env = this.getEnv();
+    // Do the appropriate substitutions.
+    const ans = quote.replaceChildren(
+        function(node) {
+            return node instanceof r5js.ast.Identifier && node.shouldUnquote();
+        },
+        function(node) {
+            const result = env.get(
+                /** @type {string} */ ((
+                /** @type {!r5js.ast.Identifier} */ (node)).
+                    getPayload()));
+            let ans = result === null ?
+                r5js.runtime.UNSPECIFIED_VALUE :
+                r5js.datumutil.wrapValue(result);
+            // TODO bl document why we're doing this
+            if (ans instanceof r5js.Ref) {
+                ans = ans.deref();
             }
-          } else throw r5js.error.quasiquote(ans + ' is not a list');
-        }
-        return /** @type {r5js.Datum} */ (ans);
-      });
-  // Now strip away the quote mark.
-  // the newIdOrLiteral part is for (quote quote)
-  return (ans instanceof r5js.ast.CompoundDatum &&
-      ans.getFirstChild()) ?
-      ans.getFirstChild() :
-      new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
+            if (node instanceof r5js.ast.Identifier &&
+                node.shouldUnquoteSplice()) {
+                if (ans instanceof r5js.ast.List) {
+                    if (ans.getFirstChild()) { // `(1 ,@(list 2 3) 4) => (1 2 3 4)
+                        ans = ans.getFirstChild();
+                    } else { // `(1 ,@(list) 2) => (1 2)
+                        ans = null;
+                    }
+                } else throw r5js.error.quasiquote(ans + ' is not a list');
+            }
+            return /** @type {r5js.Datum} */ (ans);
+        });
+    // Now strip away the quote mark.
+    // the newIdOrLiteral part is for (quote quote)
+    return (ans instanceof r5js.ast.CompoundDatum &&
+    ans.getFirstChild()) ?
+        ans.getFirstChild() :
+        new r5js.ast.Identifier(r5js.parse.Terminals.QUOTE);
 };
 
+
+/**
+ * TODO bl the purpose of this class is unclear.
+ * @param {!r5js.ast.Quasiquote} payload
+ * @param {string=} opt_continuationName Optional name of the continuation.
+ * @extends {r5js.ProcCallLike}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.QuasiquoteShim_ = function(payload, opt_continuationName) {
+    r5js.QuasiquoteShim_.base(this, 'constructor', opt_continuationName);
+        /** @const @private */ this.firstOperand_ = payload;
+};
+goog.inherits(r5js.QuasiquoteShim_, r5js.ProcCallLike);
+
+/** @override */
+r5js.QuasiquoteShim_.prototype.evalAndAdvance = function(resultStruct, env, parserProvider) {
+    const next = this.tryQuasiquote_(this.firstOperand_, parserProvider);
+    if (next) {
+        resultStruct.setNext(next);
+    }
+};
 
 /**
  * @param {!r5js.ast.Quasiquote} quasiquote
@@ -141,17 +181,18 @@ r5js.IdShim_.prototype.tryQuote_ = function(quote) {
  * @return {r5js.ProcCallLike}
  * @private
  */
-r5js.IdShim_.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
-  const continuable = quasiquote.processQuasiquote(
-      /** @type {!r5js.IEnvironment} */ (this.getEnv()),
-      this.getResultName(),
-      parserProvider);
-  const next = this.getNext();
-  if (next) {
-    r5js.ProcCallLike.appendProcCallLike(continuable, next);
-  }
-  return continuable;
+r5js.QuasiquoteShim_.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
+    const continuable = quasiquote.processQuasiquote(
+        /** @type {!r5js.IEnvironment} */ (this.getEnv()),
+        this.getResultName(),
+        parserProvider);
+    const next = this.getNext();
+    if (next) {
+        r5js.ProcCallLike.appendProcCallLike(continuable, next);
+    }
+    return continuable;
 };
+
 
 
 /**
@@ -160,5 +201,11 @@ r5js.IdShim_.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
  * @return {!r5js.ProcCallLike}
  */
 r5js.idShim = function(payload, opt_continuationName) {
-    return new r5js.IdShim_(payload, opt_continuationName);
+    if (payload instanceof r5js.ast.Quasiquote) {
+        return new r5js.QuasiquoteShim_(payload, opt_continuationName);
+    } else if (payload instanceof r5js.ast.Quote) {
+        return new r5js.QuoteShim_(payload, opt_continuationName);
+    } else {
+        return new r5js.IdShim_(payload, opt_continuationName);
+    }
 };
