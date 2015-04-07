@@ -1,20 +1,4 @@
-/* Copyright 2011-2014 Brendan Linn
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 goog.provide('r5js.ast.Quasiquote');
-
 
 goog.require('r5js.ContinuableHelper');
 goog.require('r5js.ProcCallLike');
@@ -24,10 +8,7 @@ goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.parse.Nonterminals');
-goog.require('r5js.QuasiquoteShim');
 goog.require('r5js.parse.Terminals');
-
-
 
 /**
  * @param {r5js.Datum} firstChild
@@ -120,5 +101,46 @@ r5js.ast.Quasiquote.prototype.setQuasiquotationLevel = function(qqLevel) {
 
 /** @override */
 r5js.ast.Quasiquote.prototype.toProcCallLike = function() {
-    return new r5js.QuasiquoteShim(this);
+    return new r5js.QuasiquoteShim_(this);
+};
+
+/**
+ * TODO bl the purpose of this class is unclear.
+ * @param {!r5js.ast.Quasiquote} payload
+ * @param {string=} opt_continuationName Optional name of the continuation.
+ * @extends {r5js.ProcCallLike}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.QuasiquoteShim_ = function(payload, opt_continuationName) {
+    r5js.QuasiquoteShim_.base(this, 'constructor', opt_continuationName);
+    /** @const @private */ this.firstOperand_ = payload;
+};
+goog.inherits(r5js.QuasiquoteShim_, r5js.ProcCallLike);
+
+/** @override */
+r5js.QuasiquoteShim_.prototype.evalAndAdvance = function(resultStruct, env, parserProvider) {
+    const next = this.tryQuasiquote_(this.firstOperand_, parserProvider);
+    if (next) {
+        resultStruct.setNext(next);
+    }
+};
+
+/**
+ * @param {!r5js.ast.Quasiquote} quasiquote
+ * @param {function(!r5js.Datum):!r5js.Parser} parserProvider
+ * @return {r5js.ProcCallLike}
+ * @private
+ */
+r5js.QuasiquoteShim_.prototype.tryQuasiquote_ = function(quasiquote, parserProvider) {
+    const continuable = quasiquote.processQuasiquote(
+        /** @type {!r5js.IEnvironment} */ (this.getEnv()),
+        this.getResultName(),
+        parserProvider);
+    const next = this.getNext();
+    if (next) {
+        r5js.ProcCallLike.appendProcCallLike(continuable, next);
+    }
+    return continuable;
 };
