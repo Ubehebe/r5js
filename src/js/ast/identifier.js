@@ -55,4 +55,59 @@ r5js.ast.Identifier = /** @extends {r5js.ast.SimpleDatum<string>} */ class exten
             }
         }
     }
+
+    /** @override */
+    toProcCallLike() {
+        return new r5js.IdShim_(this);
+    }
+};
+
+/**
+ * If a nonterminal in the grammar has no associated desugar function,
+ * desugaring it will be a no-op. That is often the right behavior,
+ * but sometimes we would like to wrap the datum in a Continuable
+ * object for convenience on the trampoline. For example, the program
+ * "1 (+ 2 3)" should be desugared as (id 1 [_0 (+ 2 3 [_1 ...])]).
+ *
+ * We represent these id shims as ProcCalls whose operatorNames are null
+ * and whose firstOperand is the payload.
+ * @param {!r5js.ast.Identifier} payload
+ * @param {string=} opt_continuationName Optional name of the continuation.
+ * @extends {r5js.ProcCallLike}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.IdShim_ = function(payload, opt_continuationName) {
+    r5js.IdShim_.base(this, 'constructor', opt_continuationName);
+    /** @const @private */ this.firstOperand_ = payload;
+};
+goog.inherits(r5js.IdShim_, r5js.ProcCallLike);
+
+
+/** @override */
+r5js.IdShim_.prototype.evalAndAdvance = function(
+    resultStruct, env, parserProvider) {
+    const ans = this.tryIdentifier_(this.firstOperand_);
+
+    if (ans !== null) {
+        this.bindResult(ans);
+        resultStruct.setValue(ans);
+    }
+
+    const nextContinuable = this.getNext();
+
+    if (nextContinuable) {
+        resultStruct.setNext(nextContinuable);
+    }
+};
+
+
+/**
+ * @param {!r5js.ast.Identifier} id
+ * @return {?r5js.runtime.Value}
+ * @private
+ */
+r5js.IdShim_.prototype.tryIdentifier_ = function(id) {
+    return this.getEnv().get(/** @type {string} */ (id.getPayload()));
 };

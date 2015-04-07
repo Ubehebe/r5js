@@ -1,11 +1,9 @@
 goog.provide('r5js.Datum');
 goog.provide('r5js.ast.Literal');
 
-
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.ObjectValue');
-
 
 /** @typedef {function(!r5js.Datum, !r5js.IEnvironment):
 * (!r5js.Datum|!r5js.ProcCallLike|!r5js.ITransformer|!r5js.Macro|null)}
@@ -259,7 +257,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
 
   /** @return {!r5js.ProcCallLike} */
   toProcCallLike() {
-    return r5js.idShim(this);
+    return new r5js.DatumShim_(this);
   }
 
 };
@@ -321,3 +319,31 @@ function isParserSensitiveId(name) {
       return false;
   }
 }
+
+/**
+ * @param {r5js.Datum} payload
+ * @param {string=} opt_continuationName Optional name of the continuation.
+ * @extends {r5js.ProcCallLike}
+ * @struct
+ * @constructor
+ * @private
+ */
+r5js.DatumShim_ = function (payload, opt_continuationName) {
+  r5js.DatumShim_.base(this, 'constructor', opt_continuationName);
+  /** @const @private */ this.firstOperand_ = payload;
+};
+goog.inherits(r5js.DatumShim_, r5js.ProcCallLike);
+
+/** @override */
+r5js.DatumShim_.prototype.evalAndAdvance = function (resultStruct, env, parserProvider) {
+  if (this.firstOperand_ !== null) {
+    this.bindResult(this.firstOperand_);
+    resultStruct.setValue(this.firstOperand_);
+  }
+
+  const nextContinuable = this.getNext();
+
+  if (nextContinuable) {
+    resultStruct.setNext(nextContinuable);
+  }
+};

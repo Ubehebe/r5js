@@ -22,7 +22,6 @@ goog.require('r5js.Datum');
 goog.require('r5js.DatumStreamImpl');
 goog.require('r5js.DottedListTransformer');
 goog.require('r5js.EllipsisTransformer');
-goog.require('r5js.idShim');
 goog.require('r5js.ListTransformer');
 goog.require('r5js.Macro');
 goog.require('r5js.Parser');
@@ -442,7 +441,7 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
           : new r5js.UserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name);
       env.addClosure(name, proc);
-      return r5js.idShim(new r5js.ast.Identifier(name));
+      return new r5js.ast.Identifier(name).toProcCallLike();
         });
 
 
@@ -610,7 +609,7 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
       const branch = new r5js.Branch(
           testEndpoint.getResultName(),
           consequent,
-          r5js.idShim(r5js.runtime.UNSPECIFIED_VALUE));
+          r5js.runtime.UNSPECIFIED_VALUE.toProcCallLike());
       testEndpoint.setNext(branch);
       return test;
     }));
