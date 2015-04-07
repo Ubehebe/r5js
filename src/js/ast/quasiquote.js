@@ -25,7 +25,6 @@ goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.QuasiquoteShim');
-goog.require('r5js.QuoteShim');
 goog.require('r5js.parse.Terminals');
 
 
@@ -108,7 +107,7 @@ r5js.ast.Quasiquote.prototype.processQuasiquote = function(
 
   const newDatum = new r5js.ast.Quote(this.getFirstChild());
 
-  newCalls.appendProcCallLike(new r5js.QuoteShim(newDatum, cpsName));
+  newCalls.appendProcCallLike(newDatum.toProcCallLike());
   return /** @type {!r5js.ProcCallLike} */ (newCalls.toContinuable());
 };
 
