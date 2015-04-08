@@ -1,7 +1,6 @@
 goog.provide('r5js.Macro');
 
 goog.require('r5js.ProcCallLike');
-// TODO bl circular dependency goog.require('r5js.Environment');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
@@ -243,7 +242,7 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
      */
     evaluate(rawDatum, procCallLike, resultStruct, parserProvider) {
         var oldEnv = procCallLike.getEnv();
-        var newEnv = new r5js.Environment(oldEnv);
+        var newEnv = oldEnv.child();
         var newParseTree = this.transcribe(rawDatum, newEnv, parserProvider);
 
         var next = procCallLike.getNext();

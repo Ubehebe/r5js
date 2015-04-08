@@ -221,5 +221,10 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
     setClosuresFrom(otherEnv) {
         this.closures_ = otherEnv.closures_;
     }
+
+    /** @override */
+    child() {
+        return new r5js.Environment(this);
+    }
 };
 r5js.IEnvironment.addImplementation(r5js.Environment);

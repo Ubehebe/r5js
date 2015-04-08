@@ -28,7 +28,7 @@ goog.require('r5js.ast.Literal');
  * @template T
  */
 r5js.ast.SimpleDatum = function(payload) {
-  r5js.ast.SimpleDatum.base(this, 'constructor');
+  r5js.ast.SimpleDatum.base(this, 'constructor', null /* TODO bl compiler bug? */);
 
   /** @protected {T} */ this.payload = payload;
 };

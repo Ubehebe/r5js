@@ -148,6 +148,9 @@ r5js.IEnvironment = /** @interface @extends {r5js.runtime.ObjectValue} */ class 
   * add to them.
   */
  seal() {}
+
+ /** @return {!r5js.IEnvironment} */
+ child() {}
 };
 
 
