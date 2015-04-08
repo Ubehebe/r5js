@@ -1,42 +1,22 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.ast.Unquote');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const Datum = goog.require('r5js.Datum');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+class Unquote extends CompoundDatum {
+    /** @param {Datum} firstChild */
+    constructor(firstChild) {
+        super();
+        if (firstChild) {
+            this.setFirstChild(firstChild);
+        }
+    }
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
+    /** @override */
+    setQuasiquotationLevel(qqLevel) {
+        this.qqLevel = qqLevel;
+        return super.setQuasiquotationLevel(qqLevel - 1);
+    }
+}
 
-goog.provide('r5js.ast.Unquote');
-
-
-goog.require('r5js.ast.CompoundDatum');
-
-
-
-/**
- * @param {r5js.Datum} firstChild
- * @extends {r5js.ast.CompoundDatum}
- * @struct
- * @constructor
- */
-r5js.ast.Unquote = function(firstChild) {
-  r5js.ast.Unquote.base(this, 'constructor');
-  if (firstChild) {
-    this.setFirstChild(firstChild);
-  }
-};
-goog.inherits(r5js.ast.Unquote, r5js.ast.CompoundDatum);
-
-
-/** @override */
-r5js.ast.Unquote.prototype.setQuasiquotationLevel = function(qqLevel) {
-  this.qqLevel = qqLevel;
-  return r5js.ast.Unquote.base(this, 'setQuasiquotationLevel', qqLevel - 1);
-};
+exports = Unquote;
