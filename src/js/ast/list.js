@@ -105,24 +105,22 @@ r5js.ast.List.prototype.car = function() {
  * @suppress {checkTypes} for setNextSibling(null).
  */
 r5js.ast.List.prototype.cdr = function() {
-  const startOfCdr = this.getFirstChild().getNextSibling();
-  let ans;
-  if (startOfCdr) {
+    const startOfCdr = this.getFirstChild().getNextSibling();
+    if (!startOfCdr) {
+        return new r5js.SiblingBuffer().toList(r5js.ast.List);
+    }
+
     if (startOfCdr.getNextSibling() || !this.dirty_) {
-      // TODO bl investigate why this is happening
-      if (startOfCdr.getNextSibling() === startOfCdr) {
-        startOfCdr.setNextSibling(null);
-      }
-      ans = new r5js.SiblingBuffer().appendSibling(startOfCdr).toList(
-          this.dotted_ ? r5js.ast.DottedList : r5js.ast.List);
+        // TODO bl investigate why this is happening
+        if (startOfCdr.getNextSibling() === startOfCdr) {
+            startOfCdr.setNextSibling(null);
+        }
+        const ans = new r5js.SiblingBuffer()
+            .appendSibling(startOfCdr)
+            .toList(this.dotted_ ? r5js.ast.DottedList : r5js.ast.List);
+        ans.setCdrHelper(new r5js.CdrHelper(this, startOfCdr));
+        return ans;
     } else {
-      ans = startOfCdr;
+        return startOfCdr;
     }
-    if (ans instanceof r5js.ast.CompoundDatum) {
-      ans.setCdrHelper(new r5js.CdrHelper(this, startOfCdr));
-    }
-    return ans;
-  } else {
-    return new r5js.SiblingBuffer().toList(r5js.ast.List);
-  }
 };
