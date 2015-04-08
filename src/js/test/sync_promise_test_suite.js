@@ -23,6 +23,7 @@ goog.require('goog.string');
 goog.require('tdd.LogLevel');
 goog.require('tdd.LogRecord');
 goog.require('tdd.ManualTestSuite');
+goog.require('tdd.ResultStruct');
 goog.require('tdd.TestType');
 
 

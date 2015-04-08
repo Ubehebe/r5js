@@ -2,7 +2,7 @@ goog.module('r5js.SchemeSources');
 
 const procedures = goog.require('PROCEDURES');
 const syntax = goog.require('SYNTAX');
-const promise = goog.require('goog.Promise');
+const Promise = goog.require('goog.Promise');
 
 class SchemeSources {
     constructor() {
@@ -10,9 +10,9 @@ class SchemeSources {
         /** @const */ this.procedures = procedures;
     }
 
-    /** @return {!goog.Promise<!r5js.SchemeSources>} */
+    /** @return {!Promise<!SchemeSources>} */
     static get() {
-        return promise.resolve(new r5js.SchemeSources());
+        return Promise.resolve(new SchemeSources());
     }
 }
 

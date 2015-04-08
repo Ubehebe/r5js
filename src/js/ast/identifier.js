@@ -19,6 +19,7 @@ goog.provide('r5js.ast.Identifier');
 goog.require('r5js.Datum');
 goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.ProcCallLike');
 
 
 
