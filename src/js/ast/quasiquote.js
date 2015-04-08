@@ -45,12 +45,11 @@ class Quasiquote extends CompoundDatum {
     /**
      * Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])])
      * @param {!IEnvironment} env TODO bl.
-     * @param {string} cpsName TODO bl.
      * @param {function(!Datum):!r5js.Parser} parserProvider Function
      * that will return a new Parser for the given Datum when called.
      * @return {!ProcCallLike}
      */
-    processQuasiquote(env, cpsName, parserProvider) {
+    processQuasiquote(env, parserProvider) {
         const newCalls = new ContinuableHelper();
         const qqLevel = this.qqLevel;
 
@@ -122,9 +121,7 @@ class QuasiquoteShim extends ProcCallLike {
      */
     tryQuasiquote_(quasiquote, parserProvider) {
         const continuable = quasiquote.processQuasiquote(
-            /** @type {!IEnvironment} */ (this.getEnv()),
-            this.getResultName(),
-            parserProvider);
+            /** @type {!IEnvironment} */ (this.getEnv()), parserProvider);
         const next = this.getNext();
         if (next) {
             ProcCallLike.appendProcCallLike(continuable, next);

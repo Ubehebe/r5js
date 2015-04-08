@@ -123,8 +123,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
       finalArgs.appendSibling(arg.clone(null /* parent */));
     } else if (arg instanceof r5js.ast.Quasiquote) {
       maybeContinuable = arg.processQuasiquote(
-          /** @type {!r5js.IEnvironment} */ (this.getEnv()),
-          this.getResultName(), parserProvider);
+          /** @type {!r5js.IEnvironment} */ (this.getEnv()), parserProvider);
       finalArgs.appendSibling(
           new r5js.ast.Identifier(r5js.ProcCallLike.getLast(
           maybeContinuable).getResultName()));
