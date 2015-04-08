@@ -23,13 +23,13 @@
         <dependency>
             <groupId>com.google.javascript</groupId>
             <artifactId>closure-compiler</artifactId>
-            <version>v20150126</version>
+            <version>v20150315</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.javascript</groupId>
             <artifactId>closure-compiler-externs</artifactId>
-            <version>v20150126</version>
+            <version>v20150315</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
