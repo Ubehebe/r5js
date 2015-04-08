@@ -378,7 +378,11 @@ PrimitiveProcedures['truncate'] = _.unary(function(x) {
 
 PrimitiveProcedures['car'] = _.unary(p => p.car(), r5js.DatumType.PAIR);
 
-PrimitiveProcedures['cdr'] = _.unary(p => p.cdr(), r5js.DatumType.PAIR);
+PrimitiveProcedures['cdr'] = _.unary(p => {
+      const cdr = p.cdr();
+      cdr.setCdrHelper(new r5js.CdrHelper(p, cdr.getFirstChild()));
+      return cdr;
+    }, r5js.DatumType.PAIR);
 
 PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
   // todo bl this is really expensive! can we cut down on the copying?
