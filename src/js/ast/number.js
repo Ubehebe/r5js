@@ -1,13 +1,13 @@
-goog.provide('r5js.ast.Number');
+goog.module('r5js.ast.Number');
 
+const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 
-goog.require('r5js.ast.SimpleDatum');
-
-
-
-r5js.ast.Number = /** @extends {r5js.ast.SimpleDatum<number>} */ class extends r5js.ast.SimpleDatum {
+/** @extends {SimpleDatum<number>} */
+class Number extends SimpleDatum {
  /** @param {number} x */
   constructor(x) {
    super(x);
   }
-};
+}
+
+exports = Number;
