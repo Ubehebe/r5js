@@ -1,5 +1,4 @@
 goog.provide('r5js.Datum');
-goog.provide('r5js.ast.Literal');
 
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.parse.Terminals');
@@ -262,7 +261,15 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
 
 };
 
-r5js.ast.Literal = class extends r5js.Datum {};
+/**
+ * Not a valid identifier prefix so we can easily tell these apart.
+ * @const
+ */
+r5js.Datum.CPS_PREFIX_ = '@';
+
+
+/** @const */
+r5js.Datum.PROC_PREFIX_ = 'proc';
 
 
 /** @return {string} */
@@ -281,19 +288,6 @@ function newAnonymousLambdaName() {
     parameter could reduce garbage. */
   return r5js.Datum.PROC_PREFIX_ + goog.getUid(new Object());
 }
-
-
-/**
- * Not a valid identifier prefix so we can easily tell these apart.
- * @const {string}
- * @private
- */
-r5js.Datum.CPS_PREFIX_ = '@';
-
-
-/** @const @private {string} */
-r5js.Datum.PROC_PREFIX_ = 'proc';
-
 
 /**
  * See comments at the top of Parser.
