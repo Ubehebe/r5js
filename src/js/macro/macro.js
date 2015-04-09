@@ -1,5 +1,6 @@
 goog.provide('r5js.Macro');
 
+goog.require('r5js.Datum');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateBindings');
@@ -180,7 +181,7 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
                 for (var id in candidates) {
                     if (this.definitionEnv_.hasBindingRecursive(id))
                         useEnv.addBinding(id, this.definitionEnv_);
-                    else if (!isParserSensitiveId(id)) {
+                    else if (!r5js.Datum.isParserSensitiveId(id)) {
                         var tmpName = r5js.RenameUtil.newCpsName();
                         toRename[id] = tmpName;
                         /* If the TemplateBindings object has detected that the same

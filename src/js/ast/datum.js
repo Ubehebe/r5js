@@ -259,32 +259,32 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
     return new r5js.DatumShim_(this);
   }
 
+  /**
+   * See comments at the top of Parser.
+   * @param {string} name identifier name to check.
+   * @return {boolean} True iff the given name is parser-sensitive.
+   */
+  static isParserSensitiveId(name) {
+    switch (name) {
+      case r5js.parse.Terminals.BEGIN:
+      case r5js.parse.Terminals.DEFINE:
+      case r5js.parse.Terminals.DEFINE_SYNTAX:
+      case r5js.parse.Terminals.IF:
+      case r5js.parse.Terminals.LAMBDA:
+      case r5js.parse.Terminals.LET_SYNTAX:
+      case r5js.parse.Terminals.LETREC_SYNTAX:
+      case r5js.parse.Terminals.QUASIQUOTE:
+      case r5js.parse.Terminals.QUOTE:
+      case r5js.parse.Terminals.SET:
+      case r5js.parse.Terminals.UNQUOTE:
+      case r5js.parse.Terminals.UNQUOTE_SPLICING:
+        return true;
+      default:
+        return false;
+    }
+  }
 };
 
-/**
- * See comments at the top of Parser.
- * @param {string} name identifier name to check.
- * @return {boolean} True iff the given name is parser-sensitive.
- */
-function isParserSensitiveId(name) {
-  switch (name) {
-    case r5js.parse.Terminals.BEGIN:
-    case r5js.parse.Terminals.DEFINE:
-    case r5js.parse.Terminals.DEFINE_SYNTAX:
-    case r5js.parse.Terminals.IF:
-    case r5js.parse.Terminals.LAMBDA:
-    case r5js.parse.Terminals.LET_SYNTAX:
-    case r5js.parse.Terminals.LETREC_SYNTAX:
-    case r5js.parse.Terminals.QUASIQUOTE:
-    case r5js.parse.Terminals.QUOTE:
-    case r5js.parse.Terminals.SET:
-    case r5js.parse.Terminals.UNQUOTE:
-    case r5js.parse.Terminals.UNQUOTE_SPLICING:
-      return true;
-    default:
-      return false;
-  }
-}
 
 /**
  * @param {r5js.Datum} payload

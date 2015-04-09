@@ -133,15 +133,15 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsLambda_ = function(
 
   if (formalRoot instanceof r5js.ast.Identifier) { // (lambda x ...)
     let id = formalRoot.getPayload();
-    if (isParserSensitiveId(id)) {
+    if (r5js.Datum.isParserSensitiveId(id)) {
       formalRoot.setPayload(newHelper.addRenameBinding(id));
     }
   } else { // (lambda (x y) ...) or (lambda (x . y) ...)
     (/** @type {!r5js.ast.CompoundDatum} */ (formalRoot)).forEachChild(
         function(child) {
           child = /** @type {!r5js.ast.Identifier} */ (child);
-         let  id = child.getPayload();
-          if (isParserSensitiveId(id)) {
+         let id = child.getPayload();
+          if (r5js.Datum.isParserSensitiveId(id)) {
             child.setPayload(newHelper.addRenameBinding(id));
           }
         });
@@ -163,7 +163,7 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
 
   if (maybeVar) { // (define foo +)
     id = maybeVar.getPayload();
-    if (isParserSensitiveId(id)) {
+    if (r5js.Datum.isParserSensitiveId(id)) {
       maybeVar.setPayload(helper.addRenameBinding(id));
     }
   } else { // (define (foo x y) (+ x y))
@@ -174,13 +174,13 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
     for (let cur = name.getNextSibling(); cur; cur = cur.getNextSibling()) {
       cur = /** @type {!r5js.ast.Identifier} */ (cur);
       id = cur.getPayload();
-      if (isParserSensitiveId(id)) {
+      if (r5js.Datum.isParserSensitiveId(id)) {
         cur.setPayload(newHelper.addRenameBinding(id));
       }
     }
     vars.getNextSibling().fixParserSensitiveIds(newHelper);
     const namePayload = name.getPayload();
-    if (isParserSensitiveId(namePayload)) {
+    if (r5js.Datum.isParserSensitiveId(namePayload)) {
       name.setPayload(helper.addRenameBinding(namePayload));
     }
   }

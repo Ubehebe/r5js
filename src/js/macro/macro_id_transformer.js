@@ -1,6 +1,7 @@
 goog.provide('r5js.PatternIdTransformer');
 goog.provide('r5js.TemplateIdTransformer');
 
+goog.require('r5js.Datum');
 goog.require('r5js.ITransformer');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.error');
@@ -143,7 +144,7 @@ r5js.TemplateIdTransformer.prototype.collectNestingLevels = function(
      See comments at the top of Parser. */
   if (maybeInPattern === -1 &&
       name !== transformer.getName()) {
-    if (!isParserSensitiveId(name)) {
+    if (!r5js.Datum.isParserSensitiveId(name)) {
       transformer.setTemplateRenameCandidate(name);
     }
   } else if (maybeInPattern !== ellipsisLevel &&

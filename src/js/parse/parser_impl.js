@@ -313,7 +313,7 @@ r5js.ParserImpl.grammar[Nonterminals.EXPRESSION] =
 r5js.ParserImpl.grammar[Nonterminals.VARIABLE] = _.seq(
     _.matchDatum(function(datum) {
       const isIdentifier = datum instanceof r5js.ast.Identifier;
-      if (isIdentifier && isParserSensitiveId(
+      if (isIdentifier && r5js.Datum.isParserSensitiveId(
           (/** @type {!r5js.ast.Identifier} */(datum)).getPayload())) {
         r5js.ParserImpl.fixParserSensitiveIds_ = true;
       }
