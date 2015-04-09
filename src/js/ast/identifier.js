@@ -1,9 +1,10 @@
 goog.module('r5js.ast.Identifier');
 
 const Datum = goog.require('r5js.Datum');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const RenameUtil = goog.require('r5js.RenameUtil');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const Terminals = goog.require('r5js.parse.Terminals');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Value = goog.require('r5js.runtime.Value');
 
 /** @extends {SimpleDatum<string>} */
@@ -25,10 +26,9 @@ class Identifier extends SimpleDatum {
      * This is a subcase of shouldUnquote, because unquotes and unquote-splicings
      * have pretty much the same logic.
      * @return {boolean} TODO bl.
-     * @suppress {accessControls} for r5js.Datum.CPS_PREFIX_
      */
     shouldUnquoteSplice() {
-        return this.payload.charAt(1) === Datum.CPS_PREFIX_;
+        return this.payload.charAt(1) === RenameUtil.CPS_PREFIX;
     }
 
     /** @override */

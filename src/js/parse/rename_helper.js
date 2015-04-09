@@ -1,5 +1,7 @@
 goog.module('r5js.RenameHelper');
 
+const RenameUtil = goog.require('r5js.RenameUtil');
+
 class RenameHelper {
     /** @param {RenameHelper} parent The parent helper, if any. */
     constructor(parent) {
@@ -12,7 +14,7 @@ class RenameHelper {
      * @return {string} A new name for the given name.
      */
     addRenameBinding(from) {
-        const to = newCpsName();
+        const to = RenameUtil.newCpsName();
         this.bindings_[from] = to;
         return to;
     }

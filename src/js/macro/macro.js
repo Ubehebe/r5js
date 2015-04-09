@@ -7,6 +7,7 @@ goog.require('r5js.Transformer');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
 goog.require('r5js.error');
+goog.require('r5js.RenameUtil');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.ObjectValue');
@@ -180,7 +181,7 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
                     if (this.definitionEnv_.hasBindingRecursive(id))
                         useEnv.addBinding(id, this.definitionEnv_);
                     else if (!isParserSensitiveId(id)) {
-                        var tmpName = newCpsName();
+                        var tmpName = r5js.RenameUtil.newCpsName();
                         toRename[id] = tmpName;
                         /* If the TemplateBindings object has detected that the same
                          identifier is used in the input and (unrelatedly) in the template,

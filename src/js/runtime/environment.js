@@ -1,17 +1,15 @@
 goog.provide('r5js.Environment');
 
-
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.IEnvironment');
 goog.require('r5js.Macro');
 goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
+goog.require('r5js.RenameUtil');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.error');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
-
-
 
 r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
     /** @param {r5js.IEnvironment} enclosingEnv The enclosing environment, if any. */
@@ -163,12 +161,11 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
      * @param {string} name
      * @return {boolean}
      * @private
-     * @suppress {accessControls} for r5js.Datum.CPS_PREFIX_.
      */
     bindingIsAcceptable_(name) {
-        return !(name in this.bindings_) ||
-            this.redefsOk_ ||
-            name.charAt(0) === r5js.Datum.CPS_PREFIX_;
+        return !(name in this.bindings_)
+            || this.redefsOk_
+            || name.charAt(0) === r5js.RenameUtil.CPS_PREFIX;
     }
 
     /** @override */

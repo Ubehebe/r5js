@@ -2,10 +2,11 @@ goog.module('r5js.TemplateBindings');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
+const error = goog.require('r5js.error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const Macro = goog.require('r5js.ast.Macro');
-const error = goog.require('r5js.error');
+const RenameUtil = goog.require('r5js.RenameUtil');
 
 /**
  * My approach for supporting nested ellipses in macro transcriptions
@@ -106,7 +107,7 @@ class TemplateBindings {
             throw error.internalInterpreterError('invariant incorrect');
         } else if (val instanceof Macro) {
             // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
-            const fakeName = newCpsName();
+            const fakeName = RenameUtil.newCpsName();
             this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
             this.bindings_[name] = new Identifier(fakeName);
         } else {

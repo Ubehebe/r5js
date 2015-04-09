@@ -262,34 +262,6 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
 };
 
 /**
- * Not a valid identifier prefix so we can easily tell these apart.
- * @const
- */
-r5js.Datum.CPS_PREFIX_ = '@';
-
-
-/** @const */
-r5js.Datum.PROC_PREFIX_ = 'proc';
-
-
-/** @return {string} */
-function newCpsName() {
-  /* TODO bl: goog.getUid requires an object parameter, so this method
-       creates a throwaway object. Requiring this function to take an object
-       parameter could reduce garbage. */
-  return r5js.Datum.CPS_PREFIX_ + goog.getUid(new Object());
-}
-
-
-/** @return {string} */
-function newAnonymousLambdaName() {
-  /* TODO bl: goog.getUid requires an object parameter, so this method
-    creates a throwaway object. Requiring this function to take an object
-    parameter could reduce garbage. */
-  return r5js.Datum.PROC_PREFIX_ + goog.getUid(new Object());
-}
-
-/**
  * See comments at the top of Parser.
  * @param {string} name identifier name to check.
  * @return {boolean} True iff the given name is parser-sensitive.

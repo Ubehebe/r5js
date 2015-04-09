@@ -32,6 +32,7 @@ goog.require('r5js.QuoteTransformer');
 goog.require('r5js.RenameHelper');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.TemplateIdTransformer');
+goog.require('r5js.RenameUtil');
 goog.require('r5js.TopLevelAssignment');
 goog.require('r5js.TopLevelSyntaxAssignment');
 goog.require('r5js.UserDefinedProcedure');
@@ -434,7 +435,7 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
         treatAsDotted = true;
       }
 
-      const name = newAnonymousLambdaName();
+      const name = r5js.RenameUtil.newAnonymousLambdaName();
       const proc = treatAsDotted
           ? new r5js.VarargsUserDefinedProcedure(
           formals, formalRoot.getNextSibling(), env, name)
@@ -526,7 +527,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
       const formals = formalRoot.mapChildren(function(child) {
         return child.getPayload();
       });
-      const anonymousName = newAnonymousLambdaName();
+      const anonymousName = r5js.RenameUtil.newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
           new r5js.UserDefinedProcedure(
@@ -557,7 +558,7 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
             return child.getPayload();
           }) :
           [formalRoot.getPayload()];
-      const anonymousName = newAnonymousLambdaName();
+      const anonymousName = r5js.RenameUtil.newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
           new r5js.VarargsUserDefinedProcedure(
@@ -1068,7 +1069,7 @@ r5js.ParserImpl.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
           node.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
       if (!macro.allPatternsBeginWith(kw))
         throw r5js.error.macro(kw, 'all patterns must begin with ' + kw);
-      const anonymousName = newAnonymousLambdaName();
+      const anonymousName = r5js.RenameUtil.newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
       return r5js.TopLevelSyntaxAssignment.of(kw, anonymousName);
     });
