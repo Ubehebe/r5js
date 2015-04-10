@@ -1,6 +1,6 @@
 goog.module('r5js.ast.DottedList');
 
-const CdrHelper = goog.require('r5js.CdrHelper');
+const CdrHelperImpl = goog.require('r5js.CdrHelperImpl');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const IPair = goog.require('r5js.IPair');
@@ -40,7 +40,7 @@ class DottedList extends CompoundDatum {
                 ans = startOfCdr;
             }
             if (ans instanceof CompoundDatum) {
-                ans.setCdrHelper(new CdrHelper(this, startOfCdr));
+                ans.setCdrHelper(new CdrHelperImpl(this, startOfCdr));
             }
             return ans;
         } else {

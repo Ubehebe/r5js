@@ -19,7 +19,7 @@ goog.provide('r5js.PrimitiveProcedures');
 goog.require('goog.log');
 goog.require('r5js.CallWithCurrentContinuation');
 goog.require('r5js.CallbackBackedPort');
-goog.require('r5js.CdrHelper');
+goog.require('r5js.CdrHelperImpl');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.DatumType');
@@ -380,7 +380,7 @@ PrimitiveProcedures['car'] = _.unary(p => p.car(), r5js.DatumType.PAIR);
 
 PrimitiveProcedures['cdr'] = _.unary(p => {
       const cdr = p.cdr();
-      cdr.setCdrHelper(new r5js.CdrHelper(p, cdr.getFirstChild()));
+      cdr.setCdrHelper(new r5js.CdrHelperImpl(p, cdr.getFirstChild()));
       return cdr;
     }, r5js.DatumType.PAIR);
 
