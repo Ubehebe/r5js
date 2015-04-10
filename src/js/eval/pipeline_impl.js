@@ -1,8 +1,10 @@
 goog.module('r5js.PipelineImpl');
 
+const Datum = goog.require('r5js.Datum');
 const Environment = goog.require('r5js.Environment');
 const error = goog.require('r5js.error');
 const IEnvironment = goog.require('r5js.IEnvironment');
+const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Pipeline = goog.require('r5js.Pipeline');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
@@ -30,7 +32,12 @@ class PipelineImpl {
         return new ReaderImpl(scanner).read();
     }
 
-    /** @override */
+    /**
+     * @param {!Datum} root
+     * @param {!Nonterminal=} opt_nonterminal
+     * @return {!Datum}
+     * @override TODO bl shouldn't be necessary
+     */
     parse(root, opt_nonterminal) {
         var parser = new ParserImpl(root);
         var ans = goog.isDef(opt_nonterminal)

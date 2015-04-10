@@ -1,55 +1,48 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.Pipeline');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const Datum = goog.require('r5js.Datum');
+const InputPort = goog.require('r5js.InputPort');
+const OutputPort = goog.require('r5js.OutputPort');
+const Nonterminal = goog.require('r5js.parse.Nonterminal');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const TokenStream = goog.require('r5js.TokenStream');
+const Value = goog.require('r5js.runtime.Value');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-goog.provide('r5js.Pipeline');
-
-
-
-r5js.Pipeline = /** @interface */ class {
+/** @interface */
+class Pipeline {
  /**
   * @param {string} string The string to scan.
-  * @return {!r5js.TokenStream} A token stream representing the input string.
+  * @return {!TokenStream} A token stream representing the input string.
   */
  scan(string) {}
 
  /**
-  * @param {!r5js.TokenStream} tokenStream A token input stream.
-  * @return {r5js.Datum} The root of the datum tree, or null if reading failed.
+  * @param {!TokenStream} tokenStream A token input stream.
+  * @return {Datum} The root of the datum tree, or null if reading failed.
   */
  read(tokenStream) {}
 
  /**
-  * @param {!r5js.Datum} root The root to parse.
-  * @param {!r5js.parse.Nonterminal=} opt_nonterminal The nonterminal
+  * @param {!Datum} root The root to parse.
+  * @param {!Nonterminal=} opt_nonterminal The nonterminal
   * that should be the root of the parse tree.
-  * @return {!r5js.Datum}
+  * @return {!Datum}
   */
  parse(root, opt_nonterminal) {}
 
  /**
-  * @param {!r5js.Datum} root The root to desugar.
-  * @return {!r5js.ProcCallLike}
+  * @param {!Datum} root The root to desugar.
+  * @return {!ProcCallLike}
   */
  desugar(root) {}
 
  /**
-  * @param {!r5js.ProcCallLike} continuable The continuable to evaluate.
-  * @param {!r5js.InputPort} inputPort Port to use as current-input-port.
-  * @param {!r5js.OutputPort} outputPort Port to use as current-output-port.
-  * @return {!r5js.runtime.Value}
+  * @param {!ProcCallLike} continuable The continuable to evaluate.
+  * @param {!InputPort} inputPort Port to use as current-input-port.
+  * @param {!OutputPort} outputPort Port to use as current-output-port.
+  * @return {!Value}
   */
  Eval(continuable, inputPort, outputPort) {}
-};
+}
+
+exports = Pipeline;
