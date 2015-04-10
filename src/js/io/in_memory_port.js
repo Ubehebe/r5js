@@ -1,23 +1,7 @@
-/* Copyright 2011-2014 Brendan Linn
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 goog.provide('r5js.InMemoryInputPort');
 goog.provide('r5js.InMemoryOutputPort');
-goog.provide('r5js.InMemoryPortBuffer');
 
-
+goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.InputPort');
 goog.require('r5js.OutputPort');
 goog.require('r5js.OutputSavingPort');
@@ -25,54 +9,6 @@ goog.require('r5js.ReaderImpl');
 goog.require('r5js.Scanner');
 goog.require('r5js.ast.Character');
 goog.require('r5js.valutil');
-
-
-
-/**
- * @struct
- * @constructor
- */
-r5js.InMemoryPortBuffer = function() {
-  /** @private */ this.buffer_ = '';
-};
-
-
-/** @return {boolean} */
-r5js.InMemoryPortBuffer.prototype.isEmpty = function() {
-  return !this.buffer_.length;
-};
-
-
-/** @return {?string} */
-r5js.InMemoryPortBuffer.prototype.getChar = function() {
-  const c = this.peekChar();
-  if (c) {
-    this.buffer_ = this.buffer_.substr(1);
-  }
-  return c;
-};
-
-
-/** @return {?string} */
-r5js.InMemoryPortBuffer.prototype.peekChar = function() {
-  return this.buffer_.length ? this.buffer_.charAt(0) : null;
-};
-
-
-/** @return {string} */
-r5js.InMemoryPortBuffer.prototype.getAndClear = function() {
-  const retval = this.buffer_;
-  this.buffer_ = '';
-  return retval;
-};
-
-
-/** @param {string} str */
-r5js.InMemoryPortBuffer.prototype.append = function(str) {
-  this.buffer_ += str;
-};
-
-
 
 /**
  * @param {!r5js.InMemoryPortBuffer} buffer
