@@ -144,7 +144,7 @@ r5js.TemplateIdTransformer.prototype.collectNestingLevels = function(
      See comments at the top of Parser. */
   if (maybeInPattern === -1 &&
       name !== transformer.getName()) {
-    if (!r5js.Datum.isParserSensitiveId(name)) {
+    if (!r5js.RenameUtil.isParserSensitiveId(name)) {
       transformer.setTemplateRenameCandidate(name);
     }
   } else if (maybeInPattern !== ellipsisLevel &&

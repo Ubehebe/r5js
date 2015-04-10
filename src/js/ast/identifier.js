@@ -33,7 +33,7 @@ class Identifier extends SimpleDatum {
 
     /** @override */
     fixParserSensitiveIds(helper) {
-        if (Datum.isParserSensitiveId(this.payload)) {
+        if (RenameUtil.isParserSensitiveId(this.payload)) {
             const renamedAs = helper.getRenameBinding(this.payload);
             if (renamedAs) {
                 this.setPayload(renamedAs);

@@ -18,6 +18,7 @@ goog.provide('r5js.ast.CompoundDatum');
 
 goog.require('r5js.Datum');
 goog.require('r5js.RenameHelper');
+goog.require('r5js.RenameUtil');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.parse.Nonterminals');
@@ -133,7 +134,7 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsLambda_ = function(
 
   if (formalRoot instanceof r5js.ast.Identifier) { // (lambda x ...)
     let id = formalRoot.getPayload();
-    if (r5js.Datum.isParserSensitiveId(id)) {
+    if (r5js.RenameUtil.isParserSensitiveId(id)) {
       formalRoot.setPayload(newHelper.addRenameBinding(id));
     }
   } else { // (lambda (x y) ...) or (lambda (x . y) ...)
@@ -141,7 +142,7 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsLambda_ = function(
         function(child) {
           child = /** @type {!r5js.ast.Identifier} */ (child);
          let id = child.getPayload();
-          if (r5js.Datum.isParserSensitiveId(id)) {
+          if (r5js.RenameUtil.isParserSensitiveId(id)) {
             child.setPayload(newHelper.addRenameBinding(id));
           }
         });
@@ -163,7 +164,7 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
 
   if (maybeVar) { // (define foo +)
     id = maybeVar.getPayload();
-    if (r5js.Datum.isParserSensitiveId(id)) {
+    if (r5js.RenameUtil.isParserSensitiveId(id)) {
       maybeVar.setPayload(helper.addRenameBinding(id));
     }
   } else { // (define (foo x y) (+ x y))
@@ -174,13 +175,13 @@ r5js.ast.CompoundDatum.prototype.fixParserSensitiveIdsDef_ = function(helper) {
     for (let cur = name.getNextSibling(); cur; cur = cur.getNextSibling()) {
       cur = /** @type {!r5js.ast.Identifier} */ (cur);
       id = cur.getPayload();
-      if (r5js.Datum.isParserSensitiveId(id)) {
+      if (r5js.RenameUtil.isParserSensitiveId(id)) {
         cur.setPayload(newHelper.addRenameBinding(id));
       }
     }
     vars.getNextSibling().fixParserSensitiveIds(newHelper);
     const namePayload = name.getPayload();
-    if (r5js.Datum.isParserSensitiveId(namePayload)) {
+    if (r5js.RenameUtil.isParserSensitiveId(namePayload)) {
       name.setPayload(helper.addRenameBinding(namePayload));
     }
   }
