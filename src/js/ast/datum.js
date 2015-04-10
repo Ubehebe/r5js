@@ -163,7 +163,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
    * @suppress {checkTypes} TODO bl
    */
   desugar(env, opt_forceContinuationWrapper) {
-    const desugarFn = (this.desugars_ && this.nextDesugar_ >= 0)
+    const desugarFn = (this.nextDesugar_ >= 0)
         ? this.desugars_[this.nextDesugar_--]
         : null;
     let ans = desugarFn ? desugarFn(this, env) : this;
