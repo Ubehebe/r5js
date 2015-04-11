@@ -12,7 +12,6 @@ const ProcCallLike = goog.require('r5js.ProcCallLike');
 const ReaderImpl = goog.require('r5js.ReaderImpl');
 const Scanner = goog.require('r5js.Scanner');
 const Evaluator = goog.require('r5js.sync.Evaluator');
-const EvaluatorImpl = goog.require('r5js.sync.EvaluatorImpl');
 const trampoline = goog.require('r5js.trampoline');
 
 /**
@@ -27,7 +26,7 @@ const trampoline = goog.require('r5js.trampoline');
  * @param {!OutputPort=} opt_outputPort Optional output port that the new
  * evaluator will be connected to. If not given, defaults to
  * {@link r5js.OutputPort.NULL}.
- * @return {!Evaluator}
+ * @return {!Evaluator.Interface}
  */
 function boot(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   const nullEnv = new Environment(null /* enclosingEnv */);
@@ -60,7 +59,7 @@ function boot(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   PrimitiveProcedures.install(nullEnv, r5RSEnv);
   installSchemeSource(procLib, r5RSEnv);
   r5RSEnv.seal();
-  return new EvaluatorImpl(
+  return Evaluator.create(
       Pipeline.forEnvironment(r5RSEnv),
       opt_inputPort || InputPort.NULL,
       opt_outputPort || OutputPort.NULL);

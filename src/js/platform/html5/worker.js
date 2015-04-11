@@ -12,7 +12,7 @@ const MessageType = goog.require('r5js.platform.html5.MessageType');
 const OutputPort = goog.require('r5js.platform.html5.OutputPort');
 const Promise = goog.require('goog.Promise');
 const SchemeSources = goog.require('r5js.SchemeSources');
-const SyncEvaluator = goog.require('r5js.sync.Evaluator');
+const SyncEvaluator = goog.require('r5js.sync.Evaluator').Interface;
 
 /** Main entry point for the HTML5 worker. */
 function worker() {
