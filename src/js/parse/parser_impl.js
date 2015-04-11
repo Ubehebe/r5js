@@ -5,7 +5,6 @@ const Branch = goog.require('r5js.Branch');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const DatumStream = goog.require('r5js.DatumStream');
-const DatumStreamImpl = goog.require('r5js.DatumStreamImpl');
 const datumutil = goog.require('r5js.datumutil');
 const DottedListTransformer = goog.require('r5js.DottedListTransformer');
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
@@ -120,7 +119,7 @@ class ParserImpl {
     /** @param {!Datum} root The root of the tree to parse. */
     constructor(root) {
         /** @const @private {!DatumStream} */
-        this.datumStream_ = new DatumStreamImpl(root);
+        this.datumStream_ = DatumStream.create(root);
     }
 
     /**
