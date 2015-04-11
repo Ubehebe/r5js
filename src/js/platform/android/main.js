@@ -1,54 +1,32 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.platform.android.main');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const CallbackBackedPort = goog.require('r5js.CallbackBackedPort');
+const curPlatform = goog.require('r5js.curPlatform');
+const Evaluator = goog.require('r5js.Evaluator');
+const InputPort = goog.require('r5js.InputPort');
+const OutputPort = goog.require('r5js.OutputPort');
+const Promise = goog.require('goog.Promise');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.platform.android.main');
-
-goog.require('r5js.CallbackBackedPort');
-goog.require('r5js.InputPort');
-goog.require('r5js.curPlatform');
-
-
-/** @private {r5js.OutputPort} */
-r5js.platform.android.outputPort_ = null;
-
-
-/** @private {r5js.OutputPort} */
-r5js.platform.android.returnValuePort_ = null;
-
-
-/** @private {goog.Promise<!r5js.Evaluator>} */
-r5js.platform.android.evaluator_ = null;
-
+/** @private {OutputPort} */ let outputPort = null;
+/** @private {Promise<!Evaluator>} */ let evaluator = null;
 
 /**
  * The main method for the Android port.
  * @param {string} input
  */
-r5js.platform.android.main = function(input) {
-  if (!r5js.platform.android.evaluator_) {
-    r5js.platform.android.outputPort_ =
-        new r5js.CallbackBackedPort(function(s) {
+function main(input) {
+  if (!evaluator) {
+    outputPort = new CallbackBackedPort(function(s) {
       AndroidSchemePlatform.print(s);
     });
-    r5js.platform.android.evaluator_ = r5js.curPlatform().newEvaluator(
-        r5js.InputPort.NULL, r5js.platform.android.outputPort_);
+    evaluator = curPlatform().newEvaluator(InputPort.NULL, outputPort);
   }
-  r5js.platform.android.evaluator_.then(function(evaluator) {
+  evaluator.then(function(evaluator) {
     return evaluator.evaluate(input);
   }).then(function(result) {
     AndroidSchemePlatform.returnValue(result);
   });
-};
-goog.exportSymbol('EVAL', r5js.platform.android.main);
+}
+
+goog.exportSymbol('EVAL', main);
+exports = main;
