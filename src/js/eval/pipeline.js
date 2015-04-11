@@ -10,7 +10,6 @@ const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const ReaderImpl = goog.require('r5js.ReaderImpl');
-const Scanner = goog.require('r5js.Scanner');
 const TokenStream = goog.require('r5js.TokenStream');
 const trampoline = goog.require('r5js.trampoline');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
@@ -64,7 +63,7 @@ class Impl {
 
     /** @override */
     scan(string) {
-        return new Scanner(string);
+        return TokenStream.forText(string);
     }
 
     /** @override */

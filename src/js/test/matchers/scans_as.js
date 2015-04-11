@@ -2,8 +2,8 @@ goog.module('scanAs');
 goog.setTestOnly('scanAs');
 
 const Datum = goog.require('r5js.Datum');
-const Scanner = goog.require('r5js.Scanner');
 const Matcher = goog.require('tdd.matchers.Matcher');
+const TokenStream = goog.require('r5js.TokenStream');
 
 /** @implements {Matcher<string>} */
 class ScansAs {
@@ -15,7 +15,7 @@ class ScansAs {
     /** @override */
     matches(value) {
         try {
-            const scanner = new Scanner(value);
+            const scanner = TokenStream.forText(value);
             const token = scanner.nextToken();
             // There should be exactly one token in the input.
             // (For example, 1+2 should fail to scan as one number token,
