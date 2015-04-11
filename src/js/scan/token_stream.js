@@ -1,25 +1,27 @@
-goog.provide('r5js.TokenStream');
+goog.module('r5js.TokenStream');
 
+const Token = goog.require('r5js.Token');
 
+/** @interface */
+class TokenStream {
+    /** @return {Token} The next token, or null if there are no more. */
+    nextToken() {}
 
-r5js.TokenStream = /** @interface */ class {
- /** @return {r5js.Token} The next token, or null if there are no more. */
- nextToken() {}
+    /**
+     * Establishes a checkpoint that can be restored by {@link restore}.
+     * @return {!TokenStream.Checkpoint}
+     */
+    checkpoint() {}
 
- /**
-  * Establishes a checkpoint that can be restored by
-  * {@link r5js.TokenStream#restore}.
-  * @return {!r5js.TokenStream.Checkpoint}
-  */
- checkpoint() {}
-
- /**
-  * Restores the state of the token stream represented by checkpoint.
-  * @param {!r5js.TokenStream.Checkpoint} checkpoint
-  */
- restore(checkpoint) {}
-};
-
+    /**
+     * Restores the state of the token stream represented by {@code checkpoint}.
+     * @param {!TokenStream.Checkpoint} checkpoint
+     */
+    restore(checkpoint) {
+    }
+}
 
 /** @typedef {number} */
-r5js.TokenStream.Checkpoint;
+TokenStream.Checkpoint;
+
+exports = TokenStream;
