@@ -1,64 +1,42 @@
-/* Copyright 2011-2014 Brendan Linn
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('Throw');
-goog.provide('r5js.test.matchers.Throws_');
+goog.module('Throw');
 goog.setTestOnly('Throw');
 
+const error = goog.require('r5js.error');
+const Error = goog.require('r5js.Error');
+const Matcher = goog.require('tdd.matchers.Matcher');
 
-goog.require('r5js.error');
-goog.require('tdd.matchers.Matcher');
+/** @implements {Matcher<!Error>} */
+class Throws {
+    /** @param {!Error} expectedError */
+    constructor(expectedError) {
+        /** @const @private */ this.expectedError_ = expectedError;
+        /** @private */ this.actualError_ = null;
+    }
 
+    /** @override */
+    matches(actualError) {
+        return error.equals(this.expectedError_, this.actualError_ = actualError);
+    }
+
+    /** @override */
+    getFailureMessage(input) {
+        return input +
+            ': want\n' +
+            this.expectedError_.toString() +
+            '\ngot ' +
+            (this.actualError_ ?
+                ('\n' + this.actualError_.toString()) :
+                'no exception');
+    }
+}
 
 /**
- * @param {!r5js.Error} error
- * @return {!tdd.matchers.Matcher<!r5js.Error>}
+ * @param {!Error} error
+ * @return {!Matcher<!Error>}
  */
-const Throw = function(error) {
-  return new Throws_(error);
-};
+function Throw(error) {
+    return new Throws(error);
+}
 
+exports = Throw;
 
-
-/**
- * @param {!r5js.Error} expectedError
- * @implements {tdd.matchers.Matcher<!r5js.Error>}
- * @struct
- * @constructor
- * @private
- */
-const Throws_ = function(expectedError) {
-  /** @const @private */ this.expectedError_ = expectedError;
-  /** @private */ this.actualError_ = null;
-};
-
-
-/** @override */
-Throws_.prototype.matches = function(actualError) {
-  return r5js.error.equals(
-      this.expectedError_, this.actualError_ = actualError);
-};
-
-
-/** @override */
-Throws_.prototype.getFailureMessage = function(input) {
-  return input +
-      ': want\n' +
-      this.expectedError_.toString() +
-      '\ngot ' +
-      (this.actualError_ ?
-          ('\n' + this.actualError_.toString()) :
-          'no exception');
-};
