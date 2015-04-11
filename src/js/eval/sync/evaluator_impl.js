@@ -4,7 +4,7 @@ const Datum = goog.require('r5js.Datum');
 const Evaluator = goog.require('r5js.sync.Evaluator');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
-const Pipeline = goog.require('r5js.Pipeline');
+const Pipeline = goog.require('r5js.Pipeline').Interface;
 const valutil = goog.require('r5js.valutil');
 
 /** @implements {Evaluator} */

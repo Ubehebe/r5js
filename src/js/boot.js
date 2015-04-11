@@ -6,7 +6,7 @@ const IEnvironment = goog.require('r5js.IEnvironment');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
 const ParserImpl = goog.require('r5js.ParserImpl');
-const PipelineImpl = goog.require('r5js.PipelineImpl');
+const Pipeline = goog.require('r5js.Pipeline');
 const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const ReaderImpl = goog.require('r5js.ReaderImpl');
@@ -61,7 +61,7 @@ function boot(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   installSchemeSource(procLib, r5RSEnv);
   r5RSEnv.seal();
   return new EvaluatorImpl(
-      new PipelineImpl(r5RSEnv),
+      Pipeline.forEnvironment(r5RSEnv),
       opt_inputPort || InputPort.NULL,
       opt_outputPort || OutputPort.NULL);
 }

@@ -2,18 +2,17 @@ goog.module('r5js.replutil');
 
 const Datum = goog.require('r5js.Datum');
 const Pipeline = goog.require('r5js.Pipeline');
-const PipelineImpl = goog.require('r5js.PipelineImpl');
 
-/** @type {Pipeline} */ let pipeline = null;
+/** @type {Pipeline.Interface} */ let pipeline = null;
 
 /**
  * @param {string} input
  * @return {boolean}
- * @suppress {checkTypes} for new r5js.PipelineImpl(null).
+ * @suppress {checkTypes} for Pipeline.forEnvironment(null).
  */
 function isLineComplete(input) {
   if (!pipeline) {
-    pipeline = new PipelineImpl(null);
+    pipeline = Pipeline.forEnvironment(null);
   }
 
   try {
