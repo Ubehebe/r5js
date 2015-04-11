@@ -1,60 +1,46 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.ParserImpl');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-goog.provide('r5js.ParserImpl');
-
-
-goog.require('r5js.Branch');
-goog.require('r5js.Datum');
-goog.require('r5js.DatumStreamImpl');
-goog.require('r5js.DottedListTransformer');
-goog.require('r5js.EllipsisTransformer');
-goog.require('r5js.ListTransformer');
-goog.require('r5js.Macro');
-goog.require('r5js.Parser');
-goog.require('r5js.PatternIdTransformer');
-goog.require('r5js.ProcCall');
-goog.require('r5js.ProcCallLike');
-goog.require('r5js.QuoteTransformer');
-goog.require('r5js.RenameHelper');
-goog.require('r5js.SiblingBuffer');
-goog.require('r5js.TemplateIdTransformer');
-goog.require('r5js.RenameUtil');
-goog.require('r5js.TopLevelAssignment');
-goog.require('r5js.TopLevelSyntaxAssignment');
-goog.require('r5js.UserDefinedProcedure');
-goog.require('r5js.VACUOUS_PROGRAM');
-goog.require('r5js.VarargsUserDefinedProcedure');
-goog.require('r5js.VectorTransformer');
-goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.List');
-goog.require('r5js.ast.Macro');
-goog.require('r5js.ast.Number');
-goog.require('r5js.ast.SimpleDatum');
-goog.require('r5js.ast.String');
-goog.require('r5js.ast.Vector');
-goog.require('r5js.datumutil');
-goog.require('r5js.error');
-goog.require('r5js.newAssignment');
-goog.require('r5js.parse.Nonterminals');
-goog.require('r5js.parse.Terminals');
-goog.require('r5js.parse.bnf');
-goog.require('r5js.runtime.UNSPECIFIED_VALUE');
-
+const _ = goog.require('r5js.parse.bnf');
+const Branch = goog.require('r5js.Branch');
+const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const Datum = goog.require('r5js.Datum');
+const DatumStream = goog.require('r5js.DatumStream');
+const DatumStreamImpl = goog.require('r5js.DatumStreamImpl');
+const datumutil = goog.require('r5js.datumutil');
+const DottedListTransformer = goog.require('r5js.DottedListTransformer');
+const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
+const error = goog.require('r5js.error');
+const Identifier = goog.require('r5js.ast.Identifier');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const ITransformer = goog.require('r5js.ITransformer');
+const List = goog.require('r5js.ast.List');
+const ListTransformer = goog.require('r5js.ListTransformer');
+const Macro = goog.require('r5js.Macro');
+const MacroDatum = goog.require('r5js.ast.Macro');
+const newAssignment = goog.require('r5js.newAssignment');
+const Nonterminal = goog.require('r5js.parse.Nonterminal');
+const Nonterminals = goog.require('r5js.parse.Nonterminals');
+const Number = goog.require('r5js.ast.Number');
+const Parser = goog.require('r5js.Parser');
+const PatternIdTransformer = goog.require('r5js.PatternIdTransformer');
+const ProcCall = goog.require('r5js.ProcCall');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const QuoteTransformer = goog.require('r5js.QuoteTransformer');
+const RenameHelper = goog.require('r5js.RenameHelper');
+const RenameUtil = goog.require('r5js.RenameUtil');
+const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
+const String = goog.require('r5js.ast.String');
+const TemplateIdTransformer = goog.require('r5js.TemplateIdTransformer');
+const Terminals = goog.require('r5js.parse.Terminals');
+const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
+const TopLevelSyntaxAssignment = goog.require('r5js.TopLevelSyntaxAssignment');
+const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
+const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
+const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
+const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
+const VectorTransformer = goog.require('r5js.VectorTransformer');
+const Vector = goog.require('r5js.ast.Vector');
 
 /* todo bl: this file should not exist.
 
@@ -129,129 +115,114 @@ goog.require('r5js.runtime.UNSPECIFIED_VALUE');
  in R6RS. */
 
 
-
-/**
- * @param {!r5js.Datum} root The root of the tree to parse.
- * @implements {r5js.Parser}
- * @struct
- * @constructor
- */
-r5js.ParserImpl = function(root) {
-  /** @const @private {!r5js.DatumStream} */
-  this.datumStream_ = new r5js.DatumStreamImpl(root);
-};
-
-
-/** @override */
-r5js.ParserImpl.prototype.parse = function(opt_nonterminal) {
-  const nonterminal = opt_nonterminal
-      || r5js.parse.Nonterminals.PROGRAM;
-  const parsedRoot = /** @type {!r5js.Datum} */ (
-      r5js.ParserImpl.grammar[nonterminal].match(this.datumStream_));
-  if (parsedRoot) {
-    /* Special case for non-vacuous but malformed programs.
-      A "successful" parse of a nonvacuous program that has only
-      the top-level PROGRAM nonterminal set is actually a parse error,
-      since it matched none of the right-hand side PROGRAM rules.
-      (This is a deficiency in the parser implementation that I don't care
-      to correct, since the parser should eventually go away.)
-      This includes the empty list program, which reads successfully as a datum
-      but doesn't parse as anything. Occurrences of the empty list under
-      the top level are runtime errors (r5js.IllegalEmptyApplication) rather
-      than parse errors. */
-    if (nonterminal === r5js.parse.Nonterminals.PROGRAM &&
-        parsedRoot != r5js.VACUOUS_PROGRAM &&
-        !parsedRoot.peekParse()) {
-      return null;
+/** @implements {Parser} */
+class ParserImpl {
+    /** @param {!Datum} root The root of the tree to parse. */
+    constructor(root) {
+        /** @const @private {!DatumStream} */
+        this.datumStream_ = new DatumStreamImpl(root);
     }
-    parsedRoot.setParse(nonterminal);
-  }
-  return (nonterminal === r5js.parse.Nonterminals.PROGRAM) ?
-      r5js.ParserImpl.maybeFixParserSensitiveIds_(parsedRoot) :
-      parsedRoot;
-};
 
+    /**
+     * @param {!Nonterminal=} opt_nonterminal
+     * @override TODO bl compiler bug
+     */
+    parse(opt_nonterminal) {
+        const nonterminal = opt_nonterminal || Nonterminals.PROGRAM;
+        const parsedRoot = /** @type {!Datum} */ (
+            grammar[nonterminal].match(this.datumStream_));
+        if (parsedRoot) {
+            /* Special case for non-vacuous but malformed programs.
+             A "successful" parse of a nonvacuous program that has only
+             the top-level PROGRAM nonterminal set is actually a parse error,
+             since it matched none of the right-hand side PROGRAM rules.
+             (This is a deficiency in the parser implementation that I don't care
+             to correct, since the parser should eventually go away.)
+             This includes the empty list program, which reads successfully as a datum
+             but doesn't parse as anything. Occurrences of the empty list under
+             the top level are runtime errors (IllegalEmptyApplication) rather
+             than parse errors. */
+            if (nonterminal === Nonterminals.PROGRAM &&
+                parsedRoot != VACUOUS_PROGRAM && !parsedRoot.peekParse()) {
+                return null;
+            }
+            parsedRoot.setParse(nonterminal);
+        }
+        return (nonterminal === Nonterminals.PROGRAM)
+            ? ParserImpl.maybeFixParserSensitiveIds_(parsedRoot)
+            : parsedRoot;
+    }
 
-/**
- * @param {r5js.Datum} root
- * @return {r5js.Datum}
- * @private
- */
-r5js.ParserImpl.maybeFixParserSensitiveIds_ = function(root) {
-  if (!root || !r5js.ParserImpl.fixParserSensitiveIds_) {
-    return root;
-  }
-  r5js.ParserImpl.fixParserSensitiveIds_ = false;
-  const helper = new r5js.RenameHelper(null /* parent */);
-  root.fixParserSensitiveIds(helper);
-  return helper.wasUsed() ? new r5js.ParserImpl(root).parse() : root;
-};
+    /**
+     * @param {Datum} root
+     * @return {Datum}
+     * @private
+     */
+    static maybeFixParserSensitiveIds_(root) {
+        if (!root || !fixParserSensitiveIds_) {
+            return root;
+        }
+        fixParserSensitiveIds_ = false;
+        const helper = new RenameHelper(null /* parent */);
+        root.fixParserSensitiveIds(helper);
+        return helper.wasUsed() ? new ParserImpl(root).parse() : root;
+    }
 
+    /**
+     * R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
+     * but they bind syntactic keywords to macro transformers instead of binding
+     * variables to locations that contain values."
+     *
+     * In this implementation, a macro is just another kind of object that can
+     * be stored in an environment, so we reuse the existing let machinery.
+     * For example:
+     *
+     * (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
+     *
+     * desugars as
+     *
+     * (let ((foo [SchemeMacro object])) ...)
+     *
+     * We just need to be sure that the SchemeMacro object inserted directly
+     * into the parse tree plays well when the tree is transcribed and reparsed.
+     *
+     * @param {!CompoundDatum} datum Datum to desugar.
+     * @param {!IEnvironment} env TODO bl.
+     * @param {string} operatorName TODO bl.
+     * @return {!ProcCallLike}
+     * @private
+     */
+    static desugarMacroBlock_(datum, env, operatorName) {
+        const letBindings = new SiblingBuffer();
 
-/** @private {boolean} */
-r5js.ParserImpl.fixParserSensitiveIds_;
+        datum.firstSublist().forEachChild(function (spec) {
+            spec = /** @type {!CompoundDatum} */ (spec); // TODO bl
+            const kw = spec.at(Nonterminals.KEYWORD).clone(null /* parent */);
+            const macro = /** @type {!Macro} */ (
+                spec.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
+            const buf = new SiblingBuffer();
+            /* We have to wrap the SchemeMacro object in a Datum to get it into
+             the parse tree. */
+            buf.appendSibling(kw);
+            buf.appendSibling(new MacroDatum(macro));
+            letBindings.appendSibling(buf.toList(List));
+        });
 
+        const _let = new SiblingBuffer();
+        _let.appendSibling(
+            letBindings.toList(List)
+        ).appendSibling(
+            /** @type {!Datum} */ (datum.firstSublist().getNextSibling()));
 
-/**
- * R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
- * but they bind syntactic keywords to macro transformers instead of binding
- * variables to locations that contain values."
- *
- * In this implementation, a macro is just another kind of object that can
- * be stored in an environment, so we reuse the existing let machinery.
- * For example:
- *
- * (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
- *
- * desugars as
- *
- * (let ((foo [SchemeMacro object])) ...)
- *
- * We just need to be sure that the SchemeMacro object inserted directly
- * into the parse tree plays well when the tree is transcribed and reparsed.
- *
- * @param {!r5js.ast.CompoundDatum} datum Datum to desugar.
- * @param {!r5js.IEnvironment} env TODO bl.
- * @param {string} operatorName TODO bl.
- * @return {!r5js.ProcCallLike}
- * @private
- */
-r5js.ParserImpl.desugarMacroBlock_ = function(datum, env, operatorName) {
-  const letBindings = new r5js.SiblingBuffer();
+        return new ProcCall(new Identifier(operatorName), _let.toSiblings());
+    }
+}
 
-  datum.firstSublist().forEachChild(function(spec) {
-    spec = /** @type {!r5js.ast.CompoundDatum} */ (spec); // TODO bl
-    const kw = spec.at(r5js.parse.Nonterminals.KEYWORD).clone(null /* parent */);
-    const macro = /** @type {!r5js.Macro} */ (
-        spec.at(r5js.parse.Nonterminals.TRANSFORMER_SPEC).desugar(env));
-    const buf = new r5js.SiblingBuffer();
-    /* We have to wrap the SchemeMacro object in a Datum to get it into
-         the parse tree. */
-    buf.appendSibling(kw);
-    buf.appendSibling(new r5js.ast.Macro(macro));
-    letBindings.appendSibling(buf.toList(r5js.ast.List));
-  });
+    /** @private {boolean} */
+let fixParserSensitiveIds_ = false;
 
-  const _let = new r5js.SiblingBuffer();
-  _let.appendSibling(
-      letBindings.toList(r5js.ast.List)
-  ).appendSibling(
-      /** @type {!r5js.Datum} */ (datum.firstSublist().getNextSibling()));
-
-  return new r5js.ProcCall(
-      new r5js.ast.Identifier(operatorName), _let.toSiblings());
-};
-
-
-/** @const {!Object<!r5js.parse.Nonterminal, !r5js.parse.bnf.Rule>} */
-r5js.ParserImpl.grammar = {};
-
-
-goog.scope(function() {
-const _ = r5js.parse.bnf;
-const Terminals = r5js.parse.Terminals;
-const Nonterminals = r5js.parse.Nonterminals;
-
+/** @const {!Object<!Nonterminal, !_.Rule>} */
+const grammar = {};
 
 /* <expression> -> <variable>
  | <literal>
@@ -263,7 +234,7 @@ const Nonterminals = r5js.parse.Nonterminals;
  | <macro use>
  | <macro block>
  */
-r5js.ParserImpl.grammar[Nonterminals.EXPRESSION] =
+grammar[Nonterminals.EXPRESSION] =
     /* In order to support shadowing of syntactic keywords,
     the order of the following rules is important. Consider:
 
@@ -296,7 +267,7 @@ r5js.ParserImpl.grammar[Nonterminals.EXPRESSION] =
     _.one(Nonterminals.CONDITIONAL),
     _.one(Nonterminals.ASSIGNMENT),
     _.one(Nonterminals.QUASIQUOTATION).desugar(function(node, env) {
-      return (/** @type {!r5js.ast.CompoundDatum} */ (node)).
+      return (/** @type {!CompoundDatum} */ (node)).
           setQuasiquotationLevel(1);
     }),
     _.list(
@@ -310,43 +281,43 @@ r5js.ParserImpl.grammar[Nonterminals.EXPRESSION] =
     _.one(Nonterminals.MACRO_USE));
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
-r5js.ParserImpl.grammar[Nonterminals.VARIABLE] = _.seq(
+grammar[Nonterminals.VARIABLE] = _.seq(
     _.matchDatum(function(datum) {
-      const isIdentifier = datum instanceof r5js.ast.Identifier;
-      if (isIdentifier && r5js.RenameUtil.isParserSensitiveId(
-          (/** @type {!r5js.ast.Identifier} */(datum)).getPayload())) {
-        r5js.ParserImpl.fixParserSensitiveIds_ = true;
+      const isIdentifier = datum instanceof Identifier;
+      if (isIdentifier && RenameUtil.isParserSensitiveId(
+          (/** @type {!Identifier} */(datum)).getPayload())) {
+        fixParserSensitiveIds_ = true;
       }
       return isIdentifier;
     }));
 
 // <literal> -> <quotation> | <self-evaluating>
-r5js.ParserImpl.grammar[Nonterminals.LITERAL] = _.choice(
+grammar[Nonterminals.LITERAL] = _.choice(
     _.one(Nonterminals.SELF_EVALUATING),
     _.one(Nonterminals.QUOTATION));
 
 
 // <quotation> -> '<datum> | (quote <datum>)
-r5js.ParserImpl.grammar[Nonterminals.QUOTATION] = _.seq(
+grammar[Nonterminals.QUOTATION] = _.seq(
     // Terminals.QUOTE has already been canonicalized as Terminals.TICK
-    // (see r5js.read.bnf.Seq_#maybeCanonicalize).
+    // (see read.bnf.Seq_#maybeCanonicalize).
     _.one(Terminals.TICK),
     _.one(Nonterminals.DATUM));
 
 
-r5js.ParserImpl.grammar[Nonterminals.DATUM] = _.seq(
+grammar[Nonterminals.DATUM] = _.seq(
     _.matchDatum(function(datum) {
       return true;
     }));
 
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
-r5js.ParserImpl.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
+grammar[Nonterminals.SELF_EVALUATING] = _.seq(
     _.matchDatum(function(datum) {
-      const ans = (datum instanceof r5js.ast.SimpleDatum &&
-          !(datum instanceof r5js.ast.Identifier)) ||
-          datum instanceof r5js.ast.Vector /* TODO bl document */;
-      if (datum instanceof r5js.ast.String) {
+      const ans = (datum instanceof SimpleDatum
+          && !(datum instanceof Identifier))
+          || datum instanceof Vector /* TODO bl document */;
+      if (datum instanceof String) {
         // to defeat string-set! on a literal
         datum.setImmutable();
       }
@@ -357,7 +328,7 @@ r5js.ParserImpl.grammar[Nonterminals.SELF_EVALUATING] = _.seq(
 // <procedure call> -> (<operator> <operand>*)
 // <operator> -> <expression>
 // <operand> -> <expression>
-r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
+grammar[Nonterminals.PROCEDURE_CALL] = _.list(
     _.one(Nonterminals.OPERATOR),
     _.zeroOrMore(Nonterminals.OPERAND)).
         desugar(function(node, env) {
@@ -366,28 +337,28 @@ r5js.ParserImpl.grammar[Nonterminals.PROCEDURE_CALL] = _.list(
       // will be null if 0 operands
       const operands = node.at(Nonterminals.OPERAND);
 
-      if (operatorNode instanceof r5js.ast.Identifier) {
-        return new r5js.ProcCall(operatorNode, operands);
+      if (operatorNode instanceof Identifier) {
+        return new ProcCall(operatorNode, operands);
       }
 
     // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
       else {
-        const desugaredOp = /** @type {!r5js.ProcCallLike} */ (
+        const desugaredOp = /** @type {!ProcCallLike} */ (
             operatorNode.desugar(env));
-        const last = r5js.ProcCallLike.getLast(desugaredOp);
+        const last = ProcCallLike.getLast(desugaredOp);
         const opName = last.getResultName();
-        last.setNext(new r5js.ProcCall(
-            new r5js.ast.Identifier(opName), operands));
+        last.setNext(new ProcCall(
+            new Identifier(opName), operands));
         return desugaredOp;
       }
         });
 
 
-r5js.ParserImpl.grammar[Nonterminals.OPERATOR] = _.one(
+grammar[Nonterminals.OPERATOR] = _.one(
     Nonterminals.EXPRESSION);
 
 
-r5js.ParserImpl.grammar[Nonterminals.OPERAND] = _.one(
+grammar[Nonterminals.OPERAND] = _.one(
     Nonterminals.EXPRESSION);
 
 
@@ -395,7 +366,7 @@ r5js.ParserImpl.grammar[Nonterminals.OPERAND] = _.one(
 // <body> -> <definition>* <sequence>
 // <sequence> -> <command>* <expression>
 // <command> -> <expression>
-r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
+grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
     _.one(Terminals.LAMBDA),
     _.one(Nonterminals.FORMALS),
     _.zeroOrMore(Nonterminals.DEFINITION),
@@ -406,19 +377,19 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
       let treatAsDotted = false;
 
       // (lambda (x y) ...)
-      if (formalRoot instanceof r5js.ast.List) {
+      if (formalRoot instanceof List) {
         formals = formalRoot.mapChildren(function(child) {
-          return /** @type {!r5js.Datum} */ (
-              (/** @type {!r5js.ast.SimpleDatum} */ (child)).getPayload());
+          return /** @type {!Datum} */ (
+              (/** @type {!SimpleDatum} */ (child)).getPayload());
             });
       }
 
     // (lambda (x y z . w) ...)
       else if (formalRoot.isImproperList()) {
-        formals = (/** @type {!r5js.ast.CompoundDatum} */ (formalRoot)).
+        formals = (/** @type {!CompoundDatum} */ (formalRoot)).
             mapChildren(function(child) {
-              return /** @type {!r5js.Datum} */ (
-                  (/** @type {!r5js.ast.SimpleDatum} */ (child)).getPayload());
+              return /** @type {!Datum} */ (
+                  (/** @type {!SimpleDatum} */ (child)).getPayload());
             });
         treatAsDotted = true;
       }
@@ -430,19 +401,19 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
              newly allocated list, and the list is stored in the binding of the
              <variable>." */
       else {
-        formals = [(/** @type {!r5js.ast.SimpleDatum} */(formalRoot)).
+        formals = [(/** @type {!SimpleDatum} */(formalRoot)).
                   getPayload()];
         treatAsDotted = true;
       }
 
-      const name = r5js.RenameUtil.newAnonymousLambdaName();
+      const name = RenameUtil.newAnonymousLambdaName();
       const proc = treatAsDotted
-          ? new r5js.VarargsUserDefinedProcedure(
+          ? new VarargsUserDefinedProcedure(
           formals, formalRoot.getNextSibling(), env, name)
-          : new r5js.UserDefinedProcedure(
+          : new UserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name);
       env.addClosure(name, proc);
-      return new r5js.ast.Identifier(name).toProcCallLike();
+      return new Identifier(name).toProcCallLike();
         });
 
 
@@ -472,7 +443,7 @@ r5js.ParserImpl.grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
  */
 
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
-r5js.ParserImpl.grammar[Nonterminals.FORMALS] = _.choice(
+grammar[Nonterminals.FORMALS] = _.choice(
     _.list(_.zeroOrMore(Nonterminals.VARIABLE)),
     _.one(Nonterminals.VARIABLE),
     _.dottedList(
@@ -486,7 +457,7 @@ r5js.ParserImpl.grammar[Nonterminals.FORMALS] = _.choice(
  * | (begin <definition>*)
  * | <def formals> -> <variable>* | <variable>* . <variable>
  */
-r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
+grammar[Nonterminals.DEFINITION] = _.choice(
     _.list(
         _.one(Terminals.DEFINE),
         _.one(Nonterminals.VARIABLE),
@@ -501,10 +472,10 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 todo bl: make this flow of control explicit. */
       const variable = node.at(Nonterminals.VARIABLE);
       const desugaredExpr = variable.getNextSibling().desugar(env, true);
-      const last = r5js.ProcCallLike.getLast(desugaredExpr);
+      const last = ProcCallLike.getLast(desugaredExpr);
       const cpsName = last.getResultName();
       last.setNext(
-          r5js.TopLevelAssignment.of(variable.getPayload(), cpsName));
+          TopLevelAssignment.of(variable.getPayload(), cpsName));
       return desugaredExpr;
     }),
     _.list(
@@ -520,19 +491,19 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      const def = r5js.datumutil.extractDefinition(node);
+      const def = datumutil.extractDefinition(node);
       const name = def.getFirstChild();
       const lambda = name.getNextSibling();
       const formalRoot = lambda.getFirstChild().getNextSibling();
       const formals = formalRoot.mapChildren(function(child) {
         return child.getPayload();
       });
-      const anonymousName = r5js.RenameUtil.newAnonymousLambdaName();
+      const anonymousName = RenameUtil.newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
-          new r5js.UserDefinedProcedure(
+          new UserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name));
-      return r5js.TopLevelAssignment.of(name.getPayload(), anonymousName);
+      return TopLevelAssignment.of(name.getPayload(), anonymousName);
     }),
     _.list(
         _.one(Terminals.DEFINE),
@@ -549,21 +520,21 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      const def = r5js.datumutil.extractDefinition(node);
+      const def = datumutil.extractDefinition(node);
       const name = def.getFirstChild();
       const lambda = name.getNextSibling();
       const formalRoot = lambda.getFirstChild().getNextSibling();
-      const formals = formalRoot instanceof r5js.ast.CompoundDatum ?
+      const formals = formalRoot instanceof CompoundDatum ?
           formalRoot.mapChildren(function(child) {
             return child.getPayload();
           }) :
           [formalRoot.getPayload()];
-      const anonymousName = r5js.RenameUtil.newAnonymousLambdaName();
+      const anonymousName = RenameUtil.newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
-          new r5js.VarargsUserDefinedProcedure(
+          new VarargsUserDefinedProcedure(
               formals, formalRoot.getNextSibling(), env, name));
-      return r5js.TopLevelAssignment.of(
+      return TopLevelAssignment.of(
           /** @type {string} */(name.getPayload()), // TODO bl
           anonymousName);
     }),
@@ -577,21 +548,21 @@ r5js.ParserImpl.grammar[Nonterminals.DEFINITION] = _.choice(
 
 
 // <conditional> -> (if <test> <consequent> <alternate>)
-r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
+grammar[Nonterminals.CONDITIONAL] = _.choice(
     _.list(
         _.one(Terminals.IF),
         _.one(Nonterminals.TEST),
         _.one(Nonterminals.CONSEQUENT),
         _.one(Nonterminals.ALTERNATE)).
     desugar(function(node, env) {
-      const test = /** @type {!r5js.ProcCallLike} */ (
+      const test = /** @type {!ProcCallLike} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
-      const consequent = /** @type {!r5js.ProcCall} */ (
+      const consequent = /** @type {!ProcCall} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
-      const alternate = /** @type {!r5js.ProcCall} */ (
+      const alternate = /** @type {!ProcCall} */ (
           node.at(Nonterminals.ALTERNATE).desugar(env, true));
-      const testEndpoint = r5js.ProcCallLike.getLast(test);
-      const branch = new r5js.Branch(testEndpoint.getResultName(),
+      const testEndpoint = ProcCallLike.getLast(test);
+      const branch = new Branch(testEndpoint.getResultName(),
           consequent, alternate);
       testEndpoint.setNext(branch);
       return test;
@@ -601,50 +572,50 @@ r5js.ParserImpl.grammar[Nonterminals.CONDITIONAL] = _.choice(
         _.one(Nonterminals.TEST),
         _.one(Nonterminals.CONSEQUENT)).
     desugar(/** @suppress {checkTypes} */function(node, env) {
-      const test = /** @type {!r5js.ProcCallLike} */ (
+      const test = /** @type {!ProcCallLike} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
-      const consequent = /** @type {!r5js.ProcCallLike} */ (
+      const consequent = /** @type {!ProcCallLike} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
 
-      const testEndpoint = r5js.ProcCallLike.getLast(test);
-      const branch = new r5js.Branch(
+      const testEndpoint = ProcCallLike.getLast(test);
+      const branch = new Branch(
           testEndpoint.getResultName(),
           consequent,
-          r5js.runtime.UNSPECIFIED_VALUE.toProcCallLike());
+          UNSPECIFIED_VALUE.toProcCallLike());
       testEndpoint.setNext(branch);
       return test;
     }));
 
 
 // <test> -> <expression>
-r5js.ParserImpl.grammar[Nonterminals.TEST] = _.one(
+grammar[Nonterminals.TEST] = _.one(
     Nonterminals.EXPRESSION);
 
 
 // <consequent> -> <expression>
-r5js.ParserImpl.grammar[Nonterminals.CONSEQUENT] = _.one(
+grammar[Nonterminals.CONSEQUENT] = _.one(
     Nonterminals.EXPRESSION);
 
 
 // <alternate> -> <expression> | <empty>
-r5js.ParserImpl.grammar[Nonterminals.ALTERNATE] = _.one(
+grammar[Nonterminals.ALTERNATE] = _.one(
     Nonterminals.EXPRESSION);
 
 
 // <assignment> -> (set! <variable> <expression>)
-r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
+grammar[Nonterminals.ASSIGNMENT] = _.list(
     _.one(Terminals.SET),
     _.one(Nonterminals.VARIABLE),
     _.one(Nonterminals.EXPRESSION)).
         desugar(function(node, env) {
       // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
-      const variable = /** @type {!r5js.ast.SimpleDatum} */ (
+      const variable = /** @type {!SimpleDatum} */ (
           node.at(Nonterminals.VARIABLE));
-      const desugaredExpr = /** @type {!r5js.ProcCallLike} */ (
+      const desugaredExpr = /** @type {!ProcCallLike} */ (
           variable.getNextSibling().desugar(env, true));
-      const lastContinuable = r5js.ProcCallLike.getLast(desugaredExpr);
+      const lastContinuable = ProcCallLike.getLast(desugaredExpr);
       const cpsName = lastContinuable.getResultName();
-      lastContinuable.setNext(r5js.newAssignment(
+      lastContinuable.setNext(newAssignment(
           /** @type {string} */ (variable.getPayload()), cpsName));
       return desugaredExpr;
         });
@@ -652,9 +623,9 @@ r5js.ParserImpl.grammar[Nonterminals.ASSIGNMENT] = _.list(
 
 // <quasiquotation> -> <quasiquotation 1>
 // <quasiquotation D> -> `<qq template D> | (quasiquote <qq template D>)
-r5js.ParserImpl.grammar[Nonterminals.QUASIQUOTATION] = _.seq(
+grammar[Nonterminals.QUASIQUOTATION] = _.seq(
     // Terminals.QUASIQUOTE has already been canonicalized as
-    // Terminals.BACKTICK (see r5js.read.bnf.Seq_#maybeCanonicalize)
+    // Terminals.BACKTICK (see read.bnf.Seq_#maybeCanonicalize)
     _.one(Terminals.BACKTICK),
     _.one(Nonterminals.QQ_TEMPLATE));
 
@@ -665,9 +636,9 @@ r5js.ParserImpl.grammar[Nonterminals.QUASIQUOTATION] = _.seq(
  | <vector qq template D>
  | <unquotation D>
  */
-r5js.ParserImpl.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
+grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
     _.matchDatum(function(datum) {
-      return datum instanceof r5js.ast.SimpleDatum;
+      return datum instanceof SimpleDatum;
     }),
     _.one(Nonterminals.LIST_QQ_TEMPLATE),
     _.one(Nonterminals.VECTOR_QQ_TEMPLATE),
@@ -679,7 +650,7 @@ r5js.ParserImpl.grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
  | '<qq template D>
  | <quasiquotation D+1>
  */
-r5js.ParserImpl.grammar[Nonterminals.LIST_QQ_TEMPLATE] = _.choice(
+grammar[Nonterminals.LIST_QQ_TEMPLATE] = _.choice(
     _.list(_.zeroOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE)),
     _.dottedList(
         _.oneOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE),
@@ -691,21 +662,21 @@ r5js.ParserImpl.grammar[Nonterminals.LIST_QQ_TEMPLATE] = _.choice(
 
 
 // <vector qq template D> -> #(<qq template or splice D>*)
-r5js.ParserImpl.grammar[Nonterminals.VECTOR_QQ_TEMPLATE] =
+grammar[Nonterminals.VECTOR_QQ_TEMPLATE] =
     _.vector(
         _.zeroOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE));
 
 
 // <unquotation D> -> ,<qq template D-1> | (unquote <qq template D-1>)
-r5js.ParserImpl.grammar[Nonterminals.UNQUOTATION] = _.seq(
+grammar[Nonterminals.UNQUOTATION] = _.seq(
     // Terminals.QUOTE has already been canonicalized as Terminals.COMMA
-    // (see r5js.read.bnf.Seq_.#maybeCanonicalize).
+    // (see read.bnf.Seq_.#maybeCanonicalize).
     _.one(Terminals.COMMA),
     _.one(Nonterminals.QQ_TEMPLATE));
 
 
 // <qq template or splice D> -> <qq template D> | <splicing unquotation D>
-r5js.ParserImpl.grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
+grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
     _.seq(_.one(Nonterminals.QQ_TEMPLATE)), // TODO bl one-element sequence
     _.one(Nonterminals.SPLICING_UNQUOTATION));
 
@@ -713,14 +684,14 @@ r5js.ParserImpl.grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
 /* <splicing unquotation D> -> ,@<qq template D-1>
  | (unquote-splicing <qq template D-1>)
  */
-r5js.ParserImpl.grammar[Nonterminals.SPLICING_UNQUOTATION] = _.seq(
+grammar[Nonterminals.SPLICING_UNQUOTATION] = _.seq(
     // Terminals.UNQUOTE_SPLICING has already been canonicalized as
-    // Terminals.COMMA_AT (see r5js.read.bnf.Seq_#maybeCanonicalize).
+    // Terminals.COMMA_AT (see read.bnf.Seq_#maybeCanonicalize).
     _.one(Terminals.COMMA_AT),
     _.one(Nonterminals.QQ_TEMPLATE));
 
 // <macro use> -> (<keyword> <datum>*)
-r5js.ParserImpl.grammar[Nonterminals.MACRO_USE] = _.list(
+grammar[Nonterminals.MACRO_USE] = _.list(
     _.one(Nonterminals.KEYWORD),
     _.zeroOrMore(Nonterminals.DATUM)).
         desugar(function(node, env) {
@@ -728,29 +699,29 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_USE] = _.list(
                 datums as-is for the macro pattern matching facility to use.
                 The trampoline knows what to do with raw datums in such a
                 context. */
-      return new r5js.ProcCall(
-          /** @type {!r5js.ast.Identifier} */ (node.at(Nonterminals.KEYWORD)),
+      return new ProcCall(
+          /** @type {!Identifier} */ (node.at(Nonterminals.KEYWORD)),
           node.at(Nonterminals.DATUM));
     });
 
 
 // <keyword> -> <identifier>
-r5js.ParserImpl.grammar[Nonterminals.KEYWORD] = _.seq(
+grammar[Nonterminals.KEYWORD] = _.seq(
     _.matchDatum(function(datum) {
-      return datum instanceof r5js.ast.Identifier;
+      return datum instanceof Identifier;
     }));
 
 
 /* <macro block> -> (let-syntax (<syntax spec>*) <body>)
  | (letrec-syntax (<syntax-spec>*) <body>) */
-r5js.ParserImpl.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
+grammar[Nonterminals.MACRO_BLOCK] = _.choice(
     _.list(
         _.one(Terminals.LET_SYNTAX),
         _.list(_.zeroOrMore(Nonterminals.SYNTAX_SPEC)),
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
     desugar(function(node, env) {
-      return r5js.ParserImpl.desugarMacroBlock_(node, env, 'let');
+      return ParserImpl.desugarMacroBlock_(node, env, 'let');
     }),
     _.list(
         _.one(Terminals.LETREC_SYNTAX),
@@ -758,18 +729,18 @@ r5js.ParserImpl.grammar[Nonterminals.MACRO_BLOCK] = _.choice(
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
     desugar(function(node, env) {
-      return r5js.ParserImpl.desugarMacroBlock_(node, env, 'letrec');
+      return ParserImpl.desugarMacroBlock_(node, env, 'letrec');
     }));
 
 
 // <syntax spec> -> (<keyword> <transformer spec>)
-r5js.ParserImpl.grammar[Nonterminals.SYNTAX_SPEC] = _.list(
+grammar[Nonterminals.SYNTAX_SPEC] = _.list(
     _.one(Nonterminals.KEYWORD),
     _.one(Nonterminals.TRANSFORMER_SPEC));
 
 
 // <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
-r5js.ParserImpl.grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
+grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
     _.one(Terminals.SYNTAX_RULES),
     _.list(_.zeroOrMore(Nonterminals.PATTERN_IDENTIFIER)),
     _.zeroOrMore(Nonterminals.SYNTAX_RULE)).
@@ -777,17 +748,17 @@ r5js.ParserImpl.grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
       /*4.3.2: It is an error for ... to appear in <literals>.
                 So we can reuse the pattern-identifier nonterminal
                 to check this in the parser. Win! */
-      const ids = (/** @type {!r5js.ast.CompoundDatum} */ (node)).firstSublist().
+      const ids = (/** @type {!CompoundDatum} */ (node)).firstSublist().
           at(Nonterminals.PATTERN_IDENTIFIER);
       const rules = node.at(Nonterminals.SYNTAX_RULE);
       // todo bl implement: It is an error for the same pattern
       // variable to appear more than once in a <pattern>.
-      return new r5js.Macro(ids, /** @type {!r5js.Datum} */(rules), env);
+      return new Macro(ids, /** @type {!Datum} */(rules), env);
         });
 
 
 // <syntax rule> -> (<pattern> <template>)
-r5js.ParserImpl.grammar[Nonterminals.SYNTAX_RULE] = _.list(
+grammar[Nonterminals.SYNTAX_RULE] = _.list(
     _.one(Nonterminals.PATTERN),
     _.one(Nonterminals.TEMPLATE));
 
@@ -800,24 +771,24 @@ r5js.ParserImpl.grammar[Nonterminals.SYNTAX_RULE] = _.list(
  | #(<pattern>+ <ellipsis>)
  | <pattern datum>
  */
-r5js.ParserImpl.grammar[Nonterminals.PATTERN] = _.choice(
+grammar[Nonterminals.PATTERN] = _.choice(
     _.list(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS)).
     desugar(function(node, env) {
-      const ans = new r5js.ListTransformer();
+      const ans = new ListTransformer();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
-        if (nextSibling instanceof r5js.ast.SimpleDatum &&
+        if (nextSibling instanceof SimpleDatum &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
-              new r5js.EllipsisTransformer(
-                  /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
+              new EllipsisTransformer(
+                  /** @type {!ITransformer} */ (cur.desugar(env))));
           break;
         } else {
-          ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
+          ans.addSubtransformer(/** @type {!ITransformer} */ (
               cur.desugar(env)));
         }
       }
@@ -827,35 +798,35 @@ r5js.ParserImpl.grammar[Nonterminals.PATTERN] = _.choice(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS)).
     desugar(function(node, env) {
-      const ans = new r5js.VectorTransformer();
+      const ans = new VectorTransformer();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
-        if (nextSibling instanceof r5js.ast.Identifier &&
+        if (nextSibling instanceof Identifier &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
-              new r5js.EllipsisTransformer(
-                  /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
+              new EllipsisTransformer(
+                  /** @type {!ITransformer} */ (cur.desugar(env))));
           break;
         } else {
           ans.addSubtransformer(
-              /** @type {!r5js.ITransformer} */ (cur.desugar(env)));
+              /** @type {!ITransformer} */ (cur.desugar(env)));
         }
       }
       return ans;
     }),
     _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(function(node) {
-      return new r5js.PatternIdTransformer(
-          /** @type {!r5js.ast.SimpleDatum} */ (node));
+      return new PatternIdTransformer(
+          /** @type {!SimpleDatum} */ (node));
     }),
     _.list(_.zeroOrMore(Nonterminals.PATTERN)).
     desugar(function(node, env) {
-      const ans = new r5js.ListTransformer();
+      const ans = new ListTransformer();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
+        ans.addSubtransformer(/** @type {!ITransformer} */(
             cur.desugar(env)));
       }
       return ans;
@@ -867,37 +838,37 @@ r5js.ParserImpl.grammar[Nonterminals.PATTERN] = _.choice(
         _.one(Nonterminals.PATTERN),
         _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
-      const ans = new r5js.DottedListTransformer();
+      const ans = new DottedListTransformer();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
+        ans.addSubtransformer(/** @type {!ITransformer} */(
             cur.desugar(env)));
       }
       return ans;
     }),
     _.vector(_.zeroOrMore(Nonterminals.PATTERN)).
     desugar(function(node, env) {
-      const ans = new r5js.VectorTransformer();
+      const ans = new VectorTransformer();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
+        ans.addSubtransformer(/** @type {!ITransformer} */ (
             cur.desugar(env)));
       }
       return ans;
     }),
     _.one(Nonterminals.PATTERN_DATUM).desugar(function(node) {
-      return new r5js.PatternIdTransformer(
-          /** @type {!r5js.ast.SimpleDatum} */ (node));
+      return new PatternIdTransformer(
+          /** @type {!SimpleDatum} */ (node));
     }));
 
 
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
-r5js.ParserImpl.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
+grammar[Nonterminals.PATTERN_DATUM] = _.seq(
     _.matchDatum(function(datum) {
-      return datum instanceof r5js.ast.SimpleDatum &&
-          !(datum instanceof r5js.ast.Identifier);
+      return datum instanceof SimpleDatum &&
+          !(datum instanceof Identifier);
     }));
 
 
@@ -925,33 +896,33 @@ r5js.ParserImpl.grammar[Nonterminals.PATTERN_DATUM] = _.seq(
  Anyway, the rules for validating templates with ellipses in them are vague
  (4.3.2: "It is an error if the output cannot be built up [from the template]
  as specified") and I can do this during evaluation of a macro if necessary. */
-r5js.ParserImpl.grammar[Nonterminals.TEMPLATE] = _.choice(
+grammar[Nonterminals.TEMPLATE] = _.choice(
     _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(function(node) {
-      return new r5js.TemplateIdTransformer(
-          /** @type {!r5js.ast.SimpleDatum} */(node));
+      return new TemplateIdTransformer(
+          /** @type {!SimpleDatum} */(node));
     }),
     _.seq(_.one(Terminals.ELLIPSIS)), // TODO bl one-element sequence
     _.one(Nonterminals.TEMPLATE_DATUM).desugar(function(node) {
-      return new r5js.TemplateIdTransformer(
-          /** @type {!r5js.ast.SimpleDatum} */ (node));
+      return new TemplateIdTransformer(
+          /** @type {!SimpleDatum} */ (node));
     }),
     _.dottedList(
         _.oneOrMore(Nonterminals.TEMPLATE),
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      const ans = new r5js.DottedListTransformer();
+      const ans = new DottedListTransformer();
       for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
-        if (nextSibling instanceof r5js.ast.Identifier &&
+        if (nextSibling instanceof Identifier &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
-              new r5js.EllipsisTransformer(
-                  /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
+              new EllipsisTransformer(
+                  /** @type {!ITransformer} */ (cur.desugar(env))));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
+          ans.addSubtransformer(/** @type {!ITransformer} */(
               cur.desugar(env)));
         }
       }
@@ -960,19 +931,19 @@ r5js.ParserImpl.grammar[Nonterminals.TEMPLATE] = _.choice(
     }),
     _.list(_.zeroOrMore(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      const ans = new r5js.ListTransformer();
+      const ans = new ListTransformer();
       for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
-        if (nextSibling instanceof r5js.ast.Identifier &&
+        if (nextSibling instanceof Identifier &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
-              new r5js.EllipsisTransformer(
-                  /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
+              new EllipsisTransformer(
+                  /** @type {!ITransformer} */ (cur.desugar(env))));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(/** @type {!r5js.ITransformer} */(
+          ans.addSubtransformer(/** @type {!ITransformer} */(
               cur.desugar(env)));
         }
       }
@@ -980,19 +951,19 @@ r5js.ParserImpl.grammar[Nonterminals.TEMPLATE] = _.choice(
     }),
     _.vector(_.zeroOrMore(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      const ans = new r5js.VectorTransformer();
+      const ans = new VectorTransformer();
       for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
-        if (nextSibling instanceof r5js.ast.Identifier &&
+        if (nextSibling instanceof Identifier &&
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
-              new r5js.EllipsisTransformer(
-                  /** @type {!r5js.ITransformer} */ (cur.desugar(env))));
+              new EllipsisTransformer(
+                  /** @type {!ITransformer} */ (cur.desugar(env))));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
+          ans.addSubtransformer(/** @type {!ITransformer} */ (
               cur.desugar(env)));
         }
       }
@@ -1002,33 +973,33 @@ r5js.ParserImpl.grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Terminals.TICK),
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      const ans = new r5js.QuoteTransformer();
-      ans.addSubtransformer(/** @type {!r5js.ITransformer} */ (
+      const ans = new QuoteTransformer();
+      ans.addSubtransformer(/** @type {!ITransformer} */ (
           node.at(Nonterminals.TEMPLATE).desugar(env)));
       return ans;
     }));
 
 
 // <template datum> -> <pattern datum>
-r5js.ParserImpl.grammar[Nonterminals.TEMPLATE_DATUM] = _.one(
+grammar[Nonterminals.TEMPLATE_DATUM] = _.one(
     Nonterminals.PATTERN_DATUM);
 
 
 // <pattern identifier> -> <any identifier except ...>
-r5js.ParserImpl.grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
+grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
     _.matchDatum(function(datum) {
-      return datum instanceof r5js.ast.Identifier &&
+      return datum instanceof Identifier &&
           datum.getPayload() !== Terminals.ELLIPSIS;
     }));
 
 
 // <program> -> <command or definition>*
-r5js.ParserImpl.grammar[Nonterminals.PROGRAM] = _.seq(
+grammar[Nonterminals.PROGRAM] = _.seq(
     _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
         desugar(function(node, env) {
-      // r5js.VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of a
+      // VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of a
       // special case that I don't care.
-      return node === r5js.VACUOUS_PROGRAM ? node : node.sequence(env);
+      return node === VACUOUS_PROGRAM ? node : node.sequence(env);
     });
 
 
@@ -1037,7 +1008,7 @@ r5js.ParserImpl.grammar[Nonterminals.PROGRAM] = _.seq(
  | <syntax definition>
  | (begin <command or definition>*)
  */
-r5js.ParserImpl.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
+grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
     _.one(Nonterminals.DEFINITION),
     _.one(Nonterminals.SYNTAX_DEFINITION),
     _.one(Nonterminals.DEFINITION),
@@ -1053,25 +1024,27 @@ r5js.ParserImpl.grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
 
 
 // <command> -> <expression>
-r5js.ParserImpl.grammar[Nonterminals.COMMAND] = _.one(
+grammar[Nonterminals.COMMAND] = _.one(
     Nonterminals.EXPRESSION);
 
 
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
-r5js.ParserImpl.grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
+grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
     _.one(Terminals.DEFINE_SYNTAX),
     _.one(Nonterminals.KEYWORD),
     _.one(Nonterminals.TRANSFORMER_SPEC)).
         desugar(function(node, env) {
-      const kw = (/** @type {!r5js.ast.Identifier} */ (node.at(
+      const kw = (/** @type {!Identifier} */ (node.at(
           Nonterminals.KEYWORD))).getPayload();
-      const macro = /** @type {!r5js.Macro} */ (
+      const macro = /** @type {!Macro} */ (
           node.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
       if (!macro.allPatternsBeginWith(kw))
-        throw r5js.error.macro(kw, 'all patterns must begin with ' + kw);
-      const anonymousName = r5js.RenameUtil.newAnonymousLambdaName();
+        throw error.macro(kw, 'all patterns must begin with ' + kw);
+      const anonymousName = RenameUtil.newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
-      return r5js.TopLevelSyntaxAssignment.of(kw, anonymousName);
+      return TopLevelSyntaxAssignment.of(kw, anonymousName);
     });
 
-});  // goog.scope
+exports.ParserImpl = ParserImpl;
+exports.grammar = grammar;
+

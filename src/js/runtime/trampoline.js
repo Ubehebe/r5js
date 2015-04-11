@@ -129,7 +129,7 @@ function trampoline(procCallLike, startingEnv, inputPort, outputPort) {
  * @return {!Parser} New parser that will parse the given datum.
  */
 function parserProvider(datum) {
-  return new ParserImpl(datum);
+  return new ParserImpl.ParserImpl(datum);
 }
 
 exports = trampoline;

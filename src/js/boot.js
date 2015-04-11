@@ -72,7 +72,7 @@ function boot(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
  * @param {!IEnvironment} env Environment to install the source code's definitions into.
  */
 function installSchemeSource(lib, env) {
-    const continuable = /** @type {!ProcCallLike} */ (new ParserImpl(
+    const continuable = /** @type {!ProcCallLike} */ (new ParserImpl.ParserImpl(
         /** @type {!Datum} */ (new ReaderImpl(
             new Scanner(lib)).read())).parse().desugar(env));
     trampoline(continuable, env, InputPort.NULL, OutputPort.NULL);

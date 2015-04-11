@@ -39,7 +39,7 @@ class PipelineImpl {
      * @override TODO bl shouldn't be necessary
      */
     parse(root, opt_nonterminal) {
-        var parser = new ParserImpl(root);
+        var parser = new ParserImpl.ParserImpl(root);
         var ans = goog.isDef(opt_nonterminal)
             ? parser.parse(opt_nonterminal)
             : parser.parse();

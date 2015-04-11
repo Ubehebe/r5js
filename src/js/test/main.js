@@ -111,7 +111,7 @@ r5js.test.readSandbox = function(text) {
 r5js.test.parseSandbox = function(text) {
   let datumRoot = new r5js.ReaderImpl(new r5js.Scanner(text)).read();
   if (datumRoot) {
-    new r5js.ParserImpl(datumRoot).parse();
+    new r5js.ParserImpl.ParserImpl(datumRoot).parse();
   }
 };
 

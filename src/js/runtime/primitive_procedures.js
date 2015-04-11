@@ -629,7 +629,7 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
         // don't accidentally evaluate the next expr!
         expr.nextSibling_ = null;
 
-        const parsed = new r5js.ParserImpl(expr).parse();
+        const parsed = new r5js.ParserImpl.ParserImpl(expr).parse();
         if (!parsed) {
           throw r5js.error.parse(expr);
         }

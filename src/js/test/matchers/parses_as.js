@@ -61,7 +61,7 @@ ParsesAs_.prototype.matches = function(value) {
     return false;
   }
   const actualResult = (datumRoot instanceof r5js.Datum) &&
-      new r5js.ParserImpl(datumRoot).parse(this.expectedType_);
+      new r5js.ParserImpl.ParserImpl(datumRoot).parse(this.expectedType_);
   if (actualResult && actualResult.peekParse) {
     this.actualType_ = /** @type {!r5js.parse.Nonterminal} */ (
         actualResult.peekParse());
