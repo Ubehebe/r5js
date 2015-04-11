@@ -22,6 +22,7 @@ goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.InputPort');
 goog.require('r5js.Repl');
 goog.require('r5js.curPlatform');
+goog.require('r5js.platform.html5.Platform');
 goog.require('r5js.platform.html5.Terminal');
 goog.require('r5js.replutil');
 
@@ -31,7 +32,7 @@ goog.require('r5js.replutil');
  * @param {?} jqConsole
  */
 r5js.platform.html5.repl = function(jqConsole) {
-  const platform = /** @type {!r5js.platform.Html5_} */ (
+  const platform = /** @type {!r5js.platform.html5.Platform} */ (
       r5js.curPlatform.apply(null, goog.array.toArray(arguments)));
   /** @type {r5js.Terminal} */ let terminal = null;
   const stdin = r5js.InputPort.NULL;
