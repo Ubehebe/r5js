@@ -1,12 +1,13 @@
-goog.provide('r5js.platform.html5.Terminal');
+goog.module('r5js.platform.html5.Terminal');
 
-goog.require('goog.Promise');
-goog.require('r5js.Terminal');
+const Promise = goog.require('goog.Promise');
+const Terminal = goog.require('r5js.Terminal');
 
-r5js.platform.html5.Terminal = /** @implements {r5js.Terminal} */ class {
+/** @implements {Terminal} */
+class Html5Terminal {
     /**
      * @param {?} jqconsole
-     * @param {function(string):!goog.Promise<boolean>} isLineComplete Function
+     * @param {function(string):!Promise<boolean>} isLineComplete Function
      * to determine if a given line of user input is complete (= ready to be
      * evaluated).
      */
@@ -23,9 +24,7 @@ r5js.platform.html5.Terminal = /** @implements {r5js.Terminal} */ class {
      * values.
      */
     multilineCallback_(line, cb) {
-        this.isLineComplete_(line).then(function (lineComplete) {
-            cb(lineComplete ? false : 0);
-        });
+        this.isLineComplete_(line).then(done => cb(done ? false : 0));
     }
 
     /**
@@ -33,7 +32,7 @@ r5js.platform.html5.Terminal = /** @implements {r5js.Terminal} */ class {
      * @suppress {checkTypes} for the jqconsole integration
      */
     getNextLineOfInput() {
-        return new goog.Promise(function (resolve) {
+        return new Promise(function(resolve) {
             this.jqconsole_['Prompt'](
                 true /* history_enabled */,
                 resolve,
@@ -57,4 +56,6 @@ r5js.platform.html5.Terminal = /** @implements {r5js.Terminal} */ class {
     error(msg) {
         this.jqconsole_['Write'](msg + '\n', 'jqconsole-error');
     }
-};
+}
+
+exports = Html5Terminal;
