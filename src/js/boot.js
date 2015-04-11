@@ -26,7 +26,7 @@ const trampoline = goog.require('r5js.trampoline');
  * @param {!OutputPort=} opt_outputPort Optional output port that the new
  * evaluator will be connected to. If not given, defaults to
  * {@link r5js.OutputPort.NULL}.
- * @return {!Evaluator.Interface}
+ * @return {!Evaluator}
  */
 function boot(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
   const nullEnv = new Environment(null /* enclosingEnv */);

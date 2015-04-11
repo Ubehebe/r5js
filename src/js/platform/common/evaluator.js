@@ -6,7 +6,7 @@ const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
 const Promise = goog.require('goog.Promise');
 const SchemeSources = goog.require('r5js.SchemeSources');
-const SyncEvaluator = goog.require('r5js.sync.Evaluator').Interface;
+const SyncEvaluator = goog.require('r5js.sync.Evaluator');
 
 /**
  * @param {!InputPort=} opt_inputPort
