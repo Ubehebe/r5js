@@ -1,40 +1,24 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.replutil');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const Datum = goog.require('r5js.Datum');
+const Pipeline = goog.require('r5js.Pipeline');
+const PipelineImpl = goog.require('r5js.PipelineImpl');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-goog.provide('r5js.replutil');
-goog.require('r5js.PipelineImpl');
-
-
-/** @type {r5js.Pipeline} */ r5js.replutil.pipeline_;
-
+/** @type {Pipeline} */ let pipeline = null;
 
 /**
  * @param {string} input
  * @return {boolean}
  * @suppress {checkTypes} for new r5js.PipelineImpl(null).
  */
-r5js.replutil.isLineComplete = function(input) {
-  if (!r5js.replutil.pipeline_) {
-    r5js.replutil.pipeline_ = new r5js.PipelineImpl(null);
+function isLineComplete(input) {
+  if (!pipeline) {
+    pipeline = new PipelineImpl(null);
   }
 
   try {
-    const tokenStream = r5js.replutil.pipeline_.scan(input);
-    const datum = r5js.replutil.pipeline_.parse(
-        /** @type {!r5js.Datum} */ (r5js.replutil.pipeline_.read(tokenStream)));
+    const tokenStream = pipeline.scan(input);
+    const datum = pipeline.parse(/** @type {!Datum} */ (pipeline.read(tokenStream)));
     return !tokenStream.nextToken() && !!datum;
   } catch (x) {
     /* If parsing failed, we usually want to wait for another line
@@ -66,4 +50,6 @@ r5js.replutil.isLineComplete = function(input) {
     const rparens = input.match(/\)/g);
     return !!(lparens && rparens && lparens.length === rparens.length);
   }
-};
+}
+
+exports.isLineComplete = isLineComplete;
