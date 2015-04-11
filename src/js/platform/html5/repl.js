@@ -1,52 +1,31 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.platform.html5.repl');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.platform.html5.repl');
-
-
-goog.require('goog.Promise');
-goog.require('goog.array');
-goog.require('r5js.CallbackBackedPort');
-goog.require('r5js.InputPort');
-goog.require('r5js.Repl');
-goog.require('r5js.curPlatform');
-goog.require('r5js.platform.html5.Platform');
-goog.require('r5js.platform.html5.Terminal');
-goog.require('r5js.replutil');
-
+const Promise = goog.require('goog.Promise');
+const array = goog.require('goog.array');
+const CallbackBackedPort = goog.require('r5js.CallbackBackedPort');
+const InputPort = goog.require('r5js.InputPort');
+const Repl = goog.require('r5js.Repl');
+const curPlatform = goog.require('r5js.curPlatform');
+const Platform = goog.require('r5js.platform.html5.Platform');
+const Terminal = goog.require('r5js.platform.html5.Terminal');
+const replutil = goog.require('r5js.replutil');
 
 /**
  * The main REPL method.
  * @param {?} jqConsole
  */
-r5js.platform.html5.repl = function(jqConsole) {
-  const platform = /** @type {!r5js.platform.html5.Platform} */ (
-      r5js.curPlatform.apply(null, goog.array.toArray(arguments)));
-  /** @type {r5js.Terminal} */ let terminal = null;
-  const stdin = r5js.InputPort.NULL;
-  const stdout = new r5js.CallbackBackedPort(function(output) {
-    terminal.print(output);
-  });
-  platform.newEvaluator(stdin, stdout).then(function(evaluator) {
-    const isLineComplete = function(line) {
-      return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
-    };
+function repl(jqConsole) {
+  const platform = /** @type {!Platform} */ (curPlatform.apply(null, array.toArray(arguments)));
+  /** @type {Terminal} */ let terminal = null;
+  const stdin = InputPort.NULL;
+  const stdout = new CallbackBackedPort(output => terminal.print(output));
+  platform.newEvaluator(stdin, stdout).then(evaluator => {
+    const isLineComplete = line => Promise.resolve(replutil.isLineComplete(line));
     terminal = platform.getTerminal(jqConsole);
-    new r5js.Repl(terminal, evaluator, isLineComplete).start();
+    new Repl(terminal, evaluator, isLineComplete).start();
   });
-};
+}
 
+exports = repl;
 
-goog.exportSymbol('r5js.repl.main', r5js.platform.html5.repl);
+goog.exportSymbol('r5js.repl.main', repl);
