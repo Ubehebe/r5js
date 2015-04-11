@@ -7,7 +7,6 @@ goog.module('r5js.platform.html5.Worker');
 const boot = goog.require('r5js.boot');
 const EventType = goog.require('goog.events.EventType');
 const InputPort = goog.require('r5js.InputPort');
-const message = goog.require('r5js.platform.html5.message');
 const Message = goog.require('r5js.platform.html5.Message');
 const MessageType = goog.require('r5js.platform.html5.MessageType');
 const OutputPort = goog.require('r5js.platform.html5.OutputPort');
@@ -34,9 +33,9 @@ function handleEvalRequest(request) {
     getEvaluator().then(evaluator => {
         try {
             const value = evaluator.evaluate(/** @type {string} */ (request.content));
-            postMessage(message.newEvalResponse(request.id, value));
+            postMessage(Message.newEvalResponse(request.id, value));
         } catch (e) {
-            postMessage(message.newEvalError(request.id, e));
+            postMessage(Message.newEvalError(request.id, e));
         }
     });
 }
@@ -45,7 +44,7 @@ function handleEvalRequest(request) {
 function getEvaluator() {
     if (!evaluator) {
         const inputPort = InputPort.NULL;
-        const outputPort = new OutputPort(value => postMessage(message.output(value)));
+        const outputPort = new OutputPort(value => postMessage(Message.output(value)));
         evaluator = SchemeSources.get().then(sources =>
                 boot(sources.syntax, sources.procedures, inputPort, outputPort));
     }

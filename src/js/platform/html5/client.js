@@ -2,7 +2,6 @@ goog.module('r5js.platform.html5.Client');
 
 const Evaluator = goog.require('r5js.Evaluator');
 const EventType = goog.require('goog.events.EventType');
-const message = goog.require('r5js.platform.html5.message');
 const Message = goog.require('r5js.platform.html5.Message');
 const MessageType = goog.require('r5js.platform.html5.MessageType');
 const OutputPort = goog.require('r5js.OutputPort');
@@ -26,7 +25,7 @@ class Client {
         const resolver = Promise.withResolver();
         const messageId = ++this.messageIdCounter_;
         this.resolvers_[messageId] = resolver;
-        this.worker_.postMessage(message.newEvalRequest(messageId, input));
+        this.worker_.postMessage(Message.newEvalRequest(messageId, input));
         return resolver.promise;
     }
 

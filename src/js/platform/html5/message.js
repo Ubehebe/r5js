@@ -1,99 +1,67 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.platform.html5.Message');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-
-
-
-goog.provide('r5js.platform.html5.Message');
-goog.provide('r5js.platform.html5.MessageType');
-goog.provide('r5js.platform.html5.message');
-
-
+const Error = goog.require('r5js.Error');
+const MessageType = goog.require('r5js.platform.html5.MessageType');
 
 /**
  * Structure for messages passed between {@link r5js.platform.html5.Client}
  * and {@link r5js.platform.html5.Worker}. This type isn't goog.provided;
  * use the r5js.platform.html5.message.* helper functions instead.
- * @param {!r5js.platform.html5.MessageType} type Message type. Ordinarily,
- * type tags are inferior to subclassing. However, the HTML5 structured clone
- * algorithm restricts the data that can pass between a worker and its parent.
- * To avoid several pitfalls (for example, functions can't be serialized),
- * we stick to a simple structure and use type tags.
- * @param {number} id Message id.
- * @param {string|!r5js.Error} content Message content.
- * @struct
- * @constructor
+ * @package
  */
-r5js.platform.html5.Message = function(type, id, content) {
-  /** @const */ this.type = type;
-  /** @const */ this.id = id;
-  /** @const */ this.content = content;
-};
+class Message {
+    /**
+     * @param {!MessageType} type Message type. Ordinarily,
+     * type tags are inferior to subclassing. However, the HTML5 structured clone
+     * algorithm restricts the data that can pass between a worker and its parent.
+     * To avoid several pitfalls (for example, functions can't be serialized),
+     * we stick to a simple structure and use type tags.
+     * @param {number} id Message id.
+     * @param {string|!Error} content Message content.
+     */
+    constructor(type, id, content) {
+        /** @const */ this.type = type;
+        /** @const */ this.id = id;
+        /** @const */ this.content = content;
+    }
 
+    /**
+     * @param {number} id Message id.
+     * @param {string} request Message content.
+     * @return {!Message}
+     */
+    static newEvalRequest(id, request) {
+        return new Message(MessageType.EVAL_REQUEST, id, request);
+    }
 
-/** @enum {number} */
-r5js.platform.html5.MessageType = {
-  EVAL_REQUEST: 0,
-  EVAL_RESPONSE: 1,
-  EVAL_ERROR: 2,
-  OUTPUT: 3
-};
+    /**
+     * @param {number} id Message id.
+     * @param {string} value Message content.
+     * @return {!Message}
+     */
+    static newEvalResponse(id, value) {
+        return new Message(MessageType.EVAL_RESPONSE, id, value);
+    }
 
+    /**
+     * @param {number} id Message id.
+     * @param {!Error} error Error.
+     * @return {!Message}
+     */
+    static newEvalError(id, error) {
+        return new Message(MessageType.EVAL_ERROR, id, error);
+    }
 
-/**
- * @param {number} id Message id.
- * @param {string} request Message content.
- * @return {!r5js.platform.html5.Message}
- */
-r5js.platform.html5.message.newEvalRequest = function(id, request) {
-  return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.EVAL_REQUEST, id, request);
-};
+    /**
+     * @param {string} value
+     * @return {!Message}
+     */
+    static output(value) {
+        return new Message(MessageType.OUTPUT, -1, value);
+    }
+}
 
-
-/**
- * @param {number} id Message id.
- * @param {string} value Message content.
- * @return {!r5js.platform.html5.Message}
- */
-r5js.platform.html5.message.newEvalResponse = function(id, value) {
-  return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.EVAL_RESPONSE, id, value);
-};
-
-
-/**
- * @param {number} id Message id.
- * @param {!r5js.Error} error Error.
- * @return {!r5js.platform.html5.Message}
- */
-r5js.platform.html5.message.newEvalError = function(id, error) {
-  return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.EVAL_ERROR, id, error);
-};
-
-
-/**
- * @param {string} value
- * @return {!r5js.platform.html5.Message}
- */
-r5js.platform.html5.message.output = function(value) {
-  return new r5js.platform.html5.Message(
-      r5js.platform.html5.MessageType.OUTPUT, -1, value);
-};
+exports = Message;
 
 
 
