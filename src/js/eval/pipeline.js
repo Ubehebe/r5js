@@ -17,7 +17,7 @@ const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const Value = goog.require('r5js.runtime.Value');
 
 /** @interface */
-class Interface {
+class Pipeline {
     /**
      * @param {string} string The string to scan.
      * @return {!TokenStream} A token stream representing the input string.
@@ -51,9 +51,17 @@ class Interface {
      * @return {!Value}
      */
     Eval(continuable, inputPort, outputPort) {}
+
+    /**
+     * @param {!IEnvironment} rootEnv
+     * @return {!Pipeline}
+     */
+    static forEnvironment(rootEnv) {
+        return new Impl(rootEnv);
+    }
 }
 
-/** @implements {Interface} */
+/** @implements {Pipeline} */
 class Impl {
     /** @param {!IEnvironment} rootEnv The root environment. */
     constructor(rootEnv) {
@@ -102,13 +110,4 @@ class Impl {
     }
 }
 
-/**
- * @param {!IEnvironment} rootEnv
- * @return {!Interface}
- */
-function forEnvironment(rootEnv) {
-    return new Impl(rootEnv);
-}
-
-exports.Interface = Interface;
-exports.forEnvironment = forEnvironment;
+exports = Pipeline;

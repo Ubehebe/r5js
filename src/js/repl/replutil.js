@@ -3,7 +3,7 @@ goog.module('r5js.replutil');
 const Datum = goog.require('r5js.Datum');
 const Pipeline = goog.require('r5js.Pipeline');
 
-/** @type {Pipeline.Interface} */ let pipeline = null;
+/** @type {Pipeline} */ let pipeline = null;
 
 /**
  * @param {string} input

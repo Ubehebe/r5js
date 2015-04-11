@@ -5,7 +5,7 @@ const error = goog.require('r5js.Error');
 const Evaluator = goog.require('r5js.sync.Evaluator');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
-const Pipeline = goog.require('r5js.Pipeline').Interface;
+const Pipeline = goog.require('r5js.Pipeline');
 const valutil = goog.require('r5js.valutil');
 
 /** @interface */
