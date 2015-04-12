@@ -15,12 +15,12 @@ const List = goog.require('r5js.ast.List');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
 const MacroDatum = goog.require('r5js.ast.Macro');
+const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
 const newAssignment = goog.require('r5js.newAssignment');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const Nonterminals = goog.require('r5js.parse.Nonterminals');
 const Number = goog.require('r5js.ast.Number');
 const Parser = goog.require('r5js.Parser');
-const PatternIdTransformer = goog.require('r5js.PatternIdTransformer');
 const ProcCall = goog.require('r5js.ProcCall');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const RenameHelper = goog.require('r5js.RenameHelper');
@@ -28,7 +28,6 @@ const RenameUtil = goog.require('r5js.RenameUtil');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const String = goog.require('r5js.ast.String');
-const TemplateIdTransformer = goog.require('r5js.TemplateIdTransformer');
 const Terminals = goog.require('r5js.parse.Terminals');
 const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
 const TopLevelSyntaxAssignment = goog.require('r5js.TopLevelSyntaxAssignment');
@@ -812,10 +811,8 @@ grammar[Nonterminals.PATTERN] = _.choice(
       }
       return ans;
     }),
-    _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(function(node) {
-      return new PatternIdTransformer(
-          /** @type {!SimpleDatum} */ (node));
-    }),
+    _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(node =>
+      MacroIdTransformer.pattern(/** @type {!SimpleDatum} */ (node))),
     _.list(_.zeroOrMore(Nonterminals.PATTERN)).
     desugar(function(node, env) {
       const ans = ListLikeTransformer.list();
@@ -854,11 +851,8 @@ grammar[Nonterminals.PATTERN] = _.choice(
       }
       return ans;
     }),
-    _.one(Nonterminals.PATTERN_DATUM).desugar(function(node) {
-      return new PatternIdTransformer(
-          /** @type {!SimpleDatum} */ (node));
-    }));
-
+    _.one(Nonterminals.PATTERN_DATUM).desugar(node =>
+      MacroIdTransformer.pattern(/** @type {!SimpleDatum} */ (node))));
 
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
 grammar[Nonterminals.PATTERN_DATUM] = _.seq(
@@ -893,15 +887,11 @@ grammar[Nonterminals.PATTERN_DATUM] = _.seq(
  (4.3.2: "It is an error if the output cannot be built up [from the template]
  as specified") and I can do this during evaluation of a macro if necessary. */
 grammar[Nonterminals.TEMPLATE] = _.choice(
-    _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(function(node) {
-      return new TemplateIdTransformer(
-          /** @type {!SimpleDatum} */(node));
-    }),
+    _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(node =>
+      MacroIdTransformer.template(/** @type {!SimpleDatum} */(node))),
     _.seq(_.one(Terminals.ELLIPSIS)), // TODO bl one-element sequence
-    _.one(Nonterminals.TEMPLATE_DATUM).desugar(function(node) {
-      return new TemplateIdTransformer(
-          /** @type {!SimpleDatum} */ (node));
-    }),
+    _.one(Nonterminals.TEMPLATE_DATUM).desugar(node =>
+      MacroIdTransformer.template(/** @type {!SimpleDatum} */ (node))),
     _.dottedList(
         _.oneOrMore(Nonterminals.TEMPLATE),
         _.one(Nonterminals.TEMPLATE)).
