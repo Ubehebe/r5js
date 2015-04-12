@@ -22,7 +22,7 @@ goog.require('r5js.CallbackBackedPort');
 goog.require('r5js.CdrHelperImpl');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
-goog.require('r5js.DatumType');
+goog.require('r5js.Type');
 goog.require('r5js.DynamicWindContinuation');
 goog.require('r5js.Environment');
 goog.require('r5js.IEnvironment');
@@ -139,7 +139,7 @@ PrimitiveProcedures['='] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['/'] = _.varargsAtLeast1(function() {
   if (arguments.length === 1) { // unary
@@ -150,7 +150,7 @@ PrimitiveProcedures['/'] = _.varargsAtLeast1(function() {
       ans /= arguments[i];
     return ans;
   }
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['-'] = _.varargsAtLeast1(function() {
   if (arguments.length === 1) { // unary
@@ -162,7 +162,7 @@ PrimitiveProcedures['-'] = _.varargsAtLeast1(function() {
     }
     return ans;
   }
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['*'] = _.varargsAtLeast0(function() {
   let product = 1;
@@ -170,7 +170,7 @@ PrimitiveProcedures['*'] = _.varargsAtLeast0(function() {
     product *= arguments[i];
   }
   return product;
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['+'] = _.varargsAtLeast0(function() {
   let sum = 0;
@@ -178,7 +178,7 @@ PrimitiveProcedures['+'] = _.varargsAtLeast0(function() {
     sum += arguments[i];
   }
   return sum;
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['>='] = _.varargsAtLeast0(function() {
   for (let i = 0; i < arguments.length - 1; ++i) {
@@ -187,7 +187,7 @@ PrimitiveProcedures['>='] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['>'] = _.varargsAtLeast0(function() {
   for (let i = 0; i < arguments.length - 1; ++i) {
@@ -196,7 +196,7 @@ PrimitiveProcedures['>'] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['<='] = _.varargsAtLeast0(function() {
   for (let i = 0; i < arguments.length - 1; ++i) {
@@ -205,7 +205,7 @@ PrimitiveProcedures['<='] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['<'] = _.varargsAtLeast0(function() {
   for (let i = 0; i < arguments.length - 1; ++i) {
@@ -214,15 +214,15 @@ PrimitiveProcedures['<'] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['angle'] = _.unary(function(z) {
   throw r5js.error.unimplementedOption('angle');
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
-PrimitiveProcedures['acos'] = _.unary(Math.acos, r5js.DatumType.NUMBER);
+PrimitiveProcedures['acos'] = _.unary(Math.acos, r5js.Type.Types.NUMBER);
 
-PrimitiveProcedures['asin'] = _.unary(Math.asin, r5js.DatumType.NUMBER);
+PrimitiveProcedures['asin'] = _.unary(Math.asin, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['atan'] = _.varargsAtLeast1(function() {
   /* Oddly, R5RS overloads atan for both one and two arguments,
@@ -235,65 +235,65 @@ PrimitiveProcedures['atan'] = _.varargsAtLeast1(function() {
     default:
       throw r5js.error.tooManyVarargs('atan', 2, arguments.length);
   }
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
-PrimitiveProcedures['ceiling'] = _.unary(Math.ceil, r5js.DatumType.NUMBER);
+PrimitiveProcedures['ceiling'] = _.unary(Math.ceil, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['complex?'] = _.unary(function(node) {
   return node instanceof r5js.ast.Number;
 });
 
-PrimitiveProcedures['cos'] = _.unary(Math.cos, r5js.DatumType.NUMBER);
+PrimitiveProcedures['cos'] = _.unary(Math.cos, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['exact?'] = _.unary(function(x) {
   return false; // In JavaScript every number is a double.
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['exact->inexact'] = _.unary(function(x) {
   return x; // In JavaScript every number is inexact
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
-PrimitiveProcedures['exp'] = _.unary(Math.exp, r5js.DatumType.NUMBER);
+PrimitiveProcedures['exp'] = _.unary(Math.exp, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['expt'] = _.binary(
-    Math.pow, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
+    Math.pow, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
 
-PrimitiveProcedures['floor'] = _.unary(Math.floor, r5js.DatumType.NUMBER);
+PrimitiveProcedures['floor'] = _.unary(Math.floor, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['imag-part'] = _.unary(function(z) {
   throw r5js.error.unimplementedOption('imag-part');
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['inexact?'] = _.unary(function(x) {
   return true;
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['inexact->exact'] = _.unary(function(x) {
   return x; // TODO bl
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['magnitude'] = _.unary(function(z) {
   throw r5js.error.unimplementedOption('magnitude');
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['make-polar'] = _.binary(function(x, y) {
   throw r5js.error.unimplementedOption('make-polar');
-}, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['make-rectangular'] = _.binary(function(r, theta) {
   throw r5js.error.unimplementedOption('make-rectangular');
-}, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['number->string'] = _.unary(function(x) {
   return new r5js.ast.String(x + '');
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['integer?'] = _.unary(function(node) {
   return node instanceof r5js.ast.Number &&
       Math.round(node.getPayload()) === node.getPayload();
 });
 
-PrimitiveProcedures['log'] = _.unary(Math.log, r5js.DatumType.NUMBER);
+PrimitiveProcedures['log'] = _.unary(Math.log, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['modulo'] = _.binary(function(p, q) {
   const remainder = p % q;
@@ -316,14 +316,14 @@ PrimitiveProcedures['modulo'] = _.binary(function(p, q) {
     }
     return ans;
   }
-}, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['quotient'] = _.binary(function(p, q) {
   /* In Scheme, quotient rounds towards zero, which is unfortunately
                  not what JavaScript's Math.round() does. */
   const unrounded = p / q;
   return unrounded > 0 ? Math.floor(unrounded) : Math.ceil(unrounded);
-}, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['rational?'] = _.unary(function(node) {
   return node instanceof r5js.ast.Number;
@@ -335,12 +335,12 @@ PrimitiveProcedures['real?'] = _.unary(function(node) {
 
 PrimitiveProcedures['real-part'] = _.unary(function(z) {
   throw r5js.error.unimplementedOption('real-part');
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['remainder'] = _.binary(function(p, q) {
   // The JavaScript % semantics are precisely the Scheme remainder semantics.
   return p % q;
-}, r5js.DatumType.NUMBER, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['round'] = _.unary(function(x) {
   /* R5RS 6.2.5: "Round returns the closest integer to x,
@@ -357,32 +357,32 @@ PrimitiveProcedures['round'] = _.unary(function(x) {
   } else {
     return up % 2 ? down : up;
   }
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
-PrimitiveProcedures['sin'] = _.unary(Math.sin, r5js.DatumType.NUMBER);
+PrimitiveProcedures['sin'] = _.unary(Math.sin, r5js.Type.Types.NUMBER);
 
-PrimitiveProcedures['sqrt'] = _.unary(Math.sqrt, r5js.DatumType.NUMBER);
+PrimitiveProcedures['sqrt'] = _.unary(Math.sqrt, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['string->number'] = _.unary(
-    parseFloat, r5js.DatumType.STRING);
+    parseFloat, r5js.Type.Types.STRING);
 
-PrimitiveProcedures['tan'] = _.unary(Math.tan, r5js.DatumType.NUMBER);
+PrimitiveProcedures['tan'] = _.unary(Math.tan, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['truncate'] = _.unary(function(x) {
   /* R5RS 6.2.5: "Truncate returns the integer closest to x
    whose absolute value is not larger than the absolute value of x." */
   return x > 0 ? Math.floor(x) : Math.ceil(x);
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 // Pair-related procedures
 
-PrimitiveProcedures['car'] = _.unary(p => p.car(), r5js.DatumType.PAIR);
+PrimitiveProcedures['car'] = _.unary(p => p.car(), r5js.Type.Types.PAIR);
 
 PrimitiveProcedures['cdr'] = _.unary(p => {
       const cdr = p.cdr();
       cdr.setCdrHelper(new r5js.CdrHelperImpl(p, cdr.getFirstChild()));
       return cdr;
-    }, r5js.DatumType.PAIR);
+    }, r5js.Type.Types.PAIR);
 
 PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
   // todo bl this is really expensive! can we cut down on the copying?
@@ -405,7 +405,7 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
 PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
   if (!(p instanceof r5js.ast.List || p.isImproperList())) {
     throw r5js.error.argumentTypeError(
-        p, 0, 'set-car!', r5js.parse.Terminals.LPAREN,
+        p, 0, 'set-car!', r5js.Type.Types.PAIR,
         r5js.PrimitiveProcedures.getActualType_(p));
   }
   if (p.isImmutable()) {
@@ -426,7 +426,7 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
 PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
   if (!(p instanceof r5js.ast.List || p.isImproperList())) {
     throw r5js.error.argumentTypeError(
-        p, 0, 'set-cdr!', r5js.parse.Terminals.LPAREN,
+        p, 0, 'set-cdr!', r5js.Type.Types.PAIR,
         r5js.PrimitiveProcedures.getActualType_(p));
   }
 
@@ -458,7 +458,7 @@ PrimitiveProcedures['make-vector'] = _.varargsRange(
     function(numberNode, fillNode) {
       if (!(numberNode instanceof r5js.ast.Number)) {
         throw r5js.error.argumentTypeError(
-            numberNode, 0, 'make-vector', r5js.DatumType.NUMBER,
+            numberNode, 0, 'make-vector', r5js.Type.Types.NUMBER,
             r5js.PrimitiveProcedures.getActualType_(numberNode));
       }
       const n = numberNode.getPayload();
@@ -475,21 +475,21 @@ PrimitiveProcedures['make-vector'] = _.varargsRange(
 
 PrimitiveProcedures['vector-length'] = _.unary(function(v) {
   return v.vectorLength();
-}, 'vector' /* TODO bl */);
+}, r5js.Type.Types.VECTOR);
 
 PrimitiveProcedures['vector-ref'] = _.binary(function(v, k) {
   return v.vectorRef(k);
-}, 'vector' /* TODO bl */, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.VECTOR, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
   if (!(v instanceof r5js.ast.Vector)) {
     throw r5js.error.argumentTypeError(
-        v, 0, 'vector-set!', r5js.DatumType.VECTOR,
+        v, 0, 'vector-set!', r5js.Type.Types.VECTOR,
         r5js.PrimitiveProcedures.getActualType_(v));
   }
   if (!(k instanceof r5js.ast.Number)) {
     throw r5js.error.argumentTypeError(
-        k, 1, 'vector-set!', r5js.DatumType.NUMBER,
+        k, 1, 'vector-set!', r5js.Type.Types.NUMBER,
         r5js.PrimitiveProcedures.getActualType_(k));
   }
   if (v.isImmutable()) {
@@ -504,7 +504,7 @@ PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
 
 PrimitiveProcedures['symbol->string'] = _.unary(function(sym) {
   return new r5js.ast.String(sym).setImmutable();
-}, r5js.DatumType.SYMBOL);
+}, r5js.Type.Types.SYMBOL);
 
 PrimitiveProcedures['string->symbol'] = _.unary(function(node) {
   // TODO bl it doesn't seem right to be creating Identifiers instead of Symbols
@@ -515,39 +515,39 @@ PrimitiveProcedures['string->symbol'] = _.unary(function(node) {
 
 PrimitiveProcedures['char=?'] = _.binary(function(node1, node2) {
   return node1.getPayload() === node2.getPayload();
-}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
 
 PrimitiveProcedures['char<?'] = _.binary(function(node1, node2) {
   return node1.getPayload() < node2.getPayload();
-}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
 
 PrimitiveProcedures['char>?'] = _.binary(function(node1, node2) {
   return node1.getPayload() > node2.getPayload();
-}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
 
 PrimitiveProcedures['char<=?'] = _.binary(function(node1, node2) {
   return node1.getPayload() <= node2.getPayload();
-}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
 
 PrimitiveProcedures['char>=?'] = _.binary(function(node1, node2) {
   return node1.getPayload() >= node2.getPayload();
-}, r5js.DatumType.CHARACTER, r5js.DatumType.CHARACTER);
+}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
 
 PrimitiveProcedures['char->integer'] = _.unary(function(node) {
   return node.getPayload().charCodeAt(0);
-}, r5js.DatumType.CHARACTER);
+}, r5js.Type.Types.CHARACTER);
 
 PrimitiveProcedures['integer->char'] = _.unary(function(i) {
   return new r5js.ast.Character(String.fromCharCode(i));
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['char-upcase'] = _.unary(function(node) {
   return new r5js.ast.Character(node.getPayload().toUpperCase());
-}, r5js.DatumType.CHARACTER);
+}, r5js.Type.Types.CHARACTER);
 
 PrimitiveProcedures['char-downcase'] = _.unary(function(node) {
   return new r5js.ast.Character(node.getPayload().toLowerCase());
-}, r5js.DatumType.CHARACTER);
+}, r5js.Type.Types.CHARACTER);
 
 // String-related procedures
 
@@ -567,11 +567,11 @@ PrimitiveProcedures['make-string'] = _.varargsRange(
 
 PrimitiveProcedures['string-length'] = _.unary(function(node) {
   return node.getPayload().length;
-}, r5js.DatumType.STRING);
+}, r5js.Type.Types.STRING);
 
 PrimitiveProcedures['string-ref'] = _.binary(function(node, i) {
   return new r5js.ast.Character(node.getPayload().charAt(i));
-}, r5js.DatumType.STRING, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.STRING, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
   if (str.isImmutable()) {
@@ -580,9 +580,9 @@ PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
   const s = str.getPayload();
   str.setPayload(s.substr(0, k) + c.getPayload() + s.substr(k + 1));
   return r5js.runtime.UNSPECIFIED_VALUE;
-}, r5js.DatumType.STRING,
-r5js.DatumType.NUMBER,
-r5js.DatumType.CHARACTER);
+}, r5js.Type.Types.STRING,
+r5js.Type.Types.NUMBER,
+r5js.Type.Types.CHARACTER);
 
 // Vector-related procedures
 
@@ -592,12 +592,13 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
     /** @suppress {accessControls} */function(
         inputPort, outputPort, expr, envSpec) {
       if (!(expr instanceof r5js.Datum))
+        // TODO bl how could this not be a datum? The type signature of binaryWithCurrentPorts
+        // is not helpful. Also, Types.SYMBOL is not right.
         throw r5js.error.argumentTypeError(
-            expr, 0, 'eval', 'ref' /* TODO bl is this right? */,
-            r5js.PrimitiveProcedures.getActualType_(expr));
+            expr, 0, 'eval', r5js.Type.Types.SYMBOL, r5js.PrimitiveProcedures.getActualType_(expr));
       if (!r5js.IEnvironment.isImplementedBy(envSpec)) {
         throw r5js.error.argumentTypeError(
-            envSpec, 1, 'eval', r5js.DatumType.ENVIRONMENT_SPECIFIER,
+            envSpec, 1, 'eval', r5js.Type.Types.ENVIRONMENT_SPECIFIER,
             r5js.PrimitiveProcedures.getActualType_(envSpec));
       }
       /* An interesting special case. If we're about to evaluate a wrapped
@@ -658,7 +659,7 @@ PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw r5js.error.argumentTypeError(
-            inputPortToUse, 0, 'char-ready?', r5js.DatumType.INPUT_PORT,
+            inputPortToUse, 0, 'char-ready?', r5js.Type.Types.INPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
       return inputPortToUse.isCharReady();
@@ -667,12 +668,12 @@ PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures['close-input-port'] = _.unary(function(datum) {
   datum.close();
   return r5js.runtime.UNSPECIFIED_VALUE;
-}, r5js.DatumType.INPUT_PORT);
+}, r5js.Type.Types.INPUT_PORT);
 
 PrimitiveProcedures['close-output-port'] = _.unary(function(datum) {
   datum.close();
   return r5js.runtime.UNSPECIFIED_VALUE;
-}, r5js.DatumType.OUTPUT_PORT);
+}, r5js.Type.Types.OUTPUT_PORT);
 
 PrimitiveProcedures['current-input-port'] = _.nullaryWithCurrentPorts(
     function(inputPort, outputPort) { return inputPort; });
@@ -689,7 +690,7 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw r5js.error.argumentTypeError(
-            outputPortToUse, 1, 'display', r5js.DatumType.OUTPUT_PORT,
+            outputPortToUse, 1, 'display', r5js.Type.Types.OUTPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
       (/** @type {!r5js.OutputPort} */ (outputPortToUse)).
@@ -703,19 +704,19 @@ PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
 
 PrimitiveProcedures['open-input-file'] = _.unary(function(datum) {
   return r5js.PrimitiveProcedures.portManager_.newInputPort(datum.getPayload());
-}, r5js.DatumType.STRING);
+}, r5js.Type.Types.STRING);
 
 PrimitiveProcedures['open-output-file'] = _.unary(function(datum) {
   return r5js.PrimitiveProcedures.portManager_.newOutputPort(
       datum.getPayload());
-}, r5js.DatumType.STRING);
+}, r5js.Type.Types.STRING);
 
 PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw r5js.error.argumentTypeError(
-            inputPortToUse, 0, 'peek-char', r5js.DatumType.INPUT_PORT,
+            inputPortToUse, 0, 'peek-char', r5js.Type.Types.INPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
       return inputPortToUse.peekChar() || r5js.runtime.EOF;
@@ -726,7 +727,7 @@ PrimitiveProcedures['read'] = _.nullaryOrUnaryWithCurrentPorts(
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw r5js.error.argumentTypeError(
-            inputPortToUse, 0, 'read', r5js.DatumType.INPUT_PORT,
+            inputPortToUse, 0, 'read', r5js.Type.Types.INPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
       return inputPortToUse.read() || r5js.runtime.EOF;
@@ -737,7 +738,7 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw r5js.error.argumentTypeError(
-            inputPortToUse, 0, 'read-char', r5js.DatumType.INPUT_PORT,
+            inputPortToUse, 0, 'read-char', r5js.Type.Types.INPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(inputPortToUse));
       }
       return inputPortToUse.readChar() || r5js.runtime.EOF;
@@ -748,7 +749,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw r5js.error.argumentTypeError(
-            outputPortToUse, 1, 'write', r5js.DatumType.OUTPUT_PORT,
+            outputPortToUse, 1, 'write', r5js.Type.Types.OUTPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
       outputPortToUse.write(r5js.valutil.toWriteString(datum));
@@ -759,13 +760,13 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
     function(inputPort, outputPort, charNode, maybeUserSuppliedOutputPort) {
       if (!(charNode instanceof r5js.ast.Character)) {
         throw r5js.error.argumentTypeError(
-            charNode, 0, 'write-char', r5js.DatumType.CHARACTER,
+            charNode, 0, 'write-char', r5js.Type.Types.CHARACTER,
             r5js.PrimitiveProcedures.getActualType_(charNode));
       }
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw r5js.error.argumentTypeError(
-            outputPortToUse, 1, 'write-char', r5js.DatumType.OUTPUT_PORT,
+            outputPortToUse, 1, 'write-char', r5js.Type.Types.OUTPUT_PORT,
             r5js.PrimitiveProcedures.getActualType_(outputPortToUse));
       }
       outputPortToUse.write(r5js.valutil.toWriteString(charNode));
@@ -785,7 +786,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   const mustBeProc = arguments[0];
   if (!(mustBeProc instanceof r5js.ast.Lambda)) {
     throw r5js.error.argumentTypeError(
-        mustBeProc, 0, 'apply', r5js.parse.Terminals.LAMBDA,
+        mustBeProc, 0, 'apply', r5js.Type.Types.PROCEDURE,
         r5js.PrimitiveProcedures.getActualType_(mustBeProc));
   }
 
@@ -798,7 +799,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   const mustBeList = arguments[lastRealArgIndex];
   if (!(mustBeList instanceof r5js.ast.List)) {
     throw r5js.error.argumentTypeError(
-        mustBeList, lastRealArgIndex, 'apply', r5js.parse.Terminals.LPAREN,
+        mustBeList, lastRealArgIndex, 'apply', r5js.Type.Types.PAIR,
         r5js.PrimitiveProcedures.getActualType_(mustBeList));
   }
 
@@ -1021,7 +1022,7 @@ PrimitiveProcedures['null-environment'] = _.unary(function(num) {
         '(null-environment ' + num + ')');
   }
   return new r5js.Environment(r5js.PrimitiveProcedures.nullEnv_);
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
   if (num !== 5) {
@@ -1029,29 +1030,28 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
         '(scheme-report-environment ' + num + ')');
   }
   return new r5js.Environment(r5js.PrimitiveProcedures.r5RSEnv_);
-}, r5js.DatumType.NUMBER);
+}, r5js.Type.Types.NUMBER);
 
 
 });  // goog.scope
 
 
 /**
- * @param {!r5js.runtime.Value} arg
+ * @param {!r5js.Datum} arg
  * @return {!r5js.Type}
  * @private
- * @suppress {accessControls|checkTypes} TODO bl
+ * @suppress {accessControls} TODO bl
  */
 r5js.PrimitiveProcedures.getActualType_ = function(arg) {
-  for (const typeName in r5js.DatumType) {
-    const type = r5js.DatumType[typeName];
-    const predicateName = type + '?';
-    if (predicateName in r5js.PrimitiveProcedures.registry_ &&
-            r5js.PrimitiveProcedures.registry_[predicateName].fn_.call(
-                null, arg)) {
-      return /** @type {!r5js.Type} */ (type);
+  for (const key in r5js.Type.Types) {
+    const type = r5js.Type.Types[key];
+    const predicateName = type.getName() + '?';
+    if (predicateName in r5js.PrimitiveProcedures.registry_
+        && !!r5js.PrimitiveProcedures.registry_[predicateName].fn_.call(null, arg)) {
+      return type;
     }
   }
-  return 'unknown type';
+  throw r5js.error.internalInterpreterError("argument of unknown type: " + arg);
 };
 
 

@@ -4,6 +4,7 @@ goog.require('goog.array');
 goog.require('r5js.Procedure');
 goog.require('r5js.datumutil');
 goog.require('r5js.error');
+goog.require('r5js.Type');
 
 r5js.procspec.NumArgChecker_ = /** @private @interface */ class {
     /**
@@ -109,14 +110,14 @@ r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_ =
 
         /**
          * @override
-         * @suppress {accessControls|checkTypes} for r5js.PrimitiveProcedures_
+         * @suppress {accessControls} for r5js.PrimitiveProcedures_
          */
         checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
             const unwrappedArgs = [];
             for (let i = 0; i < this.argtypes_.length; ++i) {
                 const arg = args[i];
                 const expectedType = this.argtypes_[i];
-                if (!r5js.PrimitiveProcedures.registry_[expectedType + '?'].fn_.call(
+                if (!r5js.PrimitiveProcedures.registry_[expectedType.getName() + '?'].fn_.call(
                         null, arg)) {
                     const actualType = r5js.PrimitiveProcedures.getActualType_(arg);
                     throw r5js.error.argumentTypeError(
@@ -151,7 +152,7 @@ r5js.procspec.AllArgsOfType_ =
             const argtype = this.type_;
             return goog.array.map(args, function (arg, i) {
                 if (!(/** @type {!r5js.procspec.PrimitiveProcedure_} */ (
-                        r5js.PrimitiveProcedures.registry_[argtype + '?'])).fn_.call(
+                        r5js.PrimitiveProcedures.registry_[argtype.getName() + '?'])).fn_.call(
                         null, arg)) {
                     throw r5js.error.argumentTypeError(
                         arg, i, nameToShowInErrorMessage, argtype,

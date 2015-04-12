@@ -24,7 +24,7 @@ goog.require('goog.Promise');
 goog.require('goog.string');
 goog.require('goog.testing.asserts');
 goog.require('output');
-goog.require('r5js.DatumType');
+goog.require('r5js.Type');
 goog.require('r5js.error');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.test.SyncPromiseTestSuite');
@@ -215,7 +215,7 @@ r5js.test.JsInterop.prototype['testErrors'] = function() {
       to(Throw(r5js.error.tooFewVarargs('', 1, 0)));
   this.expect('(+ "a" "b")').
       to(Throw(r5js.error.argumentTypeError(
-          'a', 0, '+', r5js.DatumType.NUMBER, r5js.DatumType.STRING)));
+          'a', 0, '+', r5js.Type.Types.NUMBER, r5js.Type.Types.STRING)));
   this.expect('(scheme-report-environment 6)').
       to(Throw(r5js.error.unimplementedOption('')));
   this.expect('(null-environment 6)').

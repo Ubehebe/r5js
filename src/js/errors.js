@@ -2,7 +2,7 @@ goog.provide('r5js.Error');
 goog.provide('r5js.error');
 
 goog.require('r5js.Token');
-
+goog.require('r5js.Type');
 
 
 r5js.Error = class {

@@ -117,10 +117,14 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
                 binding instanceof r5js.Macro ||
                 binding instanceof r5js.Procedure) {
                 return binding;
-            } else {
+            } else if (binding instanceof r5js.Datum) {
                 throw r5js.error.notAProcedure(
                     name, r5js.PrimitiveProcedures.getActualType_(binding));
+            } else {
+                throw r5js.error.internalInterpreterError(
+                    "getProcedure: don't know what to do with binding " + name);
             }
+
         } else if (this.enclosingEnv_) {
             return this.enclosingEnv_.getProcedure(name);
         } else {

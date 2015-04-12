@@ -184,11 +184,12 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
   } else if (proc instanceof r5js.Continuation) {
     const fakeArg = this.evalArgs()[0]; // TODO bl
     proc.evaluate(fakeArg, this, resultStruct);
-  } else {
+  } else if (proc instanceof r5js.Datum) {
     throw r5js.error.notAProcedure(
         this.operatorName_.getPayload(),
-        r5js.PrimitiveProcedures.getActualType_(
-            /** @type {!r5js.runtime.Value} */ (proc)));
+        r5js.PrimitiveProcedures.getActualType_(proc));
+  } else {
+      throw r5js.error.internalInterpreterError("ProcCall: don't know what to do with " + proc);
   }
 };
 
