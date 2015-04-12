@@ -6,7 +6,7 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const List = goog.require('r5js.ast.List');
 const datumutil = goog.require('r5js.datumutil');
-const error = goog.require('r5js.error');
+const Error = goog.require('r5js.Error');
 
 class VarargsUserDefinedProcedure extends UserDefinedProcedure {
     /**
@@ -24,7 +24,7 @@ class VarargsUserDefinedProcedure extends UserDefinedProcedure {
     checkNumArgs(numActuals) {
         const minNumArgs = this.formalsArray.length - 1;
         if (numActuals < minNumArgs) {
-            throw error.tooFewVarargs(this.toString(), minNumArgs, numActuals);
+            throw Error.tooFewVarargs(this.toString(), minNumArgs, numActuals);
         }
     }
 

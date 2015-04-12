@@ -4,7 +4,7 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const datumutil = goog.require('r5js.datumutil');
 const Environment = goog.require('r5js.Environment');
-const error = goog.require('r5js.error');
+const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
@@ -133,8 +133,7 @@ class UserDefinedProcedure extends Procedure {
      */
     checkNumArgs(numActuals) {
         if (numActuals !== this.formalsArray.length) {
-            throw r5js.error.incorrectNumArgs(
-                this.toString(), this.formalsArray.length, numActuals);
+            throw Error.incorrectNumArgs(this.toString(), this.formalsArray.length, numActuals);
         }
     }
 

@@ -1,7 +1,6 @@
 goog.module('Throw');
 goog.setTestOnly('Throw');
 
-const error = goog.require('r5js.error');
 const Error = goog.require('r5js.Error');
 const Matcher = goog.require('tdd.matchers.Matcher');
 
@@ -15,7 +14,7 @@ class Throws {
 
     /** @override */
     matches(actualError) {
-        return error.equals(this.expectedError_, this.actualError_ = actualError);
+        return this.expectedError_.equals(this.actualError_ = actualError);
     }
 
     /** @override */

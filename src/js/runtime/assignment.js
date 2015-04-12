@@ -20,7 +20,7 @@ goog.require('r5js.Macro');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Identifier');
-goog.require('r5js.error');
+goog.require('r5js.Error');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
@@ -79,7 +79,7 @@ r5js.Assignment.prototype.evalAndAdvance = function(
  */
 r5js.Assignment.prototype.checkForImproperSyntaxAssignment = function(val) {
   if (val instanceof r5js.Macro && !val.isLetOrLetrecSyntax()) {
-    throw r5js.error.internalInterpreterError('TODO bl');
+    throw r5js.Error.internalInterpreterError('TODO bl');
   }
 };
 

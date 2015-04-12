@@ -29,7 +29,7 @@ goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.String');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
-goog.require('r5js.error');
+goog.require('r5js.Error');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.read.bnf');
@@ -117,7 +117,7 @@ r5js.ReaderImpl.prototype.read = function() {
   // All of the input tokens must be consumed for success.
   const nextToken = this.scanner_.nextToken();
   if (nextToken) {
-    throw r5js.error.read(nextToken);
+    throw r5js.Error.read(nextToken);
   }
   return /** @type {!r5js.Datum} */ (ans);
 };

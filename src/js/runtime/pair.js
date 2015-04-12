@@ -3,7 +3,7 @@ goog.provide('r5js.runtime.Pair');
 
 goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.List');
-goog.require('r5js.error');
+goog.require('r5js.Error');
 goog.require('r5js.runtime.NIL');
 
 

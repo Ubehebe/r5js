@@ -2,7 +2,7 @@ goog.module('r5js.TemplateBindings');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const error = goog.require('r5js.error');
+const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const Macro = goog.require('r5js.ast.Macro');
@@ -104,7 +104,7 @@ class TemplateBindings {
      */
     addTemplateBinding(name, val) {
         if (name in this.bindings_) {
-            throw error.internalInterpreterError('invariant incorrect');
+            throw Error.internalInterpreterError('invariant incorrect');
         } else if (val instanceof Macro) {
             // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
             const fakeName = RenameUtil.newCpsName();
@@ -230,7 +230,7 @@ class TemplateBindings {
      */
     resolveDatum(datum) {
         if (!this.patternIds_)
-            throw error.internalInterpreterError('invariant incorrect');
+            throw Error.internalInterpreterError('invariant incorrect');
 
         if (datum instanceof Identifier) {
             const name = /** @type {string} */(datum.getPayload());

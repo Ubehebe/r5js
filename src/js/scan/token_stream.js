@@ -3,7 +3,7 @@ goog.module('r5js.TokenStream');
 const Boolean = goog.require('r5js.ast.Boolean');
 const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
-const error = goog.require('r5js.error');
+const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Number = goog.require('r5js.ast.Number');
 const String = goog.require('r5js.ast.String');
@@ -83,7 +83,7 @@ class Scanner {
         if (!matchArray) {
             return false; // eof
         } else if (this.tokenRegex_.lastIndex > this.start_ + matchArray[0].length) {
-            throw error.scan(this.text_.substr(
+            throw Error.scan(this.text_.substr(
                 this.start_, this.tokenRegex_.lastIndex - this.start_));
         } else {
             const indexOfWhitespace = 7;
@@ -154,7 +154,7 @@ class Scanner {
             if (this.start_ === this.text_.length) {
                 this.tokenRegex_.lastIndex = this.text_.length;
             } else {
-                throw error.scan(this.text_.substr(this.start_));
+                throw Error.scan(this.text_.substr(this.start_));
             }
             return match;
         } else {
@@ -176,7 +176,7 @@ class Scanner {
             /* If the previous token required a delimiter but we didn't get
              one, that's a scan error. Example: 1+2 scans as two numbers
              (1 and +2), but there has to be a delimiter between them. */
-            throw error.scan(this.text_.substr(this.tokenRegex_.lastIndex));
+            throw Error.scan(this.text_.substr(this.tokenRegex_.lastIndex));
         } else if (matchArray[6]) {
             this.needDelimiter_ = false;
             return payload;
@@ -217,7 +217,7 @@ class Scanner {
                 Scanner.parseNumericPayload_(payload) :
                 parseFloat(payload);
             return new Number(numericPayload);
-        } else throw error.internalInterpreterError('invariant incorrect');
+        } else throw Error.internalInterpreterError('invariant incorrect');
     }
 
     /**
@@ -236,8 +236,7 @@ class Scanner {
         } else if (afterSlash.toLowerCase() === 'newline') {
             return '\n';
         } else {
-            throw error.internalInterpreterError(
-                'invalid character payload ' + payload);
+            throw Error.internalInterpreterError('invalid character payload ' + payload);
         }
     }
 
@@ -255,7 +254,7 @@ class Scanner {
         const originalLength = payload.length;
 
         if (NUMBER_FORBIDDEN.test(payload)) {
-            throw error.scan('unsupported number literal: ' + payload);
+            throw Error.scan('unsupported number literal: ' + payload);
         }
 
         let base = 10;

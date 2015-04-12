@@ -25,7 +25,7 @@ goog.require('goog.string');
 goog.require('goog.testing.asserts');
 goog.require('output');
 goog.require('r5js.Type');
-goog.require('r5js.error');
+goog.require('r5js.Error');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.test.SyncPromiseTestSuite');
 goog.require('r5js.test.matchers.setOutputPort');
@@ -191,34 +191,34 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
 };
 
 r5js.test.JsInterop.prototype['testErrors'] = function() {
-  this.expect('(').to(Throw(r5js.error.read(r5js.parse.Terminals.LPAREN)));
-  this.expect(')').to(Throw(r5js.error.read(r5js.parse.Terminals.RPAREN)));
-  this.expect('(eval)').to(Throw(r5js.error.incorrectNumArgs('eval', 2, 0)));
+  this.expect('(').to(Throw(r5js.Error.read(r5js.parse.Terminals.LPAREN)));
+  this.expect(')').to(Throw(r5js.Error.read(r5js.parse.Terminals.RPAREN)));
+  this.expect('(eval)').to(Throw(r5js.Error.incorrectNumArgs('eval', 2, 0)));
   this.expect('(eval 1 2 3 4 5)').
-      to(Throw(r5js.error.incorrectNumArgs('eval', 2, 5)));
+      to(Throw(r5js.Error.incorrectNumArgs('eval', 2, 5)));
   this.expect('(let ((foo (lambda (x) x))) (foo))').
-      to(Throw(r5js.error.incorrectNumArgs(''/* TODO bl lambda */, 1, 0)));
+      to(Throw(r5js.Error.incorrectNumArgs(''/* TODO bl lambda */, 1, 0)));
   this.expect('(let ((foo (lambda (x) x))) (foo 1 2))').
-      to(Throw(r5js.error.incorrectNumArgs('' /* TODO bl lambda */, 1, 2)));
-  this.expect("(set-car! '(1 2 3) 4)").to(Throw(r5js.error.immutable('')));
+      to(Throw(r5js.Error.incorrectNumArgs('' /* TODO bl lambda */, 1, 2)));
+  this.expect("(set-car! '(1 2 3) 4)").to(Throw(r5js.Error.immutable('')));
   this.expect('(let ((g (lambda () "***"))) (string-set! (g) 0 #\\?))').
-      to(Throw(r5js.error.immutable(''))); // Example from R5RS 6.3.5
+      to(Throw(r5js.Error.immutable(''))); // Example from R5RS 6.3.5
   this.expect("(string-set! (symbol->string 'immutable) 0 #\\?)").
-      to(Throw(r5js.error.immutable(''))); // Example from R5RS 6.3.5
+      to(Throw(r5js.Error.immutable(''))); // Example from R5RS 6.3.5
   this.expect("(vector-set! '#(0 1 2) 1 \"doe\")").
-      to(Throw(r5js.error.immutable(''))); // Example from R5RS 6.3.6
+      to(Throw(r5js.Error.immutable(''))); // Example from R5RS 6.3.6
   this.expect('(make-vector)').
-      to(Throw(r5js.error.tooFewVarargs('make-vector', 1, 0)));
+      to(Throw(r5js.Error.tooFewVarargs('make-vector', 1, 0)));
   this.expect('(make-vector 1 2 3 4 5)').
-      to(Throw(r5js.error.tooManyVarargs('make-vector', 2, 5)));
+      to(Throw(r5js.Error.tooManyVarargs('make-vector', 2, 5)));
   this.expect('(let ((foo (lambda (x . y) x))) (foo))').
-      to(Throw(r5js.error.tooFewVarargs('', 1, 0)));
+      to(Throw(r5js.Error.tooFewVarargs('', 1, 0)));
   this.expect('(+ "a" "b")').
-      to(Throw(r5js.error.argumentTypeError(
+      to(Throw(r5js.Error.argumentTypeError(
           'a', 0, '+', r5js.Type.Types.NUMBER, r5js.Type.Types.STRING)));
   this.expect('(scheme-report-environment 6)').
-      to(Throw(r5js.error.unimplementedOption('')));
+      to(Throw(r5js.Error.unimplementedOption('')));
   this.expect('(null-environment 6)').
-      to(Throw(r5js.error.unimplementedOption('')));
+      to(Throw(r5js.Error.unimplementedOption('')));
 };
 

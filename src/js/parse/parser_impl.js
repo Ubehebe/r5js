@@ -8,7 +8,7 @@ const DatumStream = goog.require('r5js.DatumStream');
 const datumutil = goog.require('r5js.datumutil');
 const DottedListTransformer = goog.require('r5js.DottedListTransformer');
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
-const error = goog.require('r5js.error');
+const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const ITransformer = goog.require('r5js.ITransformer');
@@ -1038,7 +1038,7 @@ grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
       const macro = /** @type {!Macro} */ (
           node.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
       if (!macro.allPatternsBeginWith(kw))
-        throw error.macro(kw, 'all patterns must begin with ' + kw);
+        throw Error.macro(kw, 'all patterns must begin with ' + kw);
       const anonymousName = RenameUtil.newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
       return TopLevelSyntaxAssignment.of(kw, anonymousName);

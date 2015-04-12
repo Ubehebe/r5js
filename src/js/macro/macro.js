@@ -7,7 +7,7 @@ goog.require('r5js.TemplateBindings');
 goog.require('r5js.Transformer');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.List');
-goog.require('r5js.error');
+goog.require('r5js.Error');
 goog.require('r5js.RenameUtil');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
@@ -226,13 +226,13 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
                         }
                     );
                 } else {
-                    throw r5js.error.parse(newDatumTree);
+                    throw r5js.Error.parse(newDatumTree);
                 }
 
                 return newParseTree;
             }
         }
-        throw r5js.error.macro(
+        throw r5js.Error.macro(
             this.transformers_[0].getName(), 'no pattern match for input ' + datum);
     }
 

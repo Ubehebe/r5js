@@ -3,7 +3,7 @@ goog.module('r5js.ast.Quote');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const datumutil = goog.require('r5js.datumutil');
-const error = goog.require('r5js.error');
+const error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const IPair = goog.require('r5js.IPair');
 const List = goog.require('r5js.ast.List');

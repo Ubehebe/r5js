@@ -3,8 +3,7 @@ goog.provide('r5js.procspec');
 goog.require('goog.array');
 goog.require('r5js.Procedure');
 goog.require('r5js.datumutil');
-goog.require('r5js.error');
-goog.require('r5js.Type');
+goog.require('r5js.Error');
 
 r5js.procspec.NumArgChecker_ = /** @private @interface */ class {
     /**
@@ -24,7 +23,7 @@ r5js.procspec.Exactly_ = /** @private @implements {r5js.procspec.NumArgChecker_}
     /** @override */
     checkNumArgs(numArgs, nameToShowInErrorMessage) {
         if (numArgs !== this.numArgs_) {
-            throw r5js.error.incorrectNumArgs(
+            throw r5js.Error.incorrectNumArgs(
                 nameToShowInErrorMessage, this.numArgs_, numArgs);
         }
     }
@@ -39,7 +38,7 @@ r5js.procspec.AtLeast_ = /** @private @implements {r5js.procspec.NumArgChecker_}
     /** @override */
     checkNumArgs(numArgs, nameToShowInErrorMessage) {
         if (numArgs < this.min_) {
-            throw r5js.error.tooFewVarargs(
+            throw r5js.Error.tooFewVarargs(
                 nameToShowInErrorMessage, this.min_, numArgs);
         }
     }
@@ -58,11 +57,11 @@ r5js.procspec.Between_ = /** @private @implements {r5js.procspec.NumArgChecker_}
     /** @override */
     checkNumArgs(numArgs, nameToShowInErrorMessage) {
         if (numArgs < this.minArgs_) {
-            throw r5js.error.tooFewVarargs(
+            throw r5js.Error.tooFewVarargs(
                 nameToShowInErrorMessage, this.minArgs_, numArgs);
         }
         if (numArgs > this.maxArgs_) {
-            throw r5js.error.tooManyVarargs(
+            throw r5js.Error.tooManyVarargs(
                 nameToShowInErrorMessage, this.maxArgs_, numArgs);
         }
     }
@@ -120,7 +119,7 @@ r5js.procspec.ArgumentTypeCheckerAndUnwrapperImpl_ =
                 if (!r5js.PrimitiveProcedures.registry_[expectedType.getName() + '?'].fn_.call(
                         null, arg)) {
                     const actualType = r5js.PrimitiveProcedures.getActualType_(arg);
-                    throw r5js.error.argumentTypeError(
+                    throw r5js.Error.argumentTypeError(
                         arg, i, nameToShowInErrorMessage, expectedType, actualType);
                 }
                 unwrappedArgs.push(arg instanceof r5js.Datum ? arg.unwrap() : arg);
@@ -154,7 +153,7 @@ r5js.procspec.AllArgsOfType_ =
                 if (!(/** @type {!r5js.procspec.PrimitiveProcedure_} */ (
                         r5js.PrimitiveProcedures.registry_[argtype.getName() + '?'])).fn_.call(
                         null, arg)) {
-                    throw r5js.error.argumentTypeError(
+                    throw r5js.Error.argumentTypeError(
                         arg, i, nameToShowInErrorMessage, argtype,
                         r5js.PrimitiveProcedures.getActualType_(arg));
                 }

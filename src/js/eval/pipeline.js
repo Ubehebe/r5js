@@ -2,7 +2,7 @@ goog.module('r5js.Pipeline');
 
 const Datum = goog.require('r5js.Datum');
 const Environment = goog.require('r5js.Environment');
-const error = goog.require('r5js.error');
+const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
@@ -86,7 +86,7 @@ class Impl {
             ? parser.parse(opt_nonterminal)
             : parser.parse();
         if (!ans) {
-            throw error.parse(root);
+            throw Error.parse(root);
         }
         return ans;
     }

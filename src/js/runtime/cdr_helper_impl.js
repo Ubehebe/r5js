@@ -4,7 +4,7 @@ const CdrHelper = goog.require('r5js.CdrHelper');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const List = goog.require('r5js.ast.List');
-const error = goog.require('r5js.error');
+const Error = goog.require('r5js.Error');
 
 /** @implements {CdrHelper} */
 class CdrHelperImpl {
@@ -22,7 +22,7 @@ class CdrHelperImpl {
     /** @override */
     setCar(car) {
         if (this.head_.isImmutable()) {
-            throw error.immutable(this.head_.toString());
+            throw Error.immutable(this.head_.toString());
         }
         this.head_.getFirstChild().setNextSibling(car);
     }
@@ -30,7 +30,7 @@ class CdrHelperImpl {
     /** @override */
     setCdr(cdr) {
         if (this.head_.isImmutable()) {
-            throw error.immutable(this.head_.toString());
+            throw Error.immutable(this.head_.toString());
         }
         this.startOfCdr_.setNextSibling(cdr);
         if (!(cdr instanceof List)) {

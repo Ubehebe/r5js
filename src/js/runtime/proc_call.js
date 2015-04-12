@@ -30,7 +30,7 @@ goog.require('r5js.ast.List');
 goog.require('r5js.ast.Literal');
 goog.require('r5js.ast.Quote');
 goog.require('r5js.ast.Vector');
-goog.require('r5js.error');
+goog.require('r5js.Error');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 
@@ -80,7 +80,7 @@ r5js.ProcCall.prototype.operandsInContinuationPassingStyle_ = function() {
   for (let cur = this.firstOperand_; cur; cur = cur.getNextSibling()) {
     if (cur instanceof r5js.Datum) {
       if (cur instanceof r5js.ast.List && !cur.getFirstChild()) {
-        throw r5js.error.illegalEmptyApplication(
+        throw r5js.Error.illegalEmptyApplication(
             /** @type {string} */ (this.operatorName_.getPayload()));
       } else if (!(cur instanceof r5js.ast.Literal ||
           cur instanceof r5js.ast.Quote ||
@@ -129,7 +129,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
           maybeContinuable).getResultName()));
       newCallChain.appendProcCallLike(maybeContinuable);
     } else if (arg.isImproperList()) {
-      throw r5js.error.internalInterpreterError('TODO bl');
+      throw r5js.Error.internalInterpreterError('TODO bl');
     } else if ((maybeContinuable = arg.desugar(
         /** @type {!r5js.IEnvironment} */ (this.getEnv()))).evalAndAdvance) {
       /* todo bl is it an invariant violation to be a list
@@ -185,11 +185,11 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
     const fakeArg = this.evalArgs()[0]; // TODO bl
     proc.evaluate(fakeArg, this, resultStruct);
   } else if (proc instanceof r5js.Datum) {
-    throw r5js.error.notAProcedure(
+    throw r5js.Error.notAProcedure(
         this.operatorName_.getPayload(),
         r5js.PrimitiveProcedures.getActualType_(proc));
   } else {
-      throw r5js.error.internalInterpreterError("ProcCall: don't know what to do with " + proc);
+      throw r5js.Error.internalInterpreterError("ProcCall: don't know what to do with " + proc);
   }
 };
 
@@ -216,7 +216,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
              between the programmer and the implementation. */
       if (toPush instanceof r5js.Macro &&
           !toPush.isLetOrLetrecSyntax()) {
-        throw r5js.error.macro(name, 'bad syntax');
+        throw r5js.Error.macro(name, 'bad syntax');
       }
       // TODO bl this doesn't seem like the right behavior. Investigate.
       args.push(toPush === null ? r5js.runtime.UNSPECIFIED_VALUE : toPush);
@@ -227,7 +227,7 @@ r5js.ProcCall.prototype.evalArgs = function() {
     } else if (cur instanceof r5js.Datum) {
       args.push(cur.clone(null /* parent */));
     } else {
-      throw r5js.error.internalInterpreterError('unexpected datum ' + cur);
+      throw r5js.Error.internalInterpreterError('unexpected datum ' + cur);
     }
   }
 

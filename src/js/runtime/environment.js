@@ -8,7 +8,7 @@ goog.require('r5js.Procedure');
 goog.require('r5js.Ref');
 goog.require('r5js.RenameUtil');
 goog.require('r5js.ast.Lambda');
-goog.require('r5js.error');
+goog.require('r5js.Error');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
@@ -38,7 +38,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
     clone() {
 
         if (this.enclosingEnv_) {
-            throw r5js.error.internalInterpreterError(
+            throw r5js.Error.internalInterpreterError(
                 'clone should only be used during ' +
                 'interpreter bootstrapping');
         }
@@ -99,7 +99,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
             // If the current environment has no binding for the name, look one level up
             return this.enclosingEnv_.get(name);
         } else {
-            throw r5js.error.unboundVariable(name);
+            throw r5js.Error.unboundVariable(name);
         }
     }
 
@@ -118,10 +118,10 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
                 binding instanceof r5js.Procedure) {
                 return binding;
             } else if (binding instanceof r5js.Datum) {
-                throw r5js.error.notAProcedure(
+                throw r5js.Error.notAProcedure(
                     name, r5js.PrimitiveProcedures.getActualType_(binding));
             } else {
-                throw r5js.error.internalInterpreterError(
+                throw r5js.Error.internalInterpreterError(
                     "getProcedure: don't know what to do with binding " + name);
             }
 
@@ -151,11 +151,11 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
     /** @override */
     addClosure(name, proc) {
         if (this.sealed_) {
-            throw r5js.error.internalInterpreterError('tried to bind ' +
+            throw r5js.Error.internalInterpreterError('tried to bind ' +
             name +
             ' in sealed environment');
         } else if (this.closures_[name]) {
-            throw r5js.error.internalInterpreterError('invariant incorrect');
+            throw r5js.Error.internalInterpreterError('invariant incorrect');
         } else {
             this.closures_[name] = proc;
         }
@@ -175,7 +175,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
     /** @override */
     addBinding(name, val) {
         if (this.sealed_) {
-            throw r5js.error.internalInterpreterError(
+            throw r5js.Error.internalInterpreterError(
                 'tried to bind ' +
                 name +
                 ' in sealed environment ' +
@@ -183,7 +183,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
         }
 
         if (!this.bindingIsAcceptable_(name)) {
-            throw r5js.error.internalInterpreterError(
+            throw r5js.Error.internalInterpreterError(
                 'redefining ' +
                 name +
                 ' in same env, not allowed');
@@ -211,7 +211,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
             }
         } else if (this.enclosingEnv_) {
             this.enclosingEnv_.mutate(name, newVal, isTopLevel);
-        } else throw r5js.error.unboundVariable(name);
+        } else throw r5js.Error.unboundVariable(name);
     }
 
     /**

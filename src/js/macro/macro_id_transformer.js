@@ -4,7 +4,7 @@ goog.provide('r5js.TemplateIdTransformer');
 goog.require('r5js.Datum');
 goog.require('r5js.ITransformer');
 goog.require('r5js.ast.Identifier');
-goog.require('r5js.error');
+goog.require('r5js.Error');
 
 r5js.MacroIdTransformer_ = /** @private */ class {
     /** @param {!r5js.ast.SimpleDatum} datum */
@@ -149,7 +149,7 @@ r5js.TemplateIdTransformer.prototype.collectNestingLevels = function(
     }
   } else if (maybeInPattern !== ellipsisLevel &&
       name !== transformer.getName()) {
-    throw r5js.error.macro(
+    throw r5js.Error.macro(
         transformer.getName(),
         name +
         ' is at ellipsis level ' +
