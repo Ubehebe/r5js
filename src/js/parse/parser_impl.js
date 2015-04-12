@@ -6,14 +6,13 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const DatumStream = goog.require('r5js.DatumStream');
 const datumutil = goog.require('r5js.datumutil');
-const DottedListTransformer = goog.require('r5js.DottedListTransformer');
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
 const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const ITransformer = goog.require('r5js.ITransformer');
 const List = goog.require('r5js.ast.List');
-const ListTransformer = goog.require('r5js.ListTransformer');
+const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
 const MacroDatum = goog.require('r5js.ast.Macro');
 const newAssignment = goog.require('r5js.newAssignment');
@@ -24,7 +23,6 @@ const Parser = goog.require('r5js.Parser');
 const PatternIdTransformer = goog.require('r5js.PatternIdTransformer');
 const ProcCall = goog.require('r5js.ProcCall');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
-const QuoteTransformer = goog.require('r5js.QuoteTransformer');
 const RenameHelper = goog.require('r5js.RenameHelper');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
@@ -38,7 +36,6 @@ const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
-const VectorTransformer = goog.require('r5js.VectorTransformer');
 const Vector = goog.require('r5js.ast.Vector');
 
 /* todo bl: this file should not exist.
@@ -775,7 +772,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS)).
     desugar(function(node, env) {
-      const ans = new ListTransformer();
+      const ans = ListLikeTransformer.list();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -797,7 +794,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS)).
     desugar(function(node, env) {
-      const ans = new VectorTransformer();
+      const ans = ListLikeTransformer.vector();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -821,7 +818,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
     }),
     _.list(_.zeroOrMore(Nonterminals.PATTERN)).
     desugar(function(node, env) {
-      const ans = new ListTransformer();
+      const ans = ListLikeTransformer.list();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -837,7 +834,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
         _.one(Nonterminals.PATTERN),
         _.one(Terminals.RPAREN)).
     desugar(function(node, env) {
-      const ans = new DottedListTransformer();
+      const ans = ListLikeTransformer.dottedList();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -848,7 +845,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
     }),
     _.vector(_.zeroOrMore(Nonterminals.PATTERN)).
     desugar(function(node, env) {
-      const ans = new VectorTransformer();
+      const ans = ListLikeTransformer.vector();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -909,7 +906,7 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
         _.oneOrMore(Nonterminals.TEMPLATE),
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      const ans = new DottedListTransformer();
+      const ans = ListLikeTransformer.dottedList();
       for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
@@ -930,7 +927,7 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
     }),
     _.list(_.zeroOrMore(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      const ans = new ListTransformer();
+      const ans = ListLikeTransformer.list();
       for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
@@ -950,7 +947,7 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
     }),
     _.vector(_.zeroOrMore(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      const ans = new VectorTransformer();
+      const ans = ListLikeTransformer.vector();
       for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
@@ -972,7 +969,7 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Terminals.TICK),
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
-      const ans = new QuoteTransformer();
+      const ans = ListLikeTransformer.quote();
       ans.addSubtransformer(/** @type {!ITransformer} */ (
           node.at(Nonterminals.TEMPLATE).desugar(env)));
       return ans;

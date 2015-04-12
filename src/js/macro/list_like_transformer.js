@@ -1,347 +1,307 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.ListLikeTransformer');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const Datum = goog.require('r5js.Datum');
+const DottedList = goog.require('r5js.ast.DottedList');
+const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
+const ITransformer = goog.require('r5js.ITransformer');
+const List = goog.require('r5js.ast.List');
+const Quote = goog.require('r5js.ast.Quote');
+const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const TemplateBindings = goog.require('r5js.TemplateBindings');
+const Vector = goog.require('r5js.ast.Vector');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+/** @interface */
+class ListLikeTransformer extends ITransformer {
+    /** TODO bl: compiler complains without this constructor. */
+    constructor() {}
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-goog.provide('r5js.DottedListTransformer');
-goog.provide('r5js.ListLikeTransformer');
-goog.provide('r5js.ListTransformer');
-goog.provide('r5js.QuoteTransformer');
-goog.provide('r5js.VectorTransformer');
-
-
-goog.require('r5js.EllipsisTransformer');
-goog.require('r5js.SiblingBuffer');
-goog.require('r5js.ast.DottedList');
-goog.require('r5js.ast.List');
-goog.require('r5js.ast.Vector');
-
-
-
-r5js.ListLikeTransformer = /** @interface @extends {r5js.ITransformer} */ class {
     /**
-     * @param {!r5js.ITransformer} subtransformer
-     * @return {!r5js.ListLikeTransformer} This object, for chaining.
+     * @param {!ITransformer} subtransformer
+     * @return {!ListLikeTransformer} This object, for chaining.
      */
     addSubtransformer(subtransformer) {}
 
     /** @return {string} */
     getName() {}
-};
 
-
-/**
- * @param {function(new: r5js.Datum, !r5js.Datum)} ctor
- * @implements {r5js.ListLikeTransformer}
- * @struct
- * @constructor
- * @private
- */
-r5js.ListLikeTransformer.Base_ = function(ctor) {
-  /** @const @private */ this.ctor_ = ctor;
-
-  /** @const @private {!Array<!r5js.ITransformer>} */
-  this.subtransformers_ = [];
-};
-
-
-/** @override */
-r5js.ListLikeTransformer.Base_.prototype.addSubtransformer = function(
-    subtransformer) {
-  this.subtransformers_.push(subtransformer);
-  return this;
-};
-
-
-/**
- * @return {string}
- * @suppress {checkTypes} TODO bl for getDatum()
- */
-r5js.ListLikeTransformer.Base_.prototype.getName = function() {
-  return this.subtransformers_[0].getDatum().getPayload();
-};
-
-
-/** @override */
-r5js.ListLikeTransformer.Base_.prototype.collectNestingLevels = function(
-    ellipsisLevel, transformer) {
-  for (let i = 0; i < this.subtransformers_.length; ++i) {
-    this.subtransformers_[i].collectNestingLevels(ellipsisLevel, transformer);
-  }
-};
-
-
-/**
- * @param {!r5js.Datum} inputDatum
- * @return {boolean}
- */
-r5js.ListLikeTransformer.Base_.prototype.couldMatch = function(inputDatum) {
-  return false;
-};
-
-
-/**
- * @override
- * @suppress {checkTypes} TODO bl suspicious false return value
- */
-r5js.ListLikeTransformer.Base_.prototype.toDatum = function(bindings) {
-  const siblingBuffer = this.toSiblingBuffer_(bindings);
-  return siblingBuffer ? siblingBuffer.toList(this.ctor_) : false;
-};
-
-
-/** @override */
-r5js.ListLikeTransformer.Base_.prototype.matchInput = function(
-    inputDatum, literalIds, definitionEnv, useEnv, bindings) {
-  const len = this.subtransformers_.length;
-  const maybeEllipsis = this.subtransformers_[len - 1] instanceof r5js.EllipsisTransformer
-      && this.subtransformers_[len - 1];
-
-  if (!this.couldMatch(inputDatum)) {
-    return false;
-  }
-
-  inputDatum = /** @type {!r5js.ast.CompoundDatum} */ (inputDatum);
-
-  /* R5RS 4.3.2: "an input form F matches a pattern P if and only if [...]
-     - P is a list (P1 ... Pn) and F is a list of n forms match P1 through Pn,
-       respectively; or
-     - P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or
-     improper list of n or more forms that match P1 through Pn, respectively,
-     and whose nth "cdr" matches Pn+1; or
-     - P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
-     the identifier ... and F is a proper list of at least n forms,
-     the first n of which match P1 through Pn, respectively,
-     and each remaining element of F matches Pn+1; or
-     - P is a vector of the form #(P1 ...Pn) and F is a vector of n forms
-     that match P1 through Pn; or
-     - P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
-     the identifier ... and F is a vector of n or more forms the first n
-     of which match P1 through Pn, respectively, and each remaining element
-     of F matches Pn+1" */
-  for (var subinput = inputDatum.getFirstChild(), i = 0;
-      subinput;
-      subinput = subinput.getNextSibling(), ++i) {
-
-    if (i === len - 1 && maybeEllipsis) {
-      // If there's an ellipsis in the pattern, break out to deal with it.
-      break;
-    } else if (i >= len) {
-      /* If there's no ellipsis in the pattern and the input is longer
-             than the pattern, this is a failure. */
-      return false;
-    } else if (!this.subtransformers_[i].matchInput(
-        subinput, literalIds, definitionEnv, useEnv, bindings)) {
-      /* If pattern matching on the subinput and subpattern fails, this is
-             a failure. */
-      return false;
-    }
-  }
-
-  if (maybeEllipsis) {
-    /* Corner case:
-         an empty input like () cannot match a pattern like (x y ...) */
-    return (!inputDatum.getFirstChild() && len > 1) ?
-        false :
-        maybeEllipsis.matchInput(
-            /** @type {!r5js.Datum} */(subinput),
-            literalIds, definitionEnv, useEnv, bindings);
-  } else {
-    /* If we matched all of the input without getting through all of
-     the pattern, this is a failure. */
-    return i === len;
-  }
-};
-
-
-/**
- * @param {!r5js.TemplateBindings} bindings
- * @return {r5js.SiblingBuffer}
- * @private
- */
-r5js.ListLikeTransformer.Base_.prototype.toSiblingBuffer_ = function(bindings) {
-  const buf = new r5js.SiblingBuffer();
-  const len = this.subtransformers_.length;
-
-  for (let i = 0; i < len; ++i) {
-    const success = /** @type {!r5js.Datum|boolean} */ (
-        this.subtransformers_[i].toDatum(bindings));
-    if (success === false) {
-      return null;
-    } else if (success) {
-      buf.appendSibling(/** @type {!r5js.Datum} */ (success));
-    }
-  }
-  return buf;
-};
-
-
-
-/**
- * @implements {r5js.ListLikeTransformer}
- * @extends {r5js.ListLikeTransformer.Base_}
- * @struct
- * @constructor
- */
-r5js.QuoteTransformer = function() {
-  r5js.QuoteTransformer.base(this, 'constructor', r5js.ast.Quote);
-};
-goog.inherits(r5js.QuoteTransformer, r5js.ListLikeTransformer.Base_);
-
-
-/**
- * This is a no-op mainly so we don't accidentally rename identifiers inside
- * quotes in {@link r5js.Transformer#setupIds_}.
- * @override
- */
-r5js.QuoteTransformer.prototype.collectNestingLevels = goog.nullFunction;
-
-
-
-/**
- * @implements {r5js.ListLikeTransformer}
- * @extends {r5js.ListLikeTransformer.Base_}
- * @struct
- * @constructor
- */
-r5js.VectorTransformer = function() {
-  r5js.VectorTransformer.base(this, 'constructor', r5js.ast.Vector);
-};
-goog.inherits(r5js.VectorTransformer, r5js.ListLikeTransformer.Base_);
-
-
-/** @override */
-r5js.VectorTransformer.prototype.couldMatch = function(inputDatum) {
-  // Vector patterns match only vector inputs
-  return inputDatum instanceof r5js.ast.Vector;
-};
-
-
-
-/**
- * @implements {r5js.ListLikeTransformer}
- * @extends {r5js.ListLikeTransformer.Base_}
- * @struct
- * @constructor
- */
-r5js.ListTransformer = function() {
-  r5js.ListTransformer.base(this, 'constructor', r5js.ast.List);
-};
-goog.inherits(r5js.ListTransformer, r5js.ListLikeTransformer.Base_);
-
-
-/** @override */
-r5js.ListTransformer.prototype.couldMatch = function(inputDatum) {
-  // Proper list patterns can match only proper list inputs
-  return inputDatum instanceof r5js.ast.List;
-};
-
-
-
-/**
- * @implements {r5js.ListLikeTransformer}
- * @extends {r5js.ListLikeTransformer.Base_}
- * @struct
- * @constructor
- */
-r5js.DottedListTransformer = function() {
-  r5js.DottedListTransformer.base(this, 'constructor', r5js.ast.DottedList);
-};
-goog.inherits(r5js.DottedListTransformer, r5js.ListLikeTransformer.Base_);
-
-
-/** @override */
-r5js.DottedListTransformer.prototype.couldMatch = function(inputDatum) {
-  // Dotted list patterns can match proper or dotted list inputs
-  return inputDatum instanceof r5js.ast.List || inputDatum.isImproperList();
-};
-
-
-/** @override */
-r5js.DottedListTransformer.prototype.matchInput = function(
-    inputDatum, literalIds, definitionEnv, useEnv, bindings) {
-  inputDatum = /** @type {!r5js.ast.CompoundDatum} */ (inputDatum);
-  const len = this.subtransformers_.length;
-  let maybeEllipsis =
-      this.subtransformers_[len - 1] instanceof r5js.EllipsisTransformer &&
-          this.subtransformers_[len - 1];
-
-  if (!this.couldMatch(inputDatum)) {
-    return false;
-  }
-
-  /* R5RS 4.3.2: "an input form F matches a pattern P if and only if [...]
-     - P is a list (P1 ... Pn) and F is a list of n forms match P1 through Pn,
-       respectively; or
-     - P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or
-     improper list of n or more forms that match P1 through Pn, respectively,
-     and whose nth "cdr" matches Pn+1; or
-     - P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
-     the identifier ... and F is a proper list of at least n forms,
-     the first n of which match P1 through Pn, respectively,
-     and each remaining element of F matches Pn+1; or
-     - P is a vector of the form #(P1 ...Pn) and F is a vector of n forms
-     that match P1 through Pn; or
-     - P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
-     the identifier ... and F is a vector of n or more forms the first n
-     of which match P1 through Pn, respectively, and each remaining element
-     of F matches Pn+1" */
-  for (var subinput = inputDatum.getFirstChild(), i = 0;
-      subinput;
-      subinput = subinput.getNextSibling(), ++i) {
-
-    if (i === len - 1) {
-      // If there's an ellipsis in the pattern, break out to deal with it.
-      break;
-    } else if (i >= len) {
-      /* If there's no ellipsis in the pattern and the input is longer
-             than the pattern, this is a failure. */
-      return false;
-    } else if (!this.subtransformers_[i].matchInput(
-        subinput, literalIds, definitionEnv, useEnv, bindings)) {
-      /* If pattern matching on the subinput and subpattern fails, this is
-             a failure. */
-      return false;
-    }
-  }
-
-  if (maybeEllipsis) {
-    /* Corner case:
-         an empty input like () cannot match a pattern like (x y ...) */
-    return (!inputDatum.getFirstChild() && len > 1) ?
-        false :
-        maybeEllipsis.matchInput(
-            /** @type {!r5js.Datum} */ (subinput),
-        literalIds, definitionEnv, useEnv, bindings);
-  } else {
-    // Dotted-list patterns cannot end in ellipses.
-    let toMatchAgainst;
-
-    if (inputDatum instanceof r5js.ast.List) {
-      toMatchAgainst = new r5js.SiblingBuffer().
-          appendSibling(/** @type {!r5js.Datum} */ (subinput)).
-          toList(r5js.ast.List);
-    } else if (inputDatum.isImproperList()) {
-      toMatchAgainst = subinput.getNextSibling() ?
-          new r5js.SiblingBuffer().
-              appendSibling(subinput).
-              toList(r5js.ast.DottedList) :
-          subinput;
+    /** @return {!ListLikeTransformer} */
+    static dottedList() {
+        return new DottedListTransformer();
     }
 
-    return this.subtransformers_[i].matchInput(
-        /** @type {!r5js.Datum} */ (toMatchAgainst),
-        literalIds, definitionEnv, useEnv, bindings);
-  }
-};
+    /** @return {!ListLikeTransformer} */
+    static list() {
+        return new ListTransformer();
+    }
+
+    /** @return {!ListLikeTransformer} */
+    static quote() {
+        return new QuoteTransformer();
+    }
+
+    /** @return {!ListLikeTransformer} */
+    static vector() {
+        return new VectorTransformer();
+    }
+}
+
+/** @implements {ListLikeTransformer} */
+class Base {
+    /** @param {function(new: Datum, !Datum)} ctor */
+    constructor(ctor) {
+        /** @const @private */ this.ctor_ = ctor;
+        /** @const @private {!Array<!ITransformer>} */ this.subtransformers_ = [];
+    }
+
+    /** @override */
+    addSubtransformer(subtransformer) {
+        this.subtransformers_.push(subtransformer);
+        return this;
+    }
+
+    /**
+     * @return {string}
+     * @suppress {checkTypes} TODO bl for getDatum()
+     */
+    getName() {
+        return this.subtransformers_[0].getDatum().getPayload();
+    }
+
+    /** @override */
+    collectNestingLevels(ellipsisLevel, transformer) {
+        for (let i = 0; i < this.subtransformers_.length; ++i) {
+            this.subtransformers_[i].collectNestingLevels(ellipsisLevel, transformer);
+        }
+    }
+
+    /**
+     * @param {!Datum} inputDatum
+     * @return {boolean}
+     */
+    couldMatch(inputDatum) {
+        return false;
+    }
+
+    /**
+     * @override
+     * @suppress {checkTypes} TODO bl suspicious false return value
+     */
+    toDatum(bindings) {
+        const siblingBuffer = this.toSiblingBuffer_(bindings);
+        return siblingBuffer ? siblingBuffer.toList(this.ctor_) : false;
+    }
+
+    /** @override */
+    matchInput(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+        const len = this.subtransformers_.length;
+        const maybeEllipsis = this.subtransformers_[len - 1] instanceof EllipsisTransformer
+            && this.subtransformers_[len - 1];
+
+        if (!this.couldMatch(inputDatum)) {
+            return false;
+        }
+
+        inputDatum = /** @type {!CompoundDatum} */ (inputDatum);
+
+        /* R5RS 4.3.2: "an input form F matches a pattern P if and only if [...]
+         - P is a list (P1 ... Pn) and F is a list of n forms match P1 through Pn,
+         respectively; or
+         - P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or
+         improper list of n or more forms that match P1 through Pn, respectively,
+         and whose nth "cdr" matches Pn+1; or
+         - P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
+         the identifier ... and F is a proper list of at least n forms,
+         the first n of which match P1 through Pn, respectively,
+         and each remaining element of F matches Pn+1; or
+         - P is a vector of the form #(P1 ...Pn) and F is a vector of n forms
+         that match P1 through Pn; or
+         - P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
+         the identifier ... and F is a vector of n or more forms the first n
+         of which match P1 through Pn, respectively, and each remaining element
+         of F matches Pn+1" */
+        for (var subinput = inputDatum.getFirstChild(), i = 0;
+             subinput;
+             subinput = subinput.getNextSibling(), ++i) {
+
+            if (i === len - 1 && maybeEllipsis) {
+                // If there's an ellipsis in the pattern, break out to deal with it.
+                break;
+            } else if (i >= len) {
+                /* If there's no ellipsis in the pattern and the input is longer
+                 than the pattern, this is a failure. */
+                return false;
+            } else if (!this.subtransformers_[i].matchInput(
+                    subinput, literalIds, definitionEnv, useEnv, bindings)) {
+                /* If pattern matching on the subinput and subpattern fails, this is
+                 a failure. */
+                return false;
+            }
+        }
+
+        if (maybeEllipsis) {
+            /* Corner case:
+             an empty input like () cannot match a pattern like (x y ...) */
+            return (!inputDatum.getFirstChild() && len > 1) ?
+                false :
+                maybeEllipsis.matchInput(
+                    /** @type {!Datum} */(subinput),
+                    literalIds, definitionEnv, useEnv, bindings);
+        } else {
+            /* If we matched all of the input without getting through all of
+             the pattern, this is a failure. */
+            return i === len;
+        }
+    }
+
+    /**
+     * @param {!TemplateBindings} bindings
+     * @return {SiblingBuffer}
+     * @private
+     */
+    toSiblingBuffer_(bindings) {
+        const buf = new SiblingBuffer();
+        const len = this.subtransformers_.length;
+
+        for (let i = 0; i < len; ++i) {
+            const success = /** @type {!Datum|boolean} */ (
+                this.subtransformers_[i].toDatum(bindings));
+            if (success === false) {
+                return null;
+            } else if (success) {
+                buf.appendSibling(/** @type {!Datum} */ (success));
+            }
+        }
+        return buf;
+    }
+}
+
+/** @implements {ListLikeTransformer} */
+class QuoteTransformer extends Base {
+    constructor() {
+        super(Quote);
+    }
+
+    /**
+     * This is a no-op mainly so we don't accidentally rename identifiers inside
+     * quotes in {@link r5js.Transformer#setupIds_}.
+     * @override
+     */
+    collectNestingLevels() {}
+}
+
+/** @implements {ListLikeTransformer} */
+class VectorTransformer extends Base {
+    constructor() {
+        super(Vector);
+    }
+
+    /** @override */
+    couldMatch(inputDatum) {
+        // Vector patterns match only vector inputs
+        return inputDatum instanceof Vector;
+    }
+}
+
+/** @implements {ListLikeTransformer} */
+class ListTransformer extends Base {
+    constructor() {
+        super(List);
+    }
+
+    /** @override */
+    couldMatch(inputDatum) {
+        // Proper list patterns can match only proper list inputs
+        return inputDatum instanceof List;
+    }
+}
+
+/** @implements {ListLikeTransformer} */
+class DottedListTransformer extends Base {
+    constructor() {
+        super(DottedList);
+    }
+
+    /** @override */
+    couldMatch(inputDatum) {
+        // Dotted list patterns can match proper or dotted list inputs
+        return inputDatum instanceof List || inputDatum.isImproperList();
+    }
+
+    /** @override */
+    matchInput(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+        inputDatum = /** @type {!CompoundDatum} */ (inputDatum);
+        const len = this.subtransformers_.length;
+        let maybeEllipsis =
+            this.subtransformers_[len - 1] instanceof EllipsisTransformer
+            && this.subtransformers_[len - 1];
+
+        if (!this.couldMatch(inputDatum)) {
+            return false;
+        }
+
+        /* R5RS 4.3.2: "an input form F matches a pattern P if and only if [...]
+         - P is a list (P1 ... Pn) and F is a list of n forms match P1 through Pn,
+         respectively; or
+         - P is an improper list (P1 P2 ... Pn . Pn+1) and F is a list or
+         improper list of n or more forms that match P1 through Pn, respectively,
+         and whose nth "cdr" matches Pn+1; or
+         - P is of the form (P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
+         the identifier ... and F is a proper list of at least n forms,
+         the first n of which match P1 through Pn, respectively,
+         and each remaining element of F matches Pn+1; or
+         - P is a vector of the form #(P1 ...Pn) and F is a vector of n forms
+         that match P1 through Pn; or
+         - P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is
+         the identifier ... and F is a vector of n or more forms the first n
+         of which match P1 through Pn, respectively, and each remaining element
+         of F matches Pn+1" */
+        for (var subinput = inputDatum.getFirstChild(), i = 0;
+             subinput;
+             subinput = subinput.getNextSibling(), ++i) {
+
+            if (i === len - 1) {
+                // If there's an ellipsis in the pattern, break out to deal with it.
+                break;
+            } else if (i >= len) {
+                /* If there's no ellipsis in the pattern and the input is longer
+                 than the pattern, this is a failure. */
+                return false;
+            } else if (!this.subtransformers_[i].matchInput(
+                    subinput, literalIds, definitionEnv, useEnv, bindings)) {
+                /* If pattern matching on the subinput and subpattern fails, this is
+                 a failure. */
+                return false;
+            }
+        }
+
+        if (maybeEllipsis) {
+            /* Corner case:
+             an empty input like () cannot match a pattern like (x y ...) */
+            return (!inputDatum.getFirstChild() && len > 1) ?
+                false :
+                maybeEllipsis.matchInput(
+                    /** @type {!Datum} */ (subinput),
+                    literalIds, definitionEnv, useEnv, bindings);
+        } else {
+            // Dotted-list patterns cannot end in ellipses.
+            let toMatchAgainst;
+
+            if (inputDatum instanceof List) {
+                toMatchAgainst = new SiblingBuffer().
+                    appendSibling(/** @type {!Datum} */ (subinput)).
+                    toList(List);
+            } else if (inputDatum.isImproperList()) {
+                toMatchAgainst = subinput.getNextSibling()
+                    ? new SiblingBuffer().appendSibling(subinput).toList(DottedList)
+                    : subinput;
+            }
+
+            return this.subtransformers_[i].matchInput(
+                /** @type {!Datum} */ (toMatchAgainst),
+                literalIds, definitionEnv, useEnv, bindings);
+        }
+    }
+}
+
+exports = ListLikeTransformer;
