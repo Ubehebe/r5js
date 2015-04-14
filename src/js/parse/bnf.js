@@ -26,24 +26,12 @@ goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.ast.Vector');
+goog.require('r5js.parse.bnf.DesugarableRule');
 goog.require('r5js.parse.bnf.Rule');
 goog.require('r5js.parse.Terminals');
 // TODO bl circular dependency goog.require('r5js.ParserImpl');
 
 
-/**
- * A desugarable rule is a rule that has a {@link #desugar} method.
- * This method allows the parser to specify post-parsing actions ("desugaring")
- * on the successfully parsed AST. The generic type of the desugarable rule
- * is the type of the datum passed to the desugar function.
- */
-r5js.parse.bnf.DesugarableRule = /** @interface @extends {r5js.parse.bnf.Rule} @template T */ class {
-  /**
-   * @param {function(T, !r5js.IEnvironment)} desugarFn
-   * @return {!r5js.parse.bnf.DesugarableRule<T>} This rule, for chaining.
-   */
-  desugar(desugarFn) {}
-};
 
 
 /**
