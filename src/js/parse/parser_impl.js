@@ -1,6 +1,5 @@
 goog.module('r5js.ParserImpl');
 
-const _ = goog.require('r5js.parse.bnf');
 const Branch = goog.require('r5js.Branch');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
@@ -26,6 +25,8 @@ const ProcCall = goog.require('r5js.ProcCall');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const RenameHelper = goog.require('r5js.RenameHelper');
 const RenameUtil = goog.require('r5js.RenameUtil');
+const Rule = goog.require('r5js.parse.bnf.Rule');
+const RuleFactory = goog.require('r5js.parse.RuleFactory');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const String = goog.require('r5js.ast.String');
@@ -217,8 +218,19 @@ class ParserImpl {
     /** @private {boolean} */
 let fixParserSensitiveIds_ = false;
 
-/** @const {!Object<!Nonterminal, !_.Rule>} */
+/** @const {!Object<!Nonterminal, !Rule>} */
 const grammar = {};
+
+/** @implements {Grammar} */
+class GrammarImpl {
+    /** @override */
+    ruleFor(nonterminal) {
+        return grammar[nonterminal];
+    }
+}
+
+/** @const {!RuleFactory} */
+const _ = new RuleFactory(new GrammarImpl());
 
 /* <expression> -> <variable>
  | <literal>
@@ -1031,14 +1043,6 @@ grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
       env.addBinding(anonymousName, macro);
       return TopLevelSyntaxAssignment.of(kw, anonymousName);
     });
-
-/** @implements {Grammar} */
-class GrammarImpl {
-    /** @override */
-    ruleFor(nonterminal) {
-        return grammar[nonterminal];
-    }
-}
 
 exports.ParserImpl = ParserImpl;
 exports.grammar = grammar;
