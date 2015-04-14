@@ -148,6 +148,11 @@ class ParserImpl {
             : parsedRoot;
     }
 
+    /** @override */
+    ruleFor(nonterminal) {
+        return grammar[nonterminal];
+    }
+
     /**
      * @param {Datum} root
      * @return {Datum}

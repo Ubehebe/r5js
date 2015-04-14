@@ -2,6 +2,7 @@ goog.module('r5js.Parser');
 
 const Datum = goog.require('r5js.Datum');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
+const Rule = goog.require('r5js.parse.bnf.Rule');
 
 /** @interface */
 class Parser {
@@ -13,6 +14,13 @@ class Parser {
   * was unsuccessful.
   */
  parse(opt_nonterminal) {}
+
+    /**
+     * @param {!Nonterminal} nonterminal
+     * @return {!Rule}
+     * @package
+     */
+    ruleFor(nonterminal) {}
 }
 
 exports = Parser;
