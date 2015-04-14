@@ -30,7 +30,7 @@ goog.require('r5js.InMemoryInputPort');
 goog.require('r5js.InMemoryOutputPort');
 goog.require('r5js.InMemoryPortBuffer');
 goog.require('r5js.ParserImpl');
-goog.require('r5js.ReaderImpl');
+goog.require('r5js.Reader');
 goog.require('r5js.TokenStream');
 goog.require('r5js.curPlatform');
 goog.require('r5js.test.JsInterop');
@@ -103,13 +103,13 @@ r5js.test.main.defaultConfig_ = function() {
 
 /** @param {string} text Text to read. */
 r5js.test.readSandbox = function(text) {
-  new r5js.ReaderImpl(r5js.TokenStream.forText(text)).read();
+  r5js.Reader.forTokenStream(r5js.TokenStream.forText(text)).read();
 };
 
 
 /** @param {string} text Text to parse. */
 r5js.test.parseSandbox = function(text) {
-  let datumRoot = new r5js.ReaderImpl(r5js.TokenStream.forText(text)).read();
+  let datumRoot = r5js.Reader.forTokenStream(r5js.TokenStream.forText(text)).read();
   if (datumRoot) {
     new r5js.ParserImpl.ParserImpl(datumRoot).parse();
   }

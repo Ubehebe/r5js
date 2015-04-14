@@ -4,7 +4,7 @@ const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
 const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
 const InputPort = goog.require('r5js.InputPort');
-const ReaderImpl = goog.require('r5js.ReaderImpl');
+const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
 
 /** @implements {InputPort} */
@@ -36,7 +36,7 @@ class InMemoryInputPort {
             return null;
         } else {
             const text = this.buffer_.getAndClear();
-            this.leftoverDatum_ = new ReaderImpl(TokenStream.forText(text)).read();
+            this.leftoverDatum_ = Reader.forTokenStream(TokenStream.forText(text)).read();
             return this.read();
         }
     }

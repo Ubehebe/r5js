@@ -9,7 +9,7 @@ const ParserImpl = goog.require('r5js.ParserImpl');
 const Pipeline = goog.require('r5js.Pipeline');
 const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
-const ReaderImpl = goog.require('r5js.ReaderImpl');
+const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
 const Evaluator = goog.require('r5js.sync.Evaluator');
 const trampoline = goog.require('r5js.trampoline');
@@ -72,7 +72,7 @@ function boot(syntaxLib, procLib, opt_inputPort, opt_outputPort) {
  */
 function installSchemeSource(lib, env) {
     const continuable = /** @type {!ProcCallLike} */ (new ParserImpl.ParserImpl(
-        /** @type {!Datum} */ (new ReaderImpl(
+        /** @type {!Datum} */ (Reader.forTokenStream(
             TokenStream.forText(lib)).read())).parse().desugar(env));
     trampoline(continuable, env, InputPort.NULL, OutputPort.NULL);
 }

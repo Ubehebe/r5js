@@ -4,7 +4,7 @@ goog.setTestOnly('parseAs');
 const Datum = goog.require('r5js.Datum');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const ParserImpl = goog.require('r5js.ParserImpl');
-const ReaderImpl = goog.require('r5js.ReaderImpl');
+const Reader = goog.require('r5js.Reader');
 const Matcher = goog.require('tdd.matchers.Matcher');
 const TokenStream = goog.require('r5js.TokenStream');
 
@@ -23,7 +23,7 @@ class ParsesAs {
     matches(value) {
         let datumRoot;
         try {
-            datumRoot = new ReaderImpl(TokenStream.forText(value)).read();
+            datumRoot = Reader.forTokenStream(TokenStream.forText(value)).read();
         } catch (e) {
             return false;
         }
