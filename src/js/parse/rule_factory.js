@@ -1,12 +1,22 @@
 goog.module('r5js.parse.RuleFactory');
 
-const bnf = goog.require('r5js.parse.bnf');
+const array = goog.require('goog.array');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const DesugarableRule = goog.require('r5js.parse.bnf.DesugarableRule');
+const DottedList = goog.require('r5js.ast.DottedList');
 const Grammar = goog.require('r5js.parse.Grammar');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const List = goog.require('r5js.ast.List');
+const Quasiquote = goog.require('r5js.ast.Quasiquote');
+const Quote = goog.require('r5js.ast.Quote');
 const Rule = goog.require('r5js.parse.bnf.Rule');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
+const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
+const Terminals = goog.require('r5js.parse.Terminals');
+const Unquote = goog.require('r5js.ast.Unquote');
+const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
+const Vector = goog.require('r5js.ast.Vector');
 
 class RuleFactory {
 
@@ -20,7 +30,9 @@ class RuleFactory {
      * @return {!Rule}
      */
     one(terminalOrNonterminal) {
-        return bnf.one(terminalOrNonterminal);
+        return goog.isString(terminalOrNonterminal)
+            ? new OneTerminal(terminalOrNonterminal)
+            : new OneNonterminal(terminalOrNonterminal, this.grammar_);
     }
 
     /**
@@ -28,7 +40,7 @@ class RuleFactory {
      * @return {!Rule}
      */
     zeroOrMore(nonterminal) {
-        return bnf.zeroOrMore(nonterminal);
+        return new AtLeast(nonterminal, 0, this.grammar_);
     }
 
     /**
@@ -36,7 +48,7 @@ class RuleFactory {
      * @return {!Rule}
      */
     oneOrMore(nonterminal) {
-        return bnf.oneOrMore(nonterminal);
+        return new AtLeast(nonterminal, 1, this.grammar_);
     }
 
     /**
@@ -44,7 +56,7 @@ class RuleFactory {
      * @return {!Rule}
      */
     choice(var_args) {
-        return bnf.choice.apply(null, arguments);
+        return new Choice(array.toArray(arguments));
     }
 
     /**
@@ -52,7 +64,7 @@ class RuleFactory {
      * @return {!DesugarableRule}
      */
     seq(var_args) {
-        return bnf.seq.apply(null, arguments);
+        return new Seq(array.toArray(arguments));
     }
 
     /**
@@ -60,7 +72,13 @@ class RuleFactory {
      * @return {!DesugarableRule<!CompoundDatum>}
      */
     list(var_args) {
-        return bnf.list.apply(null, arguments);
+        const rules = [];
+        rules.push(new OneTerminal(Terminals.LPAREN));
+        for (let i = 0; i < arguments.length; ++i) {
+            rules.push(arguments[i]);
+        }
+        rules.push(new OneTerminal(Terminals.RPAREN));
+        return new Seq(rules);
     }
 
     /**
@@ -69,7 +87,12 @@ class RuleFactory {
      * @return {!DesugarableRule<!CompoundDatum>}
      */
     dottedList(beforeDot, afterDot) {
-        return bnf.dottedList(beforeDot, afterDot);
+        const rules = [
+            new OneTerminal(Terminals.LPAREN),
+            beforeDot,
+            new OneTerminal(Terminals.DOT),
+            afterDot];
+        return new Seq(rules);
     }
 
     /**
@@ -77,7 +100,13 @@ class RuleFactory {
      * @return {!DesugarableRule<!CompoundDatum>}
      */
     vector(var_args) {
-        return bnf.vector.apply(null, arguments);
+        const rules = [];
+        rules.push(new OneTerminal(Terminals.LPAREN_VECTOR));
+        for (let i = 0; i < arguments.length; ++i) {
+            rules.push(arguments[i]);
+        }
+        rules.push(new OneTerminal(Terminals.RPAREN));
+        return new Seq(rules);
     }
 
     /**
@@ -85,8 +114,245 @@ class RuleFactory {
      * @return {!Rule}
      */
     matchDatum(predicate) {
-        return bnf.matchDatum(predicate);
+        return new MatchDatum(predicate);
     }
 }
+
+/** @implements {Rule} */
+class OneTerminal {
+    /** @param {!r5js.parse.Terminal} terminal */
+    constructor(terminal) {
+        /** @const @private */ this.terminal_ = terminal;
+    }
+
+    /**
+     * @override
+     * TODO bl put the instanceof checks into the Datum subclasses
+     */
+    match(datumStream) {
+        if (this.terminal_ === Terminals.RPAREN) {
+            return datumStream.maybeAdvanceToNextSiblingOfParent();
+        }
+
+        const next = datumStream.getNextDatum();
+        let match = false;
+        switch (this.terminal_) {
+            case Terminals.LPAREN:
+                match = next instanceof List;
+                break;
+            case Terminals.LPAREN_DOT:
+                match = next instanceof DottedList;
+                break;
+            case Terminals.LPAREN_VECTOR:
+                match = next instanceof Vector;
+                break;
+            case Terminals.TICK:
+                match = next instanceof Quote;
+                break;
+            case Terminals.BACKTICK:
+                match = next instanceof Quasiquote;
+                break;
+            case Terminals.COMMA:
+                match = next instanceof Unquote;
+                break;
+            case Terminals.COMMA_AT:
+                match = next instanceof UnquoteSplicing;
+                break;
+            default: // TODO bl where is this from?
+                if (next instanceof SimpleDatum && next.getPayload() === this.terminal_) {
+                    datumStream.advanceToNextSibling();
+                    return true;
+                } else {
+                    return false;
+                }
+        }
+
+        if (match) {
+            datumStream.advanceToChild();
+        }
+        return match;
+    }
+}
+
+/** @implements {DesugarableRule<!Datum>} */
+class OneNonterminal {
+    /**
+     * @param {!Nonterminal} nonterminal
+     * @param {!Grammar} grammar
+     */
+    constructor(nonterminal, grammar) {
+        /** @const @private */ this.nonterminal_ = nonterminal;
+        /** @const @private */ this.grammar_ = grammar;
+        /** @private {function(!Datum, !IEnvironment)|null} */ this.desugarFunc_ = null;
+    }
+
+    /** @override */
+    desugar(desugarFunc) {
+        this.desugarFunc_ = desugarFunc;
+        return this;
+    }
+
+    /** @override */
+    match(datumStream) {
+        const parsed = this.grammar_.ruleFor(this.nonterminal_).match(datumStream);
+        if (parsed instanceof Datum) {
+            parsed.setParse(this.nonterminal_);
+            if (this.desugarFunc_) {
+                parsed.setDesugar(this.desugarFunc_);
+            }
+            datumStream.advanceTo(/** @type {!Datum} */ (parsed.getNextSibling()));
+        }
+        return parsed;
+    }
+}
+
+/** @implements {Rule} */
+class AtLeast {
+    /**
+     * @param {!Nonterminal} nonterminal
+     * @param {number} minRepetitions
+     * @param {!Grammar} grammar
+     */
+    constructor(nonterminal, minRepetitions, grammar) {
+        /** @const @private */ this.nonterminal_ = nonterminal;
+        /** @const @private */ this.minRepetitions_ = minRepetitions;
+        /** @const @private */ this.grammar_ = grammar;
+    }
+
+    /** @override */
+    match(datumStream) {
+        let numParsed = 0;
+        let parsed;
+        while (parsed = this.grammar_.ruleFor(this.nonterminal_).match(datumStream)) {
+            parsed.setParse(this.nonterminal_);
+            ++numParsed;
+        }
+        return numParsed >= this.minRepetitions_;
+    }
+}
+
+/** @implements {Rule} */
+class MatchDatum {
+    /** @param {function(!Datum):boolean} predicate */
+    constructor(predicate) {
+        /** @const @private */ this.predicate_ = predicate;
+    }
+
+    /** @override */
+    match(datumStream) {
+        const next = datumStream.getNextDatum();
+        if (next && this.predicate_(next)) {
+            datumStream.advanceToNextSibling();
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+/** @implements {r5js.parse.bnf.Rule} */
+class Choice {
+    /** @param {!Array<!Rule>} rules */
+    constructor(rules) {
+        /** @const @private */ this.rules_ = rules;
+    }
+
+    /** @override */
+    match(datumStream) {
+        let parsed;
+        for (let i = 0; i < this.rules_.length; ++i) {
+            const rule = this.rules_[i];
+            if (parsed = rule.match(datumStream)) {
+                return parsed;
+            }
+        }
+        return false;
+    }
+}
+
+/** @implements {DesugarableRule<!CompoundDatum>} */
+class Seq {
+    /** @param {!Array<!Rule>} rules */
+    constructor(rules) {
+        /** @const @private */ this.rules_ = Seq.rewriteImproperList_(rules);
+        /** @private {function(!r5js.ast.CompoundDatum, !r5js.IEnvironment)|null} */
+        this.desugarFunc_ = null;
+    }
+
+    /**
+     * @override
+     * @suppress {checkTypes} for the type mismatch between this.desugarFunc_
+     * and {@link r5js.Datum#setDesugar}. TODO bl.
+     */
+    match(datumStream) {
+        const root = datumStream.getNextDatum();
+
+        for (let i = 0; i < this.rules_.length; ++i) {
+            if (!this.rules_[i].match(datumStream)) {
+                datumStream.advanceTo(/** @type {!r5js.Datum} */ (root));
+                return false;
+            }
+        }
+
+        const nextSibling = /** just in case of an empty program */ root &&
+            root.getNextSibling();
+        datumStream.advanceTo(/** @type {!Datum} */ (nextSibling));
+
+        if (root instanceof Datum && this.desugarFunc_) {
+            root.setDesugar(this.desugarFunc_);
+        }
+
+        return root || false;
+    }
+
+    /**
+     * This is a convenience function: we want to specify parse rules like
+     * (<variable>+ . <variable>) as if we don't know ahead of time whether
+     * the list is going to be dotted or not, but the reader already knows.
+     * Proper and improper lists are both represented as first-child-next-sibling
+     * linked lists; the only difference is the type ('(' vs. '.('). So we rewrite
+     * the parse rules to conform to the reader's knowledge.
+     * @param {!Array<!Rule>} rules
+     * @return {!Array<!Rule>} The modified rules array.
+     * @private
+     */
+    static rewriteImproperList_(rules) {
+        // example: (define (x . y) 1) => (define .( x . ) 1)
+        /* No RHS in the grammar has more than one dot.
+         This will break if such a rule is added. */
+        const indexOfDot = goog.array.findIndex(rules, function (rule) {
+            return rule instanceof OneTerminal
+                && rule.terminal_ === Terminals.DOT;
+        });
+
+        if (indexOfDot === -1) {
+            return rules;
+        }
+
+        // Find the closest opening paren to the left of the dot and rewrite it as .(
+        for (let i = indexOfDot - 1; i >= 0; --i) {
+            const rule = rules[i];
+            if (rule instanceof OneTerminal && rule.terminal_ === Terminals.LPAREN) {
+                rules[i] = new OneTerminal(Terminals.LPAREN_DOT);
+                break;
+            }
+        }
+        /* Splice out the dot and the datum following the dot -- it has already
+         been read as part of the list preceding the dot.
+         todo bl: this will cause problems with exactly one part of the grammar:
+         <template> -> (<template element>+ . <template>)
+         I think it's easier to check for this in the evaluator. */
+        rules.splice(indexOfDot, 2);
+        return rules;
+    }
+
+    /** @override */
+    desugar(desugarFunc) {
+        this.desugarFunc_ = desugarFunc;
+        return this;
+    }
+}
+
+
 
 exports = RuleFactory;
