@@ -32,15 +32,24 @@ goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.Error');
 goog.require('r5js.parse.Nonterminals');
 goog.require('r5js.parse.Terminals');
-goog.require('r5js.read.bnf');
+goog.require('r5js.read.bnf.Rule');
+goog.require('r5js.read.RuleFactory');
+goog.require('r5js.read.Grammar');
 
 
 goog.scope(function() {
-const _ = r5js.read.bnf;
-
-
 /** @type {!Object<string, !r5js.read.bnf.Rule>} */
 r5js.read.grammar = {};
+
+    /** @implements {r5js.read.Grammar} */
+    class GrammarImpl {
+        /** @override */
+        ruleFor(nonterminal) {
+            return r5js.read.grammar[nonterminal];
+        }
+    }
+
+    const _ = new r5js.read.RuleFactory(new GrammarImpl());
 
 
 // <datum> -> <simple datum> | <compound datum>
