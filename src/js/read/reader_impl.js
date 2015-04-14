@@ -1,56 +1,39 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.ReaderImpl');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const Boolean = goog.require('r5js.ast.Boolean');
+const Character = goog.require('r5js.ast.Character');
+const Datum = goog.require('r5js.Datum');
+const DottedList = goog.require('r5js.ast.DottedList');
+const Error = goog.require('r5js.Error');
+const Grammar = goog.require('r5js.read.Grammar');
+const Identifier = goog.require('r5js.ast.Identifier');
+const List = goog.require('r5js.ast.List');
+const Nonterminals = goog.require('r5js.parse.Nonterminals');
+const Number = goog.require('r5js.ast.Number');
+const Quasiquote = goog.require('r5js.ast.Quasiquote');
+const Quote = goog.require('r5js.ast.Quote');
+const Reader = goog.require('r5js.Reader');
+const Rule = goog.require('r5js.read.bnf.Rule');
+const RuleFactory = goog.require('r5js.read.RuleFactory');
+const String = goog.require('r5js.ast.String');
+const Terminals = goog.require('r5js.parse.Terminals');
+const TokenStream = goog.require('r5js.TokenStream');
+const Unquote = goog.require('r5js.ast.Unquote');
+const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
+const Vector = goog.require('r5js.ast.Vector');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+/** @type {!Object<string, !Rule>} */
+const grammar = {};
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.ReaderImpl');
-goog.provide('r5js.read.grammar');
-
-
-goog.require('r5js.Reader');
-goog.require('r5js.ast.Boolean');
-goog.require('r5js.ast.Character');
-goog.require('r5js.ast.DottedList');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.List');
-goog.require('r5js.ast.Number');
-goog.require('r5js.ast.Quasiquote');
-goog.require('r5js.ast.Quote');
-goog.require('r5js.ast.String');
-goog.require('r5js.ast.Unquote');
-goog.require('r5js.ast.UnquoteSplicing');
-goog.require('r5js.Error');
-goog.require('r5js.parse.Nonterminals');
-goog.require('r5js.parse.Terminals');
-goog.require('r5js.read.bnf.Rule');
-goog.require('r5js.read.RuleFactory');
-goog.require('r5js.read.Grammar');
-
-
-goog.scope(function() {
-/** @type {!Object<string, !r5js.read.bnf.Rule>} */
-r5js.read.grammar = {};
-
-    /** @implements {r5js.read.Grammar} */
-    class GrammarImpl {
-        /** @override */
-        ruleFor(nonterminal) {
-            return r5js.read.grammar[nonterminal];
-        }
+/** @implements {Grammar} */
+class GrammarImpl {
+    /** @override */
+    ruleFor(nonterminal) {
+        return grammar[nonterminal];
     }
+}
 
-    const _ = new r5js.read.RuleFactory(new GrammarImpl());
-
+const _ = new RuleFactory(new GrammarImpl());
 
 // <datum> -> <simple datum> | <compound datum>
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
@@ -60,73 +43,67 @@ r5js.read.grammar = {};
 // <vector> -> #(<datum>*)
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
-r5js.read.grammar[r5js.parse.Nonterminals.DATUM.toString()] = _.choice(
-    _.onePrimitive(r5js.ast.Identifier),
-    _.onePrimitive(r5js.ast.Boolean),
-    _.onePrimitive(r5js.ast.Number),
-    _.onePrimitive(r5js.ast.Character),
-    _.onePrimitive(r5js.ast.String),
+grammar[Nonterminals.DATUM.toString()] = _.choice(
+    _.onePrimitive(Identifier),
+    _.onePrimitive(Boolean),
+    _.onePrimitive(Number),
+    _.onePrimitive(Character),
+    _.onePrimitive(String),
     _.seq(
-        _.one(r5js.parse.Terminals.LPAREN),
-        _.zeroOrMore(r5js.parse.Nonterminals.DATUM),
-        _.one(r5js.parse.Terminals.RPAREN)).
-    named(r5js.ast.List),
+        _.one(Terminals.LPAREN),
+        _.zeroOrMore(Nonterminals.DATUM),
+        _.one(Terminals.RPAREN))
+        .named(List),
     _.seq(
-        _.one(r5js.parse.Terminals.LPAREN),
-        _.oneOrMore(r5js.parse.Nonterminals.DATUM),
-        _.one(r5js.parse.Terminals.DOT),
-        _.one(r5js.parse.Nonterminals.DATUM),
-        _.one(r5js.parse.Terminals.RPAREN)).
-    named(r5js.ast.DottedList),
+        _.one(Terminals.LPAREN),
+        _.oneOrMore(Nonterminals.DATUM),
+        _.one(Terminals.DOT),
+        _.one(Nonterminals.DATUM),
+        _.one(Terminals.RPAREN))
+        .named(DottedList),
     _.seq(
-        _.one(r5js.parse.Terminals.LPAREN_VECTOR),
-        _.zeroOrMore(r5js.parse.Nonterminals.DATUM),
-        _.one(r5js.parse.Terminals.RPAREN)).
-    named(r5js.ast.Vector),
+        _.one(Terminals.LPAREN_VECTOR),
+        _.zeroOrMore(Nonterminals.DATUM),
+        _.one(Terminals.RPAREN))
+        .named(Vector),
     _.seq(
-        _.one(r5js.parse.Terminals.TICK),
-        _.one(r5js.parse.Nonterminals.DATUM)).
-        named(r5js.ast.Quote),
+        _.one(Terminals.TICK),
+        _.one(Nonterminals.DATUM))
+        .named(Quote),
     _.seq(
-        _.one(r5js.parse.Terminals.BACKTICK),
-        _.one(r5js.parse.Nonterminals.DATUM)).
-    named(r5js.ast.Quasiquote),
+        _.one(Terminals.BACKTICK),
+        _.one(Nonterminals.DATUM))
+        .named(Quasiquote),
     _.seq(
-        _.one(r5js.parse.Terminals.COMMA),
-        _.one(r5js.parse.Nonterminals.DATUM)).
-        named(r5js.ast.Unquote),
+        _.one(Terminals.COMMA),
+        _.one(Nonterminals.DATUM))
+        .named(Unquote),
     _.seq(
-        _.one(r5js.parse.Terminals.COMMA_AT),
-        _.one(r5js.parse.Nonterminals.DATUM)).
-    named(r5js.ast.UnquoteSplicing));
+        _.one(Terminals.COMMA_AT),
+        _.one(Nonterminals.DATUM))
+        .named(UnquoteSplicing));
 
 
-r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()] = _.zeroOrMore(
-    r5js.parse.Nonterminals.DATUM);
-});  // goog.scope
+grammar[Nonterminals.DATUMS.toString()] = _.zeroOrMore(Nonterminals.DATUM);
 
 
+/** @implements {Reader} */
+class ReaderImpl {
+    /** @param {!TokenStream} tokenStream */
+    constructor(tokenStream) {
+        /** @const @private */ this.scanner_ = tokenStream;
+    }
 
-/**
- * @param {!r5js.TokenStream} scanner
- * @implements {r5js.Reader}
- * @struct
- * @constructor
- */
-r5js.ReaderImpl = function(scanner) {
-  /** @const @private {!r5js.TokenStream} */
-  this.scanner_ = scanner;
-};
+    /** @override */
+    read() {
+        const ans = grammar[Nonterminals.DATUMS.toString()].match(this.scanner_);
+        // All of the input tokens must be consumed for success.
+        const nextToken = this.scanner_.nextToken();
+        if (nextToken) {
+            throw Error.read(nextToken);
+        }
+        return /** @type {!Datum} */ (ans);
+    }
+}
 
-
-/** @override */
-r5js.ReaderImpl.prototype.read = function() {
-  const ans = r5js.read.grammar[r5js.parse.Nonterminals.DATUMS.toString()].
-      match(this.scanner_);
-  // All of the input tokens must be consumed for success.
-  const nextToken = this.scanner_.nextToken();
-  if (nextToken) {
-    throw r5js.Error.read(nextToken);
-  }
-  return /** @type {!r5js.Datum} */ (ans);
-};
+exports = ReaderImpl;
