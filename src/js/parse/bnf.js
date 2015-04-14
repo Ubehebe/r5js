@@ -26,19 +26,9 @@ goog.require('r5js.ast.SimpleDatum');
 goog.require('r5js.ast.Unquote');
 goog.require('r5js.ast.UnquoteSplicing');
 goog.require('r5js.ast.Vector');
+goog.require('r5js.parse.bnf.Rule');
 goog.require('r5js.parse.Terminals');
 // TODO bl circular dependency goog.require('r5js.ParserImpl');
-
-
-
-r5js.parse.bnf.Rule = /** @interface */ class {
-  /**
-   * @param {!r5js.DatumStream} datumStream
-   * @return {boolean|!r5js.Datum} True iff the parse succeeded.
-   */
-  match(datumStream) {}
-};
-
 
 
 /**
