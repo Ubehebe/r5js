@@ -14,13 +14,6 @@ class Parser {
   * was unsuccessful.
   */
  parse(opt_nonterminal) {}
-
-    /**
-     * @param {!Nonterminal} nonterminal
-     * @return {!Rule}
-     * @package
-     */
-    ruleFor(nonterminal) {}
 }
 
 exports = Parser;

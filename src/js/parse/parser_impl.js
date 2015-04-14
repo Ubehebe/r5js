@@ -8,6 +8,7 @@ const DatumStream = goog.require('r5js.DatumStream');
 const datumutil = goog.require('r5js.datumutil');
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
 const Error = goog.require('r5js.Error');
+const Grammar = goog.require('r5js.parse.Grammar');
 const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const ITransformer = goog.require('r5js.ITransformer');
@@ -146,11 +147,6 @@ class ParserImpl {
         return (nonterminal === Nonterminals.PROGRAM)
             ? ParserImpl.maybeFixParserSensitiveIds_(parsedRoot)
             : parsedRoot;
-    }
-
-    /** @override */
-    ruleFor(nonterminal) {
-        return grammar[nonterminal];
     }
 
     /**
@@ -1035,6 +1031,14 @@ grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
       env.addBinding(anonymousName, macro);
       return TopLevelSyntaxAssignment.of(kw, anonymousName);
     });
+
+/** @implements {Grammar} */
+class GrammarImpl {
+    /** @override */
+    ruleFor(nonterminal) {
+        return grammar[nonterminal];
+    }
+}
 
 exports.ParserImpl = ParserImpl;
 exports.grammar = grammar;
