@@ -73,60 +73,38 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
 
 // Type-related procedures
 
-PrimitiveProcedures['boolean?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.Boolean;
-});
+PrimitiveProcedures['boolean?'] = _.unary(node => node instanceof r5js.ast.Boolean);
 
-PrimitiveProcedures['char?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.Character;
-});
+PrimitiveProcedures['char?'] = _.unary(node => node instanceof r5js.ast.Character);
 
-PrimitiveProcedures['input-port?'] = _.unary(function(port) {
-  return r5js.InputPort.isImplementedBy(port);
-});
+PrimitiveProcedures['input-port?'] = _.unary(port => r5js.InputPort.isImplementedBy(port));
 
-PrimitiveProcedures['null?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.List && !node.getFirstChild();
-});
+PrimitiveProcedures['null?'] = _.unary(node =>
+  node instanceof r5js.ast.List && !node.getFirstChild());
 
-PrimitiveProcedures['number?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.Number;
-});
+PrimitiveProcedures['number?'] = _.unary(node => node instanceof r5js.ast.Number);
 
-PrimitiveProcedures['output-port?'] = _.unary(function(port) {
-  return r5js.OutputPort.isImplementedBy(port);
-});
+PrimitiveProcedures['output-port?'] = _.unary(port => r5js.OutputPort.isImplementedBy(port));
 
-PrimitiveProcedures['pair?'] = _.unary(function(node) {
-  return r5js.IPair.isImplementedBy(node) &&
-      !!node.getFirstChild(); // 3.2: (pair? '()) => #f
-});
+PrimitiveProcedures['pair?'] = _.unary(node =>
+r5js.IPair.isImplementedBy(node)
+&& !!node.getFirstChild()); // 3.2: (pair? '()) => #f
 
-PrimitiveProcedures['port?'] = _.unary(function(port) {
-  return r5js.InputPort.isImplementedBy(port) ||
-      r5js.OutputPort.isImplementedBy(port);
-});
+PrimitiveProcedures['port?'] = _.unary(port =>
+  r5js.InputPort.isImplementedBy(port) || r5js.OutputPort.isImplementedBy(port));
 
-PrimitiveProcedures['procedure?'] = _.unary(function(node) {
+PrimitiveProcedures['procedure?'] = _.unary(node =>
   /* R5RS 6.4: "The procedure call-with-current-continuation
          packages up the current continuation as an "escape procedure"
          and passes it as an argument to proc." Thus a Continuation
          must count as a procedure. */
-  return node instanceof r5js.ast.Lambda ||
-      node instanceof r5js.Continuation;
-});
+  node instanceof r5js.ast.Lambda || node instanceof r5js.Continuation);
 
-PrimitiveProcedures['string?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.String;
-});
+PrimitiveProcedures['string?'] = _.unary(node => node instanceof r5js.ast.String);
 
-PrimitiveProcedures['symbol?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.Identifier;
-});
+PrimitiveProcedures['symbol?'] = _.unary(node => node instanceof r5js.ast.Identifier);
 
-PrimitiveProcedures['vector?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.Vector;
-});
+PrimitiveProcedures['vector?'] = _.unary(node => node instanceof r5js.ast.Vector);
 
 // Number-related procedures
 
