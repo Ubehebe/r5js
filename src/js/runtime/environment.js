@@ -103,11 +103,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
         }
     }
 
-    /**
-     * @override
-     * @suppress {accessControls} for
-     * {@link r5js.PrimitiveProcedures#getActualType_}.
-     */
+    /** @override */
     getProcedure(name) {
         if (name in this.bindings_) {
             const binding = this.bindings_[name];
@@ -118,8 +114,7 @@ r5js.Environment = /** @implements {r5js.IEnvironment} */ class {
                 binding instanceof r5js.Procedure) {
                 return binding;
             } else if (binding instanceof r5js.Datum) {
-                throw r5js.Error.notAProcedure(
-                    name, r5js.PrimitiveProcedures.getActualType_(binding));
+                throw r5js.Error.notAProcedure(name);
             } else {
                 throw r5js.Error.internalInterpreterError(
                     "getProcedure: don't know what to do with binding " + name);

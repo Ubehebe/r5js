@@ -161,11 +161,7 @@ r5js.ProcCall.prototype.cpsify_ = function(trampolineHelper, parserProvider) {
 };
 
 
-/**
- * @override
- * @suppress {accessControls} for
- * {@link r5js.PrimitiveProcedures#getActualType_}.
- */
+/** @override */
 r5js.ProcCall.prototype.evalAndAdvance = function(
     resultStruct, env, parserProvider) {
   const proc = this.getEnv().getProcedure(/** @type {string} */ (
@@ -185,9 +181,7 @@ r5js.ProcCall.prototype.evalAndAdvance = function(
     const fakeArg = this.evalArgs()[0]; // TODO bl
     proc.evaluate(fakeArg, this, resultStruct);
   } else if (proc instanceof r5js.Datum) {
-    throw r5js.Error.notAProcedure(
-        this.operatorName_.getPayload(),
-        r5js.PrimitiveProcedures.getActualType_(proc));
+    throw r5js.Error.notAProcedure(this.operatorName_.getPayload());
   } else {
       throw r5js.Error.internalInterpreterError("ProcCall: don't know what to do with " + proc);
   }

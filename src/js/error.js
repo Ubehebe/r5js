@@ -150,11 +150,11 @@ class Error {
 
     /**
      * @param {string} name Error message.
-     * @param {!Type} actualType
+     * @param {!Type=} opt_actualType
      * @return {!Error}
      */
-    static notAProcedure(name, actualType) {
-        return new Error(Error.Type.NOT_A_PROCEDURE, name, actualType);
+    static notAProcedure(name, opt_actualType) {
+        return new Error(Error.Type.NOT_A_PROCEDURE, name, opt_actualType);
     }
 
     /**
