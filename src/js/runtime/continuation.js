@@ -21,8 +21,8 @@ class Continuation {
      * @param {ProcCallLike} next
      */
     constructor(resultName, next) {
-        /** @const @private */ this.lastResultName_ = resultName;
-        /** @const @private */ this.nextContinuable_ = next;
+        /** @const @protected */ this.lastResultName_ = resultName;
+        /** @const @protected */ this.nextContinuable_ = next;
     }
 
     /**
@@ -66,7 +66,6 @@ class Continuation {
      *
      * @param {!ProcCallLike} procCall
      * @param {!TrampolineHelper} trampolineHelper
-     * @protected
      */
     static repairInfiniteLoop(procCall, trampolineHelper) {
         for (var tmp = trampolineHelper.getNextProcCallLike(), prev;
