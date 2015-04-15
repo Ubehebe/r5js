@@ -115,7 +115,7 @@ final class CompilationUnit {
     private static CompilerOptions defaultCompilerOptions() {
         CompilerOptions options = new CompilerOptions();
         options.setAggressiveVarCheck(ERROR);
-        options.setAmbiguateProperties(true);
+        // options.setAmbiguateProperties(true);
         options.setBrokenClosureRequiresLevel(ERROR);
         options.setCheckEventfulObjectDisposalPolicy(
                 CheckEventfulObjectDisposal.DisposalCheckingPolicy.AGGRESSIVE);

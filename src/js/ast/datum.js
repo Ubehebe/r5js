@@ -1,31 +1,32 @@
-goog.provide('r5js.Datum');
+goog.module('r5js.Datum');
 
-goog.require('r5js.DesugarFunc');
-goog.require('r5js.ProcCallLike');
-goog.require('r5js.parse.Terminals');
-goog.require('r5js.runtime.ObjectValue');
-
+const DesugarFunc = goog.require('r5js.DesugarFunc');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const Nonterminal = goog.require('r5js.parse.Nonterminal');
+const Terminals = goog.require('r5js.parse.Terminals');
+const ObjectValue = goog.require('r5js.runtime.ObjectValue');
 
 /**
  * TODO bl remove the "implements ObjectValue".
  * This illustrates the fundamental confusion between runtime values
  * and the AST.
- */
-r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
+ * @implements {ObjectValue}
+*/
+class Datum {
   constructor() {
-    /** @private {r5js.Datum} */
+    /** @private {Datum} */
     this.nextSibling_ = null;
 
     /**
      * Only for last children.
-     * @private {r5js.Datum}
+     * @private {Datum}
      */
     this.parent_ = null;
 
-    /** @const @private {!Array<!r5js.parse.Nonterminal>} */
+    /** @const @private {!Array<!Nonterminal>} */
     this.nonterminals_ = [];
 
-    /** @const @private {!Array<!r5js.DesugarFunc>} */
+    /** @const @private {!Array<!DesugarFunc>} */
     this.desugars_ = [];
 
     /** @private {number} */
@@ -34,30 +35,28 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
     /** @private */ this.immutable_ = false;
   }
 
-  /**
-   * @return {!r5js.Datum} This object, for chaining.
-   */
+  /** @return {!Datum} This object, for chaining. */
   setImmutable() {
     this.immutable_ = true;
     return this;
   }
 
-  /** @return {r5js.Datum} */
+  /** @return {Datum} */
   getParent() {
     return this.parent_;
   }
 
-  /** @param {!r5js.Datum} parent */
+  /** @param {!Datum} parent */
   setParent(parent) {
     this.parent_ = parent;
   }
 
-  /** @return {r5js.Datum} */
+  /** @return {Datum} */
   getNextSibling() {
     return this.nextSibling_;
   }
 
-  /** @param {!r5js.Datum} nextSibling */
+  /** @param {!Datum} nextSibling */
   setNextSibling(nextSibling) {
     this.nextSibling_ = nextSibling;
   }
@@ -71,8 +70,8 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
   }
 
   /**
-   * @param {r5js.Datum} parent Datum to use for the parent of the clone, if any.
-   * @return {!r5js.Datum} A new clone of this Datum object.
+   * @param {Datum} parent Datum to use for the parent of the clone, if any.
+   * @return {!Datum} A new clone of this Datum object.
    */
   clone(parent) {
 
@@ -97,25 +96,25 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
     return ans;
   }
 
-  /** @param {!r5js.parse.Nonterminal} type */
+  /** @param {!Nonterminal} type */
   setParse(type) {
     this.nonterminals_.push(type);
   }
 
-  /** @param {!r5js.DesugarFunc} desugarFunc */
+  /** @param {!DesugarFunc} desugarFunc */
   setDesugar(desugarFunc) {
     this.desugars_.push(desugarFunc);
     ++this.nextDesugar_;
   }
 
-  /** @return {?r5js.parse.Nonterminal} */
+  /** @return {?Nonterminal} */
   peekParse() {
     const len = this.nonterminals_.length;
     return len > 0 ? this.nonterminals_[len - 1] : null;
   }
 
   /**
-   * @param {!r5js.parse.Nonterminal} nonterminal
+   * @param {!Nonterminal} nonterminal
    * @return {boolean} True iff this Datum parses as the given nonterminal.
    * @protected
    */
@@ -153,7 +152,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
   /**
    * @param {!r5js.IEnvironment} env TODO bl.
    * @param {boolean=} opt_forceContinuationWrapper TODO bl document.
-   * @return {!r5js.Datum|!r5js.ProcCallLike|!r5js.ITransformer|!r5js.Macro|null}
+   * @return {!Datum|!ProcCallLike|!r5js.ITransformer|!r5js.Macro|null}
    * @suppress {checkTypes} TODO bl
    */
   desugar(env, opt_forceContinuationWrapper) {
@@ -161,7 +160,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
         ? this.desugars_[this.nextDesugar_--]
         : null;
     let ans = desugarFn ? desugarFn(this, env) : this;
-    if (opt_forceContinuationWrapper && (ans instanceof r5js.Datum)) {
+    if (opt_forceContinuationWrapper && (ans instanceof Datum)) {
       ans = ans.toProcCallLike();
     }
     return ans;
@@ -169,12 +168,12 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
 
   /**
    * @param {!r5js.IEnvironment} env TODO bl.
-   * @return {r5js.ProcCallLike}
+   * @return {ProcCallLike}
    */
   sequence(env) {
-    /** @type {r5js.ProcCallLike} */ let first = null;
+    /** @type {ProcCallLike} */ let first = null;
     let desugared;
-    /** @type {r5js.ProcCallLike} */ let curEnd = null;
+    /** @type {ProcCallLike} */ let curEnd = null;
     for (let cur = this; cur; cur = cur.nextSibling_) {
       if (desugared = cur.desugar(env)) {
 
@@ -183,8 +182,8 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
          (for example in Datum.sequenceOperands), but here we need to be
          able to connect the Continuable objects correctly, so we
          wrap them. */
-        const desugaredProcCallLike = /**@type {!r5js.ProcCallLike} */ (
-            desugared instanceof r5js.Datum
+        const desugaredProcCallLike = /** @type {!ProcCallLike} */ (
+            desugared instanceof Datum
                 ? desugared.toProcCallLike()
                 : desugared);
 
@@ -194,7 +193,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
           curEnd.setNext(desugaredProcCallLike);
         }
 
-        curEnd = r5js.ProcCallLike.getLast(desugaredProcCallLike);
+        curEnd = ProcCallLike.getLast(desugaredProcCallLike);
       }
     }
 
@@ -202,7 +201,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
   }
 
   /**
-   * @param {!r5js.Datum} other
+   * @param {!Datum} other
    * @return {boolean} Whether the two datums are equivalent in the sense of eqv?
    * For most kinds of datum, this means reference equality.
    * @see R5RS 6.1
@@ -231,7 +230,7 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
   }
 
   /**
-   * @return {!r5js.Datum} The last sibling of this Datum, or this Datum if it's
+   * @return {!Datum} The last sibling of this Datum, or this Datum if it's
    * the last sibling.
    */
   lastSibling() {
@@ -248,37 +247,35 @@ r5js.Datum = /** @implements {r5js.runtime.ObjectValue} */ class {
     }
   }
 
-  /** @return {!r5js.ProcCallLike} */
+  /** @return {!ProcCallLike} */
   toProcCallLike() {
-    return new r5js.DatumShim_(this);
+    return new DatumShim(this);
   }
-};
+}
 
-
-/**
- * @param {r5js.Datum} payload
- * @param {string=} opt_continuationName Optional name of the continuation.
- * @extends {r5js.ProcCallLike}
- * @struct
- * @constructor
- * @private
- */
-r5js.DatumShim_ = function (payload, opt_continuationName) {
-  r5js.DatumShim_.base(this, 'constructor', opt_continuationName);
-  /** @const @private */ this.firstOperand_ = payload;
-};
-goog.inherits(r5js.DatumShim_, r5js.ProcCallLike);
-
-/** @override */
-r5js.DatumShim_.prototype.evalAndAdvance = function (resultStruct, env, parserProvider) {
-  if (this.firstOperand_ !== null) {
-    this.bindResult(this.firstOperand_);
-    resultStruct.setValue(this.firstOperand_);
+class DatumShim extends ProcCallLike {
+  /**
+   * @param {Datum} payload
+   * @param {string=} opt_continuationName Optional name of the continuation.
+   */
+  constructor(payload, opt_continuationName) {
+    super(opt_continuationName);
+    /** @const @private */ this.firstOperand_ = payload;
   }
 
-  const nextContinuable = this.getNext();
+  /** @override */
+  evalAndAdvance(resultStruct, env, parserProvider) {
+    if (this.firstOperand_ !== null) {
+      this.bindResult(this.firstOperand_);
+      resultStruct.setValue(this.firstOperand_);
+    }
 
-  if (nextContinuable) {
-    resultStruct.setNext(nextContinuable);
+    const nextContinuable = this.getNext();
+
+    if (nextContinuable) {
+      resultStruct.setNext(nextContinuable);
+    }
   }
-};
+}
+
+exports = Datum;
