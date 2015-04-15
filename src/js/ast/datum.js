@@ -1,15 +1,9 @@
 goog.provide('r5js.Datum');
 
+goog.require('r5js.DesugarFunc');
 goog.require('r5js.ProcCallLike');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.runtime.ObjectValue');
-
-/** @typedef {function(!r5js.Datum, !r5js.IEnvironment):
-* (!r5js.Datum|!r5js.ProcCallLike|!r5js.ITransformer|!r5js.Macro|null)}
- * TODO bl: narrow this typedef.
- */
-r5js.DesugarFunc;
-
 
 
 /**
