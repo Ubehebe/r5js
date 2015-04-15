@@ -19,7 +19,6 @@ goog.provide('r5js.PrimitiveProcedures');
 goog.require('goog.log');
 goog.require('r5js.CallWithCurrentContinuation');
 goog.require('r5js.CallbackBackedPort');
-goog.require('r5js.CdrHelperImpl');
 goog.require('r5js.Continuation');
 goog.require('r5js.Datum');
 goog.require('r5js.Type');
@@ -36,7 +35,6 @@ goog.require('r5js.SiblingBuffer');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.ast.DottedList');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Lambda');
 goog.require('r5js.ast.List');
@@ -380,7 +378,7 @@ PrimitiveProcedures['car'] = _.unary(p => p.car(), r5js.Type.Types.PAIR);
 
 PrimitiveProcedures['cdr'] = _.unary(p => {
       const cdr = p.cdr();
-      cdr.setCdrHelper(new r5js.CdrHelperImpl(p, cdr.getFirstChild()));
+      cdr.setCdrHelper(new r5js.ast.List.CdrHelperImpl(p, cdr.getFirstChild()));
       return cdr;
     }, r5js.Type.Types.PAIR);
 
@@ -398,7 +396,7 @@ PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
     return new r5js.SiblingBuffer().
         appendSibling(realCar).
         appendSibling(realCdr).
-        toList(r5js.ast.DottedList);
+        toList(r5js.ast.List.Dotted);
   }
 });
 

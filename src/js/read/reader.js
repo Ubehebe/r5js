@@ -3,7 +3,7 @@ goog.module('r5js.Reader');
 const Boolean = goog.require('r5js.ast.Boolean');
 const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
-const DottedList = goog.require('r5js.ast.DottedList');
+const DottedList = goog.require('r5js.ast.List').Dotted;
 const Error = goog.require('r5js.Error');
 const Grammar = goog.require('r5js.read.Grammar');
 const Identifier = goog.require('r5js.ast.Identifier');

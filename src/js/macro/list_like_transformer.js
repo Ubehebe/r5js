@@ -2,7 +2,7 @@ goog.module('r5js.ListLikeTransformer');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const DottedList = goog.require('r5js.ast.DottedList');
+const DottedList = goog.require('r5js.ast.List').Dotted;
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
 const ITransformer = goog.require('r5js.ITransformer');
 const List = goog.require('r5js.ast.List');
