@@ -118,8 +118,6 @@ function toString(includeSigils, value) {
             /** @type {!Value} */ (value.getFirstChild()));
       } else if (value instanceof UserDefinedProcedure) {
         return '<proc:' + value.getName() + '>';
-      } else if (value instanceof procspec.PrimitiveProcedure) {
-        return '<proc:' + value.getDebugName() + '>';
       } else if (InputPort.isImplementedBy(value)) {
         return '<input-port>';
       } else if (OutputPort.isImplementedBy(value)) {
@@ -128,6 +126,8 @@ function toString(includeSigils, value) {
         return toString(includeSigils, value.unwrap());
       } else if (value instanceof Environment) {
         return '<environment-specifier>';
+      } else {
+        return value.toString();
       }
     default:
       return '';

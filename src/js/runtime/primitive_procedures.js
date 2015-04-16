@@ -1,80 +1,55 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.PrimitiveProcedures');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const _ = goog.require('r5js.procspec');
+const Boolean = goog.require('r5js.ast.Boolean');
+const CallWithCurrentContinuation = goog.require('r5js.CallWithCurrentContinuation');
+const Character = goog.require('r5js.ast.Character');
+const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const Continuation = goog.require('r5js.Continuation');
+const Datum = goog.require('r5js.Datum');
+const DynamicWindContinuation = goog.require('r5js.DynamicWindContinuation');
+const Environment = goog.require('r5js.Environment');
+const EOF = goog.require('r5js.runtime.EOF');
+const Error = goog.require('r5js.Error');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const InputPort = goog.require('r5js.InputPort');
+const Identifier = goog.require('r5js.ast.Identifier');
+const Lambda = goog.require('r5js.ast.Lambda');
+const List = goog.require('r5js.ast.List');
+const Number = goog.require('r5js.ast.Number');
+const OutputPort = goog.require('r5js.OutputPort');
+const ParserImpl = goog.require('r5js.ParserImpl');
+const PortManager = goog.require('r5js.PortManager');
+const ProcCall = goog.require('r5js.ProcCall');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const Quote = goog.require('r5js.ast.Quote');
+const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const StringNode = goog.require('r5js.ast.String');
+const Terminals = goog.require('r5js.parse.Terminals');
+const trampoline = goog.require('r5js.trampoline');
+const TrampolineHelper = goog.require('r5js.TrampolineHelper');
+const Type = goog.require('r5js.Type');
+const Types = Type.Types;
+const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
+const valutil = goog.require('r5js.valutil');
+const Vector = goog.require('r5js.ast.Vector');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+/** @type {IEnvironment} */ let nullEnv_ = null;
+/** @type {IEnvironment} */ let r5RSEnv_ = null;
+/** @type {PortManager} */ let portManager_ = null;
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.PrimitiveProcedures');
-
-
-goog.require('goog.log');
-goog.require('r5js.CallWithCurrentContinuation');
-goog.require('r5js.CallbackBackedPort');
-goog.require('r5js.Continuation');
-goog.require('r5js.Datum');
-goog.require('r5js.Type');
-goog.require('r5js.DynamicWindContinuation');
-goog.require('r5js.Environment');
-goog.require('r5js.IEnvironment');
-goog.require('r5js.InputPort');
-goog.require('r5js.OutputPort');
-goog.require('r5js.ParserImpl');
-goog.require('r5js.PortManager');
-goog.require('r5js.ProcCall');
-goog.require('r5js.ProcCallLike');
-goog.require('r5js.SiblingBuffer');
-goog.require('r5js.ast.Boolean');
-goog.require('r5js.ast.Character');
-goog.require('r5js.ast.CompoundDatum');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.Lambda');
-goog.require('r5js.ast.List');
-goog.require('r5js.ast.Number');
-goog.require('r5js.ast.Quote');
-goog.require('r5js.ast.String');
-goog.require('r5js.ast.Vector');
-goog.require('r5js.parse.Terminals');
-goog.require('r5js.procspec');
-goog.require('r5js.runtime.EOF');
-goog.require('r5js.runtime.UNSPECIFIED_VALUE');
-goog.require('r5js.valutil');
-
-
-/** @private {r5js.IEnvironment} */ r5js.PrimitiveProcedures.nullEnv_;
-
-/** @private {r5js.IEnvironment} */ r5js.PrimitiveProcedures.r5RSEnv_;
-
-/** @private {r5js.PortManager} */ r5js.PrimitiveProcedures.portManager_;
-
-
-/** @const @private {!Object<string, !r5js.procspec.PrimitiveProcedure>} */
-r5js.PrimitiveProcedures.registry_ = {};
+/** @const {!Object<string, !_.PrimitiveProcedure>} */ const PrimitiveProcedures = {};
 
 // Type-related procedures
-
-for (let name in r5js.procspec.Predicates) {
-  r5js.PrimitiveProcedures.registry_[name] = r5js.procspec.Predicates[name];
-}
-
-goog.scope(function() {
-const _ = r5js.procspec;
-let PrimitiveProcedures = r5js.PrimitiveProcedures.registry_;
+_.installPredicates(PrimitiveProcedures);
 
 // Equivalence-related procedures
 
 /* From the description of eq? at R5RS 6.1, it looks like it is
      permissible for eq? to have exactly the same semantics as eqv?. */
-PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] =
-    _.binary(function(p, q) { return p.eqv(q); });
+PrimitiveProcedures['eqv?']
+    = PrimitiveProcedures['eq?']
+    = _.binary((p, q) => p.eqv(q));
 
 // Number-related procedures
 
@@ -85,7 +60,7 @@ PrimitiveProcedures['='] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
 PrimitiveProcedures['/'] = _.varargsAtLeast1(function() {
   if (arguments.length === 1) { // unary
@@ -96,7 +71,7 @@ PrimitiveProcedures['/'] = _.varargsAtLeast1(function() {
       ans /= arguments[i];
     return ans;
   }
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
 PrimitiveProcedures['-'] = _.varargsAtLeast1(function() {
   if (arguments.length === 1) { // unary
@@ -108,7 +83,7 @@ PrimitiveProcedures['-'] = _.varargsAtLeast1(function() {
     }
     return ans;
   }
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
 PrimitiveProcedures['*'] = _.varargsAtLeast0(function() {
   let product = 1;
@@ -116,7 +91,7 @@ PrimitiveProcedures['*'] = _.varargsAtLeast0(function() {
     product *= arguments[i];
   }
   return product;
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
 PrimitiveProcedures['+'] = _.varargsAtLeast0(function() {
   let sum = 0;
@@ -124,7 +99,7 @@ PrimitiveProcedures['+'] = _.varargsAtLeast0(function() {
     sum += arguments[i];
   }
   return sum;
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
 PrimitiveProcedures['>='] = _.varargsAtLeast0(function() {
   for (let i = 0; i < arguments.length - 1; ++i) {
@@ -133,7 +108,7 @@ PrimitiveProcedures['>='] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
 PrimitiveProcedures['>'] = _.varargsAtLeast0(function() {
   for (let i = 0; i < arguments.length - 1; ++i) {
@@ -142,7 +117,7 @@ PrimitiveProcedures['>'] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
 PrimitiveProcedures['<='] = _.varargsAtLeast0(function() {
   for (let i = 0; i < arguments.length - 1; ++i) {
@@ -151,7 +126,7 @@ PrimitiveProcedures['<='] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
 PrimitiveProcedures['<'] = _.varargsAtLeast0(function() {
   for (let i = 0; i < arguments.length - 1; ++i) {
@@ -160,15 +135,15 @@ PrimitiveProcedures['<'] = _.varargsAtLeast0(function() {
     }
   }
   return true;
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
-PrimitiveProcedures['angle'] = _.unary(function(z) {
-  throw r5js.Error.unimplementedOption('angle');
-}, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['angle'] = _.unary(z => {
+  throw Error.unimplementedOption('angle');
+}, Types.NUMBER);
 
-PrimitiveProcedures['acos'] = _.unary(Math.acos, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['acos'] = _.unary(Math.acos, Types.NUMBER);
 
-PrimitiveProcedures['asin'] = _.unary(Math.asin, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['asin'] = _.unary(Math.asin, Types.NUMBER);
 
 PrimitiveProcedures['atan'] = _.varargsAtLeast1(function() {
   /* Oddly, R5RS overloads atan for both one and two arguments,
@@ -179,69 +154,56 @@ PrimitiveProcedures['atan'] = _.varargsAtLeast1(function() {
     case 2:
       return Math.atan2(arguments[0], arguments[1]);
     default:
-      throw r5js.Error.tooManyVarargs('atan', 2, arguments.length);
+      throw Error.tooManyVarargs('atan', 2, arguments.length);
   }
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
-PrimitiveProcedures['ceiling'] = _.unary(Math.ceil, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['ceiling'] = _.unary(Math.ceil, Types.NUMBER);
 
-PrimitiveProcedures['complex?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.Number;
-});
+PrimitiveProcedures['complex?'] = _.unary(node => node instanceof Number);
 
-PrimitiveProcedures['cos'] = _.unary(Math.cos, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['cos'] = _.unary(Math.cos, Types.NUMBER);
 
-PrimitiveProcedures['exact?'] = _.unary(function(x) {
-  return false; // In JavaScript every number is a double.
-}, r5js.Type.Types.NUMBER);
+// In JavaScript every number is a double.
+PrimitiveProcedures['exact?'] = _.unary(x => false, Types.NUMBER);
 
-PrimitiveProcedures['exact->inexact'] = _.unary(function(x) {
-  return x; // In JavaScript every number is inexact
-}, r5js.Type.Types.NUMBER);
+// In JavaScript every number is inexact
+PrimitiveProcedures['exact->inexact'] = _.unary(function(x) { return x; }, Types.NUMBER);
 
-PrimitiveProcedures['exp'] = _.unary(Math.exp, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['exp'] = _.unary(Math.exp, Types.NUMBER);
 
-PrimitiveProcedures['expt'] = _.binary(
-    Math.pow, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['expt'] = _.binary(Math.pow, Types.NUMBER, Types.NUMBER);
 
-PrimitiveProcedures['floor'] = _.unary(Math.floor, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['floor'] = _.unary(Math.floor, Types.NUMBER);
 
 PrimitiveProcedures['imag-part'] = _.unary(function(z) {
-  throw r5js.Error.unimplementedOption('imag-part');
-}, r5js.Type.Types.NUMBER);
+  throw Error.unimplementedOption('imag-part');
+}, Types.NUMBER);
 
-PrimitiveProcedures['inexact?'] = _.unary(function(x) {
-  return true;
-}, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['inexact?'] = _.unary(x => true, Types.NUMBER);
 
-PrimitiveProcedures['inexact->exact'] = _.unary(function(x) {
-  return x; // TODO bl
-}, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['inexact->exact'] = _.unary(function(x) { return x; } /* TODO bl */, Types.NUMBER);
 
-PrimitiveProcedures['magnitude'] = _.unary(function(z) {
-  throw r5js.Error.unimplementedOption('magnitude');
-}, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['magnitude'] = _.unary((z) => {
+    throw Error.unimplementedOption('magnitude')
+}, Types.NUMBER);
 
-PrimitiveProcedures['make-polar'] = _.binary(function(x, y) {
-  throw r5js.Error.unimplementedOption('make-polar');
-}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['make-polar'] = _.binary((x, y) => {
+  throw Error.unimplementedOption('make-polar');
+}, Types.NUMBER, Types.NUMBER);
 
-PrimitiveProcedures['make-rectangular'] = _.binary(function(r, theta) {
-  throw r5js.Error.unimplementedOption('make-rectangular');
-}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['make-rectangular'] = _.binary((r, theta) => {
+  throw Error.unimplementedOption('make-rectangular');
+}, Types.NUMBER, Types.NUMBER);
 
-PrimitiveProcedures['number->string'] = _.unary(function(x) {
-  return new r5js.ast.String(x + '');
-}, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['number->string'] = _.unary(x => new StringNode(x + ''), Types.NUMBER);
 
-PrimitiveProcedures['integer?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.Number &&
-      Math.round(node.getPayload()) === node.getPayload();
-});
+PrimitiveProcedures['integer?'] = _.unary(node =>
+  node instanceof Number && Math.round(node.getPayload()) === node.getPayload());
 
-PrimitiveProcedures['log'] = _.unary(Math.log, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['log'] = _.unary(Math.log, Types.NUMBER);
 
-PrimitiveProcedures['modulo'] = _.binary(function(p, q) {
+PrimitiveProcedures['modulo'] = _.binary((p, q) => {
   const remainder = p % q;
   const sign = p * q;
   let ans = remainder;
@@ -262,33 +224,27 @@ PrimitiveProcedures['modulo'] = _.binary(function(p, q) {
     }
     return ans;
   }
-}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
+}, Types.NUMBER, Types.NUMBER);
 
-PrimitiveProcedures['quotient'] = _.binary(function(p, q) {
+PrimitiveProcedures['quotient'] = _.binary((p, q) => {
   /* In Scheme, quotient rounds towards zero, which is unfortunately
                  not what JavaScript's Math.round() does. */
   const unrounded = p / q;
   return unrounded > 0 ? Math.floor(unrounded) : Math.ceil(unrounded);
-}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
+}, Types.NUMBER, Types.NUMBER);
 
-PrimitiveProcedures['rational?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.Number;
-});
+PrimitiveProcedures['rational?'] = _.unary(node => node instanceof Number);
 
-PrimitiveProcedures['real?'] = _.unary(function(node) {
-  return node instanceof r5js.ast.Number;
-});
+PrimitiveProcedures['real?'] = _.unary(node => node instanceof Number);
 
-PrimitiveProcedures['real-part'] = _.unary(function(z) {
-  throw r5js.Error.unimplementedOption('real-part');
-}, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['real-part'] = _.unary(z => {
+  throw Error.unimplementedOption('real-part');
+}, Types.NUMBER);
 
-PrimitiveProcedures['remainder'] = _.binary(function(p, q) {
-  // The JavaScript % semantics are precisely the Scheme remainder semantics.
-  return p % q;
-}, r5js.Type.Types.NUMBER, r5js.Type.Types.NUMBER);
+// The JavaScript % semantics are precisely the Scheme remainder semantics.
+PrimitiveProcedures['remainder'] = _.binary((p, q) => p % q, Types.NUMBER, Types.NUMBER);
 
-PrimitiveProcedures['round'] = _.unary(function(x) {
+PrimitiveProcedures['round'] = _.unary(x => {
   /* R5RS 6.2.5: "Round returns the closest integer to x,
              rounding to even when x is halfway between two integers." */
   const down = Math.floor(x);
@@ -303,197 +259,196 @@ PrimitiveProcedures['round'] = _.unary(function(x) {
   } else {
     return up % 2 ? down : up;
   }
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
-PrimitiveProcedures['sin'] = _.unary(Math.sin, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['sin'] = _.unary(Math.sin, Types.NUMBER);
 
-PrimitiveProcedures['sqrt'] = _.unary(Math.sqrt, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['sqrt'] = _.unary(Math.sqrt, Types.NUMBER);
 
 PrimitiveProcedures['string->number'] = _.unary(
-    parseFloat, r5js.Type.Types.STRING);
+    parseFloat, Types.STRING);
 
-PrimitiveProcedures['tan'] = _.unary(Math.tan, r5js.Type.Types.NUMBER);
+PrimitiveProcedures['tan'] = _.unary(Math.tan, Types.NUMBER);
 
 PrimitiveProcedures['truncate'] = _.unary(function(x) {
   /* R5RS 6.2.5: "Truncate returns the integer closest to x
    whose absolute value is not larger than the absolute value of x." */
   return x > 0 ? Math.floor(x) : Math.ceil(x);
-}, r5js.Type.Types.NUMBER);
+}, Types.NUMBER);
 
 // Pair-related procedures
 
-PrimitiveProcedures['car'] = _.unary(p => p.car(), r5js.Type.Types.PAIR);
+PrimitiveProcedures['car'] = _.unary(p => p.car(), Types.PAIR);
 
 PrimitiveProcedures['cdr'] = _.unary(p => {
       const cdr = p.cdr();
-      cdr.setCdrHelper(new r5js.ast.List.CdrHelperImpl(p, cdr.getFirstChild()));
+      cdr.setCdrHelper(new List.CdrHelperImpl(p, cdr.getFirstChild()));
       return cdr;
-    }, r5js.Type.Types.PAIR);
+    }, Types.PAIR);
 
 PrimitiveProcedures['cons'] = _.binary(function(car, cdr) {
   // todo bl this is really expensive! can we cut down on the copying?
   const realCar = car.clone();
   const realCdr = cdr.clone();
   // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
-  if (realCdr instanceof r5js.ast.List || realCdr.isImproperList()) {
+  if (realCdr instanceof List || realCdr.isImproperList()) {
     const oldFirstChild = realCdr.getFirstChild();
     realCdr.setFirstChild(realCar);
     realCar.setNextSibling(oldFirstChild);
     return realCdr;
   } else {
-    return new r5js.SiblingBuffer().
-        appendSibling(realCar).
-        appendSibling(realCdr).
-        toList(r5js.ast.List.Dotted);
+    return new SiblingBuffer()
+        .appendSibling(realCar)
+        .appendSibling(realCdr)
+        .toList(List.Dotted);
   }
 });
 
 PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
-  if (!(p instanceof r5js.ast.List || p.isImproperList())) {
-    throw r5js.Error.argumentTypeError(
-        p, 0, 'set-car!', r5js.Type.Types.PAIR,
-        r5js.procspec.runtimeType(p));
+  if (!(p instanceof List || p.isImproperList())) {
+    throw Error.argumentTypeError(
+        p, 0, 'set-car!', Types.PAIR, _.runtimeType(p));
   }
   if (p.isImmutable()) {
-    throw r5js.Error.immutable(p.toString());
+    throw Error.immutable(p.toString());
   }
 
   car.setNextSibling(p.getFirstChild().getNextSibling());
   p.setFirstChild(car);
 
-  const helper = (/** @type {!r5js.ast.CompoundDatum} */ (p)).getCdrHelper();
+  const helper = (/** @type {!CompoundDatum} */ (p)).getCdrHelper();
   if (helper) {
     helper.setCar(car);
   }
 
-  return r5js.runtime.UNSPECIFIED_VALUE;
+  return UNSPECIFIED_VALUE;
 });
 
 PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
-  if (!(p instanceof r5js.ast.List || p.isImproperList())) {
-    throw r5js.Error.argumentTypeError(
-        p, 0, 'set-cdr!', r5js.Type.Types.PAIR,
-        r5js.procspec.runtimeType(p));
+  if (!(p instanceof List || p.isImproperList())) {
+    throw Error.argumentTypeError(
+        p, 0, 'set-cdr!', Types.PAIR,
+        _.runtimeType(p));
   }
 
   if (p.isImmutable()) {
-    throw r5js.Error.immutable(p.toString());
+    throw Error.immutable(p.toString());
   }
 
-  if (cdr instanceof r5js.ast.List) {
+  if (cdr instanceof List) {
     p.getFirstChild().setNextSibling(cdr.getFirstChild());
   } else {
     p.getFirstChild().setNextSibling(cdr);
   }
 
-  const helper = (/** @type {!r5js.ast.CompoundDatum} */ (p)).getCdrHelper();
+  const helper = (/** @type {!CompoundDatum} */ (p)).getCdrHelper();
   if (helper) {
     helper.setCdr(cdr);
   }
 
-  if (p instanceof r5js.ast.List) {
+  if (p instanceof List) {
     p.markDirty();
   }
 
-  return r5js.runtime.UNSPECIFIED_VALUE;
+  return UNSPECIFIED_VALUE;
 });
 
 // Vector-related procedures
 
 PrimitiveProcedures['make-vector'] = _.varargsRange(
     function(numberNode, fillNode) {
-      if (!(numberNode instanceof r5js.ast.Number)) {
-        throw r5js.Error.argumentTypeError(
-            numberNode, 0, 'make-vector', r5js.Type.Types.NUMBER,
-            r5js.procspec.runtimeType(numberNode));
+      if (!(numberNode instanceof Number)) {
+        throw Error.argumentTypeError(
+            numberNode, 0, 'make-vector', Types.NUMBER,
+            _.runtimeType(numberNode));
       }
       const n = numberNode.getPayload();
       /* R5RS 6.3.6: "If a second argument is given, then each element
          is initialized to fill. Otherwise the initial contents of each element
          is unspecified." False seems like a good default. */
-      fillNode = fillNode || new r5js.ast.Boolean(false);
+      fillNode = fillNode || new Boolean(false);
       const buf = [];
       for (let i = 0; i < n; ++i) {
         buf.push(fillNode.clone());
       }
-      return new r5js.ast.Vector(buf);
+      return new Vector(buf);
     }, 1, 2);
 
 PrimitiveProcedures['vector-length'] = _.unary(function(v) {
   return v.vectorLength();
-}, r5js.Type.Types.VECTOR);
+}, Types.VECTOR);
 
 PrimitiveProcedures['vector-ref'] = _.binary(function(v, k) {
   return v.vectorRef(k);
-}, r5js.Type.Types.VECTOR, r5js.Type.Types.NUMBER);
+}, Types.VECTOR, Types.NUMBER);
 
 PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
-  if (!(v instanceof r5js.ast.Vector)) {
-    throw r5js.Error.argumentTypeError(
-        v, 0, 'vector-set!', r5js.Type.Types.VECTOR,
-        r5js.procspec.runtimeType(v));
+  if (!(v instanceof Vector)) {
+    throw Error.argumentTypeError(
+        v, 0, 'vector-set!', Types.VECTOR,
+        _.runtimeType(v));
   }
-  if (!(k instanceof r5js.ast.Number)) {
-    throw r5js.Error.argumentTypeError(
-        k, 1, 'vector-set!', r5js.Type.Types.NUMBER,
-        r5js.procspec.runtimeType(k));
+  if (!(k instanceof Number)) {
+    throw Error.argumentTypeError(
+        k, 1, 'vector-set!', Types.NUMBER,
+        _.runtimeType(k));
   }
   if (v.isImmutable()) {
-    throw r5js.Error.immutable(v.toString());
+    throw Error.immutable(v.toString());
   }
   v.vectorSet(k.getPayload(), fill);
   // todo bl requires a cycle-labeling procedure like set-car! and set-cdr!
-  return r5js.runtime.UNSPECIFIED_VALUE;
+  return UNSPECIFIED_VALUE;
 });
 
 // Symbol-related procedures
 
 PrimitiveProcedures['symbol->string'] = _.unary(function(sym) {
-  return new r5js.ast.String(sym).setImmutable();
-}, r5js.Type.Types.SYMBOL);
+  return new StringNode(sym).setImmutable();
+}, Types.SYMBOL);
 
 PrimitiveProcedures['string->symbol'] = _.unary(function(node) {
   // TODO bl it doesn't seem right to be creating Identifiers instead of Symbols
-  return new r5js.ast.Identifier(node.getPayload());
+  return new Identifier(node.getPayload());
 });
 
 // Character-related procedures
 
 PrimitiveProcedures['char=?'] = _.binary(function(node1, node2) {
   return node1.getPayload() === node2.getPayload();
-}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
+}, Types.CHARACTER, Types.CHARACTER);
 
 PrimitiveProcedures['char<?'] = _.binary(function(node1, node2) {
   return node1.getPayload() < node2.getPayload();
-}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
+}, Types.CHARACTER, Types.CHARACTER);
 
 PrimitiveProcedures['char>?'] = _.binary(function(node1, node2) {
   return node1.getPayload() > node2.getPayload();
-}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
+}, Types.CHARACTER, Types.CHARACTER);
 
 PrimitiveProcedures['char<=?'] = _.binary(function(node1, node2) {
   return node1.getPayload() <= node2.getPayload();
-}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
+}, Types.CHARACTER, Types.CHARACTER);
 
 PrimitiveProcedures['char>=?'] = _.binary(function(node1, node2) {
   return node1.getPayload() >= node2.getPayload();
-}, r5js.Type.Types.CHARACTER, r5js.Type.Types.CHARACTER);
+}, Types.CHARACTER, Types.CHARACTER);
 
 PrimitiveProcedures['char->integer'] = _.unary(function(node) {
   return node.getPayload().charCodeAt(0);
-}, r5js.Type.Types.CHARACTER);
+}, Types.CHARACTER);
 
 PrimitiveProcedures['integer->char'] = _.unary(function(i) {
-  return new r5js.ast.Character(String.fromCharCode(i));
-}, r5js.Type.Types.NUMBER);
+  return new Character(String.fromCharCode(i));
+}, Types.NUMBER);
 
 PrimitiveProcedures['char-upcase'] = _.unary(function(node) {
-  return new r5js.ast.Character(node.getPayload().toUpperCase());
-}, r5js.Type.Types.CHARACTER);
+  return new Character(node.getPayload().toUpperCase());
+}, Types.CHARACTER);
 
 PrimitiveProcedures['char-downcase'] = _.unary(function(node) {
-  return new r5js.ast.Character(node.getPayload().toLowerCase());
-}, r5js.Type.Types.CHARACTER);
+  return new Character(node.getPayload().toLowerCase());
+}, Types.CHARACTER);
 
 // String-related procedures
 
@@ -508,27 +463,27 @@ PrimitiveProcedures['make-string'] = _.varargsRange(
       for (let i = 0; i < n; ++i) {
         s += c;
       }
-      return new r5js.ast.String(s);
+      return new StringNode(s);
     }, 1, 2);
 
 PrimitiveProcedures['string-length'] = _.unary(function(node) {
   return node.getPayload().length;
-}, r5js.Type.Types.STRING);
+}, Types.STRING);
 
 PrimitiveProcedures['string-ref'] = _.binary(function(node, i) {
-  return new r5js.ast.Character(node.getPayload().charAt(i));
-}, r5js.Type.Types.STRING, r5js.Type.Types.NUMBER);
+  return new Character(node.getPayload().charAt(i));
+}, Types.STRING, Types.NUMBER);
 
 PrimitiveProcedures['string-set!'] = _.ternary(function(str, k, c) {
   if (str.isImmutable()) {
-    throw r5js.Error.immutable(/** @type {string} */ (str.getPayload()));
+    throw Error.immutable(/** @type {string} */ (str.getPayload()));
   }
   const s = str.getPayload();
   str.setPayload(s.substr(0, k) + c.getPayload() + s.substr(k + 1));
-  return r5js.runtime.UNSPECIFIED_VALUE;
-}, r5js.Type.Types.STRING,
-r5js.Type.Types.NUMBER,
-r5js.Type.Types.CHARACTER);
+  return UNSPECIFIED_VALUE;
+}, Types.STRING,
+Types.NUMBER,
+Types.CHARACTER);
 
 // Vector-related procedures
 
@@ -537,15 +492,15 @@ r5js.Type.Types.CHARACTER);
 PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
     /** @suppress {accessControls} */function(
         inputPort, outputPort, expr, envSpec) {
-      if (!(expr instanceof r5js.Datum))
+      if (!(expr instanceof Datum))
         // TODO bl how could this not be a datum? The type signature of binaryWithCurrentPorts
         // is not helpful. Also, Types.SYMBOL is not right.
-        throw r5js.Error.argumentTypeError(
-            expr, 0, 'eval', r5js.Type.Types.SYMBOL, r5js.procspec.runtimeType(expr));
-      if (!r5js.IEnvironment.isImplementedBy(envSpec)) {
-        throw r5js.Error.argumentTypeError(
-            envSpec, 1, 'eval', r5js.Type.Types.ENVIRONMENT_SPECIFIER,
-            r5js.procspec.runtimeType(envSpec));
+        throw Error.argumentTypeError(
+            expr, 0, 'eval', Types.SYMBOL, _.runtimeType(expr));
+      if (!IEnvironment.isImplementedBy(envSpec)) {
+        throw Error.argumentTypeError(
+            envSpec, 1, 'eval', Types.ENVIRONMENT_SPECIFIER,
+            _.runtimeType(envSpec));
       }
       /* An interesting special case. If we're about to evaluate a wrapped
   procedure (primitive JavaScript or SchemeProcedure), return its name
@@ -563,8 +518,8 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
   todo bl: are there any other cases where a procedure can
   escape into the parser? */
 
-      if (expr instanceof r5js.ast.Lambda)
-        return new r5js.ast.Identifier(/** @type {string} */ (expr.getName()));
+      if (expr instanceof Lambda)
+        return new Identifier(/** @type {string} */ (expr.getName()));
 
       else {
         /* Call the parse/desugar/eval portions of the interpreter pipeline
@@ -572,17 +527,17 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
     for some awkward forward references. Reasoning about this copy/pasted
     code is simpler than reasoning about the build process. */
 
-        const env = /** @type {!r5js.IEnvironment} */ (envSpec);
+        const env = /** @type {!IEnvironment} */ (envSpec);
         // don't accidentally evaluate the next expr!
         expr.nextSibling_ = null;
 
-        const parsed = new r5js.ParserImpl.ParserImpl(expr).parse();
+        const parsed = new ParserImpl.ParserImpl(expr).parse();
         if (!parsed) {
-          throw r5js.Error.parse(expr);
+          throw Error.parse(expr);
         }
-        const continuable = /** @type {!r5js.ProcCallLike} */ (
+        const continuable = /** @type {!ProcCallLike} */ (
             parsed.desugar(env));
-        return r5js.trampoline(continuable, env, inputPort, outputPort);
+        return trampoline(continuable, env, inputPort, outputPort);
       }
     });
 
@@ -603,23 +558,23 @@ PrimitiveProcedures['will-eval?'] = _.binary(
 PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
-        throw r5js.Error.argumentTypeError(
-            inputPortToUse, 0, 'char-ready?', r5js.Type.Types.INPUT_PORT,
-            r5js.procspec.runtimeType(inputPortToUse));
+      if (!InputPort.isImplementedBy(inputPortToUse)) {
+        throw Error.argumentTypeError(
+            inputPortToUse, 0, 'char-ready?', Types.INPUT_PORT,
+            _.runtimeType(inputPortToUse));
       }
       return inputPortToUse.isCharReady();
     });
 
 PrimitiveProcedures['close-input-port'] = _.unary(function(datum) {
   datum.close();
-  return r5js.runtime.UNSPECIFIED_VALUE;
-}, r5js.Type.Types.INPUT_PORT);
+  return UNSPECIFIED_VALUE;
+}, Types.INPUT_PORT);
 
 PrimitiveProcedures['close-output-port'] = _.unary(function(datum) {
   datum.close();
-  return r5js.runtime.UNSPECIFIED_VALUE;
-}, r5js.Type.Types.OUTPUT_PORT);
+  return UNSPECIFIED_VALUE;
+}, Types.OUTPUT_PORT);
 
 PrimitiveProcedures['current-input-port'] = _.nullaryWithCurrentPorts(
     function(inputPort, outputPort) { return inputPort; });
@@ -634,89 +589,88 @@ PrimitiveProcedures['current-output-port'] = _.nullaryWithCurrentPorts(
 PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
     function(inputPort, outputPort, datum, maybeUserSuppliedOutputPort) {
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-      if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
-        throw r5js.Error.argumentTypeError(
-            outputPortToUse, 1, 'display', r5js.Type.Types.OUTPUT_PORT,
-            r5js.procspec.runtimeType(outputPortToUse));
+      if (!OutputPort.isImplementedBy(outputPortToUse)) {
+        throw Error.argumentTypeError(
+            outputPortToUse, 1, 'display', Types.OUTPUT_PORT,
+            _.runtimeType(outputPortToUse));
       }
-      (/** @type {!r5js.OutputPort} */ (outputPortToUse)).
-          write(r5js.valutil.toDisplayString(datum));
-      return r5js.runtime.UNSPECIFIED_VALUE;
+      (/** @type {!OutputPort} */ (outputPortToUse)).
+          write(valutil.toDisplayString(datum));
+      return UNSPECIFIED_VALUE;
     });
 
 PrimitiveProcedures['eof-object?'] = _.unary(function(port) {
-  return port === r5js.runtime.EOF;
+  return port === EOF;
 });
 
 PrimitiveProcedures['open-input-file'] = _.unary(function(datum) {
-  return r5js.PrimitiveProcedures.portManager_.newInputPort(datum.getPayload());
-}, r5js.Type.Types.STRING);
+  return portManager_.newInputPort(datum.getPayload());
+}, Types.STRING);
 
 PrimitiveProcedures['open-output-file'] = _.unary(function(datum) {
-  return r5js.PrimitiveProcedures.portManager_.newOutputPort(
-      datum.getPayload());
-}, r5js.Type.Types.STRING);
+  return portManager_.newOutputPort(datum.getPayload());
+}, Types.STRING);
 
 PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
-        throw r5js.Error.argumentTypeError(
-            inputPortToUse, 0, 'peek-char', r5js.Type.Types.INPUT_PORT,
-            r5js.procspec.runtimeType(inputPortToUse));
+      if (!InputPort.isImplementedBy(inputPortToUse)) {
+        throw Error.argumentTypeError(
+            inputPortToUse, 0, 'peek-char', Types.INPUT_PORT,
+            _.runtimeType(inputPortToUse));
       }
-      return inputPortToUse.peekChar() || r5js.runtime.EOF;
+      return inputPortToUse.peekChar() || EOF;
     });
 
 PrimitiveProcedures['read'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
-        throw r5js.Error.argumentTypeError(
-            inputPortToUse, 0, 'read', r5js.Type.Types.INPUT_PORT,
-            r5js.procspec.runtimeType(inputPortToUse));
+      if (!InputPort.isImplementedBy(inputPortToUse)) {
+        throw Error.argumentTypeError(
+            inputPortToUse, 0, 'read', Types.INPUT_PORT,
+            _.runtimeType(inputPortToUse));
       }
-      return inputPortToUse.read() || r5js.runtime.EOF;
+      return inputPortToUse.read() || EOF;
     });
 
 PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
     function(inputPort, outputPort, maybeUserSuppliedInputPort) {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
-        throw r5js.Error.argumentTypeError(
-            inputPortToUse, 0, 'read-char', r5js.Type.Types.INPUT_PORT,
-            r5js.procspec.runtimeType(inputPortToUse));
+      if (!InputPort.isImplementedBy(inputPortToUse)) {
+        throw Error.argumentTypeError(
+            inputPortToUse, 0, 'read-char', Types.INPUT_PORT,
+            _.runtimeType(inputPortToUse));
       }
-      return inputPortToUse.readChar() || r5js.runtime.EOF;
+      return inputPortToUse.readChar() || EOF;
     });
 
 PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
     function(inputPort, outputPort, datum, maybeUserSuppliedOutputPort) {
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-      if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
-        throw r5js.Error.argumentTypeError(
-            outputPortToUse, 1, 'write', r5js.Type.Types.OUTPUT_PORT,
-            r5js.procspec.runtimeType(outputPortToUse));
+      if (!OutputPort.isImplementedBy(outputPortToUse)) {
+        throw Error.argumentTypeError(
+            outputPortToUse, 1, 'write', Types.OUTPUT_PORT,
+            _.runtimeType(outputPortToUse));
       }
-      outputPortToUse.write(r5js.valutil.toWriteString(datum));
-      return r5js.runtime.UNSPECIFIED_VALUE;
+      outputPortToUse.write(valutil.toWriteString(datum));
+      return UNSPECIFIED_VALUE;
     });
 
 PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
     function(inputPort, outputPort, charNode, maybeUserSuppliedOutputPort) {
-      if (!(charNode instanceof r5js.ast.Character)) {
-        throw r5js.Error.argumentTypeError(
-            charNode, 0, 'write-char', r5js.Type.Types.CHARACTER,
-            r5js.procspec.runtimeType(charNode));
+      if (!(charNode instanceof Character)) {
+        throw Error.argumentTypeError(
+            charNode, 0, 'write-char', Types.CHARACTER,
+            _.runtimeType(charNode));
       }
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-      if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
-        throw r5js.Error.argumentTypeError(
-            outputPortToUse, 1, 'write-char', r5js.Type.Types.OUTPUT_PORT,
-            r5js.procspec.runtimeType(outputPortToUse));
+      if (!OutputPort.isImplementedBy(outputPortToUse)) {
+        throw Error.argumentTypeError(
+            outputPortToUse, 1, 'write-char', Types.OUTPUT_PORT,
+            _.runtimeType(outputPortToUse));
       }
-      outputPortToUse.write(r5js.valutil.toWriteString(charNode));
-      return r5js.runtime.UNSPECIFIED_VALUE;
+      outputPortToUse.write(valutil.toWriteString(charNode));
+      return UNSPECIFIED_VALUE;
     });
 
 // Control flow related procedures
@@ -730,32 +684,32 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
  */
 PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   const mustBeProc = arguments[0];
-  if (!(mustBeProc instanceof r5js.ast.Lambda)) {
-    throw r5js.Error.argumentTypeError(
-        mustBeProc, 0, 'apply', r5js.Type.Types.PROCEDURE,
-        r5js.procspec.runtimeType(mustBeProc));
+  if (!(mustBeProc instanceof Lambda)) {
+    throw Error.argumentTypeError(
+        mustBeProc, 0, 'apply', Types.PROCEDURE,
+        _.runtimeType(mustBeProc));
   }
 
-  const procName = new r5js.ast.Identifier(mustBeProc.getName());
+  const procName = new Identifier(mustBeProc.getName());
   const procCallLike = arguments[arguments.length - 2];
-  const resultStruct = /** @type {!r5js.TrampolineHelper} */ (
+  const resultStruct = /** @type {!TrampolineHelper} */ (
       arguments[arguments.length - 1]);
 
   const lastRealArgIndex = arguments.length - 3;
   const mustBeList = arguments[lastRealArgIndex];
-  if (!(mustBeList instanceof r5js.ast.List)) {
-    throw r5js.Error.argumentTypeError(
-        mustBeList, lastRealArgIndex, 'apply', r5js.Type.Types.PAIR,
-        r5js.procspec.runtimeType(mustBeList));
+  if (!(mustBeList instanceof List)) {
+    throw Error.argumentTypeError(
+        mustBeList, lastRealArgIndex, 'apply', Types.PAIR,
+        _.runtimeType(mustBeList));
   }
 
   // (apply foo '(x y z))
   if (lastRealArgIndex === 1) {
-    const newArgs = new r5js.SiblingBuffer();
+    const newArgs = new SiblingBuffer();
     // todo bl document why we are quoting the arguments
     for (let arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling())
-      newArgs.appendSibling(new r5js.ast.Quote(arg));
-    const actualProcCall = new r5js.ProcCall(
+      newArgs.appendSibling(new Quote(arg));
+    const actualProcCall = new ProcCall(
         procName, newArgs.toSiblings());
     actualProcCall.setNext(procCallLike.getNext());
     actualProcCall.setResultName(procCallLike.getResultName());
@@ -767,16 +721,16 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
     }
     arguments[lastRealArgIndex - 1].setNextSibling(mustBeList.getFirstChild());
 
-    const newArgs = new r5js.SiblingBuffer().
+    const newArgs = new SiblingBuffer().
         appendSibling(arguments[1]).
         toSiblings();
-    const actualProcCall = new r5js.ProcCall(procName, newArgs);
+    const actualProcCall = new ProcCall(procName, newArgs);
     actualProcCall.setNext(procCallLike.getNext());
     actualProcCall.setResultName(procCallLike.getResultName());
     resultStruct.setNext(actualProcCall);
   }
 
-  return r5js.runtime.UNSPECIFIED_VALUE;
+  return UNSPECIFIED_VALUE;
 });
 
 
@@ -814,31 +768,31 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
 PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
     function(before, thunk, after, procCallLike, resultStruct) {
 
-      const procCall = /** @type {!r5js.ProcCall} */ (procCallLike);
+      const procCall = /** @type {!ProcCall} */ (procCallLike);
       // None of the three thunks have any arguments.
 
       // todo bl use a ContinuableBuffer for efficiency
 
-      const procCallBefore = new r5js.ProcCall(procCall.getFirstOperand(), null /* no arguments */);
+      const procCallBefore = new ProcCall(procCall.getFirstOperand(), null /* no arguments */);
 
-      const procCallAfter = new r5js.ProcCall(
+      const procCallAfter = new ProcCall(
           procCall.getFirstOperand().getNextSibling().getNextSibling(),
           null /* no arguments */);
 
-      const procCallThunk = new r5js.ProcCall(
+      const procCallThunk = new ProcCall(
           procCall.getFirstOperand().getNextSibling(),
           null /* no arguments */);
 
-      r5js.ProcCallLike.appendProcCallLike(
+      ProcCallLike.appendProcCallLike(
           procCallAfter,
-          new r5js.ast.Identifier(procCallThunk.getResultName()).toProcCallLike());
-      r5js.ProcCallLike.getLast(procCallAfter).setNext(
-          /** @type {!r5js.ProcCallLike} */ (procCallLike.getNext()));
+          new Identifier(procCallThunk.getResultName()).toProcCallLike());
+      ProcCallLike.getLast(procCallAfter).setNext(
+          /** @type {!ProcCallLike} */ (procCallLike.getNext()));
 
 
-      r5js.ProcCallLike.appendProcCallLike(
+      ProcCallLike.appendProcCallLike(
           procCallThunk, procCallAfter);
-      r5js.ProcCallLike.appendProcCallLike(
+      ProcCallLike.appendProcCallLike(
           procCallBefore, procCallThunk);
 
       resultStruct.setNext(procCallBefore);
@@ -846,10 +800,10 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
          This should be okay because dynamic-wind is the only one
          who writes to it, and call/cc is the only one who reads it.
          todo bl document why we cannot reuse procCallBefore. */
-      resultStruct.setBeforeThunk(new r5js.ProcCall(
+      resultStruct.setBeforeThunk(new ProcCall(
           procCall.getFirstOperand(),
           null /* no arguments */, procCallBefore.getResultName()));
-      return r5js.runtime.UNSPECIFIED_VALUE;
+      return UNSPECIFIED_VALUE;
     });
 
 
@@ -862,17 +816,17 @@ PrimitiveProcedures['dynamic-wind'] = _.ternaryWithSpecialEvalLogic(
  */
 PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
     function(producer, consumer, procCallLike, resultStruct) {
-      const procCall = /** @type {!r5js.ProcCall} */ (procCallLike);
-      const producerCall = new r5js.ProcCall(
+      const procCall = /** @type {!ProcCall} */ (procCallLike);
+      const producerCall = new ProcCall(
           procCall.getFirstOperand(), null /* no arguments */);
-      const consumerCall = new r5js.ProcCall(
+      const consumerCall = new ProcCall(
           procCall.getFirstOperand().getNextSibling(),
-          new r5js.ast.Identifier(producerCall.getResultName()));
-      consumerCall.setNext(/** @type {!r5js.ProcCallLike} */ (
+          new Identifier(producerCall.getResultName()));
+      consumerCall.setNext(/** @type {!ProcCallLike} */ (
           procCallLike.getNext()));
       producerCall.setNext(consumerCall);
       resultStruct.setNext(producerCall);
-      return r5js.runtime.UNSPECIFIED_VALUE;
+      return UNSPECIFIED_VALUE;
     });
 
 
@@ -895,12 +849,12 @@ PrimitiveProcedures['call-with-values'] = _.binaryWithSpecialEvalLogic(
  * the next continuable to cc's nextContinuable.
  *
  * TODO bl: type checking is turned off because of the continuation argument
- * to new r5js.ProcCall. Subclass and correct.
+ * to new ProcCall. Subclass and correct.
  */
 PrimitiveProcedures['call-with-current-continuation'] =
     _.unaryWithSpecialEvalLogic(/** @suppress {checkTypes} */ function(
         procedure, procCallLike, resultStruct) {
-      const procCall = /** @type {!r5js.ProcCall} */ (procCallLike);
+      const procCall = /** @type {!ProcCall} */ (procCallLike);
       const next = procCallLike.getNext();
       const resultName = procCallLike.getResultName();
       const beforeThunk = resultStruct.getBeforeThunk();
@@ -908,16 +862,16 @@ PrimitiveProcedures['call-with-current-continuation'] =
          escapes and then is later re-called, we have to remember
          to execute the associated before and after thunks. */
       const continuation = beforeThunk
-          ? new r5js.DynamicWindContinuation(beforeThunk, next, resultName)
-          : new r5js.Continuation(resultName, next);
-      const dummyProcCall = new r5js.CallWithCurrentContinuation(
+          ? new DynamicWindContinuation(beforeThunk, next, resultName)
+          : new Continuation(resultName, next);
+      const dummyProcCall = new CallWithCurrentContinuation(
           procCall.getFirstOperand(), continuation);
       if (next) {
             dummyProcCall.setNext(next);
       }
       dummyProcCall.setResultName(procCallLike.getResultName());
       resultStruct.setNext(dummyProcCall);
-      return r5js.runtime.UNSPECIFIED_VALUE;
+      return UNSPECIFIED_VALUE;
     });
 
 
@@ -956,7 +910,7 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
     nextContinuable.setStartingEnv(procCall.getEnv());
   }
   resultStruct.setNext(nextContinuable);
-  return r5js.runtime.UNSPECIFIED_VALUE;
+  return UNSPECIFIED_VALUE;
 });
 
 
@@ -964,49 +918,34 @@ PrimitiveProcedures['values'] = _.atLeastNWithSpecialEvalLogic(1, function() {
 
 PrimitiveProcedures['null-environment'] = _.unary(function(num) {
   if (num !== 5) {
-    throw r5js.Error.unimplementedOption(
+    throw Error.unimplementedOption(
         '(null-environment ' + num + ')');
   }
-  return new r5js.Environment(r5js.PrimitiveProcedures.nullEnv_);
-}, r5js.Type.Types.NUMBER);
+  return new Environment(nullEnv_);
+}, Types.NUMBER);
 
 PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
   if (num !== 5) {
-    throw r5js.Error.unimplementedOption(
+    throw Error.unimplementedOption(
         '(scheme-report-environment ' + num + ')');
   }
-  return new r5js.Environment(r5js.PrimitiveProcedures.r5RSEnv_);
-}, r5js.Type.Types.NUMBER);
-
-
-});  // goog.scope
-
+  return new Environment(r5RSEnv_);
+}, Types.NUMBER);
 
 /**
- * @param {!r5js.Datum} arg
- * @return {!r5js.Type}
- * @private
- * @suppress {accessControls} TODO bl
- * TODO bl: eliminate in favor of {@link r5js.procspec.runtimeType} one all the implicit
- * circular deps are resolved.
+ * @param {!IEnvironment} nullEnv
+ * @param {!IEnvironment} r5RSEnv
  */
-r5js.PrimitiveProcedures.getActualType_ = function(arg) {
-  return r5js.procspec.runtimeType(arg);
-};
-
-
-/**
- * @param {!r5js.IEnvironment} nullEnv
- * @param {!r5js.IEnvironment} r5RSEnv
- */
-r5js.PrimitiveProcedures.install = function(nullEnv, r5RSEnv) {
-  r5js.PrimitiveProcedures.nullEnv_ = nullEnv;
-  r5js.PrimitiveProcedures.r5RSEnv_ = r5RSEnv;
-  r5js.PrimitiveProcedures.portManager_ = new r5js.PortManager();
-  for (const name in r5js.PrimitiveProcedures.registry_) {
-    const proc = r5js.PrimitiveProcedures.registry_[name];
+function install(nullEnv, r5RSEnv) {
+  nullEnv_ = nullEnv;
+  r5RSEnv_ = r5RSEnv;
+  portManager_ = new PortManager();
+  for (const name in PrimitiveProcedures) {
+    const proc = PrimitiveProcedures[name];
     proc.setDebugName(name);
     r5RSEnv.addBinding(name, proc);
   }
-};
+}
+
+exports.install = install;
 

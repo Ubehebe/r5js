@@ -480,5 +480,15 @@ function runtimeType(arg) {
     throw Error.internalInterpreterError("unknown type: " + arg);
 }
 
+/**
+ * @param {!Object.<string, !PrimitiveProcedure>} registry
+ */
+function installPredicates(registry) {
+    for (const name in Predicates) {
+        registry[name] = Predicates[name];
+    }
+}
+
 exports.PrimitiveProcedure = PrimitiveProcedure; // TODO bl necessary?
 exports.runtimeType = runtimeType;
+exports.installPredicates = installPredicates;
