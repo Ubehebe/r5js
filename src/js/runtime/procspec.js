@@ -22,7 +22,6 @@ const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Type = goog.require('r5js.Type');
 const Vector = goog.require('r5js.ast.Vector');
 
-
 /** @interface */
 class NumArgChecker {
     /**
@@ -109,10 +108,7 @@ class ArgumentTypeCheckerAndUnwrapperImpl {
         this.argtypes_ = argtypes;
     }
 
-    /**
-     * @override
-     * @suppress {accessControls} for r5js.PrimitiveProcedures_
-     */
+    /** @override */
     checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
         const unwrappedArgs = [];
         for (let i = 0; i < this.argtypes_.length; ++i) {
@@ -158,20 +154,6 @@ class AllArgsOfType {
     }
 }
 
-
-/**
- * @implements {ArgumentTypeCheckerAndUnwrapper}
- * TODO bl shouldn't this do type checking?
- */
-class JustUnwrapArgs {
-    /** @override */
-    checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
-        return args;
-    }
-}
-
-/** @const {!ArgumentTypeCheckerAndUnwrapper} */ const JUST_UNWRAP_ARGS = new JustUnwrapArgs();
-
 class PrimitiveProcedure extends Procedure {
     /**
      * @param {!Function} fn TODO bl narrow type?
@@ -195,9 +177,9 @@ class PrimitiveProcedure extends Procedure {
         this.debugName_ = name;
     }
 
-    /** @return {string} */
-    getDebugName() {
-        return this.debugName_;
+    /** @override */
+    toString() {
+        return '<proc:' + this.debugName_ + '>';
     }
 
     /**
@@ -416,7 +398,7 @@ function unaryOrBinaryWithCurrentPorts(fn) {
  * @return {!PrimitiveProcedure}
  */
 function unaryWithSpecialEvalLogic(fn) {
-  return new HasSpecialEvalLogic(fn, EXACTLY_1_ARG, JUST_UNWRAP_ARGS);
+  return new HasSpecialEvalLogic(fn, EXACTLY_1_ARG, NO_TYPE_RESTRICTIONS);
 }
 
 /**
@@ -424,7 +406,7 @@ function unaryWithSpecialEvalLogic(fn) {
  * @return {!PrimitiveProcedure}
  */
 function binaryWithSpecialEvalLogic(fn) {
-  return new HasSpecialEvalLogic(fn, EXACTLY_2_ARGS, JUST_UNWRAP_ARGS);
+  return new HasSpecialEvalLogic(fn, EXACTLY_2_ARGS, NO_TYPE_RESTRICTIONS);
 }
 
 /**
@@ -432,7 +414,7 @@ function binaryWithSpecialEvalLogic(fn) {
  * @return {!PrimitiveProcedure}
  */
 function ternaryWithSpecialEvalLogic(fn) {
-  return new HasSpecialEvalLogic(fn, EXACTLY_3_ARGS, JUST_UNWRAP_ARGS);
+  return new HasSpecialEvalLogic(fn, EXACTLY_3_ARGS, NO_TYPE_RESTRICTIONS);
 }
 
 /**
