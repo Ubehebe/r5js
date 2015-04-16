@@ -16,7 +16,7 @@ const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
 const MacroDatum = goog.require('r5js.ast.Macro');
 const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
-const newAssignment = goog.require('r5js.newAssignment');
+const Assignment = goog.require('r5js.Assignment');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const Nonterminals = goog.require('r5js.parse.Nonterminals');
 const Number = goog.require('r5js.ast.Number');
@@ -623,7 +623,7 @@ grammar[Nonterminals.ASSIGNMENT] = _.list(
           variable.getNextSibling().desugar(env, true));
       const lastContinuable = ProcCallLike.getLast(desugaredExpr);
       const cpsName = lastContinuable.getResultName();
-      lastContinuable.setNext(newAssignment(
+      lastContinuable.setNext(Assignment.create(
           /** @type {string} */ (variable.getPayload()), cpsName));
       return desugaredExpr;
         });
