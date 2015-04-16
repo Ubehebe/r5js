@@ -3,8 +3,6 @@ goog.module('r5js.platform.html5.Platform');
 const Promise = goog.require('goog.Promise');
 const OutputPort = goog.require('r5js.OutputPort');
 const Platform = goog.require('r5js.Platform');
-// TODO bl not needed by this file. Workaround for circular dep elsewhere.
-const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
 const Client = goog.require('r5js.platform.html5.Client');
 const Terminal = goog.require('r5js.platform.html5.Terminal');
 const replutil = goog.require('r5js.replutil');
