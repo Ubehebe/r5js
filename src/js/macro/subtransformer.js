@@ -1,4 +1,4 @@
-goog.module('r5js.ITransformer');
+goog.module('r5js.Subtransformer');
 
 const Datum = goog.require('r5js.Datum');
 const IEnvironment = goog.require('r5js.IEnvironment');
@@ -7,7 +7,7 @@ const TemplateBindings = goog.require('r5js.TemplateBindings');
 const Transformer = goog.require('r5js.Transformer');
 
 /** @interface @extends {ObjectValue} TODO bl inappropriate */
-class ITransformer {
+class Subtransformer {
  /**
   * @param {number} ellipsisLevel Nesting level of ellipses, passed as the last
   * argument to the callback.
@@ -33,4 +33,4 @@ class ITransformer {
  toDatum(bindings) {}
 }
 
-exports = ITransformer;
+exports = Subtransformer;

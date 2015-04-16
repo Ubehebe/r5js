@@ -4,7 +4,7 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
-const ITransformer = goog.require('r5js.ITransformer');
+const Subtransformer = goog.require('r5js.Subtransformer');
 const Identifier = goog.require('r5js.ast.Identifier');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
@@ -101,7 +101,7 @@ class MacroIdTransformer {
 
     /**
      * @param {!SimpleDatum} datum
-     * @return {!ITransformer}
+     * @return {!Subtransformer}
      */
     static pattern(datum) {
         return new PatternIdTransformer(datum);
@@ -109,14 +109,14 @@ class MacroIdTransformer {
 
     /**
      * @param {!SimpleDatum} datum
-     * @return {!ITransformer}
+     * @return {!Subtransformer}
      */
     static template(datum) {
         return new TemplateIdTransformer(datum);
     }
 }
 
-/** @implements {ITransformer} */
+/** @implements {Subtransformer} */
 class PatternIdTransformer extends MacroIdTransformer {
     /** @param {!SimpleDatum} datum */
     constructor(datum) {
@@ -135,7 +135,7 @@ class PatternIdTransformer extends MacroIdTransformer {
     }
 }
 
-/** @implements {ITransformer} */
+/** @implements {Subtransformer} */
 class TemplateIdTransformer extends MacroIdTransformer {
     /** @param {!SimpleDatum} datum */
     constructor(datum) {

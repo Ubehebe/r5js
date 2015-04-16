@@ -4,7 +4,7 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const DottedList = goog.require('r5js.ast.List').Dotted;
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
-const ITransformer = goog.require('r5js.ITransformer');
+const Subtransformer = goog.require('r5js.Subtransformer');
 const List = goog.require('r5js.ast.List');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
@@ -12,12 +12,12 @@ const TemplateBindings = goog.require('r5js.TemplateBindings');
 const Vector = goog.require('r5js.ast.Vector');
 
 /** @interface */
-class ListLikeTransformer extends ITransformer {
+class ListLikeTransformer extends Subtransformer {
     /** TODO bl: compiler complains without this constructor. */
     constructor() {}
 
     /**
-     * @param {!ITransformer} subtransformer
+     * @param {!Subtransformer} subtransformer
      * @return {!ListLikeTransformer} This object, for chaining.
      */
     addSubtransformer(subtransformer) {}
@@ -51,7 +51,7 @@ class Base {
     /** @param {function(new: Datum, !Datum)} ctor */
     constructor(ctor) {
         /** @const @private */ this.ctor_ = ctor;
-        /** @const @private {!Array<!ITransformer>} */ this.subtransformers_ = [];
+        /** @const @private {!Array<!Subtransformer>} */ this.subtransformers_ = [];
     }
 
     /** @override */

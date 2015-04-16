@@ -10,7 +10,7 @@ const Error = goog.require('r5js.Error');
 const Grammar = goog.require('r5js.parse.Grammar');
 const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
-const ITransformer = goog.require('r5js.ITransformer');
+const Subtransformer = goog.require('r5js.Subtransformer');
 const List = goog.require('r5js.ast.List');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
@@ -793,10 +793,10 @@ grammar[Nonterminals.PATTERN] = _.choice(
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
-                  /** @type {!ITransformer} */ (cur.desugar(env))));
+                  /** @type {!Subtransformer} */ (cur.desugar(env))));
           break;
         } else {
-          ans.addSubtransformer(/** @type {!ITransformer} */ (
+          ans.addSubtransformer(/** @type {!Subtransformer} */ (
               cur.desugar(env)));
         }
       }
@@ -815,11 +815,11 @@ grammar[Nonterminals.PATTERN] = _.choice(
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
-                  /** @type {!ITransformer} */ (cur.desugar(env))));
+                  /** @type {!Subtransformer} */ (cur.desugar(env))));
           break;
         } else {
           ans.addSubtransformer(
-              /** @type {!ITransformer} */ (cur.desugar(env)));
+              /** @type {!Subtransformer} */ (cur.desugar(env)));
         }
       }
       return ans;
@@ -832,7 +832,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(/** @type {!ITransformer} */(
+        ans.addSubtransformer(/** @type {!Subtransformer} */(
             cur.desugar(env)));
       }
       return ans;
@@ -848,7 +848,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(/** @type {!ITransformer} */(
+        ans.addSubtransformer(/** @type {!Subtransformer} */(
             cur.desugar(env)));
       }
       return ans;
@@ -859,7 +859,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
            cur = cur.getNextSibling()) {
-        ans.addSubtransformer(/** @type {!ITransformer} */ (
+        ans.addSubtransformer(/** @type {!Subtransformer} */ (
             cur.desugar(env)));
       }
       return ans;
@@ -918,10 +918,10 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
-                  /** @type {!ITransformer} */ (cur.desugar(env))));
+                  /** @type {!Subtransformer} */ (cur.desugar(env))));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(/** @type {!ITransformer} */(
+          ans.addSubtransformer(/** @type {!Subtransformer} */(
               cur.desugar(env)));
         }
       }
@@ -939,10 +939,10 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
-                  /** @type {!ITransformer} */ (cur.desugar(env))));
+                  /** @type {!Subtransformer} */ (cur.desugar(env))));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(/** @type {!ITransformer} */(
+          ans.addSubtransformer(/** @type {!Subtransformer} */(
               cur.desugar(env)));
         }
       }
@@ -959,10 +959,10 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
             nextSibling.getPayload() === Terminals.ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
-                  /** @type {!ITransformer} */ (cur.desugar(env))));
+                  /** @type {!Subtransformer} */ (cur.desugar(env))));
           cur = cur.getNextSibling();
         } else {
-          ans.addSubtransformer(/** @type {!ITransformer} */ (
+          ans.addSubtransformer(/** @type {!Subtransformer} */ (
               cur.desugar(env)));
         }
       }
@@ -973,7 +973,7 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
         _.one(Nonterminals.TEMPLATE)).
     desugar(function(node, env) {
       const ans = ListLikeTransformer.quote();
-      ans.addSubtransformer(/** @type {!ITransformer} */ (
+      ans.addSubtransformer(/** @type {!Subtransformer} */ (
           node.at(Nonterminals.TEMPLATE).desugar(env)));
       return ans;
     }));

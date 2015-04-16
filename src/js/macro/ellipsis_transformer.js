@@ -1,16 +1,15 @@
 goog.module('r5js.EllipsisTransformer');
 
 const Datum = goog.require('r5js.Datum');
-const ITransformer = goog.require('r5js.ITransformer');
+const Subtransformer = goog.require('r5js.Subtransformer');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 
-/** @implements {ITransformer} */
+/** @implements {Subtransformer} */
 class EllipsisTransformer {
-    /** @param {!ITransformer} subtransformer */
+    /** @param {!Subtransformer} subtransformer */
     constructor(subtransformer) {
-        /** @const @private {!ITransformer} */
-        this.subtransformer_ = subtransformer;
+        /** @const @private */ this.subtransformer_ = subtransformer;
     }
 
     /** @override */
