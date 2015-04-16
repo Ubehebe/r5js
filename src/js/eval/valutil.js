@@ -118,7 +118,7 @@ function toString(includeSigils, value) {
             /** @type {!Value} */ (value.getFirstChild()));
       } else if (value instanceof UserDefinedProcedure) {
         return '<proc:' + value.getName() + '>';
-      } else if (value instanceof procspec.PrimitiveProcedure_) {
+      } else if (value instanceof procspec.PrimitiveProcedure) {
         return '<proc:' + value.getDebugName() + '>';
       } else if (InputPort.isImplementedBy(value)) {
         return '<input-port>';

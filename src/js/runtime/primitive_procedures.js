@@ -45,7 +45,6 @@ goog.require('r5js.ast.Vector');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.procspec');
 goog.require('r5js.runtime.EOF');
-goog.require('r5js.runtime.Type');
 goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 goog.require('r5js.valutil');
 
@@ -57,13 +56,13 @@ goog.require('r5js.valutil');
 /** @private {r5js.PortManager} */ r5js.PrimitiveProcedures.portManager_;
 
 
-/** @const @private {!Object<string, !r5js.procspec.PrimitiveProcedure_>} */
+/** @const @private {!Object<string, !r5js.procspec.PrimitiveProcedure>} */
 r5js.PrimitiveProcedures.registry_ = {};
 
 // Type-related procedures
 
-for (let name in r5js.runtime.Type.Predicates) {
-  r5js.PrimitiveProcedures.registry_[name] = r5js.runtime.Type.Predicates[name];
+for (let name in r5js.procspec.Predicates) {
+  r5js.PrimitiveProcedures.registry_[name] = r5js.procspec.Predicates[name];
 }
 
 goog.scope(function() {
@@ -353,7 +352,7 @@ PrimitiveProcedures['set-car!'] = _.binary(function(p, car) {
   if (!(p instanceof r5js.ast.List || p.isImproperList())) {
     throw r5js.Error.argumentTypeError(
         p, 0, 'set-car!', r5js.Type.Types.PAIR,
-        r5js.runtime.Type.of(p));
+        r5js.procspec.runtimeType(p));
   }
   if (p.isImmutable()) {
     throw r5js.Error.immutable(p.toString());
@@ -374,7 +373,7 @@ PrimitiveProcedures['set-cdr!'] = _.binary(function(p, cdr) {
   if (!(p instanceof r5js.ast.List || p.isImproperList())) {
     throw r5js.Error.argumentTypeError(
         p, 0, 'set-cdr!', r5js.Type.Types.PAIR,
-        r5js.runtime.Type.of(p));
+        r5js.procspec.runtimeType(p));
   }
 
   if (p.isImmutable()) {
@@ -406,7 +405,7 @@ PrimitiveProcedures['make-vector'] = _.varargsRange(
       if (!(numberNode instanceof r5js.ast.Number)) {
         throw r5js.Error.argumentTypeError(
             numberNode, 0, 'make-vector', r5js.Type.Types.NUMBER,
-            r5js.runtime.Type.of(numberNode));
+            r5js.procspec.runtimeType(numberNode));
       }
       const n = numberNode.getPayload();
       /* R5RS 6.3.6: "If a second argument is given, then each element
@@ -432,12 +431,12 @@ PrimitiveProcedures['vector-set!'] = _.ternary(function(v, k, fill) {
   if (!(v instanceof r5js.ast.Vector)) {
     throw r5js.Error.argumentTypeError(
         v, 0, 'vector-set!', r5js.Type.Types.VECTOR,
-        r5js.runtime.Type.of(v));
+        r5js.procspec.runtimeType(v));
   }
   if (!(k instanceof r5js.ast.Number)) {
     throw r5js.Error.argumentTypeError(
         k, 1, 'vector-set!', r5js.Type.Types.NUMBER,
-        r5js.runtime.Type.of(k));
+        r5js.procspec.runtimeType(k));
   }
   if (v.isImmutable()) {
     throw r5js.Error.immutable(v.toString());
@@ -542,11 +541,11 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
         // TODO bl how could this not be a datum? The type signature of binaryWithCurrentPorts
         // is not helpful. Also, Types.SYMBOL is not right.
         throw r5js.Error.argumentTypeError(
-            expr, 0, 'eval', r5js.Type.Types.SYMBOL, r5js.runtime.Type.of(expr));
+            expr, 0, 'eval', r5js.Type.Types.SYMBOL, r5js.procspec.runtimeType(expr));
       if (!r5js.IEnvironment.isImplementedBy(envSpec)) {
         throw r5js.Error.argumentTypeError(
             envSpec, 1, 'eval', r5js.Type.Types.ENVIRONMENT_SPECIFIER,
-            r5js.runtime.Type.of(envSpec));
+            r5js.procspec.runtimeType(envSpec));
       }
       /* An interesting special case. If we're about to evaluate a wrapped
   procedure (primitive JavaScript or SchemeProcedure), return its name
@@ -607,7 +606,7 @@ PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw r5js.Error.argumentTypeError(
             inputPortToUse, 0, 'char-ready?', r5js.Type.Types.INPUT_PORT,
-            r5js.runtime.Type.of(inputPortToUse));
+            r5js.procspec.runtimeType(inputPortToUse));
       }
       return inputPortToUse.isCharReady();
     });
@@ -638,7 +637,7 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw r5js.Error.argumentTypeError(
             outputPortToUse, 1, 'display', r5js.Type.Types.OUTPUT_PORT,
-            r5js.runtime.Type.of(outputPortToUse));
+            r5js.procspec.runtimeType(outputPortToUse));
       }
       (/** @type {!r5js.OutputPort} */ (outputPortToUse)).
           write(r5js.valutil.toDisplayString(datum));
@@ -664,7 +663,7 @@ PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw r5js.Error.argumentTypeError(
             inputPortToUse, 0, 'peek-char', r5js.Type.Types.INPUT_PORT,
-            r5js.runtime.Type.of(inputPortToUse));
+            r5js.procspec.runtimeType(inputPortToUse));
       }
       return inputPortToUse.peekChar() || r5js.runtime.EOF;
     });
@@ -675,7 +674,7 @@ PrimitiveProcedures['read'] = _.nullaryOrUnaryWithCurrentPorts(
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw r5js.Error.argumentTypeError(
             inputPortToUse, 0, 'read', r5js.Type.Types.INPUT_PORT,
-            r5js.runtime.Type.of(inputPortToUse));
+            r5js.procspec.runtimeType(inputPortToUse));
       }
       return inputPortToUse.read() || r5js.runtime.EOF;
     });
@@ -686,7 +685,7 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
       if (!r5js.InputPort.isImplementedBy(inputPortToUse)) {
         throw r5js.Error.argumentTypeError(
             inputPortToUse, 0, 'read-char', r5js.Type.Types.INPUT_PORT,
-            r5js.runtime.Type.of(inputPortToUse));
+            r5js.procspec.runtimeType(inputPortToUse));
       }
       return inputPortToUse.readChar() || r5js.runtime.EOF;
     });
@@ -697,7 +696,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw r5js.Error.argumentTypeError(
             outputPortToUse, 1, 'write', r5js.Type.Types.OUTPUT_PORT,
-            r5js.runtime.Type.of(outputPortToUse));
+            r5js.procspec.runtimeType(outputPortToUse));
       }
       outputPortToUse.write(r5js.valutil.toWriteString(datum));
       return r5js.runtime.UNSPECIFIED_VALUE;
@@ -708,13 +707,13 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
       if (!(charNode instanceof r5js.ast.Character)) {
         throw r5js.Error.argumentTypeError(
             charNode, 0, 'write-char', r5js.Type.Types.CHARACTER,
-            r5js.runtime.Type.of(charNode));
+            r5js.procspec.runtimeType(charNode));
       }
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!r5js.OutputPort.isImplementedBy(outputPortToUse)) {
         throw r5js.Error.argumentTypeError(
             outputPortToUse, 1, 'write-char', r5js.Type.Types.OUTPUT_PORT,
-            r5js.runtime.Type.of(outputPortToUse));
+            r5js.procspec.runtimeType(outputPortToUse));
       }
       outputPortToUse.write(r5js.valutil.toWriteString(charNode));
       return r5js.runtime.UNSPECIFIED_VALUE;
@@ -734,7 +733,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   if (!(mustBeProc instanceof r5js.ast.Lambda)) {
     throw r5js.Error.argumentTypeError(
         mustBeProc, 0, 'apply', r5js.Type.Types.PROCEDURE,
-        r5js.runtime.Type.of(mustBeProc));
+        r5js.procspec.runtimeType(mustBeProc));
   }
 
   const procName = new r5js.ast.Identifier(mustBeProc.getName());
@@ -747,7 +746,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   if (!(mustBeList instanceof r5js.ast.List)) {
     throw r5js.Error.argumentTypeError(
         mustBeList, lastRealArgIndex, 'apply', r5js.Type.Types.PAIR,
-        r5js.runtime.Type.of(mustBeList));
+        r5js.procspec.runtimeType(mustBeList));
   }
 
   // (apply foo '(x y z))
@@ -988,11 +987,11 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(function(num) {
  * @return {!r5js.Type}
  * @private
  * @suppress {accessControls} TODO bl
- * TODO bl: eliminate in favor of {@link r5js.runtime.Type.of} one all the implicit
+ * TODO bl: eliminate in favor of {@link r5js.procspec.runtimeType} one all the implicit
  * circular deps are resolved.
  */
 r5js.PrimitiveProcedures.getActualType_ = function(arg) {
-  return r5js.runtime.Type.of(arg);
+  return r5js.procspec.runtimeType(arg);
 };
 
 
