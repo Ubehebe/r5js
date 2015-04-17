@@ -1,8 +1,10 @@
 goog.module('r5js.Datum');
 
 const DesugarFunc = goog.require('r5js.DesugarFunc');
+const IEnvironment = goog.require('r5js.IEnvironment');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
+const RenameHelper = goog.require('r5js.RenameHelper');
 const Terminals = goog.require('r5js.parse.Terminals');
 const ObjectValue = goog.require('r5js.runtime.ObjectValue');
 
@@ -150,7 +152,7 @@ class Datum {
   }
 
   /**
-   * @param {!r5js.IEnvironment} env TODO bl.
+   * @param {!IEnvironment} env TODO bl.
    * @param {boolean=} opt_forceContinuationWrapper TODO bl document.
    * @return {!Datum|!ProcCallLike|!r5js.Subtransformer|!r5js.Macro|null}
    * @suppress {checkTypes} TODO bl
@@ -167,7 +169,7 @@ class Datum {
   }
 
   /**
-   * @param {!r5js.IEnvironment} env TODO bl.
+   * @param {!IEnvironment} env TODO bl.
    * @return {ProcCallLike}
    */
   sequence(env) {
@@ -239,7 +241,7 @@ class Datum {
 
   /**
    * TODO bl: document what this method does.
-   * @param {!r5js.RenameHelper} helper A rename helper.
+   * @param {!RenameHelper} helper A rename helper.
    */
   fixParserSensitiveIds(helper) {
     if (this.nextSibling_) {
