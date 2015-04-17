@@ -1,108 +1,66 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.Transformer');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const Datum = goog.require('r5js.Datum');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
+const RenameHelper = goog.require('r5js.macro.RenameHelper');
+const TemplateBindings = goog.require('r5js.TemplateBindings');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+class Transformer {
+    /**
+     * @param {!ListLikeTransformer} pattern
+     * @param {!ListLikeTransformer} template
+     */
+    constructor(pattern, template) {
+        /** @const @private */ this.pattern_ = pattern;
+        /** @const @private */ this.template_ = template;
+        /** @const @private {string} */ this.name_ = pattern.getName();
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
+        const renameHelper = new RenameHelper(this.name_);
 
+        this.pattern_.collectNestingLevels(0, renameHelper);
+        this.template_.collectNestingLevels(0, renameHelper);
 
-goog.provide('r5js.Transformer');
+        /** @const @private {!Object<string, number>} */
+        this.patternIds_ = renameHelper.getPatternIds();
 
+        /** @const @private {!Object<string, boolean>} */
+        this.templateRenameCandidates_ = renameHelper.getRenameCandidates();
+    }
 
+    /**
+     * @param {!Datum} inputDatum The input datum.
+     * @param {!Object<string, boolean>} literalIds Dictionary of literal ids.
+     * @param {!IEnvironment} definitionEnv Definition environment.
+     * @param {!IEnvironment} useEnv Use environment.
+     * @param {!TemplateBindings} bindings Template bindings.
+     * @return {boolean} True iff the transformer is a match (?).
+     */
+    matchInput(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+        return this.pattern_.matchInput(
+            inputDatum, literalIds, definitionEnv, useEnv, bindings);
+    }
 
-/**
- * @param {!r5js.ListLikeTransformer} pattern
- * @param {!r5js.ListLikeTransformer} template
- * @struct
- * @constructor
- */
-r5js.Transformer = function(pattern, template) {
-  /** @const @private {!r5js.ListLikeTransformer} */
-  this.pattern_ = pattern;
+    /** @return {string} The name of this transformer. */
+    getName() {
+        return this.name_;
+    }
 
-  /** @const @private {!r5js.ListLikeTransformer} */
-  this.template_ = template;
-
-  /** @const @private {string} */
-  this.name_ = pattern.getName();
-
-  /** @const @private {!Object<string, number>} */
-  this.patternIds_ = {};
-
-  /** @const @private {!Object<string, boolean>} */
-  this.templateRenameCandidates_ = {};
-
-  this.pattern_.collectNestingLevels(0, this);
-  this.template_.collectNestingLevels(0, this);
-};
-
-
-/**
- * @param {!r5js.Datum} inputDatum The input datum.
- * @param {!Object<string, boolean>} literalIds Dictionary of literal ids.
- * @param {!r5js.IEnvironment} definitionEnv Definition environment.
- * @param {!r5js.IEnvironment} useEnv Use environment.
- * @param {!r5js.TemplateBindings} bindings Template bindings.
- * @return {boolean} True iff the transformer is a match (?).
- */
-r5js.Transformer.prototype.matchInput = function(
-    inputDatum, literalIds, definitionEnv, useEnv, bindings) {
-  return this.pattern_.matchInput(
-      inputDatum, literalIds, definitionEnv, useEnv, bindings);
-};
+    /** @return {!ListLikeTransformer} */
+    getTemplate() {
+        return this.template_;
+    }
 
 
-/** @return {string} The name of this transformer. */
-r5js.Transformer.prototype.getName = function() {
-  return this.name_;
-};
+    /** @return {!Object<string, number>} */
+    getPatternIds() {
+        return this.patternIds_;
+    }
 
+    /** @return {!Object<string, boolean>} */
+    getTemplateRenameCandidates() {
+        return this.templateRenameCandidates_;
+    }
+}
 
-/** @return {!r5js.ListLikeTransformer} */
-r5js.Transformer.prototype.getTemplate = function() {
-  return this.template_;
-};
-
-
-/** @return {!Object<string, number>} */
-r5js.Transformer.prototype.getPatternIds = function() {
-  return this.patternIds_;
-};
-
-
-/**
- * @param {string} patternId
- * @return {number}
- */
-r5js.Transformer.prototype.getEllipsisLevel = function(patternId) {
-  return patternId in this.patternIds_ ? this.patternIds_[patternId] : -1;
-};
-
-
-/**
- * @param {string} patternId
- * @param {number} level
- */
-r5js.Transformer.prototype.setEllipsisLevel = function(patternId, level) {
-  this.patternIds_[patternId] = level;
-};
-
-
-/** @return {!Object<string, boolean>} */
-r5js.Transformer.prototype.getTemplateRenameCandidates = function() {
-  return this.templateRenameCandidates_;
-};
-
-
-/** @param {string} name */
-r5js.Transformer.prototype.setTemplateRenameCandidate = function(name) {
-  this.templateRenameCandidates_[name] = true;
-};
+exports = Transformer;

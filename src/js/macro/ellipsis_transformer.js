@@ -80,8 +80,8 @@ class EllipsisTransformer {
     }
 
     /** @override */
-    collectNestingLevels(ellipsisLevel, transformer) {
-        this.subtransformer_.collectNestingLevels(ellipsisLevel + 1, transformer);
+    collectNestingLevels(ellipsisLevel, renameHelper) {
+        this.subtransformer_.collectNestingLevels(ellipsisLevel + 1, renameHelper);
     }
 }
 

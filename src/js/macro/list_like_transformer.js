@@ -69,9 +69,9 @@ class Base {
     }
 
     /** @override */
-    collectNestingLevels(ellipsisLevel, transformer) {
+    collectNestingLevels(ellipsisLevel, renameHelper) {
         for (let i = 0; i < this.subtransformers_.length; ++i) {
-            this.subtransformers_[i].collectNestingLevels(ellipsisLevel, transformer);
+            this.subtransformers_[i].collectNestingLevels(ellipsisLevel, renameHelper);
         }
     }
 

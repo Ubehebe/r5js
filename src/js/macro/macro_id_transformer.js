@@ -124,13 +124,9 @@ class PatternIdTransformer extends MacroIdTransformer {
     }
 
     /** @override */
-    collectNestingLevels(ellipsisLevel, transformer) {
-        if (!(this.datum instanceof Identifier)) {
-            return;
-        }
-        var name = /** @type {string} */ (this.datum.getPayload());
-        if (name !== transformer.getName()) {
-            transformer.setEllipsisLevel(name, ellipsisLevel);
+    collectNestingLevels(ellipsisLevel, renameHelper) {
+        if (this.datum instanceof Identifier) {
+            renameHelper.recordPatternId(this.datum.getPayload(), ellipsisLevel);
         }
     }
 }
@@ -143,35 +139,9 @@ class TemplateIdTransformer extends MacroIdTransformer {
     }
 
     /** @override */
-    collectNestingLevels(ellipsisLevel, transformer) {
-        if (!(this.datum instanceof Identifier)) {
-            return;
-        }
-        var name = /** @type {string} */ (this.datum.getPayload());
-        var maybeInPattern = transformer.getEllipsisLevel(name);
-        /* An identifier in a template is a candidate for being
-         renamed during transcription if it doesn't occur in the pattern
-         and is not the name of the macro. I've also thrown in a check
-         that it's not a parser-sensititive identifier so we don't
-         accidentally break the parser, but this may be buggy.
-         The right thing to do is to remove the parser altogether.
-         See comments at the top of Parser. */
-        if (maybeInPattern === -1
-            && name !== transformer.getName()) {
-            if (!RenameUtil.isParserSensitiveId(name)) {
-                transformer.setTemplateRenameCandidate(name);
-            }
-        } else if (maybeInPattern !== ellipsisLevel
-            && name !== transformer.getName()) {
-            throw Error.macro(
-                transformer.getName(),
-                name +
-                ' is at ellipsis level ' +
-                maybeInPattern +
-                ' in pattern ' +
-                ' but at ellipsis level ' +
-                ellipsisLevel +
-                ' in template ');
+    collectNestingLevels(ellipsisLevel, renameHelper) {
+        if (this.datum instanceof Identifier) {
+            renameHelper.recordTemplateId(this.datum.getPayload(), ellipsisLevel);
         }
     }
 }
