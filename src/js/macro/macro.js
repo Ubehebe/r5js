@@ -1,50 +1,52 @@
-goog.provide('r5js.Macro');
+goog.module('r5js.Macro');
 
-goog.require('r5js.Datum');
-goog.require('r5js.ProcCallLike');
-goog.require('r5js.SiblingBuffer');
-goog.require('r5js.TemplateBindings');
-goog.require('r5js.Transformer');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.List');
-goog.require('r5js.Error');
-goog.require('r5js.RenameUtil');
-goog.require('r5js.parse.Nonterminals');
-goog.require('r5js.parse.Terminals');
-goog.require('r5js.runtime.ObjectValue');
+const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const Datum = goog.require('r5js.Datum');
+const Error = goog.require('r5js.Error');
+const Identifier = goog.require('r5js.ast.Identifier');
+const IEnvironment = goog.require('r5js.IEnvironment');
+const List = goog.require('r5js.ast.List');
+const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
+const Nonterminals = goog.require('r5js.parse.Nonterminals');
+const ObjectValue = goog.require('r5js.runtime.ObjectValue');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const RenameUtil = goog.require('r5js.RenameUtil');
+const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const TemplateBindings = goog.require('r5js.TemplateBindings');
+const Terminals = goog.require('r5js.parse.Terminals');
+const TrampolineHelper = goog.require('r5js.TrampolineHelper');
+const Transformer = goog.require('r5js.Transformer');
 
-r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly wrong */ class {
+/** @implements {ObjectValue} TODO bl almost certainly wrong */
+class Macro {
 
     /**
-     * @param {r5js.Datum} literalIdentifiers
-     * @param {r5js.Datum} rules
-     * @param {!r5js.IEnvironment} definitionEnv
-     * @param {!Array<!r5js.Transformer>=} opt_transformers
+     * @param {Datum} literalIdentifiers
+     * @param {Datum} rules
+     * @param {!IEnvironment} definitionEnv
+     * @param {!Array<!Transformer>=} opt_transformers
      */
     constructor(literalIdentifiers, rules, definitionEnv, opt_transformers) {
-        /** @private {!r5js.IEnvironment} */
-        this.definitionEnv_ = definitionEnv;
-
+        /** @private {!IEnvironment} */ this.definitionEnv_ = definitionEnv;
         /** @const @private {!Object<string, boolean>} */
         this.literalIdentifiers_ = {};
 
-        for (var curId = literalIdentifiers; curId; curId = curId.getNextSibling()) {
-            this.literalIdentifiers_[(/** @type {!r5js.ast.Identifier} */(
-                curId)).getPayload()] = true;
+        for (let curId = literalIdentifiers; curId; curId = curId.getNextSibling()) {
+            this.literalIdentifiers_[(/** @type {!Identifier} */(curId)).getPayload()] = true;
         }
 
-        /** @const @private {!Array<!r5js.Transformer>} */
+        /** @const @private {!Array<!Transformer>} */
         this.transformers_ = opt_transformers || [];
 
         if (!opt_transformers) {
-            for (var rule = rules; rule; rule = rule.getNextSibling()) {
+            for (let rule = rules; rule; rule = rule.getNextSibling()) {
                 // TODO bl improve
-                rule = /** @type {!r5js.ast.CompoundDatum} */ (rule);
-                var pattern = /** @type {!r5js.ListLikeTransformer} */(
-                    rule.at(r5js.parse.Nonterminals.PATTERN).desugar(definitionEnv));
-                var template = /** @type {!r5js.ListLikeTransformer} */ (
-                    rule.at(r5js.parse.Nonterminals.TEMPLATE).desugar(definitionEnv));
-                var transformer = new r5js.Transformer(pattern, template);
+                rule = /** @type {!CompoundDatum} */ (rule);
+                const pattern = /** @type {!ListLikeTransformer} */(
+                    rule.at(Nonterminals.PATTERN).desugar(definitionEnv));
+                const template = /** @type {!ListLikeTransformer} */ (
+                    rule.at(Nonterminals.TEMPLATE).desugar(definitionEnv));
+                const transformer = new Transformer(pattern, template);
                 this.transformers_.push(transformer);
             }
         }
@@ -81,7 +83,7 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
      *
      * (let ((x let*)) x)
      *
-     * @return {!r5js.Macro} This object.
+     * @return {!Macro} This object.
      */
     setIsLetOrLetrecSyntax() {
         this.isLetOrLetrecSyntax_ = true;
@@ -93,18 +95,18 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
         return this.isLetOrLetrecSyntax_;
     }
 
-    /** @param {!r5js.IEnvironment} env */
+    /** @param {!IEnvironment} env */
     setDefinitionEnv(env) {
         this.definitionEnv_ = env;
     }
 
     /**
      * Should only be used during interpreter bootstrapping.
-     * @param {!r5js.IEnvironment} newDefinitionEnv
-     * @return {!r5js.Macro} A clone of this macro.
+     * @param {!IEnvironment} newDefinitionEnv
+     * @return {!Macro} A clone of this macro.
      */
     clone(newDefinitionEnv) {
-        return new r5js.Macro(null, null, newDefinitionEnv, this.transformers_);
+        return new Macro(null, null, newDefinitionEnv, this.transformers_);
     }
 
     /**
@@ -121,19 +123,19 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
     }
 
     /**
-     * @param {!r5js.Datum} datum Datum to transcribe.
-     * @param {!r5js.IEnvironment} useEnv Environment to use for the transcription.
-     * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+     * @param {!Datum} datum Datum to transcribe.
+     * @param {!IEnvironment} useEnv Environment to use for the transcription.
+     * @param {function(!Datum):!r5js.Parser} parserProvider Function
      * that will return a new Parser for the given Datum. This is a hack to avoid
      * instantiating a Parser directly in this file, which would cause
      * a cyclic dependency between macro.js and parse.js.
-     * @return {!r5js.Datum}
+     * @return {!Datum}
      */
     transcribe(datum, useEnv, parserProvider) {
-        var transformer, bindings, newDatumTree;
-        for (var i = 0; i < this.transformers_.length; ++i) {
+        let transformer, bindings, newDatumTree;
+        for (let i = 0; i < this.transformers_.length; ++i) {
             transformer = this.transformers_[i];
-            bindings = new r5js.TemplateBindings(
+            bindings = new TemplateBindings(
                 useEnv,
                 transformer.getPatternIds(),
                 transformer.getTemplateRenameCandidates());
@@ -177,21 +179,20 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
                  I don't think this is correct, but it works for the letrec
                  macro definition, which is the most complex case I've tried so far. */
                 var toRename = {};
-                var candidates = transformer.getTemplateRenameCandidates();
-                for (var id in candidates) {
+                const candidates = transformer.getTemplateRenameCandidates();
+                for (const id in candidates) {
                     if (this.definitionEnv_.hasBindingRecursive(id))
                         useEnv.addBinding(id, this.definitionEnv_);
-                    else if (!r5js.RenameUtil.isParserSensitiveId(id)) {
-                        var tmpName = r5js.RenameUtil.newCpsName();
+                    else if (!RenameUtil.isParserSensitiveId(id)) {
+                        var tmpName = RenameUtil.newCpsName();
                         toRename[id] = tmpName;
                         /* If the TemplateBindings object has detected that the same
                          identifier is used in the input and (unrelatedly) in the template,
                          id may be replaced in the template, so we have to manually add
                          the binding here. See the logic at the end of
                          TemplateBindings.prototype.addTemplateBinding. */
-                        if (bindings.wasRenamed(id) &&
-                            useEnv.hasBindingRecursive(id)) {
-                            var binding = useEnv.get(id);
+                        if (bindings.wasRenamed(id) && useEnv.hasBindingRecursive(id)) {
+                            const binding = useEnv.get(id);
                             if (binding !== null) {
                                 useEnv.addBinding(tmpName, binding);
                             }
@@ -211,36 +212,35 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
                      todo bl: we should be able to determine the id's in the template
                      that will have to be renamed prior to transcription. That would
                      save the following tree walk replacing all the identifiers. */
-                    var fake = new r5js.SiblingBuffer().
-                        appendSibling(newParseTree).
-                        toList(r5js.ast.List);
+                    const fake = new SiblingBuffer()
+                        .appendSibling(newParseTree)
+                        .toList(List);
                     fake.replaceChildren(
                         function (node) {
-                            return node instanceof r5js.ast.Identifier &&
-                                toRename[node.getPayload()];
+                            return node instanceof Identifier && toRename[node.getPayload()];
                         },
                         function (node) {
-                            node = /** @type {!r5js.ast.Identifier} */ (node);
+                            node = /** @type {!Identifier} */ (node);
                             node.setPayload(toRename[node.getPayload()]);
                             return node;
                         }
                     );
                 } else {
-                    throw r5js.Error.parse(newDatumTree);
+                    throw Error.parse(newDatumTree);
                 }
 
                 return newParseTree;
             }
         }
-        throw r5js.Error.macro(
+        throw Error.macro(
             this.transformers_[0].getName(), 'no pattern match for input ' + datum);
     }
 
     /**
-     * @param {!r5js.Datum} rawDatum
-     * @param {!r5js.ProcCallLike} procCallLike
-     * @param {!r5js.TrampolineHelper} resultStruct
-     * @param {function(!r5js.Datum):!r5js.Parser} parserProvider
+     * @param {!Datum} rawDatum
+     * @param {!ProcCallLike} procCallLike
+     * @param {!TrampolineHelper} resultStruct
+     * @param {function(!Datum):!r5js.Parser} parserProvider
      */
     evaluate(rawDatum, procCallLike, resultStruct, parserProvider) {
         var oldEnv = procCallLike.getEnv();
@@ -254,15 +254,17 @@ r5js.Macro = /** @implements {r5js.runtime.ObjectValue} TODO bl almost certainly
             next.setStartingEnv(oldEnv);
         }
 
-        var newContinuable = /** @type {!r5js.ProcCallLike} */ (
+        var newContinuable = /** @type {!ProcCallLike} */ (
             newParseTree.desugar(newEnv, true));
         newContinuable.setStartingEnv(newEnv);
 
-        var last = r5js.ProcCallLike.getLast(newContinuable);
+        var last = ProcCallLike.getLast(newContinuable);
         if (next) {
             last.setNext(next);
         }
         last.setResultName(procCallLike.getResultName());
         resultStruct.setNext(newContinuable);
     }
-};
+}
+
+exports = Macro;
