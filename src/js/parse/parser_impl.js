@@ -469,8 +469,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
     _.list(
         _.one(Terminals.DEFINE),
         _.one(Nonterminals.VARIABLE),
-        _.one(Nonterminals.EXPRESSION)).
-    desugar(/** @suppress {checkTypes} */ function(node, env) {
+        _.one(Nonterminals.EXPRESSION)).desugar((node, env) => {
       /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
                 to a procedure are intercepted in the SchemeProcedure
@@ -490,8 +489,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
         _.one(Terminals.DEFINE),
         _.list(_.oneOrMore(Nonterminals.VARIABLE)),
         _.zeroOrMore(Nonterminals.DEFINITION),
-        _.oneOrMore(Nonterminals.EXPRESSION)).
-    desugar(/** @suppress {checkTypes} */function(node, env) {
+        _.oneOrMore(Nonterminals.EXPRESSION)).desugar((node, env) => {
       /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
                 to a procedure are intercepted in the SchemeProcedure
@@ -500,8 +498,8 @@ grammar[Nonterminals.DEFINITION] = _.choice(
 
                 todo bl: make this flow of control explicit. */
       const def = datumutil.extractDefinition(node);
-      const name = def.getFirstChild();
-      const lambda = name.getNextSibling();
+      const name = /** @type {!SimpleDatum} */ (def.getFirstChild());
+      const lambda = /** @type {!CompoundDatum} */(name.getNextSibling());
       const formalRoot = lambda.getFirstChild().getNextSibling();
       const formals = formalRoot.mapChildren(function(child) {
         return child.getPayload();
@@ -510,7 +508,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
       env.addBinding(
           anonymousName,
           new UserDefinedProcedure(
-              formals, formalRoot.getNextSibling(), env, name));
+              formals, formalRoot.getNextSibling(), env, name.getPayload()));
       return TopLevelAssignment.of(name.getPayload(), anonymousName);
     }),
     _.list(
@@ -519,8 +517,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
             _.oneOrMore(Nonterminals.VARIABLE),
             _.one(Nonterminals.VARIABLE)),
         _.zeroOrMore(Nonterminals.DEFINITION),
-        _.oneOrMore(Nonterminals.EXPRESSION)).
-    desugar(/** @suppress {checkTypes} */function(node, env) {
+        _.oneOrMore(Nonterminals.EXPRESSION)).desugar((node, env) => {
       /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
                 to a procedure are intercepted in the SchemeProcedure
@@ -529,19 +526,17 @@ grammar[Nonterminals.DEFINITION] = _.choice(
 
                 todo bl: make this flow of control explicit. */
       const def = datumutil.extractDefinition(node);
-      const name = def.getFirstChild();
+      const name = /** @type {!SimpleDatum} */ (def.getFirstChild());
       const lambda = name.getNextSibling();
       const formalRoot = lambda.getFirstChild().getNextSibling();
-      const formals = formalRoot instanceof CompoundDatum ?
-          formalRoot.mapChildren(function(child) {
-            return child.getPayload();
-          }) :
-          [formalRoot.getPayload()];
+      const formals = formalRoot instanceof CompoundDatum
+          ? formalRoot.mapChildren(child => (/** @type {!SimpleDatum} */(child)).getPayload())
+          : [formalRoot.getPayload()];
       const anonymousName = RenameUtil.newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
           new VarargsUserDefinedProcedure(
-              formals, formalRoot.getNextSibling(), env, name));
+              formals, formalRoot.getNextSibling(), env, name.getPayload()));
       return TopLevelAssignment.of(
           /** @type {string} */(name.getPayload()), // TODO bl
           anonymousName);
@@ -578,13 +573,11 @@ grammar[Nonterminals.CONDITIONAL] = _.choice(
     _.list(
         _.one(Terminals.IF),
         _.one(Nonterminals.TEST),
-        _.one(Nonterminals.CONSEQUENT)).
-    desugar(/** @suppress {checkTypes} */function(node, env) {
+        _.one(Nonterminals.CONSEQUENT)).desugar((node, env) => {
       const test = /** @type {!ProcCallLike} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
-      const consequent = /** @type {!ProcCallLike} */ (
+      const consequent = /** @type {!ProcCall} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
-
       const testEndpoint = ProcCallLike.getLast(test);
       const branch = new Branch(
           testEndpoint.getResultName(),

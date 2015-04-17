@@ -155,7 +155,6 @@ class Datum {
    * @param {!IEnvironment} env TODO bl.
    * @param {boolean=} opt_forceContinuationWrapper TODO bl document.
    * @return {!Datum|!ProcCallLike|!r5js.Subtransformer|!r5js.Macro|null}
-   * @suppress {checkTypes} TODO bl
    */
   desugar(env, opt_forceContinuationWrapper) {
     const desugarFn = (this.nextDesugar_ >= 0)

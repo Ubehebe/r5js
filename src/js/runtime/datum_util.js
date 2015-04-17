@@ -1,6 +1,7 @@
 goog.module('r5js.datumutil');
 
 const Boolean = goog.require('r5js.ast.Boolean');
+const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
@@ -15,10 +16,10 @@ const Value = goog.require('r5js.runtime.Value');
  * Munges definitions to get them in a form suitable for let-type bindings.
  * Example:
  * (define (foo x y z) ...) => (foo (lambda (x y z) ...))
- * @param {!Datum} datum Datum to extract the definition from.
+ * @param {!CompoundDatum} datum Datum to extract the definition from.
  * TODO bl: you can't extract a definition from an arbitrary datum.
  * Make more strongly typed.
- * @return {!Datum} A datum representing the given datum's definition.
+ * @return {!CompoundDatum} A datum representing the given datum's definition.
  * @suppress {checkTypes} for setNextSibling(null)
  */
 function extractDefinition(datum) {
