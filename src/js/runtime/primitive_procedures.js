@@ -8,7 +8,6 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Continuation = goog.require('r5js.Continuation');
 const Datum = goog.require('r5js.Datum');
 const DynamicWindContinuation = goog.require('r5js.DynamicWindContinuation');
-const Environment = goog.require('r5js.Environment');
 const EOF = goog.require('r5js.runtime.EOF');
 const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
@@ -891,7 +890,7 @@ PrimitiveProcedures['null-environment'] = _.unary(num => {
     throw Error.unimplementedOption(
         '(null-environment ' + num + ')');
   }
-  return new Environment(nullEnv_);
+  return nullEnv_.child();
 }, Types.NUMBER);
 
 PrimitiveProcedures['scheme-report-environment'] = _.unary(num => {
@@ -899,7 +898,7 @@ PrimitiveProcedures['scheme-report-environment'] = _.unary(num => {
     throw Error.unimplementedOption(
         '(scheme-report-environment ' + num + ')');
   }
-  return new Environment(r5RSEnv_);
+  return r5RSEnv_.child();
 }, Types.NUMBER);
 
 /**
