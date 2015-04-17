@@ -2,13 +2,11 @@ goog.module('r5js.valutil');
 
 const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
-const Environment = goog.require('r5js.Environment');
 const EOF = goog.require('r5js.runtime.EOF');
 const InputPort = goog.require('r5js.InputPort');
 const DottedList = goog.require('r5js.ast.List').Dotted;
 const List = goog.require('r5js.ast.List');
 const OutputPort = goog.require('r5js.OutputPort');
-const procspec = goog.require('r5js.procspec');
 const Quote = goog.require('r5js.ast.Quote');
 const Ref = goog.require('r5js.Ref');
 const String = goog.require('r5js.ast.String');
@@ -124,8 +122,6 @@ function toString(includeSigils, value) {
         return '<output-port>';
       } else if (value instanceof Datum) {
         return toString(includeSigils, value.unwrap());
-      } else if (value instanceof Environment) {
-        return '<environment-specifier>';
       } else {
         return value.toString();
       }

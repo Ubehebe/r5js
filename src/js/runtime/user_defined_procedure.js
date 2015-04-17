@@ -3,10 +3,9 @@ goog.module('r5js.UserDefinedProcedure');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const datumutil = goog.require('r5js.datumutil');
-const Environment = goog.require('r5js.Environment');
 const Error = goog.require('r5js.Error');
-const IEnvironment = goog.require('r5js.IEnvironment');
 const Identifier = goog.require('r5js.ast.Identifier');
+const IEnvironment = goog.require('r5js.IEnvironment');
 const List = goog.require('r5js.ast.List');
 const Nonterminals = goog.require('r5js.parse.Nonterminals');
 const ProcCall = goog.require('r5js.ProcCall');
@@ -31,7 +30,7 @@ class UserDefinedProcedure extends Procedure {
         this.formalsArray = formalsArray;
 
         /** @const @private {!IEnvironment} */
-        this.env_ = new r5js.Environment(env);
+        this.env_ = env.child();
 
         /** @const @private {ProcCallLike}*/
         this.body_ = bodyStart ? this.setupBody_(bodyStart) : null;
@@ -69,7 +68,7 @@ class UserDefinedProcedure extends Procedure {
     }
 
     /**
-     * @param {!Environment} env Environment to clone with.
+     * @param {!IEnvironment} env Environment to clone with.
      * @return {!UserDefinedProcedure} A clone of this procedure, with the given environment.
      * @suppress {const} for reassignment to body_ and last_.
      */
@@ -177,11 +176,12 @@ class UserDefinedProcedure extends Procedure {
     evaluate(args, procCallLike, trampolineHelper, env) {
         const procCallEnv = procCallLike.getEnv();
 
-        /* If we're at a tail call we can reuse the existing environment.
-         Otherwise create a new environment pointing back to the current one. */
-        const newEnv = this.isTailCall_(procCallLike) ?
-            procCallEnv.allowRedefs() :
-            new r5js.Environment(this.env_).addClosuresFrom(this.env_);
+        //If we're at a tail call we can reuse the existing environment.
+        // Otherwise create a new environment pointing back to the current one.
+        // TODO bl compiler bug? addClosuresFrom is defined on Environment, not IEnvironment.
+        const newEnv = this.isTailCall_(procCallLike)
+            ? procCallEnv.allowRedefs()
+            : this.env_.child().addClosuresFrom(this.env_);
 
         const next = procCallLike.getNext();
         /* Remember to discard the new environment
