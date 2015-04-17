@@ -7,7 +7,7 @@ const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
 const Number = goog.require('r5js.ast.Number');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const Nonterminals = goog.require('r5js.parse.Nonterminals');
+const Nonterminals = goog.require('r5js.parse.Nonterminal').Nonterminals;
 const Terminals = goog.require('r5js.parse.Terminals');
 const Value = goog.require('r5js.runtime.Value');
 
