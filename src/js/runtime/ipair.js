@@ -1,34 +1,26 @@
-goog.provide('r5js.IPair');
+goog.module('r5js.IPair');
 
-
+const Value = goog.require('r5js.runtime.Value');
 
 /** @interface */
-r5js.IPair = /** @interface */ class {
- /** @return {!r5js.runtime.Value} */
- car() {}
+class IPair {
+    /** @return {!Value} */ car() {}
+    /** @return {!Value} */ cdr() {}
 
- /** @return {!r5js.runtime.Value} */
- cdr() {}
+    /**
+     * @param {*} obj
+     * @return {boolean}
+     */
+    static isImplementedBy(obj) {
+        return !!(obj && obj[IMPLEMENTED_BY_PROP]);
+    }
 
-};
+    /** @param {function(new: IPair, ...)} ctor */
+    static addImplementation(ctor) {
+        ctor.prototype[IMPLEMENTED_BY_PROP] = true;
+    }
+}
 
+/** @const */ const IMPLEMENTED_BY_PROP = '$r5js.IPair';
 
-/** @const @private */
-r5js.IPair.IMPLEMENTED_BY_PROP_ = '$r5js.IPair';
-
-
-/**
- * @param {*} obj
- * @return {boolean}
- */
-r5js.IPair.isImplementedBy = function(obj) {
-  return !!(obj && obj[r5js.IPair.IMPLEMENTED_BY_PROP_]);
-};
-
-
-/**
- * @param {function(new: r5js.IPair, ...)} ctor
- */
-r5js.IPair.addImplementation = function(ctor) {
-  ctor.prototype[r5js.IPair.IMPLEMENTED_BY_PROP_] = true;
-};
+exports = IPair;
