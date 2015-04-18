@@ -27,9 +27,10 @@ public class CompilationTest {
         writeOut(CompilationUnits.HTML5_PRODUCTION_CLIENT.compile());
     }
 
-    @Test public void nashornTests() throws IOException {
-        writeOut(CompilationUnits.NASHORN_TESTS.compile());
-    }
+    // TODO bl waste of time for now
+//    @Test public void nashornTests() throws IOException {
+//        writeOut(CompilationUnits.NASHORN_TESTS.compile());
+//    }
 
     @Test public void nodeRepl() throws IOException {
         writeOut(CompilationUnits.NODE_REPL.compile());
