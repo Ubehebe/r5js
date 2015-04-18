@@ -34,7 +34,12 @@ r5js.platform.Node_ = /** @private @implements {r5js.Platform} */ class {
         return new r5js.platform.node.Terminal();
     }
 
-    /** @override */
+    /**
+     * @param {!r5js.InputPort=} opt_inputPort
+     * @param {!r5js.OutputPort=} opt_outputPort
+     * @return {!goog.Promise<!r5js.Evaluator>}
+     * @override TODO bl compiler bug?
+     */
     newEvaluator(opt_inputPort, opt_outputPort) {
         return r5js.platform.common.newEvaluator(opt_inputPort, opt_outputPort);
     }
