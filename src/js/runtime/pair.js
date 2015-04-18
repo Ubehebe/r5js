@@ -1,25 +1,25 @@
-goog.provide('r5js.runtime.Pair');
+goog.module('r5js.runtime.Pair');
 
+const Error = goog.require('r5js.Error');
+const List = goog.require('r5js.ast.List');
+const NIL = goog.require('r5js.runtime.NIL');
+const ObjectValue = goog.require('r5js.runtime.ObjectValue');
+const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const Value = goog.require('r5js.runtime.Value');
 
-goog.require('r5js.SiblingBuffer');
-goog.require('r5js.ast.List');
-goog.require('r5js.Error');
-goog.require('r5js.runtime.NIL');
-
-
-
-r5js.runtime.Pair = /** @implements {r5js.runtime.ObjectValue} */ class {
+/** @implements {ObjectValue} */
+class Pair {
     /**
-     * @param {!r5js.runtime.Value} car
-     * @param {!r5js.runtime.Value=} opt_cdr
+     * @param {!Value} car
+     * @param {!Value=} opt_cdr
      */
     constructor(car, opt_cdr) {
         this.car_ = car;
-        this.cdr_ = goog.isDef(opt_cdr) ? opt_cdr : r5js.runtime.NIL;
+        this.cdr_ = goog.isDef(opt_cdr) ? opt_cdr : NIL;
     }
 
     /**
-     * @param {!r5js.runtime.Value} other
+     * @param {!Value} other
      * @return {boolean}
      */
     eqv(other) {
@@ -27,52 +27,51 @@ r5js.runtime.Pair = /** @implements {r5js.runtime.ObjectValue} */ class {
     }
 
     /**
-     * @param {function(!r5js.runtime.Value): !r5js.runtime.Value} f
-     * @return {!r5js.runtime.Pair}
+     * @param {function(!Value): !Value} f
+     * @return {!Pair}
      */
     map(f) {
-        if (this.cdr_ === r5js.runtime.NIL) {
-            return new r5js.runtime.Pair(f(this.car_));
-        } else if (this.cdr_ instanceof r5js.runtime.Pair) {
-            return new r5js.runtime.Pair(
+        if (this.cdr_ === NIL) {
+            return new Pair(f(this.car_));
+        } else if (this.cdr_ instanceof Pair) {
+            return new Pair(
                 f(this.car_),
-                (/** @type {!r5js.runtime.Pair} */ (this.cdr_)).map(f));
+                (/** @type {!Pair} */ (this.cdr_)).map(f));
         } else {
-            throw new r5js.Error(
-                r5js.Error.Type.INTERNAL_INTERPRETER_ERROR, 'not a list!');
+            throw Error.internalInterpreterError('not a list!');
         }
     }
 
-    /** @return {!r5js.runtime.Value} */
+    /** @return {!Value} */
     car() {
         return this.car_;
     }
 
-    /** @return {!r5js.runtime.Value} */
+    /** @return {!Value} */
     cdr() {
         return this.cdr_;
     }
 
-    /** @param {!r5js.runtime.Value} car */
+    /** @param {!Value} car */
     setCar(car) {
         this.car_ = car;
     }
 
-    /** @param {!r5js.runtime.Value} cdr */
+    /** @param {!Value} cdr */
     setCdr(cdr) {
         this.cdr_ = cdr;
     }
 
     /**
-     * @param {!Array<!r5js.runtime.Value>} array
-     * @return {!r5js.runtime.Value}
+     * @param {!Array<!Value>} array
+     * @return {!Value}
      */
     fromArray(array) {
         if (!array.length) {
-            return r5js.runtime.NIL;
+            return NIL;
         }
         const cars = array.map(function (elem) {
-            return new r5js.runtime.Pair(elem);
+            return new Pair(elem);
         });
         for (let i = 0; i < cars.length - 1; ++i) {
             cars[i].setCdr(cars[i + 1]);
@@ -82,8 +81,10 @@ r5js.runtime.Pair = /** @implements {r5js.runtime.ObjectValue} */ class {
 
     /** @return {boolean} */
     isList() {
-        return this.cdr_ === r5js.runtime.NIL ||
-            (this.cdr_ instanceof r5js.runtime.Pair &&
-            (/** @type {!r5js.runtime.Pair} */(this.cdr_)).isList());
+        return this.cdr_ === NIL
+            || (this.cdr_ instanceof Pair
+            && (/** @type {!Pair} */(this.cdr_)).isList());
     }
-};
+}
+
+exports = Pair;
