@@ -1,80 +1,56 @@
-/* Copyright 2011-2014 Brendan Linn
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.test.evalSandbox');
-goog.provide('r5js.test.main');
-goog.provide('r5js.test.main1');
-goog.provide('r5js.test.parseSandbox');
-goog.provide('r5js.test.readSandbox');
+goog.module('r5js.test.main');
 goog.setTestOnly('r5js.test.main');
-goog.setTestOnly('r5js.test.main1');
-goog.setTestOnly('r5js.test.evalSandbox');
-goog.setTestOnly('r5js.test.parseSandbox');
-goog.setTestOnly('r5js.test.readSandbox');
 
-
-goog.require('goog.log');
-goog.require('r5js.InMemoryInputPort');
-goog.require('r5js.InMemoryOutputPort');
-goog.require('r5js.InMemoryPortBuffer');
-goog.require('r5js.ParserImpl');
-goog.require('r5js.Reader');
-goog.require('r5js.TokenStream');
-goog.require('r5js.curPlatform');
-goog.require('r5js.test.JsInterop');
-goog.require('r5js.test.Parser');
-goog.require('r5js.test.Scanner');
-goog.require('r5js.test.SchemeSources');
-goog.require('r5js.test.SchemeTestDriver');
-goog.require('r5js.valutil');
-goog.require('tdd.Runner');
-goog.require('tdd.RunnerConfig');
-goog.require('tdd.logTo');
-
+const curPlatform = goog.require('r5js.curPlatform');
+const Evaluator = goog.require('r5js.Evaluator');
+const InMemoryInputPort = goog.require('r5js.InMemoryInputPort');
+const InMemoryOutputPort = goog.require('r5js.InMemoryOutputPort');
+const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
+const InputPort = goog.require('r5js.InputPort');
+const JsInteropTest = goog.require('r5js.test.JsInterop');
+const log = goog.require('goog.log');
+const logTo = goog.require('tdd.logTo');
+const OutputPort = goog.require('r5js.OutputPort');
+const OutputSavingPort = goog.require('r5js.OutputSavingPort');
+const ParserTest = goog.require('r5js.test.Parser');
+const Promise = goog.require('goog.Promise');
+const Runner = goog.require('tdd.Runner');
+const RunnerConfig = goog.require('tdd.RunnerConfig');
+const ScannerTest = goog.require('r5js.test.Scanner');
+const SchemeTestDriver = goog.require('r5js.test.SchemeTestDriver');
+const TestSuite = goog.require('tdd.TestSuite');
+const TestType = goog.require('tdd.TestType');
 
 /**
  * Main entry point for the test suite.
  * @param {!Array<string>=} opt_argv Optional command-line arguments.
  * @param {!Object<string, string>=} opt_env Optional command-line environment.
  */
-r5js.test.main = function(opt_argv, opt_env) {
-  const testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env) ?
-      tdd.RunnerConfig.fromFlags(opt_argv, opt_env) :
-      r5js.test.main.defaultConfig_();
-  r5js.test.main1(testConfig);
-};
-
+function main(opt_argv, opt_env) {
+  const testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env)
+      ? RunnerConfig.fromFlags(opt_argv, opt_env)
+      : defaultConfig();
+  main1(testConfig);
+}
 
 /**
  * Alternative main entry point where callers can pass in a config object
  * directly, rather than having it constructed from command-line params
  * and environment variables. This is useful for starting the tests from
  * inside a web worker, for example.
- * @param {!tdd.RunnerConfig} testConfig
+ * @param {!RunnerConfig} testConfig
  */
-r5js.test.main1 = function(testConfig) {
-  const logger = goog.log.getLogger('r5js.test.main');
-  const runner = new tdd.Runner(testConfig, logger);
-  const platform = r5js.curPlatform();
+function main1(testConfig) {
+  const logger = log.getLogger('r5js.test.main');
+  const runner = new Runner(testConfig, logger);
+  const platform = curPlatform();
 
-  const buffer = new r5js.InMemoryPortBuffer();
-  const stdin = new r5js.InMemoryInputPort(buffer);
-  const stdout = new r5js.InMemoryOutputPort(buffer);
+  const buffer = new InMemoryPortBuffer();
+  const stdin = new InMemoryInputPort(buffer);
+  const stdout = new InMemoryOutputPort(buffer);
 
-  r5js.test.getEvaluator_(stdin, stdout).then(function(evaluator) {
-    r5js.test.getTestSuites_(evaluator, stdout).
+  getEvaluator(stdin, stdout).then(function(evaluator) {
+    getTestSuites(evaluator, stdout).
         forEach(function(testSuite) {
           runner.add(testSuite);
         });
@@ -85,80 +61,45 @@ r5js.test.main1 = function(testConfig) {
               0 : 1);
     });
   });
-};
+}
 
+/** @return {!RunnerConfig} */
+function defaultConfig() {
+    const logWriter = logTo(goog.global.console);
+    return new RunnerConfig()
+        .setTestTypesToRun([TestType.UNIT, TestType.INTEGRATION])
+        .addFailureHandler(logWriter)
+        .addSuccessHandler(logWriter);
+}
 
-/**
- * @return {!tdd.RunnerConfig}
- * @private
- */
-r5js.test.main.defaultConfig_ = function() {
-  const logWriter = tdd.logTo(goog.global.console);
-  return new tdd.RunnerConfig().
-      setTestTypesToRun([tdd.TestType.UNIT, tdd.TestType.INTEGRATION])
-      .addFailureHandler(logWriter)
-      .addSuccessHandler(logWriter);
-};
-
-
-/** @param {string} text Text to read. */
-r5js.test.readSandbox = function(text) {
-  r5js.Reader.forTokenStream(r5js.TokenStream.forText(text)).read();
-};
-
-
-/** @param {string} text Text to parse. */
-r5js.test.parseSandbox = function(text) {
-  let datumRoot = r5js.Reader.forTokenStream(r5js.TokenStream.forText(text)).read();
-  if (datumRoot) {
-    new r5js.ParserImpl.ParserImpl(datumRoot).parse();
-  }
-};
-
-
-/** @param {string} text Text to parse. */
-r5js.test.evalSandbox = function(text) {
-  r5js.test.getEvaluator_().
-      then(function(evaluator) { return evaluator.evaluate(text); }).
-      then(function(displayString) { console.log(displayString); });
-};
-
-
-/** @private {goog.Promise<!r5js.Evaluator>} */
-r5js.test.evaluator_ = null;
-
+/** @type {Promise<!Evaluator>} */ let evaluator = null;
 
 /**
- * @param {!r5js.InputPort=} opt_inputPort
- * @param {!r5js.OutputPort=} opt_outputPort
- * @return {!goog.Promise<!r5js.Evaluator>}
- * @private
+ * @param {!InputPort=} opt_inputPort
+ * @param {!OutputPort=} opt_outputPort
+ * @return {!Promise<!Evaluator>}
  */
-r5js.test.getEvaluator_ = function(opt_inputPort, opt_outputPort) {
-  return r5js.test.evaluator_ ||
-      (r5js.test.evaluator_ = r5js.curPlatform().newEvaluator(
-      opt_inputPort, opt_outputPort));
-};
-
+function getEvaluator(opt_inputPort, opt_outputPort) {
+  return evaluator
+      || (evaluator = curPlatform().newEvaluator(opt_inputPort, opt_outputPort));
+}
 
 /**
- * @param {!r5js.Evaluator} evaluator
- * @param {!r5js.OutputSavingPort} outputPort
- * @return {!Array<!tdd.TestSuite>}
- * @private
+ * @param {!Evaluator} evaluator
+ * @param {!OutputSavingPort} outputPort
+ * @return {!Array<!TestSuite>}
  */
-r5js.test.getTestSuites_ = function(evaluator, outputPort) {
+function getTestSuites(evaluator, outputPort) {
   return [
-    new r5js.test.Scanner(),
-    new r5js.test.Parser(),
-    new r5js.test.JsInterop(evaluator, outputPort),
-    new r5js.test.SchemeTestDriver()
+    new ScannerTest(),
+    new ParserTest(),
+    new JsInteropTest(evaluator, outputPort),
+    new SchemeTestDriver()
   ];
-};
+}
 
-
-goog.exportSymbol('r5js.test.main', r5js.test.main);
-// nodejs hack. See comment in goog.promise.testSuiteAdapter.
+goog.exportSymbol('r5js.test.main', main);
+ //nodejs hack. See comment in goog.promise.testSuiteAdapter.
 goog.exportSymbol('setTimeout', setTimeout);
 
 
@@ -171,4 +112,3 @@ if (!goog.global.console) {
     */
   goog.global.console = console;
 }
-
