@@ -1,6 +1,7 @@
 package r5js;
 
 import static r5js.EntryPoint.ANDROID_MAIN;
+import static r5js.EntryPoint.HTML5_REPL_MAIN;
 import static r5js.EntryPoint.TEST_MAIN;
 
 interface CompilationUnits {
@@ -30,6 +31,17 @@ interface CompilationUnits {
             .customCompilerOptions(options -> {
                 // HTML5_DEV_CLIENT requires a reference to the URL of the worker compilation unit
                 // to start the Web Worker.
+                options.setDefineToStringLiteral(
+                        "r5js.platform.html5.Client.WORKER_SCRIPT",
+                        HTML5_WORKER.buildArtifactName);
+                return options;
+            })
+            .build();
+
+    static final CompilationUnit HTML5_PRODUCTION_CLIENT = CompilationUnit.of(
+            "client.js", Platform.HTML5)
+            .entryPoint(HTML5_REPL_MAIN)
+            .customCompilerOptions(options -> {
                 options.setDefineToStringLiteral(
                         "r5js.platform.html5.Client.WORKER_SCRIPT",
                         HTML5_WORKER.buildArtifactName);

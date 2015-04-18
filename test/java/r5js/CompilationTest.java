@@ -24,6 +24,7 @@ public class CompilationTest {
     @Test public void html5() throws IOException {
         writeOut(CompilationUnits.HTML5_WORKER.compile());
         writeOut(CompilationUnits.HTML5_DEV_CLIENT.compile());
+        writeOut(CompilationUnits.HTML5_PRODUCTION_CLIENT.compile());
     }
 
     @Test public void nashornTests() throws IOException {
