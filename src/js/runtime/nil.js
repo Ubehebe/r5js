@@ -1,19 +1,19 @@
 goog.module('r5js.runtime.NIL');
 
 const ObjectValue = goog.require('r5js.runtime.ObjectValue');
+const Value = goog.require('r5js.runtime.Value');
 
 /** @implements {ObjectValue} */
 class Nil {
- /**
-  * @param {!Value} other
-  * @return {boolean}
-  */
- eqv(other) {
-  return this === other;
- }
+    /**
+     * @param {!Value} other
+     * @return {boolean}
+     */
+    eqv(other) {
+        return this === other;
+    }
 }
 
-/** @type {!r5js.runtime.Value} */
-const NIL = new Nil();
+/** @type {!Value} */ const NIL = new Nil();
 
 exports = NIL;
