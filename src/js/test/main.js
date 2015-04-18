@@ -30,37 +30,20 @@ function main(opt_argv, opt_env) {
   const testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env)
       ? RunnerConfig.fromFlags(opt_argv, opt_env)
       : defaultConfig();
-  main1(testConfig);
-}
+    const logger = log.getLogger('r5js.test.main');
+    const runner = new Runner(testConfig, logger);
+    const platform = curPlatform();
+    const buffer = new InMemoryPortBuffer();
+    const stdin = new InMemoryInputPort(buffer);
+    const stdout = new InMemoryOutputPort(buffer);
 
-/**
- * Alternative main entry point where callers can pass in a config object
- * directly, rather than having it constructed from command-line params
- * and environment variables. This is useful for starting the tests from
- * inside a web worker, for example.
- * @param {!RunnerConfig} testConfig
- */
-function main1(testConfig) {
-  const logger = log.getLogger('r5js.test.main');
-  const runner = new Runner(testConfig, logger);
-  const platform = curPlatform();
-
-  const buffer = new InMemoryPortBuffer();
-  const stdin = new InMemoryInputPort(buffer);
-  const stdout = new InMemoryOutputPort(buffer);
-
-  getEvaluator(stdin, stdout).then(function(evaluator) {
-    getTestSuites(evaluator, stdout).
-        forEach(function(testSuite) {
-          runner.add(testSuite);
+    getEvaluator(stdin, stdout).then(evaluator => {
+        getTestSuites(evaluator, stdout).forEach(testSuite => runner.add(testSuite));
+        runner.run().then(result => {
+            console.log(result.toString());
+            platform.exit(result.getNumFailed() + result.getNumExceptions() === 0 ? 0 : 1);
         });
-    runner.run().then(function(result) {
-      console.log(result.toString());
-      platform.exit(
-          result.getNumFailed() + result.getNumExceptions() === 0 ?
-              0 : 1);
     });
-  });
 }
 
 /** @return {!RunnerConfig} */
