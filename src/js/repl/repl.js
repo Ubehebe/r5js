@@ -26,20 +26,18 @@ class Repl {
 
     /** @param {string} inputLine */
     handleInputLine(inputLine) {
-        this.isLineComplete_(this.awaitingEval_ += inputLine + ' '
-        ).then(function(complete) {
+        this.isLineComplete_(this.awaitingEval_ += inputLine + ' ')
+            .then(complete => {
                 if (complete) {
                     const toEval = this.awaitingEval_;
                     this.awaitingEval_ = '';
                     return this.evaluator_.evaluate(toEval);
                 }
-            }, undefined /* opt_onRejected */, this
-        ).then(
-            function(value) { this.terminal_.print(value); },
-            function(error) {
-                this.terminal_.error((/** @type {!Error} */ (error)).msg);
-            }, this
-        ).thenAlways(function() {
+            }, undefined /* opt_onRejected */, this)
+            .then(
+                value => this.terminal_.print(value),
+                error => this.terminal_.error((/** @type {!Error} */ (error)).msg), this)
+            .thenAlways(() => {
                 this.terminal_.getNextLineOfInput().then(
                     this.handleInputLine, undefined /* opt_onRejected */, this);
             }, this);

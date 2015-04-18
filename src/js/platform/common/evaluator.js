@@ -14,15 +14,9 @@ const SyncEvaluator = goog.require('r5js.sync.Evaluator');
  * @return {!Promise<!Evaluator>}
  */
 function newEvaluator(opt_inputPort, opt_outputPort) {
-  return SchemeSources.get().then(function(sources) {
-    return boot(
-        sources.syntax,
-        sources.procedures,
-        opt_inputPort,
-        opt_outputPort);
-  }).then(function(syncEvaluator) {
-    return new Evaluator_(syncEvaluator);
-  });
+  return SchemeSources.get()
+      .then(sources => boot(sources.syntax, sources.procedures, opt_inputPort, opt_outputPort))
+      .then(syncEvaluator => new Evaluator_(syncEvaluator));
 }
 
 /**
