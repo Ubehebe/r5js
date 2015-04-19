@@ -1,49 +1,30 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.platform.node.repl');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.platform.node.repl');
-
-
-goog.require('goog.Promise');
-goog.require('goog.array');
-goog.require('r5js.CallbackBackedPort');
-goog.require('r5js.InputPort');
-goog.require('r5js.Repl');
-goog.require('r5js.curPlatform');
-goog.require('r5js.replutil');
-goog.require('r5js.platform.Node');
-
+const CallbackBackedPort = goog.require('r5js.CallbackBackedPort');
+const curPlatform = goog.require('r5js.curPlatform');
+const InputPort = goog.require('r5js.InputPort');
+const Promise = goog.require('goog.Promise');
+const Node = goog.require('r5js.platform.Node');
+const Repl = goog.require('r5js.Repl');
+const replutil = goog.require('r5js.replutil');
+const Terminal = goog.require('r5js.platform.node.Terminal');
 
 /** The main REPL method. */
-r5js.platform.node.repl = function() {
-  const platform = /** @type {!r5js.platform.Node} */ (r5js.curPlatform());
-  /** @type {r5js.Terminal} */ let terminal = null;
-  const stdin = r5js.InputPort.NULL;
-  const stdout = new r5js.CallbackBackedPort(function(output) {
-    terminal.print(output);
-  });
-  platform.newEvaluator(stdin, stdout).then(function(evaluator) {
-    const isLineComplete = function(line) {
-      return goog.Promise.resolve(r5js.replutil.isLineComplete(line));
-    };
-    terminal = platform.getTerminal();
-    new r5js.Repl(terminal, evaluator, isLineComplete).start();
-  });
-};
+function repl() {
+    const platform = /** @type {!Node} */ (curPlatform());
+    /** @type {Terminal} */ let terminal = null;
+    const stdin = InputPort.NULL;
+    const stdout = new CallbackBackedPort(output => terminal.print(output));
+    platform.newEvaluator(stdin, stdout).then(evaluator => {
+        terminal = platform.getTerminal();
+        new Repl(terminal, evaluator, isLineComplete).start();
+    });
+}
 
+function isLineComplete(line) {
+    return Promise.resolve(replutil.isLineComplete(line));
+}
 
-goog.exportSymbol('r5js.repl.main', r5js.platform.node.repl);
+goog.exportSymbol('r5js.repl.main', repl);
 // nodejs hack. See comment in goog.promise.testSuiteAdapter.
 goog.exportSymbol('setTimeout', setTimeout);
