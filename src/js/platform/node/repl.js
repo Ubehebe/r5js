@@ -23,11 +23,12 @@ goog.require('r5js.InputPort');
 goog.require('r5js.Repl');
 goog.require('r5js.curPlatform');
 goog.require('r5js.replutil');
+goog.require('r5js.platform.Node');
 
 
 /** The main REPL method. */
 r5js.platform.node.repl = function() {
-  const platform = /** @type {!r5js.platform.Node_} */ (r5js.curPlatform());
+  const platform = /** @type {!r5js.platform.Node} */ (r5js.curPlatform());
   /** @type {r5js.Terminal} */ let terminal = null;
   const stdin = r5js.InputPort.NULL;
   const stdout = new r5js.CallbackBackedPort(function(output) {

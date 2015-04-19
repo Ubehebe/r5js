@@ -1,8 +1,12 @@
-goog.provide('r5js.curPlatform');
+goog.module('r5js.platform.Node');
 
-goog.require('r5js.Platform');
-goog.require('r5js.platform.common.newEvaluator');
-goog.require('r5js.platform.node.Terminal');
+const Evaluator = goog.require('r5js.Evaluator');
+const InputPort = goog.require('r5js.InputPort');
+const newCommonEvaluator = goog.require('r5js.platform.common.newEvaluator');
+const OutputPort = goog.require('r5js.OutputPort');
+const Platform = goog.require('r5js.Platform');
+const Promise = goog.require('goog.Promise');
+const Terminal = goog.require('r5js.platform.node.Terminal');
 
 /**
  * NodeJS-specific environment facilities.
@@ -19,37 +23,33 @@ goog.require('r5js.platform.node.Terminal');
  * to a file isn't even discussed.)
  *
  * Proper filesystem access through Node will be added for R6RS.
+ * @implements {Platform}
  */
-r5js.platform.Node_ = /** @private @implements {r5js.Platform} */ class {
+class Node {
     /** @override */
     exit(statusCode) {
         process.exit(statusCode);
     }
 
     /**
-     * @return {!r5js.Terminal}
+     * @return {!Terminal}
      * @package
      */
     getTerminal() {
-        return new r5js.platform.node.Terminal();
+        return new Terminal();
     }
 
     /**
-     * @param {!r5js.InputPort=} opt_inputPort
-     * @param {!r5js.OutputPort=} opt_outputPort
-     * @return {!goog.Promise<!r5js.Evaluator>}
+     * @param {!InputPort=} opt_inputPort
+     * @param {!OutputPort=} opt_outputPort
+     * @return {!Promise<!Evaluator>}
      * @override TODO bl compiler bug?
      */
     newEvaluator(opt_inputPort, opt_outputPort) {
-        return r5js.platform.common.newEvaluator(opt_inputPort, opt_outputPort);
+        return newCommonEvaluator(opt_inputPort, opt_outputPort);
     }
-};
+}
 
-
-/** @return {!r5js.Platform} */
-r5js.curPlatform = function() {
-  return new r5js.platform.Node_();
-};
-
+exports = Node;
 
 
