@@ -6,18 +6,15 @@ let evaluator = null;
 
 /**
  * Convenience function for evaluating Scheme programs from the browser console.
- * TODO bl: convert this to use a synchronous evaluator that directly returns the value.
- * With promises, this function spams the console with its useless return value (undefined).
  * @param {string} input
+ * @return {!Promise<string>}
  */
 function EVAL(input) {
-    if (evaluator) {
-        evaluator.evaluate(input).then(output => console.log(output));
-    } else {
-        curPlatform().newEvaluator()
-            .then(e => evaluator = e)
-            .then(() => EVAL(input));
-    }
+    return evaluator
+        ? evaluator.evaluate(input)
+        : curPlatform().newEvaluator()
+        .then(e => evaluator = e)
+        .then(() => EVAL(input));
 }
 
 goog.exportSymbol('EVAL', EVAL);
