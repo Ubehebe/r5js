@@ -1,37 +1,22 @@
-/* Copyright 2011-2014 Brendan Linn
+goog.module('r5js.Procedure');
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+const IEnvironment = goog.require('r5js.IEnvironment');
+const ObjectValue = goog.require('r5js.runtime.ObjectValue');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const TrampolineHelper = goog.require('r5js.TrampolineHelper');
+const Value = goog.require('r5js.runtime.Value');
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+/** @implements {ObjectValue} */
+class Procedure {
+    /**
+     * @param {!Array<!Value>} args
+     * @param {!ProcCallLike} procCall
+     * @param {!TrampolineHelper} trampolineHelper
+     * @param {!IEnvironment} env
+     */
+    evaluate(args, procCall, trampolineHelper, env) {
+        return goog.abstractMethod();
+    }
+}
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-goog.provide('r5js.Procedure');
-
-
-goog.require('r5js.runtime.ObjectValue');
-
-
-
-/**
- * @implements {r5js.runtime.ObjectValue}
- * @struct
- * @constructor
- */
-r5js.Procedure = function() {};
-
-
-/**
- * @param {!Array<!r5js.runtime.Value>} args
- * @param {!r5js.ProcCallLike} procCall
- * @param {!r5js.TrampolineHelper} trampolineHelper
- * @param {!r5js.IEnvironment} env
- */
-r5js.Procedure.prototype.evaluate = goog.abstractMethod;
+exports = Procedure;
