@@ -70,9 +70,7 @@ class Pair {
         if (!array.length) {
             return NIL;
         }
-        const cars = array.map(function (elem) {
-            return new Pair(elem);
-        });
+        const cars = array.map(elem => new Pair(elem));
         for (let i = 0; i < cars.length - 1; ++i) {
             cars[i].setCdr(cars[i + 1]);
         }

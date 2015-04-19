@@ -45,9 +45,7 @@ class CompoundDatum extends Datum {
         const ans = /** @type {!CompoundDatum} */ (super.clone(parent));
         if (this.firstChild_) {
             const buf = new SiblingBuffer();
-            this.forEachChild(function (child) {
-                buf.appendSibling(child.clone(ans));
-            });
+            this.forEachChild(child => buf.appendSibling(child.clone(ans)));
             ans.firstChild_ = buf.toSiblings();
         }
         return ans;
@@ -193,9 +191,7 @@ class CompoundDatum extends Datum {
     /** @override */
     resetDesugars() {
         super.resetDesugars();
-        this.forEachChild(function (child) {
-            child.resetDesugars();
-        });
+        this.forEachChild(child => child.resetDesugars());
     }
 
     /**
@@ -299,7 +295,7 @@ class CompoundDatum extends Datum {
      * @return {!Datum} This object, for chaining.
      */
     setQuasiquotationLevel(qqLevel) {
-        this.forEachChild(function (child) {
+        this.forEachChild(child => {
             if (child instanceof CompoundDatum) {
                 child.setQuasiquotationLevel(qqLevel);
             }

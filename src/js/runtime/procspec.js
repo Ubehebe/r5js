@@ -144,7 +144,7 @@ class AllArgsOfType {
     /** @override */
     checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
         const argtype = this.type_;
-        return goog.array.map(args, function (arg, i) {
+        return goog.array.map(args, (arg, i) => {
             if (!(/** @type {!PrimitiveProcedure} */ (Predicates[argtype.getName() + '?'])).fn_.call(null, arg)) {
                 throw Error.argumentTypeError(
                     arg, i, nameToShowInErrorMessage, argtype, runtimeType(arg));
