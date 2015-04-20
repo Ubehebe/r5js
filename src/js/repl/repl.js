@@ -3,18 +3,17 @@ goog.module('r5js.Repl');
 const Error = goog.require('r5js.Error');
 const Evaluator = goog.require('r5js.Evaluator');
 const Promise = goog.require('goog.Promise');
+const replutil = goog.require('r5js.replutil');
 const Terminal = goog.require('r5js.Terminal');
 
 class Repl {
     /**
      * @param {!Terminal} terminal
      * @param {!Evaluator} evaluator
-     * @param {function(string): !Promise<boolean>} isLineComplete
      */
-    constructor(terminal, evaluator, isLineComplete) {
+    constructor(terminal, evaluator) {
         /** @const @private */ this.terminal_ = terminal;
         /** @const @private */ this.evaluator_ = evaluator;
-        /** @const @private */ this.isLineComplete_ = isLineComplete;
         /** @private */ this.awaitingEval_ = '';
     }
 
@@ -24,9 +23,14 @@ class Repl {
             this.handleInputLine, undefined /* opt_onRejected */, this);
     }
 
-    /** @param {string} inputLine */
+    /**
+     * @param {string} inputLine
+     * @private
+     */
     handleInputLine(inputLine) {
-        this.isLineComplete_(this.awaitingEval_ += inputLine + ' ')
+        // TODO bl the resolve is technically not needed, but the control flow through this method
+        // is tricky.
+        Promise.resolve(replutil.isLineComplete(this.awaitingEval_ += inputLine + ' '))
             .then(complete => {
                 if (complete) {
                     const toEval = this.awaitingEval_;

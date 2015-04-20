@@ -17,12 +17,8 @@ function repl() {
     const stdout = new CallbackBackedPort(output => terminal.print(output));
     platform.newEvaluator(stdin, stdout).then(evaluator => {
         terminal = platform.getTerminal();
-        new Repl(terminal, evaluator, isLineComplete).start();
+        new Repl(terminal, evaluator).start();
     });
-}
-
-function isLineComplete(line) {
-    return Promise.resolve(replutil.isLineComplete(line));
 }
 
 goog.exportSymbol('r5js.repl.main', repl);

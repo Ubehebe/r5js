@@ -20,9 +20,8 @@ function repl(jqConsole) {
   const stdin = InputPort.NULL;
   const stdout = new CallbackBackedPort(output => terminal.print(output));
   platform.newEvaluator(stdin, stdout).then(evaluator => {
-    const isLineComplete = line => Promise.resolve(replutil.isLineComplete(line));
     terminal = platform.getTerminal(jqConsole);
-    new Repl(terminal, evaluator, isLineComplete).start();
+    new Repl(terminal, evaluator).start();
   });
 }
 

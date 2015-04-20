@@ -23,10 +23,7 @@ class Html5 {
      * @package
      */
     getTerminal(jqConsole) {
-        return new Terminal(
-            jqConsole, function(line) {
-                return Promise.resolve(replutil.isLineComplete(line));
-            });
+        return new Terminal(jqConsole);
     }
 
     /**
