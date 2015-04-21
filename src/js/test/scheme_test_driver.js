@@ -248,24 +248,16 @@ r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.toString = function() {
 
 
 /** @override */
-r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.execute =
-    function(logger) {
-  this.logger_ = logger;
-  return r5js.curPlatform().newEvaluator(
-      r5js.InputPort.NULL,
-      new r5js.CallbackBackedPort(this.onWrite_.bind(this)))
-      .then(function(evaluator) {
-        return evaluator.evaluate(
-           this.sources_.testFramework + this.sources_.testFrameworkTests)
-      .then(function() {
-             return r5js.test.SchemeTestDriver.TestFrameworkTest_.
-             resultIsExpected_(this.actualResult_);
-           }, undefined /* opt_onRejected */, this)
-      .then(function(success) {
-             return goog.Promise.resolve(
-             success ?
-             new tdd.ResultStruct(1, 0, 0) :
-             new tdd.ResultStruct(0, 1, 0));
-           });
-      }, undefined /* opt_onRejected */, this);
+r5js.test.SchemeTestDriver.TestFrameworkTest_.prototype.execute = function(logger) {
+    this.logger_ = logger;
+    return r5js.curPlatform().newEvaluator(
+        r5js.InputPort.NULL, new r5js.CallbackBackedPort(this.onWrite_.bind(this))
+    ).then(evaluator => evaluator.evaluate(this.sources_.testFramework + this.sources_.testFrameworkTests),
+        undefined /* opt_onRejected */, this
+    ).then(() => r5js.test.SchemeTestDriver.TestFrameworkTest_.resultIsExpected_(this.actualResult_),
+        undefined /* opt_onRejected */, this
+    ).then(success => goog.Promise.resolve(success
+            ? new tdd.ResultStruct(1, 0, 0)
+            : new tdd.ResultStruct(0, 1, 0)),
+        undefined /* opt_onRejected */, this);
 };
