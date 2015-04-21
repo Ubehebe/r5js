@@ -26,27 +26,26 @@ function worker() {
   }, false);
 }
 
-/** @type {Promise<!SyncEvaluator>} */ let evaluator = null;
+/** @type {SyncEvaluator} */ let evaluator = null;
 
 /** @param {!Message} request */
 function handleEvalRequest(request) {
-    getEvaluator().then(evaluator => {
-        try {
-            const value = evaluator.evaluate(/** @type {string} */ (request.content));
-            postMessage(Message.newEvalResponse(request.id, value));
-        } catch (e) {
-            postMessage(Message.newEvalError(request.id, e));
-        }
-    });
+    const evaluator = getEvaluator();
+    try {
+        const value = evaluator.evaluate(/** @type {string} */ (request.content));
+        postMessage(Message.newEvalResponse(request.id, value));
+    } catch (e) {
+        postMessage(Message.newEvalError(request.id, e));
+    }
 }
 
-/** @return {!Promise<!SyncEvaluator>} */
+/** @return {!SyncEvaluator} */
 function getEvaluator() {
     if (!evaluator) {
         const inputPort = InputPort.NULL;
         const outputPort = new OutputPort(value => postMessage(Message.output(value)));
-        evaluator = SchemeSources.get().then(sources =>
-                boot(sources.syntax, sources.procedures, inputPort, outputPort));
+        const sources = SchemeSources.get();
+        evaluator = boot(sources.syntax, sources.procedures, inputPort, outputPort);
     }
     return evaluator;
 }

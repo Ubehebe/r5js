@@ -14,9 +14,10 @@ const SyncEvaluator = goog.require('r5js.sync.Evaluator');
  * @return {!Promise<!Evaluator>}
  */
 function newEvaluator(opt_inputPort, opt_outputPort) {
-  return SchemeSources.get()
-      .then(sources => boot(sources.syntax, sources.procedures, opt_inputPort, opt_outputPort))
-      .then(syncEvaluator => new Evaluator_(syncEvaluator));
+    const sources = SchemeSources.get();
+    const syncEvaluator = boot(sources.syntax, sources.procedures, opt_inputPort, opt_outputPort);
+    /** @type {!Evaluator} */ const evaluator = new Evaluator_(syncEvaluator);
+    return Promise.resolve(evaluator); // TODO bl vacuous promise
 }
 
 /**
