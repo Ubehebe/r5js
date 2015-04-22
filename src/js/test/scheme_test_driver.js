@@ -47,31 +47,19 @@ class SchemeTestDriver {
         const platform = curPlatform();
         let result = this.result_;
         const onWrite = this.onWrite_.bind(this);
-        /** @type {SchemeSources} */ var sources;
-        /** @type {Evaluator} */ var evaluator;
+        /** @type {SchemeSources} */ let sources = null;
+        /** @type {Evaluator} */ let evaluator = null;
 
         return Promise.all([
-            SchemeSources.get(),
-            platform.newEvaluator(InputPort.NULL,
-                new CallbackBackedPort(onWrite))]).then(function (resolved) {
-            sources = resolved[0];
-            evaluator = resolved[1];
-        }).then(function () {
-            return new TestFrameworkTest(
-                /** @type {!SchemeSources} */ (sources)).execute(logger);
-        }).then(function (result_) {
+            SchemeSources.get(), platform.newEvaluator(InputPort.NULL, new CallbackBackedPort(onWrite))]
+        ).then(resolved => { sources = resolved[0]; evaluator = resolved[1]; }
+        ).then(() => new TestFrameworkTest(/** @type {!SchemeSources} */ (sources)).execute(logger)
+        ).then(result_ => {
             result = result.merge(result_);
-            return evaluator.evaluate(
-                sources.testFramework + sources.r5RSTests);
-        }).then(function () {
-            return evaluator.evaluate(
-                sources.testFramework + sources.negativeTests);
-        }).then(function () {
-            return evaluator.evaluate(
-                sources.testFramework + sources.otherTests);
-        }).then(function () {
-            return this.result_;
-        }, undefined /* opt_onRejected */, this);
+            return evaluator.evaluate(sources.testFramework + sources.r5RSTests);
+        }).then(() => evaluator.evaluate(sources.testFramework + sources.negativeTests)
+        ).then(() => evaluator.evaluate(sources.testFramework + sources.otherTests)
+        ).then(() => this.result_, undefined /* opt_onRejected */, this);
     }
 
     /**
