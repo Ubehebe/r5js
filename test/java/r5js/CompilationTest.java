@@ -17,9 +17,10 @@ public class CompilationTest {
         writeOut(CompilationUnits.ANDROID_REPL.compile());
     }
 
-    @Test public void androidTests() throws IOException{
-        writeOut(CompilationUnits.ANDROID_TESTS.compile());
-    }
+    // TODO bl waste of time for now
+//    @Test public void androidTests() throws IOException{
+//        writeOut(CompilationUnits.ANDROID_TESTS.compile());
+//    }
 
     @Test public void embedded() throws IOException {
         writeOut(CompilationUnits.EMBEDDED_MAIN.compile());
