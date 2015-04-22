@@ -277,10 +277,14 @@ PrimitiveProcedures['truncate'] = _.unary(x => x > 0 ? Math.floor(x) : Math.ceil
 PrimitiveProcedures['car'] = _.unary(p => p.car(), Types.PAIR);
 
 PrimitiveProcedures['cdr'] = _.unary(p => {
-      const cdr = p.cdr();
-      cdr.setCdrHelper(new List.CdrHelperImpl(p, cdr.getFirstChild()));
-      return cdr;
-    }, Types.PAIR);
+    const cdr = p.cdr();
+    // TODO bl bug city. I have no idea what this code path does, and it only seems to be triggered
+    // intermittently, when I'm working on unrelated stuff.
+    if (cdr instanceof CompoundDatum) {
+        cdr.setCdrHelper(new List.CdrHelperImpl(p, /** @type {!Datum} */ (cdr.getFirstChild())));
+    }
+    return cdr;
+}, Types.PAIR);
 
 PrimitiveProcedures['cons'] = _.binary((car, cdr) => {
   // todo bl this is really expensive! can we cut down on the copying?
