@@ -19,4 +19,4 @@ function main(input) {
     return evaluator.evaluate(input);
 }
 
-exports = main;
+goog.exportSymbol('EVAL', main);
