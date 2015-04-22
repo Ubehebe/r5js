@@ -21,6 +21,10 @@ public class CompilationTest {
         writeOut(CompilationUnits.ANDROID_TESTS.compile());
     }
 
+    @Test public void embedded() throws IOException {
+        writeOut(CompilationUnits.EMBEDDED_MAIN.compile());
+    }
+
     @Test public void html5() throws IOException {
         writeOut(CompilationUnits.HTML5_WORKER.compile());
         writeOut(CompilationUnits.HTML5_DEV_CLIENT.compile());

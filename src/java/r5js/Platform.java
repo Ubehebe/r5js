@@ -11,19 +11,20 @@ import com.google.common.collect.ImmutableList;
  */
 enum Platform {
 
-    ANDROID(ImmutableList.of("custom-externs/android.js")),
-    HTML5(ImmutableList.<String>of()),
-    NASHORN(ImmutableList.<String>of()),
-    NODE(ImmutableList.of(
+    ANDROID("custom-externs/android.js"),
+    EMBEDDED,
+    HTML5,
+    NASHORN,
+    NODE(
             "externs/core.js",
             "externs/events.js",
             "externs/process.js",
-            "externs/readline.js"));
+            "externs/readline.js");
 
     private final ImmutableList<String> externs;
 
-    Platform(ImmutableList<String> externs) {
-        this.externs = externs;
+    Platform(String... externs) {
+        this.externs = ImmutableList.copyOf(externs);
     }
 
     public ImmutableList<String> getExterns() {

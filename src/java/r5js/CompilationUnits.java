@@ -15,6 +15,11 @@ interface CompilationUnits {
             .entryPoint(TEST_MAIN)
             .build();
 
+    static final CompilationUnit EMBEDDED_MAIN = CompilationUnit.of(
+            "embedded.js", Platform.EMBEDDED)
+            .entryPoint(EntryPoint.EMBEDDED_MAIN)
+            .build();
+
     static final CompilationUnit HTML5_WORKER = CompilationUnit.of(
             "worker.js", Platform.HTML5)
             .entryPoint(EntryPoint.HTML5_WORKER)

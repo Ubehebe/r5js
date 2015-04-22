@@ -3,6 +3,7 @@ package r5js;
 enum EntryPoint {
 
     ANDROID_MAIN("r5js.platform.android.main"),
+    EMBEDDED_MAIN("r5js.platform.embedded.main"),
     HTML5_WORKER("r5js.platform.html5.Worker"),
     HTML5_CONSOLE_MAIN("r5js.platform.html5.console"),
     HTML5_REPL_MAIN("r5js.platform.html5.repl"),
