@@ -47,14 +47,10 @@ class SchemeTestDriver {
         const platform = curPlatform();
         let result = this.result_;
         const onWrite = this.onWrite_.bind(this);
-        /** @type {SchemeSources} */ let sources = null;
+        const sources = SchemeSources.get();
         const evaluator = platform.newEvaluator(InputPort.NULL, new CallbackBackedPort(onWrite));
 
-
-        return SchemeSources.get()
-        .then(sources_ => { sources = sources_; }
-        ).then(() => new TestFrameworkTest(/** @type {!SchemeSources} */ (sources)).execute(logger)
-        ).then(result_ => {
+        return new TestFrameworkTest(sources).execute(logger).then(result_ => {
             result = result.merge(result_);
             return evaluator.evaluate(sources.testFramework + sources.r5RSTests);
         }).then(() => evaluator.evaluate(sources.testFramework + sources.negativeTests)
