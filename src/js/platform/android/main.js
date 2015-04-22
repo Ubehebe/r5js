@@ -8,24 +8,22 @@ const OutputPort = goog.require('r5js.OutputPort');
 const Promise = goog.require('goog.Promise');
 
 /** @private {OutputPort} */ let outputPort = null;
-/** @private {Promise<!Evaluator>} */ let evaluator = null;
+/** @private {Evaluator} */ let evaluator = null;
 
 /**
  * The main method for the Android port.
  * @param {string} input
  */
 function main(input) {
-  if (!evaluator) {
-    outputPort = new CallbackBackedPort(function(s) {
-      AndroidSchemePlatform.print(s);
+    if (!evaluator) {
+        outputPort = new CallbackBackedPort(function (s) {
+            AndroidSchemePlatform.print(s);
+        });
+        evaluator = curPlatform().newEvaluator(InputPort.NULL, outputPort);
+    }
+    return evaluator.evaluate(input).then(function (result) {
+        AndroidSchemePlatform.returnValue(result);
     });
-    evaluator = curPlatform().newEvaluator(InputPort.NULL, outputPort);
-  }
-  evaluator.then(function(evaluator) {
-    return evaluator.evaluate(input);
-  }).then(function(result) {
-    AndroidSchemePlatform.returnValue(result);
-  });
 }
 
 goog.exportSymbol('EVAL', main);

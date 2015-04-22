@@ -10,11 +10,10 @@ let evaluator = null;
  * @return {!Promise<string>}
  */
 function EVAL(input) {
-    return evaluator
-        ? evaluator.evaluate(input)
-        : curPlatform().newEvaluator()
-        .then(e => evaluator = e)
-        .then(() => EVAL(input));
+    if (!evaluator) {
+        evaluator = curPlatform().newEvaluator();
+    }
+    return evaluator.evaluate(input);
 }
 
 goog.exportSymbol('EVAL', EVAL);

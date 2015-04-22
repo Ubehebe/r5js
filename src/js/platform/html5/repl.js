@@ -15,14 +15,13 @@ const Terminal = goog.require('r5js.platform.html5.Terminal');
  * @param {?} jqConsole
  */
 function repl(jqConsole) {
-  const platform = /** @type {!Platform} */ (curPlatform.apply(null, array.toArray(arguments)));
-  /** @type {Terminal} */ let terminal = null;
-  const stdin = InputPort.NULL;
-  const stdout = new CallbackBackedPort(output => terminal.print(output));
-  platform.newEvaluator(stdin, stdout).then(evaluator => {
+    const platform = /** @type {!Platform} */ (curPlatform.apply(null, array.toArray(arguments)));
+    /** @type {Terminal} */ let terminal = null;
+    const stdin = InputPort.NULL;
+    const stdout = new CallbackBackedPort(output => terminal.print(output));
+    const evaluator = platform.newEvaluator(stdin, stdout);
     terminal = platform.getTerminal(jqConsole);
     new Repl(terminal, evaluator).start();
-  });
 }
 
 exports = repl;

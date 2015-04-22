@@ -17,7 +17,7 @@ class Android {
     /**
      * @param {!InputPort=} opt_inputPort
      * @param {!OutputPort=} opt_outputPort
-     * @return {!Promise<!Evaluator>}
+     * @return {!Evaluator}
      * @override TODO bl compiler bug?
      */
     newEvaluator(opt_inputPort, opt_outputPort) {

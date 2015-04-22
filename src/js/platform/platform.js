@@ -3,7 +3,6 @@ goog.module('r5js.Platform');
 const Evaluator = goog.require('r5js.Evaluator');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
-const Promise = goog.require('goog.Promise');
 
 /**
  * Abstraction of the (JavaScript) platform that the Scheme implementation is running in.
@@ -16,7 +15,7 @@ class Platform {
     /**
      * @param {!InputPort=} opt_inputPort
      * @param {!OutputPort=} opt_outputPort
-     * @return {!Promise<!Evaluator>}
+     * @return {!Evaluator}
      */
     newEvaluator(opt_inputPort, opt_outputPort) {}
 }

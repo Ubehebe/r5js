@@ -48,11 +48,11 @@ class SchemeTestDriver {
         let result = this.result_;
         const onWrite = this.onWrite_.bind(this);
         /** @type {SchemeSources} */ let sources = null;
-        /** @type {Evaluator} */ let evaluator = null;
+        const evaluator = platform.newEvaluator(InputPort.NULL, new CallbackBackedPort(onWrite));
 
-        return Promise.all([
-            SchemeSources.get(), platform.newEvaluator(InputPort.NULL, new CallbackBackedPort(onWrite))]
-        ).then(resolved => { sources = resolved[0]; evaluator = resolved[1]; }
+
+        return SchemeSources.get()
+        .then(sources_ => { sources = sources_; }
         ).then(() => new TestFrameworkTest(/** @type {!SchemeSources} */ (sources)).execute(logger)
         ).then(result_ => {
             result = result.merge(result_);
@@ -195,16 +195,15 @@ class TestFrameworkTest {
     /** @override */
     execute(logger) {
         this.logger_ = logger;
-        return curPlatform().newEvaluator(
-            InputPort.NULL, new CallbackBackedPort(this.onWrite_.bind(this))
-        ).then(evaluator => evaluator.evaluate(this.sources_.testFramework + this.sources_.testFrameworkTests),
-            undefined /* opt_onRejected */, this
-        ).then(() => TestFrameworkTest.resultIsExpected_(this.actualResult_),
-            undefined /* opt_onRejected */, this
-        ).then(success => goog.Promise.resolve(success
-                ? new tdd.ResultStruct(1, 0, 0)
-                : new tdd.ResultStruct(0, 1, 0)),
-            undefined /* opt_onRejected */, this);
+        const evaluator = curPlatform().newEvaluator(
+            InputPort.NULL, new CallbackBackedPort(this.onWrite_.bind(this)));
+        return evaluator.evaluate(this.sources_.testFramework + this.sources_.testFrameworkTests)
+            .then(() => TestFrameworkTest.resultIsExpected_(this.actualResult_),
+            undefined /* opt_onRejected */, this)
+            .then(success => success
+                ? new ResultStruct(1, 0, 0)
+                : new ResultStruct(0, 1, 0))
+            .then(Promise.resolve);
     }
 }
 ManualTestSuite.addImplementation(TestFrameworkTest);

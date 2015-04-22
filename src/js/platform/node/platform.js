@@ -5,7 +5,6 @@ const InputPort = goog.require('r5js.InputPort');
 const newCommonEvaluator = goog.require('r5js.platform.common.newEvaluator');
 const OutputPort = goog.require('r5js.OutputPort');
 const Platform = goog.require('r5js.Platform');
-const Promise = goog.require('goog.Promise');
 const Terminal = goog.require('r5js.platform.node.Terminal');
 
 /**
@@ -42,7 +41,7 @@ class Node {
     /**
      * @param {!InputPort=} opt_inputPort
      * @param {!OutputPort=} opt_outputPort
-     * @return {!Promise<!Evaluator>}
+     * @return {!Evaluator}
      * @override TODO bl compiler bug?
      */
     newEvaluator(opt_inputPort, opt_outputPort) {

@@ -11,13 +11,12 @@ const SyncEvaluator = goog.require('r5js.sync.Evaluator');
 /**
  * @param {!InputPort=} opt_inputPort
  * @param {!OutputPort=} opt_outputPort
- * @return {!Promise<!Evaluator>}
+ * @return {!Evaluator}
  */
 function newEvaluator(opt_inputPort, opt_outputPort) {
     const sources = SchemeSources.get();
     const syncEvaluator = boot(sources.syntax, sources.procedures, opt_inputPort, opt_outputPort);
-    /** @type {!Evaluator} */ const evaluator = new Evaluator_(syncEvaluator);
-    return Promise.resolve(evaluator); // TODO bl vacuous promise
+    return new Evaluator_(syncEvaluator);
 }
 
 /**
@@ -26,7 +25,7 @@ function newEvaluator(opt_inputPort, opt_outputPort) {
  * typically can run JavaScript synchronously off the main thread.
  * @implements {Evaluator}
  */
-class Evaluator_  {
+class Evaluator_ {
     /** @param {!SyncEvaluator} evaluator */
     constructor(evaluator) {
         /** @const @private */ this.evaluator_ = evaluator;

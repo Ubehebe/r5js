@@ -13,7 +13,6 @@ const logTo = goog.require('tdd.logTo');
 const OutputPort = goog.require('r5js.OutputPort');
 const OutputSavingPort = goog.require('r5js.OutputSavingPort');
 const ParserTest = goog.require('r5js.test.Parser');
-const Promise = goog.require('goog.Promise');
 const Runner = goog.require('tdd.Runner');
 const RunnerConfig = goog.require('tdd.RunnerConfig');
 const ScannerTest = goog.require('r5js.test.Scanner');
@@ -27,22 +26,20 @@ const TestType = goog.require('tdd.TestType');
  * @param {!Object<string, string>=} opt_env Optional command-line environment.
  */
 function main(opt_argv, opt_env) {
-  const testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env)
-      ? RunnerConfig.fromFlags(opt_argv, opt_env)
-      : defaultConfig();
+    const testConfig = goog.isDef(opt_argv) && goog.isDef(opt_env)
+        ? RunnerConfig.fromFlags(opt_argv, opt_env)
+        : defaultConfig();
     const logger = log.getLogger('r5js.test.main');
     const runner = new Runner(testConfig, logger);
     const platform = curPlatform();
     const buffer = new InMemoryPortBuffer();
     const stdin = new InMemoryInputPort(buffer);
     const stdout = new InMemoryOutputPort(buffer);
-
-    getEvaluator(stdin, stdout).then(evaluator => {
-        getTestSuites(evaluator, stdout).forEach(testSuite => runner.add(testSuite));
-        runner.run().then(result => {
-            console.log(result.toString());
-            platform.exit(result.getNumFailed() + result.getNumExceptions() === 0 ? 0 : 1);
-        });
+    const evaluator = getEvaluator(stdin, stdout);
+    getTestSuites(evaluator, stdout).forEach(testSuite => runner.add(testSuite));
+    runner.run().then(result => {
+        console.log(result.toString());
+        platform.exit(result.getNumFailed() + result.getNumExceptions() === 0 ? 0 : 1);
     });
 }
 
@@ -55,12 +52,12 @@ function defaultConfig() {
         .addSuccessHandler(logWriter);
 }
 
-/** @type {Promise<!Evaluator>} */ let evaluator = null;
+/** @type {Evaluator} */ let evaluator = null;
 
 /**
  * @param {!InputPort=} opt_inputPort
  * @param {!OutputPort=} opt_outputPort
- * @return {!Promise<!Evaluator>}
+ * @return {!Evaluator}
  */
 function getEvaluator(opt_inputPort, opt_outputPort) {
   return evaluator
