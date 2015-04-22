@@ -7,6 +7,7 @@ const SyncEvaluator = goog.require('r5js.sync.Evaluator');
 /** @type {SyncEvaluator} */ let evaluator = null;
 
 /**
+ * Minimal entry point for embedded environments.
  * @param {string} input
  * @return {string}
  */
