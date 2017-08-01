@@ -49,7 +49,7 @@ class Assignment extends ProcCallLike {
      * @see {r5js.TopLevelSyntaxAssignment#checkForImproperSyntaxAssignment},
      * which bypasses this check.
      *
-     * @param {!r5js.runtime.Value} val
+     * @param {!Value} val
      * @protected
      */
     checkForImproperSyntaxAssignment(val) {

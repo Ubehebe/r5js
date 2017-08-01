@@ -2,19 +2,14 @@ goog.module('r5js.MacroIdTransformer');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const Subtransformer = goog.require('r5js.Subtransformer');
 const Identifier = goog.require('r5js.ast.Identifier');
-const RenameUtil = goog.require('r5js.RenameUtil');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 
 class MacroIdTransformer {
-    /**
-     * @param {!SimpleDatum} datum
-     * @private No reason to construct outside of this file.
-     */
+    /** @param {!SimpleDatum} datum */
     constructor(datum) {
         /** @const @protected */ this.datum = datum;
     }

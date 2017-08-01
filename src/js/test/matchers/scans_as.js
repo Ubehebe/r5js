@@ -36,7 +36,7 @@ class ScansAs {
 }
 
 /**
- * @param {function(new: r5js.Datum, ?)} expectedType
+ * @param {function(new: Datum, ?)} expectedType
  * @return {!Matcher<string>}
  */
 function scanAs(expectedType) {

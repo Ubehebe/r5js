@@ -19,7 +19,7 @@ class ContinuableHelper {
         } else {
             this.lastProcCallLike_.setNext(procCallLike);
         }
-        this.lastProcCallLike_ = r5js.ProcCallLike.getLast(procCallLike);
+        this.lastProcCallLike_ = ProcCallLike.getLast(procCallLike);
     }
 
     /** @return {ProcCallLike} */

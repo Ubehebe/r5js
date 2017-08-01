@@ -1,7 +1,6 @@
 goog.module('r5js.TopLevelAssignment');
 
 const Assignment = goog.require('r5js.Assignment');
-const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');

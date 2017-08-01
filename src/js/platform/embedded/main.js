@@ -1,8 +1,8 @@
 goog.module('r5js.platform.embedded.main');
 
-const boot = goog.require('r5js.boot');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const SyncEvaluator = goog.require('r5js.sync.Evaluator');
+const boot = goog.require('r5js.boot');
 
 /** @type {SyncEvaluator} */ let evaluator = null;
 

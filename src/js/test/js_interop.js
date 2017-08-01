@@ -19,17 +19,13 @@ goog.setTestOnly('r5js.test.JsInterop');
 
 goog.require('Throw');
 goog.require('evalTo');
-goog.require('expect');
-goog.require('goog.Promise');
-goog.require('goog.string');
 goog.require('goog.testing.asserts');
 goog.require('output');
-goog.require('r5js.Type');
 goog.require('r5js.Error');
+goog.require('r5js.Type');
 goog.require('r5js.parse.Terminals');
 goog.require('r5js.test.SyncPromiseTestSuite');
 goog.require('r5js.test.matchers.setOutputPort');
-goog.require('tdd.TestType');
 
 
 

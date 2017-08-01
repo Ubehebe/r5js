@@ -10,7 +10,6 @@ const InputPort = goog.require('r5js.InputPort');
 const Message = goog.require('r5js.platform.html5.Message');
 const MessageType = goog.require('r5js.platform.html5.MessageType');
 const OutputPort = goog.require('r5js.platform.html5.OutputPort');
-const Promise = goog.require('goog.Promise');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const SyncEvaluator = goog.require('r5js.sync.Evaluator');
 

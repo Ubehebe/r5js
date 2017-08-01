@@ -1,10 +1,8 @@
 goog.module('r5js.runtime.Pair');
 
 const Error = goog.require('r5js.Error');
-const List = goog.require('r5js.ast.List');
 const NIL = goog.require('r5js.runtime.NIL');
 const ObjectValue = goog.require('r5js.runtime.ObjectValue');
-const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const Value = goog.require('r5js.runtime.Value');
 
 /** @implements {ObjectValue} */

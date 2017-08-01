@@ -3,8 +3,8 @@ goog.module('r5js.Repl');
 const Error = goog.require('r5js.Error');
 const Evaluator = goog.require('r5js.Evaluator');
 const Promise = goog.require('goog.Promise');
-const replutil = goog.require('r5js.replutil');
 const Terminal = goog.require('r5js.Terminal');
+const replutil = goog.require('r5js.replutil');
 
 class Repl {
     /**

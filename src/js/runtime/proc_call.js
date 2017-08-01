@@ -5,8 +5,8 @@ const ContinuableHelper = goog.require('r5js.ContinuableHelper');
 const Continuation = goog.require('r5js.Continuation');
 const Datum = goog.require('r5js.Datum');
 const Error = goog.require('r5js.Error');
-const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
+const Identifier = goog.require('r5js.ast.Identifier');
 const Lambda = goog.require('r5js.ast.Lambda');
 const List = goog.require('r5js.ast.List');
 const Literal = goog.require('r5js.ast.Literal');
@@ -18,9 +18,9 @@ const Quasiquote = goog.require('r5js.ast.Quasiquote');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
+const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const Value = goog.require('r5js.runtime.Value');
 const Vector = goog.require('r5js.ast.Vector');
-const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 
 class ProcCall extends ProcCallLike {
     /**

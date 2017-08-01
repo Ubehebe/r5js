@@ -8,7 +8,6 @@ const testFramework = goog.require('TEST_FRAMEWORK');
 const testFrameworkTests = goog.require('TEST_FRAMEWORK_TESTS');
 
 class SchemeSources {
-    /** @private */
     constructor() {
         /** @const */ this.testFramework = testFramework;
         /** @const */ this.testFrameworkTests = testFrameworkTests;

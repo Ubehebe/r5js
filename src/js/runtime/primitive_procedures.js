@@ -1,6 +1,5 @@
 goog.module('r5js.PrimitiveProcedures');
 
-const _ = goog.require('r5js.procspec');
 const Boolean = goog.require('r5js.ast.Boolean');
 const CallWithCurrentContinuation = goog.require('r5js.CallWithCurrentContinuation');
 const Character = goog.require('r5js.ast.Character');
@@ -11,8 +10,8 @@ const DynamicWindContinuation = goog.require('r5js.DynamicWindContinuation');
 const EOF = goog.require('r5js.runtime.EOF');
 const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
-const InputPort = goog.require('r5js.InputPort');
 const Identifier = goog.require('r5js.ast.Identifier');
+const InputPort = goog.require('r5js.InputPort');
 const Lambda = goog.require('r5js.ast.Lambda');
 const List = goog.require('r5js.ast.List');
 const Number = goog.require('r5js.ast.Number');
@@ -24,14 +23,14 @@ const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const StringNode = goog.require('r5js.ast.String');
-const Terminals = goog.require('r5js.parse.Terminals');
-const trampoline = goog.require('r5js.trampoline');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Type = goog.require('r5js.Type');
 const Types = Type.Types;
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
-const valutil = goog.require('r5js.valutil');
 const Vector = goog.require('r5js.ast.Vector');
+const _ = goog.require('r5js.procspec');
+const trampoline = goog.require('r5js.trampoline');
+const valutil = goog.require('r5js.valutil');
 
 /** @type {IEnvironment} */ let nullEnv_ = null;
 /** @type {IEnvironment} */ let r5RSEnv_ = null;
@@ -184,7 +183,7 @@ PrimitiveProcedures['inexact?'] = _.unary(x => true, Types.NUMBER);
 PrimitiveProcedures['inexact->exact'] = _.unary(function(x) { return x; } /* TODO bl */, Types.NUMBER);
 
 PrimitiveProcedures['magnitude'] = _.unary(z => {
-    throw Error.unimplementedOption('magnitude')
+    throw Error.unimplementedOption('magnitude');
 }, Types.NUMBER);
 
 PrimitiveProcedures['make-polar'] = _.binary((x, y) => {

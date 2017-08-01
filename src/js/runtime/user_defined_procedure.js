@@ -2,12 +2,10 @@ goog.module('r5js.UserDefinedProcedure');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const datumutil = goog.require('r5js.datumutil');
 const Error = goog.require('r5js.Error');
-const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
+const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
-const Nonterminals = goog.require('r5js.parse.Nonterminal').Nonterminals;
 const ProcCall = goog.require('r5js.ProcCall');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Procedure = goog.require('r5js.Procedure');
@@ -15,6 +13,8 @@ const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const Terminals = goog.require('r5js.parse.Terminals');
 const Value = goog.require('r5js.runtime.Value');
+const datumutil = goog.require('r5js.datumutil');
+const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
 
 class UserDefinedProcedure extends Procedure {
     /**
@@ -26,6 +26,8 @@ class UserDefinedProcedure extends Procedure {
      *     to the user. If not given, one will be created.
      */
     constructor(formalsArray, bodyStart, env, opt_name) {
+        super();
+
         /** @const @protected */
         this.formalsArray = formalsArray;
 
@@ -198,7 +200,7 @@ class UserDefinedProcedure extends Procedure {
 
         // And away we go
         trampolineHelper.setNext(
-            /** @type {!r5js.ProcCallLike} */ (this.body_));
+            /** @type {!ProcCallLike} */ (this.body_));
     }
 }
 
@@ -231,7 +233,10 @@ class LetrecBindingsHelper {
         return this.bindings_;
     }
 
-    /** @param {!Datum} node */
+    /**
+     * @param {!Datum} node
+     * @private
+     */
     collectLetrecBindingsForChild_(node) {
         if (!(node instanceof CompoundDatum)
             || node instanceof Quote) {

@@ -1,15 +1,12 @@
 goog.module('r5js.test.main');
 goog.setTestOnly('r5js.test.main');
 
-const curPlatform = goog.require('r5js.curPlatform');
 const Evaluator = goog.require('r5js.Evaluator');
 const InMemoryInputPort = goog.require('r5js.InMemoryInputPort');
 const InMemoryOutputPort = goog.require('r5js.InMemoryOutputPort');
 const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
 const InputPort = goog.require('r5js.InputPort');
 const JsInteropTest = goog.require('r5js.test.JsInterop');
-const log = goog.require('goog.log');
-const logTo = goog.require('tdd.logTo');
 const OutputPort = goog.require('r5js.OutputPort');
 const OutputSavingPort = goog.require('r5js.OutputSavingPort');
 const ParserTest = goog.require('r5js.test.Parser');
@@ -19,6 +16,9 @@ const ScannerTest = goog.require('r5js.test.Scanner');
 const SchemeTestDriver = goog.require('r5js.test.SchemeTestDriver');
 const TestSuite = goog.require('tdd.TestSuite');
 const TestType = goog.require('tdd.TestType');
+const curPlatform = goog.require('r5js.curPlatform');
+const log = goog.require('goog.log');
+const logTo = goog.require('tdd.logTo');
 
 /**
  * Main entry point for the test suite.

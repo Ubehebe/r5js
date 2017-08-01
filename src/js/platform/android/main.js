@@ -1,11 +1,11 @@
 goog.module('r5js.platform.android.main');
 
 const CallbackBackedPort = goog.require('r5js.CallbackBackedPort');
-const curPlatform = goog.require('r5js.curPlatform');
 const Evaluator = goog.require('r5js.Evaluator');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
-const Promise = goog.require('goog.Promise');
+const curPlatform = goog.require('r5js.curPlatform');
+
 
 /** @private {OutputPort} */ let outputPort = null;
 /** @private {Evaluator} */ let evaluator = null;

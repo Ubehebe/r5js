@@ -2,10 +2,9 @@ goog.module('r5js.curPlatform');
 
 const Evaluator = goog.require('r5js.Evaluator');
 const InputPort = goog.require('r5js.InputPort');
-const newCommonEvaluator = goog.require('r5js.platform.common.newEvaluator');
 const OutputPort = goog.require('r5js.OutputPort');
 const Platform = goog.require('r5js.Platform');
-const Promise = goog.require('goog.Promise');
+const newCommonEvaluator = goog.require('r5js.platform.common.newEvaluator');
 
 /** @implements {Platform} */
 class Android {

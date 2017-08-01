@@ -1,8 +1,8 @@
 goog.module('r5js.platform.html5.Terminal');
 
 const Promise = goog.require('goog.Promise');
-const replutil = goog.require('r5js.replutil');
 const Terminal = goog.require('r5js.Terminal');
+const replutil = goog.require('r5js.replutil');
 
 /** @implements {Terminal} */
 class Html5Terminal {

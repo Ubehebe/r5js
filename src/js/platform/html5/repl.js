@@ -5,9 +5,7 @@ const CallbackBackedPort = goog.require('r5js.CallbackBackedPort');
 const curPlatform = goog.require('r5js.curPlatform');
 const InputPort = goog.require('r5js.InputPort');
 const Platform = goog.require('r5js.platform.html5.Platform');
-const Promise = goog.require('goog.Promise');
 const Repl = goog.require('r5js.Repl');
-const replutil = goog.require('r5js.replutil');
 const Terminal = goog.require('r5js.platform.html5.Terminal');
 
 /**

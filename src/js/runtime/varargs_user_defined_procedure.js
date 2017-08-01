@@ -1,12 +1,12 @@
 goog.module('r5js.VarargsUserDefinedProcedure');
 
 const Datum = goog.require('r5js.Datum');
+const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
+const List = goog.require('r5js.ast.List');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
-const List = goog.require('r5js.ast.List');
 const datumutil = goog.require('r5js.datumutil');
-const Error = goog.require('r5js.Error');
 
 class VarargsUserDefinedProcedure extends UserDefinedProcedure {
     /**
@@ -40,7 +40,7 @@ class VarargsUserDefinedProcedure extends UserDefinedProcedure {
         if (this.formalsArray.length > 0) {
             name = this.formalsArray[i];
             // Roll up the remaining arguments into a list
-            let siblingBuffer = new r5js.SiblingBuffer();
+            let siblingBuffer = new SiblingBuffer();
             for (let j = i; j < args.length; ++j) {
                 siblingBuffer.appendSibling(datumutil.wrapValue(args[j]));
             }

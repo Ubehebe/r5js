@@ -2,19 +2,16 @@ goog.module('r5js.test.SchemeTestDriver');
 goog.setTestOnly('r5js.test.SchemeTestDriver');
 
 const CallbackBackedPort = goog.require('r5js.CallbackBackedPort');
-const curPlatform = goog.require('r5js.curPlatform');
-const Evaluator = goog.require('r5js.Evaluator');
-const expect = goog.require('expect');
 const InputPort = goog.require('r5js.InputPort');
-const Logger = goog.require('goog.log.Logger');
 const LogLevel = goog.require('tdd.LogLevel');
 const LogRecord = goog.require('tdd.LogRecord');
+const Logger = goog.require('goog.log.Logger');
 const ManualTestSuite = goog.require('tdd.ManualTestSuite');
-const Platform = goog.require('r5js.Platform');
 const Promise = goog.require('goog.Promise');
 const ResultStruct = goog.require('tdd.ResultStruct');
 const SchemeSources = goog.require('r5js.test.SchemeSources');
 const TestType = goog.require('tdd.TestType');
+const curPlatform = goog.require('r5js.curPlatform');
 
 /**
  * Driver for running the unit tests written in Scheme.
@@ -147,7 +144,7 @@ class TestFrameworkTest {
     /**
      * Must be kept manually in sync with the expected results of
      * test/unit-test-tests.scm.
-     * @param {!tdd.ResultStruct} result
+     * @param {!ResultStruct} result
      * @return {boolean}
      * @private
      */

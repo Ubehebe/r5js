@@ -1,6 +1,5 @@
 goog.module('r5js.read.RuleFactory');
 
-const array = goog.require('goog.array');
 const Datum = goog.require('r5js.Datum');
 const Grammar = goog.require('r5js.read.Grammar');
 const List = goog.require('r5js.ast.List');
@@ -15,6 +14,7 @@ const TokenStream = goog.require('r5js.TokenStream');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
+const array = goog.require('goog.array');
 
 class RuleFactory {
     /** @param {!Grammar} grammar */

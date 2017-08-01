@@ -2,10 +2,10 @@ goog.module('parseAs');
 goog.setTestOnly('parseAs');
 
 const Datum = goog.require('r5js.Datum');
+const Matcher = goog.require('tdd.matchers.Matcher');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Reader = goog.require('r5js.Reader');
-const Matcher = goog.require('tdd.matchers.Matcher');
 const TokenStream = goog.require('r5js.TokenStream');
 
 /** @implements {Matcher<string>} */

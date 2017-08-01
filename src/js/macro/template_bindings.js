@@ -3,8 +3,8 @@ goog.module('r5js.TemplateBindings');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Error = goog.require('r5js.Error');
-const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
+const Identifier = goog.require('r5js.ast.Identifier');
 const Macro = goog.require('r5js.ast.Macro');
 const RenameUtil = goog.require('r5js.RenameUtil');
 

@@ -1,15 +1,13 @@
 goog.module('r5js.procspec');
 
-const array = goog.require('goog.array');
 const Boolean = goog.require('r5js.ast.Boolean');
 const Character = goog.require('r5js.ast.Character');
 const Continuation = goog.require('r5js.Continuation');
 const Datum = goog.require('r5js.Datum');
-const datumutil = goog.require('r5js.datumutil');
 const Error = goog.require('r5js.Error');
+const IPair = goog.require('r5js.IPair');
 const Identifier = goog.require('r5js.ast.Identifier');
 const InputPort = goog.require('r5js.InputPort');
-const IPair = goog.require('r5js.IPair');
 const Lambda = goog.require('r5js.ast.Lambda');
 const List = goog.require('r5js.ast.List');
 const Number = goog.require('r5js.ast.Number');
@@ -21,6 +19,8 @@ const String = goog.require('r5js.ast.String');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Type = goog.require('r5js.Type');
 const Vector = goog.require('r5js.ast.Vector');
+const array = goog.require('goog.array');
+const datumutil = goog.require('r5js.datumutil');
 
 /** @interface */
 class NumArgChecker {
@@ -144,7 +144,7 @@ class AllArgsOfType {
     /** @override */
     checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
         const argtype = this.type_;
-        return goog.array.map(args, (arg, i) => {
+        return array.map(args, (arg, i) => {
             if (!(/** @type {!PrimitiveProcedure} */ (Predicates[argtype.getName() + '?'])).fn_.call(null, arg)) {
                 throw Error.argumentTypeError(
                     arg, i, nameToShowInErrorMessage, argtype, runtimeType(arg));
@@ -161,6 +161,7 @@ class PrimitiveProcedure extends Procedure {
      * @param {!ArgumentTypeCheckerAndUnwrapper} typeChecker
      */
     constructor(fn, numArgChecker, typeChecker) {
+        super();
         /** @const @private {function(!Datum):?} */ this.fn_ = fn;
         /** @const @private {!NumArgChecker} */ this.numArgChecker_ = numArgChecker;
         /** @const @private {!ArgumentTypeCheckerAndUnwrapper} */ this.typeChecker_ = typeChecker;

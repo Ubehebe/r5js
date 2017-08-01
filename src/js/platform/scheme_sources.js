@@ -4,7 +4,6 @@ const procedures = goog.require('PROCEDURES');
 const syntax = goog.require('SYNTAX');
 
 class SchemeSources {
-    /** @private */
     constructor() {
         /** @const */ this.syntax = syntax;
         /** @const */ this.procedures = procedures;
