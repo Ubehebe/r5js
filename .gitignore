@@ -1,5 +1,6 @@
 /build
 /target
+bazel-*
 *.iml
 /compiler.jar
 .*
