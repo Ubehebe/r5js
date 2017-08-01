@@ -2,11 +2,10 @@ goog.module('r5js.Datum');
 
 const DesugarFunc = goog.require('r5js.DesugarFunc');
 const IEnvironment = goog.require('r5js.IEnvironment');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
-const RenameHelper = goog.require('r5js.RenameHelper');
-const Terminals = goog.require('r5js.parse.Terminals');
 const ObjectValue = goog.require('r5js.runtime.ObjectValue');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
+const RenameHelper = goog.require('r5js.RenameHelper');
 
 /**
  * TODO bl remove the "implements ObjectValue".

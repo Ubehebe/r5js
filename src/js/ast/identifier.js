@@ -1,6 +1,5 @@
 goog.module('r5js.ast.Identifier');
 
-const Datum = goog.require('r5js.Datum');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');

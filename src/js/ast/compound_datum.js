@@ -2,12 +2,12 @@ goog.module('r5js.ast.CompoundDatum');
 
 const CdrHelper = goog.require('r5js.CdrHelper');
 const Datum = goog.require('r5js.Datum');
+const Identifier = goog.require('r5js.ast.Identifier');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const RenameHelper = goog.require('r5js.RenameHelper');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const Identifier = goog.require('r5js.ast.Identifier');
-const Nonterminals = goog.require('r5js.parse.Nonterminal').Nonterminals;
+const Nonterminals = Nonterminal.Nonterminals;
 
 class CompoundDatum extends Datum {
     constructor() {
@@ -89,7 +89,7 @@ class CompoundDatum extends Datum {
 
     /**
      * TODO bl: document what this method does.
-     * @param {!r5js.RenameHelper} helper A rename helper.
+     * @param {!RenameHelper} helper A rename helper.
      * @private
      */
     fixParserSensitiveIdsLambda_(helper) {

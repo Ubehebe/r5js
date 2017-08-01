@@ -188,6 +188,6 @@ List.CdrHelperImpl = /** @implements {CdrHelper} */ class {
             return false;
         }
     }
-}
+};
 
 exports = List;
