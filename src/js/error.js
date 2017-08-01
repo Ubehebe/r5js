@@ -9,7 +9,6 @@ class Error {
      * @param {!Error.Type} type
      * @param {string} msg Human-readable error message.
      * @param {...*} var_args
-     * @package
      */
     constructor(type, msg, var_args) {
         /** @const */ this.type = type;

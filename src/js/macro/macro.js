@@ -3,11 +3,10 @@ goog.module('r5js.Macro');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Error = goog.require('r5js.Error');
-const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
+const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
-const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
 const ObjectValue = goog.require('r5js.runtime.ObjectValue');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const RenameUtil = goog.require('r5js.RenameUtil');
@@ -15,6 +14,7 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Transformer = goog.require('r5js.Transformer');
+const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */
 class Macro {

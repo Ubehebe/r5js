@@ -5,7 +5,7 @@ const ContinuableHelper = goog.require('r5js.ContinuableHelper');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
-const Nonterminals = goog.require('r5js.parse.Nonterminal').Nonterminals;
+const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Quote = goog.require('r5js.ast.Quote');
 const Terminals = goog.require('r5js.parse.Terminals');
@@ -67,7 +67,7 @@ class Quasiquote extends CompoundDatum {
                 /* Throw out the last result name and replace it with another
                  identifier (also illegal in Scheme) that will let us know if it's
                  unquotation or unquotation with splicing. */
-                const name = (node instanceof r5js.ast.Unquote
+                const name = (node instanceof Unquote
                         ? Terminals.COMMA
                         : Terminals.COMMA_AT) + '' + goog.getUid(new Object());
                 const last = ProcCallLike.getLast(asContinuable);

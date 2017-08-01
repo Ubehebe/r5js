@@ -1,22 +1,22 @@
 goog.module('r5js.parse.RuleFactory');
 
-const array = goog.require('goog.array');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const DesugarableRule = goog.require('r5js.parse.bnf.DesugarableRule');
-const DottedList = goog.require('r5js.ast.List').Dotted;
 const Grammar = goog.require('r5js.parse.Grammar');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const List = goog.require('r5js.ast.List');
+const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const Quasiquote = goog.require('r5js.ast.Quasiquote');
 const Quote = goog.require('r5js.ast.Quote');
 const Rule = goog.require('r5js.parse.bnf.Rule');
-const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const Terminals = goog.require('r5js.parse.Terminals');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
+const array = goog.require('goog.array');
+const DottedList = List.Dotted;
 
 class RuleFactory {
 
@@ -250,7 +250,7 @@ class MatchDatum {
     }
 }
 
-/** @implements {r5js.parse.bnf.Rule} */
+/** @implements {Rule} */
 class Choice {
     /** @param {!Array<!Rule>} rules */
     constructor(rules) {
@@ -275,7 +275,7 @@ class Seq {
     /** @param {!Array<!Rule>} rules */
     constructor(rules) {
         /** @const @private */ this.rules_ = Seq.rewriteImproperList_(rules);
-        /** @private {function(!r5js.ast.CompoundDatum, !r5js.IEnvironment)|null} */
+        /** @private {function(!CompoundDatum, !IEnvironment)|null} */
         this.desugarFunc_ = null;
     }
 
@@ -289,7 +289,7 @@ class Seq {
 
         for (let i = 0; i < this.rules_.length; ++i) {
             if (!this.rules_[i].match(datumStream)) {
-                datumStream.advanceTo(/** @type {!r5js.Datum} */ (root));
+                datumStream.advanceTo(/** @type {!Datum} */ (root));
                 return false;
             }
         }
@@ -320,7 +320,7 @@ class Seq {
         // example: (define (x . y) 1) => (define .( x . ) 1)
         /* No RHS in the grammar has more than one dot.
          This will break if such a rule is added. */
-        const indexOfDot = goog.array.findIndex(rules, function (rule) {
+        const indexOfDot = array.findIndex(rules, function (rule) {
             return rule instanceof OneTerminal
                 && rule.terminal_ === Terminals.DOT;
         });

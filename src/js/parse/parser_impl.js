@@ -1,25 +1,21 @@
 goog.module('r5js.ParserImpl');
 
+const Assignment = goog.require('r5js.Assignment');
 const Branch = goog.require('r5js.Branch');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const DatumStream = goog.require('r5js.DatumStream');
-const datumutil = goog.require('r5js.datumutil');
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
 const Error = goog.require('r5js.Error');
 const Grammar = goog.require('r5js.parse.Grammar');
-const Identifier = goog.require('r5js.ast.Identifier');
 const IEnvironment = goog.require('r5js.IEnvironment');
-const Subtransformer = goog.require('r5js.Subtransformer');
+const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
 const MacroDatum = goog.require('r5js.ast.Macro');
 const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
-const Assignment = goog.require('r5js.Assignment');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
-const Nonterminals = Nonterminal.Nonterminals;
-const Number = goog.require('r5js.ast.Number');
 const Parser = goog.require('r5js.Parser');
 const ProcCall = goog.require('r5js.ProcCall');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
@@ -30,6 +26,7 @@ const RuleFactory = goog.require('r5js.parse.RuleFactory');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const String = goog.require('r5js.ast.String');
+const Subtransformer = goog.require('r5js.Subtransformer');
 const Terminals = goog.require('r5js.parse.Terminals');
 const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
 const TopLevelSyntaxAssignment = goog.require('r5js.TopLevelSyntaxAssignment');
@@ -38,6 +35,8 @@ const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
+const datumutil = goog.require('r5js.datumutil');
+const Nonterminals = Nonterminal.Nonterminals;
 
 /* todo bl: this file should not exist.
 

@@ -1,7 +1,6 @@
 goog.module('r5js.sync.Evaluator');
 
 const Datum = goog.require('r5js.Datum');
-const error = goog.require('r5js.Error');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
 const Pipeline = goog.require('r5js.Pipeline');

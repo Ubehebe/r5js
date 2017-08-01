@@ -4,7 +4,6 @@ const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
 const EOF = goog.require('r5js.runtime.EOF');
 const InputPort = goog.require('r5js.InputPort');
-const DottedList = goog.require('r5js.ast.List').Dotted;
 const List = goog.require('r5js.ast.List');
 const OutputPort = goog.require('r5js.OutputPort');
 const Quote = goog.require('r5js.ast.Quote');
@@ -15,6 +14,7 @@ const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const Value = goog.require('r5js.runtime.Value');
 const Vector = goog.require('r5js.ast.Vector');
+const DottedList = List.Dotted;
 
 /*
  * Implementation note: a richer representation of Scheme values would

@@ -2,18 +2,18 @@ goog.module('r5js.ast.Quote');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const datumutil = goog.require('r5js.datumutil');
-const error = goog.require('r5js.Error');
-const Identifier = goog.require('r5js.ast.Identifier');
 const IPair = goog.require('r5js.IPair');
+const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Ref = goog.require('r5js.Ref');
 const Terminals = goog.require('r5js.parse.Terminals');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const Value = goog.require('r5js.runtime.Value');
+const datumutil = goog.require('r5js.datumutil');
+const error = goog.require('r5js.Error');
 
-/** @implements {r5js.IPair} */
+/** @implements {IPair} */
 class Quote extends CompoundDatum {
     /** @param {Datum} firstChild */
     constructor(firstChild) {

@@ -1,11 +1,11 @@
 goog.module('r5js.platform.node.repl');
 
 const CallbackBackedPort = goog.require('r5js.CallbackBackedPort');
-const curPlatform = goog.require('r5js.curPlatform');
 const InputPort = goog.require('r5js.InputPort');
 const Node = goog.require('r5js.platform.Node');
 const Repl = goog.require('r5js.Repl');
 const Terminal = goog.require('r5js.platform.node.Terminal');
+const curPlatform = goog.require('r5js.curPlatform');
 
 /** The main REPL method. */
 function repl() {

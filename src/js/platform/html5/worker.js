@@ -4,7 +4,6 @@
  */
 goog.module('r5js.platform.html5.Worker');
 
-const boot = goog.require('r5js.boot');
 const EventType = goog.require('goog.events.EventType');
 const InputPort = goog.require('r5js.InputPort');
 const Message = goog.require('r5js.platform.html5.Message');
@@ -12,6 +11,7 @@ const MessageType = goog.require('r5js.platform.html5.MessageType');
 const OutputPort = goog.require('r5js.platform.html5.OutputPort');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const SyncEvaluator = goog.require('r5js.sync.Evaluator');
+const boot = goog.require('r5js.boot');
 
 /** Main entry point for the HTML5 worker. */
 function worker() {

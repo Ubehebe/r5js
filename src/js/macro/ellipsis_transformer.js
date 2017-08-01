@@ -1,8 +1,8 @@
 goog.module('r5js.EllipsisTransformer');
 
 const Datum = goog.require('r5js.Datum');
-const Subtransformer = goog.require('r5js.Subtransformer');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const Subtransformer = goog.require('r5js.Subtransformer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 
 /** @implements {Subtransformer} */

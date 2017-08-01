@@ -1,10 +1,7 @@
 goog.module('r5js.Type');
 
 class Type {
-    /**
-     * @param {string} name
-     * @private No reason to instantiate outside of this file.
-     */
+    /** @param {string} name */
     constructor(name) {
         /** @const @private */ this.name_ = name;
     }

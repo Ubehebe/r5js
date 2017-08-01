@@ -2,14 +2,14 @@ goog.module('r5js.ListLikeTransformer');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const DottedList = goog.require('r5js.ast.List').Dotted;
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
-const Subtransformer = goog.require('r5js.Subtransformer');
 const List = goog.require('r5js.ast.List');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const Subtransformer = goog.require('r5js.Subtransformer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 const Vector = goog.require('r5js.ast.Vector');
+const DottedList = List.Dotted;
 
 /** @interface */
 class ListLikeTransformer extends Subtransformer {

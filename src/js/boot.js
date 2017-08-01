@@ -2,6 +2,7 @@ goog.module('r5js.boot');
 
 const Datum = goog.require('r5js.Datum');
 const Environment = goog.require('r5js.Environment');
+const Evaluator = goog.require('r5js.sync.Evaluator');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
@@ -11,7 +12,6 @@ const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
-const Evaluator = goog.require('r5js.sync.Evaluator');
 const trampoline = goog.require('r5js.trampoline');
 
 /**

@@ -1,7 +1,7 @@
 goog.module('r5js.platform.node.Terminal');
 
-const promise = goog.require('goog.Promise');
 const TerminalInterface =goog.require('r5js.Terminal');
+const promise = goog.require('goog.Promise');
 
 /** @implements {TerminalInterface} */
 class Terminal {

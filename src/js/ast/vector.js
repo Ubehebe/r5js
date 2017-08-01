@@ -1,7 +1,7 @@
 goog.module('r5js.ast.Vector');
 
-const Datum = goog.require('r5js.Datum');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const Datum = goog.require('r5js.Datum');
 
 /**
  * TODO bl: this class illustrates the interpreter's confusion of abstract
