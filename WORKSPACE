@@ -8,6 +8,7 @@ http_archive(
 http_archive(
     name = "closure_tdd",
     url = "https://github.com/Ubehebe/closure-tdd/archive/64dcc3.zip",
+    strip_prefix = "closure-tdd-64dcc323ad4ae0afe08cfebf4f6929b81cc936aa",
 )
 
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
