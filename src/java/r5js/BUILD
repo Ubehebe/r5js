@@ -9,3 +9,14 @@ java_library(
         "@junit//jar",
     ],
 )
+
+java_binary(
+    name = "SourceWriter",
+    main_class = "r5js.SourceWriter",
+    runtime_deps = [
+        ":r5js",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)
