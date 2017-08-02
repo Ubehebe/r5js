@@ -16,6 +16,9 @@ closure_js_library(
     name = "bbom",
     srcs = BIG_BALL_OF_MUD_SRCS,
     language = "ECMASCRIPT6_STRICT",
+    visibility = [
+        "//src:__subpackages__",
+    ],
     deps = [
         "@io_bazel_rules_closure//closure/library",
     ],
@@ -30,23 +33,20 @@ closure_js_library(
     testonly = 1,
     srcs = glob(
         ["**/*.js"],
-        exclude = BIG_BALL_OF_MUD_SRCS,
+        exclude = BIG_BALL_OF_MUD_SRCS + glob(["tdd/**/*.js"]),
     ),
     language = "ECMASCRIPT6_STRICT",
     deps = [
         ":bbom",
+        "//src/js/repl",
+#        "//src/js/platform/html5",
+#        "//src/js/test",
+#        "//src/js/test/matchers",
         "@io_bazel_rules_closure//closure/library",
         "@closure_tdd//:closure-tdd",
     ],
     visibility = [
         "//visibility:public",
-    ],
-    # TODO: gradually remove these
-    suppress = [
-        "CR_DUPLICATE_PROVIDES",
-        "JSC_MISSING_JSDOC",
-        "JSC_MUST_BE_PRIVATE",
-        "JSC_PRIMITIVE_OBJECT",
     ],
 )
 
