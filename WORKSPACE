@@ -11,6 +11,31 @@ http_archive(
     strip_prefix = "closure-tdd-64dcc323ad4ae0afe08cfebf4f6929b81cc936aa",
 )
 
+maven_jar(
+    name = "my_closure_compiler",
+    artifact = "com.google.javascript:closure-compiler:v20150315",
+)
+
+maven_jar(
+    name = "closure_compiler_externs",
+    artifact = "com.google.javascript:closure-compiler-externs:v20150315",
+)
+
+maven_jar(
+    name = "my_guava",
+    artifact = "com.google.guava:guava:18.0",
+)
+
+maven_jar(
+    name = "truth",
+    artifact = "com.google.truth:truth:0.23",
+)
+
+maven_jar(
+    name = "junit",
+    artifact = "junit:junit:4.11",
+)
+
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
 
 closure_repositories()
