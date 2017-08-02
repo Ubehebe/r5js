@@ -8,6 +8,9 @@ java_library(
         "@truth//jar",
         "@junit//jar",
     ],
+    visibility = [
+        "//:__subpackages__",
+    ],
 )
 
 java_binary(
