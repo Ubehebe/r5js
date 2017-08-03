@@ -1,14 +1,15 @@
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library")
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure_js_test")
 
 closure_js_library(
-    name = "test",
+    name = "lib",
     testonly = 1,
-    srcs = glob(["*.js"]),
+    srcs = glob(["*.js"], exclude = ["main_test.js"]),
     deps = [
         "@io_bazel_rules_closure//closure/library",
         "@io_bazel_rules_closure//closure/library:testing",
         "@closure_tdd//:closure-tdd",
         "//src/js:bbom",
+        "//src/js/platform/common",
         "//src/js/test/matchers",
         "//src/scm:TEST_FRAMEWORK",
         "//src/scm:TEST_FRAMEWORK_TESTS",
@@ -20,7 +21,19 @@ closure_js_library(
         "JSC_MISSING_JSDOC",
     ],
     language = "ECMASCRIPT6_STRICT",
-    visibility = [
-        "//src/js:__subpackages__",
+)
+
+closure_js_test(
+    name = "test",
+    language = "ECMASCRIPT6_STRICT",
+    srcs = [
+        "main_test.js",
+    ],
+    deps = [
+        ":lib",
+        "@io_bazel_rules_closure//closure/library:testing",
+    ],
+    entry_points = [
+        "goog:r5js.test.main_test",
     ],
 )
