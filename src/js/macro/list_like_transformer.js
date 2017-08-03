@@ -11,11 +11,11 @@ const TemplateBindings = goog.require('r5js.TemplateBindings');
 const Vector = goog.require('r5js.ast.Vector');
 const DottedList = List.Dotted;
 
-/** @interface */
-class ListLikeTransformer extends Subtransformer {
-    /** TODO bl: compiler complains without this constructor. */
-    constructor() {}
-
+/**
+ * @interface
+ * @extends {Subtransformer}
+ */
+class ListLikeTransformer {
     /**
      * @param {!Subtransformer} subtransformer
      * @return {!ListLikeTransformer} This object, for chaining.
