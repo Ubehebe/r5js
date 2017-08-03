@@ -13,30 +13,6 @@ import java.nio.file.Paths;
 
 public class CompilationTest {
 
-    @Test public void androidRepl() throws IOException {
-        writeOut(CompilationUnits.ANDROID_REPL.compile());
-    }
-
-    // TODO bl waste of time for now
-//    @Test public void androidTests() throws IOException{
-//        writeOut(CompilationUnits.ANDROID_TESTS.compile());
-//    }
-
-    @Test public void embedded() throws IOException {
-        writeOut(CompilationUnits.EMBEDDED_MAIN.compile());
-    }
-
-    @Test public void html5() throws IOException {
-        writeOut(CompilationUnits.HTML5_WORKER.compile());
-        writeOut(CompilationUnits.HTML5_DEV_CLIENT.compile());
-        writeOut(CompilationUnits.HTML5_PRODUCTION_CLIENT.compile());
-    }
-
-    // TODO bl waste of time for now
-//    @Test public void nashornTests() throws IOException {
-//        writeOut(CompilationUnits.NASHORN_TESTS.compile());
-//    }
-
     @Test public void nodeRepl() throws IOException {
         writeOut(CompilationUnits.NODE_REPL.compile());
     }
