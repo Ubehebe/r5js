@@ -19,8 +19,12 @@ closure_js_library(
     ],
     suppress = [
         "JSC_MISSING_JSDOC",
+        "CR_NOT_PROVIDED", # main.js requires r5js.curPlatform
     ],
     language = "ECMASCRIPT6_STRICT",
+    visibility = [
+        "//src/js:__subpackages__",
+    ]
 )
 
 closure_js_test(

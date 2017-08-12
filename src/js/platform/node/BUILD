@@ -26,3 +26,15 @@ closure_js_binary(
         "goog:r5js.platform.node.repl",
     ],
 )
+
+closure_js_binary(
+    name = "tests",
+    testonly = 1,
+    deps = [
+        ":node",
+        "//src/js/test:lib",
+    ],
+    entry_points = [
+        "goog:r5js.test.main",
+    ],
+)
