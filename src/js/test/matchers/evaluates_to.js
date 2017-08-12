@@ -1,4 +1,5 @@
 goog.module('evalTo');
+goog.module.declareLegacyNamespace();
 goog.setTestOnly('evalTo');
 
 const Matcher = goog.require('tdd.matchers.Matcher');

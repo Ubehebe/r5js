@@ -1,4 +1,5 @@
 goog.module('r5js.ast.Identifier');
+goog.module.declareLegacyNamespace();
 
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const RenameUtil = goog.require('r5js.RenameUtil');

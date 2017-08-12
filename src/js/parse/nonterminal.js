@@ -1,4 +1,5 @@
 goog.module('r5js.parse.Nonterminal');
+goog.module.declareLegacyNamespace();
 
 class Nonterminal {
     /** @param {string} name */

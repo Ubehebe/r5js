@@ -1,4 +1,5 @@
 goog.module('r5js.Error');
+goog.module.declareLegacyNamespace();
 
 const Token = goog.require('r5js.Token');
 const Type = goog.require('r5js.Type');

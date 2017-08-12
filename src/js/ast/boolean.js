@@ -1,4 +1,5 @@
 goog.module('r5js.ast.Boolean');
+goog.module.declareLegacyNamespace();
 
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 

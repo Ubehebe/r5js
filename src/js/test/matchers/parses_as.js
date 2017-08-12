@@ -1,4 +1,5 @@
 goog.module('parseAs');
+goog.module.declareLegacyNamespace();
 goog.setTestOnly('parseAs');
 
 const Datum = goog.require('r5js.Datum');

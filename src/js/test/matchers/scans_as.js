@@ -1,4 +1,5 @@
 goog.module('scanAs');
+goog.module.declareLegacyNamespace();
 goog.setTestOnly('scanAs');
 
 const Datum = goog.require('r5js.Datum');
