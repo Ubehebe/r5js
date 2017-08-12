@@ -7,7 +7,7 @@
 #    echo 'lint errors, aborting commit'
 #    exit $ret_code
 #fi
-eval 'bazel build //... && mvn -q clean install'
+eval 'bazel build //... && mvn -q clean test'
 ret_code=$?
 if [ $ret_code != 0 ]; then
     echo 'failure(s) in tests, aborting commit'
