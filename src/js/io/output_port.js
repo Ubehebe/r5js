@@ -1,4 +1,5 @@
 goog.module('r5js.OutputPort');
+goog.module.declareLegacyNamespace();
 
 /**
  * In Scheme, the main way of doing output is by passing a value to
