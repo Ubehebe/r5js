@@ -6,11 +6,13 @@ const Datum = goog.require('r5js.Datum');
 const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
+const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const Number = goog.require('r5js.ast.Number');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const Terminals = goog.require('r5js.parse.Terminals');
 const Value = goog.require('r5js.runtime.Value');
-const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
+
+const Nonterminals = Nonterminal.Nonterminals;
 
 /**
  * Munges definitions to get them in a form suitable for let-type bindings.

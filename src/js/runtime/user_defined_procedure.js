@@ -6,6 +6,7 @@ const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
+const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const ProcCall = goog.require('r5js.ProcCall');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Procedure = goog.require('r5js.Procedure');
@@ -14,7 +15,8 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const Terminals = goog.require('r5js.parse.Terminals');
 const Value = goog.require('r5js.runtime.Value');
 const datumutil = goog.require('r5js.datumutil');
-const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
+
+const Nonterminals = Nonterminal.Nonterminals;
 
 class UserDefinedProcedure extends Procedure {
     /**
