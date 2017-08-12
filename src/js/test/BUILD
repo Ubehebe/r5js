@@ -3,7 +3,7 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure
 closure_js_library(
     name = "lib",
     testonly = 1,
-    srcs = glob(["*.js"], exclude = ["main_test.js"]),
+    srcs = glob(["*.js"]),
     deps = [
         "@io_bazel_rules_closure//closure/library",
         "@io_bazel_rules_closure//closure/library:testing",
@@ -25,19 +25,4 @@ closure_js_library(
     visibility = [
         "//src/js:__subpackages__",
     ]
-)
-
-closure_js_test(
-    name = "test",
-    language = "ECMASCRIPT6_STRICT",
-    srcs = [
-        "main_test.js",
-    ],
-    deps = [
-        ":lib",
-        "@io_bazel_rules_closure//closure/library:testing",
-    ],
-    entry_points = [
-        "goog:r5js.test.main_test",
-    ],
 )

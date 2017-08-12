@@ -19,6 +19,7 @@ closure_js_library(
 
 closure_js_binary(
     name = "bin",
+#    pedantic = True,
     deps = [
         ":node",
     ],
