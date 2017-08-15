@@ -23,3 +23,17 @@ def scheme_source(name, src):
       ],
   )
 
+def node_test(name, src, entry_point):
+  binary_location = "$(location " + src + ")"
+  node_require = "require('./" + binary_location + "')"
+  node_cmd = '"' + node_require + '.' + entry_point + '(process.argv, process.env)" > $(@)'
+
+  native.genrule(
+      name = name,
+      testonly = 1,
+      srcs = [src],
+      cmd = "node -e " + node_cmd,
+      outs = [
+          "test_result.txt",
+      ],
+  )
