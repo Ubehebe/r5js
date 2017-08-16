@@ -1,25 +1,21 @@
-goog.provide('r5js.Branch');
+goog.module('r5js.Branch');
 
+const ProcCall = goog.require('r5js.ProcCall');
+const ProcCallLike = goog.require('r5js.ProcCallLike');
 
-goog.require('r5js.ProcCallLike');
-
-
-
-r5js.Branch = class extends r5js.ProcCallLike {
-/**
- * @param {string} testResultName
- * @param {!r5js.ProcCall} consequent
- * @param {!r5js.ProcCall} alternate
- */
+class Branch extends ProcCallLike {
+  /**
+   * @param {string} testResultName
+   * @param {!ProcCall} consequent
+   * @param {!ProcCall} alternate
+   */
   constructor(testResultName, consequent, alternate) {
     super();
     /** @const @private */ this.testResultName_ = testResultName;
     /** @const @private */ this.consequent_ = consequent;
     /** @const @private */ this.alternate_ = alternate;
-    /** @const @private */ this.consequentLastContinuable_ =
-        r5js.ProcCallLike.getLast(this.consequent_);
-    /** @const @private */ this.alternateLastContinuable_ =
-        r5js.ProcCallLike.getLast(this.alternate_);
+    /** @const @private */ this.consequentLastContinuable_ = ProcCallLike.getLast(this.consequent_);
+    /** @const @private */ this.alternateLastContinuable_ = ProcCallLike.getLast(this.alternate_);
   }
 
   /** @override */
@@ -48,7 +44,7 @@ r5js.Branch = class extends r5js.ProcCallLike {
     const testResult = env.get(this.testResultName_);
     if (testResult === false) {
       this.alternateLastContinuable_.setNext(
-          /** @type {!r5js.ProcCallLike} */ (this.getNext()));
+          /** @type {!ProcCallLike} */(this.getNext()));
       this.alternateLastContinuable_.setResultName(this.getResultName());
       resultStruct.setNext(this.alternate_);
       /* We must clear the environment off the non-taken branch.
@@ -59,7 +55,7 @@ r5js.Branch = class extends r5js.ProcCallLike {
       this.consequent_.clearEnv();
     } else {
       this.consequentLastContinuable_.setNext(
-          /** @type {!r5js.ProcCallLike} */ (this.getNext()));
+          /** @type {!ProcCallLike} */(this.getNext()));
       this.consequentLastContinuable_.setResultName(this.getResultName());
       resultStruct.setNext(this.consequent_);
       /* We must clear the environment off the non-taken branch.
@@ -67,4 +63,6 @@ r5js.Branch = class extends r5js.ProcCallLike {
       this.alternate_.clearEnv();
     }
   }
-};
+}
+
+exports = Branch;
