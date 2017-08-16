@@ -7,8 +7,8 @@ http_archive(
 
 http_archive(
     name = "closure_tdd",
-    url = "https://github.com/Ubehebe/closure-tdd/archive/5e020f.zip",
-    strip_prefix = "closure-tdd-5e020fdd9b1b6171b3978b1f70e09f9cc8806c5a",
+    url = "https://github.com/Ubehebe/closure-tdd/archive/167e42.zip",
+    strip_prefix = "closure-tdd-167e4235e6a098432b78a5f1842c83c6af905961",
 )
 
 maven_jar(
