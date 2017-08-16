@@ -88,7 +88,7 @@ class TemplateBindings {
         /** @const @private {!Object<string, boolean>} */
         this.templateRenameCandidates_ = templateRenameCandidates;
 
-        /** @const @private {!Object<*,*>} */
+        /** @const @private {!Object<string,*>} */
         this.renameInTemplate_ = {};
     }
 

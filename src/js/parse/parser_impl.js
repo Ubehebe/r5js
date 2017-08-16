@@ -477,7 +477,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
 
                 todo bl: make this flow of control explicit. */
       const variable = node.at(Nonterminals.VARIABLE);
-      const desugaredExpr = variable.getNextSibling().desugar(env, true);
+      const desugaredExpr = /** @type {!ProcCallLike} */ (variable.getNextSibling().desugar(env, true));
       const last = ProcCallLike.getLast(desugaredExpr);
       const cpsName = last.getResultName();
       last.setNext(

@@ -106,7 +106,7 @@ class Scanner {
     /** @override */
     nextToken() {
         while (this.nextTokenIndex_ >= this.readyTokens_.length) {
-            const token = this.readNextToken_();
+            const token = /** @type {!Datum} */ (this.readNextToken_());
             this.readyTokens_.push(token);
         }
         return this.readyTokens_[this.nextTokenIndex_++];

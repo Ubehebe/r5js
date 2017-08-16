@@ -63,6 +63,7 @@ class Base {
     /**
      * @return {string}
      * @suppress {checkTypes} TODO bl for getDatum()
+     * @override
      */
     getName() {
         return this.subtransformers_[0].getDatum().getPayload();
