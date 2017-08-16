@@ -26,7 +26,7 @@ def scheme_source(name, src):
 def node_test(name, src, entry_point):
   binary_location = "$(location " + src + ")"
   node_require = "require('./" + binary_location + "')"
-  node_cmd = '"' + node_require + '.' + entry_point + '(process.argv, process.env)" > $(@)'
+  node_cmd = '"' + node_require + '.' + entry_point + '(process.argv, process.env)" type=unit verbose > $(@)'
 
   native.genrule(
       name = name,
