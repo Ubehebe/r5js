@@ -92,9 +92,9 @@ class Between {
 /** @interface */
 class ArgumentTypeCheckerAndUnwrapper {
     /**
-     * @param {!array.ArrayLike} args
+     * @param {!IArrayLike} args
      * @param {string} nameToShowInErrorMessage
-     * @return {!array.ArrayLike}
+     * @return {!IArrayLike}
      */
     checkAndUnwrapArgs(args, nameToShowInErrorMessage) {}
 }
@@ -184,7 +184,7 @@ class PrimitiveProcedure extends Procedure {
     }
 
     /**
-     * @param {!array.ArrayLike} userArgs
+     * @param {!IArrayLike} userArgs
      * @param {!ProcCallLike} procCallLike
      * @param {!TrampolineHelper} trampolineHelper
      * @protected
