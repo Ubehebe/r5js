@@ -1,4 +1,4 @@
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library")
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
 closure_js_library(
     name = "node",
@@ -14,28 +14,5 @@ closure_js_library(
     ],
     visibility = [
         "//src/js:__subpackages__",
-    ],
-)
-
-closure_js_binary(
-    name = "bin",
-#    pedantic = True,
-    deps = [
-        ":node",
-    ],
-    entry_points = [
-        "goog:r5js.platform.node.repl",
-    ],
-)
-
-closure_js_binary(
-    name = "tests",
-    testonly = 1,
-    deps = [
-        ":node",
-        "//src/js/test:lib",
-    ],
-    entry_points = [
-        "goog:r5js.test.main",
     ],
 )

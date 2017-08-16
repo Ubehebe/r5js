@@ -1,4 +1,4 @@
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library")
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
 BIG_BALL_OF_MUD_SRCS = glob([
     "ast/*.js",
