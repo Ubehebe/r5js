@@ -24,16 +24,40 @@ def scheme_source(name, src):
   )
 
 def node_test(name, src, entry_point):
-  binary_location = "$(location " + src + ")"
-  node_require = "require('./" + binary_location + "')"
-  node_cmd = '"' + node_require + '.' + entry_point + '(process.argv, process.env)" type=unit verbose > $(@)'
 
   native.genrule(
-      name = name,
+      name = name + "_copy",
+      srcs = [
+          src,
+      ],
+      outs = [
+          name + "_copy.js"
+      ],
+      cmd = "cp $(<) $(@)",
+  )
+
+  node_require = "require('./" + PACKAGE_NAME + "/" + name + "_copy.js')"
+  node_cmd = '"' + node_require + '.' + entry_point + '(process.argv, process.env)" type=unit verbose'
+
+  native.genrule(
+      name = name + "_sh",
       testonly = 1,
       srcs = [src],
-      cmd = "node -e " + node_cmd,
+      cmd = "cat > $(@) << END\n"
+      + "!#/bin/sh\n"
+      + "node -e " + node_cmd + "\n"
+      + "END",
       outs = [
-          "test_result.txt",
+          name + ".sh",
+      ],
+  )
+
+  native.sh_test(
+      name = name,
+      srcs = [
+          name + ".sh",
+      ],
+      data = [
+          name + "_copy.js",
       ],
   )
