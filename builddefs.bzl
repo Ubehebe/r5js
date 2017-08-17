@@ -23,7 +23,7 @@ def scheme_source(name, src):
       ],
   )
 
-def node_test(name, src, entry_point):
+def node_test(name, src, entry_point, debug=False):
 
   native.genrule(
       name = name + "_copy",
@@ -45,7 +45,9 @@ def node_test(name, src, entry_point):
       srcs = [src],
       cmd = "cat > $(@) << END\n"
       + "#!/bin/sh\n"
-      + "node -e " + node_cmd + "\n"
+      + "node "
+      + ("--debug-brk --inspect " if debug else "")
+      + "-e " + node_cmd + "\n"
       + "END",
       outs = [
           name + ".sh",
@@ -54,6 +56,7 @@ def node_test(name, src, entry_point):
 
   native.sh_test(
       name = name,
+      timeout = "eternal" if debug else "short",
       srcs = [
           name + ".sh",
       ],

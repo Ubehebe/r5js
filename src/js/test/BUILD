@@ -43,6 +43,7 @@ closure_js_binary(
 
 node_test(
     name = "test",
+#    debug = True,
     src = ":bin.js",
     entry_point = "r5js.test.main",
 )
