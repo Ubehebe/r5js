@@ -44,7 +44,7 @@ def node_test(name, src, entry_point):
       testonly = 1,
       srcs = [src],
       cmd = "cat > $(@) << END\n"
-      + "!#/bin/sh\n"
+      + "#!/bin/sh\n"
       + "node -e " + node_cmd + "\n"
       + "END",
       outs = [
