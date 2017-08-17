@@ -187,8 +187,8 @@ r5js.test.JsInterop.prototype['testUnspecifiedReturnValues'] = function() {
 };
 
 r5js.test.JsInterop.prototype['testErrors'] = function() {
-  this.expect('(').to(Throw(r5js.Error.read(r5js.parse.Terminals.LPAREN)));
-  this.expect(')').to(Throw(r5js.Error.read(r5js.parse.Terminals.RPAREN)));
+  this.expect('(').to(Throw(new r5js.Error(r5js.Error.Type.READ, 'read error: ' + r5js.parse.Terminals.LPAREN)));
+  this.expect(')').to(Throw(new r5js.Error(r5js.Error.Type.READ, 'read error: ' + r5js.parse.Terminals.RPAREN)));
   this.expect('(eval)').to(Throw(r5js.Error.incorrectNumArgs('eval', 2, 0)));
   this.expect('(eval 1 2 3 4 5)').
       to(Throw(r5js.Error.incorrectNumArgs('eval', 2, 5)));

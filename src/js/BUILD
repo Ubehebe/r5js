@@ -13,6 +13,7 @@ BIG_BALL_OF_MUD_SRCS = glob([
     "error.js",
 ])
 
+# TODO: break deps cycles
 closure_js_library(
     name = "bbom",
     srcs = BIG_BALL_OF_MUD_SRCS,

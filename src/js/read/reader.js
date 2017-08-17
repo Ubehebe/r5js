@@ -114,7 +114,7 @@ class Impl {
         // All of the input tokens must be consumed for success.
         const nextToken = this.scanner_.nextToken();
         if (nextToken) {
-            throw Error.read(nextToken);
+            throw new Error(Error.Type.READ, "read error: " + nextToken);
         }
         return /** @type {!Datum} */ (ans);
     }

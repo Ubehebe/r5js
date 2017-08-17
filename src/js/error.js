@@ -1,7 +1,6 @@
 goog.module('r5js.Error');
 goog.module.declareLegacyNamespace();
 
-const Token = goog.require('r5js.Token');
 const Type = goog.require('r5js.Type');
 const Value = goog.require('r5js.runtime.Value');
 
@@ -138,14 +137,6 @@ class Error {
      */
     static parse(what) {
         return new Error(Error.Type.PARSE, 'parse error: ' + what);
-    }
-
-    /**
-     * @param {!Token} token
-     * @return {!Error}
-     */
-    static read(token) {
-        return new Error(Error.Type.READ, 'read error: ' + token);
     }
 
     /**
