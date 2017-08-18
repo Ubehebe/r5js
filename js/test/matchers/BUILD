@@ -5,12 +5,12 @@ closure_js_library(
     testonly = 1,
     language = "ECMASCRIPT6_STRICT",
     visibility = [
-        "//src/js:__subpackages__",
+        "//js:__subpackages__",
     ],
     srcs = glob(["*.js"]),
     deps = [
         "@closure_tdd//matchers",
-        "//src/js:bbom",
-        "//src/js:error",
+        "//js:bbom",
+        "//js:error",
     ],
 )

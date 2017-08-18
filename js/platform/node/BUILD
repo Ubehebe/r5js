@@ -1,16 +1,18 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
 closure_js_library(
-    name = "html5",
-    srcs = glob(["*.js"]),
+    name = "node",
     language = "ECMASCRIPT6_STRICT",
+    srcs = glob(["*.js"]),
     deps = [
+        "//:node_externs",
+        "//js/platform",
+        "//js/platform/common",
+        "//js/repl",
+        "//js:bbom",
         "@io_bazel_rules_closure//closure/library",
-        "//src/js:bbom",
-        "//src/js/platform",
-        "//src/js/repl",
     ],
     visibility = [
-        "//src/js:__subpackages__",
+        "//js:__subpackages__",
     ],
 )

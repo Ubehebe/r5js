@@ -19,7 +19,7 @@ closure_js_library(
     ],
     language = "ECMASCRIPT6_STRICT",
     visibility = [
-        "//src:__subpackages__",
+        "//js:__subpackages__",
     ],
 )
 
@@ -29,7 +29,7 @@ closure_js_library(
     srcs = BIG_BALL_OF_MUD_SRCS,
     language = "ECMASCRIPT6_STRICT",
     visibility = [
-        "//src:__subpackages__",
+        "//js:__subpackages__",
     ],
     deps = [
         "@io_bazel_rules_closure//closure/library",

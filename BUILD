@@ -9,7 +9,7 @@ closure_js_library(
         "externs/readline.js",
     ],
     visibility = [
-        "//src/js/platform/node:__pkg__",
+        "//js/platform/node:__pkg__",
     ],
     suppress = [
         "JSC_JSDOC_MISSING_TYPE_WARNING", # core.js

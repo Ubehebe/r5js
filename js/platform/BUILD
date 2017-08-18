@@ -5,11 +5,11 @@ closure_js_library(
     language = "ECMASCRIPT6_STRICT",
     srcs = glob(["*.js"]),
     deps = [
-        "//src/js:bbom",
-        "//src/scm:PROCEDURES",
-        "//src/scm:SYNTAX",
+        "//js:bbom",
+        "//scm:PROCEDURES",
+        "//scm:SYNTAX",
     ],
     visibility = [
-        "//src/js:__subpackages__",
+        "//js:__subpackages__",
     ],
 )

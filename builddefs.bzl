@@ -34,7 +34,7 @@ def scheme_source(name, src):
           ":" + name + "_src",
       ],
       visibility = [
-          "//src:__subpackages__",
+          "//:__subpackages__",
       ],
   )
 
