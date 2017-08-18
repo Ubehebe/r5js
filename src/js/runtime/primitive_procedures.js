@@ -29,6 +29,7 @@ const Types = Type.Types;
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const Vector = goog.require('r5js.ast.Vector');
 const _ = goog.require('r5js.procspec');
+const argumentTypeError = goog.require('r5js.runtime.argumentTypeError');
 const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
 
@@ -305,7 +306,7 @@ PrimitiveProcedures['cons'] = _.binary((car, cdr) => {
 
 PrimitiveProcedures['set-car!'] = _.binary((p, car) => {
   if (!(p instanceof List || p.isImproperList())) {
-    throw Error.argumentTypeError(
+    throw argumentTypeError(
         p, 0, 'set-car!', Types.PAIR, _.runtimeType(p));
   }
   if (p.isImmutable()) {
@@ -325,7 +326,7 @@ PrimitiveProcedures['set-car!'] = _.binary((p, car) => {
 
 PrimitiveProcedures['set-cdr!'] = _.binary((p, cdr) => {
   if (!(p instanceof List || p.isImproperList())) {
-    throw Error.argumentTypeError(
+    throw argumentTypeError(
         p, 0, 'set-cdr!', Types.PAIR,
         _.runtimeType(p));
   }
@@ -356,7 +357,7 @@ PrimitiveProcedures['set-cdr!'] = _.binary((p, cdr) => {
 
 PrimitiveProcedures['make-vector'] = _.varargsRange((numberNode, fillNode) => {
       if (!(numberNode instanceof Number)) {
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             numberNode, 0, 'make-vector', Types.NUMBER,
             _.runtimeType(numberNode));
       }
@@ -378,12 +379,12 @@ PrimitiveProcedures['vector-ref'] = _.binary((v, k) =>v.vectorRef(k), Types.VECT
 
 PrimitiveProcedures['vector-set!'] = _.ternary((v, k, fill) => {
   if (!(v instanceof Vector)) {
-    throw Error.argumentTypeError(
+    throw argumentTypeError(
         v, 0, 'vector-set!', Types.VECTOR,
         _.runtimeType(v));
   }
   if (!(k instanceof Number)) {
-    throw Error.argumentTypeError(
+    throw argumentTypeError(
         k, 1, 'vector-set!', Types.NUMBER,
         _.runtimeType(k));
   }
@@ -471,10 +472,10 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
       if (!(expr instanceof Datum))
         // TODO bl how could this not be a datum? The type signature of binaryWithCurrentPorts
         // is not helpful. Also, Types.SYMBOL is not right.
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             expr, 0, 'eval', Types.SYMBOL, _.runtimeType(expr));
       if (!IEnvironment.isImplementedBy(envSpec)) {
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             envSpec, 1, 'eval', Types.ENVIRONMENT_SPECIFIER,
             _.runtimeType(envSpec));
       }
@@ -535,7 +536,7 @@ PrimitiveProcedures['char-ready?'] = _.nullaryOrUnaryWithCurrentPorts(
     (inputPort, outputPort, maybeUserSuppliedInputPort) => {
         const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
         if (!InputPort.isImplementedBy(inputPortToUse)) {
-            throw Error.argumentTypeError(
+            throw argumentTypeError(
                 inputPortToUse, 0, 'char-ready?', Types.INPUT_PORT,
                 _.runtimeType(inputPortToUse));
         }
@@ -566,7 +567,7 @@ PrimitiveProcedures['display'] = _.unaryOrBinaryWithCurrentPorts(
     (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!OutputPort.isImplementedBy(outputPortToUse)) {
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             outputPortToUse, 1, 'display', Types.OUTPUT_PORT,
             _.runtimeType(outputPortToUse));
       }
@@ -587,7 +588,7 @@ PrimitiveProcedures['peek-char'] = _.nullaryOrUnaryWithCurrentPorts(
     (inputPort, outputPort, maybeUserSuppliedInputPort) => {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!InputPort.isImplementedBy(inputPortToUse)) {
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             inputPortToUse, 0, 'peek-char', Types.INPUT_PORT,
             _.runtimeType(inputPortToUse));
       }
@@ -598,7 +599,7 @@ PrimitiveProcedures['read'] = _.nullaryOrUnaryWithCurrentPorts(
     (inputPort, outputPort, maybeUserSuppliedInputPort) => {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!InputPort.isImplementedBy(inputPortToUse)) {
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             inputPortToUse, 0, 'read', Types.INPUT_PORT,
             _.runtimeType(inputPortToUse));
       }
@@ -609,7 +610,7 @@ PrimitiveProcedures['read-char'] = _.nullaryOrUnaryWithCurrentPorts(
     (inputPort, outputPort, maybeUserSuppliedInputPort) => {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!InputPort.isImplementedBy(inputPortToUse)) {
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             inputPortToUse, 0, 'read-char', Types.INPUT_PORT,
             _.runtimeType(inputPortToUse));
       }
@@ -620,7 +621,7 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
     (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!OutputPort.isImplementedBy(outputPortToUse)) {
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             outputPortToUse, 1, 'write', Types.OUTPUT_PORT,
             _.runtimeType(outputPortToUse));
       }
@@ -631,13 +632,13 @@ PrimitiveProcedures['write'] = _.unaryOrBinaryWithCurrentPorts(
 PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
     (inputPort, outputPort, charNode, maybeUserSuppliedOutputPort) => {
       if (!(charNode instanceof Character)) {
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             charNode, 0, 'write-char', Types.CHARACTER,
             _.runtimeType(charNode));
       }
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!OutputPort.isImplementedBy(outputPortToUse)) {
-        throw Error.argumentTypeError(
+        throw argumentTypeError(
             outputPortToUse, 1, 'write-char', Types.OUTPUT_PORT,
             _.runtimeType(outputPortToUse));
       }
@@ -657,7 +658,7 @@ PrimitiveProcedures['write-char'] = _.unaryOrBinaryWithCurrentPorts(
 PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   const mustBeProc = arguments[0];
   if (!(mustBeProc instanceof Lambda)) {
-    throw Error.argumentTypeError(
+    throw argumentTypeError(
         mustBeProc, 0, 'apply', Types.PROCEDURE,
         _.runtimeType(mustBeProc));
   }
@@ -670,7 +671,7 @@ PrimitiveProcedures['apply'] = _.atLeastNWithSpecialEvalLogic(2, function() {
   const lastRealArgIndex = arguments.length - 3;
   const mustBeList = arguments[lastRealArgIndex];
   if (!(mustBeList instanceof List)) {
-    throw Error.argumentTypeError(
+    throw argumentTypeError(
         mustBeList, lastRealArgIndex, 'apply', Types.PAIR,
         _.runtimeType(mustBeList));
   }

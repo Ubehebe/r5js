@@ -19,6 +19,7 @@ const String = goog.require('r5js.ast.String');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Type = goog.require('r5js.Type');
 const Vector = goog.require('r5js.ast.Vector');
+const argumentTypeError = goog.require('r5js.runtime.argumentTypeError');
 const array = goog.require('goog.array');
 const datumutil = goog.require('r5js.datumutil');
 
@@ -116,7 +117,7 @@ class ArgumentTypeCheckerAndUnwrapperImpl {
             const expectedType = this.argtypes_[i];
             if (!Predicates[expectedType.getName() + '?'].fn_.call(null, arg)) {
                 const actualType = runtimeType(arg);
-                throw Error.argumentTypeError(arg, i, nameToShowInErrorMessage, expectedType, actualType);
+                throw argumentTypeError(arg, i, nameToShowInErrorMessage, expectedType, actualType);
             }
             unwrappedArgs.push(arg instanceof Datum ? arg.unwrap() : arg);
         }
@@ -146,7 +147,7 @@ class AllArgsOfType {
         const argtype = this.type_;
         return array.map(args, (arg, i) => {
             if (!(/** @type {!PrimitiveProcedure} */ (Predicates[argtype.getName() + '?'])).fn_.call(null, arg)) {
-                throw Error.argumentTypeError(
+                throw argumentTypeError(
                     arg, i, nameToShowInErrorMessage, argtype, runtimeType(arg));
             }
             return arg instanceof Datum ? arg.unwrap() : arg;

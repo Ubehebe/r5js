@@ -24,6 +24,7 @@ goog.require('output');
 goog.require('r5js.Error');
 goog.require('r5js.Type');
 goog.require('r5js.parse.Terminals');
+goog.require('r5js.runtime.argumentTypeError');
 goog.require('r5js.test.SyncPromiseTestSuite');
 goog.require('r5js.test.matchers.setOutputPort');
 
@@ -210,7 +211,7 @@ r5js.test.JsInterop.prototype['testErrors'] = function() {
   this.expect('(let ((foo (lambda (x . y) x))) (foo))').
       to(Throw(r5js.Error.tooFewVarargs('', 1, 0)));
   this.expect('(+ "a" "b")').
-      to(Throw(r5js.Error.argumentTypeError(
+      to(Throw(r5js.runtime.argumentTypeError(
           'a', 0, '+', r5js.Type.Types.NUMBER, r5js.Type.Types.STRING)));
   this.expect('(scheme-report-environment 6)').
       to(Throw(r5js.Error.unimplementedOption('')));
