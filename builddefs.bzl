@@ -3,14 +3,29 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 def scheme_source(name, src):
   base_name = src[:-4]
   js_name = base_name + ".js"
+
   native.genrule(
       name = name + "_src",
       srcs = [src],
       outs = [js_name],
-      tools = [
-          "//src/java/r5js:SourceWriter",
-      ],
-      cmd = "$(location //src/java/r5js:SourceWriter) $< " + name + " > $@",
+      cmd = "cat > $(@) << END\n"
+      + "goog.provide('" + name + "');\n"
+      + "/** @const */var " + name + " = \n"
+      + "END\n"
+      + "cat $(<)"
+      # backslash-escape backslash
+      + " | sed -e 's/\\\\/\\\\\\\\/g'"
+      # backslash-escape double quotes
+      + " | sed -e 's/\"/\\\\\"/g'"
+      # newline => \n (two characters)
+      + " | sed -e 's/$$/END_OF_LINE/g'"
+      + " | tr '\\n' ' '"
+      # leading quote
+      + " | sed -e 's/^/\"/'"
+      # trailing quote and semicolon
+      + " | sed -e 's/$$/\";/'"
+      + " | sed -e 's/END_OF_LINE/\\\\n/g'"
+      + " >> $(@)",
   )
 
   closure_js_library(
