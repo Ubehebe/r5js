@@ -1,8 +1,6 @@
 goog.module('r5js.Error');
 goog.module.declareLegacyNamespace();
 
-const Type = goog.require('r5js.Type');
-
 class Error {
     /**
      * @param {!Error.Type} type
@@ -120,15 +118,6 @@ class Error {
      */
     static parse(what) {
         return new Error(Error.Type.PARSE, 'parse error: ' + what);
-    }
-
-    /**
-     * @param {string} name Error message.
-     * @param {!Type=} opt_actualType
-     * @return {!Error}
-     */
-    static notAProcedure(name, opt_actualType) {
-        return new Error(Error.Type.NOT_A_PROCEDURE, name, opt_actualType);
     }
 
     /**

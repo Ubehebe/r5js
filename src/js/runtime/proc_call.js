@@ -21,6 +21,7 @@ const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const Value = goog.require('r5js.runtime.Value');
 const Vector = goog.require('r5js.ast.Vector');
+const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 class ProcCall extends ProcCallLike {
     /**
@@ -156,7 +157,7 @@ class ProcCall extends ProcCallLike {
             const fakeArg = this.evalArgs()[0]; // TODO bl
             proc.evaluate(fakeArg, this, resultStruct);
         } else if (proc instanceof Datum) {
-            throw Error.notAProcedure(this.operatorName_.getPayload());
+            throw notAProcedure(this.operatorName_.getPayload());
         } else {
             throw Error.internalInterpreterError("ProcCall: don't know what to do with " + proc);
         }

@@ -12,6 +12,7 @@ const RenameUtil = goog.require('r5js.RenameUtil');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const Value = goog.require('r5js.runtime.Value');
+const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 /** @implements {IEnvironment} */
 class Environment {
@@ -112,7 +113,7 @@ class Environment {
                 || binding instanceof Procedure) {
                 return binding;
             } else if (binding instanceof Datum) {
-                throw Error.notAProcedure(name);
+                throw notAProcedure(name);
             } else {
                 throw Error.internalInterpreterError(
                     "getProcedure: don't know what to do with binding " + name);

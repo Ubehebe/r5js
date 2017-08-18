@@ -1,4 +1,4 @@
-goog.module('r5js.runtime.argumentTypeError');
+goog.module('r5js.runtime.errors');
 goog.module.declareLegacyNamespace();
 
 const Error = goog.require('r5js.Error');
@@ -14,9 +14,20 @@ const Value = goog.require('r5js.runtime.Value');
  * @param {!Type} actualType The actual type of the argument.
  * @return {!Error}
  */
-exports = function (arg, argIndex, procName, expectedType, actualType) {
+function argumentTypeError(arg, argIndex, procName, expectedType, actualType) {
   return new Error(
     Error.Type.ARGUMENT_TYPE_ERROR,
     procName + ': argument ' + argIndex + ': want ' +
     expectedType + ', got ' + actualType);
-};
+}
+
+/**
+ * @param {string} name Error message.
+ * @param {!Type=} opt_actualType
+ * @return {!Error}
+ */
+function notAProcedure(name, opt_actualType) {
+  return new Error(Error.Type.NOT_A_PROCEDURE, name, opt_actualType);
+}
+
+exports = { argumentTypeError, notAProcedure };

@@ -19,9 +19,9 @@ const String = goog.require('r5js.ast.String');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Type = goog.require('r5js.Type');
 const Vector = goog.require('r5js.ast.Vector');
-const argumentTypeError = goog.require('r5js.runtime.argumentTypeError');
 const array = goog.require('goog.array');
 const datumutil = goog.require('r5js.datumutil');
+const {argumentTypeError} = goog.require('r5js.runtime.errors');
 
 /** @interface */
 class NumArgChecker {

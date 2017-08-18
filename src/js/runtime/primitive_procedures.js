@@ -29,9 +29,9 @@ const Types = Type.Types;
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const Vector = goog.require('r5js.ast.Vector');
 const _ = goog.require('r5js.procspec');
-const argumentTypeError = goog.require('r5js.runtime.argumentTypeError');
 const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
+const {argumentTypeError} = goog.require('r5js.runtime.errors');
 
 /** @type {IEnvironment} */ let nullEnv_ = null;
 /** @type {IEnvironment} */ let r5RSEnv_ = null;
