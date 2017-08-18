@@ -11,10 +11,6 @@ http_archive(
     strip_prefix = "closure-tdd-167e4235e6a098432b78a5f1842c83c6af905961",
 )
 
-maven_jar(
-    name = "my_guava",
-    artifact = "com.google.guava:guava:18.0",
-)
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
 
 closure_repositories()
