@@ -10,6 +10,7 @@ closure_js_library(
         "@io_bazel_rules_closure//closure/library:testing",
         "@closure_tdd//:closure-tdd",
         "//src/js:bbom",
+        "//src/js:error",
         "//src/js/platform/common",
         "//src/js/platform/node",
         "//src/js/test/matchers",

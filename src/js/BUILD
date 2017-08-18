@@ -10,8 +10,18 @@ BIG_BALL_OF_MUD_SRCS = glob([
     "runtime/*.js",
     "scan/*.js",
     "boot.js",
-    "error.js",
 ])
+
+closure_js_library(
+    name = "error",
+    srcs = [
+        "error.js",
+    ],
+    language = "ECMASCRIPT6_STRICT",
+    visibility = [
+        "//src:__subpackages__",
+    ],
+)
 
 # TODO: break deps cycles
 closure_js_library(
@@ -23,6 +33,7 @@ closure_js_library(
     ],
     deps = [
         "@io_bazel_rules_closure//closure/library",
+        ":error",
     ],
     suppress = [
         "JSC_MUST_BE_PRIVATE",

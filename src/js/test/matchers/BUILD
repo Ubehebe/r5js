@@ -11,5 +11,6 @@ closure_js_library(
     deps = [
         "@closure_tdd//matchers",
         "//src/js:bbom",
+        "//src/js:error",
     ],
 )

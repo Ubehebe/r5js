@@ -7,6 +7,7 @@ closure_js_library(
     deps = [
         "@io_bazel_rules_closure//closure/library",
         "//src/js:bbom",
+        "//src/js:error",
     ],
     visibility = [
         "//src/js:__subpackages__",
