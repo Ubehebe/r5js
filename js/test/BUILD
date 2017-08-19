@@ -7,6 +7,7 @@ closure_js_library(
     srcs = glob(
         ["*.js"],
         exclude = [
+            "js_interop_test.js",
             "parser_test.js",
             "scanner_test.js",
         ]),
@@ -25,9 +26,6 @@ closure_js_library(
         "//scm:NEGATIVE_TESTS",
         "//scm:OTHER_TESTS",
     ],
-    suppress = [
-        "JSC_MISSING_JSDOC",
-    ],
     language = "ECMASCRIPT6_STRICT",
     visibility = [
         "//js:__subpackages__",
@@ -44,6 +42,25 @@ closure_js_binary(
     compilation_level = "simple",
     entry_points = [
         "goog:r5js.test.main",
+    ],
+)
+
+closure_js_test(
+    name = "js_interop_test",
+    language = "ECMASCRIPT6_STRICT",
+    srcs = [
+        "js_interop_test.js",
+    ],
+    entry_points = [
+        "goog:r5js.test.JsInterop",
+    ],
+    deps = [
+        "@closure_tdd//:closure-tdd",
+        "@io_bazel_rules_closure//closure/library:testing",
+        "//js:bbom",
+        "//js:error",
+        "//js/platform",
+        "//js/test/matchers",
     ],
 )
 

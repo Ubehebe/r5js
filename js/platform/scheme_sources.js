@@ -1,4 +1,5 @@
 goog.module('r5js.SchemeSources');
+goog.module.declareLegacyNamespace();
 
 const procedures = goog.require('PROCEDURES');
 const syntax = goog.require('SYNTAX');

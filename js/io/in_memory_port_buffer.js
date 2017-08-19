@@ -1,4 +1,5 @@
 goog.module('r5js.InMemoryPortBuffer');
+goog.module.declareLegacyNamespace();
 
 class InMemoryPortBuffer {
     constructor() {

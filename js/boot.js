@@ -1,4 +1,5 @@
 goog.module('r5js.boot');
+goog.module.declareLegacyNamespace();
 
 const Datum = goog.require('r5js.Datum');
 const Environment = goog.require('r5js.Environment');
