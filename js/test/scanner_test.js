@@ -1,66 +1,52 @@
-goog.provide('r5js.test.Scanner');
+goog.module('r5js.test.Scanner');
 
-goog.require('expect');
+const Boolean = goog.require('r5js.ast.Boolean');
+const Character = goog.require('r5js.ast.Character');
+const Identifier = goog.require('r5js.ast.Identifier');
+const Number = goog.require('r5js.ast.Number');
+const String = goog.require('r5js.ast.String');
+const expect = goog.require('expect');
+const scanAs = goog.require('scanAs');
+const testSuite = goog.require('goog.testing.testSuite');
 goog.require('goog.testing.jsunit');
-goog.require('r5js.ast.Boolean');
-goog.require('r5js.ast.Character');
-goog.require('r5js.ast.Identifier');
-goog.require('r5js.ast.Number');
-goog.require('r5js.ast.String');
-goog.require('scanAs');
 
-function testBooleans() {
-  ['#t', '#f', '#T', '#F'].forEach(function(text) {
-    expect(text).to(scanAs(r5js.ast.Boolean));
-  });
-  ['##f', '#', '#'].forEach(function(text) {
-    expect(text).not().to(scanAs(r5js.ast.Boolean));
-  });
-}
+testSuite({
 
-function testCharacters() {
-  ['#\\c', '#\\space', '#\\newline', '#\\\\'].forEach(function(text) {
-    expect(text).to(scanAs(r5js.ast.Character));
-  });
-}
+  testBooleans() {
+    ['#t', '#f', '#T', '#F'].forEach(text => expect(text).to(scanAs(Boolean)));
+    ['##f', '#', '#'].forEach(text => expect(text).not().to(scanAs(Boolean)));
+  },
 
-function testIdentifiers() {
-  ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>',
-   '?', '~', '_', '^', '&+', 'h+...@@@-.'].forEach(function(text) {
-    expect(text).to(scanAs(r5js.ast.Identifier));
-  });
-  ['|', '[', ']', '{', '}'].forEach(function(text) {
-    expect(text).not().to(scanAs(r5js.ast.Identifier));
-  });
-}
+  testCharacters() {
+    ['#\\c', '#\\space', '#\\newline', '#\\\\'].forEach(text => expect(text).to(scanAs(Character)));
+  },
 
-function testNumbers() {
-  r5js.test.Scanner.getValidNumberTokens_().forEach(function(text) {
-    expect(text).to(scanAs(r5js.ast.Number));
-  });
-  ['1+2'].forEach(function(text) {
-    expect(text).not().to(scanAs(r5js.ast.Number));
-  });
-}
+  testIdentifiers() {
+    ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>',
+      '?', '~', '_', '^', '&+', 'h+...@@@-.'].forEach(text => expect(text).to(scanAs(Identifier)));
+    ['|', '[', ']', '{', '}'].forEach(text => expect(text).not().to(scanAs(Identifier)));
+  },
 
-function testStrings() {
-  ['""', '"hello, world"', '" \\" "', '"\\\\"'].forEach(function(text) {
-    expect(text).to(scanAs(r5js.ast.String));
-  });
-  ['"', '\\'].forEach(function(text) {
-    expect(text).not().to(scanAs(r5js.ast.String));
-  });
-}
+  testNumbers() {
+    getValidNumberTokens_().forEach(text => expect(text).to(scanAs(Number)));
+    ['1+2'].forEach(text => expect(text).not().to(scanAs(Number)));
+  },
+
+  testStrings() {
+    ['""', '"hello, world"', '" \\" "', '"\\\\"'].forEach(text => expect(text).to(scanAs(String)));
+    ['"', '\\'].forEach(text => expect(text).not().to(scanAs(String)));
+  }
+});
 
 /**
  * @return {!Array<string>}
  * @private
  */
-r5js.test.Scanner.getValidNumberTokens_ = function() {
+function getValidNumberTokens_() {
   /* TODO bl: adding in these prefixes creates a huge number of test cases
      (more than 30,000) with about half of them failing.
     let prefixes = r5js.test.Scanner.getValidNumberPrefixes_(); */
-  const suffixes = r5js.test.Scanner.getValidNumberSuffixes_();
+  const suffixes = getValidNumberSuffixes_();
   const validDecimals = ['8762', '-3', '4987566###', '.765', '.549867#', '0.',
     '37.###', '565.54', '3765.4499##', '4##.', '56#.', '587##.#'];
   const validNumberTokens = [];
@@ -70,14 +56,13 @@ r5js.test.Scanner.getValidNumberTokens_ = function() {
     }
   }
   return validNumberTokens;
-};
-
+}
 
 /**
  * @return {!Array<string>}
  * @private
  */
-r5js.test.Scanner.getValidNumberPrefixes_ = function() {
+function getValidNumberPrefixes_() {
   const bases = ['', '#b', '#B', '#o', '#O', '#d', '#D', '#x', '#X'];
   const exactnesses = ['', '#e', '#E', '#i', '#I'];
   const prefixes = [];
@@ -89,14 +74,13 @@ r5js.test.Scanner.getValidNumberPrefixes_ = function() {
     }
   }
   return prefixes;
-};
-
+}
 
 /**
  * @return {!Array<string>}
  * @private
  */
-r5js.test.Scanner.getValidNumberSuffixes_ = function() {
+function getValidNumberSuffixes_() {
   const exponentMarkers = ['e', 's', 'f', 'd', 'l', 'E', 'S', 'F', 'D', 'L'];
   const signs = ['', '+', '-'];
   const suffixes = [''];
@@ -107,4 +91,4 @@ r5js.test.Scanner.getValidNumberSuffixes_ = function() {
     }
   }
   return suffixes;
-};
+}
