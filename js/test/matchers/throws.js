@@ -1,5 +1,5 @@
 goog.module('Throw');
-goog.module.declareLegacyNamespace();
+
 goog.setTestOnly('Throw');
 
 const Error = goog.require('r5js.Error');

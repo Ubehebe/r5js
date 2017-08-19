@@ -1,5 +1,5 @@
 goog.module('r5js.InMemoryInputPort');
-goog.module.declareLegacyNamespace();
+
 
 const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');

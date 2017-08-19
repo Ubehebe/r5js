@@ -1,5 +1,5 @@
 goog.module('r5js.Error');
-goog.module.declareLegacyNamespace();
+
 
 class Error {
     /**

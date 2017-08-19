@@ -1,5 +1,5 @@
 goog.module('r5js.runtime.errors');
-goog.module.declareLegacyNamespace();
+
 
 const Error = goog.require('r5js.Error');
 const Type = goog.require('r5js.Type');

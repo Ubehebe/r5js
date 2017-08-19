@@ -1,5 +1,5 @@
 goog.module('r5js.Type');
-goog.module.declareLegacyNamespace();
+
 
 class Type {
     /** @param {string} name */
