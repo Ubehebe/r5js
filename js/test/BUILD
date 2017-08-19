@@ -4,7 +4,12 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_
 closure_js_library(
     name = "lib",
     testonly = 1,
-    srcs = glob(["*.js"], exclude = ["scanner_test.js"]),
+    srcs = glob(
+        ["*.js"],
+        exclude = [
+            "parser_test.js",
+            "scanner_test.js",
+        ]),
     deps = [
         "@io_bazel_rules_closure//closure/library",
         "@io_bazel_rules_closure//closure/library:testing",
@@ -39,6 +44,24 @@ closure_js_binary(
     compilation_level = "simple",
     entry_points = [
         "goog:r5js.test.main",
+    ],
+)
+
+closure_js_test(
+    name = "parser_test",
+    language = "ECMASCRIPT6_STRICT",
+    srcs = [
+        "parser_test.js",
+    ],
+    entry_points = [
+        "goog:r5js.test.Parser",
+    ],
+    deps = [
+        "@closure_tdd//:closure-tdd",
+        "@io_bazel_rules_closure//closure/library:testing",
+        "//js:bbom",
+        "//js:error",
+        "//js/test/matchers",
     ],
 )
 

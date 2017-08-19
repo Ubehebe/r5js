@@ -9,7 +9,6 @@ const InputPort = goog.require('r5js.InputPort');
 const JsInteropTest = goog.require('r5js.test.JsInterop');
 const OutputPort = goog.require('r5js.OutputPort');
 const OutputSavingPort = goog.require('r5js.OutputSavingPort');
-const ParserTest = goog.require('r5js.test.Parser');
 const Runner = goog.require('tdd.Runner');
 const RunnerConfig = goog.require('tdd.RunnerConfig');
 const SchemeTestDriver = goog.require('r5js.test.SchemeTestDriver');
@@ -70,7 +69,6 @@ function getEvaluator(opt_inputPort, opt_outputPort) {
  */
 function getTestSuites(evaluator, outputPort) {
   return [
-    new ParserTest(),
     new JsInteropTest(evaluator, outputPort),
     new SchemeTestDriver()
   ];

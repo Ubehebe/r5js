@@ -1,51 +1,12 @@
-/* Copyright 2011-2014 Brendan Linn
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 goog.provide('r5js.test.Parser');
 goog.setTestOnly('r5js.test.Parser');
 
-
 goog.require('expect');
+goog.require('goog.testing.jsunit');
 goog.require('parseAs');
 goog.require('r5js.parse.Nonterminal');
-goog.require('tdd.TestSuite');
-goog.require('tdd.TestType');
 
-
-
-/**
- * @implements {tdd.TestSuite}
- * @struct
- * @constructor
- */
-r5js.test.Parser = function() {};
-
-
-/** @override */
-r5js.test.Parser.prototype.getType = function() {
-  return tdd.TestType.UNIT;
-};
-
-
-/** @override */
-r5js.test.Parser.prototype.toString = function() {
-  return 'r5js.test.Parser';
-};
-
-
-r5js.test.Parser.prototype['testVariable'] = function() {
+function testVariable() {
   [
    '...',
    '+',
@@ -60,10 +21,9 @@ r5js.test.Parser.prototype['testVariable'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.VARIABLE));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testQuotation'] = function() {
+function testQuotation() {
   [
    "'1",
    "''1",
@@ -79,10 +39,9 @@ r5js.test.Parser.prototype['testQuotation'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.QUOTATION));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testSelfEvaluating'] = function() {
+function testSelfEvaluating() {
   [
    '#t',
    '1',
@@ -100,10 +59,9 @@ r5js.test.Parser.prototype['testSelfEvaluating'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.SELF_EVALUATING));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testProcedureCall'] = function() {
+function testProcedureCall() {
   [
    '(+)',
    '(define x)',
@@ -123,10 +81,9 @@ r5js.test.Parser.prototype['testProcedureCall'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.PROCEDURE_CALL));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testLambdaExpression'] = function() {
+function testLambdaExpression() {
   [
    '(lambda () 1)',
    '(lambda x 1)',
@@ -147,9 +104,9 @@ r5js.test.Parser.prototype['testLambdaExpression'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.LAMBDA_EXPRESSION));
   });
-};
+}
 
-r5js.test.Parser.prototype['testFormals'] = function() {
+function testFormals() {
   [
    '(x y z)',
    'x',
@@ -164,10 +121,9 @@ r5js.test.Parser.prototype['testFormals'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.FORMALS));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testDefinition'] = function() {
+function testDefinition() {
   [
    '(define x x)',
    '(define (foo x y) (foo x y))',
@@ -188,9 +144,9 @@ r5js.test.Parser.prototype['testDefinition'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.DEFINITION));
   });
-};
+}
 
-r5js.test.Parser.prototype['testConditional'] = function() {
+function testConditional() {
   [
    '(if x y z)',
    '(if x y)',
@@ -205,10 +161,9 @@ r5js.test.Parser.prototype['testConditional'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.CONDITIONAL));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testAssignment'] = function() {
+function testAssignment() {
   [
    '(set! let! met!)'
   ].forEach(function(text) {
@@ -222,25 +177,22 @@ r5js.test.Parser.prototype['testAssignment'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.ASSIGNMENT));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testTransformerSpec'] = function() {
+function testTransformerSpec() {
   expect('(syntax-rules ())').to(parseAs(
       r5js.parse.Nonterminal.Nonterminals.TRANSFORMER_SPEC));
   expect('(syntax-rules)').not().to(parseAs(
       r5js.parse.Nonterminal.Nonterminals.TRANSFORMER_SPEC));
-};
+}
 
-
-r5js.test.Parser.prototype['testPatternIdentifier'] = function() {
+function testPatternIdentifier() {
   expect('define').to(parseAs(r5js.parse.Nonterminal.Nonterminals.PATTERN_IDENTIFIER));
   expect('...').not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.PATTERN_IDENTIFIER));
   expect('x').to(parseAs(r5js.parse.Nonterminal.Nonterminals.PATTERN_IDENTIFIER));
-};
+}
 
-
-r5js.test.Parser.prototype['testPattern'] = function() {
+function testPattern() {
   [
    '()',
    '(define)',
@@ -257,17 +209,15 @@ r5js.test.Parser.prototype['testPattern'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.PATTERN));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testPatternDatum'] = function() {
+function testPatternDatum() {
   expect('x').not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.PATTERN_DATUM));
   expect('"x"').to(parseAs(r5js.parse.Nonterminal.Nonterminals.PATTERN_DATUM));
   expect("'x").not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.PATTERN_DATUM));
-};
+}
 
-
-r5js.test.Parser.prototype['testTemplate'] = function() {
+function testTemplate() {
   [
    '()',
    '#()',
@@ -277,10 +227,9 @@ r5js.test.Parser.prototype['testTemplate'] = function() {
   ].forEach(function(text) {
     expect(text).to(parseAs(r5js.parse.Nonterminal.Nonterminals.TEMPLATE));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testQuasiquotation'] = function() {
+function testQuasiquotation() {
   [
    '`(list ,(+ 1 2) 4)',
    "`(a ,(+ 1 2) ,@(map abs '(4 -5 6)) b)",
@@ -294,10 +243,9 @@ r5js.test.Parser.prototype['testQuasiquotation'] = function() {
   expect("(a ,(+ 1 2) ,@(map abs '(4 -5 6)) b)")
         .not()
         .to(parseAs(r5js.parse.Nonterminal.Nonterminals.QUASIQUOTATION));
-};
+}
 
-
-r5js.test.Parser.prototype['testSplicingUnquotation'] = function() {
+function testSplicingUnquotation() {
   [
    ",@(cdr '(c))",
    "(unquote-splicing (cdr '(c)))"
@@ -312,10 +260,9 @@ r5js.test.Parser.prototype['testSplicingUnquotation'] = function() {
     expect(text).not().to(parseAs(
         r5js.parse.Nonterminal.Nonterminals.SPLICING_UNQUOTATION));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testMacroBlock'] = function() {
+function testMacroBlock() {
   [
    '(let-syntax () 1)',
    '(letrec-syntax () 1)',
@@ -332,10 +279,9 @@ r5js.test.Parser.prototype['testMacroBlock'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.MACRO_BLOCK));
   });
-};
+}
 
-
-r5js.test.Parser.prototype['testProgram'] = function() {
+function testProgram() {
   [
    '',
    ' ',
@@ -381,5 +327,4 @@ r5js.test.Parser.prototype['testProgram'] = function() {
   ].forEach(function(text) {
     expect(text).not().to(parseAs(r5js.parse.Nonterminal.Nonterminals.PROGRAM));
   });
-};
-
+}
