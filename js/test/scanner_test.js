@@ -1,72 +1,30 @@
-/* Copyright 2011-2014 Brendan Linn
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 goog.provide('r5js.test.Scanner');
 
-
 goog.require('expect');
+goog.require('goog.testing.jsunit');
 goog.require('r5js.ast.Boolean');
 goog.require('r5js.ast.Character');
 goog.require('r5js.ast.Identifier');
 goog.require('r5js.ast.Number');
 goog.require('r5js.ast.String');
 goog.require('scanAs');
-goog.require('tdd.TestSuite');
-goog.require('tdd.TestType');
 
-
-
-/**
- * Scanning-related tests.
- * @implements {tdd.TestSuite}
- * @struct
- * @constructor
- */
-r5js.test.Scanner = function() {};
-
-
-/** @override */
-r5js.test.Scanner.prototype.getType = function() {
-  return tdd.TestType.UNIT;
-};
-
-
-/** @override */
-r5js.test.Scanner.prototype.toString = function() {
-  return 'r5js.test.Scanner';
-};
-
-
-r5js.test.Scanner.prototype['testBooleans'] = function() {
+function testBooleans() {
   ['#t', '#f', '#T', '#F'].forEach(function(text) {
     expect(text).to(scanAs(r5js.ast.Boolean));
   });
   ['##f', '#', '#'].forEach(function(text) {
     expect(text).not().to(scanAs(r5js.ast.Boolean));
   });
-};
+}
 
-
-r5js.test.Scanner.prototype['testCharacters'] = function() {
+function testCharacters() {
   ['#\\c', '#\\space', '#\\newline', '#\\\\'].forEach(function(text) {
     expect(text).to(scanAs(r5js.ast.Character));
   });
-};
+}
 
-
-r5js.test.Scanner.prototype['testIdentifiers'] = function() {
+function testIdentifiers() {
   ['h', '+', '-', '...', '!', '$', '%', '&', '*', '/', ':', '<', '=', '>',
    '?', '~', '_', '^', '&+', 'h+...@@@-.'].forEach(function(text) {
     expect(text).to(scanAs(r5js.ast.Identifier));
@@ -74,28 +32,25 @@ r5js.test.Scanner.prototype['testIdentifiers'] = function() {
   ['|', '[', ']', '{', '}'].forEach(function(text) {
     expect(text).not().to(scanAs(r5js.ast.Identifier));
   });
-};
+}
 
-
-r5js.test.Scanner.prototype['testNumbers'] = function() {
+function testNumbers() {
   r5js.test.Scanner.getValidNumberTokens_().forEach(function(text) {
     expect(text).to(scanAs(r5js.ast.Number));
   });
   ['1+2'].forEach(function(text) {
     expect(text).not().to(scanAs(r5js.ast.Number));
   });
-};
+}
 
-
-r5js.test.Scanner.prototype['testStrings'] = function() {
+function testStrings() {
   ['""', '"hello, world"', '" \\" "', '"\\\\"'].forEach(function(text) {
     expect(text).to(scanAs(r5js.ast.String));
   });
   ['"', '\\'].forEach(function(text) {
     expect(text).not().to(scanAs(r5js.ast.String));
   });
-};
-
+}
 
 /**
  * @return {!Array<string>}
