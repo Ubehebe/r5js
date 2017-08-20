@@ -35,7 +35,7 @@ const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
-const datumutil = goog.require('r5js.datumutil');
+const util = goog.require('r5js.parse.util');
 const Nonterminals = Nonterminal.Nonterminals;
 
 /* todo bl: this file should not exist.
@@ -496,7 +496,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      const def = datumutil.extractDefinition(node);
+      const def = util.extractDefinition(node);
       const name = /** @type {!SimpleDatum} */ (def.getFirstChild());
       const lambda = /** @type {!CompoundDatum} */(name.getNextSibling());
       const formalRoot = lambda.getFirstChild().getNextSibling();
@@ -524,7 +524,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      const def = datumutil.extractDefinition(node);
+      const def = util.extractDefinition(node);
       const name = /** @type {!SimpleDatum} */ (def.getFirstChild());
       const lambda = name.getNextSibling();
       const formalRoot = lambda.getFirstChild().getNextSibling();

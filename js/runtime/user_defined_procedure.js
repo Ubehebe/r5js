@@ -14,7 +14,7 @@ const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const Terminals = goog.require('r5js.parse.Terminals');
 const Value = goog.require('r5js.runtime.Value');
-const datumutil = goog.require('r5js.datumutil');
+const {extractDefinition} = goog.require('r5js.parse.util');
 
 const Nonterminals = Nonterminal.Nonterminals;
 
@@ -226,7 +226,7 @@ class LetrecBindingsHelper {
             const firstChild = cur.getFirstChild();
             if (firstChild instanceof Identifier &&
                 firstChild.getPayload() === Terminals.DEFINE) {
-                this.bindings_.appendSibling(datumutil.extractDefinition(cur));
+                this.bindings_.appendSibling(extractDefinition(cur));
             } else {
                 cur.forEachChild(this.collectLetrecBindingsForChild_, this);
             }
@@ -249,7 +249,7 @@ class LetrecBindingsHelper {
 
         if (firstChild instanceof Identifier
             && firstChild.getPayload() === Terminals.DEFINE) {
-            this.bindings_.appendSibling(datumutil.extractDefinition(node));
+            this.bindings_.appendSibling(extractDefinition(node));
         } else if (node instanceof CompoundDatum) {
             node.forEachChild(this.collectLetrecBindingsForChild_, this);
         }
