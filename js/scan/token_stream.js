@@ -7,7 +7,10 @@ const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Number = goog.require('r5js.ast.Number');
 const String = goog.require('r5js.ast.String');
-const Token = goog.require('r5js.Token');
+const {Terminal} = goog.require('r5js.parse.Terminals');
+
+/** @typedef {!Datum|!Terminal} */
+let Token;
 
 /** @interface */
 class TokenStream {
