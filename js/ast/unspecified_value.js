@@ -1,4 +1,4 @@
-goog.module('r5js.runtime.UNSPECIFIED_VALUE');
+goog.module('r5js.UNSPECIFIED_VALUE');
 
 const Datum = goog.require('r5js.Datum');
 const {Value} = goog.require('r5js.Value');
