@@ -5,11 +5,11 @@ const Datum = goog.require('r5js.Datum');
 const IPair = goog.require('r5js.IPair');
 const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Ref = goog.require('r5js.Ref');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const datumutil = goog.require('r5js.datumutil');
 const error = goog.require('r5js.Error');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 const {Value} = goog.require('r5js.Value');
 

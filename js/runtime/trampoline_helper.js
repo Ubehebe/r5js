@@ -2,10 +2,11 @@ goog.module('r5js.TrampolineHelper');
 
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
+const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 
+/** @implements {ResultStruct} */
 class TrampolineHelper {
     /**
      * @param {!InputPort} inputPort

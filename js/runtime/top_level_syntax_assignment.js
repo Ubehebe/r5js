@@ -2,9 +2,9 @@ goog.module('r5js.TopLevelSyntaxAssignment');
 
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
 class TopLevelSyntaxAssignment extends TopLevelAssignment {
     /** @param {Datum} firstOperand */

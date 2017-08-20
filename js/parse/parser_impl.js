@@ -18,7 +18,6 @@ const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const Parser = goog.require('r5js.Parser');
 const ProcCall = goog.require('r5js.ProcCall');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const RenameHelper = goog.require('r5js.RenameHelper');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const Rule = goog.require('r5js.parse.bnf.Rule');
@@ -36,6 +35,7 @@ const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedu
 const Vector = goog.require('r5js.ast.Vector');
 const util = goog.require('r5js.parse.util');
 const Nonterminals = Nonterminal.Nonterminals;
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 
 /* todo bl: this file should not exist.

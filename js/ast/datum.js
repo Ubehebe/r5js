@@ -2,9 +2,9 @@ goog.module('r5js.Datum');
 
 const IEnvironment = goog.require('r5js.IEnvironment');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const RenameHelper = goog.require('r5js.RenameHelper');
 const {ObjectValue} = goog.require('r5js.Value');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
 /** @typedef {function(!Datum, !IEnvironment):
 * (!Datum|!ProcCallLike|!Subtransformer|!Macro|null)}

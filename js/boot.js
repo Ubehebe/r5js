@@ -10,10 +10,10 @@ const OutputPort = goog.require('r5js.OutputPort');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Pipeline = goog.require('r5js.Pipeline');
 const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
 const trampoline = goog.require('r5js.trampoline');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
 /**
  * The main bootstrap function. Given Scheme source code for R5RS syntax and

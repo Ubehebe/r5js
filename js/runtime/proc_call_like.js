@@ -1,21 +1,33 @@
-goog.provide('r5js.ProcCallLike');
+goog.module('r5js.ProcCallLike');
 
-r5js.ProcCallLike = class {
+const IEnvironment = goog.require('r5js.IEnvironment');
+const {Value} = goog.require('r5js.Value');
+
+/** @interface */
+class ResultStruct {
+    /** @param {!ProcCallLike} procCallLike */
+    setNext(procCallLike) { }
+
+    /** @param {!Value} value */
+    setValue(value) { }
+}
+
+class ProcCallLike {
     /** @param {string=} opt_lastResultName */
     constructor(opt_lastResultName) {
         /** @private */ this.resultName_ = opt_lastResultName ||
         ('@' /* TODO bl document */ + goog.getUid(this));
-        /** @private {r5js.ProcCallLike} */ this.next_ = null;
-        /** @private {r5js.IEnvironment} */ this.env_ = null;
+        /** @private {ProcCallLike} */ this.next_ = null;
+        /** @private {IEnvironment} */ this.env_ = null;
     }
 
     /**
-     * @param {!r5js.TrampolineHelper} trampolineHelper
-     * @param {!r5js.IEnvironment} env
-     * @param {function(!r5js.Datum):!r5js.Parser} parserProvider Function
+     * @param {!ResultStruct} resultStruct
+     * @param {!IEnvironment} env
+     * @param {!Function} parserProvider Function
      * that will return a new Parser for the given Datum when called.
      */
-    evalAndAdvance(trampolineHelper, env, parserProvider) {
+    evalAndAdvance(resultStruct, env, parserProvider) {
     }
 
     /** @return {string} */
@@ -31,12 +43,12 @@ r5js.ProcCallLike = class {
         this.resultName_ = resultName;
     }
 
-    /** @param {!r5js.IEnvironment} env */
+    /** @param {!IEnvironment} env */
     setStartingEnv(env) {
         this.env_ = env;
     }
 
-    /** @return {r5js.IEnvironment} */
+    /** @return {IEnvironment} */
     getEnv() {
         return this.env_;
     }
@@ -46,12 +58,12 @@ r5js.ProcCallLike = class {
         this.env_ = null;
     }
 
-    /** @return {r5js.ProcCallLike} */
+    /** @return {ProcCallLike} */
     getNext() {
         return this.next_;
     }
 
-    /** @param {!r5js.ProcCallLike} next */
+    /** @param {!ProcCallLike} next */
     setNext(next) {
         this.next_ = next;
     }
@@ -66,20 +78,21 @@ r5js.ProcCallLike = class {
     }
 
     /**
-     * @param {!r5js.ProcCallLike} procCallLike
-     * @return {!r5js.ProcCallLike}
+     * @param {!ProcCallLike} procCallLike
+     * @return {!ProcCallLike}
      */
     static getLast(procCallLike) {
         const maybeNext = procCallLike.getNext();
-        return maybeNext ? r5js.ProcCallLike.getLast(maybeNext) : procCallLike;
+        return maybeNext ? ProcCallLike.getLast(maybeNext) : procCallLike;
     }
 
     /**
-     * @param {!r5js.ProcCallLike} procCallLike
-     * @param {!r5js.ProcCallLike} next The next continuable.
+     * @param {!ProcCallLike} procCallLike
+     * @param {!ProcCallLike} next The next continuable.
      */
     static appendProcCallLike(procCallLike, next) {
-        // TODO bl: Closure Compiler es6 bug? Seems like getLast shouldn't have to be qualified.
-        r5js.ProcCallLike.getLast(procCallLike).setNext(next);
+        ProcCallLike.getLast(procCallLike).setNext(next);
     }
-};
+}
+
+exports = {ProcCallLike, ResultStruct};

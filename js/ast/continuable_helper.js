@@ -1,6 +1,6 @@
 goog.module('r5js.ContinuableHelper');
 
-const ProcCallLike = goog.require('r5js.ProcCallLike');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
 /**
  * A buffer to accumulate a Continuable-Continuation chain

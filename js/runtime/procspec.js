@@ -12,7 +12,6 @@ const Lambda = goog.require('r5js.Lambda');
 const List = goog.require('r5js.ast.List');
 const Number = goog.require('r5js.ast.Number');
 const OutputPort = goog.require('r5js.OutputPort');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Procedure = goog.require('r5js.Procedure');
 const Ref = goog.require('r5js.Ref');
 const String = goog.require('r5js.ast.String');
@@ -21,6 +20,7 @@ const Type = goog.require('r5js.Type');
 const Vector = goog.require('r5js.ast.Vector');
 const array = goog.require('goog.array');
 const datumutil = goog.require('r5js.datumutil');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 
 /** @interface */

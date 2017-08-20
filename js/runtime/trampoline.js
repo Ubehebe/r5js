@@ -6,8 +6,8 @@ const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
 const Parser = goog.require('r5js.Parser');
 const ParserImpl = goog.require('r5js.ParserImpl');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 
 /**

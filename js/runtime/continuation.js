@@ -1,7 +1,7 @@
 goog.module('r5js.Continuation');
 
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
 /**
  * Example: (g (f x y) z) desugared is

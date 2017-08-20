@@ -12,14 +12,13 @@ const List = goog.require('r5js.ast.List');
 const Literal = goog.require('r5js.ast.Literal');
 const Macro = goog.require('r5js.Macro');
 const Parser = goog.require('r5js.Parser');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Procedure = goog.require('r5js.Procedure');
 const Quasiquote = goog.require('r5js.ast.Quasiquote');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const Vector = goog.require('r5js.ast.Vector');
+const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
@@ -85,12 +84,12 @@ class ProcCall extends ProcCallLike {
      * (We do _not_ do this if the operator resolves as a macro. Macros
      * get their arguments as unevaluated datums.)
      *
-     * @param {!TrampolineHelper} trampolineHelper
+     * @param {!ResultStruct} resultStruct
      * @param {function(!Datum):!Parser} parserProvider Function
      * that will return a new Parser for the given Datum when called.
      * @private
      */
-    cpsify_(trampolineHelper, parserProvider) {
+    cpsify_(resultStruct, parserProvider) {
         const newCallChain = new ContinuableHelper();
         const finalArgs = new SiblingBuffer();
         let maybeContinuable;
@@ -135,7 +134,7 @@ class ProcCall extends ProcCallLike {
             lastContinuable.setNext(next);
         }
         lastContinuable.setResultName(this.getResultName());
-        trampolineHelper.setNext(ans);
+        resultStruct.setNext(ans);
     }
 
     /** @override */

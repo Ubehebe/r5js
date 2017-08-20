@@ -19,7 +19,6 @@ const OutputPort = goog.require('r5js.OutputPort');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const PortManager = goog.require('r5js.PortManager');
 const ProcCall = goog.require('r5js.ProcCall');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const StringNode = goog.require('r5js.ast.String');
@@ -31,6 +30,7 @@ const Vector = goog.require('r5js.ast.Vector');
 const _ = goog.require('r5js.procspec');
 const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 
 /** @type {IEnvironment} */ let nullEnv_ = null;

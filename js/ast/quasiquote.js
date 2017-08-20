@@ -6,10 +6,10 @@ const Datum = goog.require('r5js.Datum');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
-const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Quote = goog.require('r5js.ast.Quote');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 
 const Nonterminals = Nonterminal.Nonterminals;
