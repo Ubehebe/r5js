@@ -7,10 +7,9 @@ BIG_BALL_OF_MUD_SRCS = glob([
     "macro/*.js",
     "parse/*.js",
     "read/*.js",
-    "runtime/*.js",
     "scan/*.js",
     "boot.js",
-])
+]) + ["//js/runtime"]
 
 closure_js_library(
     name = "value",
@@ -47,6 +46,7 @@ closure_js_library(
         "@io_bazel_rules_closure//closure/library",
         ":error",
         ":value",
+        "//js/runtime:ienvironment",
     ],
     suppress = [
         "JSC_MUST_BE_PRIVATE",
