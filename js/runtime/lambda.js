@@ -1,4 +1,4 @@
-goog.module('r5js.ast.Lambda');
+goog.module('r5js.Lambda');
 
 const Procedure = goog.require('r5js.Procedure');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
