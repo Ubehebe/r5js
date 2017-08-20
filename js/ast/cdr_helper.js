@@ -1,4 +1,4 @@
-goog.module('r5js.CdrHelper');
+goog.module('r5js.ast.CdrHelper');
 
 const Datum = goog.require('r5js.Datum');
 

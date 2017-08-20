@@ -1,6 +1,6 @@
 goog.module('r5js.ast.List');
 
-const CdrHelper = goog.require('r5js.CdrHelper');
+const CdrHelper = goog.require('r5js.ast.CdrHelper');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Error = goog.require('r5js.Error');

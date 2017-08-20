@@ -1,6 +1,6 @@
 goog.module('r5js.ast.CompoundDatum');
 
-const CdrHelper = goog.require('r5js.CdrHelper');
+const CdrHelper = goog.require('r5js.ast.CdrHelper');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
