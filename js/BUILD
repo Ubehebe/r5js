@@ -1,15 +1,16 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
-BIG_BALL_OF_MUD_SRCS = glob([
-    "ast/*.js",
-    "eval/**/*.js",
-    "io/*.js",
-    "macro/*.js",
-    "parse/*.js",
-    "read/*.js",
-    "scan/*.js",
+BIG_BALL_OF_MUD_SRCS = [
     "boot.js",
-]) + ["//js/runtime"]
+    "//js/ast",
+    "//js/eval",
+    "//js/io",
+    "//js/macro",
+    "//js/parse",
+    "//js/read",
+    "//js/runtime",
+    "//js/scan",
+    ]
 
 closure_js_library(
     name = "value",
