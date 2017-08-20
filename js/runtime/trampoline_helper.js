@@ -4,7 +4,7 @@ const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
-const Value = goog.require('r5js.runtime.Value');
+const {Value} = goog.require('r5js.Value');
 
 class TrampolineHelper {
     /**

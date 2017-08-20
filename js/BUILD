@@ -13,6 +13,18 @@ BIG_BALL_OF_MUD_SRCS = glob([
 ])
 
 closure_js_library(
+    name = "value",
+    srcs = [
+        "value.js",
+    ],
+    language = "ECMASCRIPT6_STRICT",
+    deps = [],
+    visibility = [
+        "//js:__subpackages__",
+    ],
+)
+
+closure_js_library(
     name = "error",
     srcs = [
         "error.js",
@@ -34,6 +46,7 @@ closure_js_library(
     deps = [
         "@io_bazel_rules_closure//closure/library",
         ":error",
+        ":value",
     ],
     suppress = [
         "JSC_MUST_BE_PRIVATE",

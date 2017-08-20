@@ -13,8 +13,8 @@ const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
-const Value = goog.require('r5js.runtime.Value');
 const trampoline = goog.require('r5js.trampoline');
+const {Value} = goog.require('r5js.Value');
 
 /** @interface */
 class Pipeline {

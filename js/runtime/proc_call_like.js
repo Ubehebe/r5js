@@ -56,7 +56,7 @@ r5js.ProcCallLike = class {
         this.next_ = next;
     }
 
-    /** @param {!r5js.runtime.Value} val */
+    /** @param {!Value} val */
     bindResult(val) {
         /* If the next procedure call already has an environment,
          bind the result there. Otherwise, bind it in the current

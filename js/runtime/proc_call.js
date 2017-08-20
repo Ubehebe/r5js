@@ -19,8 +19,8 @@ const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
-const Value = goog.require('r5js.runtime.Value');
 const Vector = goog.require('r5js.ast.Vector');
+const {Value} = goog.require('r5js.Value');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 class ProcCall extends ProcCallLike {

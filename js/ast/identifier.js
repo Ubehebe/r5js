@@ -5,7 +5,7 @@ const ProcCallLike = goog.require('r5js.ProcCallLike');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const Terminals = goog.require('r5js.parse.Terminals');
-const Value = goog.require('r5js.runtime.Value');
+const {Value} = goog.require('r5js.Value');
 
 /** @extends {SimpleDatum<string>} */
 class Identifier extends SimpleDatum {

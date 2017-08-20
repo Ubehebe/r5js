@@ -11,7 +11,7 @@ const Ref = goog.require('r5js.Ref');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
-const Value = goog.require('r5js.runtime.Value');
+const {Value} = goog.require('r5js.Value');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 /** @implements {IEnvironment} */

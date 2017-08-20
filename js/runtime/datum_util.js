@@ -6,7 +6,7 @@ const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const Number = goog.require('r5js.ast.Number');
-const Value = goog.require('r5js.runtime.Value');
+const {Value} = goog.require('r5js.Value');
 
 const Nonterminals = Nonterminal.Nonterminals;
 

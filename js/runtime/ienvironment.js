@@ -1,7 +1,6 @@
 goog.module('r5js.IEnvironment');
 
-const ObjectValue = goog.require('r5js.runtime.ObjectValue');
-const Value = goog.require('r5js.runtime.Value');
+const {ObjectValue, Value} = goog.require('r5js.Value');
 
 /**
  * Interface abstracted from {@link r5js.Environment}.

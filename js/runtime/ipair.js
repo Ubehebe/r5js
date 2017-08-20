@@ -1,6 +1,6 @@
 goog.module('r5js.IPair');
 
-const Value = goog.require('r5js.runtime.Value');
+const {Value} = goog.require('r5js.Value');
 
 /** @interface */
 class IPair {

@@ -12,9 +12,9 @@ const String = goog.require('r5js.ast.String');
 const Terminals = goog.require('r5js.parse.Terminals');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
-const Value = goog.require('r5js.runtime.Value');
 const Vector = goog.require('r5js.ast.Vector');
 const DottedList = List.Dotted;
+const {Value} = goog.require('r5js.Value');
 
 /*
  * Implementation note: a richer representation of Scheme values would
@@ -25,9 +25,9 @@ const DottedList = List.Dotted;
  * (For example, in {@link r5js.platform.Html5_}, the actual interpreter
  * runs in a web worker, and communicates with a client stub via postMessage.)
  * This restricts the external representation of Scheme values.
- * Simply passing {@link r5js.runtime.Value} instances does not work,
- * because the HTML5 structured clone algorithm does not serialize functions
- * (and many {@link r5js.runtime.Value} implementations have rich method sets).
+ * Simply passing Value instances does not work, because the HTML5 structured
+ * clone algorithm does not serialize functions (and many Value implementations
+ * have rich method sets).
  *
  * The second and more fundamental problem is that the Scheme and JavaScript
  * type systems don't align very well beyond booleans, numbers, and strings.

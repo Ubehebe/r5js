@@ -7,7 +7,7 @@ const Macro = goog.require('r5js.Macro');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
-const Value = goog.require('r5js.runtime.Value');
+const {Value} = goog.require('r5js.Value');
 
 class Assignment extends ProcCallLike {
     /** @param {Datum} firstOperand */

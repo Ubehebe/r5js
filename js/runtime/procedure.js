@@ -1,10 +1,9 @@
 goog.module('r5js.Procedure');
 
 const IEnvironment = goog.require('r5js.IEnvironment');
-const ObjectValue = goog.require('r5js.runtime.ObjectValue');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
-const Value = goog.require('r5js.runtime.Value');
+const {ObjectValue, Value} = goog.require('r5js.Value');
 
 /** @implements {ObjectValue} */
 class Procedure {

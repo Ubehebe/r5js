@@ -1,5 +1,7 @@
 goog.module('r5js.InputPort');
 
+const {Value} = goog.require('r5js.Value');
+
 /** @interface */
 class InputPort {
  /** @return {boolean} */
@@ -12,7 +14,7 @@ class InputPort {
  peekChar() {}
 
  /**
-  * @return {?r5js.runtime.Value} The next value, or null if there are
+  * @return {?Value} The next value, or null if there are
   * no more values.
   */
  read() {}
