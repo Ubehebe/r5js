@@ -1,11 +1,16 @@
 goog.module('r5js.Datum');
 
-const DesugarFunc = goog.require('r5js.DesugarFunc');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const RenameHelper = goog.require('r5js.RenameHelper');
 const {ObjectValue} = goog.require('r5js.Value');
+
+/** @typedef {function(!Datum, !IEnvironment):
+* (!Datum|!ProcCallLike|!Subtransformer|!Macro|null)}
+ * TODO bl: narrow this typedef.
+ */
+let DesugarFunc;
 
 /**
  * TODO bl remove the "implements ObjectValue".
