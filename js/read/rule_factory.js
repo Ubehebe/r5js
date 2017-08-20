@@ -9,12 +9,12 @@ const Quote = goog.require('r5js.ast.Quote');
 const Rule = goog.require('r5js.read.bnf.Rule');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
-const Terminals = goog.require('r5js.parse.Terminals');
 const TokenStream = goog.require('r5js.TokenStream');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const array = goog.require('goog.array');
+const {Terminal, Terminals} = goog.require('r5js.parse.Terminals');
 
 class RuleFactory {
     /** @param {!Grammar} grammar */
@@ -23,7 +23,7 @@ class RuleFactory {
     }
 
     /**
-     * @param {!r5js.parse.Terminal|!Nonterminal} terminalOrNonterminal
+     * @param {!Terminal|!Nonterminal} terminalOrNonterminal
      * @return {!Rule}
      */
     one(terminalOrNonterminal) {
@@ -74,7 +74,7 @@ class RuleFactory {
 /** @implements {Rule} */
 class One {
     /**
-     * @param {!r5js.parse.Terminal|!Nonterminal} type
+     * @param {!Terminal|!Nonterminal} type
      * @param {!Grammar} grammar
      */
     constructor(type, grammar) {
@@ -114,7 +114,7 @@ const TERMINAL_SENTINEL = new Datum();
 /** @implements {Rule} */
 class AtLeast {
     /**
-     * @param {!r5js.parse.Terminal|!Nonterminal} type
+     * @param {!Terminal|!Nonterminal} type
      * @param {number} minRepetitions
      * @param {!Grammar} grammar
      */

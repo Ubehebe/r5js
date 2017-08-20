@@ -11,12 +11,12 @@ const Quasiquote = goog.require('r5js.ast.Quasiquote');
 const Quote = goog.require('r5js.ast.Quote');
 const Rule = goog.require('r5js.parse.bnf.Rule');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
-const Terminals = goog.require('r5js.parse.Terminals');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
 const array = goog.require('goog.array');
 const DottedList = List.Dotted;
+const {Terminal, Terminals} = goog.require('r5js.parse.Terminals');
 
 class RuleFactory {
 
@@ -26,7 +26,7 @@ class RuleFactory {
     }
 
     /**
-     * @param {!r5js.parse.Terminal|!Nonterminal} terminalOrNonterminal
+     * @param {!Terminal|!Nonterminal} terminalOrNonterminal
      * @return {!Rule}
      */
     one(terminalOrNonterminal) {
@@ -120,7 +120,7 @@ class RuleFactory {
 
 /** @implements {Rule} */
 class OneTerminal {
-    /** @param {!r5js.parse.Terminal} terminal */
+    /** @param {!Terminal} terminal */
     constructor(terminal) {
         /** @const @private */ this.terminal_ = terminal;
     }

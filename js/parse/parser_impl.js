@@ -27,7 +27,6 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const String = goog.require('r5js.ast.String');
 const Subtransformer = goog.require('r5js.Subtransformer');
-const Terminals = goog.require('r5js.parse.Terminals');
 const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
 const TopLevelSyntaxAssignment = goog.require('r5js.TopLevelSyntaxAssignment');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
@@ -37,6 +36,7 @@ const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedu
 const Vector = goog.require('r5js.ast.Vector');
 const util = goog.require('r5js.parse.util');
 const Nonterminals = Nonterminal.Nonterminals;
+const {Terminals} = goog.require('r5js.parse.Terminals');
 
 /* todo bl: this file should not exist.
 

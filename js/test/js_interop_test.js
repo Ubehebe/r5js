@@ -6,7 +6,6 @@ const InMemoryInputPort = goog.require('r5js.InMemoryInputPort');
 const InMemoryOutputPort = goog.require('r5js.InMemoryOutputPort');
 const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
 const SchemeSources = goog.require('r5js.SchemeSources');
-const Terminals = goog.require('r5js.parse.Terminals');
 const Throw = goog.require('Throw');
 const Type = goog.require('r5js.Type');
 const boot = goog.require('r5js.boot');
@@ -16,6 +15,7 @@ const expect = goog.require('expect');
 const output = goog.require('output');
 const setOutputPort = goog.require('r5js.test.matchers.setOutputPort');
 const testSuite = goog.require('goog.testing.testSuite');
+const {Terminals} = goog.require('r5js.parse.Terminals');
 goog.require('goog.testing.jsunit');
 
 let buffer, stdin, stdout, sources, evaluator;

@@ -12,7 +12,7 @@ const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Procedure = goog.require('r5js.Procedure');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const Terminals = goog.require('r5js.parse.Terminals');
+const {Terminals} = goog.require('r5js.parse.Terminals');
 const {Value} = goog.require('r5js.Value');
 const {extractDefinition} = goog.require('r5js.parse.util');
 

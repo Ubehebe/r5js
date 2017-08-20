@@ -14,12 +14,12 @@ const Quote = goog.require('r5js.ast.Quote');
 const Rule = goog.require('r5js.read.bnf.Rule');
 const RuleFactory = goog.require('r5js.read.RuleFactory');
 const String = goog.require('r5js.ast.String');
-const Terminals = goog.require('r5js.parse.Terminals');
 const TokenStream = goog.require('r5js.TokenStream');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
 const DottedList = List.Dotted;
+const {Terminals} = goog.require('r5js.parse.Terminals');
 
 const Nonterminals = Nonterminal.Nonterminals;
 

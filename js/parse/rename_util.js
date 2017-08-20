@@ -1,6 +1,6 @@
 goog.module('r5js.RenameUtil');
 
-const Terminals = goog.require('r5js.parse.Terminals');
+const {Terminals} = goog.require('r5js.parse.Terminals');
 
 /** Not a valid identifier prefix so we can easily tell these apart. */
 const CPS_PREFIX = '@';

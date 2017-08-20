@@ -8,9 +8,9 @@ const Identifier = goog.require('r5js.ast.Identifier');
 const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const ProcCallLike = goog.require('r5js.ProcCallLike');
 const Quote = goog.require('r5js.ast.Quote');
-const Terminals = goog.require('r5js.parse.Terminals');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
+const {Terminals} = goog.require('r5js.parse.Terminals');
 
 const Nonterminals = Nonterminal.Nonterminals;
 

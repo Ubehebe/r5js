@@ -16,7 +16,7 @@
 goog.provide('r5js.Token');
 
 
-/** @typedef {!r5js.Datum|!r5js.parse.Terminal} */
+/** @typedef {!r5js.Datum|!Terminal} */
 r5js.Token;
 
 

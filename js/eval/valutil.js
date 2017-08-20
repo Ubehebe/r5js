@@ -9,11 +9,11 @@ const OutputPort = goog.require('r5js.OutputPort');
 const Quote = goog.require('r5js.ast.Quote');
 const Ref = goog.require('r5js.Ref');
 const String = goog.require('r5js.ast.String');
-const Terminals = goog.require('r5js.parse.Terminals');
 const UNSPECIFIED_VALUE = goog.require('r5js.runtime.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
 const DottedList = List.Dotted;
+const {Terminals} = goog.require('r5js.parse.Terminals');
 const {Value} = goog.require('r5js.Value');
 
 /*
