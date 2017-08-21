@@ -4,7 +4,7 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 filegroup(
     name = "parse",
     srcs = glob(["*.js"], exclude = [
-        "nonterminal.js",
+        "nonterminals.js",
         "terminals.js",
     ]),
     visibility = ["//js:__pkg__"],
@@ -13,7 +13,7 @@ filegroup(
 closure_js_library(
     name = "nonterminal",
     srcs = [
-        "nonterminal.js",
+        "nonterminals.js",
     ],
     deps = [],
     language = "ECMASCRIPT6_STRICT",
