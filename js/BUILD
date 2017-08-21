@@ -17,7 +17,6 @@ closure_js_library(
         "value.js",
     ],
     language = "ECMASCRIPT6_STRICT",
-    deps = [],
     visibility = [
         "//js:__subpackages__",
     ],
