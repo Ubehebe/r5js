@@ -59,6 +59,7 @@ closure_js_test(
         "@io_bazel_rules_closure//closure/library:testing",
         "//js:bbom",
         "//js:error",
+        "//js/parse:terminal",
         "//js/platform",
         "//js/test/matchers",
     ],

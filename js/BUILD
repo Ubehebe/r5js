@@ -48,6 +48,7 @@ closure_js_library(
         ":error",
         ":value",
         "//js/parse:nonterminal",
+        "//js/parse:terminal",
         "//js/runtime:ienvironment",
         "//js/runtime:proc_call_like",
     ],
