@@ -13,7 +13,7 @@ const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const array = goog.require('goog.array');
-const {Nonterminal} = goog.require('r5js.parse.Nonterminal');
+const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {Terminal, Terminals} = goog.require('r5js.parse.Terminals');
 
 class RuleFactory {

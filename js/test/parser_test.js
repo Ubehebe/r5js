@@ -4,7 +4,7 @@ goog.setTestOnly('r5js.test.Parser');
 const expect = goog.require('expect');
 const parseAs = goog.require('parseAs');
 const testSuite = goog.require('goog.testing.testSuite');
-const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
+const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 goog.require('goog.testing.jsunit');
 
 testSuite({

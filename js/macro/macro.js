@@ -12,7 +12,7 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Transformer = goog.require('r5js.Transformer');
-const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
+const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {ObjectValue} = goog.require('r5js.Value');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 

@@ -12,7 +12,7 @@ const TokenStream = goog.require('r5js.TokenStream');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const trampoline = goog.require('r5js.trampoline');
-const {Nonterminal} = goog.require('r5js.parse.Nonterminal');
+const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 

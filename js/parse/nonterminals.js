@@ -1,4 +1,4 @@
-goog.module('r5js.parse.Nonterminal');
+goog.module('r5js.parse.Nonterminals');
 
 class Nonterminal {
     /** @param {string} name */

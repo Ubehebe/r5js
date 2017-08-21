@@ -33,7 +33,7 @@ const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
 const util = goog.require('r5js.parse.util');
-const {Nonterminal, Nonterminals} = goog.require('r5js.parse.Nonterminal');
+const {Nonterminal, Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 

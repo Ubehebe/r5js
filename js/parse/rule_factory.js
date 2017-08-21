@@ -15,7 +15,7 @@ const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
 const array = goog.require('goog.array');
 const DottedList = List.Dotted;
-const {Nonterminal} = goog.require('r5js.parse.Nonterminal');
+const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {Terminal, Terminals} = goog.require('r5js.parse.Terminals');
 
 class RuleFactory {

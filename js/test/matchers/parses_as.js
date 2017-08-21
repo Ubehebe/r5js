@@ -4,7 +4,7 @@ goog.setTestOnly('parseAs');
 
 const Datum = goog.require('r5js.Datum');
 const Matcher = goog.require('tdd.matchers.Matcher');
-const Nonterminal = goog.require('r5js.parse.Nonterminal');
+const Nonterminal = goog.require('r5js.parse.Nonterminals');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');

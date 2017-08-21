@@ -5,7 +5,7 @@ const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const List = goog.require('r5js.ast.List');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
+const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 
 /**
