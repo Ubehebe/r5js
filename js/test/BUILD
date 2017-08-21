@@ -59,7 +59,7 @@ closure_js_test(
         "@io_bazel_rules_closure//closure/library:testing",
         "//js:bbom",
         "//js:error",
-        "//js/parse:terminal",
+        "//js/parse:terminals",
         "//js/platform",
         "//js/test/matchers",
     ],
@@ -79,7 +79,7 @@ closure_js_test(
         "@io_bazel_rules_closure//closure/library:testing",
         "//js:bbom",
         "//js:error",
-        "//js/parse:nonterminal",
+        "//js/parse:nonterminals",
         "//js/test/matchers",
     ],
 )

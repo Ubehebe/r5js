@@ -11,7 +11,7 @@ filegroup(
 )
 
 closure_js_library(
-    name = "nonterminal",
+    name = "nonterminals",
     srcs = [
         "nonterminals.js",
     ],
@@ -23,7 +23,7 @@ closure_js_library(
 )
 
 closure_js_library(
-    name = "terminal",
+    name = "terminals",
     srcs = [
         "terminals.js",
     ],
