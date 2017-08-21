@@ -5,18 +5,6 @@ const {Terminals} = goog.require('r5js.parse.Terminals');
 /** Not a valid identifier prefix so we can easily tell these apart. */
 const CPS_PREFIX = '@';
 
-/** @const */
-const PROC_PREFIX = 'proc';
-
-/** @return {string} */
-function newAnonymousLambdaName() {
-    /* TODO bl: goog.getUid requires an object parameter, so this method
-     creates a throwaway object. Requiring this function to take an object
-     parameter could reduce garbage. */
-    return PROC_PREFIX + goog.getUid(new Object());
-}
-
-
 /** @return {string} */
 function newCpsName() {
     /* TODO bl: goog.getUid requires an object parameter, so this method
@@ -50,8 +38,8 @@ function isParserSensitiveId(name) {
     }
 }
 
-
-exports.CPS_PREFIX = CPS_PREFIX;
-exports.isParserSensitiveId = isParserSensitiveId;
-exports.newAnonymousLambdaName = newAnonymousLambdaName;
-exports.newCpsName = newCpsName;
+exports = {
+    CPS_PREFIX,
+    isParserSensitiveId,
+    newCpsName,
+};

@@ -412,7 +412,7 @@ grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
         treatAsDotted = true;
       }
 
-      const name = RenameUtil.newAnonymousLambdaName();
+      const name = newAnonymousLambdaName();
       const proc = treatAsDotted
           ? new VarargsUserDefinedProcedure(
           formals, formalRoot.getNextSibling(), env, name)
@@ -502,7 +502,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
       const formals = formalRoot.mapChildren(function(child) {
         return child.getPayload();
       });
-      const anonymousName = RenameUtil.newAnonymousLambdaName();
+      const anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
           new UserDefinedProcedure(
@@ -530,7 +530,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
       const formals = formalRoot instanceof CompoundDatum
           ? formalRoot.mapChildren(child => (/** @type {!SimpleDatum} */(child)).getPayload())
           : [formalRoot.getPayload()];
-      const anonymousName = RenameUtil.newAnonymousLambdaName();
+      const anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
           new VarargsUserDefinedProcedure(
@@ -1030,10 +1030,18 @@ grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
           node.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
       if (!macro.allPatternsBeginWith(kw))
         throw Error.macro(kw, 'all patterns must begin with ' + kw);
-      const anonymousName = RenameUtil.newAnonymousLambdaName();
+      const anonymousName = newAnonymousLambdaName();
       env.addBinding(anonymousName, macro);
       return TopLevelSyntaxAssignment.of(kw, anonymousName);
     });
+
+/** @return {string} */
+function newAnonymousLambdaName() {
+    /* TODO bl: goog.getUid requires an object parameter, so this method
+     creates a throwaway object. Requiring this function to take an object
+     parameter could reduce garbage. */
+    return 'proc' + goog.getUid(new Object());
+}
 
 exports.ParserImpl = ParserImpl;
 exports.grammar = grammar;
