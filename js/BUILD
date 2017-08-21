@@ -47,6 +47,7 @@ closure_js_library(
         "@io_bazel_rules_closure//closure/library",
         ":error",
         ":value",
+        "//js/parse:nonterminal",
         "//js/runtime:ienvironment",
         "//js/runtime:proc_call_like",
     ],

@@ -12,5 +12,6 @@ closure_js_library(
         "@closure_tdd//matchers",
         "//js:bbom",
         "//js:error",
+        "//js/parse:nonterminal",
     ],
 )
