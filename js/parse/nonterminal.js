@@ -1,6 +1,5 @@
 goog.module('r5js.parse.Nonterminal');
 
-
 class Nonterminal {
     /** @param {string} name */
     constructor(name) {
@@ -14,7 +13,7 @@ class Nonterminal {
 }
 
 /** @enum {!Nonterminal} */
-Nonterminal.Nonterminals = {
+const Nonterminals = {
     ALTERNATE: new Nonterminal('alternate'),
     ASSIGNMENT: new Nonterminal('assignment'),
     COMMAND: new Nonterminal('command'),
@@ -57,4 +56,4 @@ Nonterminal.Nonterminals = {
     VECTOR_QQ_TEMPLATE: new Nonterminal('vector-qq-template')
 };
 
-exports = Nonterminal;
+exports = {Nonterminal, Nonterminals};

@@ -5,7 +5,6 @@ const Environment = goog.require('r5js.Environment');
 const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const InputPort = goog.require('r5js.InputPort');
-const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const OutputPort = goog.require('r5js.OutputPort');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Reader = goog.require('r5js.Reader');
@@ -13,6 +12,7 @@ const TokenStream = goog.require('r5js.TokenStream');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const trampoline = goog.require('r5js.trampoline');
+const {Nonterminal} = goog.require('r5js.parse.Nonterminal');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 

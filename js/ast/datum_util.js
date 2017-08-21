@@ -4,11 +4,8 @@ const Boolean = goog.require('r5js.ast.Boolean');
 const Datum = goog.require('r5js.Datum');
 const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
-const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const Number = goog.require('r5js.ast.Number');
 const {Value} = goog.require('r5js.Value');
-
-const Nonterminals = Nonterminal.Nonterminals;
 
 /**
  * Environments bind names to values, and this implementation represents

@@ -1,7 +1,7 @@
 goog.module('r5js.parse.Grammar');
 
-const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const Rule = goog.require('r5js.parse.bnf.Rule');
+const {Nonterminal} = goog.require('r5js.parse.Nonterminal');
 
 /**
  * @interface

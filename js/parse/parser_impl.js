@@ -15,7 +15,6 @@ const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
 const MacroDatum = goog.require('r5js.ast.Macro');
 const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
-const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const Parser = goog.require('r5js.Parser');
 const ProcCall = goog.require('r5js.ProcCall');
 const RenameHelper = goog.require('r5js.RenameHelper');
@@ -34,7 +33,7 @@ const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
 const util = goog.require('r5js.parse.util');
-const Nonterminals = Nonterminal.Nonterminals;
+const {Nonterminal, Nonterminals} = goog.require('r5js.parse.Nonterminal');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 

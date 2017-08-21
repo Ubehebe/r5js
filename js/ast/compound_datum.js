@@ -3,11 +3,10 @@ goog.module('r5js.ast.CompoundDatum');
 const CdrHelper = goog.require('r5js.ast.CdrHelper');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
-const Nonterminal = goog.require('r5js.parse.Nonterminal');
 const RenameHelper = goog.require('r5js.RenameHelper');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const Nonterminals = Nonterminal.Nonterminals;
+const {Nonterminals} = goog.require('r5js.parse.Nonterminal');
 
 class CompoundDatum extends Datum {
     constructor() {
