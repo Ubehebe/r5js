@@ -48,6 +48,7 @@ closure_js_library(
         ":error",
         ":value",
         "//js/runtime:ienvironment",
+        "//js/runtime:proc_call_like",
     ],
     suppress = [
         "JSC_MUST_BE_PRIVATE",
