@@ -16,7 +16,6 @@ closure_js_library(
         "//js:__subpackages__",
     ],
     suppress = [
-        "JSC_MUST_BE_PRIVATE",
         "JSC_PRIMITIVE_OBJECT",
     ],
     language = "ECMASCRIPT6_STRICT",

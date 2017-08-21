@@ -86,6 +86,7 @@ class IdShim extends ProcCallLike {
     /**
      * @param {!Identifier} id
      * @return {?Value}
+     * @private
      */
     tryIdentifier_(id) {
         return this.getEnv().get(/** @type {string} */ (id.getPayload()));
