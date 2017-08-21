@@ -10,6 +10,7 @@ closure_js_library(
     srcs = glob(["*.js"]),
     deps = [
         "@closure_tdd//matchers",
+        "//js/ast",
         "//js:bbom",
         "//js:error",
         "//js/parse:nonterminals",

@@ -57,6 +57,7 @@ closure_js_test(
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library:testing",
+        "//js/ast",
         "//js:bbom",
         "//js:error",
         "//js/parse:terminals",
@@ -96,6 +97,7 @@ closure_js_test(
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library:testing",
+        "//js/ast",
         "//js:bbom",
         "//js:error",
         "//js/test/matchers",
