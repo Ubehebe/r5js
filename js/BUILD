@@ -45,6 +45,7 @@ closure_js_library(
         "//js/io",
         "//js/macro",
         "//js/parse:nonterminals",
+        "//js/parse:parser",
         "//js/parse:rename_util",
         "//js/parse:terminals",
         "//js/read",

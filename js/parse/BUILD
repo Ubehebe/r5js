@@ -5,6 +5,7 @@ filegroup(
     name = "parse",
     srcs = glob(["*.js"], exclude = [
         "nonterminals.js",
+        "parser.js",
         "rename_util.js",
         "terminals.js",
     ]),
@@ -16,7 +17,21 @@ closure_js_library(
     srcs = [
         "nonterminals.js",
     ],
-    deps = [],
+    language = "ECMASCRIPT6_STRICT",
+    visibility = [
+        "//js:__subpackages__",
+    ],
+)
+
+closure_js_library(
+    name = "parser",
+    srcs = [
+        "parser.js",
+    ],
+    deps = [
+        "//js/ast",
+        ":nonterminals",
+    ],
     language = "ECMASCRIPT6_STRICT",
     visibility = [
         "//js:__subpackages__",
@@ -42,7 +57,6 @@ closure_js_library(
     srcs = [
         "terminals.js",
     ],
-    deps = [],
     language = "ECMASCRIPT6_STRICT",
     visibility = [
         "//js:__subpackages__",
