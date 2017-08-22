@@ -9,6 +9,7 @@ closure_js_library(
         "//js/ast",
         "//js:bbom",
         "//js:error",
+        "//js/eval",
     ],
     visibility = [
         "//js:__subpackages__",

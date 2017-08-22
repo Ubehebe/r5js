@@ -6,6 +6,7 @@ closure_js_library(
     srcs = glob(["*.js"]),
     deps = [
         "//js:bbom",
+        "//js/eval",
         "//js/io",
         "//scm:PROCEDURES",
         "//scm:SYNTAX",

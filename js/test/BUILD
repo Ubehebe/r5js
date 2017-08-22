@@ -17,6 +17,7 @@ closure_js_library(
         "@closure_tdd//:closure-tdd",
         "//js:bbom",
         "//js:error",
+        "//js/eval",
         "//js/io",
         "//js/platform/common",
         "//js/platform/node",

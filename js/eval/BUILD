@@ -1,10 +1,25 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
-# TODO turn into closure_js_library
-filegroup(
+closure_js_library(
     name = "eval",
     srcs = glob(["**/*.js"], exclude = ["valutil.js"]),
-    visibility = ["//js:__pkg__"],
+    visibility = ["//js:__subpackages__"],
+    language = "ECMASCRIPT6_STRICT",
+    deps = [
+        "@io_bazel_rules_closure//closure/library",
+        ":valutil",
+        "//js/ast",
+        "//js:error",
+        "//js/io",
+        "//js/parse",
+        "//js/parse:nonterminals",
+        "//js/read",
+        "//js/scan",
+        "//js/runtime",
+        "//js/runtime:ienvironment",
+        "//js/runtime:proc_call_like",
+        "//js:value",
+    ],
 )
 
 # TODO used by runtime and eval. Move to runtime?

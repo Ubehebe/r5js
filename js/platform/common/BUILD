@@ -7,6 +7,7 @@ closure_js_library(
     deps = [
         "@io_bazel_rules_closure//closure/library",
         "//js:bbom",
+        "//js/eval",
         "//js/platform",
         "//js/io",
     ],

@@ -2,7 +2,6 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
 BIG_BALL_OF_MUD_SRCS = [
     "boot.js",
-    "//js/eval",
 ]
 
 closure_js_library(
@@ -40,6 +39,7 @@ closure_js_library(
         ":error",
         ":value",
         "//js/ast",
+        "//js/eval",
         "//js/eval:valutil",
         "//js/io",
         "//js/macro",
