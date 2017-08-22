@@ -1,7 +1,6 @@
 goog.module('r5js.Continuation');
 
-const TrampolineHelper = goog.require('r5js.TrampolineHelper');
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
 
 /**
  * Example: (g (f x y) z) desugared is
@@ -28,15 +27,15 @@ class Continuation {
     /**
      * @param {?} arg
      * @param {!ProcCallLike} procCallLike
-     * @param {!TrampolineHelper} trampolineHelper
+     * @param {!ResultStruct} resultStruct
      */
-    evaluate(arg, procCallLike, trampolineHelper) {
+    evaluate(arg, procCallLike, resultStruct) {
         procCallLike.getEnv().addBinding(this.lastResultName_, arg);
-        trampolineHelper.setValue(arg);
+        resultStruct.setValue(arg);
         if (this.nextContinuable_) {
-            trampolineHelper.setNext(this.nextContinuable_);
+            resultStruct.setNext(this.nextContinuable_);
         }
-        Continuation.repairInfiniteLoop(procCallLike, trampolineHelper);
+        Continuation.repairInfiniteLoop(procCallLike, resultStruct);
     }
 
     /**
@@ -65,10 +64,10 @@ class Continuation {
      * infinite loop.
      *
      * @param {!ProcCallLike} procCall
-     * @param {!TrampolineHelper} trampolineHelper
+     * @param {!ResultStruct} resultStruct
      */
-    static repairInfiniteLoop(procCall, trampolineHelper) {
-        for (var tmp = trampolineHelper.getNextProcCallLike(), prev;
+    static repairInfiniteLoop(procCall, resultStruct) {
+        for (var tmp = resultStruct.getNextProcCallLike(), prev;
              tmp;
              prev = tmp, tmp = tmp.getNext()) {
             if (tmp === procCall) {
