@@ -1,4 +1,4 @@
-load("//:builddefs.bzl", "node_test")
+load("//:builddefs.bzl", "JS_VERSION", "node_test")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library", "closure_js_test")
 
 closure_js_library(
@@ -28,7 +28,7 @@ closure_js_library(
         "//scm:NEGATIVE_TESTS",
         "//scm:OTHER_TESTS",
     ],
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ]
@@ -49,7 +49,7 @@ closure_js_binary(
 
 closure_js_test(
     name = "js_interop_test",
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     srcs = [
         "js_interop_test.js",
     ],
@@ -72,7 +72,7 @@ closure_js_test(
 
 closure_js_test(
     name = "parser_test",
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     srcs = [
         "parser_test.js",
     ],
@@ -91,7 +91,7 @@ closure_js_test(
 
 closure_js_test(
     name = "scanner_test",
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     srcs = [
         "scanner_test.js",
     ],

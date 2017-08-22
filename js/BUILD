@@ -1,11 +1,12 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+load("//:builddefs.bzl", "JS_VERSION")
 
 closure_js_library(
     name = "value",
     srcs = [
         "value.js",
     ],
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -16,7 +17,7 @@ closure_js_library(
     srcs = [
         "error.js",
     ],
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -25,7 +26,7 @@ closure_js_library(
 closure_js_library(
     name = "boot",
     srcs = ["boot.js"],
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],

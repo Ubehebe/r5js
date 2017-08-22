@@ -1,4 +1,5 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+load("//:builddefs.bzl", "JS_VERSION")
 
 closure_js_library(
     name = "parse",
@@ -21,7 +22,7 @@ closure_js_library(
         ":parser",
         ":rename_util",
     ],
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     visibility = ["//js:__subpackages__"],
 )
 
@@ -30,7 +31,7 @@ closure_js_library(
     srcs = [
         "nonterminals.js",
     ],
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -45,7 +46,7 @@ closure_js_library(
         "//js/ast",
         ":nonterminals",
     ],
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -59,7 +60,7 @@ closure_js_library(
     deps = [
         ":terminals",
     ],
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -70,7 +71,7 @@ closure_js_library(
     srcs = [
         "terminals.js",
     ],
-    language = "ECMASCRIPT6_STRICT",
+    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
