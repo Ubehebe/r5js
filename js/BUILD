@@ -6,7 +6,6 @@ BIG_BALL_OF_MUD_SRCS = [
     "//js/io",
     "//js/macro",
     "//js/parse",
-    "//js/read",
     "//js/runtime",
 ]
 
@@ -48,6 +47,7 @@ closure_js_library(
         "//js/parse:nonterminals",
         "//js/parse:rename_util",
         "//js/parse:terminals",
+        "//js/read",
         "//js/scan",
         "//js/runtime:ienvironment",
         "//js/runtime:proc_call_like",
