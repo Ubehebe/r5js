@@ -1,4 +1,4 @@
-goog.module('r5js.parse.util');
+goog.module('r5js.ast.util');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
