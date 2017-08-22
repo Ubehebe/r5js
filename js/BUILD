@@ -41,6 +41,7 @@ closure_js_library(
         ":error",
         ":value",
         "//js/ast",
+        "//js/eval:valutil",
         "//js/io",
         "//js/macro",
         "//js/parse",

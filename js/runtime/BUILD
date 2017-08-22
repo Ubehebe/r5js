@@ -4,6 +4,7 @@ SRCS_USED_BY_PARSER_IMPL = [
     "assignment.js",
     "branch.js",
     "continuation.js",
+    "eof.js",
     "errors.js",
     "lambda.js",
     "procedure.js",
