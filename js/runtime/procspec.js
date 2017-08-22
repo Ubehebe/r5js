@@ -9,7 +9,6 @@ const IPair = goog.require('r5js.IPair');
 const Identifier = goog.require('r5js.ast.Identifier');
 const InputPort = goog.require('r5js.InputPort');
 const Lambda = goog.require('r5js.Lambda');
-const List = goog.require('r5js.ast.List');
 const Number = goog.require('r5js.ast.Number');
 const OutputPort = goog.require('r5js.OutputPort');
 const Procedure = goog.require('r5js.Procedure');
@@ -20,6 +19,7 @@ const Type = goog.require('r5js.Type');
 const Vector = goog.require('r5js.ast.Vector');
 const array = goog.require('goog.array');
 const datumutil = goog.require('r5js.datumutil');
+const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 

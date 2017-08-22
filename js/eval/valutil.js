@@ -4,7 +4,6 @@ const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
 const EOF = goog.require('r5js.runtime.EOF');
 const InputPort = goog.require('r5js.InputPort');
-const List = goog.require('r5js.ast.List');
 const OutputPort = goog.require('r5js.OutputPort');
 const Quote = goog.require('r5js.ast.Quote');
 const Ref = goog.require('r5js.Ref');
@@ -12,7 +11,7 @@ const String = goog.require('r5js.ast.String');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
-const DottedList = List.Dotted;
+const {DottedList, List} = goog.require('r5js.ast.List');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 const {Value} = goog.require('r5js.Value');
 

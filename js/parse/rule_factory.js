@@ -5,7 +5,6 @@ const Datum = goog.require('r5js.Datum');
 const DesugarableRule = goog.require('r5js.parse.bnf.DesugarableRule');
 const Grammar = goog.require('r5js.parse.Grammar');
 const IEnvironment = goog.require('r5js.IEnvironment');
-const List = goog.require('r5js.ast.List');
 const Quasiquote = goog.require('r5js.ast.Quasiquote');
 const Quote = goog.require('r5js.ast.Quote');
 const Rule = goog.require('r5js.parse.bnf.Rule');
@@ -14,7 +13,7 @@ const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
 const array = goog.require('goog.array');
-const DottedList = List.Dotted;
+const {DottedList, List} = goog.require('r5js.ast.List');
 const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {Terminal, Terminals} = goog.require('r5js.parse.Terminals');
 

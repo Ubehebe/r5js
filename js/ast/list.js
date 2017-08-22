@@ -86,7 +86,7 @@ class List extends CompoundDatum {
             }
             return new SiblingBuffer()
                 .appendSibling(startOfCdr)
-                .toList(this.dotted_ ? List.Dotted : List);
+                .toList(this.dotted_ ? DottedList : List);
         } else {
             return startOfCdr;
         }
@@ -94,7 +94,8 @@ class List extends CompoundDatum {
 }
 IPair.addImplementation(List);
 
-List.Dotted = /** @implements {IPair} */ class extends CompoundDatum {
+/** @implements {IPair} */
+class DottedList extends CompoundDatum {
     /** @param {Datum} firstChild */
     constructor(firstChild) {
         super();
@@ -121,7 +122,7 @@ List.Dotted = /** @implements {IPair} */ class extends CompoundDatum {
             if (startOfCdr.getNextSibling()) {
                 ans = new SiblingBuffer()
                     .appendSibling(startOfCdr)
-                    .toList(List.Dotted);
+                    .toList(DottedList);
             } else {
                 ans = startOfCdr;
             }
@@ -133,8 +134,8 @@ List.Dotted = /** @implements {IPair} */ class extends CompoundDatum {
             return new SiblingBuffer().toList(List);
         }
     }
-};
-IPair.addImplementation(List.Dotted);
+}
+IPair.addImplementation(DottedList);
 
 List.CdrHelperImpl = /** @implements {CdrHelper} */ class {
     /**
@@ -190,4 +191,4 @@ List.CdrHelperImpl = /** @implements {CdrHelper} */ class {
     }
 };
 
-exports = List;
+exports = {List, DottedList};

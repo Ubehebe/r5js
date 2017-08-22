@@ -3,8 +3,8 @@ goog.module('r5js.ast.util');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
-const List = goog.require('r5js.ast.List');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 

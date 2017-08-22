@@ -13,7 +13,6 @@ const IEnvironment = goog.require('r5js.IEnvironment');
 const Identifier = goog.require('r5js.ast.Identifier');
 const InputPort = goog.require('r5js.InputPort');
 const Lambda = goog.require('r5js.Lambda');
-const List = goog.require('r5js.ast.List');
 const Number = goog.require('r5js.ast.Number');
 const OutputPort = goog.require('r5js.OutputPort');
 const ParserImpl = goog.require('r5js.ParserImpl');
@@ -30,6 +29,7 @@ const Vector = goog.require('r5js.ast.Vector');
 const _ = goog.require('r5js.procspec');
 const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
+const {DottedList, List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 
@@ -300,7 +300,7 @@ PrimitiveProcedures['cons'] = _.binary((car, cdr) => {
     return new SiblingBuffer()
         .appendSibling(realCar)
         .appendSibling(realCdr)
-        .toList(List.Dotted);
+        .toList(DottedList);
   }
 });
 

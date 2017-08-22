@@ -3,10 +3,10 @@ goog.module('r5js.VarargsUserDefinedProcedure');
 const Datum = goog.require('r5js.Datum');
 const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
-const List = goog.require('r5js.ast.List');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const datumutil = goog.require('r5js.datumutil');
+const {List} = goog.require('r5js.ast.List');
 
 class VarargsUserDefinedProcedure extends UserDefinedProcedure {
     /**
