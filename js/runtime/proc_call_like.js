@@ -10,6 +10,9 @@ class ResultStruct {
 
     /** @param {!Value} value */
     setValue(value) { }
+
+    /** @return {ProcCallLike} */
+    getNextProcCallLike() { }
 }
 
 class ProcCallLike {
