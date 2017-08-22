@@ -127,7 +127,7 @@ class DottedList extends CompoundDatum {
                 ans = startOfCdr;
             }
             if (ans instanceof CompoundDatum) {
-                ans.setCdrHelper(new List.CdrHelperImpl(this, startOfCdr));
+                ans.setCdrHelper(new CdrHelperImpl(this, startOfCdr));
             }
             return ans;
         } else {
@@ -137,7 +137,8 @@ class DottedList extends CompoundDatum {
 }
 IPair.addImplementation(DottedList);
 
-List.CdrHelperImpl = /** @implements {CdrHelper} */ class {
+/** @implements {CdrHelper} */
+class CdrHelperImpl {
     /**
      * @param {!CompoundDatum} head
      * @param {!Datum} startOfCdr
@@ -189,6 +190,6 @@ List.CdrHelperImpl = /** @implements {CdrHelper} */ class {
             return false;
         }
     }
-};
+}
 
-exports = {List, DottedList};
+exports = {List, CdrHelperImpl, DottedList};

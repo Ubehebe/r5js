@@ -29,7 +29,7 @@ const Vector = goog.require('r5js.ast.Vector');
 const _ = goog.require('r5js.procspec');
 const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
-const {DottedList, List} = goog.require('r5js.ast.List');
+const {CdrHelperImpl, DottedList, List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 
@@ -281,7 +281,7 @@ PrimitiveProcedures['cdr'] = _.unary(p => {
     // TODO bl bug city. I have no idea what this code path does, and it only seems to be triggered
     // intermittently, when I'm working on unrelated stuff.
     if (cdr instanceof CompoundDatum) {
-        cdr.setCdrHelper(new List.CdrHelperImpl(p, /** @type {!Datum} */ (cdr.getFirstChild())));
+        cdr.setCdrHelper(new CdrHelperImpl(p, /** @type {!Datum} */ (cdr.getFirstChild())));
     }
     return cdr;
 }, Types.PAIR);
