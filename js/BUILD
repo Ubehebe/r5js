@@ -3,7 +3,6 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 BIG_BALL_OF_MUD_SRCS = [
     "boot.js",
     "//js/eval",
-    "//js/runtime",
 ]
 
 closure_js_library(
@@ -50,12 +49,10 @@ closure_js_library(
         "//js/parse:rename_util",
         "//js/parse:terminals",
         "//js/read",
-        "//js/scan",
+        "//js/runtime",
         "//js/runtime:ienvironment",
         "//js/runtime:proc_call_like",
         "//js/runtime:used_by_parser_impl",
-    ],
-    suppress = [
-        "JSC_PRIMITIVE_OBJECT",
+        "//js/scan",
     ],
 )

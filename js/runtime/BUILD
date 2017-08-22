@@ -36,13 +36,32 @@ closure_js_library(
     visibility = ["//js:__subpackages__"],
 )
 
-filegroup(
+closure_js_library(
     name = "runtime",
     srcs = glob(["*.js"], exclude = [
         "ienvironment.js",
         "proc_call_like.js",
     ] + SRCS_USED_BY_PARSER_IMPL),
-    visibility = ["//js:__pkg__"],
+    visibility = ["//js:__subpackages__"],
+    deps = [
+        "@io_bazel_rules_closure//closure/library",
+        ":used_by_parser_impl",
+        "//js/ast",
+        "//js:error",
+        "//js/eval:valutil",
+        "//js/io",
+        "//js/macro",
+        "//js/parse",
+        "//js/parse:parser",
+        "//js/parse:rename_util",
+        "//js/runtime:ienvironment",
+        "//js/runtime:proc_call_like",
+        "//js:value",
+    ],
+    suppress = [
+        "JSC_PRIMITIVE_OBJECT",
+    ],
+    language = "ECMASCRIPT6_STRICT",
 )
 
 closure_js_library(
