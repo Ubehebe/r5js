@@ -10,11 +10,10 @@ const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
-const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Transformer = goog.require('r5js.Transformer');
 const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {ObjectValue} = goog.require('r5js.Value');
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */
 class Macro {
@@ -238,7 +237,7 @@ class Macro {
     /**
      * @param {!Datum} rawDatum
      * @param {!ProcCallLike} procCallLike
-     * @param {!TrampolineHelper} resultStruct
+     * @param {!ResultStruct} resultStruct
      * @param {function(!Datum):!r5js.Parser} parserProvider
      */
     evaluate(rawDatum, procCallLike, resultStruct, parserProvider) {
