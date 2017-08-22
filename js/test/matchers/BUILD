@@ -13,6 +13,7 @@ closure_js_library(
         "//js/ast",
         "//js:bbom",
         "//js:error",
+        "//js/io",
         "//js/parse:nonterminals",
         "//js/read",
         "//js/scan",

@@ -8,8 +8,7 @@ closure_js_library(
         "@io_bazel_rules_closure//closure/library",
         "//js:bbom",
         "//js/platform",
-#        "//scm:PROCEDURES",
-#        "//scm:SYNTAX",
+        "//js/io",
     ],
     visibility = [
         "//js:__subpackages__",
