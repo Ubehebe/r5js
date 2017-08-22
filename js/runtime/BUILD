@@ -10,9 +10,8 @@ SRCS_USED_BY_PARSER_IMPL = [
     "proc_call.js",
     "top_level_assignment.js",
     "top_level_syntax_assignment.js",
-#    these depend on parse/util.js
-#    "user_defined_procedure.js",
-#    "varargs_user_defined_procedure.js",
+    "user_defined_procedure.js",
+    "varargs_user_defined_procedure.js",
 ]
 
 closure_js_library(

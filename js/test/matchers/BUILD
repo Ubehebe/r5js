@@ -14,6 +14,7 @@ closure_js_library(
         "//js:bbom",
         "//js:error",
         "//js/io",
+        "//js/parse",
         "//js/parse:nonterminals",
         "//js/read",
         "//js/scan",

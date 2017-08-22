@@ -1,7 +1,6 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
-# TODO turn into closure_js_library
-filegroup(
+closure_js_library(
     name = "parse",
     srcs = glob(["*.js"], exclude = [
         "nonterminals.js",
@@ -9,7 +8,21 @@ filegroup(
         "rename_util.js",
         "terminals.js",
     ]),
-    visibility = ["//js:__pkg__"],
+    deps = [
+        "@io_bazel_rules_closure//closure/library",
+        "//js/ast",
+        "//js:error",
+        "//js/macro",
+        "//js/runtime:ienvironment",
+        "//js/runtime:proc_call_like",
+        "//js/runtime:used_by_parser_impl",
+        ":nonterminals",
+        ":terminals",
+        ":parser",
+        ":rename_util",
+    ],
+    language = "ECMASCRIPT6_STRICT",
+    visibility = ["//js:__subpackages__"],
 )
 
 closure_js_library(
