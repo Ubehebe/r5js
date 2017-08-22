@@ -1,34 +1,32 @@
-goog.provide('r5js.InMemoryOutputPort');
+goog.module('r5js.InMemoryOutputPort');
 
-goog.require('r5js.InMemoryPortBuffer');
-goog.require('r5js.OutputPort');
-goog.require('r5js.OutputSavingPort');
+const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
+const OutputPort = goog.require('r5js.OutputPort');
+const OutputSavingPort = goog.require('r5js.OutputSavingPort');
 
-/**
- * @param {!r5js.InMemoryPortBuffer} buffer
- * @implements {r5js.OutputSavingPort}
- * @struct
- * @constructor
- */
-r5js.InMemoryOutputPort = function(buffer) {
+/** @struct @implements {OutputSavingPort} */
+class InMemoryOutputPort {
+  /** @param {!InMemoryPortBuffer} buffer */
+  constructor(buffer) {
   /** @const @private */ this.buffer_ = buffer;
   /** @const @private {!Array<string>} */ this.outputs_ = [];
-};
-r5js.OutputPort.addImplementation(r5js.InMemoryOutputPort);
+  }
 
+  /** @override */
+  write(str) {
+    this.buffer_.append(str);
+    this.outputs_.push(str);
+  }
 
-/** @override */
-r5js.InMemoryOutputPort.prototype.write = function(str) {
-  this.buffer_.append(str);
-  this.outputs_.push(str);
-};
+  /** @override */
+  dequeueOutput() {
+    return this.outputs_.shift();
+  }
 
+  /** @override */
+  close() {}
+}
 
-/** @override */
-r5js.InMemoryOutputPort.prototype.dequeueOutput = function() {
-  return this.outputs_.shift();
-};
+OutputPort.addImplementation(InMemoryOutputPort);
 
-
-/** @override */
-r5js.InMemoryOutputPort.prototype.close = goog.nullFunction;
+exports = InMemoryOutputPort;

@@ -1,6 +1,5 @@
 goog.module('r5js.InMemoryPortBuffer');
 
-
 class InMemoryPortBuffer {
     constructor() {
         /** @private */ this.buffer_ = '';

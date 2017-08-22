@@ -1,6 +1,5 @@
 goog.module('r5js.InMemoryInputPort');
 
-
 const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
 const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
