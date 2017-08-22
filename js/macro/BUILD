@@ -1,6 +1,17 @@
-# TODO turn into closure_js_library
-filegroup(
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+
+closure_js_library(
     name = "macro",
     srcs = glob(["*.js"]),
-    visibility = ["//js:__pkg__"],
+    deps = [
+        "//js/ast",
+        "//js:error",
+        "//js/parse:nonterminals",
+        "//js/parse:rename_util",
+        "//js/runtime:ienvironment",
+        "//js/runtime:proc_call_like",
+        "//js:value",
+    ],
+    language = "ECMASCRIPT6_STRICT",
+    visibility = ["//js:__subpackages__"],
 )
