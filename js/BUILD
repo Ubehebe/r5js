@@ -1,9 +1,5 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
-BIG_BALL_OF_MUD_SRCS = [
-    "boot.js",
-]
-
 closure_js_library(
     name = "value",
     srcs = [
@@ -26,10 +22,9 @@ closure_js_library(
     ],
 )
 
-# TODO: break deps cycles
 closure_js_library(
-    name = "bbom",
-    srcs = BIG_BALL_OF_MUD_SRCS,
+    name = "boot",
+    srcs = ["boot.js"],
     language = "ECMASCRIPT6_STRICT",
     visibility = [
         "//js:__subpackages__",

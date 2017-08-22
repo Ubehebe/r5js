@@ -5,7 +5,7 @@ closure_js_library(
     language = "ECMASCRIPT6_STRICT",
     srcs = glob(["*.js"]),
     deps = [
-        "//js:bbom",
+        "//js:boot",
         "//js/eval",
         "//js/io",
         "//scm:PROCEDURES",

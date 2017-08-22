@@ -11,7 +11,7 @@ closure_js_library(
         "//js/platform",
         "//js/platform/common",
         "//js/repl",
-        "//js:bbom",
+        "//js:boot",
         "@io_bazel_rules_closure//closure/library",
     ],
     visibility = [

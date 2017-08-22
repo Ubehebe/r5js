@@ -6,7 +6,7 @@ closure_js_library(
     language = "ECMASCRIPT6_STRICT",
     deps = [
         "@io_bazel_rules_closure//closure/library",
-        "//js:bbom",
+        "//js:boot",
         "//js/platform",
         "//js/repl",
     ],
