@@ -5,6 +5,7 @@ BIG_BALL_OF_MUD_SRCS = [
     "//js/eval",
     "//js/parse",
     "//js/runtime",
+    "//js/runtime:used_by_parser_impl",
 ]
 
 closure_js_library(
