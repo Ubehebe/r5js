@@ -64,6 +64,7 @@ closure_js_test(
         "//js/io",
         "//js/parse:terminals",
         "//js/platform",
+        "//js/runtime:used_by_parser_impl",
         "//js/test/matchers",
     ],
 )
