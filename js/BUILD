@@ -36,7 +36,6 @@ closure_js_library(
         ":value",
         "//js/ast",
         "//js/eval",
-        "//js/eval:valutil",
         "//js/io",
         "//js/macro",
         "//js/parse",
