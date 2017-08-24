@@ -59,14 +59,14 @@ def _node_test_impl(ctx):
       outputs = [ctx.outputs.executable],
       command = ("cat > %s << END\n"
       + "#!/bin/sh\n"
-      + "node "
+      + "%s "
       + ("--debug-brk --inspect " if ctx.attr.debug else "")
       + "-e %s\n"
-      + "END") % (ctx.outputs.executable.path, node_cmd),
+      + "END") % (ctx.outputs.executable.path, ctx.executable._node.path, node_cmd),
   )
 
   runfiles = ctx.runfiles(
-      files = [copy],
+      files = [copy, ctx.executable._node],
   )
   return [DefaultInfo(runfiles=runfiles)]
 
@@ -77,5 +77,11 @@ node_test = rule(
           "src": attr.label(mandatory = True, allow_single_file = True),
           "entry_point": attr.string(mandatory = True),
           "debug": attr.bool(),
+          "_node": attr.label(
+              default = Label("@node//:bin/node"),
+              allow_files = True,
+              executable = True,
+              cfg = "host",
+          ),
       },
 )
