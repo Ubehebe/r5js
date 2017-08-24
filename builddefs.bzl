@@ -40,44 +40,42 @@ def scheme_source(name, src):
       ],
   )
 
-def node_test(name, src, entry_point, debug=False):
-
-  native.genrule(
-      name = name + "_copy",
-      srcs = [
-          src,
-      ],
-      outs = [
-          name + "_copy.js"
-      ],
-      cmd = "cp $(<) $(@)",
+def _node_test_impl(ctx):
+  input = ctx.file.src
+  # bazel 0.5.3: ctx.actions.declare_file
+  copy = ctx.new_file("%s.copy" % input.basename)
+  # bazel 0.5.3: ctx.actions.run_shell
+  ctx.action(
+    inputs = [input],
+    outputs = [copy],
+    command = "cp %s %s" % (input.path, copy.path),
   )
 
-  node_require = "require('./" + PACKAGE_NAME + "/" + name + "_copy.js')"
-  node_cmd = '"' + node_require + '.' + entry_point + '(process.argv, process.env)" type=unit verbose'
+  node_require = "require('./%s/%s')" % (ctx.label.package, copy.basename)
+  node_cmd = '"' + node_require + '.' + ctx.attr.entry_point + '(process.argv, process.env)" type=unit verbose'
 
-  native.genrule(
-      name = name + "_sh",
-      testonly = 1,
-      srcs = [src],
-      cmd = "cat > $(@) << END\n"
+  ctx.action(
+      inputs = [copy],
+      outputs = [ctx.outputs.executable],
+      command = ("cat > %s << END\n"
       + "#!/bin/sh\n"
       + "node "
-      + ("--debug-brk --inspect " if debug else "")
-      + "-e " + node_cmd + "\n"
-      + "END",
-      outs = [
-          name + ".sh",
-      ],
+      + ("--debug-brk --inspect " if ctx.attr.debug else "")
+      + "-e %s\n"
+      + "END") % (ctx.outputs.executable.path, node_cmd),
   )
 
-  native.sh_test(
-      name = name,
-      timeout = "eternal" if debug else "short",
-      srcs = [
-          name + ".sh",
-      ],
-      data = [
-          name + "_copy.js",
-      ],
+  runfiles = ctx.runfiles(
+      files = [copy],
   )
+  return [DefaultInfo(runfiles=runfiles)]
+
+node_test = rule(
+      implementation = _node_test_impl,
+      test = True,
+      attrs = {
+          "src": attr.label(mandatory = True, allow_single_file = True),
+          "entry_point": attr.string(mandatory = True),
+          "debug": attr.bool(),
+      },
+)
