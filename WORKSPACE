@@ -1,3 +1,7 @@
+load("//:node.bzl", "node")
+
+node(name = "node")
+
 http_archive(
     name = "io_bazel_rules_closure",
     strip_prefix = "rules_closure-0.4.1",
