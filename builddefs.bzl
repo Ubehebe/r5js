@@ -51,18 +51,21 @@ def _node_test_impl(ctx):
     command = "cp %s %s" % (input.path, copy.path),
   )
 
-  node_require = "require('./%s/%s')" % (ctx.label.package, copy.basename)
-  node_cmd = '"' + node_require + '.' + ctx.attr.entry_point + '(process.argv, process.env)" type=unit verbose'
+  node_cmd = """"require('./%s/%s').%s(process.argv, process.env)" type=unit verbose""" % (
+    ctx.label.package,
+    copy.basename,
+    ctx.attr.entry_point,
+  )
 
   ctx.action(
       inputs = [copy],
       outputs = [ctx.outputs.executable],
-      command = ("cat > %s << END\n"
-      + "#!/bin/sh\n"
-      + "%s "
-      + ("--debug-brk --inspect " if ctx.attr.debug else "")
-      + "-e %s\n"
-      + "END") % (ctx.outputs.executable.path, ctx.executable._node.path, node_cmd),
+      command =
+      "cat > %s << END\n#!/bin/sh\n%s %s -e %s\nEND" % (
+          ctx.outputs.executable.path,
+          ctx.executable._node.path,
+          "--debug-brk --inspect " if ctx.attr.debug else "",
+          node_cmd),
   )
 
   runfiles = ctx.runfiles(
