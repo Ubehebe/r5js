@@ -1,5 +1,5 @@
 def _node_impl(repository_ctx):
-  repository_ctx.file("BUILD", content="""exports_files(["bin/node"], visibility = ["//visibility:public"])""")
+  repository_ctx.file("BUILD", content="""exports_files(["bin/node"])""")
   if repository_ctx.os.name.lower().startswith("mac os"):
     repository_ctx.download_and_extract(
             [
