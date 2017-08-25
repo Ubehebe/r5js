@@ -42,23 +42,15 @@ def scheme_source(name, src):
 
 def _node_test_impl(ctx):
   input = ctx.file.src
-  # bazel 0.5.3: ctx.actions.declare_file
-  copy = ctx.new_file("%s.copy" % input.basename)
-  # bazel 0.5.3: ctx.actions.run_shell
-  ctx.action(
-    inputs = [input],
-    outputs = [copy],
-    command = "cp %s %s" % (input.path, copy.path),
-  )
 
   node_cmd = """"require('./%s/%s').%s(process.argv, process.env)" type=unit verbose""" % (
     ctx.label.package,
-    copy.basename,
+    input.basename,
     ctx.attr.entry_point,
   )
 
   ctx.action(
-      inputs = [copy],
+      inputs = [input],
       outputs = [ctx.outputs.executable],
       command =
       "cat > %s << END\n#!/bin/sh\n%s %s -e %s\nEND" % (
@@ -69,7 +61,7 @@ def _node_test_impl(ctx):
   )
 
   runfiles = ctx.runfiles(
-      files = [copy, ctx.executable._node],
+      files = [input, ctx.executable._node],
   )
   return [DefaultInfo(runfiles=runfiles)]
 
