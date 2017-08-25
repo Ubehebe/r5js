@@ -1,7 +1,3 @@
-load("//:node.bzl", "node")
-
-node(name = "node")
-
 http_archive(
     name = "io_bazel_rules_closure",
     strip_prefix = "rules_closure-0.4.1",
@@ -15,6 +11,15 @@ http_archive(
     strip_prefix = "closure-tdd-167e4235e6a098432b78a5f1842c83c6af905961",
 )
 
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    url = "https://github.com/bazelbuild/rules_nodejs/archive/0.0.2.tar.gz",
+    strip_prefix = "rules_nodejs-0.0.2",
+    sha256 = "976e6760d3f90fa0124d9c59276f19da344333813018ba9d7475e68b708ee46f",
+)
 
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
 closure_repositories()
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+node_repositories(package_json = ["//:package.json"])

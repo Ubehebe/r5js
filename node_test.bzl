@@ -31,7 +31,7 @@ node_test = rule(
           "entry_point": attr.string(mandatory = True),
           "debug": attr.bool(),
           "_node": attr.label(
-              default = Label("@node//:bin/node"),
+              default = Label("@nodejs//:bin/node"),
               allow_files = True,
               executable = True,
               cfg = "host",
