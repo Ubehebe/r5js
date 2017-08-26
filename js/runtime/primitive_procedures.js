@@ -8,6 +8,7 @@ const Continuation = goog.require('r5js.Continuation');
 const Datum = goog.require('r5js.Datum');
 const DynamicWindContinuation = goog.require('r5js.DynamicWindContinuation');
 const EOF = goog.require('r5js.runtime.EOF');
+const Environment = goog.require('r5js.Environment');
 const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const Identifier = goog.require('r5js.ast.Identifier');
@@ -474,7 +475,7 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
         // is not helpful. Also, Types.SYMBOL is not right.
         throw argumentTypeError(
             expr, 0, 'eval', Types.SYMBOL, _.runtimeType(expr));
-      if (!IEnvironment.isImplementedBy(envSpec)) {
+      if (!(envSpec instanceof Environment)) {
         throw argumentTypeError(
             envSpec, 1, 'eval', Types.ENVIRONMENT_SPECIFIER,
             _.runtimeType(envSpec));

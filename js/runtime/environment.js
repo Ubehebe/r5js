@@ -66,7 +66,7 @@ class Environment {
     get(name) {
         if (name in this.bindings_) {
             const binding = this.bindings_[name];
-            if (IEnvironment.isImplementedBy(binding)
+            if (binding instanceof Environment
                 && binding.hasBindingRecursive(name)) {
                 // Redirects for free ids in macro transcriptions
                 return binding.get(name);
@@ -106,8 +106,8 @@ class Environment {
     getProcedure(name) {
         if (name in this.bindings_) {
             const binding = this.bindings_[name];
-            if (IEnvironment.isImplementedBy(binding)) {
-                return binding.getProcedure(name);
+            if (binding instanceof Environment) {
+                return (/** @type {!Environment} */ (binding)).getProcedure(name);
             } else if (binding instanceof Continuation
                 || binding instanceof Macro
                 || binding instanceof Procedure) {
@@ -128,12 +128,13 @@ class Environment {
 
     /** @override */
     addClosuresFrom(other) {
+        const otherEnv = /** @type {!Environment} */ (other);
         /* todo bl: we have to clone the SchemeProcedures to prevent
          some kind of infinite loop. I'm not entirely clear about what loop, though,
          since SchemeProcedure.prototype.cloneWithEnv itself does not do a lot
          of copying. */
-        for (const name in other.closures_) {
-            this.addBinding(name, other.closures_[name].cloneWithEnv(this));
+        for (const name in otherEnv.closures_) {
+            this.addBinding(name, otherEnv.closures_[name].cloneWithEnv(this));
         }
         return this;
     }
@@ -193,8 +194,8 @@ class Environment {
     mutate(name, newVal, isTopLevel) {
         const maybeBinding = this.bindings_[name];
         if (maybeBinding != null || isTopLevel) {
-            if (IEnvironment.isImplementedBy(maybeBinding)) {
-                maybeBinding.mutate(name, newVal, isTopLevel);
+            if (maybeBinding instanceof Environment) {
+                (/** @type {!Environment} */ (maybeBinding)).mutate(name, newVal, isTopLevel);
             } else {
                 delete this.bindings_[name];
                 this.addBinding(name, newVal);
@@ -208,9 +209,7 @@ class Environment {
 
     /** @override */
     setClosuresFrom(otherEnv) {
-        if (otherEnv instanceof Environment) {
-            this.closures_ = otherEnv.closures_;
-        }
+        this.closures_ = (/** @type {!Environment} */ (otherEnv)).closures_;
     }
 
     /** @override */
@@ -224,5 +223,4 @@ class Environment {
     }
 }
 
-IEnvironment.addImplementation(Environment);
 exports = Environment;

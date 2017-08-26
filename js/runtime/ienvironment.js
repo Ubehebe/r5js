@@ -160,23 +160,7 @@ class IEnvironment {
     /** @return {!IEnvironment} */
     child() {
     }
-
-    /**
-     * @param {*} obj
-     * @return {boolean}
-     * TODO bl temporary shim. Remove.
-     */
-    static isImplementedBy(obj) {
-        return !!(obj && obj[IMPLEMENTED_BY_PROP]);
-    }
-
-    /** @param {function(new: IEnvironment, ...)} ctor */
-    static addImplementation(ctor) {
-        ctor.prototype[IMPLEMENTED_BY_PROP] = true;
-    }
 }
-
-const IMPLEMENTED_BY_PROP = '$r5js.IEnvironment';
 
 exports = IEnvironment;
 
