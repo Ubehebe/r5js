@@ -26,7 +26,7 @@ class RuleFactory {
 
     /**
      * @param {!Terminal|!Nonterminal} terminalOrNonterminal
-     * @return {!Rule}
+     * @return {!DesugarableRule<?>}
      */
     one(terminalOrNonterminal) {
         return goog.isString(terminalOrNonterminal)
@@ -117,11 +117,21 @@ class RuleFactory {
     }
 }
 
-/** @implements {Rule} */
+/** @implements {DesugarableRule<null>} */
 class OneTerminal {
     /** @param {!Terminal} terminal */
     constructor(terminal) {
         /** @const @private */ this.terminal_ = terminal;
+    }
+
+    /**
+     * TODO: this class isn't really desugarable. It implements
+     * DesugarableRule so that one() can return a DesugurableRule consistently.
+     * Break up one() into oneTerminal(), returning a Rule, and oneNonterminal(), returning a
+     * DesugarableRule.
+     * @override
+     */
+    desugar(desugarFunc) {
     }
 
     /**
