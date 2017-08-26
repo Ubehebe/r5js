@@ -1,5 +1,4 @@
 load("//:builddefs.bzl", "JS_VERSION")
-load("//:node_test.bzl", "node_test")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library", "closure_js_test")
 
 closure_js_library(
@@ -16,53 +15,6 @@ closure_js_library(
         "//scm:TEST_FRAMEWORK_TESTS",
     ],
     language = JS_VERSION,
-)
-
-
-closure_js_library(
-    name = "lib",
-    testonly = 1,
-    srcs = glob(
-        ["*.js"],
-        exclude = [
-            "js_interop_test.js",
-            "parser_test.js",
-            "scanner_test.js",
-            "scheme_sources.js",
-            "scheme_test_driver_test.js",
-            "test_framework.js",
-        ]),
-    deps = [
-        "@io_bazel_rules_closure//closure/library",
-        "@io_bazel_rules_closure//closure/library:testing",
-        "@closure_tdd//:closure-tdd",
-        "//js:boot",
-        "//js:error",
-        "//js/eval",
-        "//js/io",
-        "//js/platform/common",
-        "//js/platform/node",
-        "//js/test/matchers",
-        ":scheme_test_sources",
-        ":test_framework",
-    ],
-    language = JS_VERSION,
-    visibility = [
-        "//js:__subpackages__",
-    ]
-)
-
-closure_js_binary(
-    name = "bin",
-    testonly = 1,
-    debug = True,
-    deps = [
-        ":lib",
-    ],
-    compilation_level = "simple",
-    entry_points = [
-        "goog:r5js.test.main",
-    ],
 )
 
 closure_js_test(
@@ -142,9 +94,22 @@ closure_js_library(
     ],
 )
 
-node_test(
-    name = "test",
-#    debug = True,
-    src = ":bin.js",
-    entry_point = "r5js.test.main",
+closure_js_test(
+    name = "scheme_test",
+    language = JS_VERSION,
+    srcs = [
+        "scheme_test.js",
+    ],
+    deps = [
+        "@closure_tdd//:closure-tdd",
+        "@io_bazel_rules_closure//closure/library",
+        "@io_bazel_rules_closure//closure/library:testing",
+        ":scheme_test_sources",
+        ":test_framework",
+        "//js/io",
+        "//js/platform/node",
+    ],
+    entry_points = [
+        "goog:r5js.test.SchemeTest",
+    ],
 )

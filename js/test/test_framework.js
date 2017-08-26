@@ -30,7 +30,7 @@ class TestFramework {
       if (result) {
           this.logger_.logRecord(new LogRecord(
               LogLevel.SUCCESS,
-              'r5js.test.SchemeTestDriver',
+              'r5js.test.TestFramework',
               result.name_));
           this.actualResult_ = this.actualResult_.merge(result);
       }
@@ -48,20 +48,17 @@ class TestFramework {
 
   /** @override */
   toString() {
-      return 'r5js.test.SchemeTestDriver.TestFramework_';
+      return 'r5js.test.TestFramework_';
   }
 
   /** @override */
   execute(logger) {
       this.logger_ = logger;
       const evaluator = curPlatform().newEvaluator(
-          InputPort.NULL, new CallbackBackedPort(this.onWrite_.bind(this)));
+          InputPort.NULL, new CallbackBackedPort(output => this.onWrite_(output)));
       return evaluator.evaluate(this.sources_.testFramework + this.sources_.testFrameworkTests)
-          .then(() => resultIsExpected_(this.actualResult_),
-          undefined /* opt_onRejected */, this)
-          .then(success => success
-              ? new ResultStruct(1, 0, 0)
-              : new ResultStruct(0, 1, 0))
+          .then(() => resultIsExpected_(this.actualResult_))
+          .then(success => success ? new ResultStruct(1, 0, 0) : new ResultStruct(0, 1, 0))
           .then(Promise.resolve);
   }
 }
