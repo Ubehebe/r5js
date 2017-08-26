@@ -1,4 +1,4 @@
-goog.module('r5js.test.TestFrameworkTest');
+goog.module('r5js.test.TestFramework');
 
 const CallbackBackedPort = goog.require('r5js.CallbackBackedPort');
 const InputPort = goog.require('r5js.InputPort');
@@ -13,7 +13,7 @@ const TestType = goog.require('tdd.TestType');
 const curPlatform = goog.require('r5js.curPlatform');
 
 /** @implements {ManualTestSuite} */
-class TestFrameworkTest {
+class TestFramework {
   /** @param {!SchemeSources} sources */
   constructor(sources) {
       /** @const @private */ this.sources_ = sources;
@@ -62,7 +62,7 @@ class TestFrameworkTest {
 
   /** @override */
   toString() {
-      return 'r5js.test.SchemeTestDriver.TestFrameworkTest_';
+      return 'r5js.test.SchemeTestDriver.TestFramework_';
   }
 
   /** @override */
@@ -71,7 +71,7 @@ class TestFrameworkTest {
       const evaluator = curPlatform().newEvaluator(
           InputPort.NULL, new CallbackBackedPort(this.onWrite_.bind(this)));
       return evaluator.evaluate(this.sources_.testFramework + this.sources_.testFrameworkTests)
-          .then(() => TestFrameworkTest.resultIsExpected_(this.actualResult_),
+          .then(() => TestFramework.resultIsExpected_(this.actualResult_),
           undefined /* opt_onRejected */, this)
           .then(success => success
               ? new ResultStruct(1, 0, 0)
@@ -79,7 +79,7 @@ class TestFrameworkTest {
           .then(Promise.resolve);
   }
 }
-ManualTestSuite.addImplementation(TestFrameworkTest);
+ManualTestSuite.addImplementation(TestFramework);
 
 /**
  * Parses a Scheme test framework output like this:
@@ -112,4 +112,4 @@ class ResultStruct_ extends ResultStruct {
   }
 }
 
-exports = {stringToResultStruct, TestFrameworkTest};
+exports = {stringToResultStruct, TestFramework};

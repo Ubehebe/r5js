@@ -30,7 +30,7 @@ closure_js_library(
             "scanner_test.js",
             "scheme_sources.js",
             "scheme_test_driver_test.js",
-            "test_framework_test.js",
+            "test_framework.js",
         ]),
     deps = [
         "@io_bazel_rules_closure//closure/library",
@@ -44,7 +44,7 @@ closure_js_library(
         "//js/platform/node",
         "//js/test/matchers",
         ":scheme_test_sources",
-        ":test_framework_test",
+        ":test_framework",
     ],
     language = JS_VERSION,
     visibility = [
@@ -127,10 +127,10 @@ closure_js_test(
 )
 
 closure_js_library(
-    name = "test_framework_test",
+    name = "test_framework",
     testonly = 1,
     srcs = [
-        "test_framework_test.js",
+        "test_framework.js",
     ],
     language = JS_VERSION,
     deps = [

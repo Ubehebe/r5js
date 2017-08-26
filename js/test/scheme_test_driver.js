@@ -11,7 +11,7 @@ const ResultStruct = goog.require('tdd.ResultStruct');
 const SchemeSources = goog.require('r5js.test.SchemeSources');
 const TestType = goog.require('tdd.TestType');
 const curPlatform = goog.require('r5js.curPlatform');
-const {stringToResultStruct, TestFrameworkTest} = goog.require('r5js.test.TestFrameworkTest');
+const {stringToResultStruct, TestFramework} = goog.require('r5js.test.TestFramework');
 
 /**
  * Driver for running the unit tests written in Scheme.
@@ -47,7 +47,7 @@ class SchemeTestDriver {
         const sources = SchemeSources.get();
         const evaluator = platform.newEvaluator(InputPort.NULL, new CallbackBackedPort(onWrite));
 
-        return new TestFrameworkTest(sources).execute(logger).then(result_ => {
+        return new TestFramework(sources).execute(logger).then(result_ => {
             result = result.merge(result_);
             return evaluator.evaluate(sources.testFramework + sources.r5RSTests);
         }).then(() => evaluator.evaluate(sources.testFramework + sources.negativeTests)
