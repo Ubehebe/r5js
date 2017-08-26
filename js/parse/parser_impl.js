@@ -190,7 +190,7 @@ class ParserImpl {
     static desugarMacroBlock_(datum, env, operatorName) {
         const letBindings = new SiblingBuffer();
 
-        datum.firstSublist().forEachChild(function (spec) {
+        datum.firstSublist().forEachChild(spec => {
             spec = /** @type {!CompoundDatum} */ (spec); // TODO bl
             const kw = spec.at(Nonterminals.KEYWORD).clone(null /* parent */);
             const macro = /** @type {!Macro} */ (
@@ -272,23 +272,19 @@ grammar[Nonterminals.EXPRESSION] =
     _.one(Nonterminals.LAMBDA_EXPRESSION),
     _.one(Nonterminals.CONDITIONAL),
     _.one(Nonterminals.ASSIGNMENT),
-    _.one(Nonterminals.QUASIQUOTATION).desugar(function(node, env) {
-      return (/** @type {!CompoundDatum} */ (node)).
-          setQuasiquotationLevel(1);
-    }),
+    _.one(Nonterminals.QUASIQUOTATION).desugar((node, env) =>
+            (/** @type {!CompoundDatum} */ (node)).setQuasiquotationLevel(1)),
     _.list(
             _.one(Terminals.BEGIN),
             _.oneOrMore(Nonterminals.EXPRESSION)).
-        desugar(function(node, env) {
-      return node.at(Nonterminals.EXPRESSION).sequence(env);
-        }),
+        desugar((node, env) => node.at(Nonterminals.EXPRESSION).sequence(env)),
     _.one(Nonterminals.MACRO_BLOCK),
     _.one(Nonterminals.PROCEDURE_CALL),
     _.one(Nonterminals.MACRO_USE));
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
 grammar[Nonterminals.VARIABLE] = _.seq(
-    _.matchDatum(function(datum) {
+    _.matchDatum(datum => {
       const isIdentifier = datum instanceof Identifier;
       if (isIdentifier && RenameUtil.isParserSensitiveId(
           (/** @type {!Identifier} */(datum)).getPayload())) {
@@ -312,14 +308,12 @@ grammar[Nonterminals.QUOTATION] = _.seq(
 
 
 grammar[Nonterminals.DATUM] = _.seq(
-    _.matchDatum(function(datum) {
-      return true;
-    }));
+    _.matchDatum(datum => true));
 
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 grammar[Nonterminals.SELF_EVALUATING] = _.seq(
-    _.matchDatum(function(datum) {
+    _.matchDatum(datum => {
       const ans = (datum instanceof SimpleDatum
           && !(datum instanceof Identifier))
           || datum instanceof Vector /* TODO bl document */;
@@ -337,8 +331,7 @@ grammar[Nonterminals.SELF_EVALUATING] = _.seq(
 grammar[Nonterminals.PROCEDURE_CALL] = _.list(
     _.one(Nonterminals.OPERATOR),
     _.zeroOrMore(Nonterminals.OPERAND)).
-        desugar(function(node, env) {
-
+        desugar((node, env) => {
       const operatorNode = node.at(Nonterminals.OPERATOR);
       // will be null if 0 operands
       const operands = node.at(Nonterminals.OPERAND);
@@ -377,26 +370,24 @@ grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
     _.one(Nonterminals.FORMALS),
     _.zeroOrMore(Nonterminals.DEFINITION),
     _.oneOrMore(Nonterminals.EXPRESSION)).
-        desugar(function(node, env) {
+        desugar((node, env) => {
       const formalRoot = node.at(Nonterminals.FORMALS);
       let formals;
       let treatAsDotted = false;
 
       // (lambda (x y) ...)
       if (formalRoot instanceof List) {
-        formals = formalRoot.mapChildren(function(child) {
-          return /** @type {!Datum} */ (
-              (/** @type {!SimpleDatum} */ (child)).getPayload());
-            });
+        formals = formalRoot.mapChildren(child =>
+             /** @type {!Datum} */ (
+              (/** @type {!SimpleDatum} */ (child)).getPayload()));
       }
 
     // (lambda (x y z . w) ...)
       else if (formalRoot.isImproperList()) {
         formals = (/** @type {!CompoundDatum} */ (formalRoot)).
-            mapChildren(function(child) {
-              return /** @type {!Datum} */ (
-                  (/** @type {!SimpleDatum} */ (child)).getPayload());
-            });
+            mapChildren(child =>
+                /** @type {!Datum} */ (
+                  (/** @type {!SimpleDatum} */ (child)).getPayload()));
         treatAsDotted = true;
       }
 
@@ -498,10 +489,8 @@ grammar[Nonterminals.DEFINITION] = _.choice(
       const def = util.extractDefinition(node);
       const name = /** @type {!SimpleDatum} */ (def.getFirstChild());
       const lambda = /** @type {!CompoundDatum} */(name.getNextSibling());
-      const formalRoot = lambda.getFirstChild().getNextSibling();
-      const formals = formalRoot.mapChildren(function(child) {
-        return child.getPayload();
-      });
+      const formalRoot = /** @type {!CompoundDatum} */ (lambda.getFirstChild().getNextSibling());
+      const formals = formalRoot.mapChildren(child => (/** @type {!SimpleDatum} */(child)).getPayload());
       const anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
@@ -542,7 +531,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
     _.list(
         _.one(Terminals.BEGIN),
         _.zeroOrMore(Nonterminals.DEFINITION)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const def = node.at(Nonterminals.DEFINITION);
       return def && def.sequence(env);
         }));
@@ -555,7 +544,7 @@ grammar[Nonterminals.CONDITIONAL] = _.choice(
         _.one(Nonterminals.TEST),
         _.one(Nonterminals.CONSEQUENT),
         _.one(Nonterminals.ALTERNATE)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const test = /** @type {!ProcCallLike} */ (
           node.at(Nonterminals.TEST).desugar(env, true));
       const consequent = /** @type {!ProcCall} */ (
@@ -606,7 +595,7 @@ grammar[Nonterminals.ASSIGNMENT] = _.list(
     _.one(Terminals.SET),
     _.one(Nonterminals.VARIABLE),
     _.one(Nonterminals.EXPRESSION)).
-        desugar(function(node, env) {
+        desugar((node, env) => {
       // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
       const variable = /** @type {!SimpleDatum} */ (
           node.at(Nonterminals.VARIABLE));
@@ -636,9 +625,7 @@ grammar[Nonterminals.QUASIQUOTATION] = _.seq(
  | <unquotation D>
  */
 grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
-    _.matchDatum(function(datum) {
-      return datum instanceof SimpleDatum;
-    }),
+    _.matchDatum(datum => datum instanceof SimpleDatum),
     _.one(Nonterminals.LIST_QQ_TEMPLATE),
     _.one(Nonterminals.VECTOR_QQ_TEMPLATE),
     _.one(Nonterminals.UNQUOTATION));
@@ -693,7 +680,7 @@ grammar[Nonterminals.SPLICING_UNQUOTATION] = _.seq(
 grammar[Nonterminals.MACRO_USE] = _.list(
     _.one(Nonterminals.KEYWORD),
     _.zeroOrMore(Nonterminals.DATUM)).
-        desugar(function(node, env) {
+        desugar((node, env) => {
       /* Desugaring of a macro use is trivial. We must leave the "argument"
                 datums as-is for the macro pattern matching facility to use.
                 The trampoline knows what to do with raw datums in such a
@@ -706,9 +693,7 @@ grammar[Nonterminals.MACRO_USE] = _.list(
 
 // <keyword> -> <identifier>
 grammar[Nonterminals.KEYWORD] = _.seq(
-    _.matchDatum(function(datum) {
-      return datum instanceof Identifier;
-    }));
+    _.matchDatum(datum => datum instanceof Identifier));
 
 
 /* <macro block> -> (let-syntax (<syntax spec>*) <body>)
@@ -719,17 +704,13 @@ grammar[Nonterminals.MACRO_BLOCK] = _.choice(
         _.list(_.zeroOrMore(Nonterminals.SYNTAX_SPEC)),
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
-    desugar(function(node, env) {
-      return ParserImpl.desugarMacroBlock_(node, env, 'let');
-    }),
+    desugar((node, env) => ParserImpl.desugarMacroBlock_(node, env, 'let')),
     _.list(
         _.one(Terminals.LETREC_SYNTAX),
         _.list(_.zeroOrMore(Nonterminals.SYNTAX_SPEC)),
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
-    desugar(function(node, env) {
-      return ParserImpl.desugarMacroBlock_(node, env, 'letrec');
-    }));
+    desugar((node, env) => ParserImpl.desugarMacroBlock_(node, env, 'letrec')));
 
 
 // <syntax spec> -> (<keyword> <transformer spec>)
@@ -743,7 +724,7 @@ grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
     _.one(Terminals.SYNTAX_RULES),
     _.list(_.zeroOrMore(Nonterminals.PATTERN_IDENTIFIER)),
     _.zeroOrMore(Nonterminals.SYNTAX_RULE)).
-        desugar(function(node, env) {
+        desugar((node, env) => {
       /*4.3.2: It is an error for ... to appear in <literals>.
                 So we can reuse the pattern-identifier nonterminal
                 to check this in the parser. Win! */
@@ -774,7 +755,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
     _.list(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const ans = ListLikeTransformer.list();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
@@ -796,7 +777,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
     _.vector(
         _.oneOrMore(Nonterminals.PATTERN),
         _.one(Terminals.ELLIPSIS)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const ans = ListLikeTransformer.vector();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
@@ -818,7 +799,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
     _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(node =>
       MacroIdTransformer.pattern(/** @type {!SimpleDatum} */ (node))),
     _.list(_.zeroOrMore(Nonterminals.PATTERN)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const ans = ListLikeTransformer.list();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
@@ -834,7 +815,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
         _.one(Terminals.DOT),
         _.one(Nonterminals.PATTERN),
         _.one(Terminals.RPAREN)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const ans = ListLikeTransformer.dottedList();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
@@ -845,7 +826,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
       return ans;
     }),
     _.vector(_.zeroOrMore(Nonterminals.PATTERN)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const ans = ListLikeTransformer.vector();
       for (let cur = node.at(Nonterminals.PATTERN);
            cur;
@@ -860,10 +841,7 @@ grammar[Nonterminals.PATTERN] = _.choice(
 
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
 grammar[Nonterminals.PATTERN_DATUM] = _.seq(
-    _.matchDatum(function(datum) {
-      return datum instanceof SimpleDatum &&
-          !(datum instanceof Identifier);
-    }));
+    _.matchDatum(datum => datum instanceof SimpleDatum && !(datum instanceof Identifier)));
 
 
 /* <template> -> <pattern identifier>
@@ -899,7 +877,7 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
     _.dottedList(
         _.oneOrMore(Nonterminals.TEMPLATE),
         _.one(Nonterminals.TEMPLATE)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const ans = ListLikeTransformer.dottedList();
       for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
@@ -920,7 +898,7 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
       return ans;
     }),
     _.list(_.zeroOrMore(Nonterminals.TEMPLATE)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const ans = ListLikeTransformer.list();
       for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
@@ -940,7 +918,7 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
       return ans;
     }),
     _.vector(_.zeroOrMore(Nonterminals.TEMPLATE)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const ans = ListLikeTransformer.vector();
       for (let cur = node.at(Nonterminals.TEMPLATE);
            cur;
@@ -962,7 +940,7 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
     _.seq(
         _.one(Terminals.TICK),
         _.one(Nonterminals.TEMPLATE)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const ans = ListLikeTransformer.quote();
       ans.addSubtransformer(/** @type {!Subtransformer} */ (
           node.at(Nonterminals.TEMPLATE).desugar(env)));
@@ -977,20 +955,16 @@ grammar[Nonterminals.TEMPLATE_DATUM] = _.one(
 
 // <pattern identifier> -> <any identifier except ...>
 grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
-    _.matchDatum(function(datum) {
-      return datum instanceof Identifier &&
-          datum.getPayload() !== Terminals.ELLIPSIS;
-    }));
+    _.matchDatum(datum => datum instanceof Identifier && datum.getPayload() !== Terminals.ELLIPSIS));
 
 
 // <program> -> <command or definition>*
 grammar[Nonterminals.PROGRAM] = _.seq(
     _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
-        desugar(function(node, env) {
+        desugar((node, env) =>
       // VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of a
       // special case that I don't care.
-      return node === VACUOUS_PROGRAM ? node : node.sequence(env);
-    });
+      node === VACUOUS_PROGRAM ? node : node.sequence(env));
 
 
 /* <command or definition> -> <command>
@@ -1006,7 +980,7 @@ grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
     _.list(
         _.one(Terminals.BEGIN),
         _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
-    desugar(function(node, env) {
+    desugar((node, env) => {
       const firstCommand = node.at(Nonterminals.COMMAND_OR_DEFINITION);
       return firstCommand && firstCommand.sequence(env);
         }),
@@ -1023,7 +997,7 @@ grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
     _.one(Terminals.DEFINE_SYNTAX),
     _.one(Nonterminals.KEYWORD),
     _.one(Nonterminals.TRANSFORMER_SPEC)).
-        desugar(function(node, env) {
+        desugar((node, env) => {
       const kw = (/** @type {!Identifier} */ (node.at(
           Nonterminals.KEYWORD))).getPayload();
       const macro = /** @type {!Macro} */ (
