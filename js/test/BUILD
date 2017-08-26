@@ -1,5 +1,5 @@
 load("//:builddefs.bzl", "JS_VERSION")
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library", "closure_js_test")
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure_js_test")
 
 closure_js_test(
     name = "js_interop_test",
