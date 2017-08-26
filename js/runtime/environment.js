@@ -30,7 +30,7 @@ class Environment {
         this.sealed_ = true;
     }
 
-    /** @return {!Environment} This object, for chaining. */
+    /** @override */
     allowRedefs() {
         this.redefsOk_ = true;
         return this;

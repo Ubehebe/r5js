@@ -160,6 +160,10 @@ class IEnvironment {
     /** @return {!IEnvironment} */
     child() {
     }
+
+    /** @return {!IEnvironment} This object, for chaining. */
+    allowRedefs() {
+    }
 }
 
 exports = IEnvironment;
