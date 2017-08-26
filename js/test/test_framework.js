@@ -22,19 +22,6 @@ class TestFramework {
   }
 
   /**
-   * Must be kept manually in sync with the expected results of
-   * test/unit-test-tests.scm.
-   * @param {!ResultStruct} result
-   * @return {boolean}
-   * @private
-   */
-  static resultIsExpected_(result) {
-      return result.getNumRun() === 3
-          && result.getNumSucceeded() === 2
-          && result.getNumFailed() === 1;
-  }
-
-  /**
    * @param {string} str
    * @private
    */
@@ -54,7 +41,6 @@ class TestFramework {
       return TestType.UNIT;
   }
 
-
   /** @override */
   estimateSize() {
       return 1;
@@ -71,7 +57,7 @@ class TestFramework {
       const evaluator = curPlatform().newEvaluator(
           InputPort.NULL, new CallbackBackedPort(this.onWrite_.bind(this)));
       return evaluator.evaluate(this.sources_.testFramework + this.sources_.testFrameworkTests)
-          .then(() => TestFramework.resultIsExpected_(this.actualResult_),
+          .then(() => resultIsExpected_(this.actualResult_),
           undefined /* opt_onRejected */, this)
           .then(success => success
               ? new ResultStruct(1, 0, 0)
@@ -80,6 +66,19 @@ class TestFramework {
   }
 }
 ManualTestSuite.addImplementation(TestFramework);
+
+  /**
+   * Must be kept manually in sync with the expected results of
+   * test/unit-test-tests.scm.
+   * @param {!ResultStruct} result
+   * @return {boolean}
+   * @private
+   */
+ function resultIsExpected_(result) {
+    return result.getNumRun() === 3
+        && result.getNumSucceeded() === 2
+        && result.getNumFailed() === 1;
+}
 
 /**
  * Parses a Scheme test framework output like this:
