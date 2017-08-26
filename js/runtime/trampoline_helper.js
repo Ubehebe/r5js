@@ -35,12 +35,12 @@ class TrampolineHelper {
         this.beforeThunk_ = beforeThunk;
     }
 
-    /** @return {ProcCallLike} */
+    /** @override */
     getNextProcCallLike() {
         return this.nextContinuable_;
     }
 
-    /** @param {!ProcCallLike} procCallLike */
+    /** @override */
     setNext(procCallLike) {
         this.nextContinuable_ = procCallLike;
     }
@@ -50,7 +50,7 @@ class TrampolineHelper {
         return this.value_;
     }
 
-    /** @param {!Value} value */
+    /** @override */
     setValue(value) {
         this.value_ = value;
     }
