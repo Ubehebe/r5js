@@ -126,11 +126,7 @@ class Environment {
         }
     }
 
-    /**
-     * @param {!IEnvironment} other Environment to add closures from.
-     * @return {!IEnvironment} This environment, for chaining.
-     * @see {r5js.IEnvironment#addClosure}.
-     */
+    /** @override */
     addClosuresFrom(other) {
         /* todo bl: we have to clone the SchemeProcedures to prevent
          some kind of infinite loop. I'm not entirely clear about what loop, though,
@@ -210,13 +206,11 @@ class Environment {
         }
     }
 
-    /**
-     * @param {!Environment} otherEnv Environment whose closures
-     * this environment should use.
-     * TODO bl: this method is only used once. Can I eliminate it?
-     */
+    /** @override */
     setClosuresFrom(otherEnv) {
-        this.closures_ = otherEnv.closures_;
+        if (otherEnv instanceof Environment) {
+            this.closures_ = otherEnv.closures_;
+        }
     }
 
     /** @override */

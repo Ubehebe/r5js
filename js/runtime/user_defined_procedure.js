@@ -180,7 +180,6 @@ class UserDefinedProcedure extends Procedure {
 
         //If we're at a tail call we can reuse the existing environment.
         // Otherwise create a new environment pointing back to the current one.
-        // TODO bl compiler bug? addClosuresFrom is defined on Environment, not IEnvironment.
         const newEnv = this.isTailCall_(procCallLike)
             ? procCallEnv.allowRedefs()
             : this.env_.child().addClosuresFrom(this.env_);

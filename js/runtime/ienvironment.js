@@ -91,6 +91,21 @@ class IEnvironment {
     }
 
     /**
+     * @param {!IEnvironment} other Environment to add closures from.
+     * @return {!IEnvironment} This environment, for chaining.
+     */
+    addClosuresFrom(other) {
+    }
+
+    /**
+     * @param {!IEnvironment} otherEnv Environment whose closures
+     * this environment should use.
+     * TODO bl: this method is only used once. Can I eliminate it?
+     */
+    setClosuresFrom(otherEnv) {
+    }
+
+    /**
      * @param {string} name Name of binding to get.
      * @return {?Value} Value of binding, if any.
      */
