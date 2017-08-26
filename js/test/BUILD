@@ -3,6 +3,23 @@ load("//:node_test.bzl", "node_test")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library", "closure_js_test")
 
 closure_js_library(
+    name = "scheme_test_sources",
+    testonly = 1,
+    srcs = [
+        "scheme_sources.js",
+    ],
+    deps = [
+        "//scm:NEGATIVE_TESTS",
+        "//scm:OTHER_TESTS",
+        "//scm:R5RS_TESTS",
+        "//scm:TEST_FRAMEWORK",
+        "//scm:TEST_FRAMEWORK_TESTS",
+    ],
+    language = JS_VERSION,
+)
+
+
+closure_js_library(
     name = "lib",
     testonly = 1,
     srcs = glob(
@@ -11,6 +28,9 @@ closure_js_library(
             "js_interop_test.js",
             "parser_test.js",
             "scanner_test.js",
+            "scheme_sources.js",
+            "scheme_test_driver_test.js",
+            "test_framework_test.js",
         ]),
     deps = [
         "@io_bazel_rules_closure//closure/library",
@@ -23,11 +43,8 @@ closure_js_library(
         "//js/platform/common",
         "//js/platform/node",
         "//js/test/matchers",
-        "//scm:TEST_FRAMEWORK",
-        "//scm:TEST_FRAMEWORK_TESTS",
-        "//scm:R5RS_TESTS",
-        "//scm:NEGATIVE_TESTS",
-        "//scm:OTHER_TESTS",
+        ":scheme_test_sources",
+        ":test_framework_test",
     ],
     language = JS_VERSION,
     visibility = [
@@ -106,6 +123,22 @@ closure_js_test(
         "//js:boot",
         "//js:error",
         "//js/test/matchers",
+    ],
+)
+
+closure_js_library(
+    name = "test_framework_test",
+    testonly = 1,
+    srcs = [
+        "test_framework_test.js",
+    ],
+    language = JS_VERSION,
+    deps = [
+        "@closure_tdd//:closure-tdd",
+        "@io_bazel_rules_closure//closure/library",
+        ":scheme_test_sources",
+        "//js/io",
+        "//js/platform/node",
     ],
 )
 
