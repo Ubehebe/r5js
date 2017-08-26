@@ -5,14 +5,11 @@ const InputPort = goog.require('r5js.InputPort');
 const LogLevel = goog.require('tdd.LogLevel');
 const LogRecord = goog.require('tdd.LogRecord');
 const Logger = goog.require('goog.log.Logger');
-const ManualTestSuite = goog.require('tdd.ManualTestSuite');
 const Promise = goog.require('goog.Promise');
 const ResultStruct = goog.require('tdd.ResultStruct');
 const SchemeSources = goog.require('r5js.test.SchemeSources');
-const TestType = goog.require('tdd.TestType');
 const curPlatform = goog.require('r5js.curPlatform');
 
-/** @implements {ManualTestSuite} */
 class TestFramework {
   /** @param {!SchemeSources} sources */
   constructor(sources) {
@@ -36,22 +33,6 @@ class TestFramework {
       }
   }
 
-  /** @override */
-  getType() {
-      return TestType.UNIT;
-  }
-
-  /** @override */
-  estimateSize() {
-      return 1;
-  }
-
-  /** @override */
-  toString() {
-      return 'r5js.test.TestFramework_';
-  }
-
-  /** @override */
   execute(logger) {
       this.logger_ = logger;
       const evaluator = curPlatform().newEvaluator(
@@ -62,7 +43,6 @@ class TestFramework {
           .then(Promise.resolve);
   }
 }
-ManualTestSuite.addImplementation(TestFramework);
 
   /**
    * Must be kept manually in sync with the expected results of
