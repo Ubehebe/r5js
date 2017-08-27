@@ -258,12 +258,9 @@ class Datum {
 }
 
 class DatumShim extends ProcCallLike {
-  /**
-   * @param {Datum} payload
-   * @param {string=} opt_continuationName Optional name of the continuation.
-   */
-  constructor(payload, opt_continuationName) {
-    super(opt_continuationName);
+  /** @param {!Datum} payload */
+  constructor(payload) {
+    super();
     /** @const @private */ this.firstOperand_ = payload;
   }
 
