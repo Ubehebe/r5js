@@ -1,13 +1,12 @@
 goog.module('r5js.Branch');
 
-const ProcCall = goog.require('r5js.ProcCall');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
 class Branch extends ProcCallLike {
   /**
    * @param {string} testResultName
-   * @param {!ProcCall} consequent
-   * @param {!ProcCall} alternate
+   * @param {!ProcCallLike} consequent
+   * @param {!ProcCallLike} alternate
    */
   constructor(testResultName, consequent, alternate) {
     super();
