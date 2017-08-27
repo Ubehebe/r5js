@@ -7,8 +7,8 @@ http_archive(
 
 http_archive(
     name = "closure_tdd",
-    url = "https://github.com/Ubehebe/closure-tdd/archive/167e42.zip",
-    strip_prefix = "closure-tdd-167e4235e6a098432b78a5f1842c83c6af905961",
+    url = "https://github.com/Ubehebe/closure-tdd/archive/389df4.zip",
+    strip_prefix = "closure-tdd-389df477f87370db48c20722996efe9ec724d962",
 )
 
 http_archive(
