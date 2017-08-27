@@ -15,7 +15,7 @@ class TestFramework {
   constructor(sources) {
       /** @const @private */ this.sources_ = sources;
       /** @private */ this.actualResult_ = new ResultStruct_('', 0, 0);
-      /** @private {Logger} */ this.logger_ = null;
+      /** @private {?Logger} */ this.logger_ = null;
   }
 
   /**
@@ -62,7 +62,7 @@ class TestFramework {
  * (foo-tests (3 tests) (1 failed))
  * into a {@link tdd.ResultStruct}, returning null if the parse failed.
  * @param {string} str
- * @return {ResultStruct_}
+ * @return {?ResultStruct_}
  */
 function stringToResultStruct(str) {
   const regex = /\((.+) \((\d+) tests\) \((\d+) failed\)\)/;
