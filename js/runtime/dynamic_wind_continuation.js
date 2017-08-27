@@ -12,7 +12,7 @@ const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 class DynamicWindContinuation extends Continuation {
     /**
      * @param {!ProcCallLike} thunk
-     * @param {ProcCallLike} nextProcCallLike
+     * @param {?ProcCallLike} nextProcCallLike
      * @param {string} lastResultName
      */
     constructor(thunk, nextProcCallLike, lastResultName) {

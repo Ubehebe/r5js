@@ -91,7 +91,7 @@ class One {
 
     /**
      * @param {!TokenStream} tokenStream
-     * @return {Datum}
+     * @return {?Datum}
      * @private
      */
     matchTerminal_(tokenStream) {

@@ -4,7 +4,7 @@ const Datum = goog.require('r5js.Datum');
 
 /** @interface */
 class DatumStream {
-    /** @return {Datum} The next datum, or null if there is none. */
+    /** @return {?Datum} The next datum, or null if there is none. */
     getNextDatum() {}
 
     /** @param {!Datum} next */
@@ -43,7 +43,7 @@ class Impl {
          * corner case is handled by
          * {@link EMPTY_LIST_SENTINEL_}.)
          *
-         * @private {Datum|Object}
+         * @private {!Datum|!Object|null}
          */
         this.next_ = root;
 
@@ -60,7 +60,7 @@ class Impl {
          * from parent to first child or from sibling to next sibling,
          * and is never thereafter null.
          *
-         * @private {Datum|Object}
+         * @private {!Datum|!Object|null}
          */
         this.prev_ = null;
     }

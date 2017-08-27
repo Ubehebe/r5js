@@ -149,8 +149,8 @@ class ParserImpl {
     }
 
     /**
-     * @param {Datum} root
-     * @return {Datum}
+     * @param {?Datum} root
+     * @return {?Datum}
      * @private
      */
     static maybeFixParserSensitiveIds_(root) {

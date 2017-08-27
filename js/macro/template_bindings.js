@@ -180,7 +180,7 @@ class TemplateBindings {
      * Try to incorporate the child's bindings in an existing child
      * if there's room, otherwise just tack the child on to the parent.
      * @param {!TemplateBindings} child Child bindings.
-     * @return {TemplateBindings}
+     * @return {!TemplateBindings}
      */
     addOrIncorporateChild(child) {
         return this.incorporateChild(child) || this.addChildBindings(child);
@@ -188,7 +188,7 @@ class TemplateBindings {
 
     /**
      * @param {!TemplateBindings} child Child bindings.
-     * @return {TemplateBindings} This object, or null.
+     * @return {?TemplateBindings} This object, or null.
      */
     incorporateChild(child) {
         // We only incorporate flat TemplateBindings objects.
@@ -213,7 +213,7 @@ class TemplateBindings {
         return null;
     }
 
-    /** @return {TemplateBindings} */
+    /** @return {?TemplateBindings} */
     getNextChild() {
         if (this.curChild_ < this.children_.length) {
             return this.children_[this.curChild_++];

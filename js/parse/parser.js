@@ -9,7 +9,7 @@ class Parser {
   * @param {!Nonterminal=} opt_nonterminal Optional nonterminal
   * at the root of the parse tree. If omitted, defaults to
   * {@link Nonterminal.Nonterminals.PROGRAM}.
-  * @return {Datum} The root of the parse tree, or null if parsing
+  * @return {?Datum} The root of the parse tree, or null if parsing
   * was unsuccessful.
   */
  parse(opt_nonterminal) {}

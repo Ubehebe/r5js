@@ -11,7 +11,7 @@ class ResultStruct {
     /** @param {!Value} value */
     setValue(value) { }
 
-    /** @return {ProcCallLike} */
+    /** @return {?ProcCallLike} */
     getNextProcCallLike() { }
 }
 
@@ -20,8 +20,8 @@ class ProcCallLike {
     constructor(opt_lastResultName) {
         /** @private */ this.resultName_ = opt_lastResultName ||
         ('@' /* TODO bl document */ + goog.getUid(this));
-        /** @private {ProcCallLike} */ this.next_ = null;
-        /** @private {IEnvironment} */ this.env_ = null;
+        /** @private {?ProcCallLike} */ this.next_ = null;
+        /** @private {?IEnvironment} */ this.env_ = null;
     }
 
     /**
@@ -51,7 +51,7 @@ class ProcCallLike {
         this.env_ = env;
     }
 
-    /** @return {IEnvironment} */
+    /** @return {?IEnvironment} */
     getEnv() {
         return this.env_;
     }
@@ -61,7 +61,7 @@ class ProcCallLike {
         this.env_ = null;
     }
 
-    /** @return {ProcCallLike} */
+    /** @return {?ProcCallLike} */
     getNext() {
         return this.next_;
     }

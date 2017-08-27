@@ -48,7 +48,7 @@ const HasOutput_ = function(expectedOutput, outputPort) {
 };
 
 
-/** @private {r5js.OutputSavingPort} */
+/** @private {?r5js.OutputSavingPort} */
 HasOutput_.sharedOutputPort_ = null;
 
 

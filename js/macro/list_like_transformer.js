@@ -156,7 +156,7 @@ class Base {
 
     /**
      * @param {!TemplateBindings} bindings
-     * @return {SiblingBuffer}
+     * @return {?SiblingBuffer}
      * @private
      */
     toSiblingBuffer_(bindings) {

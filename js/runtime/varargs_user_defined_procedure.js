@@ -11,7 +11,7 @@ const {List} = goog.require('r5js.ast.List');
 class VarargsUserDefinedProcedure extends UserDefinedProcedure {
     /**
      * @param {!Array<string>} formalsArray The procedure's formal parameters, in order.
-     * @param {Datum} bodyStart
+     * @param {?Datum} bodyStart
      * @param {!IEnvironment} env
      * @param {string=} opt_name The procedure's name, for pretty-printing and
      * error messages. If not given, one will be created.

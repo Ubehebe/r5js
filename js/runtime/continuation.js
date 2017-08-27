@@ -17,7 +17,7 @@ class Continuation {
     /**
      * @param {string} resultName Optional name to use for the last result.
      *     If not given, a unique name will be created.
-     * @param {ProcCallLike} next
+     * @param {?ProcCallLike} next
      */
     constructor(resultName, next) {
         /** @const @protected */ this.lastResultName_ = resultName;

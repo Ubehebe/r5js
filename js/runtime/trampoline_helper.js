@@ -15,8 +15,8 @@ class TrampolineHelper {
     constructor(inputPort, outputPort) {
         /** @const @private */ this.inputPort_ = inputPort;
         /** @const @private */ this.outputPort_ = outputPort;
-        /** @private {ProcCallLike} */ this.beforeThunk_ = null;
-        /** @private {ProcCallLike} */ this.nextContinuable_ = null;
+        /** @private {?ProcCallLike} */ this.beforeThunk_ = null;
+        /** @private {?ProcCallLike} */ this.nextContinuable_ = null;
         /** @private {!Value} */ this.value_ = UNSPECIFIED_VALUE;
     }
 
@@ -25,12 +25,12 @@ class TrampolineHelper {
         this.nextContinuable_ = null;
     }
 
-    /** @return {ProcCallLike} */
+    /** @return {?ProcCallLike} */
     getBeforeThunk() {
         return this.beforeThunk_;
     }
 
-    /** @param {ProcCallLike} beforeThunk */
+    /** @param {!ProcCallLike} beforeThunk */
     setBeforeThunk(beforeThunk) {
         this.beforeThunk_ = beforeThunk;
     }

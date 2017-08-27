@@ -7,7 +7,7 @@ const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
 class TopLevelSyntaxAssignment extends TopLevelAssignment {
-    /** @param {Datum} firstOperand */
+    /** @param {!Datum} firstOperand */
     constructor(firstOperand) {
         super(firstOperand);
     }

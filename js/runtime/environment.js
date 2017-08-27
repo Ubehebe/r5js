@@ -16,7 +16,7 @@ const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 /** @implements {IEnvironment} */
 class Environment {
-    /** @param {IEnvironment} enclosingEnv The enclosing environment, if any. */
+    /** @param {?IEnvironment} enclosingEnv The enclosing environment, if any. */
     constructor(enclosingEnv) {
         /** @const @private */ this.enclosingEnv_ = enclosingEnv;
         /** @const @private {!Object<string,!Value>} */ this.bindings_ = {};

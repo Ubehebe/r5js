@@ -25,7 +25,7 @@ const {notAProcedure} = goog.require('r5js.runtime.errors');
 class ProcCall extends ProcCallLike {
     /**
      * @param {!Identifier} operatorName
-     * @param {Datum} firstOperand
+     * @param {?Datum} firstOperand
      * @param {string=} opt_lastResultName Optional name to use for the last result.
      *     If not given, a unique name will be created.
      */
@@ -216,7 +216,7 @@ class ProcCall extends ProcCallLike {
      * Later on the trampoline, we reach (+ _0). We have to know that _0 refers
      * to an array of values, not a single value.
      *
-     * @return {Array<!Value>}
+     * @return {?Array<!Value>}
      * @private
      */
     evalArgsCallWithValues_() {

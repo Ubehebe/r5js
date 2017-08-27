@@ -19,8 +19,8 @@ const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
 class Macro {
 
     /**
-     * @param {Datum} literalIdentifiers
-     * @param {Datum} rules
+     * @param {?Datum} literalIdentifiers
+     * @param {?Datum} rules
      * @param {!IEnvironment} definitionEnv
      * @param {!Array<!Transformer>=} opt_transformers
      */

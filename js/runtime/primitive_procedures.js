@@ -34,9 +34,9 @@ const {CdrHelperImpl, DottedList, List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 
-/** @type {IEnvironment} */ let nullEnv_ = null;
-/** @type {IEnvironment} */ let r5RSEnv_ = null;
-/** @type {PortManager} */ let portManager_ = null;
+/** @type {?IEnvironment} */ let nullEnv_ = null;
+/** @type {?IEnvironment} */ let r5RSEnv_ = null;
+/** @type {?PortManager} */ let portManager_ = null;
 
 /** @const {!Object<string, !_.PrimitiveProcedure>} */ const PrimitiveProcedures = {};
 

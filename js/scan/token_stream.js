@@ -78,7 +78,7 @@ class Scanner {
     }
 
     /**
-     * @param {Array<string>} matchArray
+     * @param {?Array<string>} matchArray
      * @return {boolean} TODO bl.
      * @private
      */

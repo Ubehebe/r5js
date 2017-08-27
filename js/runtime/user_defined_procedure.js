@@ -19,7 +19,7 @@ const {extractDefinition} = goog.require('r5js.ast.util');
 class UserDefinedProcedure extends Procedure {
     /**
      * @param {!Array<string>} formalsArray The procedure's formal parameters, in order.
-     * @param {Datum} bodyStart
+     * @param {?Datum} bodyStart
      * @param {!IEnvironment} env An environment.
      * @param {string=} opt_name The procedure's name. It has no semantic
      *     importance; it's just used for pretty-printing debugs and messages
@@ -34,10 +34,10 @@ class UserDefinedProcedure extends Procedure {
         /** @const @private {!IEnvironment} */
         this.env_ = env.child();
 
-        /** @const @private {ProcCallLike}*/
+        /** @const @private {?ProcCallLike}*/
         this.body_ = bodyStart ? this.setupBody_(bodyStart) : null;
 
-        /** @const @private {ProcCallLike} */
+        /** @const @private {?ProcCallLike} */
         this.last_ = this.body_ ? ProcCallLike.getLast(this.body_) : null;
 
         /** @const @private */
@@ -206,7 +206,7 @@ class UserDefinedProcedure extends Procedure {
 class LetrecBindingsHelper {
     constructor() {
         /** @const @private */ this.bindings_ = new SiblingBuffer();
-        /** @private {Datum} */ this.last_ = null;
+        /** @private {?Datum} */ this.last_ = null;
     }
 
     /**
@@ -252,7 +252,7 @@ class LetrecBindingsHelper {
         }
     }
 
-    /** @return {Datum} */
+    /** @return {?Datum} */
     getLast() {
         return this.last_;
     }

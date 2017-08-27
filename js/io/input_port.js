@@ -20,7 +20,7 @@ class InputPort {
  read() {}
 
  /**
-  * @return {r5js.ast.Character} The next character, or null if there are
+  * @return {?r5js.ast.Character} The next character, or null if there are
   * no more characters.
   */
  readChar() {}

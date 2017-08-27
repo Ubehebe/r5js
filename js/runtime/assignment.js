@@ -10,7 +10,7 @@ const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 
 class Assignment extends ProcCallLike {
-    /** @param {Datum} firstOperand */
+    /** @param {!Datum} firstOperand */
     constructor(firstOperand) {
         super();
         /** @const @private */ this.firstOperand_ = firstOperand;
