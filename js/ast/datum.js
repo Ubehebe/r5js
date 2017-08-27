@@ -6,11 +6,7 @@ const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {ObjectValue} = goog.require('r5js.Value');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
-/** @typedef {function(!Datum, !IEnvironment):
-* (!Datum|!ProcCallLike|!Subtransformer|!Macro|null)}
- * TODO bl: narrow this typedef.
- */
-let DesugarFunc;
+/** @typedef {function(!Datum, !IEnvironment): ?} */ let DesugarFunc;
 
 /**
  * TODO bl remove the "implements ObjectValue".

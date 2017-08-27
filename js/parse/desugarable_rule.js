@@ -14,7 +14,7 @@ const Rule = goog.require('r5js.parse.bnf.Rule');
  */
 class DesugarableRule {
     /**
-     * @param {function(T, !IEnvironment)} desugarFn
+     * @param {function(T, !IEnvironment): ?} desugarFn TODO: narrow return type
      * @return {!DesugarableRule<T>} This rule, for chaining.
      */
     desugar(desugarFn) {}
