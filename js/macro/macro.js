@@ -179,9 +179,12 @@ class Macro {
                 var toRename = {};
                 const candidates = transformer.getTemplateRenameCandidates();
                 for (const id in candidates) {
-                    if (this.definitionEnv_.hasBindingRecursive(id))
+                    if (this.definitionEnv_.hasBindingRecursive(id)) {
+                        // TODO: this is deeply weird. Because of this line,
+                        // IEnvironment has to extend ObjectValue. Which it shouldn't.
+                        // Find another way to do this.
                         useEnv.addBinding(id, this.definitionEnv_);
-                    else if (!RenameUtil.isParserSensitiveId(id)) {
+                    } else if (!RenameUtil.isParserSensitiveId(id)) {
                         var tmpName = RenameUtil.newCpsName();
                         toRename[id] = tmpName;
                         /* If the TemplateBindings object has detected that the same

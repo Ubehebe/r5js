@@ -1,6 +1,6 @@
 goog.module('r5js.IEnvironment');
 
-const {Value} = goog.require('r5js.Value');
+const {ObjectValue, Value} = goog.require('r5js.Value');
 
 /**
  * Interface abstracted from {@link r5js.Environment}.
@@ -32,6 +32,7 @@ const {Value} = goog.require('r5js.Value');
  * wrapping and unwrapping.
  *
  * @interface
+ * @extends {ObjectValue} TODO this makes no sense, but is required by Macro#transcribe. Fix.
  */
 class IEnvironment {
     /**
