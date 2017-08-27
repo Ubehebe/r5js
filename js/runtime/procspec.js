@@ -210,7 +210,7 @@ class PrimitiveProcedure extends Procedure {
      * to the next continuable ("...").
      * @override
      */
-    evaluate(args, procCallLike, trampolineHelper, env) {
+    evaluate(args, procCallLike, resultStruct, env) {
         args = args.map(/** @type {!Function} */ (datumutil.wrapValue));
         // todo bl document why we're doing this...
         for (let i = 0; i < args.length; ++i) {
@@ -218,7 +218,7 @@ class PrimitiveProcedure extends Procedure {
                 args[i] = (/** @type {!Ref} */ (args[i])).deref();
             }
         }
-        this.call(args, procCallLike, trampolineHelper);
+        this.call(args, procCallLike, /** @type {!TrampolineHelper} */(resultStruct));
     }
 }
 

@@ -466,7 +466,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      const variable = node.at(Nonterminals.VARIABLE);
+      const variable = /** @type {!SimpleDatum} */ (node.at(Nonterminals.VARIABLE));
       const desugaredExpr = /** @type {!ProcCallLike} */ (variable.getNextSibling().desugar(env, true));
       const last = ProcCallLike.getLast(desugaredExpr);
       const cpsName = last.getResultName();
@@ -514,11 +514,11 @@ grammar[Nonterminals.DEFINITION] = _.choice(
                 todo bl: make this flow of control explicit. */
       const def = util.extractDefinition(node);
       const name = /** @type {!SimpleDatum} */ (def.getFirstChild());
-      const lambda = name.getNextSibling();
+      const lambda = /** @type {!CompoundDatum} */ (name.getNextSibling());
       const formalRoot = lambda.getFirstChild().getNextSibling();
       const formals = formalRoot instanceof CompoundDatum
           ? formalRoot.mapChildren(child => (/** @type {!SimpleDatum} */(child)).getPayload())
-          : [formalRoot.getPayload()];
+          : [(/** @type {!SimpleDatum} */(formalRoot)).getPayload()];
       const anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
@@ -569,7 +569,7 @@ grammar[Nonterminals.CONDITIONAL] = _.choice(
       const branch = new Branch(
           testEndpoint.getResultName(),
           consequent,
-          UNSPECIFIED_VALUE.toProcCallLike());
+          (/** @type {!Datum} */(UNSPECIFIED_VALUE)).toProcCallLike());
       testEndpoint.setNext(branch);
       return test;
     }));

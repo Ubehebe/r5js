@@ -176,8 +176,9 @@ class CdrHelperImpl {
 
     /** @override */
     equals(cdrHelper) {
-        return this.head_ === cdrHelper.head_ &&
-            this.startOfCdr_ === cdrHelper.startOfCdr_;
+        const asImpl = /** @type {!CdrHelperImpl} */ (cdrHelper);
+        return this.head_ === asImpl.head_ &&
+            this.startOfCdr_ === asImpl.startOfCdr_;
     }
 
     /** @override */
