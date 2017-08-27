@@ -3,11 +3,13 @@ goog.module('r5js.ListLikeTransformer');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
+const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const Subtransformer = goog.require('r5js.Subtransformer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 const Vector = goog.require('r5js.ast.Vector');
+const asserts = goog.require('goog.asserts');
 const {DottedList, List} = goog.require('r5js.ast.List');
 
 /**
@@ -59,13 +61,11 @@ class Base {
         return this;
     }
 
-    /**
-     * @return {string}
-     * @suppress {checkTypes} TODO bl for getDatum()
-     * @override
-     */
+    /** @override */
     getName() {
-        return this.subtransformers_[0].getDatum().getPayload();
+        return asserts.assertInstanceof(this.subtransformers_[0], MacroIdTransformer)
+            .getDatum()
+            .getPayload();
     }
 
     /** @override */

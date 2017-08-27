@@ -5,6 +5,7 @@ closure_js_library(
     name = "macro",
     srcs = glob(["*.js"]),
     deps = [
+        "@io_bazel_rules_closure//closure/library",
         "//js/ast",
         "//js:error",
         "//js/parse:nonterminals",
