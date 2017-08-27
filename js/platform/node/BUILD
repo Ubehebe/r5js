@@ -6,7 +6,6 @@ closure_js_library(
     language = JS_VERSION,
     srcs = glob(["*.js"]),
     deps = [
-        "//:node_externs",
         "//js/eval",
         "//js/io",
         "//js/platform",
