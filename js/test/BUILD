@@ -3,6 +3,7 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure
 
 closure_js_test(
     name = "js_interop_test",
+    pedantic = True,
     language = JS_VERSION,
     srcs = [
         "js_interop_test.js",
@@ -26,6 +27,7 @@ closure_js_test(
 
 closure_js_test(
     name = "parser_test",
+    pedantic = True,
     language = JS_VERSION,
     srcs = [
         "parser_test.js",
@@ -45,6 +47,7 @@ closure_js_test(
 
 closure_js_test(
     name = "scanner_test",
+    pedantic = True,
     language = JS_VERSION,
     srcs = [
         "scanner_test.js",
@@ -64,6 +67,7 @@ closure_js_test(
 
 closure_js_test(
     name = "scheme_test",
+    pedantic = True,
     language = JS_VERSION,
     srcs = [
         "scheme_test.js",
