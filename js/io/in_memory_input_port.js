@@ -13,9 +13,8 @@ class InMemoryInputPort {
     constructor(buffer) {
         /** @private */ this.closed_ = false;
         /** @const @private */ this.buffer_ = buffer;
-        /** @private {Datum} */ this.leftoverDatum_ = null;
+        /** @private {?Datum} */ this.leftoverDatum_ = null;
     }
-
 
     /** @override */
     isCharReady() {
@@ -42,7 +41,7 @@ class InMemoryInputPort {
     }
 
     /**
-     * @return {Datum}
+     * @return {?Datum}
      * @private
      */
     readLeftoverDatum_() {

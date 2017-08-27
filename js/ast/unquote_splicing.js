@@ -4,7 +4,7 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 
 class UnquoteSplicing extends CompoundDatum {
-    /** @param {Datum} firstChild */
+    /** @param {!Datum} firstChild */
     constructor(firstChild) {
         super();
         if (firstChild) {

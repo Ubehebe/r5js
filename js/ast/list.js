@@ -9,7 +9,7 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 
 /** @implements {IPair} */
 class List extends CompoundDatum {
-    /** @param {Datum} firstChild */
+    /** @param {?Datum} firstChild */
     constructor(firstChild) {
         super();
         if (firstChild) {
@@ -96,7 +96,7 @@ IPair.addImplementation(List);
 
 /** @implements {IPair} */
 class DottedList extends CompoundDatum {
-    /** @param {Datum} firstChild */
+    /** @param {?Datum} firstChild */
     constructor(firstChild) {
         super();
         if (firstChild) {

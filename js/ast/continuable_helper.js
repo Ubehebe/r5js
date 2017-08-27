@@ -8,8 +8,8 @@ const {ProcCallLike} = goog.require('r5js.ProcCallLike');
  */
 class ContinuableHelper {
     constructor() {
-        /** @private {ProcCallLike} */ this.firstProcCallLike_ = null;
-        /** @private {ProcCallLike} */ this.lastProcCallLike_ = null;
+        /** @private {?ProcCallLike} */ this.firstProcCallLike_ = null;
+        /** @private {?ProcCallLike} */ this.lastProcCallLike_ = null;
     }
 
     /** @param {!ProcCallLike} procCallLike A continuable object. */
@@ -22,7 +22,7 @@ class ContinuableHelper {
         this.lastProcCallLike_ = ProcCallLike.getLast(procCallLike);
     }
 
-    /** @return {ProcCallLike} */
+    /** @return {?ProcCallLike} */
     toContinuable() {
         return this.firstProcCallLike_;
     }

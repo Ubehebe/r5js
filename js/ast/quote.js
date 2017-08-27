@@ -15,7 +15,7 @@ const {Value} = goog.require('r5js.Value');
 
 /** @implements {IPair} */
 class Quote extends CompoundDatum {
-    /** @param {Datum} firstChild */
+    /** @param {?Datum} firstChild */
     constructor(firstChild) {
         super();
         if (firstChild) {
@@ -90,8 +90,9 @@ class QuoteShim extends ProcCallLike {
             function (node) {
                 const result = env.get(/** @type {string} */ ((/** @type {!Identifier} */ (node))
                     .getPayload()));
-                let ans = result === null
-                    ? UNSPECIFIED_VALUE
+                /** @type {?Datum} */ let ans;
+                ans = result === null
+                    ? /** @type {!Datum} */ (UNSPECIFIED_VALUE)
                     : datumutil.wrapValue(result);
                 // TODO bl document why we're doing this
                 if (ans instanceof Ref) {
@@ -106,7 +107,7 @@ class QuoteShim extends ProcCallLike {
                         }
                     } else throw error.quasiquote(ans + ' is not a list');
                 }
-                return /** @type {Datum} */ (ans);
+                return ans;
             });
         // Now strip away the quote mark.
         // the newIdOrLiteral part is for (quote quote)

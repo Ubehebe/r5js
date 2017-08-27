@@ -1,6 +1,5 @@
 goog.module('r5js.ast.Character');
 
-
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 
 /** @extends {SimpleDatum<string>} */

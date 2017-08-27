@@ -22,10 +22,10 @@ class TopLevelSyntaxAssignment extends TopLevelAssignment {
      * @return {!ProcCallLike}
      */
     static of(dstName, srcName) {
-        const operands = new SiblingBuffer()
+        const operands = /** @type {!Datum} */ (new SiblingBuffer()
             .appendSibling(new Identifier(dstName))
             .appendSibling(new Identifier(srcName))
-            .toSiblings();
+            .toSiblings());
         return new TopLevelSyntaxAssignment(operands);
     }
 }

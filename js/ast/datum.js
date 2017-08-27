@@ -20,12 +20,11 @@ let DesugarFunc;
 */
 class Datum {
   constructor() {
-    /** @private {Datum} */
-    this.nextSibling_ = null;
+    /** @private {?Datum} */ this.nextSibling_ = null;
 
     /**
      * Only for last children.
-     * @private {Datum}
+     * @private {?Datum}
      */
     this.parent_ = null;
 
@@ -47,7 +46,7 @@ class Datum {
     return this;
   }
 
-  /** @return {Datum} */
+  /** @return {?Datum} */
   getParent() {
     return this.parent_;
   }
@@ -57,7 +56,7 @@ class Datum {
     this.parent_ = parent;
   }
 
-  /** @return {Datum} */
+  /** @return {?Datum} */
   getNextSibling() {
     return this.nextSibling_;
   }
@@ -76,7 +75,7 @@ class Datum {
   }
 
   /**
-   * @param {Datum} parent Datum to use for the parent of the clone, if any.
+   * @param {?Datum} parent Datum to use for the parent of the clone, if any.
    * @return {!Datum} A new clone of this Datum object.
    */
   clone(parent) {
@@ -173,12 +172,12 @@ class Datum {
 
   /**
    * @param {!IEnvironment} env TODO bl.
-   * @return {ProcCallLike}
+   * @return {?ProcCallLike}
    */
   sequence(env) {
-    /** @type {ProcCallLike} */ let first = null;
+    /** @type {?ProcCallLike} */ let first;
     let desugared;
-    /** @type {ProcCallLike} */ let curEnd = null;
+    /** @type {?ProcCallLike} */ let curEnd;
     for (let cur = this; cur; cur = cur.nextSibling_) {
       if (desugared = cur.desugar(env)) {
 

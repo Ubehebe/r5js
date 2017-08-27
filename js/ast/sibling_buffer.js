@@ -8,8 +8,8 @@ const Datum = goog.require('r5js.Datum');
  */
 class SiblingBuffer {
    constructor() {
-        /** @private {Datum} */ this.first_ = null;
-        /** @private {Datum} */ this.last_ = null;
+        /** @private {?Datum} */ this.first_ = null;
+        /** @private {?Datum} */ this.last_ = null;
     }
 
     /** @return {boolean} True iff the buffer is empty. */
@@ -32,7 +32,7 @@ class SiblingBuffer {
         return this;
     }
 
-    /** @return {Datum} */
+    /** @return {?Datum} */
     toSiblings() {
         return this.first_;
     }

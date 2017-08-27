@@ -3,7 +3,7 @@ goog.module('r5js.RenameHelper');
 const RenameUtil = goog.require('r5js.RenameUtil');
 
 class RenameHelper {
-    /** @param {RenameHelper} parent The parent helper, if any. */
+    /** @param {?RenameHelper} parent The parent helper, if any. */
     constructor(parent) {
         /** @const @private {!Object<string, string>} */ this.bindings_ = {};
         /** @const @private */ this.parent_ = parent;

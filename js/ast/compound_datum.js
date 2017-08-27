@@ -11,12 +11,12 @@ const {Nonterminal, Nonterminals} = goog.require('r5js.parse.Nonterminals');
 class CompoundDatum extends Datum {
     constructor() {
         super();
-        /** @private {Datum} */ this.firstChild_ = null;
-        /** @private {CdrHelper} */ this.cdrHelper_ = null;
-        /** @protected {number|undefined} */ this.qqLevel = undefined;
+        /** @private {?Datum} */ this.firstChild_ = null;
+        /** @private {?CdrHelper} */ this.cdrHelper_ = null;
+        /** @protected {number|undefined} */ this.qqLevel;
     }
 
-    /** @return {Datum} */
+    /** @return {?Datum} */
     getFirstChild() {
         return this.firstChild_;
     }
@@ -120,7 +120,7 @@ class CompoundDatum extends Datum {
      * @private
      */
     fixParserSensitiveIdsDef_(helper) {
-        const maybeVar = /** @type {Identifier} */ (this.at(Nonterminals.VARIABLE));
+        const maybeVar = /** @type {?Identifier} */ (this.at(Nonterminals.VARIABLE));
         let id;
 
         if (maybeVar) { // (define foo +)
@@ -149,7 +149,7 @@ class CompoundDatum extends Datum {
 
     /**
      * @param {!Nonterminal} type
-     * @return {Datum}
+     * @return {?Datum}
      */
     at(type) {
         for (let cur = this.firstChild_; cur; cur = cur.getNextSibling()) {
@@ -169,13 +169,13 @@ class CompoundDatum extends Datum {
         return this;
     }
 
-    /** @return {CdrHelper} The CdrHelper for this Datum, if one exists. */
+    /** @return {?CdrHelper} The CdrHelper for this Datum, if one exists. */
     getCdrHelper() {
         return this.cdrHelper_;
     }
 
     /**
-     * @return {CompoundDatum} The first child of this datum that is
+     * @return {?CompoundDatum} The first child of this datum that is
      * itself a list, or null if no such datum exists.
      */
     firstSublist() {
@@ -225,7 +225,7 @@ class CompoundDatum extends Datum {
      * This penetrates quotations because it's used in quasiquote evaluation.
      * @param {function(!Datum):boolean} predicate Children passing
      * this predicate are transformed according to the transform parameter.
-     * @param {function(!Datum):Datum} transform Function
+     * @param {function(!Datum):?Datum} transform Function
      * that will transform children that pass the predicate.
      * @return {!Datum} This object, for chaining.
      * @suppress {checkTypes} for setNextSibling(null) TODO bl fix

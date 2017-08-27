@@ -15,12 +15,10 @@ const {Terminals} = goog.require('r5js.parse.Terminals');
 const Nonterminals = Nonterminal.Nonterminals;
 
 class Quasiquote extends CompoundDatum {
-    /** @param {Datum} firstChild */
+    /** @param {!Datum} firstChild */
     constructor(firstChild) {
         super();
-        if (firstChild) {
-            this.setFirstChild(firstChild);
-        }
+        this.setFirstChild(firstChild);
     }
 
     /**
@@ -118,7 +116,7 @@ class QuasiquoteShim extends ProcCallLike {
     /**
      * @param {!Quasiquote} quasiquote
      * @param {function(!Datum):!r5js.Parser} parserProvider
-     * @return {ProcCallLike}
+     * @return {!ProcCallLike}
      * @private
      */
     tryQuasiquote_(quasiquote, parserProvider) {

@@ -1,5 +1,6 @@
 goog.module('r5js.InputPort');
 
+const Character = goog.require('r5js.ast.Character');
 const {Value} = goog.require('r5js.Value');
 
 /** @interface */
@@ -7,10 +8,7 @@ class InputPort {
  /** @return {boolean} */
  isCharReady() {}
 
- /**
-  * @return {r5js.ast.Character} The next character, or null if there are
-  * no more characters.
-  */
+ /** @return {?Character} The next character, or null if there are no more characters. */
  peekChar() {}
 
  /**
@@ -19,10 +17,7 @@ class InputPort {
   */
  read() {}
 
- /**
-  * @return {?r5js.ast.Character} The next character, or null if there are
-  * no more characters.
-  */
+ /** @return {?Character} The next character, or null if there are no more characters. */
  readChar() {}
 
  /** @see R5RS 6.6.1 */

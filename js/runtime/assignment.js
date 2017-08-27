@@ -73,14 +73,13 @@ class Assignment extends ProcCallLike {
      * @return {!ProcCallLike}
      */
     static create(dstName, srcName) {
-        const operands = new SiblingBuffer()
+        const operands = /** @type {!Datum} */ (new SiblingBuffer()
             .appendSibling(new Identifier(dstName))
             .appendSibling(new Identifier(srcName))
-            .toSiblings();
+            .toSiblings());
         return new Assignment(operands);
     }
 
 }
-
 
 exports = Assignment;

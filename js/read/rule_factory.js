@@ -219,7 +219,7 @@ class Seq {
         if (!(firstChildToStrip instanceof SimpleDatum)) {
             return datum;
         }
-        const realFirstChild = firstChildToStrip.getNextSibling();
+        const realFirstChild = /** @type {!Datum} */ (firstChildToStrip.getNextSibling());
         switch (firstChildToStrip.getPayload()) {
             case Terminals.QUOTE:
                 return new Quote(realFirstChild);

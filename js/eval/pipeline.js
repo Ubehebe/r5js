@@ -26,7 +26,7 @@ class Pipeline {
 
     /**
      * @param {!TokenStream} tokenStream A token input stream.
-     * @return {Datum} The root of the datum tree, or null if reading failed.
+     * @return {?Datum} The root of the datum tree, or null if reading failed.
      */
     read(tokenStream) {}
 
