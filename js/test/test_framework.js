@@ -86,6 +86,11 @@ class ResultStruct_ extends ResultStruct {
       super(numSucceeded, numFailed, 0 /* TODO bl */);
       /** @const @private */ this.name_ = name;
   }
+
+  /** @return {string} */
+  getName() {
+      return this.name_;
+  }
 }
 
 exports = {stringToResultStruct, TestFramework};

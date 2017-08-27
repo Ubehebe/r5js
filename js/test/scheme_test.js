@@ -62,7 +62,7 @@ function handleWriteFromScheme(str) {
           ? LogLevel.FAILURE
           : LogLevel.SUCCESS,
           'r5js.test.SchemeTest',
-          result.name_));
+          result.getName()));
   } else if (result = stringToFailureMessage(str)) {
     logger.logRecord(new LogRecord(
       LogLevel.FAILURE,
