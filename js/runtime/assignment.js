@@ -5,6 +5,7 @@ const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Macro = goog.require('r5js.Macro');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
@@ -16,19 +17,18 @@ class Assignment extends ProcCallLike {
         /** @const @private */ this.firstOperand_ = firstOperand;
     }
 
-    /**
-     * @override
-     * @suppress {checkTypes} TODO bl
-     */
+    /** @override */
     evalAndAdvance(resultStruct, envBuffer, parserProvider) {
-        var src = this.getEnv().get(/** @type {string} */ (
-            this.firstOperand_.getNextSibling().getPayload()));
+        // TODO: write out this type. src can be null.
+        const src = /** @type {?} */ (this.getEnv().get(
+            (/** @type {!SimpleDatum<string>} */ (this.firstOperand_.getNextSibling()))
+            .getPayload()));
         this.checkForImproperSyntaxAssignment(src);
-        this.mutateEnv(/** @type {string} */ (this.firstOperand_.getPayload()), src);
+        this.mutateEnv((/** @type {!SimpleDatum<string>} */ (this.firstOperand_)).getPayload(), src);
         // R5RS 4.1.6: the value of an assignment is unspecified.
         resultStruct.setValue(UNSPECIFIED_VALUE);
         this.bindResult(UNSPECIFIED_VALUE);
-        var nextContinuable = this.getNext();
+        const nextContinuable = this.getNext();
         if (nextContinuable) {
             resultStruct.setNext(nextContinuable);
         }
