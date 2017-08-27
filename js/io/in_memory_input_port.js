@@ -11,7 +11,6 @@ const TokenStream = goog.require('r5js.TokenStream');
 class InMemoryInputPort {
     /** @param {!InMemoryPortBuffer} buffer */
     constructor(buffer) {
-        /** @private */ this.closed_ = false;
         /** @const @private */ this.buffer_ = buffer;
         /** @private {?Datum} */ this.leftoverDatum_ = null;
     }
@@ -23,7 +22,7 @@ class InMemoryInputPort {
 
     /** @override */
     close() {
-        this.closed_ = true;
+        // TODO: implement?
     }
 
     /** @override */
