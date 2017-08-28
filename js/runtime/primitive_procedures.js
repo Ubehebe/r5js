@@ -464,8 +464,6 @@ PrimitiveProcedures['string-set!'] = _.ternary((str, k, c) => {
   return UNSPECIFIED_VALUE;
 }, Types.STRING, Types.NUMBER, Types.CHARACTER);
 
-// Vector-related procedures
-
 // Evaluation-related procedures
 
 PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
