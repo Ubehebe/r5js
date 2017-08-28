@@ -469,7 +469,7 @@ PrimitiveProcedures['string-set!'] = _.ternary((str, k, c) => {
 // Evaluation-related procedures
 
 PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
-    /** @suppress {accessControls} */function(inputPort, outputPort, expr, envSpec) {
+    function(inputPort, outputPort, expr, envSpec) {
       if (!(expr instanceof Datum))
         // TODO bl how could this not be a datum? The type signature of binaryWithCurrentPorts
         // is not helpful. Also, Types.SYMBOL is not right.
@@ -507,7 +507,7 @@ PrimitiveProcedures['eval'] = _.binaryWithCurrentPorts(
 
         const env = /** @type {!IEnvironment} */ (envSpec);
         // don't accidentally evaluate the next expr!
-        expr.nextSibling_ = null;
+        expr.setNextSibling(null);
 
         const parsed = new ParserImpl.ParserImpl(expr).parse();
         if (!parsed) {

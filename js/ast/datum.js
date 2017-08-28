@@ -57,7 +57,7 @@ class Datum {
     return this.nextSibling_;
   }
 
-  /** @param {!Datum} nextSibling */
+  /** @param {?Datum} nextSibling */
   setNextSibling(nextSibling) {
     this.nextSibling_ = nextSibling;
   }

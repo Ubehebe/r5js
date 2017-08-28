@@ -228,7 +228,6 @@ class CompoundDatum extends Datum {
      * @param {function(!Datum):?Datum} transform Function
      * that will transform children that pass the predicate.
      * @return {!Datum} This object, for chaining.
-     * @suppress {checkTypes} for setNextSibling(null) TODO bl fix
      */
     replaceChildren(predicate, transform) {
 

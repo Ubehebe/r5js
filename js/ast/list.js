@@ -69,10 +69,7 @@ class List extends CompoundDatum {
         return /** @type {!Datum} */ (this.getFirstChild());
     }
 
-    /**
-     * @override
-     * @suppress {checkTypes} for setNextSibling(null).
-     */
+    /** @override */
     cdr() {
         const startOfCdr = this.getFirstChild().getNextSibling();
         if (!startOfCdr) {
