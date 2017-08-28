@@ -17,11 +17,11 @@ const String = goog.require('r5js.ast.String');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Type = goog.require('r5js.Type');
 const Vector = goog.require('r5js.ast.Vector');
-const array = goog.require('goog.array');
 const datumutil = goog.require('r5js.datumutil');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
+const {toArray} = goog.require('goog.array');
 
 /** @interface */
 class NumArgChecker {
@@ -145,7 +145,7 @@ class AllArgsOfType {
     /** @override */
     checkAndUnwrapArgs(args, nameToShowInErrorMessage) {
         const argtype = this.type_;
-        return array.map(args, (arg, i) => {
+        return args.map((arg, i) => {
             if (!(/** @type {!PrimitiveProcedure} */ (Predicates[argtype.getName() + '?'])).fn_.call(null, arg)) {
                 throw argumentTypeError(
                     arg, i, nameToShowInErrorMessage, argtype, runtimeType(arg));
@@ -237,10 +237,10 @@ class NeedsCurrentPorts extends PrimitiveProcedure {
         this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
         const unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
             userArgs, this.debugName_);
-        const args = array.concat(
+        const args = [].concat(
             trampolineHelper.getInputPort(),
             trampolineHelper.getOutputPort(),
-            array.toArray(unwrappedArgs));
+            toArray(unwrappedArgs));
         const ans = this.fn_.apply(null, args);
         procCallLike.bindResult(ans);
         trampolineHelper.setValue(ans);
@@ -266,7 +266,7 @@ class HasSpecialEvalLogic extends PrimitiveProcedure {
         this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
         const unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
             userArgs, this.debugName_);
-        const args = array.concat(array.toArray(unwrappedArgs), procCallLike, trampolineHelper);
+        const args = [].concat(toArray(unwrappedArgs), procCallLike, trampolineHelper);
         this.fn_.apply(null, args);
     }
 }

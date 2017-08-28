@@ -12,10 +12,10 @@ const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
-const array = goog.require('goog.array');
 const {DottedList, List} = goog.require('r5js.ast.List');
 const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {Terminal, Terminals} = goog.require('r5js.parse.Terminals');
+const {toArray} = goog.require('goog.array');
 
 class RuleFactory {
 
@@ -55,7 +55,7 @@ class RuleFactory {
      * @return {!Rule}
      */
     choice(var_args) {
-        return new Choice(array.toArray(arguments));
+        return new Choice(toArray(arguments));
     }
 
     /**
@@ -63,7 +63,7 @@ class RuleFactory {
      * @return {!DesugarableRule}
      */
     seq(var_args) {
-        return new Seq(array.toArray(arguments));
+        return new Seq(toArray(arguments));
     }
 
     /**
@@ -329,10 +329,8 @@ class Seq {
         // example: (define (x . y) 1) => (define .( x . ) 1)
         /* No RHS in the grammar has more than one dot.
          This will break if such a rule is added. */
-        const indexOfDot = array.findIndex(rules, function (rule) {
-            return rule instanceof OneTerminal
-                && rule.terminal_ === Terminals.DOT;
-        });
+        const indexOfDot =
+            rules.findIndex(rule => rule instanceof OneTerminal && rule.terminal_ === Terminals.DOT);
 
         if (indexOfDot === -1) {
             return rules;
