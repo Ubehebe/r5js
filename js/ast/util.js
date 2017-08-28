@@ -4,6 +4,7 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {Terminals} = goog.require('r5js.parse.Terminals');
@@ -16,7 +17,6 @@ const {Terminals} = goog.require('r5js.parse.Terminals');
  * TODO bl: you can't extract a definition from an arbitrary datum.
  * Make more strongly typed.
  * @return {!CompoundDatum} A datum representing the given datum's definition.
- * @suppress {checkTypes} for setNextSibling(null)
  */
 function extractDefinition(datum) {
   let variable = datum.at(Nonterminals.VARIABLE);
@@ -28,10 +28,10 @@ function extractDefinition(datum) {
         .appendSibling(/** @type {!Datum} */(expr))
         .toList(List);
   } else {
-    const formalsList = datum.getFirstChild().getNextSibling();
+    const formalsList = /** @type {!CompoundDatum} */ (datum.getFirstChild().getNextSibling());
     variable = formalsList.getFirstChild();
-    const bodyStart = formalsList.getNextSibling();
-    formalsList.setFirstChild(formalsList.getFirstChild().getNextSibling());
+    const bodyStart = /** @type {!Datum} */ (formalsList.getNextSibling());
+    formalsList.setFirstChild(/** @type {!Datum} */ (variable.getNextSibling()));
     const lambda = prepareLambdaForDefinition(bodyStart, formalsList);
     variable.setNextSibling(null); // TODO bl
     return new SiblingBuffer()
@@ -43,9 +43,8 @@ function extractDefinition(datum) {
 
 /**
  * @param {!Datum} bodyStart
- * @param {!Datum} formalsList
+ * @param {!CompoundDatum} formalsList
  * @return {!Datum}
- * @suppress {checkTypes} for setNextSibling(null)
  */
 function prepareLambdaForDefinition(bodyStart, formalsList) {
   const buffer = new SiblingBuffer();
@@ -53,7 +52,7 @@ function prepareLambdaForDefinition(bodyStart, formalsList) {
   if (formalsList.isImproperList()
       && !formalsList.getFirstChild().getNextSibling()) {
     buffer.appendSibling(new Identifier(
-        /** @type {string} */ (formalsList.getFirstChild().getPayload())));
+        (/** @type {!SimpleDatum<string>} */ (formalsList.getFirstChild())).getPayload()));
   } else {
     formalsList.setNextSibling(null);
     buffer.appendSibling(formalsList);
