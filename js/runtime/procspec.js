@@ -428,21 +428,6 @@ function atLeastNWithSpecialEvalLogic(min, fn) {
   return new HasSpecialEvalLogic(fn, new AtLeast(min), NO_TYPE_RESTRICTIONS);
 }
 
-exports.unary = unary;
-exports.binary = binary;
-exports.ternary = ternary;
-exports.varargsAtLeast0 = varargsAtLeast0;
-exports.varargsAtLeast1 = varargsAtLeast1;
-exports.varargsRange = varargsRange;
-exports.nullaryWithCurrentPorts = nullaryWithCurrentPorts;
-exports.binaryWithCurrentPorts = binaryWithCurrentPorts;
-exports.nullaryOrUnaryWithCurrentPorts = nullaryOrUnaryWithCurrentPorts;
-exports.unaryOrBinaryWithCurrentPorts = unaryOrBinaryWithCurrentPorts;
-exports.unaryWithSpecialEvalLogic = unaryWithSpecialEvalLogic;
-exports.binaryWithSpecialEvalLogic = binaryWithSpecialEvalLogic;
-exports.ternaryWithSpecialEvalLogic = ternaryWithSpecialEvalLogic;
-exports.atLeastNWithSpecialEvalLogic = atLeastNWithSpecialEvalLogic;
-
 /** @const {!Object<string, !PrimitiveProcedure>} */
 const Predicates = {};
 
@@ -463,8 +448,6 @@ Predicates['procedure?'] = unary(node => node instanceof Lambda || node instance
 Predicates['string?'] = unary(node => node instanceof String);
 Predicates['symbol?'] = unary(node => node instanceof Identifier);
 Predicates['vector?'] = unary(node => node instanceof Vector);
-
-exports.Predicates = Predicates;
 
 /**
  * @param {!Datum} arg
@@ -491,6 +474,23 @@ function installPredicates(registry) {
     }
 }
 
-exports.PrimitiveProcedure = PrimitiveProcedure; // TODO bl necessary?
-exports.runtimeType = runtimeType;
-exports.installPredicates = installPredicates;
+exports = {
+    atLeastNWithSpecialEvalLogic,
+    binary,
+    binaryWithCurrentPorts,
+    binaryWithSpecialEvalLogic,
+    installPredicates,
+    nullaryOrUnaryWithCurrentPorts,
+    nullaryWithCurrentPorts,
+    Predicates,
+    PrimitiveProcedure,
+    runtimeType,
+    ternary,
+    ternaryWithSpecialEvalLogic,
+    unary,
+    unaryOrBinaryWithCurrentPorts,
+    unaryWithSpecialEvalLogic,
+    varargsAtLeast0,
+    varargsAtLeast1,
+    varargsRange,
+};
