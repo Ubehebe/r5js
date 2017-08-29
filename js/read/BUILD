@@ -6,7 +6,6 @@ closure_js_library(
     srcs = glob(["*.js"]),
     language = JS_VERSION,
     deps = [
-        "@io_bazel_rules_closure//closure/library",
         "//js/ast",
         "//js:error",
         "//js/parse:nonterminals",

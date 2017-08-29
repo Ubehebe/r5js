@@ -45,7 +45,6 @@ closure_js_library(
     ] + SRCS_USED_BY_PARSER_IMPL),
     visibility = ["//js:__subpackages__"],
     deps = [
-        "@io_bazel_rules_closure//closure/library",
         ":used_by_parser_impl",
         "//js/ast",
         "//js:error",

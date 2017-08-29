@@ -31,7 +31,6 @@ closure_js_library(
         "//js:__subpackages__",
     ],
     deps = [
-        "@io_bazel_rules_closure//closure/library",
         ":error",
         ":value",
         "//js/ast",
