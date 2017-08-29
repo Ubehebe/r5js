@@ -68,84 +68,84 @@ PrimitiveProcedures['eqv?'] = PrimitiveProcedures['eq?'] = binary((p, q) => p.eq
 
 // Number-related procedures
 
-PrimitiveProcedures['='] = varargsAtLeast0(function() {
-  for (let i = 0; i < arguments.length - 1; ++i) {
-    if (arguments[i] !== arguments[i + 1]) {
+PrimitiveProcedures['='] = varargsAtLeast0((...args) => {
+  for (let i = 0; i < args.length - 1; ++i) {
+    if (args[i] !== args[i + 1]) {
       return false;
     }
   }
   return true;
 }, Types.NUMBER);
 
-PrimitiveProcedures['/'] = varargsAtLeast1(function() {
-  if (arguments.length === 1) { // unary
-    return 1 / arguments[0];
+PrimitiveProcedures['/'] = varargsAtLeast1((...args) => {
+  if (args.length === 1) { // unary
+    return 1 / args[0];
   } else { // varargs: (x1 / x2) / x3 etc
-    let ans = arguments[0];
-    for (let i = 1; i < arguments.length; ++i)
-      ans /= arguments[i];
+    let ans = args[0];
+    for (let i = 1; i < args.length; ++i)
+      ans /= args[i];
     return ans;
   }
 }, Types.NUMBER);
 
-PrimitiveProcedures['-'] = varargsAtLeast1(function() {
-  if (arguments.length === 1) { // unary
-    return -1 * arguments[0];
+PrimitiveProcedures['-'] = varargsAtLeast1((...args) => {
+  if (args.length === 1) { // unary
+    return -1 * args[0];
   } else { // varargs: (x1 - x2) - x3 etc
-    let ans = arguments[0];
-    for (let i = 1; i < arguments.length; ++i) {
-      ans -= arguments[i];
+    let ans = args[0];
+    for (let i = 1; i < args.length; ++i) {
+      ans -= args[i];
     }
     return ans;
   }
 }, Types.NUMBER);
 
-PrimitiveProcedures['*'] = varargsAtLeast0(function() {
+PrimitiveProcedures['*'] = varargsAtLeast0((...args) => {
   let product = 1;
-  for (let i = 0; i < arguments.length; ++i) {
-    product *= arguments[i];
+  for (let i = 0; i < args.length; ++i) {
+    product *= args[i];
   }
   return product;
 }, Types.NUMBER);
 
-PrimitiveProcedures['+'] = varargsAtLeast0(function() {
+PrimitiveProcedures['+'] = varargsAtLeast0((...args) => {
   let sum = 0;
-  for (let i = 0; i < arguments.length; ++i) {
-    sum += arguments[i];
+  for (let i = 0; i < args.length; ++i) {
+    sum += args[i];
   }
   return sum;
 }, Types.NUMBER);
 
-PrimitiveProcedures['>='] = varargsAtLeast0(function() {
-  for (let i = 0; i < arguments.length - 1; ++i) {
-    if (arguments[i] < arguments[i + 1]) {
+PrimitiveProcedures['>='] = varargsAtLeast0((...args) => {
+  for (let i = 0; i < args.length - 1; ++i) {
+    if (args[i] < args[i + 1]) {
       return false;
     }
   }
   return true;
 }, Types.NUMBER);
 
-PrimitiveProcedures['>'] = varargsAtLeast0(function() {
-  for (let i = 0; i < arguments.length - 1; ++i) {
-    if (arguments[i] <= arguments[i + 1]) {
+PrimitiveProcedures['>'] = varargsAtLeast0((...args) => {
+  for (let i = 0; i < args.length - 1; ++i) {
+    if (args[i] <= args[i + 1]) {
       return false;
     }
   }
   return true;
 }, Types.NUMBER);
 
-PrimitiveProcedures['<='] = varargsAtLeast0(function() {
-  for (let i = 0; i < arguments.length - 1; ++i) {
-    if (arguments[i] > arguments[i + 1]) {
+PrimitiveProcedures['<='] = varargsAtLeast0((...args) => {
+  for (let i = 0; i < args.length - 1; ++i) {
+    if (args[i] > args[i + 1]) {
       return false;
     }
   }
   return true;
 }, Types.NUMBER);
 
-PrimitiveProcedures['<'] = varargsAtLeast0(function() {
-  for (let i = 0; i < arguments.length - 1; ++i) {
-    if (arguments[i] >= arguments[i + 1]) {
+PrimitiveProcedures['<'] = varargsAtLeast0((...args) => {
+  for (let i = 0; i < args.length - 1; ++i) {
+    if (args[i] >= args[i + 1]) {
       return false;
     }
   }
@@ -160,16 +160,16 @@ PrimitiveProcedures['acos'] = unary(Math.acos, Types.NUMBER);
 
 PrimitiveProcedures['asin'] = unary(Math.asin, Types.NUMBER);
 
-PrimitiveProcedures['atan'] = varargsAtLeast1(function() {
+PrimitiveProcedures['atan'] = varargsAtLeast1((...args) => {
   /* Oddly, R5RS overloads atan for both one and two arguments,
              rather than having a separate atan2. */
-  switch (arguments.length) {
+  switch (args.length) {
     case 1:
-      return Math.atan(arguments[0]);
+      return Math.atan(args[0]);
     case 2:
-      return Math.atan2(arguments[0], arguments[1]);
+      return Math.atan2(args[0], args[1]);
     default:
-      throw Error.tooManyVarargs('atan', 2, arguments.length);
+      throw Error.tooManyVarargs('atan', 2, args.length);
   }
 }, Types.NUMBER);
 
@@ -183,7 +183,7 @@ PrimitiveProcedures['cos'] = unary(Math.cos, Types.NUMBER);
 PrimitiveProcedures['exact?'] = unary(x => false, Types.NUMBER);
 
 // In JavaScript every number is inexact
-PrimitiveProcedures['exact->inexact'] = unary(function(x) { return x; }, Types.NUMBER);
+PrimitiveProcedures['exact->inexact'] = unary(x => x, Types.NUMBER);
 
 PrimitiveProcedures['exp'] = unary(Math.exp, Types.NUMBER);
 
@@ -191,13 +191,13 @@ PrimitiveProcedures['expt'] = binary(Math.pow, Types.NUMBER, Types.NUMBER);
 
 PrimitiveProcedures['floor'] = unary(Math.floor, Types.NUMBER);
 
-PrimitiveProcedures['imag-part'] = unary(function(z) {
+PrimitiveProcedures['imag-part'] = unary((z) => {
   throw Error.unimplementedOption('imag-part');
 }, Types.NUMBER);
 
 PrimitiveProcedures['inexact?'] = unary(x => true, Types.NUMBER);
 
-PrimitiveProcedures['inexact->exact'] = unary(function(x) { return x; } /* TODO bl */, Types.NUMBER);
+PrimitiveProcedures['inexact->exact'] = unary(x => x /* TODO bl */, Types.NUMBER);
 
 PrimitiveProcedures['magnitude'] = unary(z => {
     throw Error.unimplementedOption('magnitude');
@@ -567,11 +567,11 @@ PrimitiveProcedures['close-output-port'] = unary(datum => {
   return UNSPECIFIED_VALUE;
 }, Types.OUTPUT_PORT);
 
-PrimitiveProcedures['current-input-port'] = nullaryWithCurrentPorts(
-    function(inputPort, outputPort) { return inputPort; });
+PrimitiveProcedures['current-input-port'] =
+  nullaryWithCurrentPorts((inputPort, outputPort) => inputPort);
 
-PrimitiveProcedures['current-output-port'] = nullaryWithCurrentPorts(
-    function(inputPort, outputPort) { return outputPort; });
+PrimitiveProcedures['current-output-port'] =
+  nullaryWithCurrentPorts((inputPort, outputPort) => outputPort);
 
 /* According to R5RS 6.6.3, display is supposed to be a library
      procedure. Since the only non-library output routine is write-char,
@@ -669,8 +669,8 @@ PrimitiveProcedures['write-char'] = unaryOrBinaryWithCurrentPorts(
  * Calls proc with the elements of the list
  * (append (list arg1 ...) args) as the actual arguments.
  */
-PrimitiveProcedures['apply'] = atLeastNWithSpecialEvalLogic(2, function() {
-  const mustBeProc = arguments[0];
+PrimitiveProcedures['apply'] = atLeastNWithSpecialEvalLogic(2, (...args) => {
+  const mustBeProc = args[0];
   if (!(mustBeProc instanceof Lambda)) {
     throw argumentTypeError(
         mustBeProc, 0, 'apply', Types.PROCEDURE,
@@ -678,12 +678,12 @@ PrimitiveProcedures['apply'] = atLeastNWithSpecialEvalLogic(2, function() {
   }
 
   const procName = new Identifier(mustBeProc.getName());
-  const procCallLike = arguments[arguments.length - 2];
+  const procCallLike = args[args.length - 2];
   const resultStruct = /** @type {!TrampolineHelper} */ (
-      arguments[arguments.length - 1]);
+      args[args.length - 1]);
 
-  const lastRealArgIndex = arguments.length - 3;
-  const mustBeList = arguments[lastRealArgIndex];
+  const lastRealArgIndex = args.length - 3;
+  const mustBeList = args[lastRealArgIndex];
   if (!(mustBeList instanceof List)) {
     throw argumentTypeError(
         mustBeList, lastRealArgIndex, 'apply', Types.PAIR,
@@ -704,12 +704,12 @@ PrimitiveProcedures['apply'] = atLeastNWithSpecialEvalLogic(2, function() {
   } else {
     // (apply foo a b c '(1 2 3))
     for (let i = 1; i < lastRealArgIndex - 1; ++i) {
-      arguments[i].setNextSibling(arguments[i + 1]);
+      args[i].setNextSibling(args[i + 1]);
     }
-    arguments[lastRealArgIndex - 1].setNextSibling(mustBeList.getFirstChild());
+    args[lastRealArgIndex - 1].setNextSibling(mustBeList.getFirstChild());
 
     const newArgs = new SiblingBuffer()
-        .appendSibling(arguments[1])
+        .appendSibling(args[1])
         .toSiblings();
     const actualProcCall = new ProcCall(procName, newArgs);
     actualProcCall.setNext(procCallLike.getNext());
@@ -863,12 +863,12 @@ PrimitiveProcedures['call-with-current-continuation'] =
 
 
 // TODO bl: This can be implemented as a macro. See R5RS p. 34.
-PrimitiveProcedures['values'] = atLeastNWithSpecialEvalLogic(1, function() {
+PrimitiveProcedures['values'] = atLeastNWithSpecialEvalLogic(1, (...args) => {
   // Varargs procedures that also have special eval logic are a pain.
-  const resultStruct = arguments[arguments.length - 1];
-  const procCallLike = arguments[arguments.length - 2];
-  const procCall = arguments[arguments.length - 2];
-  const numUserArgs = arguments.length - 2;
+  const resultStruct = args[args.length - 1];
+  const procCallLike = args[args.length - 2];
+  const procCall = args[args.length - 2];
+  const numUserArgs = args.length - 2;
 
   /* If there's just one user-supplied argument, that works fine
      with the existing machinery. Example:
@@ -877,7 +877,7 @@ PrimitiveProcedures['values'] = atLeastNWithSpecialEvalLogic(1, function() {
 
      should just bind 1 to _0 and continue. */
   if (numUserArgs === 1) {
-    procCall.getEnv().addBinding(procCallLike.getResultName(), arguments[0]);
+    procCall.getEnv().addBinding(procCallLike.getResultName(), args[0]);
   } else {
     /* If there's more than one argument, we bind the whole array
        to the continuation's lastResultName. This means later, when we're
@@ -887,7 +887,7 @@ PrimitiveProcedures['values'] = atLeastNWithSpecialEvalLogic(1, function() {
     const userArgs = [];
 
     for (let i = 0; i < numUserArgs; ++i) {
-      userArgs.push(arguments[i]);
+      userArgs.push(args[i]);
     }
 
     procCall.getEnv().addBinding(procCallLike.getResultName(), userArgs);
@@ -934,5 +934,4 @@ function install(nullEnv, r5RSEnv) {
   }
 }
 
-exports.install = install;
-
+exports = {install};
