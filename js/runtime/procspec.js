@@ -482,7 +482,6 @@ exports = {
     installPredicates,
     nullaryOrUnaryWithCurrentPorts,
     nullaryWithCurrentPorts,
-    Predicates,
     PrimitiveProcedure,
     runtimeType,
     ternary,
