@@ -11,7 +11,6 @@ const TokenStream = goog.require('r5js.TokenStream');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
-const array = goog.require('goog.array');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {Terminal, Terminals} = goog.require('r5js.parse.Terminals');
@@ -55,19 +54,19 @@ class RuleFactory {
     }
 
     /**
-     * @param {...!Rule} var_args
+     * @param {...!Rule} rules
      * @return {!Seq}
      */
-    seq(var_args) {
-        return new Seq(array.toArray(arguments));
+    seq(...rules) {
+        return new Seq(rules);
     }
 
     /**
-     * @param {...!Rule} var_args
+     * @param {...!Rule} rules
      * @return {!Rule}
      */
-    choice(var_args) {
-        return new Choice(array.toArray(arguments));
+    choice(...rules) {
+        return new Choice(rules);
     }
 }
 

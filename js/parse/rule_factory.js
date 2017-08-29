@@ -15,7 +15,6 @@ const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');
 const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {Terminal, Terminals} = goog.require('r5js.parse.Terminals');
-const {toArray} = goog.require('goog.array');
 
 class RuleFactory {
 
@@ -51,19 +50,19 @@ class RuleFactory {
     }
 
     /**
-     * @param {...!Rule} var_args
+     * @param {...!Rule} rules
      * @return {!Rule}
      */
-    choice(var_args) {
-        return new Choice(toArray(arguments));
+    choice(...rules) {
+        return new Choice(rules);
     }
 
     /**
-     * @param {...!Rule} var_args
+     * @param {...!Rule} rules
      * @return {!DesugarableRule}
      */
-    seq(var_args) {
-        return new Seq(toArray(arguments));
+    seq(...rules) {
+        return new Seq(rules);
     }
 
     /**
