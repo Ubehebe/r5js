@@ -21,7 +21,6 @@ const datumutil = goog.require('r5js.datumutil');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
-const {toArray} = goog.require('goog.array');
 
 /** @interface */
 class NumArgChecker {
@@ -93,9 +92,9 @@ class Between {
 /** @interface */
 class ArgumentTypeCheckerAndUnwrapper {
     /**
-     * @param {!IArrayLike} args
+     * @param {!Array<?>} args
      * @param {string} nameToShowInErrorMessage
-     * @return {!IArrayLike}
+     * @return {!Array<?>}
      */
     checkAndUnwrapArgs(args, nameToShowInErrorMessage) {}
 }
@@ -185,7 +184,7 @@ class PrimitiveProcedure extends Procedure {
     }
 
     /**
-     * @param {!IArrayLike} userArgs
+     * @param {!Array<?>} userArgs
      * @param {!ProcCallLike} procCallLike
      * @param {!TrampolineHelper} trampolineHelper
      * @protected
@@ -240,7 +239,7 @@ class NeedsCurrentPorts extends PrimitiveProcedure {
         const args = [].concat(
             trampolineHelper.getInputPort(),
             trampolineHelper.getOutputPort(),
-            toArray(unwrappedArgs));
+            unwrappedArgs);
         const ans = this.fn_.apply(null, args);
         procCallLike.bindResult(ans);
         trampolineHelper.setValue(ans);
@@ -266,7 +265,7 @@ class HasSpecialEvalLogic extends PrimitiveProcedure {
         this.numArgChecker_.checkNumArgs(userArgs.length, this.debugName_);
         const unwrappedArgs = this.typeChecker_.checkAndUnwrapArgs(
             userArgs, this.debugName_);
-        const args = [].concat(toArray(unwrappedArgs), procCallLike, trampolineHelper);
+        const args = [].concat(unwrappedArgs, procCallLike, trampolineHelper);
         this.fn_.apply(null, args);
     }
 }
