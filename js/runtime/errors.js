@@ -22,11 +22,11 @@ function argumentTypeError(arg, argIndex, procName, expectedType, actualType) {
 
 /**
  * @param {string} name Error message.
- * @param {!Type=} opt_actualType
+ * @param {!Type=} actualType
  * @return {!Error}
  */
-function notAProcedure(name, opt_actualType) {
-  return new Error(Error.Type.NOT_A_PROCEDURE, name, opt_actualType);
+function notAProcedure(name, actualType=undefined) {
+  return new Error(Error.Type.NOT_A_PROCEDURE, name, actualType);
 }
 
 exports = { argumentTypeError, notAProcedure };

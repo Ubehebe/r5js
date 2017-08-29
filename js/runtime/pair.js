@@ -8,11 +8,11 @@ const {ObjectValue, Value} = goog.require('r5js.Value');
 class Pair {
     /**
      * @param {!Value} car
-     * @param {!Value=} opt_cdr
+     * @param {!Value=} cdr
      */
-    constructor(car, opt_cdr) {
+    constructor(car, cdr=NIL) {
         this.car_ = car;
-        this.cdr_ = goog.isDef(opt_cdr) ? opt_cdr : NIL;
+        this.cdr_ = cdr;
     }
 
     /**

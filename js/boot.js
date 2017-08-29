@@ -21,15 +21,11 @@ const {ProcCallLike} = goog.require('r5js.ProcCallLike');
  * and is connected to the given ports.
  * @param {string} syntaxLib Scheme source code for the R5RS syntax library.
  * @param {string} procLib Scheme source code for the R5RS procedure library.
- * @param {!InputPort=} inputPort Optional input port that the new
- * evaluator will be connected to. If not given, defaults to
- * {@link r5js.InputPort.NULL}.
- * @param {!OutputPort=} outputPort Optional output port that the new
- * evaluator will be connected to. If not given, defaults to
- * {@link r5js.OutputPort.NULL}.
+ * @param {!InputPort=} inputPort Input port that the new evaluator will be connected to.
+ * @param {!OutputPort=} outputPort Output port that the new evaluator will be connected to.
  * @return {!Evaluator}
  */
-function boot(syntaxLib, procLib, inputPort=undefined, outputPort=undefined) {
+function boot(syntaxLib, procLib, inputPort=InputPort.NULL, outputPort=OutputPort.NULL) {
   const nullEnv = new Environment(null /* enclosingEnv */);
   installSchemeSource(syntaxLib, nullEnv);
   nullEnv.seal();
@@ -60,10 +56,7 @@ function boot(syntaxLib, procLib, inputPort=undefined, outputPort=undefined) {
   PrimitiveProcedures.install(nullEnv, r5RSEnv);
   installSchemeSource(procLib, r5RSEnv);
   r5RSEnv.seal();
-  return Evaluator.create(
-      Pipeline.forEnvironment(r5RSEnv),
-      inputPort || InputPort.NULL,
-      outputPort || OutputPort.NULL);
+  return Evaluator.create(Pipeline.forEnvironment(r5RSEnv), inputPort, outputPort);
 }
 
 

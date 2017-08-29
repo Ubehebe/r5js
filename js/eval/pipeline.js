@@ -6,13 +6,13 @@ const Error = goog.require('r5js.Error');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
-const ParserImpl = goog.require('r5js.ParserImpl');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const trampoline = goog.require('r5js.trampoline');
 const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
+const {ParserImpl} = goog.require('r5js.ParserImpl');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 
@@ -79,12 +79,9 @@ class Impl {
         return Reader.forTokenStream(scanner).read();
     }
 
-    /** @override TODO bl shouldn't be necessary */
-    parse(root, opt_nonterminal) {
-        var parser = new ParserImpl.ParserImpl(root);
-        var ans = goog.isDef(opt_nonterminal)
-            ? parser.parse(opt_nonterminal)
-            : parser.parse();
+    /** @override */
+    parse(root, nonterminal) {
+        const ans = new ParserImpl(root).parse(nonterminal);
         if (!ans) {
             throw Error.parse(root);
         }

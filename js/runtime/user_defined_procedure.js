@@ -21,11 +21,11 @@ class UserDefinedProcedure extends Procedure {
      * @param {!Array<string>} formalsArray The procedure's formal parameters, in order.
      * @param {?Datum} bodyStart
      * @param {!IEnvironment} env An environment.
-     * @param {string=} opt_name The procedure's name. It has no semantic
+     * @param {string=} name The procedure's name. It has no semantic
      *     importance; it's just used for pretty-printing debugs and messages
      *     to the user. If not given, one will be created.
      */
-    constructor(formalsArray, bodyStart, env, opt_name) {
+    constructor(formalsArray, bodyStart, env, name=undefined) {
         super();
 
         /** @const @protected */
@@ -41,9 +41,7 @@ class UserDefinedProcedure extends Procedure {
         this.last_ = this.body_ ? ProcCallLike.getLast(this.body_) : null;
 
         /** @const @private */
-        this.name_ = goog.isDef(opt_name)
-            ? opt_name
-            : ('' + goog.getUid(this));
+        this.name_ = name || ('' + goog.getUid(this));
     }
 
     /** @return {string} */

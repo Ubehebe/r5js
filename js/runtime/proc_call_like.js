@@ -16,9 +16,9 @@ class ResultStruct {
 }
 
 class ProcCallLike {
-    /** @param {string=} opt_lastResultName */
-    constructor(opt_lastResultName) {
-        /** @private */ this.resultName_ = opt_lastResultName ||
+    /** @param {string=} lastResultName */
+    constructor(lastResultName=undefined) {
+        /** @private */ this.resultName_ = lastResultName ||
         ('@' /* TODO bl document */ + goog.getUid(this));
         /** @private {?ProcCallLike} */ this.next_ = null;
         /** @private {?IEnvironment} */ this.env_ = null;

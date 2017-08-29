@@ -13,11 +13,11 @@ class VarargsUserDefinedProcedure extends UserDefinedProcedure {
      * @param {!Array<string>} formalsArray The procedure's formal parameters, in order.
      * @param {?Datum} bodyStart
      * @param {!IEnvironment} env
-     * @param {string=} opt_name The procedure's name, for pretty-printing and
+     * @param {string=} name The procedure's name, for pretty-printing and
      * error messages. If not given, one will be created.
      */
-    constructor(formalsArray, bodyStart, env, opt_name) {
-        super(formalsArray, bodyStart, env, opt_name);
+    constructor(formalsArray, bodyStart, env, name=undefined) {
+        super(formalsArray, bodyStart, env, name);
     }
 
     /** @override */

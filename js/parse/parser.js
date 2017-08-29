@@ -12,7 +12,7 @@ class Parser {
   * @return {?Datum} The root of the parse tree, or null if parsing
   * was unsuccessful.
   */
- parse(nonterminal=undefined) {}
+ parse(nonterminal) {}
 }
 
 exports = Parser;

@@ -26,11 +26,11 @@ class ProcCall extends ProcCallLike {
     /**
      * @param {!Identifier} operatorName
      * @param {?Datum} firstOperand
-     * @param {string=} opt_lastResultName Optional name to use for the last result.
+     * @param {string=} lastResultName Optional name to use for the last result.
      *     If not given, a unique name will be created.
      */
-    constructor(operatorName, firstOperand, opt_lastResultName) {
-        super(opt_lastResultName);
+    constructor(operatorName, firstOperand, lastResultName=undefined) {
+        super(lastResultName);
         /** @const @private */ this.operatorName_ = operatorName;
         /** @const @private */ this.firstOperand_ = firstOperand;
     }
