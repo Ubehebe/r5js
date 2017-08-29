@@ -119,11 +119,11 @@ class ParserImpl {
     }
 
     /**
-     * @param {!Nonterminal=} opt_nonterminal
+     * @param {!Nonterminal=} nonterminal
      * @override TODO bl compiler bug
      */
-    parse(opt_nonterminal) {
-        const nonterminal = opt_nonterminal || Nonterminals.PROGRAM;
+    parse(nonterminal=undefined) {
+        nonterminal = nonterminal || Nonterminals.PROGRAM;
         const parsedRoot = /** @type {!Datum} */ (
             grammar[nonterminal].match(this.datumStream_));
         if (parsedRoot) {

@@ -152,15 +152,15 @@ class Datum {
 
   /**
    * @param {!IEnvironment} env TODO bl.
-   * @param {boolean=} opt_forceContinuationWrapper TODO bl document.
+   * @param {boolean=} forceContinuationWrapper TODO bl document.
    * @return {!Datum|!ProcCallLike|!r5js.Subtransformer|!r5js.Macro|null}
    */
-  desugar(env, opt_forceContinuationWrapper) {
+  desugar(env, forceContinuationWrapper=false) {
     const desugarFn = (this.nextDesugar_ >= 0)
         ? this.desugars_[this.nextDesugar_--]
         : null;
     let ans = desugarFn ? desugarFn(this, env) : this;
-    if (opt_forceContinuationWrapper && (ans instanceof Datum)) {
+    if (forceContinuationWrapper && (ans instanceof Datum)) {
       ans = ans.toProcCallLike();
     }
     return ans;

@@ -22,9 +22,9 @@ class Macro {
      * @param {?Datum} literalIdentifiers
      * @param {?Datum} rules
      * @param {!IEnvironment} definitionEnv
-     * @param {!Array<!Transformer>=} opt_transformers
+     * @param {!Array<!Transformer>=} transformers
      */
-    constructor(literalIdentifiers, rules, definitionEnv, opt_transformers) {
+    constructor(literalIdentifiers, rules, definitionEnv, transformers=[]) {
         /** @private {!IEnvironment} */ this.definitionEnv_ = definitionEnv;
         /** @const @private {!Object<string, boolean>} */
         this.literalIdentifiers_ = {};
@@ -34,9 +34,9 @@ class Macro {
         }
 
         /** @const @private {!Array<!Transformer>} */
-        this.transformers_ = opt_transformers || [];
+        this.transformers_ = transformers;
 
-        if (!opt_transformers) {
+        if (!transformers.length) {
             for (let rule = rules; rule; rule = rule.getNextSibling()) {
                 // TODO bl improve
                 rule = /** @type {!CompoundDatum} */ (rule);

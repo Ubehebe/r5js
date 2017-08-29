@@ -272,36 +272,32 @@ class HasSpecialEvalLogic extends PrimitiveProcedure {
 
 /**
  * @param {function(T):?} fn
- * @param {!Type=} opt_argtype
+ * @param {!Type=} argtype
  * @return {!PrimitiveProcedure}
  * @template T
  * TODO bl: make the template type mean something
  */
-function unary(fn, opt_argtype) {
+function unary(fn, argtype=undefined) {
     return new PrimitiveProcedure(
         fn,
         EXACTLY_1_ARG,
-        goog.isDef(opt_argtype)
-            ? new ArgumentTypeCheckerAndUnwrapperImpl([opt_argtype])
+        argtype
+            ? new ArgumentTypeCheckerAndUnwrapperImpl([argtype])
             : NO_TYPE_RESTRICTIONS);
 }
 
 /**
  * @param {function(T1, T2):?} fn
- * @param {!Type=} opt_argtype1
- * @param {!Type=} opt_argtype2
+ * @param {!Type=} argtype1
+ * @param {!Type=} argtype2
  * @return {!PrimitiveProcedure}
  * @template T1,T2
  * TODO bl: make the template types mean something
  */
-function binary(fn, opt_argtype1, opt_argtype2) {
+function binary(fn, argtype1=undefined, argtype2=undefined) {
   const argtypes = [];
-  if (goog.isDef(opt_argtype1)) {
-    argtypes.push(opt_argtype1);
-  }
-  if (goog.isDef(opt_argtype2)) {
-    argtypes.push(opt_argtype2);
-  }
+  argtype1 && argtypes.push(argtype1);
+  argtype2 && argtypes.push(argtype2);
   const typeChecker = argtypes.length === 0
       ? NO_TYPE_RESTRICTIONS
       : new ArgumentTypeCheckerAndUnwrapperImpl(argtypes);
@@ -310,24 +306,18 @@ function binary(fn, opt_argtype1, opt_argtype2) {
 
 /**
  * @param {function(T1, T2, T3): ?} fn
- * @param {!Type=} opt_argtype1
- * @param {!Type=} opt_argtype2
- * @param {!Type=} opt_argtype3
+ * @param {!Type=} argtype1
+ * @param {!Type=} argtype2
+ * @param {!Type=} argtype3
  * @return {!PrimitiveProcedure}
  * @template T1,T2,T3
  * TODO bl make the template types mean something
  */
-function ternary(fn, opt_argtype1, opt_argtype2, opt_argtype3) {
+function ternary(fn, argtype1=undefined, argtype2=undefined, argtype3=undefined) {
   const argtypes = [];
-  if (opt_argtype1) {
-    argtypes.push(opt_argtype1);
-  }
-  if (opt_argtype2) {
-    argtypes.push(opt_argtype2);
-  }
-  if (opt_argtype3) {
-    argtypes.push(opt_argtype3);
-  }
+  argtype1 && argtypes.push(argtype1);
+  argtype2 && argtypes.push(argtype2);
+  argtype3 && argtypes.push(argtype3);
   const typeChecker = argtypes.length
       ? new ArgumentTypeCheckerAndUnwrapperImpl(argtypes)
       : NO_TYPE_RESTRICTIONS;

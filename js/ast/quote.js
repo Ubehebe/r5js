@@ -53,10 +53,10 @@ const CAR_ = new Identifier(Terminals.QUOTE);
 class QuoteShim extends ProcCallLike {
     /**
      * @param {!Quote} payload
-     * @param {string=} opt_continuationName Optional name of the continuation.
+     * @param {string=} continuationName Optional name of the continuation.
      */
-    constructor(payload, opt_continuationName) {
-        super(opt_continuationName);
+    constructor(payload, continuationName=undefined) {
+        super(continuationName);
         /** @const @private */ this.firstOperand_ = payload;
     }
 

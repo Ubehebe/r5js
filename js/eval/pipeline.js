@@ -32,11 +32,11 @@ class Pipeline {
 
     /**
      * @param {!Datum} root The root to parse.
-     * @param {!Nonterminal=} opt_nonterminal The nonterminal
+     * @param {!Nonterminal=} nonterminal The nonterminal
      * that should be the root of the parse tree.
      * @return {!Datum}
      */
-    parse(root, opt_nonterminal) {}
+    parse(root, nonterminal=undefined) {}
 
     /**
      * @param {!Datum} root The root to desugar.

@@ -195,12 +195,12 @@ class CompoundDatum extends Datum {
 
     /**
      * @param {function(this: T, !Datum)} callback
-     * @param {T=} opt_context
+     * @param {T=} context
      * @template T
      */
-    forEachChild(callback, opt_context) {
+    forEachChild(callback, context=undefined) {
         for (let cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
-            callback.call(opt_context, cur);
+            callback.call(context, cur);
         }
     }
 
@@ -209,14 +209,14 @@ class CompoundDatum extends Datum {
      * but the children are represented as a linked list.
      * @param {function(this:SCOPE, !Datum):T} f Function for transforming
      * an individual child.
-     * @param {SCOPE=} opt_context Optional receiver for f.
+     * @param {SCOPE=} context Optional receiver for f.
      * @return {!Array<T>} Array of transformed children.
      * @template SCOPE,T
      */
-    mapChildren(f, opt_context) {
+    mapChildren(f, context=undefined) {
         const ans = [];
         for (let cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
-            ans.push(f.call(opt_context, cur));
+            ans.push(f.call(context, cur));
         }
         return ans;
     }
