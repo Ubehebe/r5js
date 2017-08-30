@@ -3,7 +3,7 @@ goog.module('r5js.boot');
 
 const Datum = goog.require('r5js.Datum');
 const Environment = goog.require('r5js.Environment');
-const Evaluator = goog.require('r5js.sync.Evaluator');
+const Evaluator = goog.require('r5js.Evaluator');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');

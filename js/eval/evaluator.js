@@ -1,4 +1,4 @@
-goog.module('r5js.sync.Evaluator');
+goog.module('r5js.Evaluator');
 
 const Datum = goog.require('r5js.Datum');
 const InputPort = goog.require('r5js.InputPort');
