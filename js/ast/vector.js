@@ -70,7 +70,6 @@ class Vector extends CompoundDatum {
      */
     convertVectorToArrayBacked_() {
         this.forEachChild(child => this.array_.push(child), this);
-        this.clearFirstChild();
         this.arrayBacked_ = true;
     }
 }

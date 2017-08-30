@@ -1,6 +1,5 @@
 goog.module('r5js.ProcCall');
 
-const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const ContinuableHelper = goog.require('r5js.ContinuableHelper');
 const Continuation = goog.require('r5js.Continuation');
 const Datum = goog.require('r5js.Datum');
@@ -117,9 +116,6 @@ class ProcCall extends ProcCallLike {
                 newCallChain.appendProcCallLike(procCallLike);
             } else {
                 const clonedArg = arg.clone(null /* parent */);
-                if (clonedArg instanceof CompoundDatum) {
-                    clonedArg.clearFirstChild();
-                }
                 finalArgs.appendSibling(clonedArg);
             }
         }

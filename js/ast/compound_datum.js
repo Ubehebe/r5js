@@ -31,14 +31,6 @@ class CompoundDatum extends Datum {
         return this.qqLevel;
     }
 
-    /**
-     * Clears the first child.
-     * TODO bl is this necessary?
-     */
-    clearFirstChild() {
-        this.firstChild_ = null;
-    }
-
     /** @override */
     clone(parent) {
         const ans = /** @type {!CompoundDatum} */ (super.clone(parent));
