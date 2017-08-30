@@ -6,27 +6,7 @@ const OutputPort = goog.require('r5js.OutputPort');
 const Pipeline = goog.require('r5js.Pipeline');
 const valutil = goog.require('r5js.valutil');
 
-/** @interface */
 class Evaluator {
-    /**
-     * @param {string} input
-     * @return {string}
-     * @throws {!Error}
-     */
-    evaluate(input) {}
-
-    /**
-     * @param {!Pipeline} pipeline
-     * @param {!InputPort} inputPort
-     * @param {!OutputPort} outputPort
-     */
-    static create(pipeline, inputPort, outputPort) {
-        return new Impl(pipeline, inputPort, outputPort);
-    }
-}
-
-/** @implements {Evaluator} */
-class Impl {
     /**
      * @param {!Pipeline} pipeline
      * @param {!InputPort} inputPort
@@ -38,7 +18,11 @@ class Impl {
         /** @const @private */ this.outputPort_ = outputPort;
     }
 
-    /** @override */
+    /**
+     * @param {string} input
+     * @return {string}
+     * @throws {!Error}
+     */
     evaluate(input) {
         return valutil.toWriteString(
             this.pipeline_.Eval(
