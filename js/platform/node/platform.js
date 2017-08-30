@@ -22,11 +22,6 @@ const newCommonEvaluator = goog.require('r5js.platform.common.newEvaluator');
  */
 class Node {
     /** @override */
-    exit(statusCode) {
-        process.exit(statusCode);
-    }
-
-    /** @override */
     newEvaluator(inputPort, outputPort) {
         return newCommonEvaluator(inputPort, outputPort);
     }

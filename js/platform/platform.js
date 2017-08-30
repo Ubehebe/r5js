@@ -9,9 +9,6 @@ const OutputPort = goog.require('r5js.OutputPort');
  * @interface
  */
 class Platform {
-    /** @param {number} statusCode */
-    exit(statusCode) {}
-
     /**
      * @param {!InputPort=} inputPort
      * @param {!OutputPort=} outputPort
