@@ -83,13 +83,10 @@ class Base {
         return false;
     }
 
-    /**
-     * @override
-     * @suppress {checkTypes} TODO bl suspicious false return value
-     */
+    /** @override */
     toDatum(bindings) {
         const siblingBuffer = this.toSiblingBuffer_(bindings);
-        return siblingBuffer ? siblingBuffer.toList(this.ctor_) : false;
+        return siblingBuffer && siblingBuffer.toList(this.ctor_);
     }
 
     /** @override */

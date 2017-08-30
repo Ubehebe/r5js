@@ -28,7 +28,7 @@ class Subtransformer {
 
  /**
   * @param {!TemplateBindings} bindings Template bindings.
-  * @return {!Datum}
+  * @return {?Datum} null if something failed. TODO: if what failed?
   */
  toDatum(bindings) {}
 }
