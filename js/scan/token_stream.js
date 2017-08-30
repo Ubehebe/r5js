@@ -127,7 +127,6 @@ class Scanner {
      * TODO bl: investigate creating a {@link r5js.SiblingBuffer} subclass
      * that would do this automatically.
      * @override
-     * @suppress {checkTypes} for setNextSibling(null) TODO bl remove
      */
     restore(checkpoint) {
         for (let i = checkpoint + 1; i < this.readyTokens_.length; ++i) {
