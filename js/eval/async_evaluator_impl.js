@@ -1,28 +1,20 @@
 goog.module('r5js.async.Evaluator.Impl');
 
-const Evaluator = goog.require('r5js.Evaluator');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
 const Promise = goog.require('goog.Promise');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const boot = goog.require('r5js.boot');
 
-/**
- * @param {!InputPort=} inputPort
- * @param {!OutputPort=} outputPort
- * @return {!AsyncEvaluatorImpl}
- */
-function newAsyncEvaluator(inputPort=InputPort.NULL, outputPort=OutputPort.NULL) {
-    const sources = new SchemeSources();
-    const syncEvaluator = boot(sources.syntax, sources.procedures, inputPort, outputPort);
-    return new AsyncEvaluatorImpl(syncEvaluator);
-}
-
 /** Wraps a synchronous evaluator in promises. */
-class AsyncEvaluatorImpl {
-    /** @param {!Evaluator} evaluator */
-    constructor(evaluator) {
-        /** @const @private */ this.evaluator_ = evaluator;
+class AsyncEvaluator {
+    /**
+     * @param {!InputPort=} inputPort
+     * @param {!OutputPort=} outputPort
+     */
+    constructor(inputPort=InputPort.NULL, outputPort=OutputPort.NULL) {
+        const sources = new SchemeSources();
+        /** @const @private */ this.evaluator_ = boot(sources.syntax, sources.procedures, inputPort, outputPort);
     }
 
     /**
@@ -42,4 +34,4 @@ class AsyncEvaluatorImpl {
     }
 }
 
-exports = newAsyncEvaluator;
+exports = AsyncEvaluator;
