@@ -9,13 +9,13 @@ const SyncEvaluator = goog.require('r5js.sync.Evaluator');
 const boot = goog.require('r5js.boot');
 
 /**
- * @param {!InputPort=} opt_inputPort
- * @param {!OutputPort=} opt_outputPort
+ * @param {!InputPort=} inputPort
+ * @param {!OutputPort=} outputPort
  * @return {!Evaluator}
  */
-function newEvaluator(opt_inputPort, opt_outputPort) {
+function newEvaluator(inputPort=InputPort.NULL, outputPort=OutputPort.NULL) {
     const sources = SchemeSources.get();
-    const syncEvaluator = boot(sources.syntax, sources.procedures, opt_inputPort, opt_outputPort);
+    const syncEvaluator = boot(sources.syntax, sources.procedures, inputPort, outputPort);
     return new EvaluatorImpl(syncEvaluator);
 }
 
