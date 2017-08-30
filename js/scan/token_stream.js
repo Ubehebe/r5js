@@ -60,7 +60,7 @@ class Scanner {
          * @const
          * @private {!RegExp}
          */
-        this.tokenRegex_ = Scanner.newTokenRegex_();
+        this.tokenRegex_ = newTokenRegex();
 
         /**
          * R5RS 7.1.1: "Tokens which require implicit termination
@@ -204,7 +204,7 @@ class Scanner {
             return new Boolean(payload === '#t' || payload === '#T');
         } else if (matchArray[3]) {
             this.needDelimiter_ = true;
-            return new Character(Scanner.normalizeCharacterPayload_(payload));
+            return new Character(normalizeCharacterPayload(payload));
         } else if (matchArray[4]) {
             this.needDelimiter_ = false;
             // String literals could have escaped backslashes and double quotes,
@@ -216,210 +216,206 @@ class Scanner {
             return new String(actualPayload);
         } else if (matchArray[1]) {
             this.needDelimiter_ = true;
-            const numericPayload = NUMBER_FUNNY_BUSINESS.test(payload) ?
-                Scanner.parseNumericPayload_(payload) :
-                parseFloat(payload);
+            const numericPayload = NUMBER_FUNNY_BUSINESS.test(payload)
+                ? parseNumericPayload(payload)
+                : parseFloat(payload);
             return new Number(numericPayload);
         } else throw Error.internalInterpreterError('invariant incorrect');
     }
+}
 
-    /**
-     * @param {string} payload
-     * @return {string}
-     * @private
-     */
-    static normalizeCharacterPayload_(payload) {
-        const afterSlash = payload.substr(2);
-        if (afterSlash.length === 1) {
-            return afterSlash;
-            /* R5RS 6.3.4: "Case is significant in #\<character>, but not in
-             #\<character name>.*/
-        } else if (afterSlash.toLowerCase() === 'space') {
-            return ' ';
-        } else if (afterSlash.toLowerCase() === 'newline') {
-            return '\n';
-        } else {
-            throw Error.internalInterpreterError('invalid character payload ' + payload);
-        }
+/**
+ * @param {string} payload
+ * @return {string}
+ */
+function normalizeCharacterPayload(payload) {
+    const afterSlash = payload.substr(2);
+    if (afterSlash.length === 1) {
+        return afterSlash;
+        /* R5RS 6.3.4: "Case is significant in #\<character>, but not in
+         #\<character name>.*/
+    } else if (afterSlash.toLowerCase() === 'space') {
+        return ' ';
+    } else if (afterSlash.toLowerCase() === 'newline') {
+        return '\n';
+    } else {
+        throw Error.internalInterpreterError('invalid character payload ' + payload);
+    }
+}
+
+/**
+ * @param {string} payload
+ * @return {number}
+ */
+function parseNumericPayload(payload) {
+    /* Get rid of all exactness annotations. Because we're
+     using JavaScript math, all numbers are inexact, so the
+     exactness annotations have no semantic significance. */
+    payload = payload.replace(/#i|#e/i, '');
+
+    const originalLength = payload.length;
+
+    if (NUMBER_FORBIDDEN.test(payload)) {
+        throw Error.scan('unsupported number literal: ' + payload);
     }
 
-    /**
-     * @param {string} payload
-     * @return {number}
-     * @private
-     */
-    static parseNumericPayload_(payload) {
-        /* Get rid of all exactness annotations. Because we're
-         using JavaScript math, all numbers are inexact, so the
-         exactness annotations have no semantic significance. */
-        payload = payload.replace(/#i|#e/i, '');
-
-        const originalLength = payload.length;
-
-        if (NUMBER_FORBIDDEN.test(payload)) {
-            throw Error.scan('unsupported number literal: ' + payload);
-        }
-
-        let base = 10;
-        if ((payload = payload.replace(/#x/i, '')).length < originalLength) {
-            base = 16;
-        } else if ((payload = payload.replace(/#d/i, '')).length < originalLength) {
-            // nothing to do
-        } else if ((payload = payload.replace(/#o/i, '')).length < originalLength) {
-            base = 8;
-        } else if ((payload = payload.replace(/#b/i, '')).length < originalLength) {
-            base = 2;
-        }
-
-        /* Get rid of all lone hashes. The lone hashes appear in the <decimal 10>
-         rule, but don't appear to have any semantic significance. */
-        payload = payload.replace('#', '');
-
-        const maybeRational = payload.split('/');
-        if (maybeRational.length === 2) {
-            return parseInt(maybeRational[0], base) / parseInt(maybeRational[1], base);
-        } else {
-            /* If the base is 10, it could have additional features like an exponent
-             or a decimal point. ([sfdl] are precision annotations for exponents,
-             which we ignore.) If the base is not 10, it can't have any features
-             other than a base annotation (like "#x") and a division sign, both of
-             which have already been taken care of. */
-            return base === 10 ?
-                parseFloat(payload.replace(/[sfdl]/i, 'e')) :
-                parseInt(payload, base);
-        }
+    let base = 10;
+    if ((payload = payload.replace(/#x/i, '')).length < originalLength) {
+        base = 16;
+    } else if ((payload = payload.replace(/#d/i, '')).length < originalLength) {
+        // nothing to do
+    } else if ((payload = payload.replace(/#o/i, '')).length < originalLength) {
+        base = 8;
+    } else if ((payload = payload.replace(/#b/i, '')).length < originalLength) {
+        base = 2;
     }
 
+    /* Get rid of all lone hashes. The lone hashes appear in the <decimal 10>
+     rule, but don't appear to have any semantic significance. */
+    payload = payload.replace('#', '');
 
-    /**
-     * This is basically the lexical grammar given in R5RS 7.1.1.
-     * It's hard to read because we have to do double backslash-escaping,
-     * one for string literals and one for RegExps. Example: the RegExp
-     * literal for matching a backslash is
-     *
-     * /\\/
-     *
-     * which is equivalent to
-     *
-     * new RegExp("/\\\\/").
-     *
-     * The order of the subgroups is quite important, because some tokens
-     * are prefixes of others (for example, "." and "...", "-2" vs. "-" "2".)
-     * @return {!RegExp}
-     * @private
-     */
-    static newTokenRegex_() {
-        const letter = '[a-z]';
-        const specialInitial = '[\\!\\$%&\\*\/\\:<\\=\\>\\?\\^_~]';
-        const initial = '(?:' + letter + '|' + specialInitial + ')';
-        const specialSubsequent = '[\\+\\-\\.@]';
-        const subsequent = '(?:' + initial + '|\\d|' + specialSubsequent + ')';
-        const peculiarIdentifier = '(?:\\+|\\-|\\.\\.\\.)';
-
-        const identifier = '((?:' + initial + subsequent + '*' + ')|' +
-            peculiarIdentifier + ')';
-        const bool = '(#t|#f)';
-        const character = '(#\\\\space|#\\\\newline|#\\\\.)';
-        const string = '(\"(?:[^\"\\\\]|\\\\\\\"|\\\\\\\\)*\")';
-
-        /* Tabs and carriage returns are not part of the R5RS whitespace syntax,
-         but I've included them here for sanity's sake. */
-        const intertokenSpace = '((?:[ \n\r\t]|;.*$|;.*[\n\r])+)';
-        const specialTokens = "([\\(\\)'`\\.]|#\\(|,@|,)";
-
-        const radix2 = '#b';
-        const radix8 = '#o';
-        const radix10 = '#d';
-        const radix16 = '#x';
-
-        const digit2 = '[01]';
-        const digit8 = '[0-7]';
-        const digit10 = '\\d';
-        const digit16 = '[\\da-f]';
-
-        const uinteger2 = '(?:' + digit2 + '+' + '#*)';
-        const uinteger8 = '(?:' + digit8 + '+' + '#*)';
-        const uinteger10 = '(?:' + digit10 + '+' + '#*)';
-        const uinteger16 = '(?:' + digit16 + '+' + '#*)';
-
-        const exponentMarker = '[esfdl]';
-        const sign = '[\\-\\+]';
-        const suffix = '(?:' + exponentMarker + sign + '?' + digit10 + '+)';
-
-        const decimal10 = '(?:' +
-            '\\.' + digit10 + '+' + '#*' + suffix + '?' + '|' +
-            digit10 + '+\\.' + digit10 + '*#*' + suffix + '?|' +
-            digit10 + '+' + '#+\\.#*' + suffix + '?|' +
-            uinteger10 + suffix + '?)';
-
-        const exactness = '(?:#i|#e)';
-
-        const prefix2 = '(?:' +
-            radix2 + exactness + '?|' +
-            exactness + '?' + radix2 + ')';
-        const prefix8 = '(?:' +
-            radix8 + exactness + '?|' +
-            exactness + '?' + radix8 + ')';
-        const prefix10 = '(?:' +
-            radix10 + exactness + '?|' +
-            exactness + '?' + radix10 + '|' +
-            exactness + ')';
-        const prefix16 = '(?:' +
-            radix16 + exactness + '?|' +
-            exactness + '?' + radix16 + ')';
-
-        const ureal2 = '(?:' +
-            uinteger2 + '\\/' + uinteger2 + '|' +
-            uinteger2 + ')';
-        const ureal8 = '(?:' +
-            uinteger8 + '\\/' + uinteger8 + '|' +
-            uinteger8 + ')';
-        const ureal10 = '(?:' +
-            uinteger10 + '\\/' + uinteger10 + '|' +
-            decimal10 + '|' + uinteger10 + ')';
-        const ureal16 = '(?:' +
-            uinteger16 + '\\/' + uinteger16 + '|' +
-            uinteger16 + ')';
-
-        const real2 = '(?:' + sign + '?' + ureal2 + ')';
-        const real8 = '(?:' + sign + '?' + ureal8 + ')';
-        const real10 = '(?:' + sign + '?' + ureal10 + ')';
-        const real16 = '(?:' + sign + '?' + ureal16 + ')';
-
-        const complex2 = '(?:' +
-            real2 + '@' + real2 + '|' +
-            real2 + '[\\+\\-]' + ureal2 + 'i|' +
-            real2 + '[\\+\\-]i|[\\\\-]+' + ureal2 + 'i|[\\+\\-]i|' + real2 + ')';
-        const complex8 = '(?:' +
-            real8 + '@' + real8 + '|' +
-            real8 + '[\\+\\-]' + ureal8 + 'i|' +
-            real8 + '[\\+\\-]i|[\\\\-]+' + ureal8 + 'i|[\\+\\-]i|' + real8 + ')';
-        const complex10 = '(?:' +
-            real10 + '@' + real10 + '|' +
-            real10 + '[\\+\\-]' + ureal10 + 'i|' +
-            real10 + '[\\+\\-]i|[\\\\-]+' + ureal10 + 'i|[\\+\\-]i|' + real10 + ')';
-        const complex16 = '(?:' +
-            real16 + '@' + real16 + '|' +
-            real16 + '[\\+\\-]' + ureal16 + 'i|' +
-            real16 + '[\\+\\-]i|[\\\\-]+' + ureal16 + 'i|[\\+\\-]i|' + real16 + ')';
-
-        const num2 = '(?:' + prefix2 + complex2 + ')';
-        const num8 = '(?:' + prefix8 + complex8 + ')';
-        const num10 = '(?:' + prefix10 + '?' + complex10 + ')';
-        const num16 = '(?:' + prefix16 + complex16 + ')';
-
-        const number = '(' + num10 + '|' + num16 + '|' + num8 + '|' + num2 + ')';
-
-        return new RegExp(
-            number /* index 1 in exec array */ + '|' +
-            bool /* index 2 in exec array */ + '|' +
-            character /* index 3 in exec array */ + '|' +
-            string /* index 4 in exec array */ + '|' +
-            identifier /* index 5 in exec array */ + '|' +
-            specialTokens /* index 6 in exec array */ + '|' +
-            intertokenSpace, /* index 7 in exec array */
-            'gi');
+    const maybeRational = payload.split('/');
+    if (maybeRational.length === 2) {
+        return parseInt(maybeRational[0], base) / parseInt(maybeRational[1], base);
+    } else {
+        /* If the base is 10, it could have additional features like an exponent
+         or a decimal point. ([sfdl] are precision annotations for exponents,
+         which we ignore.) If the base is not 10, it can't have any features
+         other than a base annotation (like "#x") and a division sign, both of
+         which have already been taken care of. */
+        return base === 10 ?
+            parseFloat(payload.replace(/[sfdl]/i, 'e')) :
+            parseInt(payload, base);
     }
+}
+
+/**
+ * This is basically the lexical grammar given in R5RS 7.1.1.
+ * It's hard to read because we have to do double backslash-escaping,
+ * one for string literals and one for RegExps. Example: the RegExp
+ * literal for matching a backslash is
+ *
+ * /\\/
+ *
+ * which is equivalent to
+ *
+ * new RegExp("/\\\\/").
+ *
+ * The order of the subgroups is quite important, because some tokens
+ * are prefixes of others (for example, "." and "...", "-2" vs. "-" "2".)
+ * @return {!RegExp}
+ */
+function newTokenRegex() {
+    const letter = '[a-z]';
+    const specialInitial = '[\\!\\$%&\\*\/\\:<\\=\\>\\?\\^_~]';
+    const initial = '(?:' + letter + '|' + specialInitial + ')';
+    const specialSubsequent = '[\\+\\-\\.@]';
+    const subsequent = '(?:' + initial + '|\\d|' + specialSubsequent + ')';
+    const peculiarIdentifier = '(?:\\+|\\-|\\.\\.\\.)';
+
+    const identifier = '((?:' + initial + subsequent + '*' + ')|' +
+        peculiarIdentifier + ')';
+    const bool = '(#t|#f)';
+    const character = '(#\\\\space|#\\\\newline|#\\\\.)';
+    const string = '(\"(?:[^\"\\\\]|\\\\\\\"|\\\\\\\\)*\")';
+
+    /* Tabs and carriage returns are not part of the R5RS whitespace syntax,
+     but I've included them here for sanity's sake. */
+    const intertokenSpace = '((?:[ \n\r\t]|;.*$|;.*[\n\r])+)';
+    const specialTokens = "([\\(\\)'`\\.]|#\\(|,@|,)";
+
+    const radix2 = '#b';
+    const radix8 = '#o';
+    const radix10 = '#d';
+    const radix16 = '#x';
+
+    const digit2 = '[01]';
+    const digit8 = '[0-7]';
+    const digit10 = '\\d';
+    const digit16 = '[\\da-f]';
+
+    const uinteger2 = '(?:' + digit2 + '+' + '#*)';
+    const uinteger8 = '(?:' + digit8 + '+' + '#*)';
+    const uinteger10 = '(?:' + digit10 + '+' + '#*)';
+    const uinteger16 = '(?:' + digit16 + '+' + '#*)';
+
+    const exponentMarker = '[esfdl]';
+    const sign = '[\\-\\+]';
+    const suffix = '(?:' + exponentMarker + sign + '?' + digit10 + '+)';
+
+    const decimal10 = '(?:' +
+        '\\.' + digit10 + '+' + '#*' + suffix + '?' + '|' +
+        digit10 + '+\\.' + digit10 + '*#*' + suffix + '?|' +
+        digit10 + '+' + '#+\\.#*' + suffix + '?|' +
+        uinteger10 + suffix + '?)';
+
+    const exactness = '(?:#i|#e)';
+
+    const prefix2 = '(?:' +
+        radix2 + exactness + '?|' +
+        exactness + '?' + radix2 + ')';
+    const prefix8 = '(?:' +
+        radix8 + exactness + '?|' +
+        exactness + '?' + radix8 + ')';
+    const prefix10 = '(?:' +
+        radix10 + exactness + '?|' +
+        exactness + '?' + radix10 + '|' +
+        exactness + ')';
+    const prefix16 = '(?:' +
+        radix16 + exactness + '?|' +
+        exactness + '?' + radix16 + ')';
+
+    const ureal2 = '(?:' +
+        uinteger2 + '\\/' + uinteger2 + '|' +
+        uinteger2 + ')';
+    const ureal8 = '(?:' +
+        uinteger8 + '\\/' + uinteger8 + '|' +
+        uinteger8 + ')';
+    const ureal10 = '(?:' +
+        uinteger10 + '\\/' + uinteger10 + '|' +
+        decimal10 + '|' + uinteger10 + ')';
+    const ureal16 = '(?:' +
+        uinteger16 + '\\/' + uinteger16 + '|' +
+        uinteger16 + ')';
+
+    const real2 = '(?:' + sign + '?' + ureal2 + ')';
+    const real8 = '(?:' + sign + '?' + ureal8 + ')';
+    const real10 = '(?:' + sign + '?' + ureal10 + ')';
+    const real16 = '(?:' + sign + '?' + ureal16 + ')';
+
+    const complex2 = '(?:' +
+        real2 + '@' + real2 + '|' +
+        real2 + '[\\+\\-]' + ureal2 + 'i|' +
+        real2 + '[\\+\\-]i|[\\\\-]+' + ureal2 + 'i|[\\+\\-]i|' + real2 + ')';
+    const complex8 = '(?:' +
+        real8 + '@' + real8 + '|' +
+        real8 + '[\\+\\-]' + ureal8 + 'i|' +
+        real8 + '[\\+\\-]i|[\\\\-]+' + ureal8 + 'i|[\\+\\-]i|' + real8 + ')';
+    const complex10 = '(?:' +
+        real10 + '@' + real10 + '|' +
+        real10 + '[\\+\\-]' + ureal10 + 'i|' +
+        real10 + '[\\+\\-]i|[\\\\-]+' + ureal10 + 'i|[\\+\\-]i|' + real10 + ')';
+    const complex16 = '(?:' +
+        real16 + '@' + real16 + '|' +
+        real16 + '[\\+\\-]' + ureal16 + 'i|' +
+        real16 + '[\\+\\-]i|[\\\\-]+' + ureal16 + 'i|[\\+\\-]i|' + real16 + ')';
+
+    const num2 = '(?:' + prefix2 + complex2 + ')';
+    const num8 = '(?:' + prefix8 + complex8 + ')';
+    const num10 = '(?:' + prefix10 + '?' + complex10 + ')';
+    const num16 = '(?:' + prefix16 + complex16 + ')';
+
+    const number = '(' + num10 + '|' + num16 + '|' + num8 + '|' + num2 + ')';
+
+    return new RegExp(
+        number /* index 1 in exec array */ + '|' +
+        bool /* index 2 in exec array */ + '|' +
+        character /* index 3 in exec array */ + '|' +
+        string /* index 4 in exec array */ + '|' +
+        identifier /* index 5 in exec array */ + '|' +
+        specialTokens /* index 6 in exec array */ + '|' +
+        intertokenSpace, /* index 7 in exec array */
+        'gi');
 }
 
 exports = TokenStream;

@@ -140,72 +140,8 @@ class ParserImpl {
             parsedRoot.setParse(nonterminal);
         }
         return (nonterminal === Nonterminals.PROGRAM)
-            ? ParserImpl.maybeFixParserSensitiveIds_(parsedRoot)
+            ? maybeFixParserSensitiveIds(parsedRoot)
             : parsedRoot;
-    }
-
-    /**
-     * @param {?Datum} root
-     * @return {?Datum}
-     * @private
-     */
-    static maybeFixParserSensitiveIds_(root) {
-        if (!root || !fixParserSensitiveIds_) {
-            return root;
-        }
-        fixParserSensitiveIds_ = false;
-        const helper = new RenameHelper(null /* parent */);
-        root.fixParserSensitiveIds(helper);
-        return helper.wasUsed() ? new ParserImpl(root).parse() : root;
-    }
-
-    /**
-     * R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
-     * but they bind syntactic keywords to macro transformers instead of binding
-     * variables to locations that contain values."
-     *
-     * In this implementation, a macro is just another kind of object that can
-     * be stored in an environment, so we reuse the existing let machinery.
-     * For example:
-     *
-     * (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
-     *
-     * desugars as
-     *
-     * (let ((foo [SchemeMacro object])) ...)
-     *
-     * We just need to be sure that the SchemeMacro object inserted directly
-     * into the parse tree plays well when the tree is transcribed and reparsed.
-     *
-     * @param {!CompoundDatum} datum Datum to desugar.
-     * @param {!IEnvironment} env TODO bl.
-     * @param {string} operatorName TODO bl.
-     * @return {!ProcCallLike}
-     * @private
-     */
-    static desugarMacroBlock_(datum, env, operatorName) {
-        const letBindings = new SiblingBuffer();
-
-        datum.firstSublist().forEachChild(spec => {
-            spec = /** @type {!CompoundDatum} */ (spec); // TODO bl
-            const kw = spec.at(Nonterminals.KEYWORD).clone(null /* parent */);
-            const macro = /** @type {!Macro} */ (
-                spec.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
-            const buf = new SiblingBuffer();
-            /* We have to wrap the SchemeMacro object in a Datum to get it into
-             the parse tree. */
-            buf.appendSibling(kw);
-            buf.appendSibling(new MacroDatum(macro));
-            letBindings.appendSibling(buf.toList(List));
-        });
-
-        const _let = new SiblingBuffer();
-        _let.appendSibling(
-            letBindings.toList(List)
-        ).appendSibling(
-            /** @type {!Datum} */ (datum.firstSublist().getNextSibling()));
-
-        return new ProcCall(new Identifier(operatorName), _let.toSiblings());
     }
 }
 
@@ -700,13 +636,13 @@ grammar[Nonterminals.MACRO_BLOCK] = _.choice(
         _.list(_.zeroOrMore(Nonterminals.SYNTAX_SPEC)),
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
-    desugar((node, env) => ParserImpl.desugarMacroBlock_(node, env, 'let')),
+    desugar((node, env) => desugarMacroBlock(node, env, 'let')),
     _.list(
         _.one(Terminals.LETREC_SYNTAX),
         _.list(_.zeroOrMore(Nonterminals.SYNTAX_SPEC)),
         _.zeroOrMore(Nonterminals.DEFINITION),
         _.oneOrMore(Nonterminals.EXPRESSION)).
-    desugar((node, env) => ParserImpl.desugarMacroBlock_(node, env, 'letrec')));
+    desugar((node, env) => desugarMacroBlock(node, env, 'letrec')));
 
 
 // <syntax spec> -> (<keyword> <transformer spec>)
@@ -1011,6 +947,68 @@ function newAnonymousLambdaName() {
      creates a throwaway object. Requiring this function to take an object
      parameter could reduce garbage. */
     return 'proc' + goog.getUid(new Object());
+}
+
+/**
+ * @param {?Datum} root
+ * @return {?Datum}
+ */
+function maybeFixParserSensitiveIds(root) {
+    if (!root || !fixParserSensitiveIds_) {
+        return root;
+    }
+    fixParserSensitiveIds_ = false;
+    const helper = new RenameHelper(null /* parent */);
+    root.fixParserSensitiveIds(helper);
+    return helper.wasUsed() ? new ParserImpl(root).parse() : root;
+}
+
+/**
+ * R5RS 4.3.1: "Let-syntax and letrec-syntax are analogous to let and letrec,
+ * but they bind syntactic keywords to macro transformers instead of binding
+ * variables to locations that contain values."
+ *
+ * In this implementation, a macro is just another kind of object that can
+ * be stored in an environment, so we reuse the existing let machinery.
+ * For example:
+ *
+ * (let-syntax ((foo (syntax-rules () ((foo) 'hi)))) ...)
+ *
+ * desugars as
+ *
+ * (let ((foo [SchemeMacro object])) ...)
+ *
+ * We just need to be sure that the SchemeMacro object inserted directly
+ * into the parse tree plays well when the tree is transcribed and reparsed.
+ *
+ * @param {!CompoundDatum} datum Datum to desugar.
+ * @param {!IEnvironment} env TODO bl.
+ * @param {string} operatorName TODO bl.
+ * @return {!ProcCallLike}
+ */
+function desugarMacroBlock(datum, env, operatorName) {
+    const letBindings = new SiblingBuffer();
+
+    datum.firstSublist().forEachChild(spec => {
+        spec = /** @type {!CompoundDatum} */ (spec); // TODO bl
+        const kw = spec.at(Nonterminals.KEYWORD).clone(null /* parent */);
+        const macro = /** @type {!Macro} */ (
+            spec.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
+        const buf = new SiblingBuffer();
+        /* We have to wrap the SchemeMacro object in a Datum to get it into
+         the parse tree. */
+        buf.appendSibling(kw);
+        buf.appendSibling(new MacroDatum(macro));
+        letBindings.appendSibling(buf.toList(List));
+    });
+
+    const _let = new SiblingBuffer();
+    _let.appendSibling(
+        letBindings.toList(List)
+    ).appendSibling(
+            /** @type {!Datum} */(datum.firstSublist().getNextSibling()));
+
+    return new ProcCall(new Identifier(operatorName), _let.toSiblings());
 }
 
 exports.ParserImpl = ParserImpl;

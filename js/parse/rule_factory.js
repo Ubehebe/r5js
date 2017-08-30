@@ -282,7 +282,7 @@ class Choice {
 class Seq {
     /** @param {!Array<!Rule>} rules */
     constructor(rules) {
-        /** @const @private */ this.rules_ = Seq.rewriteImproperList_(rules);
+        /** @const @private */ this.rules_ = rewriteImproperList(rules);
         /** @private {function(!CompoundDatum, !IEnvironment)|null} */
         this.desugarFunc_ = null;
     }
@@ -313,45 +313,6 @@ class Seq {
         return root || false;
     }
 
-    /**
-     * This is a convenience function: we want to specify parse rules like
-     * (<variable>+ . <variable>) as if we don't know ahead of time whether
-     * the list is going to be dotted or not, but the reader already knows.
-     * Proper and improper lists are both represented as first-child-next-sibling
-     * linked lists; the only difference is the type ('(' vs. '.('). So we rewrite
-     * the parse rules to conform to the reader's knowledge.
-     * @param {!Array<!Rule>} rules
-     * @return {!Array<!Rule>} The modified rules array.
-     * @private
-     */
-    static rewriteImproperList_(rules) {
-        // example: (define (x . y) 1) => (define .( x . ) 1)
-        /* No RHS in the grammar has more than one dot.
-         This will break if such a rule is added. */
-        const indexOfDot =
-            rules.findIndex(rule => rule instanceof OneTerminal && rule.terminal_ === Terminals.DOT);
-
-        if (indexOfDot === -1) {
-            return rules;
-        }
-
-        // Find the closest opening paren to the left of the dot and rewrite it as .(
-        for (let i = indexOfDot - 1; i >= 0; --i) {
-            const rule = rules[i];
-            if (rule instanceof OneTerminal && rule.terminal_ === Terminals.LPAREN) {
-                rules[i] = new OneTerminal(Terminals.LPAREN_DOT);
-                break;
-            }
-        }
-        /* Splice out the dot and the datum following the dot -- it has already
-         been read as part of the list preceding the dot.
-         todo bl: this will cause problems with exactly one part of the grammar:
-         <template> -> (<template element>+ . <template>)
-         I think it's easier to check for this in the evaluator. */
-        rules.splice(indexOfDot, 2);
-        return rules;
-    }
-
     /** @override */
     desugar(desugarFunc) {
         this.desugarFunc_ = desugarFunc;
@@ -359,6 +320,43 @@ class Seq {
     }
 }
 
+/**
+ * This is a convenience function: we want to specify parse rules like
+ * (<variable>+ . <variable>) as if we don't know ahead of time whether
+ * the list is going to be dotted or not, but the reader already knows.
+ * Proper and improper lists are both represented as first-child-next-sibling
+ * linked lists; the only difference is the type ('(' vs. '.('). So we rewrite
+ * the parse rules to conform to the reader's knowledge.
+ * @param {!Array<!Rule>} rules
+ * @return {!Array<!Rule>} The modified rules array.
+ * @private
+ */
+function rewriteImproperList(rules) {
+    // example: (define (x . y) 1) => (define .( x . ) 1)
+    /* No RHS in the grammar has more than one dot.
+     This will break if such a rule is added. */
+    const indexOfDot =
+        rules.findIndex(rule => rule instanceof OneTerminal && rule.terminal_ === Terminals.DOT);
 
+    if (indexOfDot === -1) {
+        return rules;
+    }
+
+    // Find the closest opening paren to the left of the dot and rewrite it as .(
+    for (let i = indexOfDot - 1; i >= 0; --i) {
+        const rule = rules[i];
+        if (rule instanceof OneTerminal && rule.terminal_ === Terminals.LPAREN) {
+            rules[i] = new OneTerminal(Terminals.LPAREN_DOT);
+            break;
+        }
+    }
+    /* Splice out the dot and the datum following the dot -- it has already
+     been read as part of the list preceding the dot.
+     todo bl: this will cause problems with exactly one part of the grammar:
+     <template> -> (<template element>+ . <template>)
+     I think it's easier to check for this in the evaluator. */
+    rules.splice(indexOfDot, 2);
+    return rules;
+}
 
 exports = RuleFactory;
