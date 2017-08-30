@@ -2,6 +2,21 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 load("//:builddefs.bzl", "JS_VERSION")
 
 closure_js_library(
+    name = "scheme_sources",
+    language = JS_VERSION,
+    srcs = [
+        "scheme_sources.js",
+    ],
+    deps = [
+        "//scm:PROCEDURES",
+        "//scm:SYNTAX",
+    ],
+    visibility = [
+        "//js:__subpackages__",
+    ],
+)
+
+closure_js_library(
     name = "value",
     srcs = [
         "value.js",

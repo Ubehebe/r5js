@@ -8,8 +8,8 @@ closure_js_library(
     deps = [
         "@io_bazel_rules_closure//closure/library",
         "//js:boot",
+        "//js:scheme_sources",
         "//js/eval",
-        "//js/platform",
         "//js/io",
     ],
     visibility = [
