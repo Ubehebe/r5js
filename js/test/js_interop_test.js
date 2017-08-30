@@ -12,10 +12,9 @@ const boot = goog.require('r5js.boot');
 const errors = goog.require('r5js.runtime.errors');
 const evalTo = goog.require('evalTo');
 const expect = goog.require('expect');
-const output = goog.require('output');
-const setOutputPort = goog.require('r5js.test.matchers.setOutputPort');
 const testSuite = goog.require('goog.testing.testSuite');
 const {Terminals} = goog.require('r5js.parse.Terminals');
+const {output, setOutputPort} = goog.require('output');
 goog.require('goog.testing.jsunit');
 
 let buffer, stdin, stdout, sources, evaluator;
