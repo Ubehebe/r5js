@@ -16,7 +16,7 @@ const boot = goog.require('r5js.boot');
 function newEvaluator(opt_inputPort, opt_outputPort) {
     const sources = SchemeSources.get();
     const syncEvaluator = boot(sources.syntax, sources.procedures, opt_inputPort, opt_outputPort);
-    return new Evaluator_(syncEvaluator);
+    return new EvaluatorImpl(syncEvaluator);
 }
 
 /**
@@ -25,7 +25,7 @@ function newEvaluator(opt_inputPort, opt_outputPort) {
  * typically can run JavaScript synchronously off the main thread.
  * @implements {Evaluator}
  */
-class Evaluator_ {
+class EvaluatorImpl {
     /** @param {!SyncEvaluator} evaluator */
     constructor(evaluator) {
         /** @const @private */ this.evaluator_ = evaluator;
