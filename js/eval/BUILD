@@ -3,7 +3,7 @@ load("//:builddefs.bzl", "JS_VERSION")
 
 closure_js_library(
     name = "eval",
-    srcs = glob(["*.js"]),
+    srcs = glob(["*.js"], exclude = ["evaluator_impl.js"]),
     visibility = ["//js:__subpackages__"],
     language = JS_VERSION,
     deps = [
@@ -19,5 +19,21 @@ closure_js_library(
         "//js/runtime:ienvironment",
         "//js/runtime:proc_call_like",
         "//js:value",
+    ],
+)
+
+closure_js_library(
+    name = "impl",
+    language = JS_VERSION,
+    srcs = glob(["evaluator_impl.js"]),
+    deps = [
+        "@io_bazel_rules_closure//closure/library",
+        ":eval",
+        "//js:boot",
+        "//js:scheme_sources",
+        "//js/io",
+    ],
+    visibility = [
+        "//js:__subpackages__",
     ],
 )
