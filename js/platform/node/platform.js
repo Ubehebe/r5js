@@ -1,7 +1,6 @@
 goog.module('r5js.platform.Node');
 
 const Platform = goog.require('r5js.Platform');
-const Terminal = goog.require('r5js.platform.node.Terminal');
 const newCommonEvaluator = goog.require('r5js.platform.common.newEvaluator');
 
 /**
@@ -25,14 +24,6 @@ class Node {
     /** @override */
     exit(statusCode) {
         process.exit(statusCode);
-    }
-
-    /**
-     * @return {!Terminal}
-     * @package
-     */
-    getTerminal() {
-        return new Terminal();
     }
 
     /** @override */
