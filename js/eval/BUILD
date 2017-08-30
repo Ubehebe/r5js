@@ -3,7 +3,7 @@ load("//:builddefs.bzl", "JS_VERSION")
 
 closure_js_library(
     name = "eval",
-    srcs = glob(["**/*.js"], exclude = ["valutil.js"]),
+    srcs = glob(["*.js"]),
     visibility = ["//js:__subpackages__"],
     language = JS_VERSION,
     deps = [
