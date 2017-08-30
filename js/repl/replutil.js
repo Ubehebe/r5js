@@ -12,7 +12,7 @@ const Pipeline = goog.require('r5js.Pipeline');
  */
 function isLineComplete(input) {
   if (!pipeline) {
-    pipeline = Pipeline.forEnvironment(null);
+    pipeline = new Pipeline(null);
   }
 
   try {

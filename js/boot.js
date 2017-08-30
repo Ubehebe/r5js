@@ -56,7 +56,7 @@ function boot(syntaxLib, procLib, inputPort=InputPort.NULL, outputPort=OutputPor
   PrimitiveProcedures.install(nullEnv, r5RSEnv);
   installSchemeSource(procLib, r5RSEnv);
   r5RSEnv.seal();
-  return new Evaluator(Pipeline.forEnvironment(r5RSEnv), inputPort, outputPort);
+  return new Evaluator(new Pipeline(r5RSEnv), inputPort, outputPort);
 }
 
 
