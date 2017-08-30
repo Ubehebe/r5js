@@ -229,9 +229,6 @@ class TemplateBindings {
      * TODO bl document what this does.
      */
     resolveDatum(datum) {
-        if (!this.patternIds_)
-            throw Error.internalInterpreterError('invariant incorrect');
-
         if (datum instanceof Identifier) {
             const name = /** @type {string} */(datum.getPayload());
 
