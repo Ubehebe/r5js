@@ -1,12 +1,10 @@
 goog.module('r5js.trampoline');
 
-const Datum = goog.require('r5js.Datum');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
-const Parser = goog.require('r5js.Parser');
-const ParserImpl = goog.require('r5js.ParserImpl');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
+const {ParserImpl} = goog.require('r5js.ParserImpl');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 
@@ -110,7 +108,7 @@ function trampoline(procCallLike, startingEnv, inputPort, outputPort) {
     cur.evalAndAdvance(
         resultStruct,
         /** @type {!IEnvironment} */ (prevEnv),
-        parserProvider);
+        datum => new ParserImpl(datum));
     /* Save the environment we used in case the next action on the trampoline
        needs it. */
     curEnv = cur.getEnv();
@@ -122,14 +120,6 @@ function trampoline(procCallLike, startingEnv, inputPort, outputPort) {
   }
 
   return resultStruct.getValue();
-}
-
-/**
- * @param {!Datum} datum Root of the parse tree.
- * @return {!Parser} New parser that will parse the given datum.
- */
-function parserProvider(datum) {
-  return new ParserImpl.ParserImpl(datum);
 }
 
 exports = trampoline;
