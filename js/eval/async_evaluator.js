@@ -1,14 +1,8 @@
-goog.module('r5js.Evaluator');
+goog.module('r5js.async.Evaluator');
 
 const Promise = goog.require('goog.Promise');
 
-/**
- * This is the most important interface in the whole codebase,
- * the main abstraction used by clients to evaluate Scheme source code.
- * Its methods are asynchronous, returning Promises, because
- * evaluation should not block the main thread (for example, the browser UI).
- * @interface
- */
+/** @interface */
 class Evaluator {
  /**
   * @param {string} input Input to evaluate.

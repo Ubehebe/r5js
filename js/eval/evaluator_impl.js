@@ -1,6 +1,6 @@
-goog.module('r5js.platform.common.newEvaluator');
+goog.module('r5js.async.Evaluator.Impl');
 
-const Evaluator = goog.require('r5js.Evaluator');
+const AsyncEvaluator = goog.require('r5js.async.Evaluator');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
 const Promise = goog.require('goog.Promise');
@@ -11,19 +11,17 @@ const boot = goog.require('r5js.boot');
 /**
  * @param {!InputPort=} inputPort
  * @param {!OutputPort=} outputPort
- * @return {!Evaluator}
+ * @return {!AsyncEvaluator}
  */
-function newEvaluator(inputPort=InputPort.NULL, outputPort=OutputPort.NULL) {
+function newAsyncEvaluator(inputPort=InputPort.NULL, outputPort=OutputPort.NULL) {
     const sources = new SchemeSources();
     const syncEvaluator = boot(sources.syntax, sources.procedures, inputPort, outputPort);
     return new EvaluatorImpl(syncEvaluator);
 }
 
 /**
- * Evaluator implementation that simply wraps a synchronous evaluator
- * in promises. This is appropriate for most non-web platforms, since these
- * typically can run JavaScript synchronously off the main thread.
- * @implements {Evaluator}
+ * AsyncEvaluator implementation that simply wraps a synchronous evaluator in promises.
+ * @implements {AsyncEvaluator}
  */
 class EvaluatorImpl {
     /** @param {!SyncEvaluator} evaluator */
@@ -41,4 +39,4 @@ class EvaluatorImpl {
     }
 }
 
-exports = newEvaluator;
+exports = newAsyncEvaluator;

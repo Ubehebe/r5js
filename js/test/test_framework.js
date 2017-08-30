@@ -8,7 +8,7 @@ const Logger = goog.require('goog.log.Logger');
 const Promise = goog.require('goog.Promise');
 const ResultStruct = goog.require('tdd.ResultStruct');
 const SchemeSources = goog.require('r5js.test.SchemeSources');
-const newEvaluator = goog.require('r5js.platform.common.newEvaluator');
+const newAsyncEvaluator = goog.require('r5js.async.Evaluator.Impl');
 
 class TestFramework {
   /** @param {!SchemeSources} sources */
@@ -35,7 +35,7 @@ class TestFramework {
 
   execute(logger) {
       this.logger_ = logger;
-      const evaluator = newEvaluator(
+      const evaluator = newAsyncEvaluator(
           InputPort.NULL, new CallbackBackedPort(output => this.onWrite_(output)));
       return evaluator.evaluate(this.sources_.testFramework + this.sources_.testFrameworkTests)
           .then(() => resultIsExpected_(this.actualResult_))
