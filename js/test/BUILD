@@ -78,7 +78,7 @@ closure_js_test(
         "@io_bazel_rules_closure//closure/library:testing",
         ":lib",
         "//js/io",
-        "//js/platform/node",
+        "//js/platform/common",
     ],
     entry_points = [
         "goog:r5js.test.SchemeTest",
@@ -97,7 +97,7 @@ closure_js_library(
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library",
         "//js/io",
-        "//js/platform/node",
+        "//js/platform/common",
         "//scm:NEGATIVE_TESTS",
         "//scm:OTHER_TESTS",
         "//scm:R5RS_TESTS",

@@ -6,15 +6,15 @@ const InputPort = goog.require('r5js.InputPort');
 const LogLevel = goog.require('tdd.LogLevel');
 const LogRecord = goog.require('tdd.LogRecord');
 const SchemeSources = goog.require('r5js.test.SchemeSources');
-const curPlatform = goog.require('r5js.curPlatform');
 const log = goog.require('goog.log');
+const newEvaluator = goog.require('r5js.platform.common.newEvaluator');
 const testSuite = goog.require('goog.testing.testSuite');
 const {stringToResultStruct, TestFramework} = goog.require('r5js.test.TestFramework');
 goog.require('goog.testing.jsunit');
 
 const logger = log.getLogger('r5js.test.SchemeTest!');
 const sources = SchemeSources.get();
-const evaluator = curPlatform().newEvaluator(InputPort.NULL, new CallbackBackedPort(handleWriteFromScheme));
+const evaluator = newEvaluator(InputPort.NULL, new CallbackBackedPort(handleWriteFromScheme));
 
 /**
  * Runs the unit tests written in Scheme (//scm/r5rs-tests.scm, etc.).
