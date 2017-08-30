@@ -40,7 +40,7 @@ testSuite({
         stdin = new InMemoryInputPort(buffer);
         stdout = new InMemoryOutputPort(buffer);
         setOutputPort(stdout);
-        sources = SchemeSources.get();
+        sources = new SchemeSources();
         evaluator = boot(sources.syntax, sources.procedures, stdin, stdout);
     },
 

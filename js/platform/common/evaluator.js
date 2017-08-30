@@ -14,7 +14,7 @@ const boot = goog.require('r5js.boot');
  * @return {!Evaluator}
  */
 function newEvaluator(inputPort=InputPort.NULL, outputPort=OutputPort.NULL) {
-    const sources = SchemeSources.get();
+    const sources = new SchemeSources();
     const syncEvaluator = boot(sources.syntax, sources.procedures, inputPort, outputPort);
     return new EvaluatorImpl(syncEvaluator);
 }
