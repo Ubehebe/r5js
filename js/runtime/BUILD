@@ -1,5 +1,4 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
-load("//:builddefs.bzl", "JS_VERSION")
 
 SRCS_USED_BY_PARSER_IMPL = [
     "assignment.js",
@@ -32,8 +31,9 @@ closure_js_library(
     ],
     suppress = [
         "JSC_MUST_BE_PRIVATE",
+        "JSC_MISSING_RETURN_JSDOC",
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
-    language = JS_VERSION,
     visibility = ["//js:__subpackages__"],
 )
 
@@ -60,8 +60,9 @@ closure_js_library(
     ],
     suppress = [
         "JSC_PRIMITIVE_OBJECT",
+        "JSC_MISSING_RETURN_JSDOC",
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
-    language = JS_VERSION,
 )
 
 closure_js_library(
@@ -72,7 +73,6 @@ closure_js_library(
     deps = [
         "//js:value",
     ],
-    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -87,7 +87,6 @@ closure_js_library(
         ":ienvironment",
         "//js:value",
     ],
-    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],

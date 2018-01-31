@@ -1,14 +1,13 @@
-http_archive(
+git_repository(
     name = "io_bazel_rules_closure",
-    strip_prefix = "rules_closure-0.4.1",
-    sha256 = "ba5e2e10cdc4027702f96e9bdc536c6595decafa94847d08ae28c6cb48225124",
-    url = "http://mirror.bazel.build/github.com/bazelbuild/rules_closure/archive/0.4.1.tar.gz",
+    commit = "08039ba8ca59f64248bb3b6ae016460fe9c9914f",
+    remote = "https://github.com/bazelbuild/rules_closure.git",
 )
 
-http_archive(
+git_repository(
     name = "closure_tdd",
-    url = "https://github.com/Ubehebe/closure-tdd/archive/389df4.zip",
-    strip_prefix = "closure-tdd-389df477f87370db48c20722996efe9ec724d962",
+    remote = "https://github.com/Ubehebe/closure-tdd.git",
+    commit = "ae6e991f0684269145b0200f8188a8ea5db0116e",
 )
 
 http_archive(

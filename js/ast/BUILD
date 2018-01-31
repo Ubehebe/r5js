@@ -1,5 +1,4 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
-load("//:builddefs.bzl", "JS_VERSION")
 
 closure_js_library(
     name = "ast",
@@ -17,7 +16,8 @@ closure_js_library(
         "//js:__subpackages__",
     ],
     suppress = [
+        "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
         "JSC_PRIMITIVE_OBJECT",
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
-    language = JS_VERSION,
 )

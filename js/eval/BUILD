@@ -1,11 +1,9 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
-load("//:builddefs.bzl", "JS_VERSION")
 
 closure_js_library(
     name = "eval",
     srcs = glob(["*.js"], exclude = ["async_evaluator.js"]),
     visibility = ["//js:__subpackages__"],
-    language = JS_VERSION,
     deps = [
         "@io_bazel_rules_closure//closure/library",
         "//js/ast",
@@ -20,11 +18,13 @@ closure_js_library(
         "//js/runtime:proc_call_like",
         "//js:value",
     ],
+    suppress = [
+            "JSC_UNKNOWN_EXPR_TYPE",
+    ],
 )
 
 closure_js_library(
     name = "impl",
-    language = JS_VERSION,
     srcs = ["async_evaluator.js"],
     deps = [
         "@io_bazel_rules_closure//closure/library",
@@ -35,5 +35,8 @@ closure_js_library(
     ],
     visibility = [
         "//js:__subpackages__",
+    ],
+    suppress = [
+            "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )

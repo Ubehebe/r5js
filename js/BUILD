@@ -1,9 +1,7 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
-load("//:builddefs.bzl", "JS_VERSION")
 
 closure_js_library(
     name = "scheme_sources",
-    language = JS_VERSION,
     srcs = [
         "scheme_sources.js",
     ],
@@ -14,6 +12,9 @@ closure_js_library(
     visibility = [
         "//js:__subpackages__",
     ],
+    suppress = [
+        "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
+    ]
 )
 
 closure_js_library(
@@ -21,7 +22,6 @@ closure_js_library(
     srcs = [
         "value.js",
     ],
-    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -32,7 +32,6 @@ closure_js_library(
     srcs = [
         "error.js",
     ],
-    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -41,7 +40,6 @@ closure_js_library(
 closure_js_library(
     name = "boot",
     srcs = ["boot.js"],
-    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -63,5 +61,8 @@ closure_js_library(
         "//js/runtime:proc_call_like",
         "//js/runtime:used_by_parser_impl",
         "//js/scan",
+    ],
+    suppress = [
+            "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )

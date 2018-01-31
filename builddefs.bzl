@@ -1,7 +1,5 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
-JS_VERSION = "ECMASCRIPT6_STRICT"
-
 def scheme_source(name, src):
   base_name = src[:-4]
   js_name = base_name + ".js"

@@ -1,10 +1,8 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
-load("//:builddefs.bzl", "JS_VERSION")
 
 closure_js_library(
     name = "matchers",
     testonly = 1,
-    language = JS_VERSION,
     visibility = [
         "//js:__subpackages__",
     ],
@@ -19,5 +17,8 @@ closure_js_library(
         "//js/parse:nonterminals",
         "//js/read",
         "//js/scan",
+    ],
+    suppress = [
+            "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )

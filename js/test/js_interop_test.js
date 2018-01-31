@@ -17,7 +17,11 @@ const {Terminals} = goog.require('r5js.parse.Terminals');
 const {output, setOutputPort} = goog.require('output');
 goog.require('goog.testing.jsunit');
 
-let buffer, stdin, stdout, sources, evaluator;
+let buffer;
+let stdin;
+let stdout;
+let sources;
+let evaluator;
 
 /** TODO */
 function expect_(input) {

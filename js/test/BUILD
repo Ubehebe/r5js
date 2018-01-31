@@ -1,10 +1,7 @@
-load("//:builddefs.bzl", "JS_VERSION")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure_js_test")
 
 closure_js_test(
     name = "js_interop_test",
-    pedantic = True,
-    language = JS_VERSION,
     srcs = [
         "js_interop_test.js",
     ],
@@ -23,12 +20,14 @@ closure_js_test(
         "//js/runtime:used_by_parser_impl",
         "//js/test/matchers",
     ],
+    suppress = [
+        "JSC_MISSING_RETURN_JSDOC",
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ]
 )
 
 closure_js_test(
     name = "parser_test",
-    pedantic = True,
-    language = JS_VERSION,
     srcs = [
         "parser_test.js",
     ],
@@ -43,12 +42,13 @@ closure_js_test(
         "//js/parse:nonterminals",
         "//js/test/matchers",
     ],
+    suppress = [
+            "JSC_UNKNOWN_EXPR_TYPE",
+    ],
 )
 
 closure_js_test(
     name = "scanner_test",
-    pedantic = True,
-    language = JS_VERSION,
     srcs = [
         "scanner_test.js",
     ],
@@ -63,12 +63,13 @@ closure_js_test(
         "//js:error",
         "//js/test/matchers",
     ],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
+     ],
 )
 
 closure_js_test(
     name = "scheme_test",
-    pedantic = True,
-    language = JS_VERSION,
     srcs = [
         "scheme_test.js",
     ],
@@ -83,11 +84,15 @@ closure_js_test(
     entry_points = [
         "goog:r5js.test.SchemeTest",
     ],
+    suppress = [
+        "JSC_IMPLICITLY_NULLABLE_JSDOC",
+        "JSC_MISSING_JSDOC",
+        "JSC_UNKNOWN_EXPR_TYPE",
+     ],
 )
 
 closure_js_library(
     name = "lib",
-    language = JS_VERSION,
     testonly = 1,
     srcs = [
         "scheme_sources.js",
@@ -105,4 +110,8 @@ closure_js_library(
         "//scm:TEST_FRAMEWORK",
         "//scm:TEST_FRAMEWORK_TESTS",
     ],
+    suppress = [
+            "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
+            "JSC_UNKNOWN_EXPR_TYPE",
+    ]
 )
