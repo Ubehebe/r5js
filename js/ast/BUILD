@@ -16,7 +16,6 @@ closure_js_library(
         "//js:__subpackages__",
     ],
     suppress = [
-        "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
         "JSC_PRIMITIVE_OBJECT",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],

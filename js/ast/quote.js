@@ -2,12 +2,12 @@ goog.module('r5js.ast.Quote');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
+const Error = goog.require('r5js.Error');
 const IPair = goog.require('r5js.IPair');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Ref = goog.require('r5js.Ref');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const datumutil = goog.require('r5js.datumutil');
-const error = goog.require('r5js.Error');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
@@ -105,7 +105,7 @@ class QuoteShim extends ProcCallLike {
                         } else { // `(1 ,@(list) 2) => (1 2)
                             ans = null;
                         }
-                    } else throw error.quasiquote(ans + ' is not a list');
+                    } else throw Error.quasiquote(ans + ' is not a list');
                 }
                 return ans;
             });
