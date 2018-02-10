@@ -1,7 +1,7 @@
 goog.module('r5js.runtime.Pair');
 
-const Error = goog.require('r5js.Error');
 const NIL = goog.require('r5js.runtime.NIL');
+const {Error} = goog.require('r5js.Error');
 const {ObjectValue, Value} = goog.require('r5js.Value');
 
 /** @implements {ObjectValue} */

@@ -1,12 +1,12 @@
 goog.module('r5js.Assignment');
 
 const Datum = goog.require('r5js.Datum');
-const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Macro = goog.require('r5js.Macro');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
+const {Error} = goog.require('r5js.Error');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 

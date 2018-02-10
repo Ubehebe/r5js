@@ -2,8 +2,8 @@ goog.module('Throw');
 
 goog.setTestOnly('Throw');
 
-const Error = goog.require('r5js.Error');
 const Matcher = goog.require('tdd.matchers.Matcher');
+const {Error} = goog.require('r5js.Error');
 
 /** @implements {Matcher<!Error>} */
 class Throws {

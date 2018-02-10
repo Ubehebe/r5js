@@ -3,7 +3,7 @@ goog.module('r5js.Error');
 
 class Error {
     /**
-     * @param {!Error.Type} type
+     * @param {!Type} type
      * @param {string} msg Human-readable error message.
      * @param {...*} var_args
      */
@@ -26,7 +26,7 @@ class Error {
      */
     static unboundVariable(name) {
         return new Error(
-            Error.Type.UNBOUND_VARIABLE,
+            Type.UNBOUND_VARIABLE,
             name + ' is not defined');
     }
 
@@ -39,7 +39,7 @@ class Error {
      */
     static tooFewVarargs(name, minNumArgs, actualNumArgs) {
         return new Error(
-            Error.Type.TOO_FEW_VARARGS,
+            Type.TOO_FEW_VARARGS,
             name + ': want >= ' + minNumArgs + ' args, got ' + actualNumArgs);
     }
 
@@ -51,7 +51,7 @@ class Error {
      */
     static tooManyVarargs(name, maxNumArgs, actualNumArgs) {
         return new Error(
-            Error.Type.TOO_MANY_VARARGS,
+            Type.TOO_MANY_VARARGS,
             name + ': want <= ' + maxNumArgs + ' args, got ' + actualNumArgs);
     }
 
@@ -63,7 +63,7 @@ class Error {
      */
     static incorrectNumArgs(name, expectedNumArgs, actualNumArgs) {
         return new Error(
-            Error.Type.INCORRECT_NUM_ARGS,
+            Type.INCORRECT_NUM_ARGS,
             name + ': want ' + expectedNumArgs + ' args, got ' + actualNumArgs);
     }
 
@@ -72,7 +72,7 @@ class Error {
      * @return {!Error}
      */
     static internalInterpreterError(msg) {
-        return new Error(Error.Type.INTERNAL_INTERPRETER_ERROR, msg);
+        return new Error(Type.INTERNAL_INTERPRETER_ERROR, msg);
     }
 
     /**
@@ -82,7 +82,7 @@ class Error {
      */
     static macro(keyword, msg) {
         return new Error(
-            Error.Type.MACRO,
+            Type.MACRO,
             'macro ' + keyword + ': ' + msg);
     }
 
@@ -92,7 +92,7 @@ class Error {
      */
     static unimplementedOption(what) {
         return new Error(
-            Error.Type.UNIMPLEMENTED_OPTION,
+            Type.UNIMPLEMENTED_OPTION,
             'unimplemented: ' + what);
     }
 
@@ -101,7 +101,7 @@ class Error {
      * @return {!Error}
      */
     static quasiquote(what) {
-        return new Error(Error.Type.QUASIQUOTE, what);
+        return new Error(Type.QUASIQUOTE, what);
     }
 
     /**
@@ -109,15 +109,15 @@ class Error {
      * @return {!Error}
      */
     static illegalEmptyApplication(what) {
-        return new Error(Error.Type.ILLEGAL_EMPTY_APPLICATION, what);
+        return new Error(Type.ILLEGAL_EMPTY_APPLICATION, what);
     }
 
     /**
      * @param {*} what
-     * @return {!r5js.Error}
+     * @return {!Error}
      */
     static parse(what) {
-        return new Error(Error.Type.PARSE, 'parse error: ' + what);
+        return new Error(Type.PARSE, 'parse error: ' + what);
     }
 
     /**
@@ -125,7 +125,7 @@ class Error {
      * @return {!Error}
      */
     static immutable(what) {
-        return new Error(Error.Type.IMMUTABLE, what);
+        return new Error(Type.IMMUTABLE, what);
     }
 
     /**
@@ -133,12 +133,12 @@ class Error {
      * @return {!Error}
      */
     static scan(what) {
-        return new Error(Error.Type.SCAN, 'scan error: ' + what);
+        return new Error(Type.SCAN, 'scan error: ' + what);
     }
 }
 
 /** @enum {string} */
-Error.Type = {
+const Type = {
     ARGUMENT_TYPE_ERROR: 'argument type error',
     ILLEGAL_EMPTY_APPLICATION: 'illegal empty application',
     IMMUTABLE: 'immutable error',
@@ -157,4 +157,7 @@ Error.Type = {
     UNIMPLEMENTED_OPTION: 'unimplemented option'
 };
 
-exports = Error;
+exports = {
+    ErrorType: Type,
+    Error,
+};

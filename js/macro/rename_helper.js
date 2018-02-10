@@ -1,7 +1,7 @@
 goog.module('r5js.macro.RenameHelper');
 
-const Error = goog.require('r5js.Error');
 const RenameUtil = goog.require('r5js.RenameUtil');
+const {Error} = goog.require('r5js.Error');
 
 class RenameHelper {
     /** @param {string} transformerName */

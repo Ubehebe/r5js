@@ -3,10 +3,10 @@ goog.module('r5js.TokenStream');
 const Boolean = goog.require('r5js.ast.Boolean');
 const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
-const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Number = goog.require('r5js.ast.Number');
 const String = goog.require('r5js.ast.String');
+const {Error} = goog.require('r5js.Error');
 const {Terminal} = goog.require('r5js.parse.Terminals');
 
 /** @typedef {!Datum|!Terminal} */

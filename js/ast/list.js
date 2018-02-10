@@ -3,9 +3,9 @@ goog.module('r5js.ast.List');
 const CdrHelper = goog.require('r5js.ast.CdrHelper');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const Error = goog.require('r5js.Error');
 const IPair = goog.require('r5js.IPair');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const {Error} = goog.require('r5js.Error');
 
 /** @implements {IPair} */
 class List extends CompoundDatum {

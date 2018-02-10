@@ -2,9 +2,9 @@ goog.module('r5js.datumutil');
 
 const Boolean = goog.require('r5js.ast.Boolean');
 const Datum = goog.require('r5js.Datum');
-const Error = goog.require('r5js.Error');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Number = goog.require('r5js.ast.Number');
+const {Error} = goog.require('r5js.Error');
 const {Value} = goog.require('r5js.Value');
 
 /**

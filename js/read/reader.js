@@ -3,7 +3,6 @@ goog.module('r5js.Reader');
 const Boolean = goog.require('r5js.ast.Boolean');
 const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
-const Error = goog.require('r5js.Error');
 const Grammar = goog.require('r5js.read.Grammar');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Number = goog.require('r5js.ast.Number');
@@ -17,6 +16,7 @@ const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');
+const {Error, ErrorType} = goog.require('r5js.Error');
 const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 
@@ -111,7 +111,7 @@ class Impl {
         // All of the input tokens must be consumed for success.
         const nextToken = this.scanner_.nextToken();
         if (nextToken) {
-            throw new Error(Error.Type.READ, "read error: " + nextToken);
+            throw new Error(ErrorType.READ, "read error: " + nextToken);
         }
         return /** @type {!Datum} */ (ans);
     }

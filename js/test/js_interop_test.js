@@ -1,7 +1,6 @@
 goog.module('r5js.test.JsInterop');
 goog.setTestOnly('r5js.test.JsInterop');
 
-const Error = goog.require('r5js.Error');
 const InMemoryInputPort = goog.require('r5js.InMemoryInputPort');
 const InMemoryOutputPort = goog.require('r5js.InMemoryOutputPort');
 const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
@@ -13,6 +12,7 @@ const errors = goog.require('r5js.runtime.errors');
 const evalTo = goog.require('evalTo');
 const expect = goog.require('expect');
 const testSuite = goog.require('goog.testing.testSuite');
+const {Error, ErrorType} = goog.require('r5js.Error');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 const {output, setOutputPort} = goog.require('output');
 goog.require('goog.testing.jsunit');
@@ -168,8 +168,8 @@ testSuite({
     },
 
     testErrors() {
-        expect_('(').to(Throw(new Error(Error.Type.READ, 'read error: ' + Terminals.LPAREN)));
-        expect_(')').to(Throw(new Error(Error.Type.READ, 'read error: ' + Terminals.RPAREN)));
+        expect_('(').to(Throw(new Error(ErrorType.READ, 'read error: ' + Terminals.LPAREN)));
+        expect_(')').to(Throw(new Error(ErrorType.READ, 'read error: ' + Terminals.RPAREN)));
         expect_('(eval)').to(Throw(Error.incorrectNumArgs('eval', 2, 0)));
         expect_('(eval 1 2 3 4 5)').
             to(Throw(Error.incorrectNumArgs('eval', 2, 5)));

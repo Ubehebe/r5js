@@ -1,7 +1,7 @@
 goog.module('r5js.runtime.errors');
 
-const Error = goog.require('r5js.Error');
 const Type = goog.require('r5js.Type');
+const {Error, ErrorType} = goog.require('r5js.Error');
 const {Value} = goog.require('r5js.Value');
 
 /**
@@ -15,7 +15,7 @@ const {Value} = goog.require('r5js.Value');
  */
 function argumentTypeError(arg, argIndex, procName, expectedType, actualType) {
   return new Error(
-    Error.Type.ARGUMENT_TYPE_ERROR,
+    ErrorType.ARGUMENT_TYPE_ERROR,
     procName + ': argument ' + argIndex + ': want ' +
     expectedType + ', got ' + actualType);
 }
@@ -26,7 +26,7 @@ function argumentTypeError(arg, argIndex, procName, expectedType, actualType) {
  * @return {!Error}
  */
 function notAProcedure(name, actualType=undefined) {
-  return new Error(Error.Type.NOT_A_PROCEDURE, name, actualType);
+  return new Error(ErrorType.NOT_A_PROCEDURE, name, actualType);
 }
 
 exports = { argumentTypeError, notAProcedure };
