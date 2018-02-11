@@ -26,7 +26,7 @@ function argumentTypeError(arg, argIndex, procName, expectedType, actualType) {
  * @return {!Error}
  */
 function notAProcedure(name, actualType=undefined) {
-  return new Error(ErrorType.NOT_A_PROCEDURE, name, actualType);
+  return new Error(ErrorType.NOT_A_PROCEDURE, name, /*actualType TODO re-enable */);
 }
 
 exports = { argumentTypeError, notAProcedure };
