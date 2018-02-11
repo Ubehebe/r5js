@@ -14,7 +14,6 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {ParserImpl} = goog.require('r5js.ParserImpl');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
-const {Value} = goog.require('r5js.Value');
 
 class Pipeline {
 

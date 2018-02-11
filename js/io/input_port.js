@@ -1,7 +1,6 @@
 goog.module('r5js.InputPort');
 
 const Character = goog.require('r5js.ast.Character');
-const {Value} = goog.require('r5js.Value');
 
 /** @interface */
 class InputPort {

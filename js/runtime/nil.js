@@ -1,7 +1,5 @@
 goog.module('r5js.runtime.NIL');
 
-const {ObjectValue, Value} = goog.require('r5js.Value');
-
 /** @implements {ObjectValue} */
 class Nil {
     /**

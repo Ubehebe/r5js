@@ -12,7 +12,6 @@ const Transformer = goog.require('r5js.Transformer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
-const {ObjectValue} = goog.require('r5js.Value');
 const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */

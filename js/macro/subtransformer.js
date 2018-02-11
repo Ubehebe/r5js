@@ -4,7 +4,6 @@ const Datum = goog.require('r5js.Datum');
 const IEnvironment = goog.require('r5js.IEnvironment');
 const RenameHelper = goog.require('r5js.macro.RenameHelper');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
-const {ObjectValue} = goog.require('r5js.Value');
 
 /** @interface @extends {ObjectValue} TODO bl inappropriate */
 class Subtransformer {

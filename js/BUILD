@@ -18,10 +18,17 @@ closure_js_library(
     ]
 )
 
-closure_js_library(
-    name = "value",
+ts_library(
+    name = "value_ts",
     srcs = [
-        "value.js",
+        "value.ts",
+    ],
+)
+
+closure_ts_library(
+    name = "value",
+    deps = [
+    ":value_ts",
     ],
     visibility = [
         "//js:__subpackages__",

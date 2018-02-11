@@ -11,7 +11,6 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
-const {Value} = goog.require('r5js.Value');
 
 /** @implements {IPair} */
 class Quote extends CompoundDatum {

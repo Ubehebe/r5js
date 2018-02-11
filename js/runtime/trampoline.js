@@ -6,7 +6,6 @@ const OutputPort = goog.require('r5js.OutputPort');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const {ParserImpl} = goog.require('r5js.ParserImpl');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
-const {Value} = goog.require('r5js.Value');
 
 /**
  * This is the main evaluation function.

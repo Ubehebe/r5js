@@ -2,7 +2,6 @@ goog.module('r5js.runtime.errors');
 
 const Type = goog.require('r5js.Type');
 const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {Value} = goog.require('r5js.Value');
 
 /**
  * @param {!Value} arg The argument.

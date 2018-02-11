@@ -13,7 +13,6 @@ const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');
 const {Terminals} = goog.require('r5js.parse.Terminals');
-const {Value} = goog.require('r5js.Value');
 
 /*
  * Implementation note: a richer representation of Scheme values would

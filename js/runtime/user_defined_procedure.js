@@ -13,7 +13,6 @@ const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
-const {Value} = goog.require('r5js.Value');
 const {extractDefinition} = goog.require('r5js.ast.util');
 
 class UserDefinedProcedure extends Procedure {

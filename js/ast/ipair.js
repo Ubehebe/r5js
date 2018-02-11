@@ -1,7 +1,5 @@
 goog.module('r5js.IPair');
 
-const {Value} = goog.require('r5js.Value');
-
 /** @interface */
 class IPair {
     /** @return {!Value} */ car() {}
