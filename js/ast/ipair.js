@@ -21,4 +21,4 @@ class IPair {
 
 const IMPLEMENTED_BY_PROP = '$r5js.IPair';
 
-exports = IPair;
+exports = {IPair};
