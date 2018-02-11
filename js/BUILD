@@ -23,6 +23,9 @@ ts_library(
     srcs = [
         "value.ts",
     ],
+        visibility = [
+            "//js:__subpackages__",
+        ],
 )
 
 closure_ts_library(

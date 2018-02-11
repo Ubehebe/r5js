@@ -129,14 +129,20 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "ipair",
-    srcs = [
-        "ipair.js",
+ts_library(
+    name = "ipair_ts",
+    srcs = ["ipair.ts"],
+    deps = [
+        "//js:value_ts",
     ],
+)
+
+closure_ts_library(
+    name = "ipair",
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
+    deps = ["ipair_ts"],
 )
 
 closure_js_library(

@@ -7,13 +7,12 @@ const Ref = goog.require('r5js.Ref');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const datumutil = goog.require('r5js.datumutil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {IPair, addImplementation: addPairImpl} = goog.require('r5js.IPair');
+const {IPair, addImplementation: addPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 
-/** @implements {IPair} */
-class Quote extends CompoundDatum {
+class Quote extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
     /** @param {?Datum} firstChild */
     constructor(firstChild) {
         super();
@@ -22,12 +21,12 @@ class Quote extends CompoundDatum {
         }
     }
 
-    /** @override */
+    /** @return {!Value} */
     car() {
         return CAR_;
     }
 
-    /** @override */
+    /** @return {!Value} */
     cdr() {
         return new List(this.getFirstChild());
     }

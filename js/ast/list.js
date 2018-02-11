@@ -4,11 +4,10 @@ const CdrHelper = goog.require('r5js.ast.CdrHelper');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const {IPair, addImplementation: addPairImpl} = goog.require('r5js.IPair');
+const {IPair, addImplementation: addPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
-/** @implements {IPair} */
-class List extends CompoundDatum {
+class List extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
     /** @param {?Datum} firstChild */
     constructor(firstChild) {
         super();
@@ -64,12 +63,12 @@ class List extends CompoundDatum {
         }
     }
 
-    /** @override */
+    /** @return {!Value} */
     car() {
         return /** @type {!Datum} */ (this.getFirstChild());
     }
 
-    /** @override */
+    /** @return {!Value} */
     cdr() {
         const startOfCdr = this.getFirstChild().getNextSibling();
         if (!startOfCdr) {
@@ -91,8 +90,7 @@ class List extends CompoundDatum {
 }
 addPairImpl(List);
 
-/** @implements {IPair} */
-class DottedList extends CompoundDatum {
+class DottedList extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
     /** @param {?Datum} firstChild */
     constructor(firstChild) {
         super();
@@ -106,12 +104,12 @@ class DottedList extends CompoundDatum {
         return true;
     }
 
-    /** @override */
+    /** @return {!Value} */
     car() {
         return /** @type {!Datum} */ (this.getFirstChild());
     }
 
-    /** @override */
+    /** @return {!Value} */
     cdr() {
         const startOfCdr = this.getFirstChild().getNextSibling();
         let ans;
