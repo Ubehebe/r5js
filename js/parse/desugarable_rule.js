@@ -1,7 +1,7 @@
 goog.module('r5js.parse.bnf.DesugarableRule');
 
-const IEnvironment = goog.require('r5js.IEnvironment');
 const Rule = goog.require('r5js.parse.bnf.Rule');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 
 /**
  * A desugarable rule is a rule that has a {@link #desugar} method.

@@ -1,6 +1,6 @@
 goog.module('r5js.Procedure');
 
-const IEnvironment = goog.require('r5js.IEnvironment');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
 
 /** @implements {ObjectValue} */

@@ -2,13 +2,13 @@ goog.module('r5js.UserDefinedProcedure');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const IEnvironment = goog.require('r5js.IEnvironment');
 const Identifier = goog.require('r5js.ast.Identifier');
 const ProcCall = goog.require('r5js.ProcCall');
 const Procedure = goog.require('r5js.Procedure');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');

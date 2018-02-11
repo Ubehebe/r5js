@@ -1,7 +1,7 @@
 goog.module('r5js.Datum');
 
-const IEnvironment = goog.require('r5js.IEnvironment');
 const RenameHelper = goog.require('r5js.RenameHelper');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 

@@ -1,10 +1,10 @@
 goog.module('r5js.Transformer');
 
 const Datum = goog.require('r5js.Datum');
-const IEnvironment = goog.require('r5js.IEnvironment');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const RenameHelper = goog.require('r5js.macro.RenameHelper');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 
 class Transformer {
     /**

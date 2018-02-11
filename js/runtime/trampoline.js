@@ -1,9 +1,9 @@
 goog.module('r5js.trampoline');
 
-const IEnvironment = goog.require('r5js.IEnvironment');
 const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {ParserImpl} = goog.require('r5js.ParserImpl');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 

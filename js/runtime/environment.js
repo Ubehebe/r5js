@@ -2,7 +2,6 @@ goog.module('r5js.Environment');
 
 const Continuation = goog.require('r5js.Continuation');
 const Datum = goog.require('r5js.Datum');
-const IEnvironment = goog.require('r5js.IEnvironment');
 const Lambda = goog.require('r5js.Lambda');
 const Macro = goog.require('r5js.Macro');
 const Procedure = goog.require('r5js.Procedure');
@@ -11,6 +10,7 @@ const RenameUtil = goog.require('r5js.RenameUtil');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 /** @implements {IEnvironment} */

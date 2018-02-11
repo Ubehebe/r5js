@@ -1,6 +1,6 @@
 goog.module('r5js.ProcCallLike');
 
-const IEnvironment = goog.require('r5js.IEnvironment');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 
 /** @interface */
 class ResultStruct {

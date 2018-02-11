@@ -2,11 +2,11 @@ goog.module('r5js.MacroIdTransformer');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const IEnvironment = goog.require('r5js.IEnvironment');
 const Identifier = goog.require('r5js.ast.Identifier');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const Subtransformer = goog.require('r5js.Subtransformer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 
 class MacroIdTransformer {
     /** @param {!SimpleDatum} datum */

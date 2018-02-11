@@ -2,7 +2,6 @@ goog.module('r5js.Macro');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
-const IEnvironment = goog.require('r5js.IEnvironment');
 const Identifier = goog.require('r5js.ast.Identifier');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const RenameUtil = goog.require('r5js.RenameUtil');
@@ -10,6 +9,7 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 const Transformer = goog.require('r5js.Transformer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
+const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');

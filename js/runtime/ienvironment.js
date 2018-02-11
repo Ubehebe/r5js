@@ -165,8 +165,4 @@ class IEnvironment {
     }
 }
 
-exports = IEnvironment;
-
-
-
-
+exports = {IEnvironment};
