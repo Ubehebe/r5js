@@ -6,16 +6,16 @@ closure_js_library(
     srcs = [
         "scheme_sources.js",
     ],
-    deps = [
-        "//scm:PROCEDURES",
-        "//scm:SYNTAX",
+    suppress = [
+        "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
     ],
     visibility = [
         "//js:__subpackages__",
     ],
-    suppress = [
-        "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
-    ]
+    deps = [
+        "//scm:PROCEDURES",
+        "//scm:SYNTAX",
+    ],
 )
 
 ts_library(
@@ -23,45 +23,48 @@ ts_library(
     srcs = [
         "value.ts",
     ],
-        visibility = [
-            "//js:__subpackages__",
-        ],
+    visibility = [
+        "//js:__subpackages__",
+    ],
 )
 
 closure_ts_library(
     name = "value",
-    deps = [
-    ":value_ts",
-    ],
     visibility = [
         "//js:__subpackages__",
+    ],
+    deps = [
+        ":value_ts",
     ],
 )
 
 ts_library(
     name = "error_ts",
-    tsconfig = "//:tsconfig.json",
     srcs = [
         "error.ts",
     ],
+    tsconfig = "//:tsconfig.json",
 )
 
 closure_ts_library(
     name = "error",
-    deps = [
-        ":error_ts",
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
     visibility = [
         "//js:__subpackages__",
     ],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
+    deps = [
+        ":error_ts",
     ],
 )
 
 closure_js_library(
     name = "boot",
     srcs = ["boot.js"],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ],
     visibility = [
         "//js:__subpackages__",
     ],
@@ -83,8 +86,5 @@ closure_js_library(
         "//js/runtime:proc_call_like",
         "//js/runtime:used_by_parser_impl",
         "//js/scan",
-    ],
-    suppress = [
-            "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
