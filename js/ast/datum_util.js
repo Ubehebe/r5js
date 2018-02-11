@@ -42,4 +42,4 @@ function wrapValue(result) {
   }
 }
 
-exports.wrapValue = wrapValue;
+exports = {wrapValue};

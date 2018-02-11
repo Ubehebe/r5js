@@ -1011,6 +1011,4 @@ function desugarMacroBlock(datum, env, operatorName) {
     return new ProcCall(new Identifier(operatorName), _let.toSiblings());
 }
 
-exports.ParserImpl = ParserImpl;
-exports.grammar = grammar;
-
+exports = {grammar, ParserImpl};
