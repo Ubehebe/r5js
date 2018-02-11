@@ -6,13 +6,13 @@ const InMemoryOutputPort = goog.require('r5js.InMemoryOutputPort');
 const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const Throw = goog.require('Throw');
-const Type = goog.require('r5js.Type');
 const errors = goog.require('r5js.runtime.errors');
 const evalTo = goog.require('evalTo');
 const expect = goog.require('expect');
 const testSuite = goog.require('goog.testing.testSuite');
 const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {Terminals} = goog.require('r5js.parse.Terminals');
+const {Types} = goog.require('r5js.Type');
 const {boot} = goog.require('r5js.boot');
 const {output, setOutputPort} = goog.require('output');
 goog.require('goog.testing.jsunit');
@@ -192,7 +192,7 @@ testSuite({
             to(Throw(Error.tooFewVarargs('', 1, 0)));
         expect_('(+ "a" "b")').
             to(Throw(errors.argumentTypeError(
-                'a', 0, '+', Type.Types.NUMBER, Type.Types.STRING)));
+                'a', 0, '+', Types.NUMBER, Types.STRING)));
         expect_('(scheme-report-environment 6)').
             to(Throw(Error.unimplementedOption('')));
         expect_('(null-environment 6)').

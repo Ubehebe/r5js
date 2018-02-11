@@ -14,12 +14,12 @@ const Procedure = goog.require('r5js.Procedure');
 const Ref = goog.require('r5js.Ref');
 const String = goog.require('r5js.ast.String');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
-const Type = goog.require('r5js.Type');
 const Vector = goog.require('r5js.ast.Vector');
 const datumutil = goog.require('r5js.datumutil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {Type, Types} = goog.require('r5js.Type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 
 /** @interface */
@@ -443,8 +443,8 @@ Predicates['vector?'] = unary(node => node instanceof Vector);
  * @return {!Type}
  */
 function runtimeType(arg) {
-    for (const key in Type.Types) {
-        const type = Type.Types[key];
+    for (const key in Types) {
+        const type = Types[key];
         const predicateName = type.getName() + '?';
         if (predicateName in Predicates
             && !!Predicates[predicateName].fn_.call(null, arg)) {

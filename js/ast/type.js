@@ -1,6 +1,5 @@
 goog.module('r5js.Type');
 
-
 class Type {
     /** @param {string} name */
     constructor(name) {
@@ -24,7 +23,7 @@ class Type {
  * they have no critical role in this implementation.
  * @enum {!Type}
  */
-Type.Types = {
+const Types = {
   BOOLEAN: new Type('boolean'),
   CHARACTER: new Type('char'),
   ENVIRONMENT_SPECIFIER: new Type('environment-specifier'),
@@ -38,5 +37,5 @@ Type.Types = {
   VECTOR: new Type('vector')
 };
 
-exports = Type;
+exports = {Type, Types};
 

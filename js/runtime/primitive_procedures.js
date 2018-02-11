@@ -22,8 +22,6 @@ const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const StringNode = goog.require('r5js.ast.String');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
-const Type = goog.require('r5js.Type');
-const Types = Type.Types;
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const Vector = goog.require('r5js.ast.Vector');
 const trampoline = goog.require('r5js.trampoline');
@@ -31,6 +29,7 @@ const valutil = goog.require('r5js.valutil');
 const {CdrHelperImpl, DottedList, List} = goog.require('r5js.ast.List');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {Types} = goog.require('r5js.Type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 const {
     atLeastNWithSpecialEvalLogic,
