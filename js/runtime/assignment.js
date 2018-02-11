@@ -6,7 +6,7 @@ const Macro = goog.require('r5js.Macro');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
-const {Error} = goog.require('r5js.Error');
+const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Value} = goog.require('r5js.Value');
 

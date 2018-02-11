@@ -6,7 +6,7 @@ const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Number = goog.require('r5js.ast.Number');
 const String = goog.require('r5js.ast.String');
-const {Error} = goog.require('r5js.Error');
+const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {Terminal} = goog.require('r5js.parse.Terminals');
 
 /** @typedef {!Datum|!Terminal} */

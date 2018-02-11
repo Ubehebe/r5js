@@ -12,7 +12,7 @@ const errors = goog.require('r5js.runtime.errors');
 const evalTo = goog.require('evalTo');
 const expect = goog.require('expect');
 const testSuite = goog.require('goog.testing.testSuite');
-const {Error, ErrorType} = goog.require('r5js.Error');
+const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {Terminals} = goog.require('r5js.parse.Terminals');
 const {output, setOutputPort} = goog.require('output');
 goog.require('goog.testing.jsunit');

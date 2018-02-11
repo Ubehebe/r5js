@@ -8,6 +8,9 @@ closure_js_test(
     entry_points = [
         "goog:r5js.test.JsInterop",
     ],
+    defs = [
+        "--process_common_js_modules",
+    ],
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library:testing",
@@ -31,6 +34,9 @@ closure_js_test(
     srcs = [
         "parser_test.js",
     ],
+        defs = [
+            "--process_common_js_modules",
+        ],
     entry_points = [
         "goog:r5js.test.Parser",
     ],
@@ -52,6 +58,9 @@ closure_js_test(
     srcs = [
         "scanner_test.js",
     ],
+        defs = [
+            "--process_common_js_modules",
+        ],
     entry_points = [
         "goog:r5js.test.Scanner",
     ],
@@ -73,6 +82,9 @@ closure_js_test(
     srcs = [
         "scheme_test.js",
     ],
+        defs = [
+            "--process_common_js_modules",
+        ],
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library",

@@ -15,6 +15,7 @@ closure_js_library(
     ],
     visibility = ["//js:__subpackages__"],
     suppress = [
+            "JSC_UNDEFINED_VARIABLE",
             "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )

@@ -29,7 +29,7 @@ const Vector = goog.require('r5js.ast.Vector');
 const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
 const {CdrHelperImpl, DottedList, List} = goog.require('r5js.ast.List');
-const {Error} = goog.require('r5js.Error');
+const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 const {

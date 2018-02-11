@@ -4,7 +4,7 @@ const Evaluator = goog.require('r5js.Evaluator');
 const Promise = goog.require('goog.Promise');
 const Terminal = goog.require('r5js.Terminal');
 const replutil = goog.require('r5js.replutil');
-const {Error} = goog.require('r5js.Error');
+const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 class Repl {
     /**

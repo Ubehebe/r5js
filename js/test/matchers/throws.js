@@ -3,7 +3,7 @@ goog.module('Throw');
 goog.setTestOnly('Throw');
 
 const Matcher = goog.require('tdd.matchers.Matcher');
-const {Error} = goog.require('r5js.Error');
+const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 /** @implements {Matcher<!Error>} */
 class Throws {

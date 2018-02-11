@@ -10,7 +10,7 @@ const Ref = goog.require('r5js.Ref');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
-const {Error} = goog.require('r5js.Error');
+const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {Value} = goog.require('r5js.Value');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
