@@ -1,5 +1,6 @@
 goog.module('r5js.DatumStream');
 
+const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 
 /** @interface */
@@ -82,13 +83,13 @@ class Impl {
         this.prev_ = this.next_;
         /* See comments in body of Parser() for explanation of
          emptyListSentinel. */
-        this.next_ = this.next_.getFirstChild() || EMPTY_LIST_SENTINEL_;
+        this.next_ = /** @type {!CompoundDatum} */(this.next_).getFirstChild() || EMPTY_LIST_SENTINEL_;
     }
 
     /** @override */
     advanceToNextSibling() {
         this.prev_ = this.next_;
-        this.next_ = this.next_.getNextSibling();
+        this.next_ = /** @type {!Datum} */(this.next_).getNextSibling();
     }
 
     /** @override */
@@ -103,8 +104,8 @@ class Impl {
              prev.parent_ is (c d), and prev.parent_.nextSibling_ is e,
              which is where we want to go next. */
 
-            this.next_ = this.prev_.getParent() &&
-            this.prev_.getParent().getNextSibling();
+            this.next_ = /** @type {!Datum} */(this.prev_).getParent() &&
+            /** @type {!Datum} */(this.prev_).getParent().getNextSibling();
             return true;
         } else if (this.next_ === EMPTY_LIST_SENTINEL_) {
             /*
@@ -115,7 +116,7 @@ class Impl {
              we have just finished parsing (). next is emptyListSentinel,
              prev is (), and prev.nextSibling_ is e, which is where we
              want to go next. */
-            this.next_ = this.prev_.getNextSibling();
+            this.next_ = /** @type {!Datum} */ (this.prev_).getNextSibling();
             return true;
         } else {
             // If we're not at the end of a list, this parse must fail.
