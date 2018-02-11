@@ -29,7 +29,7 @@ const valutil = goog.require('r5js.valutil');
 const {CdrHelperImpl, DottedList, List} = goog.require('r5js.ast.List');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
-const {Types} = goog.require('r5js.Type');
+const {Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 const {
     atLeastNWithSpecialEvalLogic,

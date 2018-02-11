@@ -19,7 +19,7 @@ const datumutil = goog.require('r5js.datumutil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
-const {Type, Types} = goog.require('r5js.Type');
+const {Type, Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 
 /** @interface */

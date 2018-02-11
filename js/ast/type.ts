@@ -1,14 +1,7 @@
-goog.module('r5js.Type');
-
-class Type {
-    /** @param {string} name */
-    constructor(name) {
-        /** @const @private */ this.name_ = name;
-    }
-
-    /** @return {string} */
-    getName() {
-        return this.name_;
+export class Type {
+    constructor(private readonly name: string) {}
+    getName(): string {
+        return this.name;
     }
 }
 
@@ -21,9 +14,8 @@ class Type {
  * It is convenient to have names for these types, for example
  * when printing errors during runtime type-checking. But for the most part
  * they have no critical role in this implementation.
- * @enum {!Type}
  */
-const Types = {
+export const Types: {[name: string]: Type} /* TODO: learn more about ts index types */ = {
   BOOLEAN: new Type('boolean'),
   CHARACTER: new Type('char'),
   ENVIRONMENT_SPECIFIER: new Type('environment-specifier'),
@@ -36,6 +28,4 @@ const Types = {
   SYMBOL: new Type('symbol'),
   VECTOR: new Type('vector')
 };
-
-exports = {Type, Types};
 

@@ -1,3 +1,4 @@
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
 closure_js_library(
@@ -269,9 +270,14 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
+ts_library(
+    name = "type_ts",
+    srcs = ["type.ts"],
+)
+
+closure_ts_library(
     name = "type",
-    srcs = ["type.js"],
+    deps = [":type_ts"],
 )
 
 closure_js_library(
