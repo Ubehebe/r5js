@@ -4,7 +4,7 @@ const InputPort = goog.require('r5js.InputPort');
 const OutputPort = goog.require('r5js.OutputPort');
 const Promise = goog.require('goog.Promise');
 const SchemeSources = goog.require('r5js.SchemeSources');
-const boot = goog.require('r5js.boot');
+const {boot} = goog.require('r5js.boot');
 
 /** Wraps a synchronous evaluator in promises. */
 class AsyncEvaluator {

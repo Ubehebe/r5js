@@ -71,4 +71,4 @@ function installSchemeSource(lib, env) {
     trampoline(continuable, env, InputPort.NULL, OutputPort.NULL);
 }
 
-exports = boot;
+exports = {boot};

@@ -7,13 +7,13 @@ const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const Throw = goog.require('Throw');
 const Type = goog.require('r5js.Type');
-const boot = goog.require('r5js.boot');
 const errors = goog.require('r5js.runtime.errors');
 const evalTo = goog.require('evalTo');
 const expect = goog.require('expect');
 const testSuite = goog.require('goog.testing.testSuite');
 const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {Terminals} = goog.require('r5js.parse.Terminals');
+const {boot} = goog.require('r5js.boot');
 const {output, setOutputPort} = goog.require('output');
 goog.require('goog.testing.jsunit');
 
