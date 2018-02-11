@@ -7,7 +7,7 @@ const Ref = goog.require('r5js.Ref');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const datumutil = goog.require('r5js.datumutil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {IPair} = goog.require('r5js.IPair');
+const {IPair, addImplementation: addPairImpl} = goog.require('r5js.IPair');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = goog.require('r5js.parse.Terminals');
@@ -42,7 +42,7 @@ class Quote extends CompoundDatum {
     }
 }
 
-IPair.addImplementation(Quote);
+addPairImpl(Quote);
 
 /** @const @private {!Value} */
 const CAR_ = new Identifier(Terminals.QUOTE);

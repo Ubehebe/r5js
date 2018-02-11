@@ -4,7 +4,7 @@ const CdrHelper = goog.require('r5js.ast.CdrHelper');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const {IPair} = goog.require('r5js.IPair');
+const {IPair, addImplementation: addPairImpl} = goog.require('r5js.IPair');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 /** @implements {IPair} */
@@ -89,7 +89,7 @@ class List extends CompoundDatum {
         }
     }
 }
-IPair.addImplementation(List);
+addPairImpl(List);
 
 /** @implements {IPair} */
 class DottedList extends CompoundDatum {
@@ -132,7 +132,7 @@ class DottedList extends CompoundDatum {
         }
     }
 }
-IPair.addImplementation(DottedList);
+addPairImpl(DottedList);
 
 /** @implements {CdrHelper} */
 class CdrHelperImpl {

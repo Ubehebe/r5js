@@ -16,11 +16,11 @@ const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Vector = goog.require('r5js.ast.Vector');
 const datumutil = goog.require('r5js.datumutil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {IPair} = goog.require('r5js.IPair');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Type, Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
+const {isImplementedBy: isPairImpl} = goog.require('r5js.IPair');
 
 /** @interface */
 class NumArgChecker {
@@ -427,7 +427,7 @@ Predicates['null?'] = unary(node => node instanceof List && !node.getFirstChild(
 Predicates['number?'] = unary(node => node instanceof Number);
 Predicates['output-port?'] = unary(port => OutputPort.isImplementedBy(port));
 // 3.2: (pair? '()) => #f
-Predicates['pair?'] = unary(node => IPair.isImplementedBy(node) && !!node.getFirstChild());
+Predicates['pair?'] = unary(node => isPairImpl(node) && !!node.getFirstChild());
 Predicates['port?'] = unary(port => InputPort.isImplementedBy(port) || OutputPort.isImplementedBy(port));
 /* R5RS 6.4: "The procedure call-with-current-continuation
  packages up the current continuation as an "escape procedure"
