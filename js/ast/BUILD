@@ -131,6 +131,7 @@ closure_js_library(
 
 ts_library(
     name = "ipair_ts",
+    tsconfig = "//:tsconfig.json",
     srcs = ["ipair.ts"],
     deps = [
         "//js:value_ts",
@@ -278,6 +279,7 @@ closure_js_library(
 
 ts_library(
     name = "type_ts",
+    tsconfig = "//:tsconfig.json",
     srcs = ["type.ts"],
 )
 

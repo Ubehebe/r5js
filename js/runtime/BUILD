@@ -68,6 +68,7 @@ closure_js_library(
 
 ts_library(
     name = "ienvironment_ts",
+    tsconfig = "//:tsconfig.json",
     srcs = [
         "ienvironment.ts",
     ],

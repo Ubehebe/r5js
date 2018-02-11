@@ -20,6 +20,7 @@ closure_js_library(
 
 ts_library(
     name = "value_ts",
+    tsconfig = "//:tsconfig.json",
     srcs = [
         "value.ts",
     ],
