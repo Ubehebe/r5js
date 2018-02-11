@@ -100,12 +100,7 @@ class Environment {
         }
     }
 
-    /**
-     * @override
-     * @suppress {checkTypes} TODO the return type of IEnvironment#getProcedure is
-     * Value|null. But tsickle drops the |null when translating to the Closure type system, causing
-     * the `return null` below to generate a Closure Compiler error.
-     */
+    /** @override */
     getProcedure(name) {
         if (name in this.bindings_) {
             const binding = this.bindings_[name];

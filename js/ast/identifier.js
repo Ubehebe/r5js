@@ -83,7 +83,7 @@ class IdShim extends ProcCallLike {
 
     /**
      * @param {!Identifier} id
-     * @return {!Value}
+     * @return {?Value}
      * @private
      */
     tryIdentifier_(id) {
