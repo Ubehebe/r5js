@@ -15,7 +15,6 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const Vector = goog.require('r5js.ast.Vector');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
 const {notAProcedure} = goog.require('r5js.runtime.errors');

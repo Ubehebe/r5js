@@ -10,7 +10,6 @@ const RenameUtil = goog.require('r5js.RenameUtil');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 /** @implements {IEnvironment} */
@@ -101,7 +100,12 @@ class Environment {
         }
     }
 
-    /** @override */
+    /**
+     * @override
+     * @suppress {checkTypes} TODO the return type of IEnvironment#getProcedure is
+     * Value|null. But tsickle drops the |null when translating to the Closure type system, causing
+     * the `return null` below to generate a Closure Compiler error.
+     */
     getProcedure(name) {
         if (name in this.bindings_) {
             const binding = this.bindings_[name];

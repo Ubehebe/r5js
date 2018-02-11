@@ -1,6 +1,5 @@
 goog.module('r5js.ast.Identifier');
 
-
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
@@ -84,7 +83,7 @@ class IdShim extends ProcCallLike {
 
     /**
      * @param {!Identifier} id
-     * @return {?Value}
+     * @return {!Value}
      * @private
      */
     tryIdentifier_(id) {

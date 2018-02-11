@@ -12,7 +12,6 @@ const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');
-const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
 const {Terminal, Terminals} = goog.require('r5js.parse.Terminals');
 

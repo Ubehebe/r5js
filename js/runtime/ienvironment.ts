@@ -1,5 +1,3 @@
-goog.module('r5js.IEnvironment');
-
 /**
  * Interface abstracted from {@link r5js.Environment}.
  *
@@ -29,16 +27,9 @@ goog.module('r5js.IEnvironment');
  * function, you can use {@link r5js.IEnvironment.getProcedure} to avoid the
  * wrapping and unwrapping.
  *
- * @interface
- * @extends {ObjectValue} TODO this makes no sense, but is required by Macro#transcribe. Fix.
  */
-class IEnvironment {
-    /**
-     * @param {string} name Name of the binding.
-     * @param {!Value} val Value of the binding.
-     */
-    addBinding(name, val) {
-    }
+declare interface IEnvironment {
+    addBinding(name: string, val: Value);
 
     /**
      * Used exclusively during desugaring of lambda expressions.
@@ -82,49 +73,28 @@ class IEnvironment {
      * _execution_ of foo (tmp-fooEnv), not the Environment representing foo itself
      * (fooEnv).
      *
-     * @param {string} name Name of the binding to install this closure under.
-     * @param {!r5js.UserDefinedProcedure} proc Closure to install.
      * TODO bl: consider renaming to addSchemeProcedure?
      */
-    addClosure(name, proc) {
-    }
+    addClosure(name: string, proc: any /* TODO UserDefinedProcedure */);
+
+    /** @returns This environment, for chaining. */
+    addClosuresFrom(other: IEnvironment): IEnvironment;
 
     /**
-     * @param {!IEnvironment} other Environment to add closures from.
-     * @return {!IEnvironment} This environment, for chaining.
-     */
-    addClosuresFrom(other) {
-    }
-
-    /**
-     * @param {!IEnvironment} otherEnv Environment whose closures
-     * this environment should use.
+     * @param otherEnv Environment whose closures this environment should use.
      * TODO bl: this method is only used once. Can I eliminate it?
      */
-    setClosuresFrom(otherEnv) {
-    }
+    setClosuresFrom(otherEnv: IEnvironment);
+
+    get(name: string): Value|null;
+
+    getProcedure(name: string): Value|null;
 
     /**
-     * @param {string} name Name of binding to get.
-     * @return {?Value} Value of binding, if any.
-     */
-    get(name) {
-    }
-
-    /**
-     * @param {string} name Name of the procedure to get.
-     * @return {?Value} Value of binding, if any.
-     */
-    getProcedure(name) {
-    }
-
-    /**
-     * @param {string} name Name of the binding to look up.
-     * @return {boolean} True iff the environment, or any of its enclosing
+     * @returns true iff the environment, or any of its enclosing
      * environments, has a binding for the name.
      */
-    hasBindingRecursive(name) {
-    }
+    hasBindingRecursive(name: string): boolean;
 
     /**
      * R5RS 5.2.1: "At the top level of a program, a definition
@@ -141,28 +111,17 @@ class IEnvironment {
      * an unbound variable."
      *
      * We use the isTopLevel parameter to perform the override mentioned.
-     *
-     * @param {string} name Name of the binding.
-     * @param {!Value} newVal New value of the binding.
-     * @param {boolean} isTopLevel True iff the binding should be top-level.
      */
-    mutate(name, newVal, isTopLevel) {
-    }
+    mutate(name: string, newVal: Value, isTopLevel: boolean);
 
     /**
      * Just for environments defined in the standard; users shouldn't be able to
      * add to them.
      */
-    seal() {
-    }
+    seal();
 
-    /** @return {!IEnvironment} */
-    child() {
-    }
+    child(): IEnvironment;
 
-    /** @return {!IEnvironment} This object, for chaining. */
-    allowRedefs() {
-    }
+    /** @returns this object, for chaining. */
+    allowRedefs(): IEnvironment;
 }
-
-exports = {IEnvironment};

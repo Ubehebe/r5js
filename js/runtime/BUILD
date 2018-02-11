@@ -1,3 +1,4 @@
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
 SRCS_USED_BY_PARSER_IMPL = [
@@ -40,7 +41,7 @@ closure_js_library(
 closure_js_library(
     name = "runtime",
     srcs = glob(["*.js"], exclude = [
-        "ienvironment.js",
+        "ienvironment.ts",
         "proc_call_like.js",
     ] + SRCS_USED_BY_PARSER_IMPL),
     visibility = ["//js:__subpackages__"],
@@ -65,13 +66,20 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "ienvironment",
+ts_library(
+    name = "ienvironment_ts",
     srcs = [
-        "ienvironment.js",
+        "ienvironment.ts",
     ],
     deps = [
-        "//js:value",
+        "//js:value_ts",
+    ],
+)
+
+closure_ts_library(
+    name = "ienvironment",
+    deps = [
+        ":ienvironment_ts",
     ],
     visibility = [
         "//js:__subpackages__",

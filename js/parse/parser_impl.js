@@ -31,7 +31,6 @@ const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedu
 const Vector = goog.require('r5js.ast.Vector');
 const util = goog.require('r5js.ast.util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminal, Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');

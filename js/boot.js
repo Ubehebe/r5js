@@ -12,7 +12,6 @@ const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
 const trampoline = goog.require('r5js.trampoline');
-const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
 /**

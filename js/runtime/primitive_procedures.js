@@ -27,7 +27,6 @@ const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
 const {CdrHelperImpl, DottedList, List} = goog.require('r5js.ast.List');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {IEnvironment} = goog.require('r5js.IEnvironment');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');

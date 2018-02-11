@@ -6,7 +6,6 @@ const Identifier = goog.require('r5js.ast.Identifier');
 const Macro = goog.require('r5js.ast.Macro');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {IEnvironment} = goog.require('r5js.IEnvironment');
 
 /**
  * My approach for supporting nested ellipses in macro transcriptions

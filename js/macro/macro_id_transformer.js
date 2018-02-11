@@ -6,7 +6,6 @@ const Identifier = goog.require('r5js.ast.Identifier');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const Subtransformer = goog.require('r5js.Subtransformer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
-const {IEnvironment} = goog.require('r5js.IEnvironment');
 
 class MacroIdTransformer {
     /** @param {!SimpleDatum} datum */
