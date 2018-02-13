@@ -1,6 +1,6 @@
 goog.module('r5js.macro.RenameHelper');
 
-const {isParserSensitiveId} = goog.require('r5js.RenameUtil');
+const {isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 class RenameHelper {

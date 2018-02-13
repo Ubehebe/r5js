@@ -8,7 +8,7 @@ closure_js_library(
         exclude = [
             "nonterminals.js",
             "parser.js",
-            "rename_util.js",
+            "rename_util.ts",
             "terminals.ts",
         ],
     ),
@@ -61,16 +61,27 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "rename_util",
+ts_library(
+    name = "rename_util_ts",
     srcs = [
-        "rename_util.js",
+        "rename_util.ts",
+    ],
+    deps = [
+        ":terminals_ts",
+    ],
+)
+
+closure_ts_library(
+    name = "rename_util",
+    suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
     ],
     visibility = [
         "//js:__subpackages__",
     ],
     deps = [
-        ":terminals",
+        ":rename_util_ts",
     ],
 )
 

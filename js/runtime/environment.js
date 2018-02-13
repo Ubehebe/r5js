@@ -8,7 +8,7 @@ const Procedure = goog.require('r5js.Procedure');
 const Ref = goog.require('r5js.Ref');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
-const {CPS_PREFIX} = goog.require('r5js.RenameUtil');
+const {CPS_PREFIX} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 

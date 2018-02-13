@@ -4,7 +4,7 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Macro = goog.require('r5js.ast.Macro');
-const {newCpsName} = goog.require('r5js.RenameUtil');
+const {newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 /**

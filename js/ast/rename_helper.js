@@ -1,6 +1,6 @@
 goog.module('r5js.RenameHelper');
 
-const {newCpsName} = goog.require('r5js.RenameUtil');
+const {newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 
 class RenameHelper {
     /** @param {?RenameHelper} parent The parent helper, if any. */

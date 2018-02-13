@@ -34,7 +34,7 @@ const {List} = goog.require('r5js.ast.List');
 const {Nonterminal, Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
-const {isParserSensitiveId} = goog.require('r5js.RenameUtil');
+const {isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 
 /* todo bl: this file should not exist.
 

@@ -11,7 +11,7 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
-const {isParserSensitiveId, newCpsName} = goog.require('r5js.RenameUtil');
+const {isParserSensitiveId, newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */
 class Macro {
