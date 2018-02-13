@@ -4,14 +4,12 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const ContinuableHelper = goog.require('r5js.ContinuableHelper');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
-const Nonterminal = goog.require('r5js.parse.Nonterminals');
 const Quote = goog.require('r5js.ast.Quote');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
+const {Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
-
-const Nonterminals = Nonterminal.Nonterminals;
 
 class Quasiquote extends CompoundDatum {
     /** @param {!Datum} firstChild */
