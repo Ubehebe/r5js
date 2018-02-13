@@ -10,7 +10,7 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {IPair, addImplementation: addPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 const {List} = goog.require('r5js.ast.List');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
-const {Terminals} = goog.require('r5js.parse.Terminals');
+const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class Quote extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
     /** @param {?Datum} firstChild */

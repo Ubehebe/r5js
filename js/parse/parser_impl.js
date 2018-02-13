@@ -34,7 +34,7 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminal, Nonterminals} = goog.require('r5js.parse.Nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
-const {Terminals} = goog.require('r5js.parse.Terminals');
+const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 /* todo bl: this file should not exist.
 

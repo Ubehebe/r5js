@@ -3,7 +3,7 @@ goog.module('r5js.ast.Identifier');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
-const {Terminals} = goog.require('r5js.parse.Terminals');
+const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 /** @extends {SimpleDatum<string>} */
 class Identifier extends SimpleDatum {
