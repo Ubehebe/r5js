@@ -7,7 +7,7 @@ const Matcher = goog.require('tdd.matchers.Matcher');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
-const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
+const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 
 /** @implements {Matcher<string>} */
 class ParsesAs {

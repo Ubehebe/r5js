@@ -1,10 +1,5 @@
-goog.module('r5js.parse.Nonterminals');
-
-class Nonterminal {
-    /** @param {string} name */
-    constructor(name) {
-        /** @const */ this.name = name;
-    }
+export class Nonterminal {
+    constructor(readonly name: string) {}
 
     /** @override */
     toString() {
@@ -12,8 +7,7 @@ class Nonterminal {
     }
 }
 
-/** @enum {!Nonterminal} */
-const Nonterminals = {
+export const Nonterminals: {[key: string]: Nonterminal} = {
     ALTERNATE: new Nonterminal('alternate'),
     ASSIGNMENT: new Nonterminal('assignment'),
     COMMAND: new Nonterminal('command'),
@@ -55,5 +49,3 @@ const Nonterminals = {
     VARIABLE: new Nonterminal('variable'),
     VECTOR_QQ_TEMPLATE: new Nonterminal('vector-qq-template')
 };
-
-exports = {Nonterminal, Nonterminals};

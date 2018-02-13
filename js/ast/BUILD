@@ -131,8 +131,8 @@ closure_js_library(
 
 ts_library(
     name = "ipair_ts",
-    tsconfig = "//:tsconfig.json",
     srcs = ["ipair.ts"],
+    tsconfig = "//:tsconfig.json",
     deps = [
         "//js:value_ts",
     ],
@@ -194,6 +194,9 @@ closure_js_library(
 closure_js_library(
     name = "quasiquote",
     srcs = ["quasiquote.js"],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ],
     deps = [
         ":compound_datum",
         ":continuable_helper",
@@ -279,8 +282,8 @@ closure_js_library(
 
 ts_library(
     name = "type_ts",
-    tsconfig = "//:tsconfig.json",
     srcs = ["type.ts"],
+    tsconfig = "//:tsconfig.json",
 )
 
 closure_ts_library(
@@ -319,6 +322,9 @@ closure_js_library(
 closure_js_library(
     name = "util",
     srcs = ["util.js"],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ],
     deps = [
         ":compound_datum",
         ":datum",

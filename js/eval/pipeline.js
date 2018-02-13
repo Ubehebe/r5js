@@ -10,7 +10,7 @@ const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const trampoline = goog.require('r5js.trampoline');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
+const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {ParserImpl} = goog.require('r5js.ParserImpl');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 

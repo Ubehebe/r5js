@@ -1,7 +1,7 @@
 goog.module('r5js.Parser');
 
 const Datum = goog.require('r5js.Datum');
-const {Nonterminal} = goog.require('r5js.parse.Nonterminals');
+const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 
 /** @interface */
 class Parser {

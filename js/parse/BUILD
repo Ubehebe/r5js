@@ -30,13 +30,20 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "nonterminals",
+ts_library(
+    name = "nonterminals_ts",
     srcs = [
-        "nonterminals.js",
+        "nonterminals.ts",
     ],
+)
+
+closure_ts_library(
+    name = "nonterminals",
     visibility = [
         "//js:__subpackages__",
+    ],
+    deps = [
+        ":nonterminals_ts",
     ],
 )
 

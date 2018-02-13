@@ -6,7 +6,7 @@ const Identifier = goog.require('r5js.ast.Identifier');
 const RenameHelper = goog.require('r5js.RenameHelper');
 const RenameUtil = goog.require('r5js.RenameUtil');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const {Nonterminal, Nonterminals} = goog.require('r5js.parse.Nonterminals');
+const {Nonterminal, Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 
 class CompoundDatum extends Datum {
     constructor() {
