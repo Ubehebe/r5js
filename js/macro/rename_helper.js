@@ -1,6 +1,6 @@
 goog.module('r5js.macro.RenameHelper');
 
-const RenameUtil = goog.require('r5js.RenameUtil');
+const {isParserSensitiveId} = goog.require('r5js.RenameUtil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 class RenameHelper {
@@ -37,7 +37,7 @@ class RenameHelper {
          The right thing to do is to remove the parser altogether.
          See comments at the top of Parser. */
         if (maybeInPattern === -1 && name !== this.transformerName_) {
-            if (!RenameUtil.isParserSensitiveId(name)) {
+            if (!isParserSensitiveId(name)) {
                 this.renameCandidates_[name] = true;
             }
         } else if (maybeInPattern !== ellipsisLevel && name !== this.transformerName_) {

@@ -1,7 +1,7 @@
 goog.module('r5js.ast.Identifier');
 
-const RenameUtil = goog.require('r5js.RenameUtil');
 const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
+const {CPS_PREFIX, isParserSensitiveId} = goog.require('r5js.RenameUtil');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
@@ -26,12 +26,12 @@ class Identifier extends SimpleDatum {
      * @return {boolean} TODO bl.
      */
     shouldUnquoteSplice() {
-        return this.payload.charAt(1) === RenameUtil.CPS_PREFIX;
+        return this.payload.charAt(1) === CPS_PREFIX;
     }
 
     /** @override */
     fixParserSensitiveIds(helper) {
-        if (RenameUtil.isParserSensitiveId(this.payload)) {
+        if (isParserSensitiveId(this.payload)) {
             const renamedAs = helper.getRenameBinding(this.payload);
             if (renamedAs) {
                 this.setPayload(renamedAs);

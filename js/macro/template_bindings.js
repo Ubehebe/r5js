@@ -4,7 +4,7 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Macro = goog.require('r5js.ast.Macro');
-const RenameUtil = goog.require('r5js.RenameUtil');
+const {newCpsName} = goog.require('r5js.RenameUtil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 /**
@@ -106,7 +106,7 @@ class TemplateBindings {
             throw Error.internalInterpreterError('invariant incorrect');
         } else if (val instanceof Macro) {
             // See comments at SchemeMacro.prototype.setIsLetOrLetrecSyntax
-            const fakeName = RenameUtil.newCpsName();
+            const fakeName = newCpsName();
             this.letSyntaxEnv_.addBinding(fakeName, val.getMacro());
             this.bindings_[name] = new Identifier(fakeName);
         } else {

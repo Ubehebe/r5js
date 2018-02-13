@@ -15,7 +15,6 @@ const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
 const Parser = goog.require('r5js.Parser');
 const ProcCall = goog.require('r5js.ProcCall');
 const RenameHelper = goog.require('r5js.RenameHelper');
-const RenameUtil = goog.require('r5js.RenameUtil');
 const Rule = goog.require('r5js.parse.bnf.Rule');
 const RuleFactory = goog.require('r5js.parse.RuleFactory');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
@@ -35,6 +34,7 @@ const {List} = goog.require('r5js.ast.List');
 const {Nonterminal, Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {isParserSensitiveId} = goog.require('r5js.RenameUtil');
 
 /* todo bl: this file should not exist.
 
@@ -217,7 +217,7 @@ grammar[Nonterminals.EXPRESSION] =
 grammar[Nonterminals.VARIABLE] = _.seq(
     _.matchDatum(datum => {
       const isIdentifier = datum instanceof Identifier;
-      if (isIdentifier && RenameUtil.isParserSensitiveId(
+      if (isIdentifier && isParserSensitiveId(
           (/** @type {!Identifier} */(datum)).getPayload())) {
         fixParserSensitiveIds_ = true;
       }

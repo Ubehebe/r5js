@@ -4,8 +4,8 @@ const CdrHelper = goog.require('r5js.ast.CdrHelper');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const RenameHelper = goog.require('r5js.RenameHelper');
-const RenameUtil = goog.require('r5js.RenameUtil');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const {isParserSensitiveId} = goog.require('r5js.RenameUtil');
 const {Nonterminal, Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 
 class CompoundDatum extends Datum {
@@ -89,7 +89,7 @@ class CompoundDatum extends Datum {
 
         if (formalRoot instanceof Identifier) { // (lambda x ...)
             let id = formalRoot.getPayload();
-            if (RenameUtil.isParserSensitiveId(id)) {
+            if (isParserSensitiveId(id)) {
                 formalRoot.setPayload(newHelper.addRenameBinding(id));
             }
         } else { // (lambda (x y) ...) or (lambda (x . y) ...)
@@ -97,7 +97,7 @@ class CompoundDatum extends Datum {
                 function (child) {
                     child = /** @type {!Identifier} */ (child);
                     let id = child.getPayload();
-                    if (RenameUtil.isParserSensitiveId(id)) {
+                    if (isParserSensitiveId(id)) {
                         child.setPayload(newHelper.addRenameBinding(id));
                     }
                 });
@@ -117,7 +117,7 @@ class CompoundDatum extends Datum {
 
         if (maybeVar) { // (define foo +)
             id = maybeVar.getPayload();
-            if (RenameUtil.isParserSensitiveId(id)) {
+            if (isParserSensitiveId(id)) {
                 maybeVar.setPayload(helper.addRenameBinding(id));
             }
         } else { // (define (foo x y) (+ x y))
@@ -127,13 +127,13 @@ class CompoundDatum extends Datum {
             for (let cur = name.getNextSibling(); cur; cur = cur.getNextSibling()) {
                 cur = /** @type {!Identifier} */ (cur);
                 id = cur.getPayload();
-                if (RenameUtil.isParserSensitiveId(id)) {
+                if (isParserSensitiveId(id)) {
                     cur.setPayload(newHelper.addRenameBinding(id));
                 }
             }
             vars.getNextSibling().fixParserSensitiveIds(newHelper);
             const namePayload = name.getPayload();
-            if (RenameUtil.isParserSensitiveId(namePayload)) {
+            if (isParserSensitiveId(namePayload)) {
                 name.setPayload(helper.addRenameBinding(namePayload));
             }
         }

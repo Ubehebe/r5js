@@ -4,7 +4,6 @@ const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Datum = goog.require('r5js.Datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
-const RenameUtil = goog.require('r5js.RenameUtil');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 const Transformer = goog.require('r5js.Transformer');
@@ -12,6 +11,7 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
+const {isParserSensitiveId, newCpsName} = goog.require('r5js.RenameUtil');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */
 class Macro {
@@ -182,8 +182,8 @@ class Macro {
                         // IEnvironment has to extend ObjectValue. Which it shouldn't.
                         // Find another way to do this.
                         useEnv.addBinding(id, this.definitionEnv_);
-                    } else if (!RenameUtil.isParserSensitiveId(id)) {
-                        var tmpName = RenameUtil.newCpsName();
+                    } else if (!isParserSensitiveId(id)) {
+                        var tmpName = newCpsName();
                         toRename[id] = tmpName;
                         /* If the TemplateBindings object has detected that the same
                          identifier is used in the input and (unrelatedly) in the template,
