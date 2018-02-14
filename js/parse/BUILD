@@ -1,6 +1,12 @@
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
+package(
+    default_visibility = [
+        "//js:__subpackages__",
+    ],
+)
+
 closure_js_library(
     name = "parse",
     srcs = glob(
@@ -15,7 +21,6 @@ closure_js_library(
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
-    visibility = ["//js:__subpackages__"],
     deps = [
         ":nonterminals",
         ":parser",
@@ -39,9 +44,6 @@ ts_library(
 
 closure_ts_library(
     name = "nonterminals",
-    visibility = [
-        "//js:__subpackages__",
-    ],
     deps = [
         ":nonterminals_ts",
     ],
@@ -51,9 +53,6 @@ closure_js_library(
     name = "parser",
     srcs = [
         "parser.js",
-    ],
-    visibility = [
-        "//js:__subpackages__",
     ],
     deps = [
         ":nonterminals",
@@ -77,9 +76,6 @@ closure_ts_library(
         "CR_NOT_PROVIDED",
         "JSC_INVALID_CLOSURE_CALL_ERROR",
     ],
-    visibility = [
-        "//js:__subpackages__",
-    ],
     deps = [
         ":rename_util_ts",
     ],
@@ -94,9 +90,6 @@ ts_library(
 
 closure_ts_library(
     name = "terminals",
-    visibility = [
-        "//js:__subpackages__",
-    ],
     deps = [
         ":terminals_ts",
     ],
