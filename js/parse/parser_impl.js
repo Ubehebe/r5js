@@ -14,7 +14,6 @@ const MacroDatum = goog.require('r5js.ast.Macro');
 const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
 const Parser = goog.require('r5js.Parser');
 const ProcCall = goog.require('r5js.ProcCall');
-const RenameHelper = goog.require('r5js.RenameHelper');
 const Rule = goog.require('r5js.parse.bnf.Rule');
 const RuleFactory = goog.require('r5js.parse.RuleFactory');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
@@ -33,6 +32,7 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminal, Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {RenameHelper} = require('/js/ast/rename_helper_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 

@@ -239,11 +239,23 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "rename_helper",
-    srcs = ["rename_helper.js"],
+ts_library(
+    name = "rename_helper_ts",
+    srcs = ["rename_helper.ts"],
+    tsconfig = "//:tsconfig.json",
     deps = [
-        "//js/parse:rename_util",
+        "//js/parse:rename_util_ts",
+    ],
+)
+
+closure_ts_library(
+    name = "rename_helper",
+    suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+    ],
+    deps = [
+        ":rename_helper_ts",
     ],
 )
 
