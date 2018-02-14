@@ -25,13 +25,17 @@ class InputPort {
  /**
   * @param {*} obj
   * @return {boolean}
+  * @suppress {reportUnknownTypes}
   * TODO bl temporary shim. Remove.
   */
  static isImplementedBy(obj) {
   return !!(obj && obj[InputPort.IMPLEMENTED_BY_PROP_]);
  }
 
- /** @param {function(new: InputPort, ...)} ctor */
+ /**
+  * @param {function(new: InputPort, ...)} ctor
+  * @suppress {reportUnknownTypes}
+  */
  static addImplementation(ctor) {
   ctor.prototype[InputPort.IMPLEMENTED_BY_PROP_] = true;
  }

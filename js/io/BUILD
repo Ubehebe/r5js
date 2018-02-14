@@ -2,15 +2,104 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
 closure_js_library(
     name = "io",
-    srcs = glob(["*.js"]),
-    deps = [
-        "//js/ast",
-        "//js/read",
-        "//js/scan",
-        "//js:value",
+    srcs = [],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
     visibility = ["//js:__subpackages__"],
-    suppress = [
-            "JSC_UNKNOWN_EXPR_TYPE",
+    exports = [
+        ":callback_backed_port",
+        ":in_memory_input_port",
+        ":in_memory_output_port",
+        ":in_memory_port_buffer",
+        ":input_port",
+        ":output_port",
+        ":output_saving_port",
+        ":port_manager",
+    ],
+)
+
+closure_js_library(
+    name = "callback_backed_port",
+    srcs = [
+        "callback_backed_port.js",
+    ],
+    deps = [
+        ":output_port",
+    ],
+)
+
+closure_js_library(
+    name = "in_memory_input_port",
+    srcs = [
+        "in_memory_input_port.js",
+    ],
+    deps = [
+        ":in_memory_port_buffer",
+        ":input_port",
+        "//js/ast:character",
+        "//js/ast:datum",
+        "//js/read",
+        "//js/scan",
+    ],
+)
+
+closure_js_library(
+    name = "in_memory_output_port",
+    srcs = [
+        "in_memory_output_port.js",
+    ],
+    deps = [
+        ":in_memory_port_buffer",
+        ":output_port",
+        ":output_saving_port",
+    ],
+)
+
+closure_js_library(
+    name = "in_memory_port_buffer",
+    srcs = [
+        "in_memory_port_buffer.js",
+    ],
+)
+
+closure_js_library(
+    name = "input_port",
+    srcs = [
+        "input_port.js",
+    ],
+    deps = [
+        "//js/ast:character",
+    ],
+)
+
+closure_js_library(
+    name = "output_port",
+    srcs = [
+        "output_port.js",
+    ],
+)
+
+closure_js_library(
+    name = "output_saving_port",
+    srcs = [
+        "output_saving_port.js",
+    ],
+    deps = [
+        ":output_port",
+    ],
+)
+
+closure_js_library(
+    name = "port_manager",
+    srcs = [
+        "port_manager.js",
+    ],
+    deps = [
+        ":in_memory_input_port",
+        ":in_memory_output_port",
+        ":in_memory_port_buffer",
+        ":input_port",
+        ":output_port",
     ],
 )

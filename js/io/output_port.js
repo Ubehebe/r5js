@@ -25,13 +25,17 @@ class OutputPort {
  /**
   * @param {*} obj
   * @return {boolean}
+  * @suppress {reportUnknownTypes}
   * TODO bl temporary shim. Remove.
   */
  static isImplementedBy(obj) {
   return !!(obj && obj[OutputPort.IMPLEMENTED_BY_PROP_]);
  }
 
- /** @param {function(new: OutputPort, ...)} ctor */
+ /**
+  * @param {function(new: OutputPort, ...)} ctor
+  * @suppress {reportUnknownTypes}
+  */
  static addImplementation(ctor) {
   ctor.prototype[OutputPort.IMPLEMENTED_BY_PROP_] = true;
  }

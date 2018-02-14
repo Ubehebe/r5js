@@ -30,6 +30,10 @@ class Reader {
      */
     read() {}
 
+    /**
+     * @param {!TokenStream} tokenStream
+     * @return {!Reader}
+     */
     static forTokenStream(tokenStream) {
         return new Impl(tokenStream);
     }
