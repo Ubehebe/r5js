@@ -2,9 +2,9 @@ goog.module('r5js.Evaluator');
 
 const Datum = goog.require('r5js.Datum');
 const InputPort = goog.require('r5js.InputPort');
-const OutputPort = goog.require('r5js.OutputPort');
 const Pipeline = goog.require('r5js.Pipeline');
 const valutil = goog.require('r5js.valutil');
+const {OutputPort} = goog.require('r5js.OutputPort');
 
 class Evaluator {
     /**

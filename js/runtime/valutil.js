@@ -4,7 +4,6 @@ const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
 const EOF = goog.require('r5js.runtime.EOF');
 const InputPort = goog.require('r5js.InputPort');
-const OutputPort = goog.require('r5js.OutputPort');
 const Quote = goog.require('r5js.ast.Quote');
 const Ref = goog.require('r5js.Ref');
 const String = goog.require('r5js.ast.String');
@@ -13,6 +12,7 @@ const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {isOutputPortImpl} = goog.require('r5js.OutputPort');
 
 /*
  * Implementation note: a richer representation of Scheme values would
@@ -116,7 +116,7 @@ function toString(includeSigils, value) {
         return '<proc:' + value.getName() + '>';
       } else if (InputPort.isImplementedBy(value)) {
         return '<input-port>';
-      } else if (OutputPort.isImplementedBy(value)) {
+      } else if (isOutputPortImpl(value)) {
         return '<output-port>';
       } else if (value instanceof Datum) {
         return toString(includeSigils, value.unwrap());

@@ -1,8 +1,8 @@
 goog.module('r5js.InMemoryOutputPort');
 
 const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
-const OutputPort = goog.require('r5js.OutputPort');
 const OutputSavingPort = goog.require('r5js.OutputSavingPort');
+const {addOutputPortImpl} = goog.require('r5js.OutputPort');
 
 /** @struct @implements {OutputSavingPort} */
 class InMemoryOutputPort {
@@ -27,6 +27,6 @@ class InMemoryOutputPort {
   close() {}
 }
 
-OutputPort.addImplementation(InMemoryOutputPort);
+addOutputPortImpl(InMemoryOutputPort);
 
 exports = InMemoryOutputPort;

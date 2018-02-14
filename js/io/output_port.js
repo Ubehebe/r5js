@@ -21,28 +21,28 @@ class OutputPort {
 
  /** @see R5RS 6.6.1 */
  close() {}
+}
 
- /**
-  * @param {*} obj
-  * @return {boolean}
-  * @suppress {reportUnknownTypes}
-  * TODO bl temporary shim. Remove.
-  */
- static isImplementedBy(obj) {
-  return !!(obj && obj[OutputPort.IMPLEMENTED_BY_PROP_]);
- }
+/**
+ * @param {*} obj
+ * @return {boolean}
+ * @suppress {reportUnknownTypes}
+ * TODO bl temporary shim. Remove.
+ */
+function isOutputPortImpl(obj) {
+    return !!(obj && obj[IMPLEMENTED_BY_PROP_]);
+}
 
- /**
-  * @param {function(new: OutputPort, ...)} ctor
-  * @suppress {reportUnknownTypes}
-  */
- static addImplementation(ctor) {
-  ctor.prototype[OutputPort.IMPLEMENTED_BY_PROP_] = true;
- }
+/**
+ * @param {function(new: OutputPort, ...)} ctor
+ * @suppress {reportUnknownTypes}
+ */
+function addOutputPortImpl(ctor) {
+    ctor.prototype[IMPLEMENTED_BY_PROP_] = true;
 }
 
 /** @const @private */
-OutputPort.IMPLEMENTED_BY_PROP_ = '$r5js.OutputPort';
+const IMPLEMENTED_BY_PROP_ = '$r5js.OutputPort';
 
 /**
  * An output port that discards its output.
@@ -52,9 +52,14 @@ class NullOutputPort {
  /** @override */ close() {}
  /** @override */ write() {}
 }
-OutputPort.addImplementation(NullOutputPort);
+addOutputPortImpl(NullOutputPort);
 
 /** @const {!OutputPort} */
-OutputPort.NULL = new NullOutputPort();
+const NULL_OUTPUT_PORT = new NullOutputPort();
 
-exports = OutputPort;
+exports = {
+ OutputPort,
+ isOutputPortImpl,
+ addOutputPortImpl,
+ NULL_OUTPUT_PORT,
+};

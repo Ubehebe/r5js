@@ -4,7 +4,7 @@ const InMemoryInputPort = goog.require('r5js.InMemoryInputPort');
 const InMemoryOutputPort = goog.require('r5js.InMemoryOutputPort');
 const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
 const InputPort = goog.require('r5js.InputPort');
-const OutputPort = goog.require('r5js.OutputPort');
+const {OutputPort} = goog.require('r5js.OutputPort');
 
 class PortManager {
     constructor() {

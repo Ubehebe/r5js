@@ -13,7 +13,6 @@ const Identifier = goog.require('r5js.ast.Identifier');
 const InputPort = goog.require('r5js.InputPort');
 const Lambda = goog.require('r5js.Lambda');
 const Number = goog.require('r5js.ast.Number');
-const OutputPort = goog.require('r5js.OutputPort');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const PortManager = goog.require('r5js.PortManager');
 const ProcCall = goog.require('r5js.ProcCall');
@@ -27,6 +26,7 @@ const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
 const {CdrHelperImpl, DottedList, List} = goog.require('r5js.ast.List');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
+const {OutputPort, isOutputPortImpl} = goog.require('r5js.OutputPort');
 const {ProcCallLike, appendProcCallLike, getLastProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
@@ -578,7 +578,7 @@ PrimitiveProcedures['current-output-port'] =
 PrimitiveProcedures['display'] = unaryOrBinaryWithCurrentPorts(
     (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-      if (!OutputPort.isImplementedBy(outputPortToUse)) {
+      if (!isOutputPortImpl(outputPortToUse)) {
         throw argumentTypeError(
             outputPortToUse, 1, 'display', Types.OUTPUT_PORT,
             runtimeType(outputPortToUse));
@@ -632,7 +632,7 @@ PrimitiveProcedures['read-char'] = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures['write'] = unaryOrBinaryWithCurrentPorts(
     (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-      if (!OutputPort.isImplementedBy(outputPortToUse)) {
+      if (!isOutputPortImpl(outputPortToUse)) {
         throw argumentTypeError(
             outputPortToUse, 1, 'write', Types.OUTPUT_PORT,
             runtimeType(outputPortToUse));
@@ -649,7 +649,7 @@ PrimitiveProcedures['write-char'] = unaryOrBinaryWithCurrentPorts(
             runtimeType(charNode));
       }
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-      if (!OutputPort.isImplementedBy(outputPortToUse)) {
+      if (!isOutputPortImpl(outputPortToUse)) {
         throw argumentTypeError(
             outputPortToUse, 1, 'write-char', Types.OUTPUT_PORT,
             runtimeType(outputPortToUse));

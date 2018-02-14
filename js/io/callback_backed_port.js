@@ -1,6 +1,6 @@
 goog.module('r5js.CallbackBackedPort');
 
-const OutputPort = goog.require('r5js.OutputPort');
+const {OutputPort, addOutputPortImpl} = goog.require('r5js.OutputPort');
 
 /** @implements {OutputPort} */
 class CallbackBackedPort {
@@ -21,5 +21,5 @@ class CallbackBackedPort {
  }
 }
 
-OutputPort.addImplementation(CallbackBackedPort);
+addOutputPortImpl(CallbackBackedPort);
 exports = CallbackBackedPort;

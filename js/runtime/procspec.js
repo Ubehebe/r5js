@@ -8,7 +8,6 @@ const Identifier = goog.require('r5js.ast.Identifier');
 const InputPort = goog.require('r5js.InputPort');
 const Lambda = goog.require('r5js.Lambda');
 const Number = goog.require('r5js.ast.Number');
-const OutputPort = goog.require('r5js.OutputPort');
 const Procedure = goog.require('r5js.Procedure');
 const Ref = goog.require('r5js.Ref');
 const String = goog.require('r5js.ast.String');
@@ -17,6 +16,7 @@ const Vector = goog.require('r5js.ast.Vector');
 const datumutil = goog.require('r5js.datumutil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
+const {OutputPort, isOutputPortImpl} = goog.require('r5js.OutputPort');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Type, Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
@@ -425,10 +425,10 @@ Predicates['char?'] = unary(node => node instanceof Character);
 Predicates['input-port?'] = unary(port => InputPort.isImplementedBy(port));
 Predicates['null?'] = unary(node => node instanceof List && !node.getFirstChild());
 Predicates['number?'] = unary(node => node instanceof Number);
-Predicates['output-port?'] = unary(port => OutputPort.isImplementedBy(port));
+Predicates['output-port?'] = unary(port => isOutputPortImpl(port));
 // 3.2: (pair? '()) => #f
 Predicates['pair?'] = unary(node => isPairImpl(node) && !!node.getFirstChild());
-Predicates['port?'] = unary(port => InputPort.isImplementedBy(port) || OutputPort.isImplementedBy(port));
+Predicates['port?'] = unary(port => InputPort.isImplementedBy(port) || isOutputPortImpl(port));
 /* R5RS 6.4: "The procedure call-with-current-continuation
  packages up the current continuation as an "escape procedure"
  and passes it as an argument to proc." Thus a Continuation

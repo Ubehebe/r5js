@@ -1,8 +1,8 @@
 goog.module('r5js.TrampolineHelper');
 
 const InputPort = goog.require('r5js.InputPort');
-const OutputPort = goog.require('r5js.OutputPort');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
+const {OutputPort} = goog.require('r5js.OutputPort');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 const {ProcCallResult: ResultStruct} = goog.require('r5js.ProcCallResult');
 
