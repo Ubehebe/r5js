@@ -10,7 +10,8 @@ const Transformer = goog.require('r5js.Transformer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallResult: ResultStruct} = goog.require('r5js.ProcCallResult');
 const {isParserSensitiveId, newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */

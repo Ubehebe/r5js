@@ -1,6 +1,7 @@
 goog.module('r5js.Procedure');
 
-const {ProcCallLike, ResultStruct} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallResult: ResultStruct} = goog.require('r5js.ProcCallResult');
 
 /** @implements {ObjectValue} */
 class Procedure {

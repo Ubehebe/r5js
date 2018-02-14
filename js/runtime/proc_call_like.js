@@ -1,16 +1,6 @@
 goog.module('r5js.ProcCallLike');
 
-/** @interface */
-class ResultStruct {
-    /** @param {!ProcCallLike} procCallLike */
-    setNext(procCallLike) { }
-
-    /** @param {!Value} value */
-    setValue(value) { }
-
-    /** @return {?ProcCallLike} */
-    getNextProcCallLike() { }
-}
+const {ProcCallResult} = goog.require('r5js.ProcCallResult');
 
 class ProcCallLike {
     /** @param {string=} lastResultName */
@@ -22,7 +12,7 @@ class ProcCallLike {
     }
 
     /**
-     * @param {!ResultStruct} resultStruct
+     * @param {!ProcCallResult} resultStruct
      * @param {!IEnvironment} env
      * @param {!Function} parserProvider Function
      * that will return a new Parser for the given Datum when called.
@@ -95,4 +85,4 @@ class ProcCallLike {
     }
 }
 
-exports = {ProcCallLike, ResultStruct};
+exports = {ProcCallLike};

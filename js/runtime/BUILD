@@ -43,6 +43,7 @@ closure_js_library(
     srcs = glob(["*.js"], exclude = [
         "ienvironment.ts",
         "proc_call_like.js",
+        "proc_call_result.js",
     ] + SRCS_USED_BY_PARSER_IMPL),
     visibility = ["//js:__subpackages__"],
     deps = [
@@ -91,6 +92,7 @@ closure_js_library(
     name = "proc_call_like",
     srcs = [
         "proc_call_like.js",
+        "proc_call_result.js",
     ],
     deps = [
         ":ienvironment",
@@ -99,4 +101,7 @@ closure_js_library(
     visibility = [
         "//js:__subpackages__",
     ],
+    suppress = [
+        "JSC_LATE_PROVIDE_ERROR", # it's a cycle :(
+    ]
 )
