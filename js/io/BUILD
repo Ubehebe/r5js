@@ -1,3 +1,4 @@
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
 closure_js_library(
@@ -73,11 +74,22 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "output_port",
+ts_library(
+    name = "output_port_ts",
     srcs = [
-        "output_port.js",
+        "output_port.ts",
     ],
+)
+
+closure_ts_library(
+    name = "output_port",
+    deps = [
+        ":output_port_ts",
+    ],
+    suppress = [
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ]
 )
 
 closure_js_library(

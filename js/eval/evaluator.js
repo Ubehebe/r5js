@@ -4,7 +4,7 @@ const Datum = goog.require('r5js.Datum');
 const InputPort = goog.require('r5js.InputPort');
 const Pipeline = goog.require('r5js.Pipeline');
 const valutil = goog.require('r5js.valutil');
-const {OutputPort} = goog.require('r5js.OutputPort');
+const {OutputPort} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
 class Evaluator {
     /**

@@ -1,21 +1,24 @@
 goog.module('r5js.CallbackBackedPort');
 
-const {OutputPort, addOutputPortImpl} = goog.require('r5js.OutputPort');
+const {OutputPort, addOutputPortImpl} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
-/** @implements {OutputPort} */
-class CallbackBackedPort {
+class CallbackBackedPort extends OutputPort {
  /**
   * @param {function(string)} onOutput Callback that will be called
   * whenever output is available.
   */
  constructor(onOutput) {
+  super();
   /** @const @private */ this.onOutput_ = onOutput;
  }
 
  /** @override */
  close() {}
 
- /** @override */
+ /**
+  * @suppress {reportUnknownTypes}
+  * @override
+  */
  write(str) {
   this.onOutput_(str);
  }

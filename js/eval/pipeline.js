@@ -10,7 +10,7 @@ const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const trampoline = goog.require('r5js.trampoline');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {OutputPort} = goog.require('r5js.OutputPort');
+const {OutputPort} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {ParserImpl} = goog.require('r5js.ParserImpl');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 

@@ -11,7 +11,7 @@ const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
 const trampoline = goog.require('r5js.trampoline');
-const {OutputPort, NULL_OUTPUT_PORT} = goog.require('r5js.OutputPort');
+const {OutputPort, NULL_OUTPUT_PORT} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {ProcCallLike} = goog.require('r5js.ProcCallLike');
 
 /**
