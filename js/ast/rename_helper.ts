@@ -1,9 +1,9 @@
 import {newCpsName} from '../parse/rename_util';
 
 export class RenameHelper {
-    private readonly bindings_: {[key: string]: string} = {};
+    private readonly bindings: {[key: string]: string} = {};
 
-    constructor(private readonly parent_: RenameHelper|null=null) {}
+    constructor(private readonly parent: RenameHelper|null=null) {}
 
     /**
      * @param from Name to add a renaming for.
@@ -11,7 +11,7 @@ export class RenameHelper {
      */
     addRenameBinding(from: string): string {
         const to = newCpsName();
-        this.bindings_[from] = to;
+        this.bindings[from] = to;
         return to;
     }
 
@@ -20,11 +20,11 @@ export class RenameHelper {
      * @return The renaming of this name, or null if this object has no such binding.
      */
     getRenameBinding(name: string): string|null {
-        const maybe = this.bindings_[name];
+        const maybe = this.bindings[name];
         if (maybe) {
             return maybe;
-        } else if (this.parent_) {
-            return this.parent_.getRenameBinding(name);
+        } else if (this.parent) {
+            return this.parent.getRenameBinding(name);
         } else {
             return null;
         }
@@ -32,7 +32,7 @@ export class RenameHelper {
 
     /** @return True iff the helper was used. */
     wasUsed(): boolean {
-        for (const name in this.bindings_) {
+        for (const name in this.bindings) {
             return true;
         }
         return false;
