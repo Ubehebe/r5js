@@ -40,6 +40,7 @@ ts_library(
     srcs = [
         "nonterminals.ts",
     ],
+    tsconfig = "//:tsconfig.json",
 )
 
 closure_ts_library(
@@ -65,6 +66,7 @@ ts_library(
     srcs = [
         "rename_util.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         ":terminals_ts",
     ],
@@ -86,6 +88,7 @@ ts_library(
     srcs = [
         "terminals.ts",
     ],
+    tsconfig = "//:tsconfig.json",
 )
 
 closure_ts_library(
