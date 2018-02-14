@@ -8,7 +8,7 @@ const Quote = goog.require('r5js.ast.Quote');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, appendProcCallLike, getLastProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class Quasiquote extends CompoundDatum {
@@ -67,7 +67,7 @@ class Quasiquote extends CompoundDatum {
                 const name = (node instanceof Unquote
                         ? Terminals.COMMA
                         : Terminals.COMMA_AT) + '' + goog.getUid(new Object());
-                const last = ProcCallLike.getLast(asContinuable);
+                const last = getLastProcCallLike(asContinuable);
                 last.setResultName(name);
                 newCalls.appendProcCallLike(asContinuable);
                 return new Identifier(name);
@@ -121,7 +121,7 @@ class QuasiquoteShim extends ProcCallLike {
             /** @type {!IEnvironment} */ (this.getEnv()), parserProvider);
         const next = this.getNext();
         if (next) {
-            ProcCallLike.appendProcCallLike(continuable, next);
+            appendProcCallLike(continuable, next);
         }
         return continuable;
     }

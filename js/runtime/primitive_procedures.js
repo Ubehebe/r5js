@@ -27,7 +27,7 @@ const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
 const {CdrHelperImpl, DottedList, List} = goog.require('r5js.ast.List');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, appendProcCallLike, getLastProcCallLike} = goog.require('r5js.ProcCallLike');
 const {Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 const {
@@ -768,17 +768,15 @@ PrimitiveProcedures['dynamic-wind'] = ternaryWithSpecialEvalLogic(
           procCall.getFirstOperand().getNextSibling(),
           null /* no arguments */);
 
-      ProcCallLike.appendProcCallLike(
+      appendProcCallLike(
           procCallAfter,
           new Identifier(procCallThunk.getResultName()).toProcCallLike());
-      ProcCallLike.getLast(procCallAfter).setNext(
+      getLastProcCallLike(procCallAfter).setNext(
           /** @type {!ProcCallLike} */ (procCallLike.getNext()));
 
 
-      ProcCallLike.appendProcCallLike(
-          procCallThunk, procCallAfter);
-      ProcCallLike.appendProcCallLike(
-          procCallBefore, procCallThunk);
+      appendProcCallLike(procCallThunk, procCallAfter);
+      appendProcCallLike(procCallBefore, procCallThunk);
 
       resultStruct.setNext(procCallBefore);
       /* We use the TrampolineResultStruct to store the thunk.

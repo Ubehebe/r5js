@@ -1,7 +1,7 @@
 goog.module('r5js.DynamicWindContinuation');
 
 const Continuation = goog.require('r5js.Continuation');
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, appendProcCallLike} = goog.require('r5js.ProcCallLike');
 
 /**
  * Just for call/ccs inside dynamic-winds.
@@ -26,7 +26,7 @@ class DynamicWindContinuation extends Continuation {
         trampolineHelper.setValue(arg);
         trampolineHelper.setNext(this.thunk_);
         if (this.nextContinuable_) {
-            ProcCallLike.appendProcCallLike(this.thunk_, this.nextContinuable_);
+            appendProcCallLike(this.thunk_, this.nextContinuable_);
         }
         Continuation.repairInfiniteLoop(procCallLike, trampolineHelper);
     }

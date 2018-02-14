@@ -16,7 +16,7 @@ const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const Vector = goog.require('r5js.ast.Vector');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, getLastProcCallLike} = goog.require('r5js.ProcCallLike');
 const {ProcCallResult: ResultStruct} = goog.require('r5js.ProcCallResult');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
@@ -100,7 +100,7 @@ class ProcCall extends ProcCallLike {
                 maybeContinuable = arg.processQuasiquote(
                     /** @type {!IEnvironment} */ (this.getEnv()), parserProvider);
                 finalArgs.appendSibling(
-                    new Identifier(ProcCallLike.getLast(
+                    new Identifier(getLastProcCallLike(
                         maybeContinuable).getResultName()));
                 newCallChain.appendProcCallLike(maybeContinuable);
             } else if (arg.isImproperList()) {
@@ -111,7 +111,7 @@ class ProcCall extends ProcCallLike {
                  and not to desugar to a Continuable? */
                 const procCallLike = /** @type {!ProcCallLike} */ (maybeContinuable);
                 finalArgs.appendSibling(
-                    new Identifier(ProcCallLike.getLast(procCallLike).getResultName()));
+                    new Identifier(getLastProcCallLike(procCallLike).getResultName()));
                 newCallChain.appendProcCallLike(procCallLike);
             } else {
                 const clonedArg = arg.clone(null /* parent */);
@@ -123,7 +123,7 @@ class ProcCall extends ProcCallLike {
             new ProcCall(this.operatorName_, finalArgs.toSiblings()));
 
         const ans = /** @type {!ProcCallLike} */ (newCallChain.toContinuable());
-        const lastContinuable = ProcCallLike.getLast(ans);
+        const lastContinuable = getLastProcCallLike(ans);
         const next = this.getNext();
         if (next) {
             lastContinuable.setNext(next);

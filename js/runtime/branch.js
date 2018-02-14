@@ -1,6 +1,6 @@
 goog.module('r5js.Branch');
 
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, getLastProcCallLike} = goog.require('r5js.ProcCallLike');
 
 class Branch extends ProcCallLike {
   /**
@@ -13,8 +13,8 @@ class Branch extends ProcCallLike {
     /** @const @private */ this.testResultName_ = testResultName;
     /** @const @private */ this.consequent_ = consequent;
     /** @const @private */ this.alternate_ = alternate;
-    /** @const @private */ this.consequentLastContinuable_ = ProcCallLike.getLast(this.consequent_);
-    /** @const @private */ this.alternateLastContinuable_ = ProcCallLike.getLast(this.alternate_);
+    /** @const @private */ this.consequentLastContinuable_ = getLastProcCallLike(this.consequent_);
+    /** @const @private */ this.alternateLastContinuable_ = getLastProcCallLike(this.alternate_);
   }
 
   /** @override */

@@ -1,6 +1,6 @@
 goog.module('r5js.ContinuableHelper');
 
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, getLastProcCallLike} = goog.require('r5js.ProcCallLike');
 
 /**
  * A buffer to accumulate a Continuable-Continuation chain
@@ -19,7 +19,7 @@ class ContinuableHelper {
         } else {
             this.lastProcCallLike_.setNext(procCallLike);
         }
-        this.lastProcCallLike_ = ProcCallLike.getLast(procCallLike);
+        this.lastProcCallLike_ = getLastProcCallLike(procCallLike);
     }
 
     /** @return {?ProcCallLike} */

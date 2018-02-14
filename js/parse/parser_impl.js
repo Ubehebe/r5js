@@ -31,7 +31,7 @@ const util = goog.require('r5js.ast.util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminal, Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, getLastProcCallLike} = goog.require('r5js.ProcCallLike');
 const {RenameHelper} = require('/js/ast/rename_helper_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
@@ -275,7 +275,7 @@ grammar[Nonterminals.PROCEDURE_CALL] = _.list(
       else {
         const desugaredOp = /** @type {!ProcCallLike} */ (
             operatorNode.desugar(env));
-        const last = ProcCallLike.getLast(desugaredOp);
+        const last = getLastProcCallLike(desugaredOp);
         const opName = last.getResultName();
         last.setNext(new ProcCall(
             new Identifier(opName), operands));
@@ -399,7 +399,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
                 todo bl: make this flow of control explicit. */
       const variable = /** @type {!SimpleDatum} */ (node.at(Nonterminals.VARIABLE));
       const desugaredExpr = /** @type {!ProcCallLike} */ (variable.getNextSibling().desugar(env, true));
-      const last = ProcCallLike.getLast(desugaredExpr);
+      const last = getLastProcCallLike(desugaredExpr);
       const cpsName = last.getResultName();
       last.setNext(
           TopLevelAssignment.of(variable.getPayload(), cpsName));
@@ -482,7 +482,7 @@ grammar[Nonterminals.CONDITIONAL] = _.choice(
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
       const alternate = /** @type {!ProcCall} */ (
           node.at(Nonterminals.ALTERNATE).desugar(env, true));
-      const testEndpoint = ProcCallLike.getLast(test);
+      const testEndpoint = getLastProcCallLike(test);
       const branch = new Branch(testEndpoint.getResultName(),
           consequent, alternate);
       testEndpoint.setNext(branch);
@@ -496,7 +496,7 @@ grammar[Nonterminals.CONDITIONAL] = _.choice(
           node.at(Nonterminals.TEST).desugar(env, true));
       const consequent = /** @type {!ProcCall} */ (
           node.at(Nonterminals.CONSEQUENT).desugar(env, true));
-      const testEndpoint = ProcCallLike.getLast(test);
+      const testEndpoint = getLastProcCallLike(test);
       const branch = new Branch(
           testEndpoint.getResultName(),
           consequent,
@@ -532,7 +532,7 @@ grammar[Nonterminals.ASSIGNMENT] = _.list(
           node.at(Nonterminals.VARIABLE));
       const desugaredExpr = /** @type {!ProcCallLike} */ (
           variable.getNextSibling().desugar(env, true));
-      const lastContinuable = ProcCallLike.getLast(desugaredExpr);
+      const lastContinuable = getLastProcCallLike(desugaredExpr);
       const cpsName = lastContinuable.getResultName();
       lastContinuable.setNext(Assignment.create(
           /** @type {string} */ (variable.getPayload()), cpsName));

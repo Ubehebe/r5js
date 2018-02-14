@@ -66,23 +66,23 @@ class ProcCallLike {
         const envToUse = (this.next_ && this.next_.getEnv()) || this.env_;
         envToUse.addBinding(this.resultName_, val);
     }
-
-    /**
-     * @param {!ProcCallLike} procCallLike
-     * @return {!ProcCallLike}
-     */
-    static getLast(procCallLike) {
-        const maybeNext = procCallLike.getNext();
-        return maybeNext ? ProcCallLike.getLast(maybeNext) : procCallLike;
-    }
-
-    /**
-     * @param {!ProcCallLike} procCallLike
-     * @param {!ProcCallLike} next The next continuable.
-     */
-    static appendProcCallLike(procCallLike, next) {
-        ProcCallLike.getLast(procCallLike).setNext(next);
-    }
 }
 
-exports = {ProcCallLike};
+/**
+ * @param {!ProcCallLike} procCallLike
+ * @return {!ProcCallLike}
+ */
+function getLastProcCallLike(procCallLike) {
+    const maybeNext = procCallLike.getNext();
+    return maybeNext ? getLastProcCallLike(maybeNext) : procCallLike;
+}
+
+/**
+ * @param {!ProcCallLike} procCallLike
+ * @param {!ProcCallLike} next The next continuable.
+ */
+function appendProcCallLike(procCallLike, next) {
+    getLastProcCallLike(procCallLike).setNext(next);
+}
+
+exports = {ProcCallLike, getLastProcCallLike, appendProcCallLike};
