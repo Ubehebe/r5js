@@ -2,10 +2,10 @@ goog.module('r5js.InMemoryInputPort');
 
 const Character = goog.require('r5js.ast.Character');
 const Datum = goog.require('r5js.Datum');
-const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
 const InputPort = goog.require('r5js.InputPort');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
+const {InMemoryPortBuffer} = require('/js/io/in_memory_port_buffer_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_port_buffer');
 
 /** @implements {InputPort} */
 class InMemoryInputPort {

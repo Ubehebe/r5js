@@ -57,10 +57,17 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "in_memory_port_buffer",
+ts_library(
+    name = "in_memory_port_buffer_ts",
     srcs = [
-        "in_memory_port_buffer.js",
+        "in_memory_port_buffer.ts",
+    ],
+)
+
+closure_ts_library(
+    name = "in_memory_port_buffer",
+    deps = [
+        ":in_memory_port_buffer_ts",
     ],
 )
 
