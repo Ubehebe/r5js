@@ -1,7 +1,7 @@
 goog.module('output');
 
 const Matcher = goog.require('tdd.matchers.Matcher');
-const OutputSavingPort = goog.require('r5js.OutputSavingPort');
+const {OutputSavingPort} = require('/js/io/output_saving_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_saving_port');
 
 /**
  * @param {string} output

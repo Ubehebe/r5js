@@ -92,13 +92,25 @@ closure_ts_library(
     ]
 )
 
-closure_js_library(
-    name = "output_saving_port",
+ts_library(
+    name = "output_saving_port_ts",
     srcs = [
-        "output_saving_port.js",
+        "output_saving_port.ts",
     ],
     deps = [
-        ":output_port",
+        ":output_port_ts",
+    ],
+)
+
+closure_ts_library(
+    name = "output_saving_port",
+    deps = [
+        "output_saving_port_ts",
+    ],
+    suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
 

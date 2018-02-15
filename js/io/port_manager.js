@@ -26,6 +26,7 @@ class PortManager {
     /**
      * @param {string} name
      * @return {!OutputPort}
+     * @suppress {checkTypes} Closure Compiler doesn't understand that InMemoryOutputPort is an OutputPort
      */
     newOutputPort(name) {
         if (!(name in this.buffers_)) {

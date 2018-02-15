@@ -1,7 +1,7 @@
 goog.module('r5js.InMemoryOutputPort');
 
 const InMemoryPortBuffer = goog.require('r5js.InMemoryPortBuffer');
-const OutputSavingPort = goog.require('r5js.OutputSavingPort');
+const {OutputSavingPort} = require('/js/io/output_saving_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_saving_port');
 const {addOutputPortImpl} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
 class InMemoryOutputPort extends OutputSavingPort {

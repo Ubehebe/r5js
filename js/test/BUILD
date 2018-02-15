@@ -26,6 +26,7 @@ closure_js_test(
     suppress = [
         "JSC_MISSING_RETURN_JSDOC",
         "JSC_UNKNOWN_EXPR_TYPE",
+        "JSC_TYPE_MISMATCH",
     ]
 )
 
