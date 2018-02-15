@@ -3,7 +3,7 @@ goog.module('r5js.TopLevelAssignment');
 const Assignment = goog.require('r5js.Assignment');
 const Identifier = goog.require('r5js.ast.Identifier');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 
 class TopLevelAssignment extends Assignment {
     constructor(firstOperand) {

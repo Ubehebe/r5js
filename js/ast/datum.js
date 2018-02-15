@@ -1,7 +1,7 @@
 goog.module('r5js.Datum');
 
 const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {ProcCallLike, getLastProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, getLastProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 const {RenameHelper} = require('/js/ast/rename_helper_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
 
 /** @typedef {function(!Datum, !IEnvironment): ?} */ let DesugarFunc;

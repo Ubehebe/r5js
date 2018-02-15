@@ -9,7 +9,7 @@ const datumutil = goog.require('r5js.datumutil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {IPair, addImplementation: addPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 const {List} = goog.require('r5js.ast.List');
-const {ProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class Quote extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
@@ -58,7 +58,10 @@ class QuoteShim extends ProcCallLike {
         /** @const @private */ this.firstOperand_ = payload;
     }
 
-    /** @override */
+    /**
+     * @override
+     * @suppress {reportUnknownTypes}
+     */
     evalAndAdvance(resultStruct, env, parserProvider) {
         const ans = this.tryQuote_(this.firstOperand_);
         if (ans !== null) {

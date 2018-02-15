@@ -16,8 +16,7 @@ const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const Vector = goog.require('r5js.ast.Vector');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
-const {ProcCallLike, getLastProcCallLike} = goog.require('r5js.ProcCallLike');
-const {ProcCallResult: ResultStruct} = goog.require('r5js.ProcCallResult');
+const {ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 class ProcCall extends ProcCallLike {
@@ -82,7 +81,7 @@ class ProcCall extends ProcCallLike {
      * (We do _not_ do this if the operator resolves as a macro. Macros
      * get their arguments as unevaluated datums.)
      *
-     * @param {!ResultStruct} resultStruct
+     * @param {!ProcCallResult} resultStruct
      * @param {function(!Datum):!Parser} parserProvider Function
      * that will return a new Parser for the given Datum when called.
      * @private

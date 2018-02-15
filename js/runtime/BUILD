@@ -42,8 +42,7 @@ closure_js_library(
     name = "runtime",
     srcs = glob(["*.js"], exclude = [
         "ienvironment.ts",
-        "proc_call_like.js",
-        "proc_call_result.js",
+        "proc_call_like.ts",
     ] + SRCS_USED_BY_PARSER_IMPL),
     visibility = ["//js:__subpackages__"],
     deps = [
@@ -88,20 +87,26 @@ closure_ts_library(
     ],
 )
 
-closure_js_library(
-    name = "proc_call_like",
+ts_library(
+    name = "proc_call_like_ts",
     srcs = [
-        "proc_call_like.js",
-        "proc_call_result.js",
+        "proc_call_like.ts",
     ],
     deps = [
-        ":ienvironment",
-        "//js:value",
+        ":ienvironment_ts",
+        "//js:value_ts",
+    ],
+)
+
+closure_ts_library(
+    name = "proc_call_like",
+    deps = [
+        ":proc_call_like_ts",
     ],
     visibility = [
         "//js:__subpackages__",
     ],
     suppress = [
-        "JSC_LATE_PROVIDE_ERROR", # it's a cycle :(
-    ]
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ],
 )

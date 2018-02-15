@@ -130,6 +130,9 @@ closure_js_library(
         "//js/parse:terminals",
         "//js/runtime:proc_call_like",
     ],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ]
 )
 
 ts_library(

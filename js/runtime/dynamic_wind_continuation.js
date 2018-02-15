@@ -1,7 +1,7 @@
 goog.module('r5js.DynamicWindContinuation');
 
 const Continuation = goog.require('r5js.Continuation');
-const {ProcCallLike, appendProcCallLike} = goog.require('r5js.ProcCallLike');
+const {ProcCallLike, appendProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 
 /**
  * Just for call/ccs inside dynamic-winds.
