@@ -2,7 +2,7 @@ goog.module('r5js.test.JsInterop');
 goog.setTestOnly('r5js.test.JsInterop');
 
 const InMemoryInputPort = goog.require('r5js.InMemoryInputPort');
-const InMemoryOutputPort = goog.require('r5js.InMemoryOutputPort');
+const {InMemoryOutputPort} = require('/js/io/in_memory_output_port_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_output_port');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const Throw = goog.require('Throw');
 const errors = goog.require('r5js.runtime.errors');

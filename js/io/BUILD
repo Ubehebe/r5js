@@ -57,16 +57,28 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "in_memory_output_port",
+ts_library(
+    name = "in_memory_output_port_ts",
     srcs = [
-        "in_memory_output_port.js",
+        "in_memory_output_port.ts",
     ],
     deps = [
-        ":in_memory_port_buffer",
-        ":output_port",
-        ":output_saving_port",
+        ":in_memory_port_buffer_ts",
+        ":output_port_ts",
+        ":output_saving_port_ts",
     ],
+)
+
+closure_ts_library(
+    name = "in_memory_output_port",
+    deps = [
+        ":in_memory_output_port_ts",
+    ],
+    suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ]
 )
 
 ts_library(
