@@ -20,13 +20,25 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "callback_backed_port",
+ts_library(
+    name = "callback_backed_port_ts",
     srcs = [
-        "callback_backed_port.js",
+        "callback_backed_port.ts",
     ],
     deps = [
-        ":output_port",
+        ":output_port_ts",
+    ],
+)
+
+closure_ts_library(
+    name = "callback_backed_port",
+    deps = [
+        "callback_backed_port_ts",
+    ],
+    suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
 

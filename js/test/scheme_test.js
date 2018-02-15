@@ -2,7 +2,7 @@ goog.module('r5js.test.SchemeTest');
 goog.setTestOnly('r5js.test.SchemeTest');
 
 const AsyncEvaluator = goog.require('r5js.async.Evaluator.Impl');
-const CallbackBackedPort = goog.require('r5js.CallbackBackedPort');
+const {CallbackBackedPort} = require('/js/io/callback_backed_port_collect_es6_sources.es6/node_modules/__main__/js/io/callback_backed_port');
 const InputPort = goog.require('r5js.InputPort');
 const LogLevel = goog.require('tdd.LogLevel');
 const LogRecord = goog.require('tdd.LogRecord');

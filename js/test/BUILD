@@ -100,6 +100,7 @@ closure_js_test(
     suppress = [
         "JSC_IMPLICITLY_NULLABLE_JSDOC",
         "JSC_MISSING_JSDOC",
+        "JSC_TYPE_MISMATCH",
         "JSC_UNKNOWN_EXPR_TYPE",
      ],
 )
@@ -125,6 +126,7 @@ closure_js_library(
     ],
     suppress = [
             "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
+            "JSC_TYPE_MISMATCH",
             "JSC_UNKNOWN_EXPR_TYPE",
     ]
 )
