@@ -28,6 +28,7 @@ ts_library(
     deps = [
         ":output_port_ts",
     ],
+    tsconfig = "//:tsconfig.json",
 )
 
 closure_ts_library(
@@ -62,6 +63,7 @@ ts_library(
     srcs = [
         "in_memory_output_port.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         ":in_memory_port_buffer_ts",
         ":output_port_ts",
@@ -86,6 +88,7 @@ ts_library(
     srcs = [
         "in_memory_port_buffer.ts",
     ],
+    tsconfig = "//:tsconfig.json",
 )
 
 closure_ts_library(
@@ -107,6 +110,7 @@ closure_js_library(
 
 ts_library(
     name = "output_port_ts",
+    tsconfig = "//:tsconfig.json",
     srcs = [
         "output_port.ts",
     ],
@@ -125,6 +129,7 @@ closure_ts_library(
 
 ts_library(
     name = "output_saving_port_ts",
+    tsconfig = "//:tsconfig.json",
     srcs = [
         "output_saving_port.ts",
     ],

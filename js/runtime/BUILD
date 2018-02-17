@@ -89,6 +89,7 @@ closure_ts_library(
 
 ts_library(
     name = "proc_call_like_ts",
+    tsconfig = "//:tsconfig.json",
     srcs = [
         "proc_call_like.ts",
     ],
