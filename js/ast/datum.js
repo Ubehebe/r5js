@@ -260,13 +260,9 @@ class DatumShim extends ProcCallLike {
 
   /** @override */
   evalAndAdvance(resultStruct, env, parserProvider) {
-    if (this.firstOperand_ !== null) {
-      this.bindResult(this.firstOperand_);
-      resultStruct.setValue(this.firstOperand_);
-    }
-
+    this.bindResult(this.firstOperand_);
+    resultStruct.setValue(this.firstOperand_);
     const nextContinuable = this.getNext();
-
     if (nextContinuable) {
       resultStruct.setNext(nextContinuable);
     }
