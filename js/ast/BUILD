@@ -20,7 +20,6 @@ closure_js_library(
         ":identifier",
         ":ipair",
         ":list",
-        ":literal",
         ":macro",
         ":number",
         ":quasiquote",
@@ -180,12 +179,6 @@ closure_js_library(
 )
 
 closure_js_library(
-    name = "literal",
-    srcs = ["literal.js"],
-    deps = [":datum"],
-)
-
-closure_js_library(
     name = "macro",
     srcs = ["macro.js"],
     suppress = [
@@ -293,7 +286,6 @@ closure_js_library(
     ],
     deps = [
         ":datum",
-        ":literal",
     ],
 )
 

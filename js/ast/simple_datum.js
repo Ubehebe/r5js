@@ -1,10 +1,9 @@
 goog.module('r5js.ast.SimpleDatum');
 
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const Literal = goog.require('r5js.ast.Literal');
 
 /** @template T */
-class SimpleDatum extends Literal {
+class SimpleDatum extends Datum {
     /** @param {T} payload */
     constructor(payload) {
         super();
