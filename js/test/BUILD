@@ -74,6 +74,7 @@ closure_js_test(
         "//js/test/matchers",
     ],
     suppress = [
+        "JSC_TYPE_MISMATCH",
         "JSC_UNKNOWN_EXPR_TYPE",
      ],
 )

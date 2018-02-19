@@ -12,6 +12,7 @@ closure_js_library(
     ],
     visibility = ["//js:__subpackages__"],
     suppress = [
+            "JSC_TYPE_MISMATCH",
             "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )

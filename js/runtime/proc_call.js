@@ -2,7 +2,7 @@ goog.module('r5js.ProcCall');
 
 const ContinuableHelper = goog.require('r5js.ContinuableHelper');
 const Continuation = goog.require('r5js.Continuation');
-const {Datum, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike, ProcCallResult, SimpleDatum, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Lambda = goog.require('r5js.Lambda');
 const Macro = goog.require('r5js.Macro');
@@ -11,7 +11,6 @@ const Procedure = goog.require('r5js.Procedure');
 const Quasiquote = goog.require('r5js.ast.Quasiquote');
 const Quote = goog.require('r5js.ast.Quote');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const Vector = goog.require('r5js.ast.Vector');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');

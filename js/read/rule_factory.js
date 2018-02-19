@@ -1,12 +1,11 @@
 goog.module('r5js.read.RuleFactory');
 
-const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Grammar = goog.require('r5js.read.Grammar');
 const Quasiquote = goog.require('r5js.ast.Quasiquote');
 const Quote = goog.require('r5js.ast.Quote');
 const Rule = goog.require('r5js.read.bnf.Rule');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const TokenStream = goog.require('r5js.TokenStream');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');

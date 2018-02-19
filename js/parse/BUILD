@@ -19,6 +19,8 @@ closure_js_library(
         ],
     ),
     suppress = [
+        "JSC_INVALID_CAST",
+        "JSC_TYPE_MISMATCH",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [

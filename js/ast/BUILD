@@ -27,7 +27,6 @@ closure_js_library(
         ":ref",
         ":rename_helper",
         ":sibling_buffer",
-        ":simple_datum",
         ":string",
         ":type",
         ":unquote",
@@ -43,7 +42,7 @@ closure_js_library(
     name = "boolean",
     srcs = ["boolean.js"],
     deps = [
-        ":simple_datum",
+        ":datum",
     ],
 )
 
@@ -56,13 +55,14 @@ closure_js_library(
 closure_js_library(
     name = "character",
     srcs = ["character.js"],
-    deps = [":simple_datum"],
+    deps = [":datum"],
 )
 
 closure_js_library(
     name = "compound_datum",
     srcs = ["compound_datum.js"],
     suppress = [
+        "JSC_INVALID_CAST",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
@@ -119,6 +119,7 @@ closure_js_library(
     ],
     suppress = [
         "JSC_PRIMITIVE_OBJECT",
+        "JSC_TYPE_MISMATCH",
     ],
     deps = [
         ":boolean",
@@ -134,7 +135,6 @@ closure_js_library(
     srcs = ["identifier.js"],
     deps = [
         ":datum",
-        ":simple_datum",
         "//js/parse:rename_util",
         "//js/parse:terminals",
     ],
@@ -185,7 +185,7 @@ closure_js_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
-        ":simple_datum",
+        ":datum",
     ],
 )
 
@@ -195,7 +195,7 @@ closure_js_library(
         "number.js",
     ],
     deps = [
-        ":simple_datum",
+        ":datum",
     ],
 )
 
@@ -203,6 +203,7 @@ closure_js_library(
     name = "quasiquote",
     srcs = ["quasiquote.js"],
     suppress = [
+        "JSC_TYPE_MISMATCH",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
@@ -234,6 +235,9 @@ closure_js_library(
         "//js:error",
         "//js/parse:terminals",
     ],
+    suppress = [
+        "JSC_INVALID_CAST",
+    ],
 )
 
 closure_js_library(
@@ -241,7 +245,6 @@ closure_js_library(
     srcs = ["ref.js"],
     deps = [
         ":datum",
-        ":simple_datum",
     ],
 )
 
@@ -279,21 +282,10 @@ closure_js_library(
 )
 
 closure_js_library(
-    name = "simple_datum",
-    srcs = ["simple_datum.js"],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":datum",
-    ],
-)
-
-closure_js_library(
     name = "string",
     srcs = ["string.js"],
     deps = [
-        ":simple_datum",
+        ":datum",
     ],
 )
 
@@ -340,15 +332,16 @@ closure_js_library(
     name = "util",
     srcs = ["util.js"],
     suppress = [
+        "JSC_INVALID_CAST",
+        "JSC_TYPE_MISMATCH",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
         ":compound_datum",
-        ":datum",
         ":identifier",
         ":list",
         ":sibling_buffer",
-        ":simple_datum",
+        ":datum",
         "//js/parse:nonterminals",
         "//js/parse:terminals",
     ],

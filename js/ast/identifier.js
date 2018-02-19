@@ -1,8 +1,7 @@
 goog.module('r5js.ast.Identifier');
 
-const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const {CPS_PREFIX, isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
-const {ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {ProcCallLike, SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 /** @extends {SimpleDatum<string>} */

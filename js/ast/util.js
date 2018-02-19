@@ -1,10 +1,9 @@
 goog.module('r5js.ast.util');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');

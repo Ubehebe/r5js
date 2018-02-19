@@ -1,15 +1,14 @@
 goog.module('r5js.Assignment');
 
-const {Datum, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike, SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Macro = goog.require('r5js.Macro');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 class Assignment extends ProcCallLike {
-    /** @param {!Datum} firstOperand */
+    /** @param {!Identifier} firstOperand */
     constructor(firstOperand) {
         super();
         /** @const @private */ this.firstOperand_ = firstOperand;
@@ -22,7 +21,7 @@ class Assignment extends ProcCallLike {
             (/** @type {!SimpleDatum<string>} */ (this.firstOperand_.getNextSibling()))
             .getPayload()));
         this.checkForImproperSyntaxAssignment(src);
-        this.mutateEnv((/** @type {!SimpleDatum<string>} */ (this.firstOperand_)).getPayload(), src);
+        this.mutateEnv(this.firstOperand_.getPayload(), src);
         // R5RS 4.1.6: the value of an assignment is unspecified.
         resultStruct.setValue(UNSPECIFIED_VALUE);
         this.bindResult(UNSPECIFIED_VALUE);

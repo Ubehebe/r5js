@@ -38,6 +38,7 @@ closure_js_library(
     suppress = [
         "JSC_MUST_BE_PRIVATE",
         "JSC_MISSING_RETURN_JSDOC",
+        "JSC_TYPE_MISMATCH",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
@@ -63,6 +64,7 @@ closure_js_library(
     suppress = [
         "JSC_PRIMITIVE_OBJECT",
         "JSC_MISSING_RETURN_JSDOC",
+        "JSC_TYPE_MISMATCH",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )

@@ -1,7 +1,6 @@
 goog.module('r5js.Ref');
 
-const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const SimpleDatum = goog.require('r5js.ast.SimpleDatum');
+const {Datum, SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /**
  * TODO bl this class should not exist. It's used only as a shim in
