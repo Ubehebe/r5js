@@ -1,7 +1,6 @@
 goog.module('r5js.boot');
 
 
-const Datum = goog.require('r5js.Datum');
 const Environment = goog.require('r5js.Environment');
 const Evaluator = goog.require('r5js.Evaluator');
 const InputPort = goog.require('r5js.InputPort');
@@ -11,8 +10,8 @@ const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
 const trampoline = goog.require('r5js.trampoline');
+const {Datum, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {OutputPort, NULL_OUTPUT_PORT} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
-const {ProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 
 /**
  * The main bootstrap function. Given Scheme source code for R5RS syntax and

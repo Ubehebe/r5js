@@ -3,7 +3,7 @@ goog.module('r5js.TrampolineHelper');
 const InputPort = goog.require('r5js.InputPort');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const {OutputPort} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
-const {ProcCallLike, ProcCallResult} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
+const {ProcCallLike, ProcCallResult} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 class TrampolineHelper extends ProcCallResult {
     /**

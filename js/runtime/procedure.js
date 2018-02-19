@@ -1,6 +1,6 @@
 goog.module('r5js.Procedure');
 
-const {ProcCallLike, ProcCallResult} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
+const {ProcCallLike, ProcCallResult} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /** @implements {ObjectValue} */
 class Procedure {

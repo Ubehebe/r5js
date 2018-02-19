@@ -1,7 +1,7 @@
 goog.module('r5js.Macro');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const Datum = goog.require('r5js.Datum');
+const {Datum, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
@@ -10,7 +10,6 @@ const Transformer = goog.require('r5js.Transformer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 const {isParserSensitiveId, newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */

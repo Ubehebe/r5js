@@ -15,6 +15,7 @@ class String extends SimpleDatum {
      * Unlike other simple datums, strings have reference equality semantics.
      * @see R5RS 6.1
      * @override
+     * @suppress {reportUnknownTypes} superclass is TypeScript.
      */
     eqv(other) {
         return this === other;

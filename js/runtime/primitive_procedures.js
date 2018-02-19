@@ -5,7 +5,7 @@ const CallWithCurrentContinuation = goog.require('r5js.CallWithCurrentContinuati
 const Character = goog.require('r5js.ast.Character');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const Continuation = goog.require('r5js.Continuation');
-const Datum = goog.require('r5js.Datum');
+const {Datum, ProcCallLike, appendProcCallLike, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const DynamicWindContinuation = goog.require('r5js.DynamicWindContinuation');
 const EOF = goog.require('r5js.runtime.EOF');
 const Environment = goog.require('r5js.Environment');
@@ -27,7 +27,6 @@ const valutil = goog.require('r5js.valutil');
 const {CdrHelperImpl, DottedList, List} = goog.require('r5js.ast.List');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {OutputPort, isOutputPortImpl} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
-const {ProcCallLike, appendProcCallLike, getLastProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 const {Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 const {

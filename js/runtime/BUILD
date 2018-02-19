@@ -1,6 +1,12 @@
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
+package(
+    default_visibility = [
+        "//js:__subpackages__",
+    ],
+)
+
 SRCS_USED_BY_PARSER_IMPL = [
     "assignment.js",
     "branch.js",
@@ -28,23 +34,19 @@ closure_js_library(
         "//js/parse:terminals",
         "//js:value",
         ":ienvironment",
-        ":proc_call_like",
     ],
     suppress = [
         "JSC_MUST_BE_PRIVATE",
         "JSC_MISSING_RETURN_JSDOC",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
-    visibility = ["//js:__subpackages__"],
 )
 
 closure_js_library(
     name = "runtime",
     srcs = glob(["*.js"], exclude = [
         "ienvironment.ts",
-        "proc_call_like.ts",
     ] + SRCS_USED_BY_PARSER_IMPL),
-    visibility = ["//js:__subpackages__"],
     deps = [
         ":used_by_parser_impl",
         "//js/ast",
@@ -56,7 +58,6 @@ closure_js_library(
         "//js/parse:rename_util",
         "//js/parse:terminals",
         "//js/runtime:ienvironment",
-        "//js/runtime:proc_call_like",
         "//js:value",
     ],
     suppress = [
@@ -81,33 +82,5 @@ closure_ts_library(
     name = "ienvironment",
     deps = [
         ":ienvironment_ts",
-    ],
-    visibility = [
-        "//js:__subpackages__",
-    ],
-)
-
-ts_library(
-    name = "proc_call_like_ts",
-    tsconfig = "//:tsconfig.json",
-    srcs = [
-        "proc_call_like.ts",
-    ],
-    deps = [
-        ":ienvironment_ts",
-        "//js:value_ts",
-    ],
-)
-
-closure_ts_library(
-    name = "proc_call_like",
-    deps = [
-        ":proc_call_like_ts",
-    ],
-    visibility = [
-        "//js:__subpackages__",
-    ],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )

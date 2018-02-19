@@ -15,7 +15,6 @@ closure_js_library(
         "//js/scan",
         "//js/runtime",
         "//js/runtime:ienvironment",
-        "//js/runtime:proc_call_like",
         "//js:value",
     ],
     suppress = [

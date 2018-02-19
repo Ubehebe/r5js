@@ -2,7 +2,7 @@ goog.module('r5js.TokenStream');
 
 const Boolean = goog.require('r5js.ast.Boolean');
 const Character = goog.require('r5js.ast.Character');
-const Datum = goog.require('r5js.Datum');
+const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Number = goog.require('r5js.ast.Number');
 const String = goog.require('r5js.ast.String');

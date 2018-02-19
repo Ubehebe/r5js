@@ -1,6 +1,6 @@
 goog.module('r5js.Evaluator');
 
-const Datum = goog.require('r5js.Datum');
+const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const InputPort = goog.require('r5js.InputPort');
 const Pipeline = goog.require('r5js.Pipeline');
 const valutil = goog.require('r5js.valutil');

@@ -84,7 +84,6 @@ closure_js_library(
         "//js/read",
         "//js/runtime",
         "//js/runtime:ienvironment",
-        "//js/runtime:proc_call_like",
         "//js/runtime:used_by_parser_impl",
         "//js/scan",
     ],

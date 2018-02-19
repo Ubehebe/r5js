@@ -1,6 +1,6 @@
 goog.module('r5js.Pipeline');
 
-const Datum = goog.require('r5js.Datum');
+const {Datum, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Environment = goog.require('r5js.Environment');
 const InputPort = goog.require('r5js.InputPort');
 const Reader = goog.require('r5js.Reader');
@@ -12,7 +12,6 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {OutputPort} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {ParserImpl} = goog.require('r5js.ParserImpl');
-const {ProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 
 class Pipeline {
 

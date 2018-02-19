@@ -10,7 +10,6 @@ closure_js_library(
         "//js/parse:nonterminals",
         "//js/parse:rename_util",
         "//js/runtime:ienvironment",
-        "//js/runtime:proc_call_like",
         "//js:value",
     ],
     visibility = ["//js:__subpackages__"],

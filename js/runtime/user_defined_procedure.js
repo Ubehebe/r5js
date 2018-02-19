@@ -1,7 +1,7 @@
 goog.module('r5js.UserDefinedProcedure');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const Datum = goog.require('r5js.Datum');
+const {Datum, ProcCallLike, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const ProcCall = goog.require('r5js.ProcCall');
 const Procedure = goog.require('r5js.Procedure');
@@ -10,7 +10,6 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {ProcCallLike, getLastProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {extractDefinition} = goog.require('r5js.ast.util');
 

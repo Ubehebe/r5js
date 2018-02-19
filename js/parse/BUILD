@@ -30,7 +30,6 @@ closure_js_library(
         "//js/ast",
         "//js/macro",
         "//js/runtime:ienvironment",
-        "//js/runtime:proc_call_like",
         "//js/runtime:used_by_parser_impl",
     ],
 )

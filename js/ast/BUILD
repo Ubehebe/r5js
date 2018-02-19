@@ -83,25 +83,34 @@ closure_js_library(
         "continuable_helper.js",
     ],
     deps = [
-        "//js/runtime:proc_call_like",
+        ":datum",
     ],
 )
 
-closure_js_library(
+ts_library(
+    name = "datum_ts",
+    srcs = [
+        "datum.ts",
+    ],
+    tsconfig = "//:tsconfig.json",
+    deps = [
+        ":rename_helper_ts",
+        "//js/parse:nonterminals_ts",
+        "//js/parse:terminals_ts",
+        "//js/runtime:ienvironment_ts",
+        "//js:value_ts",
+    ],
+)
+
+closure_ts_library(
     name = "datum",
-    srcs = ["datum.js"],
     suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+        "JSC_MISSING_MODULE_OR_PROVIDE",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
-    deps = [
-        ":rename_helper",
-        "//js:error",
-        "//js:value",
-        "//js/parse:nonterminals",
-        "//js/parse:terminals",
-        "//js/runtime:ienvironment",
-        "//js/runtime:proc_call_like",
-    ],
+    deps = [":datum_ts"],
 )
 
 closure_js_library(
@@ -125,14 +134,14 @@ closure_js_library(
     name = "identifier",
     srcs = ["identifier.js"],
     deps = [
+        ":datum",
         ":simple_datum",
         "//js/parse:rename_util",
         "//js/parse:terminals",
-        "//js/runtime:proc_call_like",
     ],
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",
-    ]
+    ],
 )
 
 ts_library(
@@ -214,7 +223,6 @@ closure_js_library(
         "//js/parse:nonterminals",
         "//js/parse:terminals",
         "//js/runtime:ienvironment",
-        "//js/runtime:proc_call_like",
     ],
 )
 
@@ -232,7 +240,6 @@ closure_js_library(
         ":unspecified_value",
         "//js:error",
         "//js/parse:terminals",
-        "//js/runtime:proc_call_like",
     ],
 )
 

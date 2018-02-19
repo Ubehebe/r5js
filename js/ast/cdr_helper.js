@@ -1,6 +1,6 @@
 goog.module('r5js.ast.CdrHelper');
 
-const Datum = goog.require('r5js.Datum');
+const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /**
  * See the comment to {@link r5js.Datum.siblingsToList}

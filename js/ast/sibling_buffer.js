@@ -1,6 +1,6 @@
 goog.module('r5js.SiblingBuffer');
 
-const Datum = goog.require('r5js.Datum');
+const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /**
  * Just a buffer to accumulate siblings without the client having to do

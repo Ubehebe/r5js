@@ -1,7 +1,7 @@
 goog.module('r5js.DatumStream');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const Datum = goog.require('r5js.Datum');
+const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /** @interface */
 class DatumStream {

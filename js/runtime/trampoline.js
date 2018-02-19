@@ -4,7 +4,7 @@ const InputPort = goog.require('r5js.InputPort');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const {OutputPort} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {ParserImpl} = goog.require('r5js.ParserImpl');
-const {ProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
+const {ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /**
  * This is the main evaluation function.

@@ -1,6 +1,6 @@
 goog.module('r5js.VACUOUS_PROGRAM');
 
-const Datum = goog.require('r5js.Datum');
+const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /**
  * According to the R5RS grammar, a sequence of zero datums is a valid program.

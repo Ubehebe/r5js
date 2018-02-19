@@ -1,7 +1,7 @@
 goog.module('r5js.ast.Quote');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const Datum = goog.require('r5js.Datum');
+const {Datum, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Ref = goog.require('r5js.Ref');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
@@ -9,7 +9,6 @@ const datumutil = goog.require('r5js.datumutil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {IPair, addImplementation: addPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 const {List} = goog.require('r5js.ast.List');
-const {ProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class Quote extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
@@ -80,6 +79,7 @@ class QuoteShim extends ProcCallLike {
      * @param {!Quote} quote
      * @return {?Value}
      * @private
+     * @suppress {reportUnknownTypes}
      */
     tryQuote_(quote) {
         const env = this.getEnv();

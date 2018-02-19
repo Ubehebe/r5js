@@ -2,7 +2,7 @@ goog.module('r5js.ProcCall');
 
 const ContinuableHelper = goog.require('r5js.ContinuableHelper');
 const Continuation = goog.require('r5js.Continuation');
-const Datum = goog.require('r5js.Datum');
+const {Datum, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const Lambda = goog.require('r5js.Lambda');
 const Literal = goog.require('r5js.ast.Literal');
@@ -16,7 +16,6 @@ const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const Vector = goog.require('r5js.ast.Vector');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
-const {ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/runtime/proc_call_like_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call_like');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 class ProcCall extends ProcCallLike {

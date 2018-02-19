@@ -1,7 +1,7 @@
 goog.module('r5js.ast.CompoundDatum');
 
 const CdrHelper = goog.require('r5js.ast.CdrHelper');
-const Datum = goog.require('r5js.Datum');
+const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Identifier = goog.require('r5js.ast.Identifier');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const {isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
@@ -13,7 +13,7 @@ class CompoundDatum extends Datum {
         super();
         /** @private {?Datum} */ this.firstChild_ = null;
         /** @private {?CdrHelper} */ this.cdrHelper_ = null;
-        /** @protected {number|undefined} */ this.qqLevel;
+        /** @protected {number|undefined} */ this.qqLevel = undefined;
     }
 
     /** @return {?Datum} */
