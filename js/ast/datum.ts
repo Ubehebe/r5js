@@ -308,3 +308,10 @@ class DatumShim extends ProcCallLike {
   }
 }
 
+/**
+ * According to the R5RS grammar, a sequence of zero datums is a valid program.
+ * This object is used to prevent the interpreter from returning null
+ * in contexts where that might erroneously be interpreted as an error.
+ */
+export const VACUOUS_PROGRAM = new Datum();
+

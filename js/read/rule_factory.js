@@ -1,6 +1,6 @@
 goog.module('r5js.read.RuleFactory');
 
-const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, VACUOUS_PROGRAM} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const Grammar = goog.require('r5js.read.Grammar');
 const Quasiquote = goog.require('r5js.ast.Quasiquote');
@@ -10,7 +10,6 @@ const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TokenStream = goog.require('r5js.TokenStream');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
-const VACUOUS_PROGRAM = goog.require('r5js.VACUOUS_PROGRAM');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');

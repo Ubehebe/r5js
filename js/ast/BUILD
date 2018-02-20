@@ -24,7 +24,6 @@ closure_js_library(
         ":unquote_splicing",
         ":unspecified_value",
         ":util",
-        ":vacuous_program",
         ":vector",
     ],
 )
@@ -251,16 +250,6 @@ closure_js_library(
         ":datum",
         "//js/parse:nonterminals",
         "//js/parse:terminals",
-    ],
-)
-
-closure_js_library(
-    name = "vacuous_program",
-    srcs = [
-        "vacuous_program.js",
-    ],
-    deps = [
-        ":datum",
     ],
 )
 
