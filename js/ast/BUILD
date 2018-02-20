@@ -11,7 +11,6 @@ closure_js_library(
     name = "ast",
     exports = [
         ":compound_datum",
-        ":continuable_helper",
         ":datum",
         ":ipair",
         ":list",
@@ -46,22 +45,13 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "continuable_helper",
-    srcs = [
-        "continuable_helper.js",
-    ],
-    deps = [
-        ":datum",
-    ],
-)
-
 ts_library(
     name = "datum_ts",
     srcs = [
         "boolean.ts",
         "cdr_helper.ts",
         "character.ts",
+        "continuable_helper.ts",
         "datum.ts",
         "datum_util.ts",
         "identifier.ts",
@@ -147,7 +137,6 @@ closure_js_library(
     ],
     deps = [
         ":compound_datum",
-        ":continuable_helper",
         ":datum",
         ":quote",
         ":unquote",

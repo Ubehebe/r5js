@@ -1,6 +1,6 @@
 goog.module('r5js.ProcCall');
 
-const ContinuableHelper = goog.require('r5js.ContinuableHelper');
+const {ContinuableHelper} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/continuable_helper');
 const Continuation = goog.require('r5js.Continuation');
 const {Datum, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
