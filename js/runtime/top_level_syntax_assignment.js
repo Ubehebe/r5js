@@ -1,7 +1,6 @@
 goog.module('r5js.TopLevelSyntaxAssignment');
 
-const {Datum, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const Identifier = goog.require('r5js.ast.Identifier');
+const {Datum, Identifier, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
 

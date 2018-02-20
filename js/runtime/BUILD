@@ -36,6 +36,7 @@ closure_js_library(
         ":ienvironment",
     ],
     suppress = [
+        "JSC_INVALID_CAST",
         "JSC_MUST_BE_PRIVATE",
         "JSC_MISSING_RETURN_JSDOC",
         "JSC_TYPE_MISMATCH",

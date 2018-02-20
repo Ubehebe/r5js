@@ -1,8 +1,7 @@
 goog.module('r5js.MacroIdTransformer');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const {Datum, SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const Identifier = goog.require('r5js.ast.Identifier');
+const {Datum, Identifier, SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Subtransformer = goog.require('r5js.Subtransformer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 

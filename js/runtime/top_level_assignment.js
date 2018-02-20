@@ -1,9 +1,8 @@
 goog.module('r5js.TopLevelAssignment');
 
 const Assignment = goog.require('r5js.Assignment');
-const Identifier = goog.require('r5js.ast.Identifier');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
-const {ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 class TopLevelAssignment extends Assignment {
     constructor(firstOperand) {

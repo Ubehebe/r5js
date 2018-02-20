@@ -1,8 +1,8 @@
 goog.module('r5js.CallWithCurrentContinuation');
 
 const Continuation = goog.require('r5js.Continuation');
-const Identifier = goog.require('r5js.ast.Identifier');
 const ProcCall = goog.require('r5js.ProcCall');
+const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 class CallWithCurrentContinuation extends ProcCall {
     /**

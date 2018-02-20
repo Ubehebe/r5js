@@ -1,10 +1,9 @@
 goog.module('r5js.Assignment');
 
-const {Datum, ProcCallLike, SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const Identifier = goog.require('r5js.ast.Identifier');
 const Macro = goog.require('r5js.Macro');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
+const {Datum, Identifier, ProcCallLike, SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 class Assignment extends ProcCallLike {

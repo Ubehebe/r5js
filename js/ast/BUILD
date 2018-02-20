@@ -17,7 +17,6 @@ closure_js_library(
         ":continuable_helper",
         ":datum",
         ":datum_util",
-        ":identifier",
         ":ipair",
         ":list",
         ":macro",
@@ -68,7 +67,6 @@ closure_js_library(
     deps = [
         ":cdr_helper",
         ":datum",
-        ":identifier",
         ":rename_helper",
         ":sibling_buffer",
         "//js/parse:nonterminals",
@@ -95,6 +93,7 @@ ts_library(
     deps = [
         ":rename_helper_ts",
         "//js/parse:nonterminals_ts",
+        "//js/parse:rename_util_ts",
         "//js/parse:terminals_ts",
         "//js/runtime:ienvironment_ts",
         "//js:value_ts",
@@ -124,22 +123,8 @@ closure_js_library(
     deps = [
         ":boolean",
         ":datum",
-        ":identifier",
         ":number",
         "//js:error",
-    ],
-)
-
-closure_js_library(
-    name = "identifier",
-    srcs = ["identifier.js"],
-    deps = [
-        ":datum",
-        "//js/parse:rename_util",
-        "//js/parse:terminals",
-    ],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
 
@@ -210,7 +195,6 @@ closure_js_library(
         ":compound_datum",
         ":continuable_helper",
         ":datum",
-        ":identifier",
         ":quote",
         ":unquote",
         ":unquote_splicing",
@@ -227,7 +211,6 @@ closure_js_library(
         ":compound_datum",
         ":datum",
         ":datum_util",
-        ":identifier",
         ":ipair",
         ":list",
         ":ref",
@@ -338,7 +321,6 @@ closure_js_library(
     ],
     deps = [
         ":compound_datum",
-        ":identifier",
         ":list",
         ":sibling_buffer",
         ":datum",
