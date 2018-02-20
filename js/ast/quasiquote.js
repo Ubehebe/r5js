@@ -2,7 +2,8 @@ goog.module('r5js.ast.Quasiquote');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const ContinuableHelper = goog.require('r5js.ContinuableHelper');
-const {Datum, Identifier, ProcCallLike, appendProcCallLike, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike, appendProcCallLike, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const Quote = goog.require('r5js.ast.Quote');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');

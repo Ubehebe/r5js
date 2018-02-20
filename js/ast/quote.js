@@ -1,7 +1,8 @@
 goog.module('r5js.ast.Quote');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const {Datum, Identifier, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const Ref = goog.require('r5js.Ref');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const datumutil = goog.require('r5js.datumutil');

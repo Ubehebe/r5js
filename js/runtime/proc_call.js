@@ -2,7 +2,9 @@ goog.module('r5js.ProcCall');
 
 const ContinuableHelper = goog.require('r5js.ContinuableHelper');
 const Continuation = goog.require('r5js.Continuation');
-const {Datum, Identifier, ProcCallLike, ProcCallResult, SimpleDatum, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const Lambda = goog.require('r5js.Lambda');
 const Macro = goog.require('r5js.Macro');
 const Parser = goog.require('r5js.Parser');

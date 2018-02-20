@@ -2,7 +2,8 @@ goog.module('r5js.Reader');
 
 const Boolean = goog.require('r5js.ast.Boolean');
 const Character = goog.require('r5js.ast.Character');
-const {Datum, Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const Grammar = goog.require('r5js.read.Grammar');
 const Number = goog.require('r5js.ast.Number');
 const Quasiquote = goog.require('r5js.ast.Quasiquote');

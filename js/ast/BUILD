@@ -88,6 +88,8 @@ ts_library(
     name = "datum_ts",
     srcs = [
         "datum.ts",
+        "identifier.ts",
+        "simple_datum.ts",
     ],
     tsconfig = "//:tsconfig.json",
     deps = [

@@ -1,7 +1,8 @@
 goog.module('r5js.Macro');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const {Datum, Identifier, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
