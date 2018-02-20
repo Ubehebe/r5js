@@ -1,6 +1,12 @@
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 
+package(
+    default_visibility = [
+        "//js:__subpackages__",
+    ],
+)
+
 closure_js_library(
     name = "scheme_sources",
     srcs = [
@@ -8,9 +14,6 @@ closure_js_library(
     ],
     suppress = [
         "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
-    ],
-    visibility = [
-        "//js:__subpackages__",
     ],
     deps = [
         "//scm:PROCEDURES",
@@ -24,16 +27,10 @@ ts_library(
     srcs = [
         "value.ts",
     ],
-    visibility = [
-        "//js:__subpackages__",
-    ],
 )
 
 closure_ts_library(
     name = "value",
-    visibility = [
-        "//js:__subpackages__",
-    ],
     deps = [
         ":value_ts",
     ],
@@ -52,9 +49,6 @@ closure_ts_library(
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
-    visibility = [
-        "//js:__subpackages__",
-    ],
     deps = [
         ":error_ts",
     ],
@@ -65,9 +59,6 @@ closure_js_library(
     srcs = ["boot.js"],
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    visibility = [
-        "//js:__subpackages__",
     ],
     deps = [
         ":error",
