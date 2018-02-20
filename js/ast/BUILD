@@ -21,7 +21,6 @@ closure_js_library(
         ":number",
         ":quasiquote",
         ":quote",
-        ":ref",
         ":rename_helper",
         ":sibling_buffer",
         ":type",
@@ -74,6 +73,7 @@ ts_library(
         "character.ts",
         "datum.ts",
         "identifier.ts",
+        "ref.ts",
         "simple_datum.ts",
         "string.ts",
     ],
@@ -200,21 +200,12 @@ closure_js_library(
         ":datum_util",
         ":ipair",
         ":list",
-        ":ref",
         ":unspecified_value",
         "//js:error",
         "//js/parse:terminals",
     ],
     suppress = [
         "JSC_INVALID_CAST",
-    ],
-)
-
-closure_js_library(
-    name = "ref",
-    srcs = ["ref.js"],
-    deps = [
-        ":datum",
     ],
 )
 
