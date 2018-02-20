@@ -1,6 +1,6 @@
 goog.module('r5js.ast.CompoundDatum');
 
-const CdrHelper = goog.require('r5js.ast.CdrHelper');
+const {CdrHelper} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/cdr_helper');
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');

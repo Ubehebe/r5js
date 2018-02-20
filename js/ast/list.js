@@ -1,6 +1,6 @@
 goog.module('r5js.ast.List');
 
-const CdrHelper = goog.require('r5js.ast.CdrHelper');
+const {CdrHelper} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/cdr_helper');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
@@ -132,13 +132,13 @@ class DottedList extends CompoundDatum /* implicitly implements IPair (structura
 }
 addPairImpl(DottedList);
 
-/** @implements {CdrHelper} */
-class CdrHelperImpl {
+class CdrHelperImpl extends CdrHelper {
     /**
      * @param {!CompoundDatum} head
      * @param {!Datum} startOfCdr
      */
     constructor(head, startOfCdr) {
+        super();
         /** @const @private */ this.head_ = head;
 
         /** @const @private {!Datum} */

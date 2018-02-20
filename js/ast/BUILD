@@ -10,7 +10,6 @@ package(
 closure_js_library(
     name = "ast",
     exports = [
-        ":cdr_helper",
         ":compound_datum",
         ":continuable_helper",
         ":datum",
@@ -33,12 +32,6 @@ closure_js_library(
 )
 
 closure_js_library(
-    name = "cdr_helper",
-    srcs = ["cdr_helper.js"],
-    deps = [":datum"],
-)
-
-closure_js_library(
     name = "compound_datum",
     srcs = ["compound_datum.js"],
     suppress = [
@@ -46,7 +39,6 @@ closure_js_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
-        ":cdr_helper",
         ":datum",
         ":rename_helper",
         ":sibling_buffer",
@@ -69,6 +61,7 @@ ts_library(
     name = "datum_ts",
     srcs = [
         "boolean.ts",
+        "cdr_helper.ts",
         "character.ts",
         "datum.ts",
         "identifier.ts",
@@ -140,7 +133,6 @@ closure_js_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
-        ":cdr_helper",
         ":compound_datum",
         ":datum",
         ":ipair",
