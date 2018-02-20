@@ -315,3 +315,5 @@ class DatumShim extends ProcCallLike {
  */
 export const VACUOUS_PROGRAM = new Datum();
 
+export const UNSPECIFIED_VALUE: Value = new Datum();
+

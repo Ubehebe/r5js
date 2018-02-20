@@ -3,7 +3,7 @@ goog.module('r5js.ParserImpl');
 const Assignment = goog.require('r5js.Assignment');
 const Branch = goog.require('r5js.Branch');
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const {Datum, ProcCallLike, VACUOUS_PROGRAM, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const DatumStream = goog.require('r5js.DatumStream');
@@ -22,7 +22,6 @@ const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__m
 const Subtransformer = goog.require('r5js.Subtransformer');
 const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
 const TopLevelSyntaxAssignment = goog.require('r5js.TopLevelSyntaxAssignment');
-const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');

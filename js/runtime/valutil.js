@@ -1,13 +1,12 @@
 goog.module('r5js.valutil');
 
 const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
-const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, UNSPECIFIED_VALUE} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const EOF = goog.require('r5js.runtime.EOF');
 const InputPort = goog.require('r5js.InputPort');
 const Quote = goog.require('r5js.ast.Quote');
 const {Ref} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
 const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
-const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');

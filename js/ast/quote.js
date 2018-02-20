@@ -1,10 +1,9 @@
 goog.module('r5js.ast.Quote');
 
 const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
-const {Datum, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike, UNSPECIFIED_VALUE} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {Ref} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
-const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const {wrapValue} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {IPair, addImplementation: addPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');

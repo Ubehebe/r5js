@@ -1,11 +1,10 @@
 goog.module('r5js.Pipeline');
 
-const {Datum, ProcCallLike, VACUOUS_PROGRAM} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Environment = goog.require('r5js.Environment');
 const InputPort = goog.require('r5js.InputPort');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
-const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const trampoline = goog.require('r5js.trampoline');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');

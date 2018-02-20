@@ -22,7 +22,6 @@ closure_js_library(
         ":type",
         ":unquote",
         ":unquote_splicing",
-        ":unspecified_value",
         ":util",
         ":vector",
     ],
@@ -154,7 +153,6 @@ closure_js_library(
         ":datum",
         ":ipair",
         ":list",
-        ":unspecified_value",
         "//js:error",
         "//js/parse:terminals",
     ],
@@ -221,16 +219,6 @@ closure_js_library(
     srcs = ["unquote_splicing.js"],
     deps = [
         ":compound_datum",
-        ":datum",
-    ],
-)
-
-closure_js_library(
-    name = "unspecified_value",
-    srcs = [
-        "unspecified_value.js",
-    ],
-    deps = [
         ":datum",
     ],
 )

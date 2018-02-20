@@ -1,12 +1,11 @@
 goog.module('r5js.Environment');
 
 const Continuation = goog.require('r5js.Continuation');
-const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, UNSPECIFIED_VALUE} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Lambda = goog.require('r5js.Lambda');
 const Macro = goog.require('r5js.Macro');
 const Procedure = goog.require('r5js.Procedure');
 const {Ref} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
-const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const {CPS_PREFIX} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
