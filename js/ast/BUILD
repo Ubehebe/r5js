@@ -18,7 +18,6 @@ closure_js_library(
         ":ipair",
         ":list",
         ":macro",
-        ":number",
         ":quasiquote",
         ":quote",
         ":rename_helper",
@@ -73,6 +72,7 @@ ts_library(
         "character.ts",
         "datum.ts",
         "identifier.ts",
+        "number.ts",
         "ref.ts",
         "simple_datum.ts",
         "string.ts",
@@ -110,7 +110,6 @@ closure_js_library(
     ],
     deps = [
         ":datum",
-        ":number",
         "//js:error",
     ],
 )
@@ -155,16 +154,6 @@ closure_js_library(
     srcs = ["macro.js"],
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":datum",
-    ],
-)
-
-closure_js_library(
-    name = "number",
-    srcs = [
-        "number.js",
     ],
     deps = [
         ":datum",
