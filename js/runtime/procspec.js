@@ -13,7 +13,7 @@ const {Ref} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main
 const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const Vector = goog.require('r5js.ast.Vector');
-const datumutil = goog.require('r5js.datumutil');
+const {wrapValue} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
 const {OutputPort, isOutputPortImpl} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
@@ -209,7 +209,7 @@ class PrimitiveProcedure extends Procedure {
      * @override
      */
     evaluate(args, procCallLike, resultStruct, env) {
-        args = args.map(/** @type {!Function} */ (datumutil.wrapValue));
+        args = args.map(/** @type {!Function} */ (wrapValue));
         // todo bl document why we're doing this...
         for (let i = 0; i < args.length; ++i) {
             if (args[i] instanceof Ref) {

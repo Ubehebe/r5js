@@ -5,7 +5,7 @@ const {Datum, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/nod
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {Ref} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
 const UNSPECIFIED_VALUE = goog.require('r5js.UNSPECIFIED_VALUE');
-const datumutil = goog.require('r5js.datumutil');
+const {wrapValue} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {IPair, addImplementation: addPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 const {List} = goog.require('r5js.ast.List');
@@ -94,7 +94,7 @@ class QuoteShim extends ProcCallLike {
                 /** @type {?Datum} */ let ans;
                 ans = result === null
                     ? /** @type {!Datum} */ (UNSPECIFIED_VALUE)
-                    : datumutil.wrapValue(result);
+                    : wrapValue(result);
                 // TODO bl document why we're doing this
                 if (ans instanceof Ref) {
                     ans = ans.deref();

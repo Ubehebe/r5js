@@ -3,7 +3,7 @@ goog.module('r5js.VarargsUserDefinedProcedure');
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const SiblingBuffer = goog.require('r5js.SiblingBuffer');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
-const datumutil = goog.require('r5js.datumutil');
+const {wrapValue} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
 
@@ -41,7 +41,7 @@ class VarargsUserDefinedProcedure extends UserDefinedProcedure {
             // Roll up the remaining arguments into a list
             let siblingBuffer = new SiblingBuffer();
             for (let j = i; j < args.length; ++j) {
-                siblingBuffer.appendSibling(datumutil.wrapValue(args[j]));
+                siblingBuffer.appendSibling(wrapValue(args[j]));
             }
             env.addBinding(name, siblingBuffer.toList(List));
         }

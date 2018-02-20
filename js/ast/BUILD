@@ -13,7 +13,6 @@ closure_js_library(
         ":compound_datum",
         ":continuable_helper",
         ":datum",
-        ":datum_util",
         ":ipair",
         ":list",
         ":macro",
@@ -64,6 +63,7 @@ ts_library(
         "cdr_helper.ts",
         "character.ts",
         "datum.ts",
+        "datum_util.ts",
         "identifier.ts",
         "number.ts",
         "ref.ts",
@@ -77,6 +77,7 @@ ts_library(
         "//js/parse:rename_util_ts",
         "//js/parse:terminals_ts",
         "//js/runtime:ienvironment_ts",
+        "//js:error_ts",
         "//js:value_ts",
     ],
 )
@@ -90,21 +91,6 @@ closure_ts_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [":datum_ts"],
-)
-
-closure_js_library(
-    name = "datum_util",
-    srcs = [
-        "datum_util.js",
-    ],
-    suppress = [
-        "JSC_PRIMITIVE_OBJECT",
-        "JSC_TYPE_MISMATCH",
-    ],
-    deps = [
-        ":datum",
-        "//js:error",
-    ],
 )
 
 ts_library(
@@ -178,7 +164,6 @@ closure_js_library(
     deps = [
         ":compound_datum",
         ":datum",
-        ":datum_util",
         ":ipair",
         ":list",
         ":unspecified_value",
