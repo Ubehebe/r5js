@@ -10,7 +10,6 @@ package(
 closure_js_library(
     name = "ast",
     exports = [
-        ":boolean",
         ":cdr_helper",
         ":character",
         ":compound_datum",
@@ -34,14 +33,6 @@ closure_js_library(
         ":util",
         ":vacuous_program",
         ":vector",
-    ],
-)
-
-closure_js_library(
-    name = "boolean",
-    srcs = ["boolean.js"],
-    deps = [
-        ":datum",
     ],
 )
 
@@ -87,6 +78,7 @@ closure_js_library(
 ts_library(
     name = "datum_ts",
     srcs = [
+        "boolean.ts",
         "datum.ts",
         "identifier.ts",
         "simple_datum.ts",
@@ -123,7 +115,6 @@ closure_js_library(
         "JSC_TYPE_MISMATCH",
     ],
     deps = [
-        ":boolean",
         ":datum",
         ":number",
         "//js:error",

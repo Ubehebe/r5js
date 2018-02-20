@@ -1,6 +1,6 @@
 goog.module('r5js.test.Scanner');
 
-const Boolean = goog.require('r5js.ast.Boolean');
+const {Boolean} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
 const Character = goog.require('r5js.ast.Character');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const Number = goog.require('r5js.ast.Number');
