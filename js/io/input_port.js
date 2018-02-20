@@ -1,6 +1,6 @@
 goog.module('r5js.InputPort');
 
-const Character = goog.require('r5js.ast.Character');
+const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 
 /** @interface */
 class InputPort {

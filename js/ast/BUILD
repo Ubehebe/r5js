@@ -11,7 +11,6 @@ closure_js_library(
     name = "ast",
     exports = [
         ":cdr_helper",
-        ":character",
         ":compound_datum",
         ":continuable_helper",
         ":datum",
@@ -39,12 +38,6 @@ closure_js_library(
 closure_js_library(
     name = "cdr_helper",
     srcs = ["cdr_helper.js"],
-    deps = [":datum"],
-)
-
-closure_js_library(
-    name = "character",
-    srcs = ["character.js"],
     deps = [":datum"],
 )
 
@@ -79,6 +72,7 @@ ts_library(
     name = "datum_ts",
     srcs = [
         "boolean.ts",
+        "character.ts",
         "datum.ts",
         "identifier.ts",
         "simple_datum.ts",

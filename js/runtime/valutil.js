@@ -1,6 +1,6 @@
 goog.module('r5js.valutil');
 
-const Character = goog.require('r5js.ast.Character');
+const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const EOF = goog.require('r5js.runtime.EOF');
 const InputPort = goog.require('r5js.InputPort');

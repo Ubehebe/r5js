@@ -51,7 +51,6 @@ closure_js_library(
     deps = [
         ":in_memory_port_buffer",
         ":input_port",
-        "//js/ast:character",
         "//js/ast:datum",
         "//js/read",
         "//js/scan",
@@ -104,7 +103,7 @@ closure_js_library(
         "input_port.js",
     ],
     deps = [
-        "//js/ast:character",
+        "//js/ast:datum",
     ],
 )
 
