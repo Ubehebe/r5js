@@ -24,7 +24,6 @@ closure_js_library(
         ":ref",
         ":rename_helper",
         ":sibling_buffer",
-        ":string",
         ":type",
         ":unquote",
         ":unquote_splicing",
@@ -76,6 +75,7 @@ ts_library(
         "datum.ts",
         "identifier.ts",
         "simple_datum.ts",
+        "string.ts",
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
@@ -246,14 +246,6 @@ closure_js_library(
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
-    deps = [
-        ":datum",
-    ],
-)
-
-closure_js_library(
-    name = "string",
-    srcs = ["string.js"],
     deps = [
         ":datum",
     ],

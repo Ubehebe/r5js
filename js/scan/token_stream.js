@@ -5,7 +5,7 @@ const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const Number = goog.require('r5js.ast.Number');
-const String = goog.require('r5js.ast.String');
+const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 /** @typedef {!Datum|!Terminal} */
