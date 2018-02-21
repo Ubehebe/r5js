@@ -6,19 +6,19 @@ import {ProcCallLike, getLastProcCallLike} from './datum';
  */
 export class ContinuableHelper {
 
-  private firstProcCallLike_: ProcCallLike | null = null;
-  private lastProcCallLike_: ProcCallLike | null = null;
+  private firstProcCallLike: ProcCallLike | null = null;
+  private lastProcCallLike: ProcCallLike | null = null;
 
   appendProcCallLike(procCallLike: ProcCallLike) {
-    if (!this.firstProcCallLike_) {
-      this.firstProcCallLike_ = procCallLike;
+    if (!this.firstProcCallLike) {
+      this.firstProcCallLike = procCallLike;
     } else {
-      this.lastProcCallLike_!.setNext(procCallLike);
+      this.lastProcCallLike!.setNext(procCallLike);
     }
-    this.lastProcCallLike_ = getLastProcCallLike(procCallLike);
+    this.lastProcCallLike = getLastProcCallLike(procCallLike);
   }
 
   toContinuable(): ProcCallLike | null {
-    return this.firstProcCallLike_;
+    return this.firstProcCallLike;
   }
 }
