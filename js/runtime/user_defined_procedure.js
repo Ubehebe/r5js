@@ -9,7 +9,7 @@ const Quote = goog.require('r5js.ast.Quote');
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
-const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {DEFINITION} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {extractDefinition} = goog.require('r5js.ast.util');
 
@@ -212,7 +212,7 @@ class LetrecBindingsHelper {
      */
     collectLetrecBindings(bodyStart) {
         for (var cur = bodyStart;
-             cur && cur.peekParse() === Nonterminals.DEFINITION;
+             cur && cur.peekParse() === DEFINITION;
              cur = cur.getNextSibling()) {
             cur = /** @type {!CompoundDatum} */ (cur);
             const firstChild = cur.getFirstChild();

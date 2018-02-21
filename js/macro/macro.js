@@ -9,7 +9,7 @@ const TemplateBindings = goog.require('r5js.TemplateBindings');
 const Transformer = goog.require('r5js.Transformer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
-const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {PATTERN, TEMPLATE} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {isParserSensitiveId, newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */
@@ -38,9 +38,9 @@ class Macro {
                 // TODO bl improve
                 rule = /** @type {!CompoundDatum} */ (rule);
                 const pattern = /** @type {!ListLikeTransformer} */(
-                    rule.at(Nonterminals.PATTERN).desugar(definitionEnv));
+                    rule.at(PATTERN).desugar(definitionEnv));
                 const template = /** @type {!ListLikeTransformer} */ (
-                    rule.at(Nonterminals.TEMPLATE).desugar(definitionEnv));
+                    rule.at(TEMPLATE).desugar(definitionEnv));
                 const transformer = new Transformer(pattern, template);
                 this.transformers_.push(transformer);
             }

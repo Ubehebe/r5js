@@ -28,7 +28,49 @@ const Vector = goog.require('r5js.ast.Vector');
 const util = goog.require('r5js.ast.util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = goog.require('r5js.ast.List');
-const {Nonterminal, Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {
+    ALTERNATE,
+    ASSIGNMENT,
+    COMMAND,
+    COMMAND_OR_DEFINITION,
+    CONDITIONAL,
+    CONSEQUENT,
+    DATUM,
+    DATUMS,
+    DEFINITION,
+    EXPRESSION,
+    FORMALS,
+    KEYWORD,
+    LAMBDA_EXPRESSION,
+    LIST_QQ_TEMPLATE,
+    LITERAL,
+    MACRO_BLOCK,
+    MACRO_USE,
+    OPERAND,
+    OPERATOR,
+    PATTERN,
+    PATTERN_DATUM,
+    PATTERN_IDENTIFIER,
+    PROCEDURE_CALL,
+    PROGRAM,
+    QUASIQUOTATION,
+    QUOTATION,
+    QQ_TEMPLATE,
+    QQ_TEMPLATE_OR_SPLICE,
+    SELF_EVALUATING,
+    SPLICING_UNQUOTATION,
+    SYNTAX_DEFINITION,
+    SYNTAX_RULE,
+    SYNTAX_SPEC,
+    TEMPLATE,
+    TEMPLATE_DATUM,
+    TEST,
+    TRANSFORMER_SPEC,
+    UNQUOTATION,
+    VARIABLE,
+    VECTOR_QQ_TEMPLATE,
+    Nonterminal,
+} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {RenameHelper} = require('/js/ast/rename_helper_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
@@ -115,7 +157,7 @@ class ParserImpl {
     }
 
     /** @override */
-    parse(nonterminal=Nonterminals.PROGRAM) {
+    parse(nonterminal=PROGRAM) {
         const parsedRoot = /** @type {!Datum} */ (
             grammar[nonterminal].match(this.datumStream_));
         if (parsedRoot) {
@@ -129,13 +171,13 @@ class ParserImpl {
              but doesn't parse as anything. Occurrences of the empty list under
              the top level are runtime errors (IllegalEmptyApplication) rather
              than parse errors. */
-            if (nonterminal === Nonterminals.PROGRAM &&
+            if (nonterminal === PROGRAM &&
                 parsedRoot != VACUOUS_PROGRAM && !parsedRoot.peekParse()) {
                 return null;
             }
             parsedRoot.setParse(nonterminal);
         }
-        return (nonterminal === Nonterminals.PROGRAM)
+        return (nonterminal === PROGRAM)
             ? maybeFixParserSensitiveIds(parsedRoot)
             : parsedRoot;
     }
@@ -168,7 +210,7 @@ const _ = new RuleFactory(new GrammarImpl());
  | <macro use>
  | <macro block>
  */
-grammar[Nonterminals.EXPRESSION] =
+grammar[EXPRESSION] =
     /* In order to support shadowing of syntactic keywords,
     the order of the following rules is important. Consider:
 
@@ -195,23 +237,23 @@ grammar[Nonterminals.EXPRESSION] =
      JavaScript. That way,  the syntactic keyword could be shadowed
      appropriately. */
     _.choice(
-    _.one(Nonterminals.VARIABLE),
-    _.one(Nonterminals.LITERAL),
-    _.one(Nonterminals.LAMBDA_EXPRESSION),
-    _.one(Nonterminals.CONDITIONAL),
-    _.one(Nonterminals.ASSIGNMENT),
-    _.one(Nonterminals.QUASIQUOTATION).desugar((node, env) =>
+    _.one(VARIABLE),
+    _.one(LITERAL),
+    _.one(LAMBDA_EXPRESSION),
+    _.one(CONDITIONAL),
+    _.one(ASSIGNMENT),
+    _.one(QUASIQUOTATION).desugar((node, env) =>
             (/** @type {!CompoundDatum} */ (node)).setQuasiquotationLevel(1)),
     _.list(
             _.one(Terminals.BEGIN),
-            _.oneOrMore(Nonterminals.EXPRESSION)).
-        desugar((node, env) => node.at(Nonterminals.EXPRESSION).sequence(env)),
-    _.one(Nonterminals.MACRO_BLOCK),
-    _.one(Nonterminals.PROCEDURE_CALL),
-    _.one(Nonterminals.MACRO_USE));
+            _.oneOrMore(EXPRESSION)).
+        desugar((node, env) => node.at(EXPRESSION).sequence(env)),
+    _.one(MACRO_BLOCK),
+    _.one(PROCEDURE_CALL),
+    _.one(MACRO_USE));
 
 // <variable> -> <any <identifier> that isn't also a <syntactic keyword>>
-grammar[Nonterminals.VARIABLE] = _.seq(
+grammar[VARIABLE] = _.seq(
     _.matchDatum(datum => {
       const isIdentifier = datum instanceof Identifier;
       if (isIdentifier && isParserSensitiveId(
@@ -222,25 +264,25 @@ grammar[Nonterminals.VARIABLE] = _.seq(
     }));
 
 // <literal> -> <quotation> | <self-evaluating>
-grammar[Nonterminals.LITERAL] = _.choice(
-    _.one(Nonterminals.SELF_EVALUATING),
-    _.one(Nonterminals.QUOTATION));
+grammar[LITERAL] = _.choice(
+    _.one(SELF_EVALUATING),
+    _.one(QUOTATION));
 
 
 // <quotation> -> '<datum> | (quote <datum>)
-grammar[Nonterminals.QUOTATION] = _.seq(
+grammar[QUOTATION] = _.seq(
     // Terminals.QUOTE has already been canonicalized as Terminals.TICK
     // (see read.bnf.Seq_#maybeCanonicalize).
     _.one(Terminals.TICK),
-    _.one(Nonterminals.DATUM));
+    _.one(DATUM));
 
 
-grammar[Nonterminals.DATUM] = _.seq(
+grammar[DATUM] = _.seq(
     _.matchDatum(datum => true));
 
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
-grammar[Nonterminals.SELF_EVALUATING] = _.seq(
+grammar[SELF_EVALUATING] = _.seq(
     _.matchDatum(datum => {
       const ans = (datum instanceof SimpleDatum
           && !(datum instanceof Identifier))
@@ -256,13 +298,13 @@ grammar[Nonterminals.SELF_EVALUATING] = _.seq(
 // <procedure call> -> (<operator> <operand>*)
 // <operator> -> <expression>
 // <operand> -> <expression>
-grammar[Nonterminals.PROCEDURE_CALL] = _.list(
-    _.one(Nonterminals.OPERATOR),
-    _.zeroOrMore(Nonterminals.OPERAND)).
+grammar[PROCEDURE_CALL] = _.list(
+    _.one(OPERATOR),
+    _.zeroOrMore(OPERAND)).
         desugar((node, env) => {
-      const operatorNode = node.at(Nonterminals.OPERATOR);
+      const operatorNode = node.at(OPERATOR);
       // will be null if 0 operands
-      const operands = node.at(Nonterminals.OPERAND);
+      const operands = node.at(OPERAND);
 
       if (operatorNode instanceof Identifier) {
         return new ProcCall(operatorNode, operands);
@@ -281,25 +323,23 @@ grammar[Nonterminals.PROCEDURE_CALL] = _.list(
         });
 
 
-grammar[Nonterminals.OPERATOR] = _.one(
-    Nonterminals.EXPRESSION);
+grammar[OPERATOR] = _.one(EXPRESSION);
 
 
-grammar[Nonterminals.OPERAND] = _.one(
-    Nonterminals.EXPRESSION);
+grammar[OPERAND] = _.one(EXPRESSION);
 
 
 // <lambda expression> -> (lambda <formals> <body>)
 // <body> -> <definition>* <sequence>
 // <sequence> -> <command>* <expression>
 // <command> -> <expression>
-grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
+grammar[LAMBDA_EXPRESSION] = _.list(
     _.one(Terminals.LAMBDA),
-    _.one(Nonterminals.FORMALS),
-    _.zeroOrMore(Nonterminals.DEFINITION),
-    _.oneOrMore(Nonterminals.EXPRESSION)).
+    _.one(FORMALS),
+    _.zeroOrMore(DEFINITION),
+    _.oneOrMore(EXPRESSION)).
         desugar((node, env) => {
-      const formalRoot = node.at(Nonterminals.FORMALS);
+      const formalRoot = node.at(FORMALS);
       let formals;
       let treatAsDotted = false;
 
@@ -368,12 +408,12 @@ grammar[Nonterminals.LAMBDA_EXPRESSION] = _.list(
  */
 
 // <formals> -> (<variable>*) | <variable> | (<variable>+ . <variable>)
-grammar[Nonterminals.FORMALS] = _.choice(
-    _.list(_.zeroOrMore(Nonterminals.VARIABLE)),
-    _.one(Nonterminals.VARIABLE),
+grammar[FORMALS] = _.choice(
+    _.list(_.zeroOrMore(VARIABLE)),
+    _.one(VARIABLE),
     _.dottedList(
-        _.oneOrMore(Nonterminals.VARIABLE),
-        _.one(Nonterminals.VARIABLE)));
+        _.oneOrMore(VARIABLE),
+        _.one(VARIABLE)));
 
 
 /**
@@ -382,11 +422,11 @@ grammar[Nonterminals.FORMALS] = _.choice(
  * | (begin <definition>*)
  * | <def formals> -> <variable>* | <variable>* . <variable>
  */
-grammar[Nonterminals.DEFINITION] = _.choice(
+grammar[DEFINITION] = _.choice(
     _.list(
         _.one(Terminals.DEFINE),
-        _.one(Nonterminals.VARIABLE),
-        _.one(Nonterminals.EXPRESSION)).desugar((node, env) => {
+        _.one(VARIABLE),
+        _.one(EXPRESSION)).desugar((node, env) => {
       /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
                 to a procedure are intercepted in the SchemeProcedure
@@ -394,7 +434,7 @@ grammar[Nonterminals.DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      const variable = /** @type {!SimpleDatum} */ (node.at(Nonterminals.VARIABLE));
+      const variable = /** @type {!SimpleDatum} */ (node.at(VARIABLE));
       const desugaredExpr = /** @type {!ProcCallLike} */ (variable.getNextSibling().desugar(env, true));
       const last = getLastProcCallLike(desugaredExpr);
       const cpsName = last.getResultName();
@@ -404,9 +444,9 @@ grammar[Nonterminals.DEFINITION] = _.choice(
     }),
     _.list(
         _.one(Terminals.DEFINE),
-        _.list(_.oneOrMore(Nonterminals.VARIABLE)),
-        _.zeroOrMore(Nonterminals.DEFINITION),
-        _.oneOrMore(Nonterminals.EXPRESSION)).desugar((node, env) => {
+        _.list(_.oneOrMore(VARIABLE)),
+        _.zeroOrMore(DEFINITION),
+        _.oneOrMore(EXPRESSION)).desugar((node, env) => {
       /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
                 to a procedure are intercepted in the SchemeProcedure
@@ -429,10 +469,10 @@ grammar[Nonterminals.DEFINITION] = _.choice(
     _.list(
         _.one(Terminals.DEFINE),
         _.dottedList(
-            _.oneOrMore(Nonterminals.VARIABLE),
-            _.one(Nonterminals.VARIABLE)),
-        _.zeroOrMore(Nonterminals.DEFINITION),
-        _.oneOrMore(Nonterminals.EXPRESSION)).desugar((node, env) => {
+            _.oneOrMore(VARIABLE),
+            _.one(VARIABLE)),
+        _.zeroOrMore(DEFINITION),
+        _.oneOrMore(EXPRESSION)).desugar((node, env) => {
       /* If we're here, this must be a top-level definition, so we
                 should rewrite it as an assignment. Definitions internal
                 to a procedure are intercepted in the SchemeProcedure
@@ -458,27 +498,27 @@ grammar[Nonterminals.DEFINITION] = _.choice(
     }),
     _.list(
         _.one(Terminals.BEGIN),
-        _.zeroOrMore(Nonterminals.DEFINITION)).
+        _.zeroOrMore(DEFINITION)).
     desugar((node, env) => {
-      const def = node.at(Nonterminals.DEFINITION);
+      const def = node.at(DEFINITION);
       return def && def.sequence(env);
         }));
 
 
 // <conditional> -> (if <test> <consequent> <alternate>)
-grammar[Nonterminals.CONDITIONAL] = _.choice(
+grammar[CONDITIONAL] = _.choice(
     _.list(
         _.one(Terminals.IF),
-        _.one(Nonterminals.TEST),
-        _.one(Nonterminals.CONSEQUENT),
-        _.one(Nonterminals.ALTERNATE)).
+        _.one(TEST),
+        _.one(CONSEQUENT),
+        _.one(ALTERNATE)).
     desugar((node, env) => {
       const test = /** @type {!ProcCallLike} */ (
-          node.at(Nonterminals.TEST).desugar(env, true));
+          node.at(TEST).desugar(env, true));
       const consequent = /** @type {!ProcCall} */ (
-          node.at(Nonterminals.CONSEQUENT).desugar(env, true));
+          node.at(CONSEQUENT).desugar(env, true));
       const alternate = /** @type {!ProcCall} */ (
-          node.at(Nonterminals.ALTERNATE).desugar(env, true));
+          node.at(ALTERNATE).desugar(env, true));
       const testEndpoint = getLastProcCallLike(test);
       const branch = new Branch(testEndpoint.getResultName(),
           consequent, alternate);
@@ -487,12 +527,12 @@ grammar[Nonterminals.CONDITIONAL] = _.choice(
     }),
     _.list(
         _.one(Terminals.IF),
-        _.one(Nonterminals.TEST),
-        _.one(Nonterminals.CONSEQUENT)).desugar((node, env) => {
+        _.one(TEST),
+        _.one(CONSEQUENT)).desugar((node, env) => {
       const test = /** @type {!ProcCallLike} */ (
-          node.at(Nonterminals.TEST).desugar(env, true));
+          node.at(TEST).desugar(env, true));
       const consequent = /** @type {!ProcCall} */ (
-          node.at(Nonterminals.CONSEQUENT).desugar(env, true));
+          node.at(CONSEQUENT).desugar(env, true));
       const testEndpoint = getLastProcCallLike(test);
       const branch = new Branch(
           testEndpoint.getResultName(),
@@ -504,29 +544,25 @@ grammar[Nonterminals.CONDITIONAL] = _.choice(
 
 
 // <test> -> <expression>
-grammar[Nonterminals.TEST] = _.one(
-    Nonterminals.EXPRESSION);
+grammar[TEST] = _.one(EXPRESSION);
 
 
 // <consequent> -> <expression>
-grammar[Nonterminals.CONSEQUENT] = _.one(
-    Nonterminals.EXPRESSION);
+grammar[CONSEQUENT] = _.one(EXPRESSION);
 
 
 // <alternate> -> <expression> | <empty>
-grammar[Nonterminals.ALTERNATE] = _.one(
-    Nonterminals.EXPRESSION);
+grammar[ALTERNATE] = _.one(EXPRESSION);
 
 
 // <assignment> -> (set! <variable> <expression>)
-grammar[Nonterminals.ASSIGNMENT] = _.list(
+grammar[ASSIGNMENT] = _.list(
     _.one(Terminals.SET),
-    _.one(Nonterminals.VARIABLE),
-    _.one(Nonterminals.EXPRESSION)).
+    _.one(VARIABLE),
+    _.one(EXPRESSION)).
         desugar((node, env) => {
       // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
-      const variable = /** @type {!SimpleDatum} */ (
-          node.at(Nonterminals.VARIABLE));
+      const variable = /** @type {!SimpleDatum} */ (node.at(VARIABLE));
       const desugaredExpr = /** @type {!ProcCallLike} */ (
           variable.getNextSibling().desugar(env, true));
       const lastContinuable = getLastProcCallLike(desugaredExpr);
@@ -539,11 +575,11 @@ grammar[Nonterminals.ASSIGNMENT] = _.list(
 
 // <quasiquotation> -> <quasiquotation 1>
 // <quasiquotation D> -> `<qq template D> | (quasiquote <qq template D>)
-grammar[Nonterminals.QUASIQUOTATION] = _.seq(
+grammar[QUASIQUOTATION] = _.seq(
     // Terminals.QUASIQUOTE has already been canonicalized as
     // Terminals.BACKTICK (see read.bnf.Seq_#maybeCanonicalize)
     _.one(Terminals.BACKTICK),
-    _.one(Nonterminals.QQ_TEMPLATE));
+    _.one(QQ_TEMPLATE));
 
 
 /* <qq template 0> -> <expression>
@@ -552,11 +588,11 @@ grammar[Nonterminals.QUASIQUOTATION] = _.seq(
  | <vector qq template D>
  | <unquotation D>
  */
-grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
+grammar[QQ_TEMPLATE] = _.choice(
     _.matchDatum(datum => datum instanceof SimpleDatum),
-    _.one(Nonterminals.LIST_QQ_TEMPLATE),
-    _.one(Nonterminals.VECTOR_QQ_TEMPLATE),
-    _.one(Nonterminals.UNQUOTATION));
+    _.one(LIST_QQ_TEMPLATE),
+    _.one(VECTOR_QQ_TEMPLATE),
+    _.one(UNQUOTATION));
 
 
 /*<list qq template D> -> (<qq template or splice D>*)
@@ -564,101 +600,101 @@ grammar[Nonterminals.QQ_TEMPLATE] = _.choice(
  | '<qq template D>
  | <quasiquotation D+1>
  */
-grammar[Nonterminals.LIST_QQ_TEMPLATE] = _.choice(
-    _.list(_.zeroOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE)),
+grammar[LIST_QQ_TEMPLATE] = _.choice(
+    _.list(_.zeroOrMore(QQ_TEMPLATE_OR_SPLICE)),
     _.dottedList(
-        _.oneOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE),
-        _.one(Nonterminals.QQ_TEMPLATE_OR_SPLICE)),
+        _.oneOrMore(QQ_TEMPLATE_OR_SPLICE),
+        _.one(QQ_TEMPLATE_OR_SPLICE)),
     _.seq(
         _.one(Terminals.TICK),
-        _.one(Nonterminals.QQ_TEMPLATE)),
-    _.one(Nonterminals.QUASIQUOTATION));
+        _.one(QQ_TEMPLATE)),
+    _.one(QUASIQUOTATION));
 
 
 // <vector qq template D> -> #(<qq template or splice D>*)
-grammar[Nonterminals.VECTOR_QQ_TEMPLATE] =
+grammar[VECTOR_QQ_TEMPLATE] =
     _.vector(
-        _.zeroOrMore(Nonterminals.QQ_TEMPLATE_OR_SPLICE));
+        _.zeroOrMore(QQ_TEMPLATE_OR_SPLICE));
 
 
 // <unquotation D> -> ,<qq template D-1> | (unquote <qq template D-1>)
-grammar[Nonterminals.UNQUOTATION] = _.seq(
+grammar[UNQUOTATION] = _.seq(
     // Terminals.QUOTE has already been canonicalized as Terminals.COMMA
     // (see read.bnf.Seq_.#maybeCanonicalize).
     _.one(Terminals.COMMA),
-    _.one(Nonterminals.QQ_TEMPLATE));
+    _.one(QQ_TEMPLATE));
 
 
 // <qq template or splice D> -> <qq template D> | <splicing unquotation D>
-grammar[Nonterminals.QQ_TEMPLATE_OR_SPLICE] = _.choice(
-    _.seq(_.one(Nonterminals.QQ_TEMPLATE)), // TODO bl one-element sequence
-    _.one(Nonterminals.SPLICING_UNQUOTATION));
+grammar[QQ_TEMPLATE_OR_SPLICE] = _.choice(
+    _.seq(_.one(QQ_TEMPLATE)), // TODO bl one-element sequence
+    _.one(SPLICING_UNQUOTATION));
 
 
 /* <splicing unquotation D> -> ,@<qq template D-1>
  | (unquote-splicing <qq template D-1>)
  */
-grammar[Nonterminals.SPLICING_UNQUOTATION] = _.seq(
+grammar[SPLICING_UNQUOTATION] = _.seq(
     // Terminals.UNQUOTE_SPLICING has already been canonicalized as
     // Terminals.COMMA_AT (see read.bnf.Seq_#maybeCanonicalize).
     _.one(Terminals.COMMA_AT),
-    _.one(Nonterminals.QQ_TEMPLATE));
+    _.one(QQ_TEMPLATE));
 
 // <macro use> -> (<keyword> <datum>*)
-grammar[Nonterminals.MACRO_USE] = _.list(
-    _.one(Nonterminals.KEYWORD),
-    _.zeroOrMore(Nonterminals.DATUM)).
+grammar[MACRO_USE] = _.list(
+    _.one(KEYWORD),
+    _.zeroOrMore(DATUM)).
         desugar((node, env) => {
       /* Desugaring of a macro use is trivial. We must leave the "argument"
                 datums as-is for the macro pattern matching facility to use.
                 The trampoline knows what to do with raw datums in such a
                 context. */
       return new ProcCall(
-          /** @type {!Identifier} */ (node.at(Nonterminals.KEYWORD)),
-          node.at(Nonterminals.DATUM));
+          /** @type {!Identifier} */ (node.at(KEYWORD)),
+          node.at(DATUM));
     });
 
 
 // <keyword> -> <identifier>
-grammar[Nonterminals.KEYWORD] = _.seq(
+grammar[KEYWORD] = _.seq(
     _.matchDatum(datum => datum instanceof Identifier));
 
 
 /* <macro block> -> (let-syntax (<syntax spec>*) <body>)
  | (letrec-syntax (<syntax-spec>*) <body>) */
-grammar[Nonterminals.MACRO_BLOCK] = _.choice(
+grammar[MACRO_BLOCK] = _.choice(
     _.list(
         _.one(Terminals.LET_SYNTAX),
-        _.list(_.zeroOrMore(Nonterminals.SYNTAX_SPEC)),
-        _.zeroOrMore(Nonterminals.DEFINITION),
-        _.oneOrMore(Nonterminals.EXPRESSION)).
+        _.list(_.zeroOrMore(SYNTAX_SPEC)),
+        _.zeroOrMore(DEFINITION),
+        _.oneOrMore(EXPRESSION)).
     desugar((node, env) => desugarMacroBlock(node, env, 'let')),
     _.list(
         _.one(Terminals.LETREC_SYNTAX),
-        _.list(_.zeroOrMore(Nonterminals.SYNTAX_SPEC)),
-        _.zeroOrMore(Nonterminals.DEFINITION),
-        _.oneOrMore(Nonterminals.EXPRESSION)).
+        _.list(_.zeroOrMore(SYNTAX_SPEC)),
+        _.zeroOrMore(DEFINITION),
+        _.oneOrMore(EXPRESSION)).
     desugar((node, env) => desugarMacroBlock(node, env, 'letrec')));
 
 
 // <syntax spec> -> (<keyword> <transformer spec>)
-grammar[Nonterminals.SYNTAX_SPEC] = _.list(
-    _.one(Nonterminals.KEYWORD),
-    _.one(Nonterminals.TRANSFORMER_SPEC));
+grammar[SYNTAX_SPEC] = _.list(
+    _.one(KEYWORD),
+    _.one(TRANSFORMER_SPEC));
 
 
 // <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
-grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
+grammar[TRANSFORMER_SPEC] = _.list(
     _.one(Terminals.SYNTAX_RULES),
-    _.list(_.zeroOrMore(Nonterminals.PATTERN_IDENTIFIER)),
-    _.zeroOrMore(Nonterminals.SYNTAX_RULE)).
+    _.list(_.zeroOrMore(PATTERN_IDENTIFIER)),
+    _.zeroOrMore(SYNTAX_RULE)).
         desugar((node, env) => {
       /*4.3.2: It is an error for ... to appear in <literals>.
                 So we can reuse the pattern-identifier nonterminal
                 to check this in the parser. Win! */
       const ids = (/** @type {!CompoundDatum} */ (node)).firstSublist().
-          at(Nonterminals.PATTERN_IDENTIFIER);
-      const rules = node.at(Nonterminals.SYNTAX_RULE);
+          at(PATTERN_IDENTIFIER);
+      const rules = node.at(SYNTAX_RULE);
       // todo bl implement: It is an error for the same pattern
       // variable to appear more than once in a <pattern>.
       return new Macro(ids, /** @type {!Datum} */(rules), env);
@@ -666,9 +702,9 @@ grammar[Nonterminals.TRANSFORMER_SPEC] = _.list(
 
 
 // <syntax rule> -> (<pattern> <template>)
-grammar[Nonterminals.SYNTAX_RULE] = _.list(
-    _.one(Nonterminals.PATTERN),
-    _.one(Nonterminals.TEMPLATE));
+grammar[SYNTAX_RULE] = _.list(
+    _.one(PATTERN),
+    _.one(TEMPLATE));
 
 
 /* <pattern> -> <pattern identifier>
@@ -679,13 +715,13 @@ grammar[Nonterminals.SYNTAX_RULE] = _.list(
  | #(<pattern>+ <ellipsis>)
  | <pattern datum>
  */
-grammar[Nonterminals.PATTERN] = _.choice(
+grammar[PATTERN] = _.choice(
     _.list(
-        _.oneOrMore(Nonterminals.PATTERN),
+        _.oneOrMore(PATTERN),
         _.one(Terminals.ELLIPSIS)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.list();
-      for (let cur = node.at(Nonterminals.PATTERN);
+      for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
@@ -703,11 +739,11 @@ grammar[Nonterminals.PATTERN] = _.choice(
       return ans;
     }),
     _.vector(
-        _.oneOrMore(Nonterminals.PATTERN),
+        _.oneOrMore(PATTERN),
         _.one(Terminals.ELLIPSIS)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.vector();
-      for (let cur = node.at(Nonterminals.PATTERN);
+      for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
@@ -724,12 +760,12 @@ grammar[Nonterminals.PATTERN] = _.choice(
       }
       return ans;
     }),
-    _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(node =>
+    _.one(PATTERN_IDENTIFIER).desugar(node =>
       MacroIdTransformer.pattern(/** @type {!SimpleDatum} */ (node))),
-    _.list(_.zeroOrMore(Nonterminals.PATTERN)).
+    _.list(_.zeroOrMore(PATTERN)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.list();
-      for (let cur = node.at(Nonterminals.PATTERN);
+      for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         ans.addSubtransformer(/** @type {!Subtransformer} */(
@@ -739,13 +775,13 @@ grammar[Nonterminals.PATTERN] = _.choice(
     }),
     _.seq(
         _.one(Terminals.LPAREN),
-        _.oneOrMore(Nonterminals.PATTERN),
+        _.oneOrMore(PATTERN),
         _.one(Terminals.DOT),
-        _.one(Nonterminals.PATTERN),
+        _.one(PATTERN),
         _.one(Terminals.RPAREN)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.dottedList();
-      for (let cur = node.at(Nonterminals.PATTERN);
+      for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         ans.addSubtransformer(/** @type {!Subtransformer} */(
@@ -753,10 +789,10 @@ grammar[Nonterminals.PATTERN] = _.choice(
       }
       return ans;
     }),
-    _.vector(_.zeroOrMore(Nonterminals.PATTERN)).
+    _.vector(_.zeroOrMore(PATTERN)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.vector();
-      for (let cur = node.at(Nonterminals.PATTERN);
+      for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
         ans.addSubtransformer(/** @type {!Subtransformer} */ (
@@ -764,11 +800,11 @@ grammar[Nonterminals.PATTERN] = _.choice(
       }
       return ans;
     }),
-    _.one(Nonterminals.PATTERN_DATUM).desugar(node =>
+    _.one(PATTERN_DATUM).desugar(node =>
       MacroIdTransformer.pattern(/** @type {!SimpleDatum} */ (node))));
 
 // <pattern datum> -> <string> | <character> | <boolean> | <number>
-grammar[Nonterminals.PATTERN_DATUM] = _.seq(
+grammar[PATTERN_DATUM] = _.seq(
     _.matchDatum(datum => datum instanceof SimpleDatum && !(datum instanceof Identifier)));
 
 
@@ -796,18 +832,18 @@ grammar[Nonterminals.PATTERN_DATUM] = _.seq(
  Anyway, the rules for validating templates with ellipses in them are vague
  (4.3.2: "It is an error if the output cannot be built up [from the template]
  as specified") and I can do this during evaluation of a macro if necessary. */
-grammar[Nonterminals.TEMPLATE] = _.choice(
-    _.one(Nonterminals.PATTERN_IDENTIFIER).desugar(node =>
+grammar[TEMPLATE] = _.choice(
+    _.one(PATTERN_IDENTIFIER).desugar(node =>
       MacroIdTransformer.template(/** @type {!SimpleDatum} */(node))),
     _.seq(_.one(Terminals.ELLIPSIS)), // TODO bl one-element sequence
-    _.one(Nonterminals.TEMPLATE_DATUM).desugar(node =>
+    _.one(TEMPLATE_DATUM).desugar(node =>
       MacroIdTransformer.template(/** @type {!SimpleDatum} */ (node))),
     _.dottedList(
-        _.oneOrMore(Nonterminals.TEMPLATE),
-        _.one(Nonterminals.TEMPLATE)).
+        _.oneOrMore(TEMPLATE),
+        _.one(TEMPLATE)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.dottedList();
-      for (let cur = node.at(Nonterminals.TEMPLATE);
+      for (let cur = node.at(TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
@@ -825,10 +861,10 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
 
       return ans;
     }),
-    _.list(_.zeroOrMore(Nonterminals.TEMPLATE)).
+    _.list(_.zeroOrMore(TEMPLATE)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.list();
-      for (let cur = node.at(Nonterminals.TEMPLATE);
+      for (let cur = node.at(TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
@@ -845,10 +881,10 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
       }
       return ans;
     }),
-    _.vector(_.zeroOrMore(Nonterminals.TEMPLATE)).
+    _.vector(_.zeroOrMore(TEMPLATE)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.vector();
-      for (let cur = node.at(Nonterminals.TEMPLATE);
+      for (let cur = node.at(TEMPLATE);
            cur;
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
@@ -867,28 +903,28 @@ grammar[Nonterminals.TEMPLATE] = _.choice(
     }),
     _.seq(
         _.one(Terminals.TICK),
-        _.one(Nonterminals.TEMPLATE)).
+        _.one(TEMPLATE)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.quote();
       ans.addSubtransformer(/** @type {!Subtransformer} */ (
-          node.at(Nonterminals.TEMPLATE).desugar(env)));
+          node.at(TEMPLATE).desugar(env)));
       return ans;
     }));
 
 
 // <template datum> -> <pattern datum>
-grammar[Nonterminals.TEMPLATE_DATUM] = _.one(
-    Nonterminals.PATTERN_DATUM);
+grammar[TEMPLATE_DATUM] = _.one(
+    PATTERN_DATUM);
 
 
 // <pattern identifier> -> <any identifier except ...>
-grammar[Nonterminals.PATTERN_IDENTIFIER] = _.seq(
+grammar[PATTERN_IDENTIFIER] = _.seq(
     _.matchDatum(datum => datum instanceof Identifier && datum.getPayload() !== Terminals.ELLIPSIS));
 
 
 // <program> -> <command or definition>*
-grammar[Nonterminals.PROGRAM] = _.seq(
-    _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
+grammar[PROGRAM] = _.seq(
+    _.zeroOrMore(COMMAND_OR_DEFINITION)).
         desugar((node, env) =>
       // VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of a
       // special case that I don't care.
@@ -900,36 +936,36 @@ grammar[Nonterminals.PROGRAM] = _.seq(
  | <syntax definition>
  | (begin <command or definition>*)
  */
-grammar[Nonterminals.COMMAND_OR_DEFINITION] = _.choice(
-    _.one(Nonterminals.DEFINITION),
-    _.one(Nonterminals.SYNTAX_DEFINITION),
-    _.one(Nonterminals.DEFINITION),
-    _.one(Nonterminals.SYNTAX_DEFINITION),
+grammar[COMMAND_OR_DEFINITION] = _.choice(
+    _.one(DEFINITION),
+    _.one(SYNTAX_DEFINITION),
+    _.one(DEFINITION),
+    _.one(SYNTAX_DEFINITION),
     _.list(
         _.one(Terminals.BEGIN),
-        _.zeroOrMore(Nonterminals.COMMAND_OR_DEFINITION)).
+        _.zeroOrMore(COMMAND_OR_DEFINITION)).
     desugar((node, env) => {
-      const firstCommand = node.at(Nonterminals.COMMAND_OR_DEFINITION);
+      const firstCommand = node.at(COMMAND_OR_DEFINITION);
       return firstCommand && firstCommand.sequence(env);
         }),
-    _.one(Nonterminals.COMMAND));
+    _.one(COMMAND));
 
 
 // <command> -> <expression>
-grammar[Nonterminals.COMMAND] = _.one(
-    Nonterminals.EXPRESSION);
+grammar[COMMAND] = _.one(
+    EXPRESSION);
 
 
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
-grammar[Nonterminals.SYNTAX_DEFINITION] = _.list(
+grammar[SYNTAX_DEFINITION] = _.list(
     _.one(Terminals.DEFINE_SYNTAX),
-    _.one(Nonterminals.KEYWORD),
-    _.one(Nonterminals.TRANSFORMER_SPEC)).
+    _.one(KEYWORD),
+    _.one(TRANSFORMER_SPEC)).
         desugar((node, env) => {
       const kw = (/** @type {!Identifier} */ (node.at(
-          Nonterminals.KEYWORD))).getPayload();
+          KEYWORD))).getPayload();
       const macro = /** @type {!Macro} */ (
-          node.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
+          node.at(TRANSFORMER_SPEC).desugar(env));
       if (!macro.allPatternsBeginWith(kw))
         throw Error.macro(kw, 'all patterns must begin with ' + kw);
       const anonymousName = newAnonymousLambdaName();
@@ -987,9 +1023,9 @@ function desugarMacroBlock(datum, env, operatorName) {
 
     datum.firstSublist().forEachChild(spec => {
         spec = /** @type {!CompoundDatum} */ (spec); // TODO bl
-        const kw = spec.at(Nonterminals.KEYWORD).clone(null /* parent */);
+        const kw = spec.at(KEYWORD).clone(null /* parent */);
         const macro = /** @type {!Macro} */ (
-            spec.at(Nonterminals.TRANSFORMER_SPEC).desugar(env));
+            spec.at(TRANSFORMER_SPEC).desugar(env));
         const buf = new SiblingBuffer();
         /* We have to wrap the SchemeMacro object in a Datum to get it into
          the parse tree. */

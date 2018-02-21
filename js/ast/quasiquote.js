@@ -7,7 +7,7 @@ const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules
 const Quote = goog.require('r5js.ast.Quote');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
-const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {EXPRESSION} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class Quasiquote extends CompoundDatum {
@@ -58,7 +58,7 @@ class Quasiquote extends CompoundDatum {
                 node = /** @type {!CompoundDatum} */ (node); // TODO bl
                 const asContinuable = (/** @type {!ProcCallLike} */ (parserProvider(
                     /** @type {!Datum} */(node.getFirstChild())).
-                    parse(Nonterminals.EXPRESSION).
+                    parse(EXPRESSION).
                     desugar(env, true)));
                 /* Throw out the last result name and replace it with another
                  identifier (also illegal in Scheme) that will let us know if it's

@@ -6,7 +6,7 @@ const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules
 const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const {List} = goog.require('r5js.ast.List');
-const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {EXPRESSION, VARIABLE} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 /**
@@ -19,9 +19,9 @@ const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_mo
  * @return {!CompoundDatum} A datum representing the given datum's definition.
  */
 function extractDefinition(datum) {
-  let variable = datum.at(Nonterminals.VARIABLE);
+  let variable = datum.at(VARIABLE);
   if (variable) {
-    const expr = datum.at(Nonterminals.EXPRESSION);
+    const expr = datum.at(EXPRESSION);
     variable.setNextSibling(null); // TODO bl
     return new SiblingBuffer()
         .appendSibling(variable)

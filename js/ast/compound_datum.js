@@ -5,7 +5,7 @@ const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__ma
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const {isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
-const {Nonterminal, Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {DEFINITION, FORMALS, LAMBDA_EXPRESSION, Nonterminal, VARIABLE} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {RenameHelper} = require('/js/ast/rename_helper_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
 
 class CompoundDatum extends Datum {
@@ -66,9 +66,9 @@ class CompoundDatum extends Datum {
 
     /** @override */
     fixParserSensitiveIds(helper) {
-        if (this.hasParse(Nonterminals.LAMBDA_EXPRESSION)) {
+        if (this.hasParse(LAMBDA_EXPRESSION)) {
             this.fixParserSensitiveIdsLambda_(helper);
-        } else if (this.hasParse(Nonterminals.DEFINITION)) {
+        } else if (this.hasParse(DEFINITION)) {
             this.fixParserSensitiveIdsDef_(helper);
         } else {
             for (let cur = this.firstChild_; cur; cur = cur.getNextSibling()) {
@@ -84,7 +84,7 @@ class CompoundDatum extends Datum {
      * @private
      */
     fixParserSensitiveIdsLambda_(helper) {
-        const formalRoot = this.at(Nonterminals.FORMALS);
+        const formalRoot = this.at(FORMALS);
         const newHelper = new RenameHelper(helper);
 
         if (formalRoot instanceof Identifier) { // (lambda x ...)
@@ -112,7 +112,7 @@ class CompoundDatum extends Datum {
      * @private
      */
     fixParserSensitiveIdsDef_(helper) {
-        const maybeVar = /** @type {?Identifier} */ (this.at(Nonterminals.VARIABLE));
+        const maybeVar = /** @type {?Identifier} */ (this.at(VARIABLE));
         let id;
 
         if (maybeVar) { // (define foo +)

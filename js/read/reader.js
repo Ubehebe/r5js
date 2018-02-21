@@ -17,7 +17,7 @@ const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');
 const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {Nonterminals} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {DATUM, DATUMS} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 /** @interface */
@@ -59,7 +59,7 @@ const _ = new RuleFactory(new GrammarImpl());
 // <vector> -> #(<datum>*)
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
-grammar[Nonterminals.DATUM.toString()] = _.choice(
+grammar[DATUM.toString()] = _.choice(
     _.onePrimitive(Identifier),
     _.onePrimitive(Boolean),
     _.onePrimitive(Number),
@@ -67,40 +67,40 @@ grammar[Nonterminals.DATUM.toString()] = _.choice(
     _.onePrimitive(String),
     _.seq(
         _.one(Terminals.LPAREN),
-        _.zeroOrMore(Nonterminals.DATUM),
+        _.zeroOrMore(DATUM),
         _.one(Terminals.RPAREN))
         .named(List),
     _.seq(
         _.one(Terminals.LPAREN),
-        _.oneOrMore(Nonterminals.DATUM),
+        _.oneOrMore(DATUM),
         _.one(Terminals.DOT),
-        _.one(Nonterminals.DATUM),
+        _.one(DATUM),
         _.one(Terminals.RPAREN))
         .named(DottedList),
     _.seq(
         _.one(Terminals.LPAREN_VECTOR),
-        _.zeroOrMore(Nonterminals.DATUM),
+        _.zeroOrMore(DATUM),
         _.one(Terminals.RPAREN))
         .named(Vector),
     _.seq(
         _.one(Terminals.TICK),
-        _.one(Nonterminals.DATUM))
+        _.one(DATUM))
         .named(Quote),
     _.seq(
         _.one(Terminals.BACKTICK),
-        _.one(Nonterminals.DATUM))
+        _.one(DATUM))
         .named(Quasiquote),
     _.seq(
         _.one(Terminals.COMMA),
-        _.one(Nonterminals.DATUM))
+        _.one(DATUM))
         .named(Unquote),
     _.seq(
         _.one(Terminals.COMMA_AT),
-        _.one(Nonterminals.DATUM))
+        _.one(DATUM))
         .named(UnquoteSplicing));
 
 
-grammar[Nonterminals.DATUMS.toString()] = _.zeroOrMore(Nonterminals.DATUM);
+grammar[DATUMS.toString()] = _.zeroOrMore(DATUM);
 
 /** @implements {Reader} */
 class Impl {
@@ -111,7 +111,7 @@ class Impl {
 
     /** @override */
     read() {
-        const ans = grammar[Nonterminals.DATUMS.toString()].match(this.scanner_);
+        const ans = grammar[DATUMS.toString()].match(this.scanner_);
         // All of the input tokens must be consumed for success.
         const nextToken = this.scanner_.nextToken();
         if (nextToken) {
