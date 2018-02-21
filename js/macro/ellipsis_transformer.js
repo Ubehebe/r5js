@@ -1,7 +1,7 @@
 goog.module('r5js.EllipsisTransformer');
 
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const SiblingBuffer = goog.require('r5js.SiblingBuffer');
+const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const Subtransformer = goog.require('r5js.Subtransformer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 

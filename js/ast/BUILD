@@ -18,7 +18,6 @@ closure_js_library(
         ":quasiquote",
         ":quote",
         ":rename_helper",
-        ":sibling_buffer",
         ":type",
         ":unquote",
         ":unquote_splicing",
@@ -37,7 +36,6 @@ closure_js_library(
     deps = [
         ":datum",
         ":rename_helper",
-        ":sibling_buffer",
         "//js/parse:nonterminals",
         "//js/parse:rename_util",
     ],
@@ -55,6 +53,7 @@ ts_library(
         "identifier.ts",
         "number.ts",
         "ref.ts",
+        "sibling_buffer.ts",
         "simple_datum.ts",
         "string.ts",
     ],
@@ -110,7 +109,6 @@ closure_js_library(
         ":compound_datum",
         ":datum",
         ":ipair",
-        ":sibling_buffer",
         "//js:error",
     ],
 )
@@ -181,19 +179,6 @@ closure_ts_library(
     ],
 )
 
-closure_js_library(
-    name = "sibling_buffer",
-    srcs = [
-        "sibling_buffer.js",
-    ],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":datum",
-    ],
-)
-
 ts_library(
     name = "type_ts",
     srcs = ["type.ts"],
@@ -233,9 +218,8 @@ closure_js_library(
     ],
     deps = [
         ":compound_datum",
-        ":list",
-        ":sibling_buffer",
         ":datum",
+        ":list",
         "//js/parse:nonterminals",
         "//js/parse:terminals",
     ],
