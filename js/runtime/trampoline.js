@@ -1,6 +1,6 @@
 goog.module('r5js.trampoline');
 
-const InputPort = goog.require('r5js.InputPort');
+const {InputPort} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
 const {OutputPort} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {ParserImpl} = goog.require('r5js.ParserImpl');

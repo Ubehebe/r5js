@@ -3,7 +3,7 @@ goog.setTestOnly('r5js.test.SchemeTest');
 
 const AsyncEvaluator = goog.require('r5js.async.Evaluator.Impl');
 const {CallbackBackedPort} = require('/js/io/callback_backed_port_collect_es6_sources.es6/node_modules/__main__/js/io/callback_backed_port');
-const InputPort = goog.require('r5js.InputPort');
+const {NULL_INPUT_PORT} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const LogLevel = goog.require('tdd.LogLevel');
 const LogRecord = goog.require('tdd.LogRecord');
 const Logger = goog.require('goog.log.Logger');
@@ -15,7 +15,7 @@ goog.require('goog.testing.jsunit');
 
 /** @type {Logger} */ const logger = log.getLogger('r5js.test.SchemeTest!');
 /** @type {!SchemeSources} */ const sources = SchemeSources.get();
-/** @type {!AsyncEvaluator} */ const evaluator = new AsyncEvaluator(InputPort.NULL, new CallbackBackedPort(handleWriteFromScheme));
+/** @type {!AsyncEvaluator} */ const evaluator = new AsyncEvaluator(NULL_INPUT_PORT, new CallbackBackedPort(handleWriteFromScheme));
 
 /**
  * Runs the unit tests written in Scheme (//scm/r5rs-tests.scm, etc.).

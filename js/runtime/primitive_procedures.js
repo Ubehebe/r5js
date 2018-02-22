@@ -10,7 +10,7 @@ const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules
 const DynamicWindContinuation = goog.require('r5js.DynamicWindContinuation');
 const EOF = goog.require('r5js.runtime.EOF');
 const Environment = goog.require('r5js.Environment');
-const InputPort = goog.require('r5js.InputPort');
+const {isInputPortImpl} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const Lambda = goog.require('r5js.Lambda');
 const {Number} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
 const ParserImpl = goog.require('r5js.ParserImpl');
@@ -545,7 +545,7 @@ PrimitiveProcedures['will-eval?'] = binary(
 PrimitiveProcedures['char-ready?'] = nullaryOrUnaryWithCurrentPorts(
     (inputPort, outputPort, maybeUserSuppliedInputPort) => {
         const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-        if (!InputPort.isImplementedBy(inputPortToUse)) {
+        if (!isInputPortImpl(inputPortToUse)) {
             throw argumentTypeError(
                 inputPortToUse, 0, 'char-ready?', Types.INPUT_PORT,
                 runtimeType(inputPortToUse));
@@ -597,7 +597,7 @@ PrimitiveProcedures['open-output-file'] = unary(datum =>
 PrimitiveProcedures['peek-char'] = nullaryOrUnaryWithCurrentPorts(
     (inputPort, outputPort, maybeUserSuppliedInputPort) => {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!InputPort.isImplementedBy(inputPortToUse)) {
+      if (!isInputPortImpl(inputPortToUse)) {
         throw argumentTypeError(
             inputPortToUse, 0, 'peek-char', Types.INPUT_PORT,
             runtimeType(inputPortToUse));
@@ -608,7 +608,7 @@ PrimitiveProcedures['peek-char'] = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures['read'] = nullaryOrUnaryWithCurrentPorts(
     (inputPort, outputPort, maybeUserSuppliedInputPort) => {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!InputPort.isImplementedBy(inputPortToUse)) {
+      if (!isInputPortImpl(inputPortToUse)) {
         throw argumentTypeError(
             inputPortToUse, 0, 'read', Types.INPUT_PORT,
             runtimeType(inputPortToUse));
@@ -619,7 +619,7 @@ PrimitiveProcedures['read'] = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures['read-char'] = nullaryOrUnaryWithCurrentPorts(
     (inputPort, outputPort, maybeUserSuppliedInputPort) => {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-      if (!InputPort.isImplementedBy(inputPortToUse)) {
+      if (!isInputPortImpl(inputPortToUse)) {
         throw argumentTypeError(
             inputPortToUse, 0, 'read-char', Types.INPUT_PORT,
             runtimeType(inputPortToUse));

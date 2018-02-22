@@ -2,7 +2,7 @@ goog.module('r5js.test.TestFramework');
 
 const AsyncEvaluator = goog.require('r5js.async.Evaluator.Impl');
 const {CallbackBackedPort} = require('/js/io/callback_backed_port_collect_es6_sources.es6/node_modules/__main__/js/io/callback_backed_port');
-const InputPort = goog.require('r5js.InputPort');
+const {NULL_INPUT_PORT} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const LogLevel = goog.require('tdd.LogLevel');
 const LogRecord = goog.require('tdd.LogRecord');
 const Logger = goog.require('goog.log.Logger');
@@ -36,7 +36,7 @@ class TestFramework {
   execute(logger) {
       this.logger_ = logger;
       const evaluator = new AsyncEvaluator(
-          InputPort.NULL, new CallbackBackedPort(output => this.onWrite_(output)));
+          NULL_INPUT_PORT, new CallbackBackedPort(output => this.onWrite_(output)));
       return evaluator.evaluate(this.sources_.testFramework + this.sources_.testFrameworkTests)
           .then(() => resultIsExpected_(this.actualResult_))
           .then(success => success ? new ResultStruct(1, 0, 0) : new ResultStruct(0, 1, 0))

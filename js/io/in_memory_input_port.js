@@ -2,15 +2,15 @@ goog.module('r5js.InMemoryInputPort');
 
 const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const InputPort = goog.require('r5js.InputPort');
+const {InputPort, addInputPortImpl} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const Reader = goog.require('r5js.Reader');
 const TokenStream = goog.require('r5js.TokenStream');
 const {InMemoryPortBuffer} = require('/js/io/in_memory_port_buffer_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_port_buffer');
 
-/** @implements {InputPort} */
-class InMemoryInputPort {
+class InMemoryInputPort extends InputPort {
     /** @param {!InMemoryPortBuffer} buffer */
     constructor(buffer) {
+        super();
         /** @const @private */ this.buffer_ = buffer;
         /** @private {?Datum} */ this.leftoverDatum_ = null;
     }
@@ -64,6 +64,6 @@ class InMemoryInputPort {
     }
 }
 
-InputPort.addImplementation(InMemoryInputPort);
+addInputPortImpl(InMemoryInputPort);
 
 exports = InMemoryInputPort;

@@ -1,6 +1,6 @@
 goog.module('r5js.async.Evaluator.Impl');
 
-const InputPort = goog.require('r5js.InputPort');
+const {InputPort, NULL_INPUT_PORT} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const Promise = goog.require('goog.Promise');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const {OutputPort, NULL_OUTPUT_PORT} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
@@ -12,7 +12,7 @@ class AsyncEvaluator {
      * @param {!InputPort=} inputPort
      * @param {!OutputPort=} outputPort
      */
-    constructor(inputPort=InputPort.NULL, outputPort=NULL_OUTPUT_PORT) {
+    constructor(inputPort=NULL_INPUT_PORT, outputPort=NULL_OUTPUT_PORT) {
         const sources = new SchemeSources();
         /** @const @private */ this.evaluator_ = boot(sources.syntax, sources.procedures, inputPort, outputPort);
     }

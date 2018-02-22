@@ -3,7 +3,7 @@ goog.module('r5js.valutil');
 const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 const {Datum, UNSPECIFIED_VALUE} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const EOF = goog.require('r5js.runtime.EOF');
-const InputPort = goog.require('r5js.InputPort');
+const {isInputPortImpl} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const Quote = goog.require('r5js.ast.Quote');
 const {Ref} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
 const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
@@ -113,7 +113,7 @@ function toString(includeSigils, value) {
             /** @type {!Value} */ (value.getFirstChild()));
       } else if (value instanceof UserDefinedProcedure) {
         return '<proc:' + value.getName() + '>';
-      } else if (InputPort.isImplementedBy(value)) {
+      } else if (isInputPortImpl(value)) {
         return '<input-port>';
       } else if (isOutputPortImpl(value)) {
         return '<output-port>';

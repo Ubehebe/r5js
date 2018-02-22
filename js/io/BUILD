@@ -55,6 +55,9 @@ closure_js_library(
         "//js/read",
         "//js/scan",
     ],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ]
 )
 
 ts_library(
@@ -97,13 +100,25 @@ closure_ts_library(
     ],
 )
 
-closure_js_library(
-    name = "input_port",
+ts_library(
+    name = "input_port_ts",
     srcs = [
-        "input_port.js",
+        "input_port.ts",
     ],
     deps = [
-        "//js/ast:datum",
+        "//js/ast:datum_ts",
+    ],
+)
+
+closure_ts_library(
+    name = "input_port",
+    deps = [
+        ":input_port_ts",
+    ],
+    suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
 

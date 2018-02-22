@@ -1,9 +1,8 @@
 goog.module('r5js.boot');
 
-
 const Environment = goog.require('r5js.Environment');
 const Evaluator = goog.require('r5js.Evaluator');
-const InputPort = goog.require('r5js.InputPort');
+const {InputPort, NULL_INPUT_PORT} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Pipeline = goog.require('r5js.Pipeline');
 const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
@@ -23,7 +22,7 @@ const {OutputPort, NULL_OUTPUT_PORT} = require('/js/io/output_port_collect_es6_s
  * @param {!OutputPort=} outputPort Output port that the new evaluator will be connected to.
  * @return {!Evaluator}
  */
-function boot(syntaxLib, procLib, inputPort=InputPort.NULL, outputPort=NULL_OUTPUT_PORT) {
+function boot(syntaxLib, procLib, inputPort=NULL_INPUT_PORT, outputPort=NULL_OUTPUT_PORT) {
   const nullEnv = new Environment(null /* enclosingEnv */);
   installSchemeSource(syntaxLib, nullEnv);
   nullEnv.seal();
@@ -66,7 +65,7 @@ function installSchemeSource(lib, env) {
     const continuable = /** @type {!ProcCallLike} */ (new ParserImpl.ParserImpl(
         /** @type {!Datum} */ (Reader.forTokenStream(
             TokenStream.forText(lib)).read())).parse().desugar(env));
-    trampoline(continuable, env, InputPort.NULL, NULL_OUTPUT_PORT);
+    trampoline(continuable, env, NULL_INPUT_PORT, NULL_OUTPUT_PORT);
 }
 
 exports = {boot};
