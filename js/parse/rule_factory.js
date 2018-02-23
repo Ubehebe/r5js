@@ -13,7 +13,31 @@ const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');
 const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {
+    BACKTICK,
+    BEGIN,
+    COMMA,
+    COMMA_AT,
+    DEFINE,
+    DEFINE_SYNTAX,
+    DOT,
+    ELLIPSIS,
+    IF,
+    LAMBDA,
+    LET_SYNTAX,
+    LETREC_SYNTAX,
+    LPAREN,
+    LPAREN_DOT,
+    LPAREN_VECTOR,
+    QUASIQUOTE,
+    QUOTE,
+    RPAREN,
+    SET,
+    SYNTAX_RULES,
+    TICK,
+    UNQUOTE,
+    UNQUOTE_SPLICING,
+} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class RuleFactory {
 
@@ -70,11 +94,11 @@ class RuleFactory {
      */
     list(var_args) {
         const rules = [];
-        rules.push(new OneTerminal(Terminals.LPAREN));
+        rules.push(new OneTerminal(LPAREN));
         for (let i = 0; i < arguments.length; ++i) {
             rules.push(arguments[i]);
         }
-        rules.push(new OneTerminal(Terminals.RPAREN));
+        rules.push(new OneTerminal(RPAREN));
         return new Seq(rules);
     }
 
@@ -85,9 +109,9 @@ class RuleFactory {
      */
     dottedList(beforeDot, afterDot) {
         const rules = [
-            new OneTerminal(Terminals.LPAREN),
+            new OneTerminal(LPAREN),
             beforeDot,
-            new OneTerminal(Terminals.DOT),
+            new OneTerminal(DOT),
             afterDot];
         return new Seq(rules);
     }
@@ -98,11 +122,11 @@ class RuleFactory {
      */
     vector(var_args) {
         const rules = [];
-        rules.push(new OneTerminal(Terminals.LPAREN_VECTOR));
+        rules.push(new OneTerminal(LPAREN_VECTOR));
         for (let i = 0; i < arguments.length; ++i) {
             rules.push(arguments[i]);
         }
-        rules.push(new OneTerminal(Terminals.RPAREN));
+        rules.push(new OneTerminal(RPAREN));
         return new Seq(rules);
     }
 
@@ -137,32 +161,32 @@ class OneTerminal {
      * TODO bl put the instanceof checks into the Datum subclasses
      */
     match(datumStream) {
-        if (this.terminal_ === Terminals.RPAREN) {
+        if (this.terminal_ === RPAREN) {
             return datumStream.maybeAdvanceToNextSiblingOfParent();
         }
 
         const next = datumStream.getNextDatum();
         let match = false;
         switch (this.terminal_) {
-            case Terminals.LPAREN:
+            case LPAREN:
                 match = next instanceof List;
                 break;
-            case Terminals.LPAREN_DOT:
+            case LPAREN_DOT:
                 match = next instanceof DottedList;
                 break;
-            case Terminals.LPAREN_VECTOR:
+            case LPAREN_VECTOR:
                 match = next instanceof Vector;
                 break;
-            case Terminals.TICK:
+            case TICK:
                 match = next instanceof Quote;
                 break;
-            case Terminals.BACKTICK:
+            case BACKTICK:
                 match = next instanceof Quasiquote;
                 break;
-            case Terminals.COMMA:
+            case COMMA:
                 match = next instanceof Unquote;
                 break;
-            case Terminals.COMMA_AT:
+            case COMMA_AT:
                 match = next instanceof UnquoteSplicing;
                 break;
             default: // TODO bl where is this from?
@@ -335,7 +359,7 @@ function rewriteImproperList(rules) {
     /* No RHS in the grammar has more than one dot.
      This will break if such a rule is added. */
     const indexOfDot =
-        rules.findIndex(rule => rule instanceof OneTerminal && rule.terminal_ === Terminals.DOT);
+        rules.findIndex(rule => rule instanceof OneTerminal && rule.terminal_ === DOT);
 
     if (indexOfDot === -1) {
         return rules;
@@ -344,8 +368,8 @@ function rewriteImproperList(rules) {
     // Find the closest opening paren to the left of the dot and rewrite it as .(
     for (let i = indexOfDot - 1; i >= 0; --i) {
         const rule = rules[i];
-        if (rule instanceof OneTerminal && rule.terminal_ === Terminals.LPAREN) {
-            rules[i] = new OneTerminal(Terminals.LPAREN_DOT);
+        if (rule instanceof OneTerminal && rule.terminal_ === LPAREN) {
+            rules[i] = new OneTerminal(LPAREN_DOT);
             break;
         }
     }

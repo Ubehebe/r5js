@@ -7,7 +7,7 @@ const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_module
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const {List} = goog.require('r5js.ast.List');
 const {EXPRESSION, VARIABLE} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {LAMBDA} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 /**
  * Munges definitions to get them in a form suitable for let-type bindings.
@@ -48,7 +48,7 @@ function extractDefinition(datum) {
  */
 function prepareLambdaForDefinition(bodyStart, formalsList) {
   const buffer = new SiblingBuffer();
-  buffer.appendSibling(new Identifier(Terminals.LAMBDA));
+  buffer.appendSibling(new Identifier(LAMBDA));
   if (formalsList.isImproperList()
       && !formalsList.getFirstChild().getNextSibling()) {
     buffer.appendSibling(new Identifier(

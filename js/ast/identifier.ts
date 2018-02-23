@@ -1,8 +1,8 @@
 import {SimpleDatum} from "./simple_datum";
-import {Terminals} from "../parse/terminals";
 import {CPS_PREFIX, isParserSensitiveId} from "../parse/rename_util";
 import {RenameHelper} from "./rename_helper";
 import {ProcCallLike, ProcCallResult} from "./datum";
+import {COMMA} from "../parse/terminals";
 
 export class Identifier extends SimpleDatum<string> {
   constructor(name: string) {
@@ -14,7 +14,7 @@ export class Identifier extends SimpleDatum<string> {
    * unquoted (i.e. starts with a `,`).
    */
   shouldUnquote(): boolean {
-    return this.payload.charAt(0) === Terminals.COMMA;
+    return this.payload.charAt(0) === COMMA;
   }
 
   /**

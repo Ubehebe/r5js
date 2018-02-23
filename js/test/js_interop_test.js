@@ -11,7 +11,7 @@ const expect = goog.require('expect');
 const testSuite = goog.require('goog.testing.testSuite');
 const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {InMemoryPortBuffer} = require('/js/io/in_memory_port_buffer_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_port_buffer');
-const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {LPAREN, RPAREN} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {boot} = goog.require('r5js.boot');
 const {output, setOutputPort} = goog.require('output');
@@ -168,8 +168,8 @@ testSuite({
     },
 
     testErrors() {
-        expect_('(').to(Throw(new Error(ErrorType.READ, 'read error: ' + Terminals.LPAREN)));
-        expect_(')').to(Throw(new Error(ErrorType.READ, 'read error: ' + Terminals.RPAREN)));
+        expect_('(').to(Throw(new Error(ErrorType.READ, `read error: ${LPAREN}`)));
+        expect_(')').to(Throw(new Error(ErrorType.READ, `read error: ${RPAREN}`)));
         expect_('(eval)').to(Throw(Error.incorrectNumArgs('eval', 2, 0)));
         expect_('(eval 1 2 3 4 5)').
             to(Throw(Error.incorrectNumArgs('eval', 2, 5)));

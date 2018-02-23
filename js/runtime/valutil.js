@@ -10,7 +10,7 @@ const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__m
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');
-const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {isOutputPortImpl} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
 /*
@@ -78,17 +78,17 @@ function toString(includeSigils, value) {
             goog.partial(toString, includeSigils));
         if ((value instanceof List && value.isImproperList())
             || value instanceof DottedList) {
-          children.splice(children.length - 1, 0, Terminals.DOT);
+          children.splice(children.length - 1, 0, DOT);
         }
-        return Terminals.LPAREN +
+        return LPAREN +
             children.join(' ') +
-            Terminals.RPAREN;
+            RPAREN;
       } else if (value instanceof Vector) {
         const childStrings = value.mapChildren(
             goog.partial(toString, includeSigils)).join(' ');
-        return Terminals.LPAREN_VECTOR +
+        return LPAREN_VECTOR +
             childStrings +
-            Terminals.RPAREN;
+            RPAREN;
       } else if (value instanceof String) {
         return includeSigils ?
             '"' + value.getPayload() + '"' : // TODO bl escape
@@ -108,7 +108,7 @@ function toString(includeSigils, value) {
           return value.getPayload();
         }
       } else if (value instanceof Quote) {
-        return Terminals.TICK + toString(
+        return TICK + toString(
             includeSigils,
             /** @type {!Value} */ (value.getFirstChild()));
       } else if (value instanceof UserDefinedProcedure) {

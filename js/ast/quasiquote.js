@@ -8,7 +8,7 @@ const Quote = goog.require('r5js.ast.Quote');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const {EXPRESSION} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {COMMA, COMMA_AT} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class Quasiquote extends CompoundDatum {
     /** @param {!Datum} firstChild */
@@ -64,8 +64,8 @@ class Quasiquote extends CompoundDatum {
                  identifier (also illegal in Scheme) that will let us know if it's
                  unquotation or unquotation with splicing. */
                 const name = (node instanceof Unquote
-                        ? Terminals.COMMA
-                        : Terminals.COMMA_AT) + '' + goog.getUid(new Object());
+                        ? COMMA
+                        : COMMA_AT) + '' + goog.getUid(new Object());
                 const last = getLastProcCallLike(asContinuable);
                 last.setResultName(name);
                 newCalls.appendProcCallLike(asContinuable);

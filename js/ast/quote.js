@@ -8,7 +8,7 @@ const {wrapValue} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {IPair, addImplementation: addPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 const {List} = goog.require('r5js.ast.List');
-const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {QUOTE} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class Quote extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
     /** @param {?Datum} firstChild */
@@ -42,7 +42,7 @@ class Quote extends CompoundDatum /* implicitly implements IPair (structural int
 addPairImpl(Quote);
 
 /** @const @private {!Value} */
-const CAR_ = new Identifier(Terminals.QUOTE);
+const CAR_ = new Identifier(QUOTE);
 
 
 /** TODO bl the purpose of this class is unclear. */
@@ -113,7 +113,7 @@ class QuoteShim extends ProcCallLike {
         // the newIdOrLiteral part is for (quote quote)
         return (ans instanceof CompoundDatum && ans.getFirstChild())
             ? ans.getFirstChild()
-            : new Identifier(Terminals.QUOTE);
+            : new Identifier(QUOTE);
     }
 }
 

@@ -12,7 +12,7 @@ const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
 const {List} = goog.require('r5js.ast.List');
 const {Nonterminal} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {QUASIQUOTE, QUOTE, UNQUOTE, UNQUOTE_SPLICING} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class RuleFactory {
     /** @param {!Grammar} grammar */
@@ -219,13 +219,13 @@ class Seq {
         }
         const realFirstChild = /** @type {!Datum} */ (firstChildToStrip.getNextSibling());
         switch (firstChildToStrip.getPayload()) {
-            case Terminals.QUOTE:
+            case QUOTE:
                 return new Quote(realFirstChild);
-            case Terminals.QUASIQUOTE:
+            case QUASIQUOTE:
                 return new Quasiquote(realFirstChild);
-            case Terminals.UNQUOTE:
+            case UNQUOTE:
                 return new Unquote(realFirstChild);
-            case Terminals.UNQUOTE_SPLICING:
+            case UNQUOTE_SPLICING:
                 return new UnquoteSplicing(realFirstChild);
             default:
                 return datum;

@@ -18,7 +18,16 @@ const Vector = goog.require('r5js.ast.Vector');
 const {DottedList, List} = goog.require('r5js.ast.List');
 const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {DATUM, DATUMS} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {
+    BACKTICK,
+    COMMA,
+    COMMA_AT,
+    DOT,
+    LPAREN,
+    LPAREN_VECTOR,
+    RPAREN,
+    TICK
+} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 /** @interface */
 class Reader {
@@ -66,36 +75,36 @@ grammar[DATUM.toString()] = _.choice(
     _.onePrimitive(Character),
     _.onePrimitive(String),
     _.seq(
-        _.one(Terminals.LPAREN),
+        _.one(LPAREN),
         _.zeroOrMore(DATUM),
-        _.one(Terminals.RPAREN))
+        _.one(RPAREN))
         .named(List),
     _.seq(
-        _.one(Terminals.LPAREN),
+        _.one(LPAREN),
         _.oneOrMore(DATUM),
-        _.one(Terminals.DOT),
+        _.one(DOT),
         _.one(DATUM),
-        _.one(Terminals.RPAREN))
+        _.one(RPAREN))
         .named(DottedList),
     _.seq(
-        _.one(Terminals.LPAREN_VECTOR),
+        _.one(LPAREN_VECTOR),
         _.zeroOrMore(DATUM),
-        _.one(Terminals.RPAREN))
+        _.one(RPAREN))
         .named(Vector),
     _.seq(
-        _.one(Terminals.TICK),
+        _.one(TICK),
         _.one(DATUM))
         .named(Quote),
     _.seq(
-        _.one(Terminals.BACKTICK),
+        _.one(BACKTICK),
         _.one(DATUM))
         .named(Quasiquote),
     _.seq(
-        _.one(Terminals.COMMA),
+        _.one(COMMA),
         _.one(DATUM))
         .named(Unquote),
     _.seq(
-        _.one(Terminals.COMMA_AT),
+        _.one(COMMA_AT),
         _.one(DATUM))
         .named(UnquoteSplicing));
 

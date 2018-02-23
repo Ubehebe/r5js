@@ -1,4 +1,4 @@
-import {Terminals} from './terminals';
+import * as Terminals from './terminals';
 
 /** Not a valid identifier prefix so we can easily tell these apart. */
 export const CPS_PREFIX = '@';

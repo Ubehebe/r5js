@@ -72,7 +72,31 @@ const {
     Nonterminal,
 } = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {RenameHelper} = require('/js/ast/rename_helper_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
-const {Terminals} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {
+    BACKTICK,
+    BEGIN,
+    COMMA,
+    COMMA_AT,
+    DEFINE,
+    DEFINE_SYNTAX,
+    DOT,
+    ELLIPSIS,
+    IF,
+    LAMBDA,
+    LET_SYNTAX,
+    LETREC_SYNTAX,
+    LPAREN,
+    LPAREN_DOT,
+    LPAREN_VECTOR,
+    QUASIQUOTE,
+    QUOTE,
+    RPAREN,
+    SET,
+    SYNTAX_RULES,
+    TICK,
+    UNQUOTE,
+    UNQUOTE_SPLICING,
+} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 
 /* todo bl: this file should not exist.
@@ -245,7 +269,7 @@ grammar[EXPRESSION] =
     _.one(QUASIQUOTATION).desugar((node, env) =>
             (/** @type {!CompoundDatum} */ (node)).setQuasiquotationLevel(1)),
     _.list(
-            _.one(Terminals.BEGIN),
+            _.one(BEGIN),
             _.oneOrMore(EXPRESSION)).
         desugar((node, env) => node.at(EXPRESSION).sequence(env)),
     _.one(MACRO_BLOCK),
@@ -273,7 +297,7 @@ grammar[LITERAL] = _.choice(
 grammar[QUOTATION] = _.seq(
     // Terminals.QUOTE has already been canonicalized as Terminals.TICK
     // (see read.bnf.Seq_#maybeCanonicalize).
-    _.one(Terminals.TICK),
+    _.one(TICK),
     _.one(DATUM));
 
 
@@ -334,7 +358,7 @@ grammar[OPERAND] = _.one(EXPRESSION);
 // <sequence> -> <command>* <expression>
 // <command> -> <expression>
 grammar[LAMBDA_EXPRESSION] = _.list(
-    _.one(Terminals.LAMBDA),
+    _.one(LAMBDA),
     _.one(FORMALS),
     _.zeroOrMore(DEFINITION),
     _.oneOrMore(EXPRESSION)).
@@ -424,7 +448,7 @@ grammar[FORMALS] = _.choice(
  */
 grammar[DEFINITION] = _.choice(
     _.list(
-        _.one(Terminals.DEFINE),
+        _.one(DEFINE),
         _.one(VARIABLE),
         _.one(EXPRESSION)).desugar((node, env) => {
       /* If we're here, this must be a top-level definition, so we
@@ -443,7 +467,7 @@ grammar[DEFINITION] = _.choice(
       return desugaredExpr;
     }),
     _.list(
-        _.one(Terminals.DEFINE),
+        _.one(DEFINE),
         _.list(_.oneOrMore(VARIABLE)),
         _.zeroOrMore(DEFINITION),
         _.oneOrMore(EXPRESSION)).desugar((node, env) => {
@@ -467,7 +491,7 @@ grammar[DEFINITION] = _.choice(
       return TopLevelAssignment.of(name.getPayload(), anonymousName);
     }),
     _.list(
-        _.one(Terminals.DEFINE),
+        _.one(DEFINE),
         _.dottedList(
             _.oneOrMore(VARIABLE),
             _.one(VARIABLE)),
@@ -497,7 +521,7 @@ grammar[DEFINITION] = _.choice(
           anonymousName);
     }),
     _.list(
-        _.one(Terminals.BEGIN),
+        _.one(BEGIN),
         _.zeroOrMore(DEFINITION)).
     desugar((node, env) => {
       const def = node.at(DEFINITION);
@@ -508,7 +532,7 @@ grammar[DEFINITION] = _.choice(
 // <conditional> -> (if <test> <consequent> <alternate>)
 grammar[CONDITIONAL] = _.choice(
     _.list(
-        _.one(Terminals.IF),
+        _.one(IF),
         _.one(TEST),
         _.one(CONSEQUENT),
         _.one(ALTERNATE)).
@@ -526,7 +550,7 @@ grammar[CONDITIONAL] = _.choice(
       return test;
     }),
     _.list(
-        _.one(Terminals.IF),
+        _.one(IF),
         _.one(TEST),
         _.one(CONSEQUENT)).desugar((node, env) => {
       const test = /** @type {!ProcCallLike} */ (
@@ -557,7 +581,7 @@ grammar[ALTERNATE] = _.one(EXPRESSION);
 
 // <assignment> -> (set! <variable> <expression>)
 grammar[ASSIGNMENT] = _.list(
-    _.one(Terminals.SET),
+    _.one(SET),
     _.one(VARIABLE),
     _.one(EXPRESSION)).
         desugar((node, env) => {
@@ -578,7 +602,7 @@ grammar[ASSIGNMENT] = _.list(
 grammar[QUASIQUOTATION] = _.seq(
     // Terminals.QUASIQUOTE has already been canonicalized as
     // Terminals.BACKTICK (see read.bnf.Seq_#maybeCanonicalize)
-    _.one(Terminals.BACKTICK),
+    _.one(BACKTICK),
     _.one(QQ_TEMPLATE));
 
 
@@ -606,7 +630,7 @@ grammar[LIST_QQ_TEMPLATE] = _.choice(
         _.oneOrMore(QQ_TEMPLATE_OR_SPLICE),
         _.one(QQ_TEMPLATE_OR_SPLICE)),
     _.seq(
-        _.one(Terminals.TICK),
+        _.one(TICK),
         _.one(QQ_TEMPLATE)),
     _.one(QUASIQUOTATION));
 
@@ -621,7 +645,7 @@ grammar[VECTOR_QQ_TEMPLATE] =
 grammar[UNQUOTATION] = _.seq(
     // Terminals.QUOTE has already been canonicalized as Terminals.COMMA
     // (see read.bnf.Seq_.#maybeCanonicalize).
-    _.one(Terminals.COMMA),
+    _.one(COMMA),
     _.one(QQ_TEMPLATE));
 
 
@@ -637,7 +661,7 @@ grammar[QQ_TEMPLATE_OR_SPLICE] = _.choice(
 grammar[SPLICING_UNQUOTATION] = _.seq(
     // Terminals.UNQUOTE_SPLICING has already been canonicalized as
     // Terminals.COMMA_AT (see read.bnf.Seq_#maybeCanonicalize).
-    _.one(Terminals.COMMA_AT),
+    _.one(COMMA_AT),
     _.one(QQ_TEMPLATE));
 
 // <macro use> -> (<keyword> <datum>*)
@@ -664,13 +688,13 @@ grammar[KEYWORD] = _.seq(
  | (letrec-syntax (<syntax-spec>*) <body>) */
 grammar[MACRO_BLOCK] = _.choice(
     _.list(
-        _.one(Terminals.LET_SYNTAX),
+        _.one(LET_SYNTAX),
         _.list(_.zeroOrMore(SYNTAX_SPEC)),
         _.zeroOrMore(DEFINITION),
         _.oneOrMore(EXPRESSION)).
     desugar((node, env) => desugarMacroBlock(node, env, 'let')),
     _.list(
-        _.one(Terminals.LETREC_SYNTAX),
+        _.one(LETREC_SYNTAX),
         _.list(_.zeroOrMore(SYNTAX_SPEC)),
         _.zeroOrMore(DEFINITION),
         _.oneOrMore(EXPRESSION)).
@@ -685,7 +709,7 @@ grammar[SYNTAX_SPEC] = _.list(
 
 // <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
 grammar[TRANSFORMER_SPEC] = _.list(
-    _.one(Terminals.SYNTAX_RULES),
+    _.one(SYNTAX_RULES),
     _.list(_.zeroOrMore(PATTERN_IDENTIFIER)),
     _.zeroOrMore(SYNTAX_RULE)).
         desugar((node, env) => {
@@ -718,7 +742,7 @@ grammar[SYNTAX_RULE] = _.list(
 grammar[PATTERN] = _.choice(
     _.list(
         _.oneOrMore(PATTERN),
-        _.one(Terminals.ELLIPSIS)).
+        _.one(ELLIPSIS)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.list();
       for (let cur = node.at(PATTERN);
@@ -726,7 +750,7 @@ grammar[PATTERN] = _.choice(
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof SimpleDatum &&
-            nextSibling.getPayload() === Terminals.ELLIPSIS) {
+            nextSibling.getPayload() === ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
                   /** @type {!Subtransformer} */ (cur.desugar(env))));
@@ -740,7 +764,7 @@ grammar[PATTERN] = _.choice(
     }),
     _.vector(
         _.oneOrMore(PATTERN),
-        _.one(Terminals.ELLIPSIS)).
+        _.one(ELLIPSIS)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.vector();
       for (let cur = node.at(PATTERN);
@@ -748,7 +772,7 @@ grammar[PATTERN] = _.choice(
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof Identifier &&
-            nextSibling.getPayload() === Terminals.ELLIPSIS) {
+            nextSibling.getPayload() === ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
                   /** @type {!Subtransformer} */ (cur.desugar(env))));
@@ -774,11 +798,11 @@ grammar[PATTERN] = _.choice(
       return ans;
     }),
     _.seq(
-        _.one(Terminals.LPAREN),
+        _.one(LPAREN),
         _.oneOrMore(PATTERN),
-        _.one(Terminals.DOT),
+        _.one(DOT),
         _.one(PATTERN),
-        _.one(Terminals.RPAREN)).
+        _.one(RPAREN)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.dottedList();
       for (let cur = node.at(PATTERN);
@@ -835,7 +859,7 @@ grammar[PATTERN_DATUM] = _.seq(
 grammar[TEMPLATE] = _.choice(
     _.one(PATTERN_IDENTIFIER).desugar(node =>
       MacroIdTransformer.template(/** @type {!SimpleDatum} */(node))),
-    _.seq(_.one(Terminals.ELLIPSIS)), // TODO bl one-element sequence
+    _.seq(_.one(ELLIPSIS)), // TODO bl one-element sequence
     _.one(TEMPLATE_DATUM).desugar(node =>
       MacroIdTransformer.template(/** @type {!SimpleDatum} */ (node))),
     _.dottedList(
@@ -848,7 +872,7 @@ grammar[TEMPLATE] = _.choice(
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof Identifier &&
-            nextSibling.getPayload() === Terminals.ELLIPSIS) {
+            nextSibling.getPayload() === ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
                   /** @type {!Subtransformer} */ (cur.desugar(env))));
@@ -869,7 +893,7 @@ grammar[TEMPLATE] = _.choice(
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof Identifier &&
-            nextSibling.getPayload() === Terminals.ELLIPSIS) {
+            nextSibling.getPayload() === ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
                   /** @type {!Subtransformer} */ (cur.desugar(env))));
@@ -889,7 +913,7 @@ grammar[TEMPLATE] = _.choice(
            cur = cur.getNextSibling()) {
         const nextSibling = cur.getNextSibling();
         if (nextSibling instanceof Identifier &&
-            nextSibling.getPayload() === Terminals.ELLIPSIS) {
+            nextSibling.getPayload() === ELLIPSIS) {
           ans.addSubtransformer(
               new EllipsisTransformer(
                   /** @type {!Subtransformer} */ (cur.desugar(env))));
@@ -902,7 +926,7 @@ grammar[TEMPLATE] = _.choice(
       return ans;
     }),
     _.seq(
-        _.one(Terminals.TICK),
+        _.one(TICK),
         _.one(TEMPLATE)).
     desugar((node, env) => {
       const ans = ListLikeTransformer.quote();
@@ -919,7 +943,7 @@ grammar[TEMPLATE_DATUM] = _.one(
 
 // <pattern identifier> -> <any identifier except ...>
 grammar[PATTERN_IDENTIFIER] = _.seq(
-    _.matchDatum(datum => datum instanceof Identifier && datum.getPayload() !== Terminals.ELLIPSIS));
+    _.matchDatum(datum => datum instanceof Identifier && datum.getPayload() !== ELLIPSIS));
 
 
 // <program> -> <command or definition>*
@@ -942,7 +966,7 @@ grammar[COMMAND_OR_DEFINITION] = _.choice(
     _.one(DEFINITION),
     _.one(SYNTAX_DEFINITION),
     _.list(
-        _.one(Terminals.BEGIN),
+        _.one(BEGIN),
         _.zeroOrMore(COMMAND_OR_DEFINITION)).
     desugar((node, env) => {
       const firstCommand = node.at(COMMAND_OR_DEFINITION);
@@ -958,7 +982,7 @@ grammar[COMMAND] = _.one(
 
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
 grammar[SYNTAX_DEFINITION] = _.list(
-    _.one(Terminals.DEFINE_SYNTAX),
+    _.one(DEFINE_SYNTAX),
     _.one(KEYWORD),
     _.one(TRANSFORMER_SPEC)).
         desugar((node, env) => {
