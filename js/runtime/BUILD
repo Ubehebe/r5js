@@ -29,7 +29,6 @@ closure_js_library(
         "//js/ast",
         "//js:error",
         "//js/macro",
-        "//js/parse:nonterminals",
         "//js/parse:parser",
         "//js/parse:terminals",
         "//js:value",

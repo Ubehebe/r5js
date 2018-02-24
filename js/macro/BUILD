@@ -7,7 +7,6 @@ closure_js_library(
         "@io_bazel_rules_closure//closure/library",
         "//js/ast",
         "//js:error",
-        "//js/parse:nonterminals",
         "//js/parse:rename_util",
         "//js/runtime:ienvironment",
         "//js:value",

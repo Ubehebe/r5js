@@ -3,7 +3,7 @@ goog.module('r5js.PrimitiveProcedures');
 const {Boolean} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
 const CallWithCurrentContinuation = goog.require('r5js.CallWithCurrentContinuation');
 const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
-const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const {CompoundDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
 const Continuation = goog.require('r5js.Continuation');
 const {Datum, ProcCallLike, UNSPECIFIED_VALUE, appendProcCallLike, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');

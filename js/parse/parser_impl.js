@@ -2,7 +2,7 @@ goog.module('r5js.ParserImpl');
 
 const Assignment = goog.require('r5js.Assignment');
 const Branch = goog.require('r5js.Branch');
-const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const {CompoundDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
 const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
@@ -70,7 +70,7 @@ const {
     VARIABLE,
     VECTOR_QQ_TEMPLATE,
     Nonterminal,
-} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {RenameHelper} = require('/js/ast/rename_helper_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
 const {
     BACKTICK,

@@ -6,7 +6,6 @@ closure_js_library(
     deps = [
         "//js/ast",
         "//js:error",
-        "//js/parse:nonterminals",
         "//js/parse:terminals",
         "//js/scan",
     ],

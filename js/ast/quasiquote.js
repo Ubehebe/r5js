@@ -1,13 +1,13 @@
 goog.module('r5js.ast.Quasiquote');
 
-const CompoundDatum = goog.require('r5js.ast.CompoundDatum');
+const {CompoundDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
 const {ContinuableHelper} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/continuable_helper');
 const {Datum, ProcCallLike, appendProcCallLike, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const Quote = goog.require('r5js.ast.Quote');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
-const {EXPRESSION} = require('/js/parse/nonterminals_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {EXPRESSION} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {COMMA, COMMA_AT} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
 class Quasiquote extends CompoundDatum {

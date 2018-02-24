@@ -24,7 +24,6 @@ closure_js_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
-        ":nonterminals",
         ":parser",
         ":rename_util",
         ":terminals",
@@ -44,20 +43,12 @@ ts_library(
     tsconfig = "//:tsconfig.json",
 )
 
-closure_ts_library(
-    name = "nonterminals",
-    deps = [
-        ":nonterminals_ts",
-    ],
-)
-
 closure_js_library(
     name = "parser",
     srcs = [
         "parser.js",
     ],
     deps = [
-        ":nonterminals",
         "//js/ast",
     ],
 )

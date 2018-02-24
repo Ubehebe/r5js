@@ -10,7 +10,6 @@ package(
 closure_js_library(
     name = "ast",
     exports = [
-        ":compound_datum",
         ":datum",
         ":ipair",
         ":list",
@@ -26,27 +25,13 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "compound_datum",
-    srcs = ["compound_datum.js"],
-    suppress = [
-        "JSC_INVALID_CAST",
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":datum",
-        ":rename_helper",
-        "//js/parse:nonterminals",
-        "//js/parse:rename_util",
-    ],
-)
-
 ts_library(
     name = "datum_ts",
     srcs = [
         "boolean.ts",
         "cdr_helper.ts",
         "character.ts",
+        "compound_datum.ts",
         "continuable_helper.ts",
         "datum.ts",
         "datum_util.ts",
@@ -106,7 +91,6 @@ closure_js_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
-        ":compound_datum",
         ":datum",
         ":ipair",
         "//js:error",
@@ -132,12 +116,10 @@ closure_js_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
-        ":compound_datum",
         ":datum",
         ":quote",
         ":unquote",
         ":unquote_splicing",
-        "//js/parse:nonterminals",
         "//js/parse:terminals",
         "//js/runtime:ienvironment",
     ],
@@ -147,7 +129,6 @@ closure_js_library(
     name = "quote",
     srcs = ["quote.js"],
     deps = [
-        ":compound_datum",
         ":datum",
         ":ipair",
         ":list",
@@ -156,6 +137,7 @@ closure_js_library(
     ],
     suppress = [
         "JSC_INVALID_CAST",
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
 
@@ -194,8 +176,10 @@ closure_js_library(
     name = "unquote",
     srcs = ["unquote.js"],
     deps = [
-        ":compound_datum",
         ":datum",
+    ],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
 
@@ -203,8 +187,10 @@ closure_js_library(
     name = "unquote_splicing",
     srcs = ["unquote_splicing.js"],
     deps = [
-        ":compound_datum",
         ":datum",
+    ],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
 
@@ -217,10 +203,8 @@ closure_js_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
-        ":compound_datum",
         ":datum",
         ":list",
-        "//js/parse:nonterminals",
         "//js/parse:terminals",
     ],
 )
@@ -230,8 +214,11 @@ closure_js_library(
     srcs = [
         "vector.js",
     ],
+    suppress = [
+        "JSC_TYPE_MISMATCH",
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ],
     deps = [
-        ":compound_datum",
         ":datum",
     ],
 )

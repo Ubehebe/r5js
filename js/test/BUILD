@@ -46,7 +46,6 @@ closure_js_test(
         "@io_bazel_rules_closure//closure/library:testing",
         "//js:boot",
         "//js:error",
-        "//js/parse:nonterminals",
         "//js/test/matchers",
     ],
     suppress = [
