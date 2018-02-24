@@ -228,7 +228,10 @@ export abstract class ProcCallLike {
   /**
    * parserProvider Function that will return a new Parser for the given Datum when called.
    */
-  abstract evalAndAdvance(resultStruct: ProcCallResult /* TODO */, env: IEnvironment, parserProvider: (x: any) => any /* TODO */);
+  abstract evalAndAdvance(
+      resultStruct: ProcCallResult /* TODO */,
+      env: IEnvironment,
+      parserProvider: (Datum) => any /* TODO should be Parser*/);
 
   getResultName(): string {
     return this.resultName_;

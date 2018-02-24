@@ -3,7 +3,7 @@ goog.module('r5js.read.RuleFactory');
 const {Datum, VACUOUS_PROGRAM} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const Grammar = goog.require('r5js.read.Grammar');
-const Quasiquote = goog.require('r5js.ast.Quasiquote');
+const {Quasiquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
 const {Quote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
 const Rule = goog.require('r5js.read.bnf.Rule');
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');

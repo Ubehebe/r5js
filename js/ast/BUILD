@@ -11,7 +11,6 @@ closure_js_library(
     name = "ast",
     exports = [
         ":datum",
-        ":quasiquote",
         ":rename_helper",
         ":type",
         ":util",
@@ -34,6 +33,7 @@ ts_library(
         "list.ts",
         "macro.ts",
         "number.ts",
+        "quasiquote.ts",
         "quote.ts",
         "ref.ts",
         "sibling_buffer.ts",
@@ -63,20 +63,6 @@ closure_ts_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [":datum_ts"],
-)
-
-closure_js_library(
-    name = "quasiquote",
-    srcs = ["quasiquote.js"],
-    suppress = [
-        "JSC_TYPE_MISMATCH",
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":datum",
-        "//js/parse:terminals",
-        "//js/runtime:ienvironment",
-    ],
 )
 
 ts_library(
