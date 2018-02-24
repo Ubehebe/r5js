@@ -8,7 +8,7 @@ const {Quote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__ma
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const Subtransformer = goog.require('r5js.Subtransformer');
 const TemplateBindings = goog.require('r5js.TemplateBindings');
-const Vector = goog.require('r5js.ast.Vector');
+const {Vector} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
 const asserts = goog.require('goog.asserts');
 const {DottedList, List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 

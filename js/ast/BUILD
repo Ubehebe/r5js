@@ -14,7 +14,6 @@ closure_js_library(
         ":rename_helper",
         ":type",
         ":util",
-        ":vector",
     ],
 )
 
@@ -41,6 +40,7 @@ ts_library(
         "string.ts",
         "unquote.ts",
         "unquote_splicing.ts",
+        "vector.ts",
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
@@ -107,19 +107,5 @@ closure_js_library(
     deps = [
         ":datum",
         "//js/parse:terminals",
-    ],
-)
-
-closure_js_library(
-    name = "vector",
-    srcs = [
-        "vector.js",
-    ],
-    suppress = [
-        "JSC_TYPE_MISMATCH",
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":datum",
     ],
 )

@@ -10,7 +10,7 @@ const {Quote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__ma
 const Rule = goog.require('r5js.parse.bnf.Rule');
 const {Unquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote');
 const {UnquoteSplicing} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote_splicing');
-const Vector = goog.require('r5js.ast.Vector');
+const {Vector} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
 const {DottedList, List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {Nonterminal} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {

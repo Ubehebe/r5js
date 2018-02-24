@@ -161,7 +161,7 @@ export class CompoundDatum extends Datum {
     this.forEachChild(child => child.resetDesugars());
   }
 
-  forEachChild(callback: (Datum) => void, context = undefined) {
+  forEachChild(callback: (Datum) => void, context:any = undefined) {
     for (let cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
       callback.call(context, cur);
     }
