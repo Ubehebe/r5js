@@ -11,7 +11,6 @@ closure_js_library(
     name = "ast",
     exports = [
         ":datum",
-        ":list",
         ":macro",
         ":quasiquote",
         ":quote",
@@ -36,6 +35,7 @@ ts_library(
         "datum_util.ts",
         "identifier.ts",
         "ipair.ts",
+        "list.ts",
         "number.ts",
         "ref.ts",
         "sibling_buffer.ts",
@@ -64,22 +64,6 @@ closure_ts_library(
     ],
     deps = [":datum_ts"],
 )
-
-
-closure_js_library(
-    name = "list",
-    srcs = [
-        "list.js",
-    ],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":datum",
-        "//js:error",
-    ],
-)
-
 closure_js_library(
     name = "macro",
     srcs = ["macro.js"],
@@ -113,7 +97,6 @@ closure_js_library(
     srcs = ["quote.js"],
     deps = [
         ":datum",
-        ":list",
         "//js:error",
         "//js/parse:terminals",
     ],
@@ -186,7 +169,6 @@ closure_js_library(
     ],
     deps = [
         ":datum",
-        ":list",
         "//js/parse:terminals",
     ],
 )

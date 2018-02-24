@@ -10,7 +10,7 @@ const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modu
 const TokenStream = goog.require('r5js.TokenStream');
 const Unquote = goog.require('r5js.ast.Unquote');
 const UnquoteSplicing = goog.require('r5js.ast.UnquoteSplicing');
-const {List} = goog.require('r5js.ast.List');
+const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {Nonterminal} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {QUASIQUOTE, QUOTE, UNQUOTE, UNQUOTE_SPLICING} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 

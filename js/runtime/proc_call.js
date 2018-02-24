@@ -14,7 +14,7 @@ const Quote = goog.require('r5js.ast.Quote');
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const Vector = goog.require('r5js.ast.Vector');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = goog.require('r5js.ast.List');
+const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 class ProcCall extends ProcCallLike {

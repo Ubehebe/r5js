@@ -8,7 +8,7 @@ const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modu
 const TemplateBindings = goog.require('r5js.TemplateBindings');
 const Transformer = goog.require('r5js.Transformer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = goog.require('r5js.ast.List');
+const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {PATTERN, TEMPLATE} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {isParserSensitiveId, newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 

@@ -5,7 +5,7 @@ const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__ma
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const {List} = goog.require('r5js.ast.List');
+const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {EXPRESSION, VARIABLE} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {LAMBDA} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 
