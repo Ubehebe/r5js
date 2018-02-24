@@ -3,7 +3,7 @@ goog.module('r5js.TemplateBindings');
 const {CompoundDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const Macro = goog.require('r5js.ast.Macro');
+const {Macro} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/macro');
 const {newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 

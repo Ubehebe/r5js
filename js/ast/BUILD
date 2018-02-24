@@ -11,7 +11,6 @@ closure_js_library(
     name = "ast",
     exports = [
         ":datum",
-        ":macro",
         ":quasiquote",
         ":quote",
         ":rename_helper",
@@ -36,6 +35,7 @@ ts_library(
         "identifier.ts",
         "ipair.ts",
         "list.ts",
+        "macro.ts",
         "number.ts",
         "ref.ts",
         "sibling_buffer.ts",
@@ -63,16 +63,6 @@ closure_ts_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [":datum_ts"],
-)
-closure_js_library(
-    name = "macro",
-    srcs = ["macro.js"],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":datum",
-    ],
 )
 
 closure_js_library(
