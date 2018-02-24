@@ -13,7 +13,6 @@ closure_js_library(
         ":datum",
         ":rename_helper",
         ":type",
-        ":util",
     ],
 )
 
@@ -40,6 +39,7 @@ ts_library(
         "string.ts",
         "unquote.ts",
         "unquote_splicing.ts",
+        "util.ts",
         "vector.ts",
     ],
     tsconfig = "//:tsconfig.json",
@@ -94,18 +94,4 @@ ts_library(
 closure_ts_library(
     name = "type",
     deps = [":type_ts"],
-)
-
-closure_js_library(
-    name = "util",
-    srcs = ["util.js"],
-    suppress = [
-        "JSC_INVALID_CAST",
-        "JSC_TYPE_MISMATCH",
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":datum",
-        "//js/parse:terminals",
-    ],
 )

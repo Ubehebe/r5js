@@ -25,7 +25,7 @@ const TopLevelSyntaxAssignment = goog.require('r5js.TopLevelSyntaxAssignment');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
 const {Vector} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
-const util = goog.require('r5js.ast.util');
+const {extractDefinition} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {
@@ -478,7 +478,7 @@ grammar[DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      const def = util.extractDefinition(node);
+      const def = extractDefinition(node);
       const name = /** @type {!SimpleDatum} */ (def.getFirstChild());
       const lambda = /** @type {!CompoundDatum} */(name.getNextSibling());
       const formalRoot = /** @type {!CompoundDatum} */ (lambda.getFirstChild().getNextSibling());
@@ -504,7 +504,7 @@ grammar[DEFINITION] = _.choice(
                 get here.
 
                 todo bl: make this flow of control explicit. */
-      const def = util.extractDefinition(node);
+      const def = extractDefinition(node);
       const name = /** @type {!SimpleDatum} */ (def.getFirstChild());
       const lambda = /** @type {!CompoundDatum} */ (name.getNextSibling());
       const formalRoot = lambda.getFirstChild().getNextSibling();
