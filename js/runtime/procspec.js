@@ -19,7 +19,7 @@ const {List} = goog.require('r5js.ast.List');
 const {OutputPort, isOutputPortImpl} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {Type, Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
-const {isImplementedBy: isPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
+const {isImplementedBy: isPairImpl} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 
 /** @interface */
 class NumArgChecker {

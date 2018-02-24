@@ -5,16 +5,17 @@
  * TypeScript.
  */
 export interface IPair {
-    car(): Value;
-    cdr(): Value;
+  car(): Value;
+
+  cdr(): Value;
 }
 
 const IMPLEMENTED_BY_PROP = '$r5js.IPair';
 
 export function isImplementedBy(obj: any): boolean {
-    return !!(obj && obj[IMPLEMENTED_BY_PROP]);
+  return !!(obj && obj[IMPLEMENTED_BY_PROP]);
 }
 
 export function addImplementation(ctor: any) {
-    ctor.prototype[IMPLEMENTED_BY_PROP] = true;
+  ctor.prototype[IMPLEMENTED_BY_PROP] = true;
 }

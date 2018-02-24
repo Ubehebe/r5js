@@ -4,7 +4,7 @@ const {CdrHelper} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/
 const {CompoundDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const {IPair, addImplementation: addPairImpl} = require('/js/ast/ipair_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
+const {IPair, addImplementation: addPairImpl} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 class List extends CompoundDatum /* implicitly implements IPair (structural interface) */ {

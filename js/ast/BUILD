@@ -11,7 +11,6 @@ closure_js_library(
     name = "ast",
     exports = [
         ":datum",
-        ":ipair",
         ":list",
         ":macro",
         ":quasiquote",
@@ -36,6 +35,7 @@ ts_library(
         "datum.ts",
         "datum_util.ts",
         "identifier.ts",
+        "ipair.ts",
         "number.ts",
         "ref.ts",
         "sibling_buffer.ts",
@@ -65,22 +65,6 @@ closure_ts_library(
     deps = [":datum_ts"],
 )
 
-ts_library(
-    name = "ipair_ts",
-    srcs = ["ipair.ts"],
-    tsconfig = "//:tsconfig.json",
-    deps = [
-        "//js:value_ts",
-    ],
-)
-
-closure_ts_library(
-    name = "ipair",
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = ["ipair_ts"],
-)
 
 closure_js_library(
     name = "list",
@@ -92,7 +76,6 @@ closure_js_library(
     ],
     deps = [
         ":datum",
-        ":ipair",
         "//js:error",
     ],
 )
@@ -130,7 +113,6 @@ closure_js_library(
     srcs = ["quote.js"],
     deps = [
         ":datum",
-        ":ipair",
         ":list",
         "//js:error",
         "//js/parse:terminals",
