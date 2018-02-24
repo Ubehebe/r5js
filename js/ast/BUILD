@@ -14,7 +14,6 @@ closure_js_library(
         ":quasiquote",
         ":rename_helper",
         ":type",
-        ":unquote",
         ":unquote_splicing",
         ":util",
         ":vector",
@@ -41,6 +40,7 @@ ts_library(
         "sibling_buffer.ts",
         "simple_datum.ts",
         "string.ts",
+        "unquote.ts",
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
@@ -74,7 +74,6 @@ closure_js_library(
     ],
     deps = [
         ":datum",
-        ":unquote",
         ":unquote_splicing",
         "//js/parse:terminals",
         "//js/runtime:ienvironment",
@@ -110,17 +109,6 @@ ts_library(
 closure_ts_library(
     name = "type",
     deps = [":type_ts"],
-)
-
-closure_js_library(
-    name = "unquote",
-    srcs = ["unquote.js"],
-    deps = [
-        ":datum",
-    ],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
 )
 
 closure_js_library(
