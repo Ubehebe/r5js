@@ -12,7 +12,6 @@ closure_js_library(
     exports = [
         ":datum",
         ":quasiquote",
-        ":quote",
         ":rename_helper",
         ":type",
         ":unquote",
@@ -37,6 +36,7 @@ ts_library(
         "list.ts",
         "macro.ts",
         "number.ts",
+        "quote.ts",
         "ref.ts",
         "sibling_buffer.ts",
         "simple_datum.ts",
@@ -74,25 +74,10 @@ closure_js_library(
     ],
     deps = [
         ":datum",
-        ":quote",
         ":unquote",
         ":unquote_splicing",
         "//js/parse:terminals",
         "//js/runtime:ienvironment",
-    ],
-)
-
-closure_js_library(
-    name = "quote",
-    srcs = ["quote.js"],
-    deps = [
-        ":datum",
-        "//js:error",
-        "//js/parse:terminals",
-    ],
-    suppress = [
-        "JSC_INVALID_CAST",
-        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
 
