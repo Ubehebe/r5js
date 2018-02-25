@@ -9,16 +9,13 @@ package(
 
 ts_library(
     name = "read_ts",
-    srcs = [
-        "grammar.ts",
-        "rule.ts",
-        "rule_factory.ts",
-        ],
+    srcs = glob(["*.ts"]),
     deps = [
         "//js/ast:datum_ts",
         "//js/parse:nonterminals_ts",
         "//js/parse:terminals_ts",
         "//js/scan:scan_ts",
+        "//js:error_ts",
     ],
     tsconfig = "//:tsconfig.json",
 )
@@ -40,21 +37,5 @@ closure_js_library(
     srcs = [],
     exports = [
         ":shim",
-        ":reader",
-    ],
-)
-
-closure_js_library(
-    name = "reader",
-    srcs = [
-        "reader.js",
-    ],
-    deps = [
-        "//js/ast",
-        "//js:error",
-        ":shim"
-    ],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )

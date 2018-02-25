@@ -3,7 +3,7 @@ goog.module('r5js.InMemoryInputPort');
 const {Character} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 const {Datum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {InputPort, addInputPortImpl} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
-const Reader = goog.require('r5js.Reader');
+const {Reader} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/read/reader');
 const {TokenStream} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 const {InMemoryPortBuffer} = require('/js/io/in_memory_port_buffer_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_port_buffer');
 

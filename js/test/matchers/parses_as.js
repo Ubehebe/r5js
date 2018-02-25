@@ -5,7 +5,7 @@ goog.setTestOnly('parseAs');
 const {Datum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Matcher = goog.require('tdd.matchers.Matcher');
 const ParserImpl = goog.require('r5js.ParserImpl');
-const Reader = goog.require('r5js.Reader');
+const {Reader} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/read/reader');
 const {Nonterminal} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {TokenStream} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 

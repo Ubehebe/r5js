@@ -1,6 +1,6 @@
 
 export class Error {
-    private constructor(private readonly type: ErrorType, private readonly msg: string) {}
+    constructor(private readonly type: ErrorType, private readonly msg: string) {}
 
     equals(other: Error) {
         return this.type === other.type; // TODO bl improve
