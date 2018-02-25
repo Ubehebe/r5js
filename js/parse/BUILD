@@ -11,28 +11,37 @@ closure_js_library(
     name = "parse",
     srcs = [],
     exports = [
-        ":datum_stream",
         ":desugarable_rule",
         ":grammar",
         ":nonterminals",
         ":parser",
         ":parser_impl",
         ":rename_util",
+        ":shim",
         ":terminals",
     ],
 )
 
-closure_js_library(
-    name = "datum_stream",
+ts_library(
+    name = "parse_ts",
     srcs = [
-        "datum_stream.js",
+        "datum_stream.ts",
     ],
     deps = [
-        "//js/ast",
+        "//js/ast:datum_ts",
+    ],
+)
+
+closure_ts_library(
+    name = "shim",
+    deps = [
+        ":parse_ts",
     ],
     suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
         "JSC_UNKNOWN_EXPR_TYPE",
-    ],
+    ]
 )
 
 closure_js_library(
@@ -87,7 +96,7 @@ closure_js_library(
         "parser_impl.js",
     ],
     deps = [
-        ":datum_stream",
+        ":shim",
         ":grammar",
         ":parser",
         ":rule",
@@ -130,7 +139,7 @@ closure_js_library(
     ],
     deps = [
         "//js/ast",
-        ":datum_stream",
+        ":shim",
     ]
 )
 
