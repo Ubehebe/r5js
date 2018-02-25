@@ -5,7 +5,7 @@ const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_module
 const Grammar = goog.require('r5js.read.Grammar');
 const {Quasiquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
 const {Quote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
-const Rule = goog.require('r5js.read.bnf.Rule');
+const {Rule} = require('/js/read/rule_collect_es6_sources.es6/node_modules/__main__/js/read/rule');
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const {Unquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote');
 const {UnquoteSplicing} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote_splicing');
@@ -69,13 +69,13 @@ class RuleFactory {
     }
 }
 
-/** @implements {Rule} */
-class One {
+class One extends Rule {
     /**
      * @param {!Terminal|!Nonterminal} type
      * @param {!Grammar} grammar
      */
     constructor(type, grammar) {
+        super();
         /** @const @private */ this.type_ = type.toString();
         /** @const @private */ this.grammar_ = grammar;
     }
@@ -109,14 +109,14 @@ class One {
  */
 const TERMINAL_SENTINEL = new Datum();
 
-/** @implements {Rule} */
-class AtLeast {
+class AtLeast extends Rule {
     /**
      * @param {!Terminal|!Nonterminal} type
      * @param {number} minRepetitions
      * @param {!Grammar} grammar
      */
     constructor(type, minRepetitions, grammar) {
+        super();
         /** @const @private */ this.type_ = type.toString();
         /** @const @private */ this.repetition_ = minRepetitions;
         /** @const @private */ this.grammar_ = grammar;
@@ -147,10 +147,10 @@ class AtLeast {
     }
 }
 
-/** @implements {Rule} */
-class OnePrimitive {
+class OnePrimitive extends Rule {
     /** @param {function(new: Datum, ?)} ctor */
     constructor(ctor) {
+        super();
         /** @const @private */ this.ctor_ = ctor;
     }
 
@@ -161,10 +161,10 @@ class OnePrimitive {
     }
 }
 
-/** @implements {Rule} */
-class Seq {
+class Seq extends Rule {
     /** @param {!Array<!Rule>} rules */
     constructor(rules) {
+        super();
         /** @const @private */ this.rules_ = rules;
         /** @private {function(new: Datum, !Datum)|null} */ this.ctor_ = null;
     }
@@ -233,10 +233,10 @@ class Seq {
     }
 }
 
-/** @implements {Rule} */
-class Choice {
+class Choice extends Rule {
     /** @param {!Array<!Rule>} rules */
     constructor(rules) {
+        super();
         /** @const @private */ this.rules_ = rules;
     }
 
