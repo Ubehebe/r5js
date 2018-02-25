@@ -2,7 +2,7 @@ goog.module('r5js.read.RuleFactory');
 
 const {Datum, VACUOUS_PROGRAM} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
-const Grammar = goog.require('r5js.read.Grammar');
+const {Grammar} = require('/js/read/grammar_collect_es6_sources.es6/node_modules/__main__/js/read/grammar');
 const {Quasiquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
 const {Quote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
 const {Rule} = require('/js/read/rule_collect_es6_sources.es6/node_modules/__main__/js/read/rule');

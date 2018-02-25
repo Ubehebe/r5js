@@ -40,14 +40,26 @@ closure_js_library(
     ],
 )
 
-closure_js_library(
-    name = "grammar",
+ts_library(
+    name = "grammar_ts",
     srcs = [
-        "grammar.js",
+        "grammar.ts",
     ],
     deps = [
-        ":rule",
+        ":rule_ts",
     ],
+)
+
+closure_ts_library(
+    name = "grammar",
+    deps = [
+        ":grammar_ts",
+    ],
+    suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ]
 )
 
 closure_js_library(

@@ -4,7 +4,7 @@ const {Boolean} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__
 const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const Grammar = goog.require('r5js.read.Grammar');
+const {Grammar} = require('/js/read/grammar_collect_es6_sources.es6/node_modules/__main__/js/read/grammar');
 const {Number} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
 const {Quasiquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
 const {Quote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
@@ -48,8 +48,12 @@ class Reader {
     }
 }
 
-/** @implements {Grammar} */
-class GrammarImpl {
+class GrammarImpl extends Grammar {
+
+    constructor() {
+        super();
+    }
+
     /** @override */
     ruleFor(nonterminal) {
         return grammar[nonterminal];
