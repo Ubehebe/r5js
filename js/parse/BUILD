@@ -26,6 +26,7 @@ ts_library(
     name = "parse_ts",
     srcs = [
         "datum_stream.ts",
+        "rule.ts",
     ],
     deps = [
         "//js/ast:datum_ts",
@@ -50,7 +51,7 @@ closure_js_library(
         "desugarable_rule.js",
     ],
     deps = [
-        ":rule",
+        ":shim",
     ],
 )
 
@@ -61,7 +62,7 @@ closure_js_library(
     ],
     deps = [
         ":nonterminals",
-        ":rule",
+        ":shim",
     ]
 )
 
@@ -96,10 +97,9 @@ closure_js_library(
         "parser_impl.js",
     ],
     deps = [
-        ":shim",
         ":grammar",
         ":parser",
-        ":rule",
+        ":shim",
         ":rule_factory",
         "//js/ast",
         "//js/macro",
@@ -133,17 +133,6 @@ closure_ts_library(
 )
 
 closure_js_library(
-    name = "rule",
-    srcs = [
-        "rule.js",
-    ],
-    deps = [
-        "//js/ast",
-        ":shim",
-    ]
-)
-
-closure_js_library(
     name = "rule_factory",
     srcs = [
         "rule_factory.js",
@@ -151,10 +140,11 @@ closure_js_library(
     deps = [
         ":desugarable_rule",
         ":grammar",
-        ":rule",
+        ":shim",
     ],
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",
+        "JSC_TYPE_MISMATCH",
     ],
 )
 

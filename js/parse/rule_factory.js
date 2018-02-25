@@ -7,7 +7,7 @@ const DesugarableRule = goog.require('r5js.parse.bnf.DesugarableRule');
 const Grammar = goog.require('r5js.parse.Grammar');
 const {Quasiquote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
 const {Quote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
-const Rule = goog.require('r5js.parse.bnf.Rule');
+const {Rule} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/rule');
 const {Unquote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote');
 const {UnquoteSplicing} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote_splicing');
 const {Vector} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
@@ -139,10 +139,10 @@ class RuleFactory {
     }
 }
 
-/** @implements {DesugarableRule<null>} */
-class OneTerminal {
+class OneTerminal extends DesugarableRule{
     /** @param {!Terminal} terminal */
     constructor(terminal) {
+        super();
         /** @const @private */ this.terminal_ = terminal;
     }
 
@@ -205,13 +205,13 @@ class OneTerminal {
     }
 }
 
-/** @implements {DesugarableRule<!Datum>} */
-class OneNonterminal {
+class OneNonterminal extends DesugarableRule {
     /**
      * @param {!Nonterminal} nonterminal
      * @param {!Grammar} grammar
      */
     constructor(nonterminal, grammar) {
+        super();
         /** @const @private */ this.nonterminal_ = nonterminal;
         /** @const @private */ this.grammar_ = grammar;
         /** @private {function(!Datum, !IEnvironment)|null} */ this.desugarFunc_ = null;
@@ -237,14 +237,14 @@ class OneNonterminal {
     }
 }
 
-/** @implements {Rule} */
-class AtLeast {
+class AtLeast extends Rule {
     /**
      * @param {!Nonterminal} nonterminal
      * @param {number} minRepetitions
      * @param {!Grammar} grammar
      */
     constructor(nonterminal, minRepetitions, grammar) {
+        super();
         /** @const @private */ this.nonterminal_ = nonterminal;
         /** @const @private */ this.minRepetitions_ = minRepetitions;
         /** @const @private */ this.grammar_ = grammar;
@@ -262,10 +262,10 @@ class AtLeast {
     }
 }
 
-/** @implements {Rule} */
-class MatchDatum {
+class MatchDatum extends Rule{
     /** @param {function(!Datum):boolean} predicate */
     constructor(predicate) {
+        super();
         /** @const @private */ this.predicate_ = predicate;
     }
 
@@ -281,10 +281,10 @@ class MatchDatum {
     }
 }
 
-/** @implements {Rule} */
-class Choice {
+class Choice extends Rule {
     /** @param {!Array<!Rule>} rules */
     constructor(rules) {
+        super();
         /** @const @private */ this.rules_ = rules;
     }
 
@@ -301,10 +301,10 @@ class Choice {
     }
 }
 
-/** @implements {DesugarableRule<!CompoundDatum>} */
-class Seq {
+class Seq extends DesugarableRule {
     /** @param {!Array<!Rule>} rules */
     constructor(rules) {
+        super();
         /** @const @private */ this.rules_ = rewriteImproperList(rules);
         /** @private {function(!CompoundDatum, !IEnvironment)|null} */
         this.desugarFunc_ = null;
