@@ -8,19 +8,25 @@ package(
 )
 
 ts_library(
-    name = "rule_ts",
-    srcs = ["rule.ts"],
+    name = "read_ts",
+    srcs = [
+        "grammar.ts",
+        "rule.ts",
+        "rule_factory.ts",
+        ],
     deps = [
         "//js/ast:datum_ts",
+        "//js/parse:nonterminals_ts",
+        "//js/parse:terminals_ts",
         "//js/scan:scan_ts",
     ],
     tsconfig = "//:tsconfig.json",
 )
 
 closure_ts_library(
-    name = "rule",
+    name = "shim",
     deps = [
-        ":rule_ts",
+        ":read_ts",
     ],
     suppress = [
         "CR_NOT_PROVIDED",
@@ -33,33 +39,9 @@ closure_js_library(
     name = "read",
     srcs = [],
     exports = [
-        ":grammar",
+        ":shim",
         ":reader",
-        ":rule",
-        ":rule_factory",
     ],
-)
-
-ts_library(
-    name = "grammar_ts",
-    srcs = [
-        "grammar.ts",
-    ],
-    deps = [
-        ":rule_ts",
-    ],
-)
-
-closure_ts_library(
-    name = "grammar",
-    deps = [
-        ":grammar_ts",
-    ],
-    suppress = [
-        "CR_NOT_PROVIDED",
-        "JSC_INVALID_CLOSURE_CALL_ERROR",
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ]
 )
 
 closure_js_library(
@@ -70,24 +52,7 @@ closure_js_library(
     deps = [
         "//js/ast",
         "//js:error",
-        ":grammar",
-        ":rule",
-        ":rule_factory",
-    ],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-)
-
-closure_js_library(
-    name = "rule_factory",
-    srcs = [
-        "rule_factory.js",
-    ],
-    deps = [
-        "//js/parse:terminals",
-        ":grammar",
-        ":rule",
+        ":shim"
     ],
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",

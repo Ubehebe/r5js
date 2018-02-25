@@ -1,10 +1,10 @@
 goog.module('r5js.test.Scanner');
 
-const {Boolean} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
-const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
-const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const {Number} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
-const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
+const {Boolean} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
+const {Character} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
+const {Identifier} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {Number} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
+const {String} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
 const expect = goog.require('expect');
 const scanAs = goog.require('scanAs');
 const testSuite = goog.require('goog.testing.testSuite');

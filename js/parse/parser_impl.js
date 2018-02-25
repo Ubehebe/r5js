@@ -2,32 +2,32 @@ goog.module('r5js.ParserImpl');
 
 const Assignment = goog.require('r5js.Assignment');
 const Branch = goog.require('r5js.Branch');
-const {CompoundDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
-const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {SimpleDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
-const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {CompoundDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
+const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM, getLastProcCallLike} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {SimpleDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
+const {Identifier} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const DatumStream = goog.require('r5js.DatumStream');
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
 const Grammar = goog.require('r5js.parse.Grammar');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
-const {Macro: MacroDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/macro');
+const {Macro: MacroDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/macro');
 const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
 const Parser = goog.require('r5js.Parser');
 const ProcCall = goog.require('r5js.ProcCall');
 const Rule = goog.require('r5js.parse.bnf.Rule');
 const RuleFactory = goog.require('r5js.parse.RuleFactory');
-const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
+const {SiblingBuffer} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
+const {String} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
 const Subtransformer = goog.require('r5js.Subtransformer');
 const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
 const TopLevelSyntaxAssignment = goog.require('r5js.TopLevelSyntaxAssignment');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
-const {Vector} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
-const {extractDefinition} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/util');
+const {Vector} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
+const {extractDefinition} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {List} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {
     ALTERNATE,
     ASSIGNMENT,
@@ -70,7 +70,7 @@ const {
     VARIABLE,
     VECTOR_QQ_TEMPLATE,
     Nonterminal,
-} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {RenameHelper} = require('/js/ast/rename_helper_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
 const {
     BACKTICK,

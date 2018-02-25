@@ -1,11 +1,11 @@
 goog.module('r5js.VarargsUserDefinedProcedure');
 
-const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
+const {Datum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {SiblingBuffer} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
-const {wrapValue} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum_util');
+const {wrapValue} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {List} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 
 class VarargsUserDefinedProcedure extends UserDefinedProcedure {
     /**

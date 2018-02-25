@@ -1,23 +1,23 @@
 goog.module('r5js.Reader');
 
-const {Boolean} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
-const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
-const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const {Grammar} = require('/js/read/grammar_collect_es6_sources.es6/node_modules/__main__/js/read/grammar');
-const {Number} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
-const {Quasiquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
-const {Quote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
-const {Rule} = require('/js/read/rule_collect_es6_sources.es6/node_modules/__main__/js/read/rule');
-const RuleFactory = goog.require('r5js.read.RuleFactory');
-const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
-const {TokenStream} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
-const {Unquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote');
-const {UnquoteSplicing} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote_splicing');
-const {Vector} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
-const {DottedList, List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {Boolean} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
+const {Character} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
+const {Datum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {Grammar} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/read/grammar');
+const {Number} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
+const {Quasiquote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
+const {Quote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
+const {Rule} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/read/rule');
+const {RuleFactory} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/read/rule_factory');
+const {String} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
+const {TokenStream} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
+const {Unquote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote');
+const {UnquoteSplicing} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote_splicing');
+const {Vector} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
+const {DottedList, List} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {DATUM, DATUMS} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {DATUM, DATUMS} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {
     BACKTICK,
     COMMA,

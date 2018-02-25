@@ -1,17 +1,17 @@
 goog.module('r5js.UserDefinedProcedure');
 
-const {CompoundDatum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
-const {Datum, ProcCallLike, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {CompoundDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
+const {Datum, ProcCallLike, getLastProcCallLike} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const ProcCall = goog.require('r5js.ProcCall');
 const Procedure = goog.require('r5js.Procedure');
-const {Quote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
-const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
+const {Quote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
+const {SiblingBuffer} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
-const {DEFINITION} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {List} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {DEFINITION} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {DEFINE} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
-const {extractDefinition} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/util');
+const {extractDefinition} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/util');
 
 class UserDefinedProcedure extends Procedure {
     /**

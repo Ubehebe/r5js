@@ -1,6 +1,6 @@
 goog.module('r5js.Branch');
 
-const {ProcCallLike, getLastProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {ProcCallLike, getLastProcCallLike} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 class Branch extends ProcCallLike {
   /**

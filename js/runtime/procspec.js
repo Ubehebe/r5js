@@ -1,25 +1,25 @@
 goog.module('r5js.procspec');
 
-const {Boolean} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
-const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
+const {Boolean} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
+const {Character} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 const Continuation = goog.require('r5js.Continuation');
-const {Datum, ProcCallLike} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {Identifier} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {Datum, ProcCallLike} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {InputPort, isInputPortImpl} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const Lambda = goog.require('r5js.Lambda');
-const {Number} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
+const {Number} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
 const Procedure = goog.require('r5js.Procedure');
-const {Ref} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
-const {String} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
+const {Ref} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
+const {String} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
 const TrampolineHelper = goog.require('r5js.TrampolineHelper');
-const {Vector} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
-const {wrapValue} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum_util');
+const {Vector} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
+const {wrapValue} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {List} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {OutputPort, isOutputPortImpl} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {Type, Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
-const {isImplementedBy: isPairImpl} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
+const {isImplementedBy: isPairImpl} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 
 /** @interface */
 class NumArgChecker {
