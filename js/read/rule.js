@@ -1,7 +1,7 @@
 goog.module('r5js.read.bnf.Rule');
 
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const TokenStream = goog.require('r5js.TokenStream');
+const {TokenStream} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 
 /** @interface */
 class Rule {

@@ -6,8 +6,8 @@ const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__ma
 const Matcher = goog.require('tdd.matchers.Matcher');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Reader = goog.require('r5js.Reader');
-const TokenStream = goog.require('r5js.TokenStream');
 const {Nonterminal} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {TokenStream} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 
 /** @implements {Matcher<string>} */
 class ParsesAs {

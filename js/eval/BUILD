@@ -11,7 +11,6 @@ closure_js_library(
         "//js/io",
         "//js/parse",
         "//js/read",
-        "//js/scan",
         "//js/runtime",
         "//js/runtime:ienvironment",
         "//js:value",

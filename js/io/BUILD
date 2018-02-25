@@ -53,7 +53,6 @@ closure_js_library(
         ":input_port",
         "//js/ast:datum",
         "//js/read",
-        "//js/scan",
     ],
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",

@@ -4,7 +4,7 @@ goog.setTestOnly('scanAs');
 
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Matcher = goog.require('tdd.matchers.Matcher');
-const TokenStream = goog.require('r5js.TokenStream');
+const {TokenStream} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 
 /** @implements {Matcher<string>} */
 class ScansAs {

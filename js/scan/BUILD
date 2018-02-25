@@ -1,16 +1,17 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
 
-closure_js_library(
-    name = "scan",
-    srcs = glob(["*.js"]),
-    deps = [
-        "//js:error",
-        "//js/ast",
-        "//js/parse:terminals",
+exports_files(["token_stream.ts"])
+
+ts_library(
+    name = "scan_ts",
+    srcs = [
+        "token_stream.ts",
     ],
-    suppress = [
-        "JSC_PRIMITIVE_OBJECT",
-        "JSC_TYPE_MISMATCH",
+    deps = [
+        "//js:error_ts",
+        "//js/ast:datum_ts",
+        "//js/parse:terminals_ts",
     ],
     visibility = ["//js:__subpackages__"],
 )

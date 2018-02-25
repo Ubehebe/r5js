@@ -4,7 +4,7 @@ const {Character} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/
 const {Datum} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {InputPort, addInputPortImpl} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const Reader = goog.require('r5js.Reader');
-const TokenStream = goog.require('r5js.TokenStream');
+const {TokenStream} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 const {InMemoryPortBuffer} = require('/js/io/in_memory_port_buffer_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_port_buffer');
 
 class InMemoryInputPort extends InputPort {

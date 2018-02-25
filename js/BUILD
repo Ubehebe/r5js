@@ -75,6 +75,5 @@ closure_js_library(
         "//js/runtime",
         "//js/runtime:ienvironment",
         "//js/runtime:used_by_parser_impl",
-        "//js/scan",
     ],
 )

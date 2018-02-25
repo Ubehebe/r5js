@@ -35,11 +35,13 @@ closure_js_library(
     deps = [
         "//js/ast",
         "//js:error",
-        "//js/scan",
         ":grammar",
         ":rule",
         ":rule_factory",
-    ]
+    ],
+    suppress = [
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ],
 )
 
 closure_js_library(
@@ -49,8 +51,7 @@ closure_js_library(
     ],
     deps = [
         "//js/ast",
-        "//js/scan",
-    ]
+    ],
 )
 
 closure_js_library(
@@ -60,7 +61,6 @@ closure_js_library(
     ],
     deps = [
         "//js/parse:terminals",
-        "//js/scan",
         ":grammar",
         ":rule",
     ],

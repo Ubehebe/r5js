@@ -7,12 +7,12 @@ const {Quasiquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules
 const {Quote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
 const Rule = goog.require('r5js.read.bnf.Rule');
 const {SiblingBuffer} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const TokenStream = goog.require('r5js.TokenStream');
 const {Unquote} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote');
 const {UnquoteSplicing} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote_splicing');
 const {List} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {Nonterminal} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {QUASIQUOTE, QUOTE, UNQUOTE, UNQUOTE_SPLICING} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {TokenStream} = require('/js/ast/datum_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 
 class RuleFactory {
     /** @param {!Grammar} grammar */
