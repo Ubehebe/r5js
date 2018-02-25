@@ -8,7 +8,7 @@ const {SimpleDatum} = require('/js/read/shim_collect_es6_sources.es6/node_module
 const {Identifier} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {DatumStream} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/datum_stream');
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
-const Grammar = goog.require('r5js.parse.Grammar');
+const {Grammar} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/grammar');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
 const {Macro: MacroDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/macro');
@@ -213,8 +213,12 @@ let fixParserSensitiveIds_ = false;
 /** @const {!Object<!Nonterminal, !Rule>} */
 const grammar = {};
 
-/** @implements {Grammar} */
-class GrammarImpl {
+class GrammarImpl extends Grammar {
+
+    constructor() {
+        super();
+    }
+
     /** @override */
     ruleFor(nonterminal) {
         return grammar[nonterminal];

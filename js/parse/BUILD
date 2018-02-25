@@ -11,7 +11,6 @@ closure_js_library(
     name = "parse",
     srcs = [],
     exports = [
-        ":grammar",
         ":nonterminals",
         ":parser",
         ":parser_impl",
@@ -26,10 +25,12 @@ ts_library(
     srcs = [
         "datum_stream.ts",
         "desugarable_rule.ts",
+        "grammar.ts",
         "rule.ts",
     ],
     deps = [
         "//js/ast:datum_ts",
+        ":nonterminals_ts",
     ],
 )
 
@@ -42,17 +43,6 @@ closure_ts_library(
         "CR_NOT_PROVIDED",
         "JSC_INVALID_CLOSURE_CALL_ERROR",
         "JSC_UNKNOWN_EXPR_TYPE",
-    ]
-)
-
-closure_js_library(
-    name = "grammar",
-    srcs = [
-        "grammar.js",
-    ],
-    deps = [
-        ":nonterminals",
-        ":shim",
     ]
 )
 
@@ -87,7 +77,6 @@ closure_js_library(
         "parser_impl.js",
     ],
     deps = [
-        ":grammar",
         ":parser",
         ":shim",
         ":rule_factory",
@@ -128,7 +117,6 @@ closure_js_library(
         "rule_factory.js",
     ],
     deps = [
-        ":grammar",
         ":shim",
     ],
     suppress = [
