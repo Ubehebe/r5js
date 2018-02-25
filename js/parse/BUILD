@@ -11,7 +11,6 @@ closure_js_library(
     name = "parse",
     srcs = [],
     exports = [
-        ":desugarable_rule",
         ":grammar",
         ":nonterminals",
         ":parser",
@@ -26,6 +25,7 @@ ts_library(
     name = "parse_ts",
     srcs = [
         "datum_stream.ts",
+        "desugarable_rule.ts",
         "rule.ts",
     ],
     deps = [
@@ -43,16 +43,6 @@ closure_ts_library(
         "JSC_INVALID_CLOSURE_CALL_ERROR",
         "JSC_UNKNOWN_EXPR_TYPE",
     ]
-)
-
-closure_js_library(
-    name = "desugarable_rule",
-    srcs = [
-        "desugarable_rule.js",
-    ],
-    deps = [
-        ":shim",
-    ],
 )
 
 closure_js_library(
@@ -138,13 +128,13 @@ closure_js_library(
         "rule_factory.js",
     ],
     deps = [
-        ":desugarable_rule",
         ":grammar",
         ":shim",
     ],
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",
         "JSC_TYPE_MISMATCH",
+        "JSC_HIDDEN_SUPERCLASS_PROPERTY_MISMATCH",
     ],
 )
 
