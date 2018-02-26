@@ -11,6 +11,7 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {List} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {PATTERN, TEMPLATE} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {isParserSensitiveId, newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
+const {Parser} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/parser');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */
 class Macro {
@@ -120,7 +121,7 @@ class Macro {
     /**
      * @param {!Datum} datum Datum to transcribe.
      * @param {!IEnvironment} useEnv Environment to use for the transcription.
-     * @param {function(!Datum):!r5js.Parser} parserProvider Function
+     * @param {function(!Datum):!Parser} parserProvider Function
      * that will return a new Parser for the given Datum. This is a hack to avoid
      * instantiating a Parser directly in this file, which would cause
      * a cyclic dependency between macro.js and parse.js.
@@ -238,7 +239,7 @@ class Macro {
      * @param {!Datum} rawDatum
      * @param {!ProcCallLike} procCallLike
      * @param {!ProcCallResult} resultStruct
-     * @param {function(!Datum):!r5js.Parser} parserProvider
+     * @param {function(!Datum):!Parser} parserProvider
      */
     evaluate(rawDatum, procCallLike, resultStruct, parserProvider) {
         var oldEnv = procCallLike.getEnv();

@@ -8,6 +8,7 @@ closure_js_library(
         "//js/ast",
         "//js:error",
         "//js/parse:rename_util",
+        "//js/parse:shim",
         "//js/runtime:ienvironment",
         "//js:value",
     ],

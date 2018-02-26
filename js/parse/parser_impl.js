@@ -13,7 +13,7 @@ const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
 const {Macro: MacroDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/macro');
 const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
-const Parser = goog.require('r5js.Parser');
+const {Parser} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/parser');
 const ProcCall = goog.require('r5js.ProcCall');
 const {Rule} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/rule');
 const RuleFactory = goog.require('r5js.parse.RuleFactory');
@@ -172,10 +172,10 @@ const {isParserSensitiveId} = require('/js/parse/rename_util_collect_es6_sources
  in R6RS. */
 
 
-/** @implements {Parser} */
-class ParserImpl {
+class ParserImpl extends Parser {
     /** @param {!Datum} root The root of the tree to parse. */
     constructor(root) {
+        super();
         /** @const @private {!DatumStream} */
         this.datumStream_ = DatumStream.create(root);
     }

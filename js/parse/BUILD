@@ -12,7 +12,6 @@ closure_js_library(
     srcs = [],
     exports = [
         ":nonterminals",
-        ":parser",
         ":parser_impl",
         ":rename_util",
         ":shim",
@@ -26,6 +25,7 @@ ts_library(
         "datum_stream.ts",
         "desugarable_rule.ts",
         "grammar.ts",
+        "parser.ts",
         "rule.ts",
     ],
     deps = [
@@ -62,22 +62,11 @@ closure_ts_library(
 )
 
 closure_js_library(
-    name = "parser",
-    srcs = [
-        "parser.js",
-    ],
-    deps = [
-        "//js/ast",
-    ],
-)
-
-closure_js_library(
     name = "parser_impl",
     srcs = [
         "parser_impl.js",
     ],
     deps = [
-        ":parser",
         ":shim",
         ":rule_factory",
         "//js/ast",
