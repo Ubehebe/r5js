@@ -1,10 +1,10 @@
 goog.module('r5js.Evaluator');
 
 const {Datum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {InputPort} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
+const {InputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const Pipeline = goog.require('r5js.Pipeline');
 const valutil = goog.require('r5js.valutil');
-const {OutputPort} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
+const {OutputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
 class Evaluator {
     /**

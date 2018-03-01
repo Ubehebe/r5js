@@ -1,7 +1,7 @@
 goog.module('r5js.TrampolineHelper');
 
-const {InputPort} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
-const {OutputPort} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
+const {InputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
+const {OutputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {ProcCallLike, ProcCallResult, UNSPECIFIED_VALUE} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 class TrampolineHelper extends ProcCallResult {

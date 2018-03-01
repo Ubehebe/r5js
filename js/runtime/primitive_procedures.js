@@ -10,7 +10,7 @@ const {Identifier} = require('/js/read/shim_collect_es6_sources.es6/node_modules
 const DynamicWindContinuation = goog.require('r5js.DynamicWindContinuation');
 const EOF = goog.require('r5js.runtime.EOF');
 const Environment = goog.require('r5js.Environment');
-const {isInputPortImpl} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
+const {isInputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const Lambda = goog.require('r5js.Lambda');
 const {Number} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
 const ParserImpl = goog.require('r5js.ParserImpl');
@@ -25,7 +25,7 @@ const trampoline = goog.require('r5js.trampoline');
 const valutil = goog.require('r5js.valutil');
 const {CdrHelperImpl, DottedList, List} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {OutputPort, isOutputPortImpl} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
+const {OutputPort, isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = goog.require('r5js.runtime.errors');
 const {

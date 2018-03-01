@@ -2,7 +2,7 @@ goog.module('r5js.boot');
 
 const Environment = goog.require('r5js.Environment');
 const Evaluator = goog.require('r5js.Evaluator');
-const {InputPort, NULL_INPUT_PORT} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
+const {InputPort, NULL_INPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Pipeline = goog.require('r5js.Pipeline');
 const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
@@ -10,7 +10,7 @@ const {Reader} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__m
 const {TokenStream} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 const trampoline = goog.require('r5js.trampoline');
 const {Datum, ProcCallLike} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {OutputPort, NULL_OUTPUT_PORT} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
+const {OutputPort, NULL_OUTPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
 /**
  * The main bootstrap function. Given Scheme source code for R5RS syntax and

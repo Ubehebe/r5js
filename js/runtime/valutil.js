@@ -3,7 +3,7 @@ goog.module('r5js.valutil');
 const {Character} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 const {Datum, UNSPECIFIED_VALUE} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const EOF = goog.require('r5js.runtime.EOF');
-const {isInputPortImpl} = require('/js/io/input_port_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
+const {isInputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const {Quote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
 const {Ref} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
 const {String} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
@@ -11,7 +11,7 @@ const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const {Vector} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
 const {DottedList, List} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} = require('/js/parse/terminals_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
-const {isOutputPortImpl} = require('/js/io/output_port_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
+const {isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
 /*
  * Implementation note: a richer representation of Scheme values would

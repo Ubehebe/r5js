@@ -35,10 +35,7 @@ ts_library(
     ],
     deps = [
         "//js/ast:datum_ts",
-        "//js/io:in_memory_output_port_ts",
-        "//js/io:in_memory_port_buffer_ts",
-        "//js/io:input_port_ts",
-        "//js/io:output_port_ts",
+        "//js/io:io_ts",
         "//js/parse:nonterminals_ts",
         "//js/parse:terminals_ts",
         "//js/scan:scan_ts",
