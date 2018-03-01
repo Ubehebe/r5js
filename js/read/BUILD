@@ -14,11 +14,13 @@ genrule(
     name = "ugh",
     srcs = [
         "//js/io:in_memory_input_port.ts",
+        "//js/io:port_manager.ts",
     ],
     outs = [
         "in_memory_input_port.ts",
+        "port_manager.ts",
     ],
-    cmd = "cp $(<) $(@)",
+    cmd = "cp $(SRCS) $(@D)",
 )
 
 ts_library(
@@ -26,14 +28,17 @@ ts_library(
     srcs = [
         "grammar.ts",
         "in_memory_input_port.ts",
+        "port_manager.ts",
         "reader.ts",
         "rule.ts",
         "rule_factory.ts",
     ],
     deps = [
         "//js/ast:datum_ts",
+        "//js/io:in_memory_output_port_ts",
         "//js/io:in_memory_port_buffer_ts",
         "//js/io:input_port_ts",
+        "//js/io:output_port_ts",
         "//js/parse:nonterminals_ts",
         "//js/parse:terminals_ts",
         "//js/scan:scan_ts",

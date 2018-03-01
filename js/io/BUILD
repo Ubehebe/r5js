@@ -5,7 +5,10 @@ package(
     default_visibility = ["//js:__subpackages__"],
 )
 
-exports_files(["in_memory_input_port.ts"])
+exports_files([
+    "in_memory_input_port.ts",
+    "port_manager.ts",
+])
 
 closure_js_library(
     name = "io",
@@ -20,7 +23,6 @@ closure_js_library(
         ":input_port",
         ":output_port",
         ":output_saving_port",
-        ":port_manager",
     ],
 )
 
@@ -148,22 +150,5 @@ closure_ts_library(
         "CR_NOT_PROVIDED",
         "JSC_INVALID_CLOSURE_CALL_ERROR",
         "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-)
-
-closure_js_library(
-    name = "port_manager",
-    srcs = [
-        "port_manager.js",
-    ],
-    deps = [
-        ":in_memory_output_port",
-        ":in_memory_port_buffer",
-        ":input_port",
-        ":output_port",
-        "//js/read:shim",
-    ],
-    suppress = [
-        "JSC_TYPE_MISMATCH",
     ],
 )

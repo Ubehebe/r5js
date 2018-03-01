@@ -1,27 +1,24 @@
-import {InMemoryPortBuffer} from "./in_memory_port_buffer";
-import {InputPort} from "./input_port";
+import {InMemoryPortBuffer} from "../io/in_memory_port_buffer";
+import {InputPort} from "../io/input_port";
 import {InMemoryInputPort} from "./in_memory_input_port";
-import {OutputPort} from "./output_port";
-import {InMemoryOutputPort} from "./in_memory_output_port";
+import {OutputPort} from "../io/output_port";
+import {InMemoryOutputPort} from "../io/in_memory_output_port";
 
 export class PortManager {
 
-  private readonly buffers_: { [key: string]: InMemoryPortBuffer } = {};
-
-  constructor() {
-  }
+  private readonly buffers: { [key: string]: InMemoryPortBuffer } = {};
 
   newInputPort(name: string): InputPort {
-    if (!(name in this.buffers_)) {
-      this.buffers_[name] = new InMemoryPortBuffer();
+    if (!(name in this.buffers)) {
+      this.buffers[name] = new InMemoryPortBuffer();
     }
-    return new InMemoryInputPort(this.buffers_[name]);
+    return new InMemoryInputPort(this.buffers[name]);
   }
 
   newOutputPort(name: string): OutputPort {
-    if (!(name in this.buffers_)) {
-      this.buffers_[name] = new InMemoryPortBuffer();
+    if (!(name in this.buffers)) {
+      this.buffers[name] = new InMemoryPortBuffer();
     }
-    return new InMemoryOutputPort(this.buffers_[name]);
+    return new InMemoryOutputPort(this.buffers[name]);
   }
 }
