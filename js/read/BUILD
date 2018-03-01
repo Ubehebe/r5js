@@ -7,11 +7,33 @@ package(
     ],
 )
 
+# Workaround to avoid duplication of the AST classes in js/read execroot.
+# Instead of polluting the commit history by moving in_memory_input_port.ts into this package,
+# just copy it here temporarily via a genrule. TODO: remove.
+genrule(
+    name = "ugh",
+    srcs = [
+        "//js/io:in_memory_input_port.ts",
+    ],
+    outs = [
+        "in_memory_input_port.ts",
+    ],
+    cmd = "cp $(<) $(@)",
+)
+
 ts_library(
     name = "read_ts",
-    srcs = glob(["*.ts"]),
+    srcs = [
+        "grammar.ts",
+        "in_memory_input_port.ts",
+        "reader.ts",
+        "rule.ts",
+        "rule_factory.ts",
+    ],
     deps = [
         "//js/ast:datum_ts",
+        "//js/io:in_memory_port_buffer_ts",
+        "//js/io:input_port_ts",
         "//js/parse:nonterminals_ts",
         "//js/parse:terminals_ts",
         "//js/scan:scan_ts",
