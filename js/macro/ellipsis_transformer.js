@@ -2,13 +2,13 @@ goog.module('r5js.EllipsisTransformer');
 
 const {Datum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const Subtransformer = goog.require('r5js.Subtransformer');
+const {Subtransformer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/subtransformer');
 const {TemplateBindings} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/template_bindings');
 
-/** @implements {Subtransformer} */
-class EllipsisTransformer {
+class EllipsisTransformer extends Subtransformer {
     /** @param {!Subtransformer} subtransformer */
     constructor(subtransformer) {
+        super();
         /** @const @private */ this.subtransformer_ = subtransformer;
     }
 

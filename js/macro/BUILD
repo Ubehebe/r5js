@@ -15,6 +15,7 @@ ts_library(
         "desugarable_rule.ts",
         "grammar.ts",
         "parser.ts",
+        "subtransformer.ts",
     ],
     deps = [
         "//js/ast:datum_ts",

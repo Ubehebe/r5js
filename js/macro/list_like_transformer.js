@@ -6,17 +6,13 @@ const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
 const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
 const {Quote} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
 const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const Subtransformer = goog.require('r5js.Subtransformer');
+const {Subtransformer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/subtransformer');
 const {Vector} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
 const asserts = goog.require('goog.asserts');
 const {DottedList, List} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {TemplateBindings} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/template_bindings');
 
-/**
- * @interface
- * @extends {Subtransformer}
- */
-class ListLikeTransformer {
+class ListLikeTransformer extends Subtransformer {
     /**
      * @param {!Subtransformer} subtransformer
      * @return {!ListLikeTransformer} This object, for chaining.
@@ -47,10 +43,10 @@ class ListLikeTransformer {
     }
 }
 
-/** @implements {ListLikeTransformer} */
-class Base {
+class Base extends ListLikeTransformer {
     /** @param {function(new: Datum, !Datum)} ctor */
     constructor(ctor) {
+        super();
         /** @const @private */ this.ctor_ = ctor;
         /** @const @private {!Array<!Subtransformer>} */ this.subtransformers_ = [];
     }
@@ -173,7 +169,6 @@ class Base {
     }
 }
 
-/** @implements {ListLikeTransformer} */
 class QuoteTransformer extends Base {
     constructor() {
         super(Quote);
@@ -187,7 +182,6 @@ class QuoteTransformer extends Base {
     collectNestingLevels() {}
 }
 
-/** @implements {ListLikeTransformer} */
 class VectorTransformer extends Base {
     constructor() {
         super(Vector);
@@ -200,7 +194,6 @@ class VectorTransformer extends Base {
     }
 }
 
-/** @implements {ListLikeTransformer} */
 class ListTransformer extends Base {
     constructor() {
         super(List);
@@ -213,7 +206,6 @@ class ListTransformer extends Base {
     }
 }
 
-/** @implements {ListLikeTransformer} */
 class DottedListTransformer extends Base {
     constructor() {
         super(DottedList);

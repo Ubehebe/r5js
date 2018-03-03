@@ -4,12 +4,13 @@ const {CompoundDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_mod
 const {Datum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {SimpleDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
-const Subtransformer = goog.require('r5js.Subtransformer');
+const {Subtransformer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/subtransformer');
 const {TemplateBindings} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/template_bindings');
 
-class MacroIdTransformer {
+class MacroIdTransformer extends Subtransformer {
     /** @param {!SimpleDatum} datum */
     constructor(datum) {
+        super();
         /** @const @protected */ this.datum = datum;
     }
 
@@ -21,6 +22,7 @@ class MacroIdTransformer {
      * @param {!IEnvironment} useEnv Use environment.
      * @param {!TemplateBindings} bindings Template bindings.
      * @return {boolean} True iff the transformer is a match (?)
+     * @override
      * TODO bl: what is the use of the value type in the literalIds dictionary?
      */
     matchInput(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
@@ -83,12 +85,13 @@ class MacroIdTransformer {
      * @param {!TemplateBindings} bindings Template bindings.
      * @return {!Datum}
      * @suppress {checkTypes} TODO bl
+     * @override
      */
     toDatum(bindings) {
         return bindings.resolveDatum(this.datum);
     }
 
-    /** @return {!Datum} */
+    /** @return {!SimpleDatum} */
     getDatum() {
         return this.datum;
     }
@@ -110,7 +113,6 @@ class MacroIdTransformer {
     }
 }
 
-/** @implements {Subtransformer} */
 class PatternIdTransformer extends MacroIdTransformer {
     /** @param {!SimpleDatum} datum */
     constructor(datum) {
@@ -125,7 +127,6 @@ class PatternIdTransformer extends MacroIdTransformer {
     }
 }
 
-/** @implements {Subtransformer} */
 class TemplateIdTransformer extends MacroIdTransformer {
     /** @param {!SimpleDatum} datum */
     constructor(datum) {
