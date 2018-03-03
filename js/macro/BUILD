@@ -4,6 +4,7 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
 ts_library(
     name = "macro_ts",
     srcs = [
+        "ellipsis_transformer.ts",
         "rename_helper.ts",
         "template_bindings.ts",
         "in_memory_input_port.ts",

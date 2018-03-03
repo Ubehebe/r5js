@@ -7,7 +7,7 @@ const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM, getLastProcCallL
 const {SimpleDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {DatumStream} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/datum_stream');
-const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
+const {EllipsisTransformer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/ellipsis_transformer');
 const {Grammar} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/grammar');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
 const Macro = goog.require('r5js.Macro');
