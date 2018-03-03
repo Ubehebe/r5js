@@ -69,7 +69,6 @@ closure_js_library(
     deps = [
         ":shim",
         ":rule_factory",
-        "//js/ast",
         "//js/macro",
         "//js/runtime:used_by_parser_impl",
     ],

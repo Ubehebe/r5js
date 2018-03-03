@@ -71,7 +71,7 @@ const {
     VECTOR_QQ_TEMPLATE,
     Nonterminal,
 } = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {RenameHelper} = require('/js/ast/rename_helper_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
+const {RenameHelper} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
 const {
     BACKTICK,
     BEGIN,

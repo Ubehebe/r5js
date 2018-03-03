@@ -26,8 +26,8 @@ closure_js_library(
     name = "used_by_parser_impl",
     srcs = SRCS_USED_BY_PARSER_IMPL,
     deps = [
-        "//js/ast",
         "//js:error",
+        "//js/ast:type",
         "//js/macro",
         "//js/parse:shim",
         "//js/parse:terminals",
@@ -50,7 +50,6 @@ closure_js_library(
     ] + SRCS_USED_BY_PARSER_IMPL),
     deps = [
         ":used_by_parser_impl",
-        "//js/ast",
         "//js:error",
         "//js/io",
         "//js/macro",

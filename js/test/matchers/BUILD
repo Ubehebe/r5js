@@ -9,7 +9,6 @@ closure_js_library(
     srcs = glob(["*.js"]),
     deps = [
         "@closure_tdd//matchers",
-        "//js/ast",
         "//js:boot",
         "//js:error",
         "//js/io",

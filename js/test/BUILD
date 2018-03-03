@@ -14,7 +14,6 @@ closure_js_test(
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library:testing",
-        "//js/ast",
         "//js:boot",
         "//js:error",
         "//js:scheme_sources",
@@ -67,7 +66,6 @@ closure_js_test(
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library:testing",
-        "//js/ast",
         "//js:boot",
         "//js:error",
         "//js/test/matchers",

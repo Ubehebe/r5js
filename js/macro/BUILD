@@ -30,7 +30,6 @@ closure_js_library(
     deps = [
         ":shim",
         "@io_bazel_rules_closure//closure/library",
-        "//js/ast",
         "//js:error",
         "//js/parse:rename_util",
         "//js/parse:shim",

@@ -6,7 +6,6 @@ closure_js_library(
     visibility = ["//js:__subpackages__"],
     deps = [
         "@io_bazel_rules_closure//closure/library",
-        "//js/ast",
         "//js:error",
         "//js/io",
         "//js/parse",
