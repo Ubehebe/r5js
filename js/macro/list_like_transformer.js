@@ -1,16 +1,16 @@
 goog.module('r5js.ListLikeTransformer');
 
-const {CompoundDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
-const {Datum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {CompoundDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
+const {Datum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const EllipsisTransformer = goog.require('r5js.EllipsisTransformer');
 const MacroIdTransformer = goog.require('r5js.MacroIdTransformer');
-const {Quote} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
-const {SiblingBuffer} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
+const {Quote} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
+const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const Subtransformer = goog.require('r5js.Subtransformer');
-const TemplateBindings = goog.require('r5js.TemplateBindings');
-const {Vector} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
+const {Vector} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
 const asserts = goog.require('goog.asserts');
-const {DottedList, List} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {DottedList, List} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {TemplateBindings} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/template_bindings');
 
 /**
  * @interface

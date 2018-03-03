@@ -1,10 +1,10 @@
 goog.module('r5js.Assignment');
 
 const Macro = goog.require('r5js.Macro');
-const {SiblingBuffer} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const {Datum, ProcCallLike, UNSPECIFIED_VALUE} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {Identifier} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const {SimpleDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
+const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
+const {Datum, ProcCallLike, UNSPECIFIED_VALUE} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {SimpleDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 class Assignment extends ProcCallLike {

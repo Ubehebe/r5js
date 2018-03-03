@@ -1,20 +1,20 @@
 goog.module('r5js.ProcCall');
 
-const {ContinuableHelper} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/continuable_helper');
+const {ContinuableHelper} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/continuable_helper');
 const Continuation = goog.require('r5js.Continuation');
-const {Datum, ProcCallLike, ProcCallResult, UNSPECIFIED_VALUE, getLastProcCallLike} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {Identifier} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const {SimpleDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
+const {Datum, ProcCallLike, ProcCallResult, UNSPECIFIED_VALUE, getLastProcCallLike} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {SimpleDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const Lambda = goog.require('r5js.Lambda');
 const Macro = goog.require('r5js.Macro');
-const {Parser} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/parser');
+const {Parser} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/parser');
 const Procedure = goog.require('r5js.Procedure');
-const {Quasiquote} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
-const {Quote} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
-const {SiblingBuffer} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const {Vector} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
+const {Quasiquote} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
+const {Quote} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
+const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
+const {Vector} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {List} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
 class ProcCall extends ProcCallLike {

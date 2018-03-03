@@ -1,17 +1,17 @@
 goog.module('r5js.Macro');
 
-const {CompoundDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
-const {Datum, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {Identifier} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {CompoundDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
+const {Datum, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
-const {SiblingBuffer} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const TemplateBindings = goog.require('r5js.TemplateBindings');
+const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const Transformer = goog.require('r5js.Transformer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
-const {PATTERN, TEMPLATE} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {isParserSensitiveId, newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
-const {Parser} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/parser');
+const {List} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {PATTERN, TEMPLATE} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {TemplateBindings} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/template_bindings');
+const {isParserSensitiveId, newCpsName} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
+const {Parser} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/parser');
 
 /** @implements {ObjectValue} TODO bl almost certainly wrong */
 class Macro {

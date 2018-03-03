@@ -1,11 +1,11 @@
 goog.module('r5js.MacroIdTransformer');
 
-const {CompoundDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
-const {Datum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {Identifier} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const {SimpleDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
+const {CompoundDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
+const {Datum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {SimpleDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const Subtransformer = goog.require('r5js.Subtransformer');
-const TemplateBindings = goog.require('r5js.TemplateBindings');
+const {TemplateBindings} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/template_bindings');
 
 class MacroIdTransformer {
     /** @param {!SimpleDatum} datum */

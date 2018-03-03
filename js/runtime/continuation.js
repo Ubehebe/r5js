@@ -1,6 +1,6 @@
 goog.module('r5js.Continuation');
 
-const {ProcCallLike, ProcCallResult} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {ProcCallLike, ProcCallResult} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /**
  * Example: (g (f x y) z) desugared is

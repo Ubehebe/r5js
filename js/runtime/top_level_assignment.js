@@ -1,9 +1,9 @@
 goog.module('r5js.TopLevelAssignment');
 
 const Assignment = goog.require('r5js.Assignment');
-const {SiblingBuffer} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const {Identifier} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const {ProcCallLike} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
+const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {ProcCallLike} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 class TopLevelAssignment extends Assignment {
     constructor(firstOperand) {

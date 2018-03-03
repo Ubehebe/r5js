@@ -1,13 +1,13 @@
 goog.module('r5js.Environment');
 
 const Continuation = goog.require('r5js.Continuation');
-const {Datum, UNSPECIFIED_VALUE} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, UNSPECIFIED_VALUE} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Lambda = goog.require('r5js.Lambda');
 const Macro = goog.require('r5js.Macro');
 const Procedure = goog.require('r5js.Procedure');
-const {Ref} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
+const {Ref} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
-const {CPS_PREFIX} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
+const {CPS_PREFIX} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {notAProcedure} = goog.require('r5js.runtime.errors');
 
