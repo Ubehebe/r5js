@@ -1,7 +1,7 @@
 goog.module('r5js.Lambda');
 
 const Procedure = goog.require('r5js.Procedure');
-const {SimpleDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
+const {SimpleDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 
 /** @extends {SimpleDatum<!Procedure>} */
 class Lambda extends SimpleDatum {

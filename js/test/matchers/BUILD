@@ -13,7 +13,6 @@ closure_js_library(
         "//js:error",
         "//js/io",
         "//js/parse",
-        "//js/read",
     ],
     suppress = [
             "JSC_UNKNOWN_EXPR_TYPE",

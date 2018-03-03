@@ -1,18 +1,18 @@
 goog.module('r5js.parse.RuleFactory');
 
-const {CompoundDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
-const {Datum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {SimpleDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
+const {CompoundDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
+const {Datum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {SimpleDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const {DesugarableRule} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/desugarable_rule');
 const {Grammar} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/grammar');
-const {Quasiquote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
-const {Quote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
+const {Quasiquote} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');
+const {Quote} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
 const {Rule} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/rule');
-const {Unquote} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote');
-const {UnquoteSplicing} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote_splicing');
-const {Vector} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
-const {DottedList, List} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
-const {Nonterminal} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {Unquote} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote');
+const {UnquoteSplicing} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/unquote_splicing');
+const {Vector} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
+const {DottedList, List} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {Nonterminal} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {
     BACKTICK,
     BEGIN,

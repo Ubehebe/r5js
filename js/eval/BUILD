@@ -9,7 +9,6 @@ closure_js_library(
         "//js:error",
         "//js/io",
         "//js/parse",
-        "//js/read",
         "//js/runtime",
         "//js/runtime:ienvironment",
         "//js:value",

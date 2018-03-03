@@ -32,7 +32,6 @@ closure_js_library(
         "@io_bazel_rules_closure//closure/library",
         "//js:error",
         "//js/parse:rename_util",
-        "//js/parse:shim",
         "//js/runtime:ienvironment",
         "//js:value",
     ],

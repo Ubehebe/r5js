@@ -6,10 +6,10 @@ const {InputPort, NULL_INPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/
 const ParserImpl = goog.require('r5js.ParserImpl');
 const Pipeline = goog.require('r5js.Pipeline');
 const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
-const {Reader} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/read/reader');
-const {TokenStream} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
+const {Reader} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/reader');
+const {TokenStream} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 const trampoline = goog.require('r5js.trampoline');
-const {Datum, ProcCallLike} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {OutputPort, NULL_OUTPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
 /**

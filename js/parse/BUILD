@@ -19,18 +19,50 @@ closure_js_library(
     ],
 )
 
+# Workaround to avoid duplication of the AST classes in js/read execroot.
+# Instead of polluting the commit history by moving in_memory_input_port.ts into this package,
+# just copy it here temporarily via a genrule. TODO: remove.
+genrule(
+    name = "ugh",
+    srcs = [
+        "//js/io:in_memory_input_port.ts",
+        "//js/io:port_manager.ts",
+        "//js/read:grammar.ts",
+        "//js/read:reader.ts",
+        "//js/read:rule.ts",
+        "//js/read:rule_factory.ts",
+    ],
+    outs = [
+        "grammar.ts",
+        "in_memory_input_port.ts",
+        "port_manager.ts",
+        "reader.ts",
+        "rule.ts",
+        "rule_factory.ts",
+    ],
+    cmd = "cp $(SRCS) $(@D)",
+)
+
 ts_library(
     name = "parse_ts",
     srcs = [
         "datum_stream.ts",
         "desugarable_rule.ts",
         "grammar.ts",
+        "in_memory_input_port.ts",
         "parser.ts",
+        "port_manager.ts",
+        "reader.ts",
         "rule.ts",
+        "rule_factory.ts",
     ],
     deps = [
-        "//js/ast:datum_ts",
         ":nonterminals_ts",
+        ":terminals_ts",
+        "//js/ast:datum_ts",
+        "//js/io:io_ts",
+        "//js/scan:scan_ts",
+        "//js:error_ts",
     ],
 )
 
@@ -67,7 +99,6 @@ closure_js_library(
         "parser_impl.js",
     ],
     deps = [
-        ":shim",
         ":rule_factory",
         "//js/macro",
         "//js/runtime:used_by_parser_impl",
@@ -103,9 +134,6 @@ closure_js_library(
     name = "rule_factory",
     srcs = [
         "rule_factory.js",
-    ],
-    deps = [
-        ":shim",
     ],
     suppress = [
         "JSC_UNKNOWN_EXPR_TYPE",

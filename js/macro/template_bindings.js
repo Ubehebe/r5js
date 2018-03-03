@@ -1,9 +1,9 @@
 goog.module('r5js.TemplateBindings');
 
-const {CompoundDatum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
-const {Datum} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {Identifier} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const {Macro} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/macro');
+const {CompoundDatum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
+const {Datum} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {Macro} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/macro');
 const {newCpsName} = require('/js/parse/rename_util_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 

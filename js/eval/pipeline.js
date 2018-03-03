@@ -1,13 +1,13 @@
 goog.module('r5js.Pipeline');
 
-const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Environment = goog.require('r5js.Environment');
 const {InputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
-const {Reader} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/read/reader');
-const {TokenStream} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
+const {Reader} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/reader');
+const {TokenStream} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 const trampoline = goog.require('r5js.trampoline');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {Nonterminal} = require('/js/read/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {Nonterminal} = require('/js/parse/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {OutputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {ParserImpl} = goog.require('r5js.ParserImpl');
 
