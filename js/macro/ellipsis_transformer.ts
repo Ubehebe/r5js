@@ -6,11 +6,8 @@ import {RenameHelper} from "./rename_helper";
 
 export class EllipsisTransformer extends Subtransformer {
 
-  private readonly subtransformer_: Subtransformer;
-
-  constructor(subtransformer: Subtransformer) {
+  constructor(private readonly subtransformer: Subtransformer) {
     super();
-    this.subtransformer_ = subtransformer;
   }
 
   /** @override */
@@ -50,7 +47,7 @@ export class EllipsisTransformer extends Subtransformer {
           useEnv,
           bindings.getPatternIds(),
           bindings.getTemplateRenameCandidates());
-      const maybeMatched = this.subtransformer_.matchInput(
+      const maybeMatched = this.subtransformer.matchInput(
           subinput, literalIds, definitionEnv, useEnv, childBindings);
       if (maybeMatched) {
         bindings.addOrIncorporateChild(childBindings);
@@ -67,7 +64,7 @@ export class EllipsisTransformer extends Subtransformer {
     let bindingsToUse;
     let success;
     while ((bindingsToUse = bindings.getNextChild()) &&
-    (success = this.subtransformer_.toDatum(bindingsToUse))) {
+    (success = this.subtransformer.toDatum(bindingsToUse))) {
       buf.appendSibling(success);
     }
     bindings.resetCurChild();
@@ -76,6 +73,6 @@ export class EllipsisTransformer extends Subtransformer {
 
   /** @override */
   collectNestingLevels(ellipsisLevel: number, renameHelper: RenameHelper) {
-    this.subtransformer_.collectNestingLevels(ellipsisLevel + 1, renameHelper);
+    this.subtransformer.collectNestingLevels(ellipsisLevel + 1, renameHelper);
   }
 }
