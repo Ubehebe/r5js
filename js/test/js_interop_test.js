@@ -5,7 +5,7 @@ const {InMemoryInputPort} = require('/js/runtime/shim_collect_es6_sources.es6/no
 const {InMemoryOutputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_output_port');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const Throw = goog.require('Throw');
-const errors = goog.require('r5js.runtime.errors');
+const {argumentTypeError} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/errors');
 const evalTo = goog.require('evalTo');
 const expect = goog.require('expect');
 const testSuite = goog.require('goog.testing.testSuite');
@@ -191,7 +191,7 @@ testSuite({
         expect_('(let ((foo (lambda (x . y) x))) (foo))').
             to(Throw(Error.tooFewVarargs('', 1, 0)));
         expect_('(+ "a" "b")').
-            to(Throw(errors.argumentTypeError(
+            to(Throw(argumentTypeError(
                 'a', 0, '+', Types.NUMBER, Types.STRING)));
         expect_('(scheme-report-environment 6)').
             to(Throw(Error.unimplementedOption('')));

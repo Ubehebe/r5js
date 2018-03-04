@@ -18,7 +18,7 @@ const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__
 const {List} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {OutputPort, isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {Type, Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
-const {argumentTypeError} = goog.require('r5js.runtime.errors');
+const {argumentTypeError} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/errors');
 const {isImplementedBy: isPairImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ipair');
 
 /** @interface */

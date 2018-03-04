@@ -15,7 +15,7 @@ const {SiblingBuffer} = require('/js/runtime/shim_collect_es6_sources.es6/node_m
 const {Vector} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {List} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
-const {notAProcedure} = goog.require('r5js.runtime.errors');
+const {notAProcedure} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/errors');
 
 class ProcCall extends ProcCallLike {
     /**

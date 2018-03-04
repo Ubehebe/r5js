@@ -27,7 +27,7 @@ const {CdrHelperImpl, DottedList, List} = require('/js/runtime/shim_collect_es6_
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {OutputPort, isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
-const {argumentTypeError} = goog.require('r5js.runtime.errors');
+const {argumentTypeError} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/errors');
 const {
     atLeastNWithSpecialEvalLogic,
     binary,
