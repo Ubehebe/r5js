@@ -1,7 +1,7 @@
 goog.module('r5js.CallWithCurrentContinuation');
 
 const {Continuation} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/continuation');
-const ProcCall = goog.require('r5js.ProcCall');
+const {ProcCall} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call');
 const {Identifier} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 
 class CallWithCurrentContinuation extends ProcCall {

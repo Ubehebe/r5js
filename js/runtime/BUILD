@@ -8,7 +8,6 @@ package(
 )
 
 SRCS_USED_BY_PARSER_IMPL = [
-    "proc_call.js",
     "top_level_assignment.js",
     "top_level_syntax_assignment.js",
     "user_defined_procedure.js",
@@ -91,6 +90,7 @@ ts_library(
         "parse_rule_factory.ts",
         "parser.ts",
         "port_manager.ts",
+        "proc_call.ts",
         "procedure.ts",
         "reader.ts",
         "rename_helper.ts",
@@ -109,7 +109,8 @@ ts_library(
         "//js/parse:rename_util_ts",
         "//js/parse:terminals_ts",
         "//js/scan:scan_ts",
-    ]
+    ],
+    tsconfig = "//:tsconfig.json",
 )
 
 closure_ts_library(

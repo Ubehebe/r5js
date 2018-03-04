@@ -84,7 +84,7 @@ class Environment {
                 return binding;
             }
         } else if (name in this.closures_) {
-            /* I think this is only used for ProcCall.prototype.cpsify_, where
+            /* I think this is only used for ProcCall.prototype.cpsify, where
              identifiers are used to keep track of things while the structure
              is changed. Semantic use of procedures should be gated by
              Environment.prototype.getProcedure, and since that doesn't check
