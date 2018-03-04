@@ -8,7 +8,6 @@ package(
 )
 
 SRCS_USED_BY_PARSER_IMPL = [
-    "top_level_assignment.js",
     "top_level_syntax_assignment.js",
     "user_defined_procedure.js",
     "varargs_user_defined_procedure.js",
@@ -98,6 +97,7 @@ ts_library(
         "rule_factory.ts",
         "subtransformer.ts",
         "template_bindings.ts",
+        "top_level_assignment.ts",
         "transformer.ts",
     ],
     deps = [

@@ -3,7 +3,7 @@ goog.module('r5js.TopLevelSyntaxAssignment');
 const {Datum, ProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {SiblingBuffer} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
+const {TopLevelAssignment} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/top_level_assignment');
 
 class TopLevelSyntaxAssignment extends TopLevelAssignment {
     /** @param {!Datum} firstOperand */
