@@ -9,7 +9,6 @@ package(
 
 SRCS_USED_BY_PARSER_IMPL = [
     "lambda.js",
-    "procedure.js",
     "proc_call.js",
     "top_level_assignment.js",
     "top_level_syntax_assignment.js",
@@ -92,6 +91,7 @@ ts_library(
         "parse_rule_factory.ts",
         "parser.ts",
         "port_manager.ts",
+        "procedure.ts",
         "reader.ts",
         "rename_helper.ts",
         "rule.ts",
@@ -139,7 +139,6 @@ closure_js_library(
     ],
     suppress = [
         "JSC_INVALID_CAST",
-        "JSC_MISSING_RETURN_JSDOC",
         "JSC_TYPE_MISMATCH",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
