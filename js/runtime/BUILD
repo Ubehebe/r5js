@@ -8,7 +8,6 @@ package(
 )
 
 SRCS_USED_BY_PARSER_IMPL = [
-    "eof.js",
     "errors.js",
     "lambda.js",
     "procedure.js",
@@ -82,6 +81,7 @@ ts_library(
         "desugarable_rule.ts",
         "dynamic_wind_continuation.ts",
         "ellipsis_transformer.ts",
+        "eof.ts",
         "grammar.ts",
         "in_memory_input_port.ts",
         "list_like_transformer.ts",

@@ -2,7 +2,7 @@ goog.module('r5js.valutil');
 
 const {Character} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 const {Datum, UNSPECIFIED_VALUE} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const EOF = goog.require('r5js.runtime.EOF');
+const {EOF} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/eof');
 const {isInputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const {Quote} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
 const {Ref} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
