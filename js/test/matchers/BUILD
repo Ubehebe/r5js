@@ -12,7 +12,7 @@ closure_js_library(
         "//js:boot",
         "//js:error",
         "//js/io",
-        "//js/macro:shim",
+        "//js/runtime:shim",
         "//js/parse:parser_impl",
     ],
     suppress = [

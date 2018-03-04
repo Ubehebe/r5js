@@ -1,33 +1,33 @@
 goog.module('r5js.ParserImpl');
 
-const Assignment = goog.require('r5js.Assignment');
+const {Assignment} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/assignment');
 const Branch = goog.require('r5js.Branch');
-const {CompoundDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
-const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM, getLastProcCallLike} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {SimpleDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
-const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const {DatumStream} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/datum_stream');
-const {EllipsisTransformer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/ellipsis_transformer');
-const {Grammar} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/grammar');
-const {ListLikeTransformer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/list_like_transformer');
-const {Macro} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/macro');
-const {Macro: MacroDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/macro');
-const {MacroIdTransformer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/macro_id_transformer');
-const {Parser} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/parser');
+const {CompoundDatum} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
+const {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM, getLastProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {SimpleDatum} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
+const {Identifier} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {DatumStream} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/datum_stream');
+const {EllipsisTransformer} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/ellipsis_transformer');
+const {Grammar} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/grammar');
+const {ListLikeTransformer} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/list_like_transformer');
+const {Macro} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/macro');
+const {Macro: MacroDatum} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/macro');
+const {MacroIdTransformer} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/macro_id_transformer');
+const {Parser} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser');
 const ProcCall = goog.require('r5js.ProcCall');
-const {Rule} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/rule');
-const {RuleFactory} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/parse_rule_factory');
-const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
-const {String} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
-const {Subtransformer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/subtransformer');
+const {Rule} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/rule');
+const {RuleFactory} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parse_rule_factory');
+const {SiblingBuffer} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
+const {String} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
+const {Subtransformer} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/subtransformer');
 const TopLevelAssignment = goog.require('r5js.TopLevelAssignment');
 const TopLevelSyntaxAssignment = goog.require('r5js.TopLevelSyntaxAssignment');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
 const VarargsUserDefinedProcedure = goog.require('r5js.VarargsUserDefinedProcedure');
-const {Vector} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
-const {extractDefinition} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/util');
+const {Vector} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
+const {extractDefinition} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/util');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {List} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {
     ALTERNATE,
     ASSIGNMENT,
@@ -70,8 +70,8 @@ const {
     VARIABLE,
     VECTOR_QQ_TEMPLATE,
     Nonterminal,
-} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {RenameHelper} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
+} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {RenameHelper} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/rename_helper');
 const {
     BACKTICK,
     BEGIN,
@@ -96,8 +96,8 @@ const {
     TICK,
     UNQUOTE,
     UNQUOTE_SPLICING,
-} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
-const {isParserSensitiveId} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
+} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {isParserSensitiveId} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/rename_util');
 
 /* todo bl: this file should not exist.
 

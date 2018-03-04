@@ -2,12 +2,12 @@ goog.module('parseAs');
 
 goog.setTestOnly('parseAs');
 
-const {Datum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Matcher = goog.require('tdd.matchers.Matcher');
 const ParserImpl = goog.require('r5js.ParserImpl');
-const {Reader} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/reader');
-const {Nonterminal} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {TokenStream} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
+const {Reader} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/reader');
+const {Nonterminal} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {TokenStream} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 
 /** @implements {Matcher<string>} */
 class ParsesAs {

@@ -23,7 +23,7 @@ const {
   TEMPLATE,
   TRANSFORMER_SPEC,
   VARIABLE,
-} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 goog.require('goog.testing.jsunit');
 
 testSuite({

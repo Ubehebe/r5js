@@ -1,17 +1,17 @@
 goog.module('r5js.UserDefinedProcedure');
 
-const {CompoundDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
-const {Datum, ProcCallLike, getLastProcCallLike} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
+const {CompoundDatum} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
+const {Datum, ProcCallLike, getLastProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Identifier} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const ProcCall = goog.require('r5js.ProcCall');
 const Procedure = goog.require('r5js.Procedure');
-const {Quote} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
-const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
+const {Quote} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
+const {SiblingBuffer} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
-const {List} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
-const {DEFINITION} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {DEFINE} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
-const {extractDefinition} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/util');
+const {List} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {DEFINITION} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {DEFINE} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {extractDefinition} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/util');
 
 class UserDefinedProcedure extends Procedure {
     /**

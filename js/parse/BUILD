@@ -40,7 +40,7 @@ closure_js_library(
         "parser_impl.js",
     ],
     deps = [
-        "//js/macro:shim",
+        "//js/runtime:shim",
         "//js/runtime:used_by_parser_impl",
     ],
     suppress = [

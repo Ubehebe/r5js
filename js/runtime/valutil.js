@@ -1,16 +1,16 @@
 goog.module('r5js.valutil');
 
-const {Character} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
-const {Datum, UNSPECIFIED_VALUE} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Character} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
+const {Datum, UNSPECIFIED_VALUE} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const EOF = goog.require('r5js.runtime.EOF');
 const {isInputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
-const {Quote} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
-const {Ref} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
-const {String} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
+const {Quote} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
+const {Ref} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
+const {String} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');
-const {Vector} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
-const {DottedList, List} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
-const {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {Vector} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
+const {DottedList, List} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
+const {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
 /*
