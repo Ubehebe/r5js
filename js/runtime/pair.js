@@ -1,6 +1,6 @@
 goog.module('r5js.runtime.Pair');
 
-const NIL = goog.require('r5js.runtime.NIL');
+const {NIL} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/nil');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 
 /** @implements {ObjectValue} */
