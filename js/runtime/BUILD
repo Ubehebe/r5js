@@ -98,6 +98,7 @@ ts_library(
         "template_bindings.ts",
         "top_level_assignment.ts",
         "top_level_syntax_assignment.ts",
+        "trampoline_helper.ts",
         "transformer.ts",
     ],
     deps = [
