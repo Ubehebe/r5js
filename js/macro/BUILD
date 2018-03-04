@@ -6,6 +6,7 @@ ts_library(
     srcs = [
         "ellipsis_transformer.ts",
         "macro_id_transformer.ts",
+        "list_like_transformer.ts",
         "rename_helper.ts",
         "template_bindings.ts",
         "in_memory_input_port.ts",

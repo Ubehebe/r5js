@@ -3,7 +3,7 @@ goog.module('r5js.Macro');
 const {CompoundDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
 const {Datum, ProcCallLike, ProcCallResult, getLastProcCallLike} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
-const ListLikeTransformer = goog.require('r5js.ListLikeTransformer');
+const {ListLikeTransformer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/list_like_transformer');
 const {SiblingBuffer} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/sibling_buffer');
 const Transformer = goog.require('r5js.Transformer');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
