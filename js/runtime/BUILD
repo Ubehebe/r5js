@@ -28,7 +28,7 @@ closure_js_library(
     deps = [
         "//js:error",
         "//js/ast:type",
-        "//js/macro",
+        "//js/macro:shim",
         "//js/parse:terminals",
         "//js:value",
         ":ienvironment",
@@ -51,7 +51,7 @@ closure_js_library(
         ":used_by_parser_impl",
         "//js:error",
         "//js/io",
-        "//js/macro",
+        "//js/macro:shim",
         "//js/parse:parser_impl",
         "//js/parse:rename_util",
         "//js/parse:terminals",

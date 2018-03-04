@@ -6,7 +6,7 @@ const {Datum, ProcCallLike, ProcCallResult, UNSPECIFIED_VALUE, getLastProcCallLi
 const {Identifier} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {SimpleDatum} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');
 const Lambda = goog.require('r5js.Lambda');
-const Macro = goog.require('r5js.Macro');
+const {Macro} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/macro');
 const {Parser} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/parser');
 const Procedure = goog.require('r5js.Procedure');
 const {Quasiquote} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quasiquote');

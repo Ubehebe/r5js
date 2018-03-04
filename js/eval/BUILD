@@ -8,7 +8,7 @@ closure_js_library(
         "@io_bazel_rules_closure//closure/library",
         "//js:error",
         "//js/io",
-        "//js/macro",
+        "//js/macro:shim",
         "//js/parse:parser_impl",
         "//js/runtime",
         "//js/runtime:ienvironment",

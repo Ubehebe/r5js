@@ -3,7 +3,7 @@ goog.module('r5js.Environment');
 const Continuation = goog.require('r5js.Continuation');
 const {Datum, UNSPECIFIED_VALUE} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Lambda = goog.require('r5js.Lambda');
-const Macro = goog.require('r5js.Macro');
+const {Macro} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/macro/macro');
 const Procedure = goog.require('r5js.Procedure');
 const {Ref} = require('/js/macro/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
 const UserDefinedProcedure = goog.require('r5js.UserDefinedProcedure');

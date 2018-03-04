@@ -8,6 +8,7 @@ ts_library(
         "macro_id_transformer.ts",
         "list_like_transformer.ts",
         "transformer.ts",
+        "macro.ts",
         "rename_helper.ts",
         "template_bindings.ts",
         "in_memory_input_port.ts",
@@ -75,24 +76,4 @@ closure_ts_library(
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     visibility = ["//js:__subpackages__"],
-)
-
-closure_js_library(
-    name = "macro",
-    srcs = glob(["*.js"]),
-    deps = [
-        ":shim",
-        "@io_bazel_rules_closure//closure/library",
-        "//js:error",
-        "//js/parse:rename_util",
-        "//js/runtime:ienvironment",
-        "//js:value",
-    ],
-    visibility = ["//js:__subpackages__"],
-    suppress = [
-            "JSC_INVALID_CAST",
-            "JSC_TYPE_MISMATCH",
-            "JSC_UNDEFINED_VARIABLE",
-            "JSC_UNKNOWN_EXPR_TYPE",
-    ],
 )

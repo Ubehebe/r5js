@@ -64,7 +64,7 @@ closure_js_library(
         ":error",
         ":value",
         "//js/eval",
-        "//js/macro",
+        "//js/macro:shim",
         "//js/parse:parser_impl",
         "//js/parse:rename_util",
         "//js/parse:terminals",
