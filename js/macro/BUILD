@@ -7,6 +7,7 @@ ts_library(
         "ellipsis_transformer.ts",
         "macro_id_transformer.ts",
         "list_like_transformer.ts",
+        "transformer.ts",
         "rename_helper.ts",
         "template_bindings.ts",
         "in_memory_input_port.ts",
