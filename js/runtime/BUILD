@@ -8,7 +8,6 @@ package(
 )
 
 SRCS_USED_BY_PARSER_IMPL = [
-    "branch.js",
     "continuation.js",
     "eof.js",
     "errors.js",
@@ -78,6 +77,7 @@ ts_library(
     name = "runtime_ts",
     srcs = [
         "assignment.ts",
+        "branch.ts",
         "datum_stream.ts",
         "desugarable_rule.ts",
         "ellipsis_transformer.ts",
