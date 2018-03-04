@@ -80,6 +80,7 @@ ts_library(
         "continuation.ts",
         "datum_stream.ts",
         "desugarable_rule.ts",
+        "dynamic_wind_continuation.ts",
         "ellipsis_transformer.ts",
         "grammar.ts",
         "in_memory_input_port.ts",
