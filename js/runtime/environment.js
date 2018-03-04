@@ -2,7 +2,7 @@ goog.module('r5js.Environment');
 
 const {Continuation} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/continuation');
 const {Datum, UNSPECIFIED_VALUE} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const Lambda = goog.require('r5js.Lambda');
+const {Lambda} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/lambda');
 const {Macro} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/macro');
 const {Procedure} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/procedure');
 const {Ref} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');

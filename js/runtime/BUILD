@@ -8,7 +8,6 @@ package(
 )
 
 SRCS_USED_BY_PARSER_IMPL = [
-    "lambda.js",
     "proc_call.js",
     "top_level_assignment.js",
     "top_level_syntax_assignment.js",
@@ -83,6 +82,7 @@ ts_library(
         "errors.ts",
         "grammar.ts",
         "in_memory_input_port.ts",
+        "lambda.ts",
         "list_like_transformer.ts",
         "macro.ts",
         "macro_id_transformer.ts",
