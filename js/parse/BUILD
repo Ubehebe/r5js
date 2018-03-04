@@ -11,6 +11,9 @@ exports_files([
     "datum_stream.ts",
     "desugarable_rule.ts",
     "grammar.ts",
+    "parse_grammar.ts",
+    "parse_rule.ts",
+    "parse_rule_factory.ts",
     "parser.ts",
     "reader.ts",
     "rule.ts",
@@ -37,7 +40,6 @@ closure_js_library(
         "parser_impl.js",
     ],
     deps = [
-        ":rule_factory",
         "//js/macro:shim",
         "//js/runtime:used_by_parser_impl",
     ],
@@ -67,18 +69,6 @@ closure_ts_library(
     ],
     deps = [
         ":rename_util_ts",
-    ],
-)
-
-closure_js_library(
-    name = "rule_factory",
-    srcs = [
-        "rule_factory.js",
-    ],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
-        "JSC_TYPE_MISMATCH",
-        "JSC_HIDDEN_SUPERCLASS_PROPERTY_MISMATCH",
     ],
 )
 

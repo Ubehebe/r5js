@@ -1,4 +1,4 @@
-import {Rule} from "./rule";
+import {Rule} from "./parse_rule";
 
 /**
  * A desugarable rule is a rule that has a {@link #desugar} method.

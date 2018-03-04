@@ -1,8 +1,8 @@
-import * as Terminals from "./terminals";
-import {Grammar} from "./grammar";
-import {Nonterminal} from "./nonterminals";
+import * as Terminals from "../parse/terminals";
+import {Grammar} from "./parse_grammar";
+import {Nonterminal} from "../parse/nonterminals";
 import {DesugarableRule} from "./desugarable_rule";
-import {Rule} from "./rule";
+import {Rule} from "./parse_rule";
 import {CompoundDatum} from "../ast/compound_datum";
 import {Datum} from "../ast/datum";
 import {DatumStream} from "./datum_stream";
@@ -16,24 +16,20 @@ import {Unquote} from "../ast/unquote";
 
 export class RuleFactory {
 
-  private readonly grammar_: Grammar;
-
-  constructor(grammar) {
-    this.grammar_ = grammar;
-  }
+  constructor(private readonly grammar: Grammar) {}
 
   one(terminalOrNonterminal: string | Nonterminal): DesugarableRule<any> {
     return typeof terminalOrNonterminal === 'string'
         ? new OneTerminal(terminalOrNonterminal)
-        : new OneNonterminal(terminalOrNonterminal, this.grammar_);
+        : new OneNonterminal(terminalOrNonterminal, this.grammar);
   }
 
   zeroOrMore(nonterminal: Nonterminal): Rule {
-    return new AtLeast(nonterminal, 0, this.grammar_);
+    return new AtLeast(nonterminal, 0, this.grammar);
   }
 
   oneOrMore(nonterminal: Nonterminal): Rule {
-    return new AtLeast(nonterminal, 1, this.grammar_);
+    return new AtLeast(nonterminal, 1, this.grammar);
   }
 
   choice(...rules: Rule[]): Rule {
@@ -80,11 +76,8 @@ export class RuleFactory {
 
 class OneTerminal extends DesugarableRule<string> {
 
-  readonly terminal_: string;
-
-  constructor(terminal: string) {
+  constructor(readonly terminal: string) {
     super();
-    this.terminal_ = terminal;
   }
 
   /**
@@ -103,13 +96,13 @@ class OneTerminal extends DesugarableRule<string> {
    * TODO bl put the instanceof checks into the Datum subclasses
    */
   match(datumStream) {
-    if (this.terminal_ === Terminals.RPAREN) {
+    if (this.terminal === Terminals.RPAREN) {
       return datumStream.maybeAdvanceToNextSiblingOfParent();
     }
 
     const next = datumStream.getNextDatum();
     let match = false;
-    switch (this.terminal_) {
+    switch (this.terminal) {
       case Terminals.LPAREN:
         match = next instanceof List;
         break;
@@ -132,7 +125,7 @@ class OneTerminal extends DesugarableRule<string> {
         match = next instanceof UnquoteSplicing;
         break;
       default: // TODO bl where is this from?
-        if (next instanceof SimpleDatum && next.getPayload() === this.terminal_) {
+        if (next instanceof SimpleDatum && next.getPayload() === this.terminal) {
           datumStream.advanceToNextSibling();
           return true;
         } else {
@@ -149,32 +142,29 @@ class OneTerminal extends DesugarableRule<string> {
 
 class OneNonterminal extends DesugarableRule<Nonterminal> {
 
-  private readonly nonterminal_: Nonterminal;
-  private readonly grammar_: Grammar;
-  private desugarFunc_: ((Datum, IEnvironment) => any) | null;
+  private desugarFunc: ((Datum, IEnvironment) => any) | null = null;
 
-  constructor(nonterminal: Nonterminal, grammar: Grammar) {
+  constructor(
+      private readonly nonterminal: Nonterminal,
+      private readonly grammar: Grammar) {
     super();
-    this.nonterminal_ = nonterminal;
-    this.grammar_ = grammar;
-    this.desugarFunc_ = null;
   }
 
   /** @override */
   desugar(desugarFunc) {
-    this.desugarFunc_ = desugarFunc;
+    this.desugarFunc = desugarFunc;
     return this;
   }
 
   /** @override */
   match(datumStream) {
-    const parsed = this.grammar_.ruleFor(this.nonterminal_).match(datumStream);
+    const parsed = this.grammar.ruleFor(this.nonterminal).match(datumStream);
     if (parsed instanceof Datum) {
-      parsed.setParse(this.nonterminal_);
-      if (this.desugarFunc_) {
-        parsed.setDesugar(this.desugarFunc_);
+      parsed.setParse(this.nonterminal);
+      if (this.desugarFunc) {
+        parsed.setDesugar(this.desugarFunc);
       }
-      datumStream.advanceTo(/** @type {!Datum} */ (parsed.getNextSibling()));
+      datumStream.advanceTo(parsed.getNextSibling());
     }
     return parsed;
   }
@@ -182,42 +172,36 @@ class OneNonterminal extends DesugarableRule<Nonterminal> {
 
 class AtLeast extends Rule {
 
-  private readonly nonterminal_: Nonterminal;
-  private readonly minRepetitions_: number;
-  private readonly grammar_: Grammar;
-
-  constructor(nonterminal: Nonterminal, minRepetitions: number, grammar: Grammar) {
+  constructor(
+      private readonly nonterminal: Nonterminal,
+      private readonly minRepetitions: number,
+      private readonly grammar: Grammar) {
     super();
-    this.nonterminal_ = nonterminal;
-    this.minRepetitions_ = minRepetitions;
-    this.grammar_ = grammar;
   }
 
   /** @override */
   match(datumStream) {
     let numParsed = 0;
     let parsed;
-    while (parsed = this.grammar_.ruleFor(this.nonterminal_).match(datumStream)) {
-      parsed.setParse(this.nonterminal_);
+    while (parsed = this.grammar.ruleFor(this.nonterminal).match(datumStream)) {
+      parsed.setParse(this.nonterminal);
       ++numParsed;
     }
-    return numParsed >= this.minRepetitions_;
+    return numParsed >= this.minRepetitions;
   }
 }
 
 class MatchDatum extends Rule {
 
-  private readonly predicate_: (Datum) => boolean;
-
-  constructor(predicate: (Datum) => boolean) {
+  constructor(
+      private readonly predicate: (Datum) => boolean) {
     super();
-    this.predicate_ = predicate;
   }
 
   /** @override */
   match(datumStream) {
     const next = datumStream.getNextDatum();
-    if (next && this.predicate_(next)) {
+    if (next && this.predicate(next)) {
       datumStream.advanceToNextSibling();
       return true;
     } else {
@@ -228,18 +212,15 @@ class MatchDatum extends Rule {
 
 class Choice extends Rule {
 
-  private readonly rules_: Rule[];
-
-  constructor(rules: Rule[]) {
+  constructor(private readonly rules: Rule[]) {
     super();
-    this.rules_ = rules;
   }
 
   /** @override */
   match(datumStream) {
     let parsed;
-    for (let i = 0; i < this.rules_.length; ++i) {
-      const rule = this.rules_[i];
+    for (let i = 0; i < this.rules.length; ++i) {
+      const rule = this.rules[i];
       if (parsed = rule.match(datumStream)) {
         return parsed;
       }
@@ -250,21 +231,20 @@ class Choice extends Rule {
 
 class Seq extends DesugarableRule<CompoundDatum> {
 
-  private readonly rules_: Rule[];
-  private desugarFunc_: ((CompoundDatum, IEnvironment) => any) | null;
+  private readonly rules: Rule[];
+  private desugarFunc: ((CompoundDatum, IEnvironment) => any) | null = null;
 
   constructor(rules: Rule[]) {
     super();
-    this.rules_ = rewriteImproperList(rules);
-    this.desugarFunc_ = null;
+    this.rules = rewriteImproperList(rules);
   }
 
   /** @override */
   match(datumStream: DatumStream): boolean | Datum {
     const root = datumStream.getNextDatum()!;
 
-    for (let i = 0; i < this.rules_.length; ++i) {
-      if (!this.rules_[i].match(datumStream)) {
+    for (let i = 0; i < this.rules.length; ++i) {
+      if (!this.rules[i].match(datumStream)) {
         datumStream.advanceTo(root);
         return false;
       }
@@ -274,8 +254,8 @@ class Seq extends DesugarableRule<CompoundDatum> {
     const nextSibling = root && root.getNextSibling()!;
     datumStream.advanceTo(nextSibling);
 
-    if (root instanceof Datum && this.desugarFunc_) {
-      root.setDesugar(this.desugarFunc_);
+    if (root instanceof Datum && this.desugarFunc) {
+      root.setDesugar(this.desugarFunc);
     }
 
     return root || false;
@@ -283,7 +263,7 @@ class Seq extends DesugarableRule<CompoundDatum> {
 
   /** @override */
   desugar(desugarFunc: (CompoundDatum, IEnvironment) => any): DesugarableRule<CompoundDatum> {
-    this.desugarFunc_ = desugarFunc;
+    this.desugarFunc = desugarFunc;
     return this;
   }
 }
@@ -301,7 +281,7 @@ function rewriteImproperList(rules: any /* TODO should be Rule[] */): Rule[] {
   /* No RHS in the grammar has more than one dot.
    This will break if such a rule is added. */
   const indexOfDot =
-      rules.findIndex(rule => rule instanceof OneTerminal && rule.terminal_ === Terminals.DOT);
+      rules.findIndex(rule => rule instanceof OneTerminal && rule.terminal === Terminals.DOT);
 
   if (indexOfDot === -1) {
     return rules;
@@ -310,7 +290,7 @@ function rewriteImproperList(rules: any /* TODO should be Rule[] */): Rule[] {
   // Find the closest opening paren to the left of the dot and rewrite it as .(
   for (let i = indexOfDot - 1; i >= 0; --i) {
     const rule = rules[i];
-    if (rule instanceof OneTerminal && rule.terminal_ === Terminals.LPAREN) {
+    if (rule instanceof OneTerminal && rule.terminal === Terminals.LPAREN) {
       rules[i] = new OneTerminal(Terminals.LPAREN_DOT);
       break;
     }
