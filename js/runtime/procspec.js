@@ -2,7 +2,7 @@ goog.module('r5js.procspec');
 
 const {Boolean} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
 const {Character} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
-const Continuation = goog.require('r5js.Continuation');
+const {Continuation} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/continuation');
 const {Datum, ProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {InputPort, isInputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');

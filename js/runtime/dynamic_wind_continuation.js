@@ -1,6 +1,6 @@
 goog.module('r5js.DynamicWindContinuation');
 
-const Continuation = goog.require('r5js.Continuation');
+const {Continuation} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/continuation');
 const {ProcCallLike, appendProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /**

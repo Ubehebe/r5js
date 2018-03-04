@@ -1,7 +1,7 @@
 goog.module('r5js.ProcCall');
 
 const {ContinuableHelper} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/continuable_helper');
-const Continuation = goog.require('r5js.Continuation');
+const {Continuation} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/continuation');
 const {Datum, ProcCallLike, ProcCallResult, UNSPECIFIED_VALUE, getLastProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {Identifier} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {SimpleDatum} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/simple_datum');

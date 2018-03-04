@@ -8,7 +8,6 @@ package(
 )
 
 SRCS_USED_BY_PARSER_IMPL = [
-    "continuation.js",
     "eof.js",
     "errors.js",
     "lambda.js",
@@ -78,6 +77,7 @@ ts_library(
     srcs = [
         "assignment.ts",
         "branch.ts",
+        "continuation.ts",
         "datum_stream.ts",
         "desugarable_rule.ts",
         "ellipsis_transformer.ts",
@@ -137,7 +137,6 @@ closure_js_library(
     ],
     suppress = [
         "JSC_INVALID_CAST",
-        "JSC_MUST_BE_PRIVATE",
         "JSC_MISSING_RETURN_JSDOC",
         "JSC_TYPE_MISMATCH",
         "JSC_UNKNOWN_EXPR_TYPE",
