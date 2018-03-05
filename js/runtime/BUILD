@@ -86,6 +86,7 @@ ts_library(
         "port_manager.ts",
         "proc_call.ts",
         "procedure.ts",
+        "procspec.ts",
         "reader.ts",
         "rename_helper.ts",
         "rule.ts",

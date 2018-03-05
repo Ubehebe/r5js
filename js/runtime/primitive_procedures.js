@@ -45,7 +45,7 @@ const {
     unaryWithSpecialEvalLogic,
     varargsAtLeast0,
     varargsAtLeast1,
-    varargsRange} = goog.require('r5js.procspec');
+    varargsRange} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/procspec');
 
 /** @type {?IEnvironment} */ let nullEnv_ = null;
 /** @type {?IEnvironment} */ let r5RSEnv_ = null;
@@ -533,7 +533,7 @@ PrimitiveProcedures['eval'] = binaryWithCurrentPorts(
 PrimitiveProcedures['will-eval?'] = binary(
     /** @suppress {accessControls} */function(expr) {
       try {
-        PrimitiveProcedures['eval'].fn_.call(null, expr);
+        PrimitiveProcedures['eval'].fn.call(null, expr);
         return true;
       } catch (e) {
         return false;
