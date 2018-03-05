@@ -1,17 +1,15 @@
-goog.module('r5js.valutil');
-
-const {Character} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
-const {Datum, UNSPECIFIED_VALUE} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
-const {EOF} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/eof');
-const {isInputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
-const {Quote} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
-const {Ref} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/ref');
-const {String} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/string');
-const {UserDefinedProcedure} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/user_defined_procedure');
-const {Vector} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
-const {DottedList, List} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
-const {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
-const {isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
+import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
+import {EOF} from "./eof";
+import {Ref} from "../ast/ref";
+import {DottedList, List} from "../ast/list";
+import {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} from "../parse/terminals";
+import {Vector} from "../ast/vector";
+import {Character} from "../ast/character";
+import {String} from "../ast/string";
+import {Quote} from "../ast/quote";
+import {UserDefinedProcedure} from "./user_defined_procedure";
+import {isInputPortImpl} from "../io/input_port";
+import {isOutputPortImpl} from "../io/output_port";
 
 /*
  * Implementation note: a richer representation of Scheme values would
@@ -37,35 +35,23 @@ const {isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modul
  * satisfactory.
  */
 
-/**
- * @param {!Value} value
- * @return {string}
- */
-function toDisplayString(value) {
+
+export function toDisplayString(value: Value): string {
   return toString(false /* includeSigils */, value);
 }
 
-/**
- * @param {!Value} value
- * @return {string}
- */
-function toWriteString(value) {
+export function toWriteString(value: Value): string {
   return toString(true /* includeSigils */, value);
 }
 
-/**
- * @param {boolean} includeSigils
- * @param {!Value} value
- * @return {string}
- */
-function toString(includeSigils, value) {
+function toString(includeSigils: boolean, value: Value): string {
   switch (typeof value) {
     case 'number':
-      return value + '';
+      return `${value}`;
     case 'boolean':
       return value ? '#t' : '#f';
     case 'string':
-      return value;
+      return value as string;
     case 'object':
       if (value === UNSPECIFIED_VALUE) {
         return '';
@@ -74,25 +60,23 @@ function toString(includeSigils, value) {
       } else if (value instanceof Ref) {
         return toString(includeSigils, value.deref());
       } else if (value instanceof List || value instanceof DottedList) {
-        const children = value.mapChildren(
-            goog.partial(toString, includeSigils));
+        const children = value.mapChildren(child => toString(includeSigils, child));
         if ((value instanceof List && value.isImproperList())
             || value instanceof DottedList) {
           children.splice(children.length - 1, 0, DOT);
         }
-        return LPAREN +
-            children.join(' ') +
-            RPAREN;
+        return `${LPAREN}${children.join(' ')}${RPAREN}`;
       } else if (value instanceof Vector) {
-        const childStrings = value.mapChildren(
-            goog.partial(toString, includeSigils)).join(' ');
+        const childStrings = value
+            .mapChildren(child => toString(includeSigils, child))
+            .join(' ');
         return LPAREN_VECTOR +
             childStrings +
             RPAREN;
       } else if (value instanceof String) {
-        return includeSigils ?
-            '"' + value.getPayload() + '"' : // TODO bl escape
-            value.getPayload();
+        return includeSigils
+            ? `"${value.getPayload()}"` // TODO bl escape
+            : value.getPayload();
       } else if (value instanceof Character) {
         if (includeSigils) {
           // Special cases for space and newline: R5RS 6.3.4
@@ -109,10 +93,9 @@ function toString(includeSigils, value) {
         }
       } else if (value instanceof Quote) {
         return TICK + toString(
-            includeSigils,
-            /** @type {!Value} */ (value.getFirstChild()));
+            includeSigils, value.getFirstChild()!);
       } else if (value instanceof UserDefinedProcedure) {
-        return '<proc:' + value.getName() + '>';
+        return `<proc:${value.getName()}>`;
       } else if (isInputPortImpl(value)) {
         return '<input-port>';
       } else if (isOutputPortImpl(value)) {
@@ -126,10 +109,3 @@ function toString(includeSigils, value) {
       return '';
   }
 }
-
-exports = {
-    toDisplayString: toDisplayString,
-    toWriteString: toWriteString
-};
-
-

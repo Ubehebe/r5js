@@ -95,6 +95,7 @@ ts_library(
         "trampoline_helper.ts",
         "transformer.ts",
         "user_defined_procedure.ts",
+        "valutil.ts",
         "varargs_user_defined_procedure.ts",
     ],
     deps = [

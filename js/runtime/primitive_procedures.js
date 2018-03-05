@@ -22,7 +22,7 @@ const {String: StringNode} = require('/js/runtime/shim_collect_es6_sources.es6/n
 const {TrampolineHelper} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/trampoline_helper');
 const {Vector} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/vector');
 const trampoline = goog.require('r5js.trampoline');
-const valutil = goog.require('r5js.valutil');
+const {toDisplayString, toWriteString} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/valutil');
 const {CdrHelperImpl, DottedList, List} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {OutputPort, isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
@@ -582,7 +582,7 @@ PrimitiveProcedures['display'] = unaryOrBinaryWithCurrentPorts(
             runtimeType(outputPortToUse));
       }
       (/** @type {!OutputPort} */ (outputPortToUse)).
-          write(valutil.toDisplayString(datum));
+          write(toDisplayString(datum));
       return UNSPECIFIED_VALUE;
     });
 
@@ -635,7 +635,7 @@ PrimitiveProcedures['write'] = unaryOrBinaryWithCurrentPorts(
             outputPortToUse, 1, 'write', Types.OUTPUT_PORT,
             runtimeType(outputPortToUse));
       }
-      outputPortToUse.write(valutil.toWriteString(datum));
+      outputPortToUse.write(toWriteString(datum));
       return UNSPECIFIED_VALUE;
     });
 
@@ -652,7 +652,7 @@ PrimitiveProcedures['write-char'] = unaryOrBinaryWithCurrentPorts(
             outputPortToUse, 1, 'write-char', Types.OUTPUT_PORT,
             runtimeType(outputPortToUse));
       }
-      outputPortToUse.write(valutil.toWriteString(charNode));
+      outputPortToUse.write(toWriteString(charNode));
       return UNSPECIFIED_VALUE;
     });
 
