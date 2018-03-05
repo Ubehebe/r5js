@@ -9,7 +9,7 @@ const {Datum, ProcCallLike, UNSPECIFIED_VALUE, appendProcCallLike, getLastProcCa
 const {Identifier} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/identifier');
 const {DynamicWindContinuation} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/dynamic_wind_continuation');
 const {EOF} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/eof');
-const Environment = goog.require('r5js.Environment');
+const {Environment} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/environment');
 const {isInputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const {Lambda} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/lambda');
 const {Number} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/number');

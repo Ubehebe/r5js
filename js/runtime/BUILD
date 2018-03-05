@@ -71,6 +71,7 @@ ts_library(
         "dynamic_wind_continuation.ts",
         "ellipsis_transformer.ts",
         "eof.ts",
+        "environment.ts",
         "errors.ts",
         "grammar.ts",
         "in_memory_input_port.ts",
