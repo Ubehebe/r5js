@@ -248,15 +248,13 @@ class DottedListTransformer extends Base {
        an empty input like () cannot match a pattern like (x y ...) */
       return (!inputDatum.getFirstChild() && len > 1) ?
           false :
-          maybeEllipsis.matchInput(
-              /** @type {!Datum} */ (subinput),
-              literalIds, definitionEnv, useEnv, bindings);
+          maybeEllipsis.matchInput(subinput, literalIds, definitionEnv, useEnv, bindings);
     } else {
       // Dotted-list patterns cannot end in ellipses.
       let toMatchAgainst;
 
       if (inputDatum instanceof List) {
-        toMatchAgainst = new SiblingBuffer().appendSibling(/** @type {!Datum} */ (subinput)).toList(List);
+        toMatchAgainst = new SiblingBuffer().appendSibling(subinput).toList(List);
       } else if (inputDatum.isImproperList()) {
         toMatchAgainst = subinput.getNextSibling()
             ? new SiblingBuffer().appendSibling(subinput).toList(DottedList)

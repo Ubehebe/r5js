@@ -8,7 +8,6 @@ package(
 )
 
 SRCS_USED_BY_PARSER_IMPL = [
-    "user_defined_procedure.js",
     "varargs_user_defined_procedure.js",
 ]
 
@@ -100,6 +99,7 @@ ts_library(
         "top_level_syntax_assignment.ts",
         "trampoline_helper.ts",
         "transformer.ts",
+        "user_defined_procedure.ts",
     ],
     deps = [
         "//js:error_ts",
