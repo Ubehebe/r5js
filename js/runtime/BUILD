@@ -7,11 +7,6 @@ package(
     ],
 )
 
-SRCS_USED_BY_PARSER_IMPL = [
-    "varargs_user_defined_procedure.js",
-]
-
-
 # Workaround to avoid duplication of the AST classes in js/read execroot.
 # Instead of polluting the commit history by moving in_memory_input_port.ts into this package,
 # just copy it here temporarily via a genrule. TODO: remove.
@@ -100,6 +95,7 @@ ts_library(
         "trampoline_helper.ts",
         "transformer.ts",
         "user_defined_procedure.ts",
+        "varargs_user_defined_procedure.ts",
     ],
     deps = [
         "//js:error_ts",
@@ -129,37 +125,18 @@ closure_ts_library(
 )
 
 closure_js_library(
-    name = "used_by_parser_impl",
-    srcs = SRCS_USED_BY_PARSER_IMPL,
-    deps = [
-        ":shim",
-        "//js:error",
-        "//js/ast:type",
-        "//js/parse:terminals",
-        "//js:value",
-        ":ienvironment",
-    ],
-    suppress = [
-        "JSC_INVALID_CAST",
-        "JSC_TYPE_MISMATCH",
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-)
-
-closure_js_library(
     name = "runtime",
     srcs = glob(["*.js"], exclude = [
         "ienvironment.ts",
-    ] + SRCS_USED_BY_PARSER_IMPL),
+    ]),
     deps = [
-        ":used_by_parser_impl",
+        ":ienvironment",
+        ":shim",
         "//js:error",
         "//js/io",
-        "//js/runtime:shim",
         "//js/parse:parser_impl",
         "//js/parse:rename_util",
         "//js/parse:terminals",
-        "//js/runtime:ienvironment",
         "//js:value",
     ],
     suppress = [

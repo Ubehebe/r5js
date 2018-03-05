@@ -41,7 +41,6 @@ closure_js_library(
     ],
     deps = [
         "//js/runtime:shim",
-        "//js/runtime:used_by_parser_impl",
     ],
     suppress = [
         "JSC_INVALID_CAST",

@@ -26,7 +26,7 @@ const valutil = goog.require('r5js.valutil');
 const {CdrHelperImpl, DottedList, List} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {OutputPort, isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
-const {Types} = require('/js/ast/type_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
+const {Types} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
 const {argumentTypeError} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/errors');
 const {
     atLeastNWithSpecialEvalLogic,

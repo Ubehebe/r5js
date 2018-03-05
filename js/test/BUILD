@@ -19,7 +19,6 @@ closure_js_test(
         "//js:scheme_sources",
         "//js/io",
         "//js/parse:terminals",
-        "//js/runtime:used_by_parser_impl",
         "//js/test/matchers",
     ],
     suppress = [
