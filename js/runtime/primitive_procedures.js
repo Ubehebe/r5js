@@ -1,7 +1,7 @@
 goog.module('r5js.PrimitiveProcedures');
 
 const {Boolean} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/boolean');
-const CallWithCurrentContinuation = goog.require('r5js.CallWithCurrentContinuation');
+const {CallWithCurrentContinuation} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/call_with_current_continuation');
 const {Character} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/character');
 const {CompoundDatum} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/compound_datum');
 const {Continuation} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/continuation');

@@ -64,6 +64,7 @@ ts_library(
     srcs = [
         "assignment.ts",
         "branch.ts",
+        "call_with_current_continuation.ts",
         "continuation.ts",
         "datum_stream.ts",
         "desugarable_rule.ts",
