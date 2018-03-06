@@ -4,7 +4,7 @@ goog.setTestOnly('parseAs');
 
 const {Datum} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Matcher = goog.require('tdd.matchers.Matcher');
-const ParserImpl = goog.require('r5js.ParserImpl');
+const {ParserImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser_impl');
 const {Reader} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/reader');
 const {Nonterminal} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {TokenStream} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
@@ -29,7 +29,7 @@ class ParsesAs {
             return false;
         }
         const actualResult = (datumRoot instanceof Datum)
-            && new ParserImpl.ParserImpl(datumRoot).parse(this.expectedType_);
+            && new ParserImpl(datumRoot).parse(this.expectedType_);
         if (actualResult && actualResult.peekParse) {
             this.actualType_ = /** @type {!Nonterminal} */ (actualResult.peekParse());
         }

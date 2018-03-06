@@ -9,7 +9,7 @@ const trampoline = goog.require('r5js.trampoline');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {Nonterminal} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
 const {OutputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
-const {ParserImpl} = goog.require('r5js.ParserImpl');
+const {ParserImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser_impl');
 
 class Pipeline {
 

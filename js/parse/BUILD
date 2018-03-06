@@ -15,6 +15,7 @@ exports_files([
     "parse_rule.ts",
     "parse_rule_factory.ts",
     "parser.ts",
+    "parser_impl.ts",
     "reader.ts",
     "rule.ts",
 ])
@@ -31,21 +32,6 @@ closure_ts_library(
     name = "nonterminals",
     deps = [
         ":nonterminals_ts"
-    ],
-)
-
-closure_js_library(
-    name = "parser_impl",
-    srcs = [
-        "parser_impl.js",
-    ],
-    deps = [
-        "//js/runtime:shim",
-    ],
-    suppress = [
-        "JSC_INVALID_CAST",
-        "JSC_TYPE_MISMATCH",
-        "JSC_UNKNOWN_EXPR_TYPE",
     ],
 )
 

@@ -3,7 +3,7 @@ goog.module('r5js.boot');
 const {Environment} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/environment');
 const Evaluator = goog.require('r5js.Evaluator');
 const {InputPort, NULL_INPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
-const ParserImpl = goog.require('r5js.ParserImpl');
+const {ParserImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser_impl');
 const Pipeline = goog.require('r5js.Pipeline');
 const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
 const {Reader} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/reader');
@@ -62,7 +62,7 @@ function boot(syntaxLib, procLib, inputPort=NULL_INPUT_PORT, outputPort=NULL_OUT
  * @param {!IEnvironment} env Environment to install the source code's definitions into.
  */
 function installSchemeSource(lib, env) {
-    const continuable = /** @type {!ProcCallLike} */ (new ParserImpl.ParserImpl(
+    const continuable = /** @type {!ProcCallLike} */ (new ParserImpl(
         /** @type {!Datum} */ (Reader.forTokenStream(
             TokenStream.forText(lib)).read())).parse().desugar(env));
     trampoline(continuable, env, NULL_INPUT_PORT, NULL_OUTPUT_PORT);

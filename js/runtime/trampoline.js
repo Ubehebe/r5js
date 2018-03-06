@@ -3,7 +3,7 @@ goog.module('r5js.trampoline');
 const {InputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const {TrampolineHelper} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/trampoline_helper');
 const {OutputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
-const {ParserImpl} = goog.require('r5js.ParserImpl');
+const {ParserImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser_impl');
 const {ProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 
 /**

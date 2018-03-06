@@ -13,7 +13,7 @@ const {Environment} = require('/js/runtime/shim_collect_es6_sources.es6/node_mod
 const {isInputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const {Lambda} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/lambda');
 const {Number} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/number');
-const ParserImpl = goog.require('r5js.ParserImpl');
+const {ParserImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser_impl');
 const {PortManager} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/port_manager');
 const {ProcCall} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/proc_call');
 const {Quote} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/quote');
@@ -518,7 +518,7 @@ PrimitiveProcedures['eval'] = binaryWithCurrentPorts(
         // don't accidentally evaluate the next expr!
         expr.setNextSibling(null);
 
-        const parsed = new ParserImpl.ParserImpl(expr).parse();
+        const parsed = new ParserImpl(expr).parse();
         if (!parsed) {
           throw Error.parse(expr);
         }
