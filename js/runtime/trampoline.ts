@@ -1,10 +1,8 @@
-goog.module('r5js.trampoline');
-
-const {InputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
-const {TrampolineHelper} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/trampoline_helper');
-const {OutputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
-const {ParserImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser_impl');
-const {ProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+import {ProcCallLike} from "../ast/datum";
+import {OutputPort} from "../io/output_port";
+import {InputPort} from "../io/input_port";
+import {TrampolineHelper} from "./trampoline_helper";
+import {ParserImpl} from "../runtime/parser_impl"; // TODO should be parse/parser_impl
 
 /**
  * This is the main evaluation function.
@@ -85,30 +83,29 @@ const {ProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_mo
  *
  * (*{env A} n _2 [_0 ...]) ; bind _0 = 6 in env whatever
  *
- * @param {!ProcCallLike} procCallLike The continuable object to evaluate.
- * @param {!IEnvironment} startingEnv Environment to start evaluation from.
- * @param {!InputPort} inputPort Input port.
- * @param {!OutputPort} outputPort Output port.
- * @return {!Value}
+ * @param procCallLike The continuable object to evaluate.
  */
-function trampoline(procCallLike, startingEnv, inputPort, outputPort) {
-  let cur = procCallLike;
+export function trampoline(
+  procCallLike: ProcCallLike,
+  startingEnv: IEnvironment,
+  inputPort: InputPort,
+  outputPort: OutputPort): Value {
+  let cur: ProcCallLike | null = procCallLike;
   const resultStruct = new TrampolineHelper(inputPort, outputPort);
-  let prevEnv = startingEnv;
+  let prevEnv: IEnvironment | null = startingEnv;
 
   while (cur) {
     let curEnv = cur.getEnv();
-    /* If the procedure call has no attached environment, we use
-       the environment left over from the previous action on the trampoline. */
+    // If the procedure call has no attached environment, we use the environment left over
+    // from the previous action on the trampoline.
     if (!curEnv && prevEnv) {
       cur.setStartingEnv(prevEnv);
     }
     cur.evalAndAdvance(
-        resultStruct,
-        /** @type {!IEnvironment} */ (prevEnv),
-        datum => new ParserImpl(datum));
-    /* Save the environment we used in case the next action on the trampoline
-       needs it. */
+      resultStruct,
+      prevEnv!,
+      datum => new ParserImpl(datum));
+    // Save the environment we used in case the next action on the trampoline needs it.
     curEnv = cur.getEnv();
     prevEnv = curEnv;
     // We shouldn't leave the environment pointer hanging around.
@@ -119,5 +116,3 @@ function trampoline(procCallLike, startingEnv, inputPort, outputPort) {
 
   return resultStruct.getValue();
 }
-
-exports = trampoline;
