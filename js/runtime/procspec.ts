@@ -1,5 +1,5 @@
 import {Error} from "../error";
-import {Type, Types} from "../ast/type";
+import * as Types from "../ast/types";
 import {argumentTypeError} from "./errors";
 import {Datum, ProcCallLike, ProcCallResult} from "../ast/datum";
 import {Procedure} from "./procedure";
@@ -18,6 +18,7 @@ import {isImplementedBy} from "../ast/ipair";
 import {String} from "../ast/string";
 import {Number} from "../ast/number";
 import {Boolean} from "../ast/boolean";
+import {Type} from "../ast/type";
 
 export interface NumArgChecker {
   checkNumArgs(numArgs: number, nameToShowInErrorMessage: string);

@@ -92,7 +92,10 @@ closure_ts_library(
 
 ts_library(
     name = "type_ts",
-    srcs = ["type.ts"],
+    srcs = [
+        "type.ts",
+        "types.ts",
+    ],
     tsconfig = "//:tsconfig.json",
 )
 

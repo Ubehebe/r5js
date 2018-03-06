@@ -26,7 +26,18 @@ const {toDisplayString, toWriteString} = require('/js/runtime/shim_collect_es6_s
 const {CdrHelperImpl, DottedList, List} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/list');
 const {Error} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {OutputPort, isOutputPortImpl} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
-const {Types} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
+const {
+    BOOLEAN,
+    CHARACTER,
+    ENVIRONMENT_SPECIFIER,
+    INPUT_PORT,
+    NUMBER,
+    OUTPUT_PORT,
+    PAIR,
+    PROCEDURE,
+    STRING,
+    SYMBOL,
+    VECTOR} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/types');
 const {argumentTypeError} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/errors');
 const {
     atLeastNWithSpecialEvalLogic,
@@ -71,7 +82,7 @@ PrimitiveProcedures['='] = varargsAtLeast0((...args) => {
     }
   }
   return true;
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['/'] = varargsAtLeast1((...args) => {
   if (args.length === 1) { // unary
@@ -82,7 +93,7 @@ PrimitiveProcedures['/'] = varargsAtLeast1((...args) => {
       ans /= args[i];
     return ans;
   }
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['-'] = varargsAtLeast1((...args) => {
   if (args.length === 1) { // unary
@@ -94,7 +105,7 @@ PrimitiveProcedures['-'] = varargsAtLeast1((...args) => {
     }
     return ans;
   }
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['*'] = varargsAtLeast0((...args) => {
   let product = 1;
@@ -102,7 +113,7 @@ PrimitiveProcedures['*'] = varargsAtLeast0((...args) => {
     product *= args[i];
   }
   return product;
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['+'] = varargsAtLeast0((...args) => {
   let sum = 0;
@@ -110,7 +121,7 @@ PrimitiveProcedures['+'] = varargsAtLeast0((...args) => {
     sum += args[i];
   }
   return sum;
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['>='] = varargsAtLeast0((...args) => {
   for (let i = 0; i < args.length - 1; ++i) {
@@ -119,7 +130,7 @@ PrimitiveProcedures['>='] = varargsAtLeast0((...args) => {
     }
   }
   return true;
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['>'] = varargsAtLeast0((...args) => {
   for (let i = 0; i < args.length - 1; ++i) {
@@ -128,7 +139,7 @@ PrimitiveProcedures['>'] = varargsAtLeast0((...args) => {
     }
   }
   return true;
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['<='] = varargsAtLeast0((...args) => {
   for (let i = 0; i < args.length - 1; ++i) {
@@ -137,7 +148,7 @@ PrimitiveProcedures['<='] = varargsAtLeast0((...args) => {
     }
   }
   return true;
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['<'] = varargsAtLeast0((...args) => {
   for (let i = 0; i < args.length - 1; ++i) {
@@ -146,15 +157,15 @@ PrimitiveProcedures['<'] = varargsAtLeast0((...args) => {
     }
   }
   return true;
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['angle'] = unary(z => {
   throw Error.unimplementedOption('angle');
-}, Types.NUMBER);
+}, NUMBER);
 
-PrimitiveProcedures['acos'] = unary(Math.acos, Types.NUMBER);
+PrimitiveProcedures['acos'] = unary(Math.acos, NUMBER);
 
-PrimitiveProcedures['asin'] = unary(Math.asin, Types.NUMBER);
+PrimitiveProcedures['asin'] = unary(Math.asin, NUMBER);
 
 PrimitiveProcedures['atan'] = varargsAtLeast1((...args) => {
   /* Oddly, R5RS overloads atan for both one and two arguments,
@@ -167,52 +178,52 @@ PrimitiveProcedures['atan'] = varargsAtLeast1((...args) => {
     default:
       throw Error.tooManyVarargs('atan', 2, args.length);
   }
-}, Types.NUMBER);
+}, NUMBER);
 
-PrimitiveProcedures['ceiling'] = unary(Math.ceil, Types.NUMBER);
+PrimitiveProcedures['ceiling'] = unary(Math.ceil, NUMBER);
 
 PrimitiveProcedures['complex?'] = unary(node => node instanceof Number);
 
-PrimitiveProcedures['cos'] = unary(Math.cos, Types.NUMBER);
+PrimitiveProcedures['cos'] = unary(Math.cos, NUMBER);
 
 // In JavaScript every number is a double.
-PrimitiveProcedures['exact?'] = unary(x => false, Types.NUMBER);
+PrimitiveProcedures['exact?'] = unary(x => false, NUMBER);
 
 // In JavaScript every number is inexact
-PrimitiveProcedures['exact->inexact'] = unary(x => x, Types.NUMBER);
+PrimitiveProcedures['exact->inexact'] = unary(x => x, NUMBER);
 
-PrimitiveProcedures['exp'] = unary(Math.exp, Types.NUMBER);
+PrimitiveProcedures['exp'] = unary(Math.exp, NUMBER);
 
-PrimitiveProcedures['expt'] = binary(Math.pow, Types.NUMBER, Types.NUMBER);
+PrimitiveProcedures['expt'] = binary(Math.pow, NUMBER, NUMBER);
 
-PrimitiveProcedures['floor'] = unary(Math.floor, Types.NUMBER);
+PrimitiveProcedures['floor'] = unary(Math.floor, NUMBER);
 
 PrimitiveProcedures['imag-part'] = unary((z) => {
   throw Error.unimplementedOption('imag-part');
-}, Types.NUMBER);
+}, NUMBER);
 
-PrimitiveProcedures['inexact?'] = unary(x => true, Types.NUMBER);
+PrimitiveProcedures['inexact?'] = unary(x => true, NUMBER);
 
-PrimitiveProcedures['inexact->exact'] = unary(x => x /* TODO bl */, Types.NUMBER);
+PrimitiveProcedures['inexact->exact'] = unary(x => x /* TODO bl */, NUMBER);
 
 PrimitiveProcedures['magnitude'] = unary(z => {
     throw Error.unimplementedOption('magnitude');
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['make-polar'] = binary((x, y) => {
   throw Error.unimplementedOption('make-polar');
-}, Types.NUMBER, Types.NUMBER);
+}, NUMBER, NUMBER);
 
 PrimitiveProcedures['make-rectangular'] = binary((r, theta) => {
   throw Error.unimplementedOption('make-rectangular');
-}, Types.NUMBER, Types.NUMBER);
+}, NUMBER, NUMBER);
 
-PrimitiveProcedures['number->string'] = unary(x => new StringNode(x + ''), Types.NUMBER);
+PrimitiveProcedures['number->string'] = unary(x => new StringNode(x + ''), NUMBER);
 
 PrimitiveProcedures['integer?'] = unary(node =>
   node instanceof Number && Math.round(node.getPayload()) === node.getPayload());
 
-PrimitiveProcedures['log'] = unary(Math.log, Types.NUMBER);
+PrimitiveProcedures['log'] = unary(Math.log, NUMBER);
 
 PrimitiveProcedures['modulo'] = binary((p, q) => {
   const remainder = p % q;
@@ -235,14 +246,14 @@ PrimitiveProcedures['modulo'] = binary((p, q) => {
     }
     return ans;
   }
-}, Types.NUMBER, Types.NUMBER);
+}, NUMBER, NUMBER);
 
 PrimitiveProcedures['quotient'] = binary((p, q) => {
   /* In Scheme, quotient rounds towards zero, which is unfortunately
                  not what JavaScript's Math.round() does. */
   const unrounded = p / q;
   return unrounded > 0 ? Math.floor(unrounded) : Math.ceil(unrounded);
-}, Types.NUMBER, Types.NUMBER);
+}, NUMBER, NUMBER);
 
 PrimitiveProcedures['rational?'] = unary(node => node instanceof Number);
 
@@ -250,10 +261,10 @@ PrimitiveProcedures['real?'] = unary(node => node instanceof Number);
 
 PrimitiveProcedures['real-part'] = unary(z => {
   throw Error.unimplementedOption('real-part');
-}, Types.NUMBER);
+}, NUMBER);
 
 // The JavaScript % semantics are precisely the Scheme remainder semantics.
-PrimitiveProcedures['remainder'] = binary((p, q) => p % q, Types.NUMBER, Types.NUMBER);
+PrimitiveProcedures['remainder'] = binary((p, q) => p % q, NUMBER, NUMBER);
 
 PrimitiveProcedures['round'] = unary(x => {
   /* R5RS 6.2.5: "Round returns the closest integer to x,
@@ -270,23 +281,23 @@ PrimitiveProcedures['round'] = unary(x => {
   } else {
     return up % 2 ? down : up;
   }
-}, Types.NUMBER);
+}, NUMBER);
 
-PrimitiveProcedures['sin'] = unary(Math.sin, Types.NUMBER);
+PrimitiveProcedures['sin'] = unary(Math.sin, NUMBER);
 
-PrimitiveProcedures['sqrt'] = unary(Math.sqrt, Types.NUMBER);
+PrimitiveProcedures['sqrt'] = unary(Math.sqrt, NUMBER);
 
-PrimitiveProcedures['string->number'] = unary(parseFloat, Types.STRING);
+PrimitiveProcedures['string->number'] = unary(parseFloat, STRING);
 
-PrimitiveProcedures['tan'] = unary(Math.tan, Types.NUMBER);
+PrimitiveProcedures['tan'] = unary(Math.tan, NUMBER);
 
 /* R5RS 6.2.5: "Truncate returns the integer closest to x
 whose absolute value is not larger than the absolute value of x." */
-PrimitiveProcedures['truncate'] = unary(x => x > 0 ? Math.floor(x) : Math.ceil(x), Types.NUMBER);
+PrimitiveProcedures['truncate'] = unary(x => x > 0 ? Math.floor(x) : Math.ceil(x), NUMBER);
 
 // Pair-related procedures
 
-PrimitiveProcedures['car'] = unary(p => p.car(), Types.PAIR);
+PrimitiveProcedures['car'] = unary(p => p.car(), PAIR);
 
 PrimitiveProcedures['cdr'] = unary(p => {
     const cdr = p.cdr();
@@ -296,7 +307,7 @@ PrimitiveProcedures['cdr'] = unary(p => {
         cdr.setCdrHelper(new CdrHelperImpl(p, /** @type {!Datum} */ (cdr.getFirstChild())));
     }
     return cdr;
-}, Types.PAIR);
+}, PAIR);
 
 PrimitiveProcedures['cons'] = binary((car, cdr) => {
   // todo bl this is really expensive! can we cut down on the copying?
@@ -319,7 +330,7 @@ PrimitiveProcedures['cons'] = binary((car, cdr) => {
 PrimitiveProcedures['set-car!'] = binary((p, car) => {
   if (!(p instanceof List || p.isImproperList())) {
     throw argumentTypeError(
-        p, 0, 'set-car!', Types.PAIR, runtimeType(p));
+        p, 0, 'set-car!', PAIR, runtimeType(p));
   }
   if (p.isImmutable()) {
     throw Error.immutable(p.toString());
@@ -339,7 +350,7 @@ PrimitiveProcedures['set-car!'] = binary((p, car) => {
 PrimitiveProcedures['set-cdr!'] = binary((p, cdr) => {
   if (!(p instanceof List || p.isImproperList())) {
     throw argumentTypeError(
-        p, 0, 'set-cdr!', Types.PAIR,
+        p, 0, 'set-cdr!', PAIR,
         runtimeType(p));
   }
 
@@ -370,7 +381,7 @@ PrimitiveProcedures['set-cdr!'] = binary((p, cdr) => {
 PrimitiveProcedures['make-vector'] = varargsRange((numberNode, fillNode) => {
       if (!(numberNode instanceof Number)) {
         throw argumentTypeError(
-            numberNode, 0, 'make-vector', Types.NUMBER,
+            numberNode, 0, 'make-vector', NUMBER,
             runtimeType(numberNode));
       }
       const n = numberNode.getPayload();
@@ -385,19 +396,19 @@ PrimitiveProcedures['make-vector'] = varargsRange((numberNode, fillNode) => {
       return new Vector(buf);
     }, 1, 2);
 
-PrimitiveProcedures['vector-length'] = unary(v => v.vectorLength(), Types.VECTOR);
+PrimitiveProcedures['vector-length'] = unary(v => v.vectorLength(), VECTOR);
 
-PrimitiveProcedures['vector-ref'] = binary((v, k) =>v.vectorRef(k), Types.VECTOR, Types.NUMBER);
+PrimitiveProcedures['vector-ref'] = binary((v, k) =>v.vectorRef(k), VECTOR, NUMBER);
 
 PrimitiveProcedures['vector-set!'] = ternary((v, k, fill) => {
   if (!(v instanceof Vector)) {
     throw argumentTypeError(
-        v, 0, 'vector-set!', Types.VECTOR,
+        v, 0, 'vector-set!', VECTOR,
         runtimeType(v));
   }
   if (!(k instanceof Number)) {
     throw argumentTypeError(
-        k, 1, 'vector-set!', Types.NUMBER,
+        k, 1, 'vector-set!', NUMBER,
         runtimeType(k));
   }
   if (v.isImmutable()) {
@@ -411,40 +422,40 @@ PrimitiveProcedures['vector-set!'] = ternary((v, k, fill) => {
 // Symbol-related procedures
 
 PrimitiveProcedures['symbol->string'] = unary(sym =>
-    new StringNode(sym).setImmutable(), Types.SYMBOL);
+    new StringNode(sym).setImmutable(), SYMBOL);
 
   // TODO bl it doesn't seem right to be creating Identifiers instead of Symbols
 PrimitiveProcedures['string->symbol'] = unary(node =>
-    new Identifier(node.getPayload()), Types.STRING);
+    new Identifier(node.getPayload()), STRING);
 
 // Character-related procedures
 
 PrimitiveProcedures['char=?'] = binary((node1, node2) =>
-node1.getPayload() === node2.getPayload(), Types.CHARACTER, Types.CHARACTER);
+node1.getPayload() === node2.getPayload(), CHARACTER, CHARACTER);
 
 PrimitiveProcedures['char<?'] = binary((node1, node2) =>
-    node1.getPayload() < node2.getPayload(), Types.CHARACTER, Types.CHARACTER);
+    node1.getPayload() < node2.getPayload(), CHARACTER, CHARACTER);
 
 PrimitiveProcedures['char>?'] = binary((node1, node2) =>
-  node1.getPayload() > node2.getPayload(), Types.CHARACTER, Types.CHARACTER);
+  node1.getPayload() > node2.getPayload(), CHARACTER, CHARACTER);
 
 PrimitiveProcedures['char<=?'] = binary((node1, node2) =>
-node1.getPayload() <= node2.getPayload(), Types.CHARACTER, Types.CHARACTER);
+node1.getPayload() <= node2.getPayload(), CHARACTER, CHARACTER);
 
 PrimitiveProcedures['char>=?'] = binary((node1, node2) =>
-  node1.getPayload() >= node2.getPayload(), Types.CHARACTER, Types.CHARACTER);
+  node1.getPayload() >= node2.getPayload(), CHARACTER, CHARACTER);
 
 PrimitiveProcedures['char->integer'] = unary(node => node.getPayload().charCodeAt(0),
-    Types.CHARACTER);
+    CHARACTER);
 
 PrimitiveProcedures['integer->char'] = unary(i => new Character(String.fromCharCode(i)),
-    Types.NUMBER);
+    NUMBER);
 
 PrimitiveProcedures['char-upcase'] = unary((node) =>
-    new Character(node.getPayload().toUpperCase()), Types.CHARACTER);
+    new Character(node.getPayload().toUpperCase()), CHARACTER);
 
 PrimitiveProcedures['char-downcase'] = unary((node) =>
-    new Character(node.getPayload().toLowerCase()), Types.CHARACTER);
+    new Character(node.getPayload().toLowerCase()), CHARACTER);
 
 // String-related procedures
 
@@ -461,10 +472,10 @@ PrimitiveProcedures['make-string'] = varargsRange((numberNode, charNode) => {
       return new StringNode(s);
     }, 1, 2);
 
-PrimitiveProcedures['string-length'] = unary(node => node.getPayload().length, Types.STRING);
+PrimitiveProcedures['string-length'] = unary(node => node.getPayload().length, STRING);
 
 PrimitiveProcedures['string-ref'] = binary((node, i) =>
-    new Character(node.getPayload().charAt(i)), Types.STRING, Types.NUMBER);
+    new Character(node.getPayload().charAt(i)), STRING, NUMBER);
 
 PrimitiveProcedures['string-set!'] = ternary((str, k, c) => {
   if (str.isImmutable()) {
@@ -473,7 +484,7 @@ PrimitiveProcedures['string-set!'] = ternary((str, k, c) => {
   const s = str.getPayload();
   str.setPayload(s.substr(0, k) + c.getPayload() + s.substr(k + 1));
   return UNSPECIFIED_VALUE;
-}, Types.STRING, Types.NUMBER, Types.CHARACTER);
+}, STRING, NUMBER, CHARACTER);
 
 // Evaluation-related procedures
 
@@ -481,12 +492,12 @@ PrimitiveProcedures['eval'] = binaryWithCurrentPorts(
     function(inputPort, outputPort, expr, envSpec) {
       if (!(expr instanceof Datum))
         // TODO bl how could this not be a datum? The type signature of binaryWithCurrentPorts
-        // is not helpful. Also, Types.SYMBOL is not right.
+        // is not helpful. Also, SYMBOL is not right.
         throw argumentTypeError(
-            expr, 0, 'eval', Types.SYMBOL, runtimeType(expr));
+            expr, 0, 'eval', SYMBOL, runtimeType(expr));
       if (!(envSpec instanceof Environment)) {
         throw argumentTypeError(
-            envSpec, 1, 'eval', Types.ENVIRONMENT_SPECIFIER,
+            envSpec, 1, 'eval', ENVIRONMENT_SPECIFIER,
             runtimeType(envSpec));
       }
       /* An interesting special case. If we're about to evaluate a wrapped
@@ -547,7 +558,7 @@ PrimitiveProcedures['char-ready?'] = nullaryOrUnaryWithCurrentPorts(
         const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
         if (!isInputPortImpl(inputPortToUse)) {
             throw argumentTypeError(
-                inputPortToUse, 0, 'char-ready?', Types.INPUT_PORT,
+                inputPortToUse, 0, 'char-ready?', INPUT_PORT,
                 runtimeType(inputPortToUse));
         }
         return inputPortToUse.isCharReady();
@@ -556,12 +567,12 @@ PrimitiveProcedures['char-ready?'] = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures['close-input-port'] = unary(datum => {
   datum.close();
   return UNSPECIFIED_VALUE;
-}, Types.INPUT_PORT);
+}, INPUT_PORT);
 
 PrimitiveProcedures['close-output-port'] = unary(datum => {
   datum.close();
   return UNSPECIFIED_VALUE;
-}, Types.OUTPUT_PORT);
+}, OUTPUT_PORT);
 
 PrimitiveProcedures['current-input-port'] =
   nullaryWithCurrentPorts((inputPort, outputPort) => inputPort);
@@ -578,7 +589,7 @@ PrimitiveProcedures['display'] = unaryOrBinaryWithCurrentPorts(
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!isOutputPortImpl(outputPortToUse)) {
         throw argumentTypeError(
-            outputPortToUse, 1, 'display', Types.OUTPUT_PORT,
+            outputPortToUse, 1, 'display', OUTPUT_PORT,
             runtimeType(outputPortToUse));
       }
       (/** @type {!OutputPort} */ (outputPortToUse)).
@@ -589,17 +600,17 @@ PrimitiveProcedures['display'] = unaryOrBinaryWithCurrentPorts(
 PrimitiveProcedures['eof-object?'] = unary(port => port === EOF);
 
 PrimitiveProcedures['open-input-file'] = unary(datum =>
-    portManager_.newInputPort(datum.getPayload()), Types.STRING);
+    portManager_.newInputPort(datum.getPayload()), STRING);
 
 PrimitiveProcedures['open-output-file'] = unary(datum =>
-  portManager_.newOutputPort(datum.getPayload()), Types.STRING);
+  portManager_.newOutputPort(datum.getPayload()), STRING);
 
 PrimitiveProcedures['peek-char'] = nullaryOrUnaryWithCurrentPorts(
     (inputPort, outputPort, maybeUserSuppliedInputPort) => {
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!isInputPortImpl(inputPortToUse)) {
         throw argumentTypeError(
-            inputPortToUse, 0, 'peek-char', Types.INPUT_PORT,
+            inputPortToUse, 0, 'peek-char', INPUT_PORT,
             runtimeType(inputPortToUse));
       }
       return inputPortToUse.peekChar() || EOF;
@@ -610,7 +621,7 @@ PrimitiveProcedures['read'] = nullaryOrUnaryWithCurrentPorts(
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!isInputPortImpl(inputPortToUse)) {
         throw argumentTypeError(
-            inputPortToUse, 0, 'read', Types.INPUT_PORT,
+            inputPortToUse, 0, 'read', INPUT_PORT,
             runtimeType(inputPortToUse));
       }
       return inputPortToUse.read() || EOF;
@@ -621,7 +632,7 @@ PrimitiveProcedures['read-char'] = nullaryOrUnaryWithCurrentPorts(
       const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
       if (!isInputPortImpl(inputPortToUse)) {
         throw argumentTypeError(
-            inputPortToUse, 0, 'read-char', Types.INPUT_PORT,
+            inputPortToUse, 0, 'read-char', INPUT_PORT,
             runtimeType(inputPortToUse));
       }
       return inputPortToUse.readChar() || EOF;
@@ -632,7 +643,7 @@ PrimitiveProcedures['write'] = unaryOrBinaryWithCurrentPorts(
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!isOutputPortImpl(outputPortToUse)) {
         throw argumentTypeError(
-            outputPortToUse, 1, 'write', Types.OUTPUT_PORT,
+            outputPortToUse, 1, 'write', OUTPUT_PORT,
             runtimeType(outputPortToUse));
       }
       outputPortToUse.write(toWriteString(datum));
@@ -643,13 +654,13 @@ PrimitiveProcedures['write-char'] = unaryOrBinaryWithCurrentPorts(
     (inputPort, outputPort, charNode, maybeUserSuppliedOutputPort) => {
       if (!(charNode instanceof Character)) {
         throw argumentTypeError(
-            charNode, 0, 'write-char', Types.CHARACTER,
+            charNode, 0, 'write-char', CHARACTER,
             runtimeType(charNode));
       }
       const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
       if (!isOutputPortImpl(outputPortToUse)) {
         throw argumentTypeError(
-            outputPortToUse, 1, 'write-char', Types.OUTPUT_PORT,
+            outputPortToUse, 1, 'write-char', OUTPUT_PORT,
             runtimeType(outputPortToUse));
       }
       outputPortToUse.write(toWriteString(charNode));
@@ -669,7 +680,7 @@ PrimitiveProcedures['apply'] = atLeastNWithSpecialEvalLogic(2, (...args) => {
   const mustBeProc = args[0];
   if (!(mustBeProc instanceof Lambda)) {
     throw argumentTypeError(
-        mustBeProc, 0, 'apply', Types.PROCEDURE,
+        mustBeProc, 0, 'apply', PROCEDURE,
         runtimeType(mustBeProc));
   }
 
@@ -682,7 +693,7 @@ PrimitiveProcedures['apply'] = atLeastNWithSpecialEvalLogic(2, (...args) => {
   const mustBeList = args[lastRealArgIndex];
   if (!(mustBeList instanceof List)) {
     throw argumentTypeError(
-        mustBeList, lastRealArgIndex, 'apply', Types.PAIR,
+        mustBeList, lastRealArgIndex, 'apply', PAIR,
         runtimeType(mustBeList));
   }
 
@@ -903,7 +914,7 @@ PrimitiveProcedures['null-environment'] = unary(num => {
         '(null-environment ' + num + ')');
   }
   return nullEnv_.child();
-}, Types.NUMBER);
+}, NUMBER);
 
 PrimitiveProcedures['scheme-report-environment'] = unary(num => {
   if (num !== 5) {
@@ -911,7 +922,7 @@ PrimitiveProcedures['scheme-report-environment'] = unary(num => {
         '(scheme-report-environment ' + num + ')');
   }
   return r5RSEnv_.child();
-}, Types.NUMBER);
+}, NUMBER);
 
 /**
  * @param {!IEnvironment} nullEnv

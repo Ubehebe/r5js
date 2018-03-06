@@ -12,7 +12,7 @@ const testSuite = goog.require('goog.testing.testSuite');
 const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {InMemoryPortBuffer} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_port_buffer');
 const {LPAREN, RPAREN} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
-const {Types} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/type');
+const {NUMBER, STRING} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/types');
 const {boot} = goog.require('r5js.boot');
 const {output, setOutputPort} = goog.require('output');
 goog.require('goog.testing.jsunit');
@@ -191,8 +191,7 @@ testSuite({
         expect_('(let ((foo (lambda (x . y) x))) (foo))').
             to(Throw(Error.tooFewVarargs('', 1, 0)));
         expect_('(+ "a" "b")').
-            to(Throw(argumentTypeError(
-                'a', 0, '+', Types.NUMBER, Types.STRING)));
+            to(Throw(argumentTypeError('a', 0, '+', NUMBER, STRING)));
         expect_('(scheme-report-environment 6)').
             to(Throw(Error.unimplementedOption('')));
         expect_('(null-environment 6)').
