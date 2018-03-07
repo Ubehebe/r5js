@@ -1,6 +1,6 @@
 goog.module('r5js.test.TestFramework');
 
-const AsyncEvaluator = goog.require('r5js.async.Evaluator.Impl');
+const {AsyncEvaluator} = require('/js/eval/impl_collect_es6_sources.es6/node_modules/__main__/js/eval/async_evaluator');
 const {CallbackBackedPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/callback_backed_port');
 const {NULL_INPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const LogLevel = goog.require('tdd.LogLevel');

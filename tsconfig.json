@@ -1,5 +1,8 @@
 {
     "compilerOptions": {
-      "strictNullChecks": true
+      "strictNullChecks": true,
+      "lib": [
+        "es2016"
+      ],
   }
 }

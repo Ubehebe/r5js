@@ -182,16 +182,29 @@ closure_ts_library(
     ]
 )
 
-closure_js_library(
-    name = "impl",
-    srcs = ["async_evaluator.js"],
+ts_library(
+    name = "async_evaluator_ts",
+    srcs = [
+        "async_evaluator.ts",
+    ],
     deps = [
-        "@io_bazel_rules_closure//closure/library",
-        ":shim",
-        "//js:scheme_sources",
-        "//js/io",
+        ":eval_ts",
+        "//js:scheme_sources_ts",
+        "//js/io:io_ts",
+    ],
+    tsconfig = "//:tsconfig.json",
+)
+
+closure_ts_library(
+    name = "impl",
+    deps = [
+        ":async_evaluator_ts",
     ],
     suppress = [
-            "JSC_UNKNOWN_EXPR_TYPE",
-    ],
+        "CR_NOT_PROVIDED",
+        "JSC_IMPLICITLY_NULLABLE_JSDOC",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+        "JSC_NULLABLE_RETURN_WITH_NAME",
+        "JSC_UNKNOWN_EXPR_TYPE",
+    ]
 )
