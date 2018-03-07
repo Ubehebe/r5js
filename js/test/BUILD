@@ -14,8 +14,8 @@ closure_js_test(
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library:testing",
-        "//js:boot",
         "//js:error",
+        "//js/eval:shim",
         "//js:scheme_sources",
         "//js/io",
         "//js/parse:terminals",
@@ -42,8 +42,8 @@ closure_js_test(
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library:testing",
-        "//js:boot",
         "//js:error",
+        "//js/eval:shim",
         "//js/test/matchers",
     ],
     suppress = [
@@ -65,8 +65,8 @@ closure_js_test(
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library:testing",
-        "//js:boot",
         "//js:error",
+        "//js/eval:shim",
         "//js/test/matchers",
     ],
     suppress = [

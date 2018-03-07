@@ -7,6 +7,8 @@ package(
     ],
 )
 
+exports_files(["boot.ts"])
+
 closure_js_library(
     name = "scheme_sources",
     srcs = [
@@ -51,21 +53,5 @@ closure_ts_library(
     ],
     deps = [
         ":error_ts",
-    ],
-)
-
-closure_js_library(
-    name = "boot",
-    srcs = ["boot.js"],
-    suppress = [
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [
-        ":error",
-        ":value",
-        "//js/eval:shim",
-        "//js/parse:rename_util",
-        "//js/parse:terminals",
-        "//js/runtime:ienvironment",
     ],
 )

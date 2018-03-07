@@ -13,7 +13,7 @@ const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modul
 const {InMemoryPortBuffer} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_port_buffer');
 const {LPAREN, RPAREN} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
 const {NUMBER, STRING} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/types');
-const {boot} = goog.require('r5js.boot');
+const {boot} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/boot');
 const {output, setOutputPort} = goog.require('output');
 goog.require('goog.testing.jsunit');
 

@@ -13,6 +13,7 @@ package(
 genrule(
     name = "ugh",
     srcs = [
+        "//js:boot.ts",
         "//js/io:in_memory_input_port.ts",
         "//js/io:port_manager.ts",
         "//js/macro:ellipsis_transformer.ts",
@@ -57,6 +58,7 @@ genrule(
         "//js/runtime:varargs_user_defined_procedure.ts",
     ],
     outs = [
+        "boot.ts",
            "assignment.ts",
             "branch.ts",
             "call_with_current_continuation.ts",
@@ -107,6 +109,7 @@ ts_library(
     name = "eval_ts",
     srcs = [
         "assignment.ts",
+        "boot.ts",
         "branch.ts",
         "call_with_current_continuation.ts",
         "continuation.ts",
@@ -185,7 +188,6 @@ closure_js_library(
     deps = [
         "@io_bazel_rules_closure//closure/library",
         ":shim",
-        "//js:boot",
         "//js:scheme_sources",
         "//js/io",
     ],
