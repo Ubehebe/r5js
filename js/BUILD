@@ -67,7 +67,6 @@ closure_js_library(
         "//js/runtime:shim",
         "//js/parse:rename_util",
         "//js/parse:terminals",
-        "//js/runtime",
         "//js/runtime:ienvironment",
     ],
 )

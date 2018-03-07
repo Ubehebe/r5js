@@ -87,6 +87,7 @@ ts_library(
         "parser.ts",
         "parser_impl.ts",
         "port_manager.ts",
+        "primitive_procedures.ts",
         "proc_call.ts",
         "procedure.ts",
         "procspec.ts",
@@ -131,28 +132,6 @@ closure_ts_library(
         "JSC_NULLABLE_RETURN_WITH_NAME",
         "JSC_UNKNOWN_EXPR_TYPE",
     ]
-)
-
-closure_js_library(
-    name = "runtime",
-    srcs = glob(["*.js"], exclude = [
-        "ienvironment.ts",
-    ]),
-    deps = [
-        ":ienvironment",
-        ":shim",
-        "//js:error",
-        "//js/io",
-        "//js/parse:rename_util",
-        "//js/parse:terminals",
-        "//js:value",
-    ],
-    suppress = [
-        "JSC_PRIMITIVE_OBJECT",
-        "JSC_MISSING_RETURN_JSDOC",
-        "JSC_TYPE_MISMATCH",
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
 )
 
 ts_library(

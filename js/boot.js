@@ -5,7 +5,7 @@ const Evaluator = goog.require('r5js.Evaluator');
 const {InputPort, NULL_INPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const {ParserImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser_impl');
 const Pipeline = goog.require('r5js.Pipeline');
-const PrimitiveProcedures = goog.require('r5js.PrimitiveProcedures');
+const {install} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/primitive_procedures');
 const {Reader} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/reader');
 const {TokenStream} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 const {trampoline} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/trampoline');
@@ -50,7 +50,7 @@ function boot(syntaxLib, procLib, inputPort=NULL_INPUT_PORT, outputPort=NULL_OUT
      Ugh. */
 
   const r5RSEnv = nullEnv.clone();
-  PrimitiveProcedures.install(nullEnv, r5RSEnv);
+  install(nullEnv, r5RSEnv);
   installSchemeSource(procLib, r5RSEnv);
   r5RSEnv.seal();
   return new Evaluator(new Pipeline(r5RSEnv), inputPort, outputPort);
