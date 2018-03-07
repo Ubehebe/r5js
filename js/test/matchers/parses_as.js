@@ -2,12 +2,12 @@ goog.module('parseAs');
 
 goog.setTestOnly('parseAs');
 
-const {Datum} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {Datum} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const Matcher = goog.require('tdd.matchers.Matcher');
-const {ParserImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser_impl');
-const {Reader} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/reader');
-const {Nonterminal} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
-const {TokenStream} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
+const {ParserImpl} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/parser_impl');
+const {Reader} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/reader');
+const {Nonterminal} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/nonterminals');
+const {TokenStream} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
 
 /** @implements {Matcher<string>} */
 class ParsesAs {

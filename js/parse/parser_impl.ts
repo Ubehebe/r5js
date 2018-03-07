@@ -1,8 +1,8 @@
 import {Error} from "../error";
 import {Macro as MacroDatum} from '../ast/macro';
 import {String} from "../ast/string";
-import {Parser} from "../runtime/parser"; // TODO should be parse/parser
-import {DatumStream} from "../runtime/datum_stream"; // TODO should be parse/datum_stream
+import {Parser} from "../eval/parser"; // TODO should be parse/parser
+import {DatumStream} from "../eval/datum_stream"; // TODO should be parse/datum_stream
 import {
   Nonterminal,
   ALTERNATE,
@@ -23,9 +23,9 @@ import {
   VARIABLE, VECTOR_QQ_TEMPLATE
 } from "../parse/nonterminals";
 import {Datum, getLastProcCallLike, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
-import {Grammar} from "../runtime/parse_grammar"; // TODO should be parse/grammar
-import {Rule} from "../runtime/parse_rule"; // TODO should be parse/rule
-import {RuleFactory} from "../runtime/parse_rule_factory"; // TODO should be parse/rule_factory
+import {Grammar} from "../eval/parse_grammar"; // TODO should be parse/grammar
+import {Rule} from "../eval/parse_rule"; // TODO should be parse/rule
+import {RuleFactory} from "../eval/parse_rule_factory"; // TODO should be parse/rule_factory
 import {
   BACKTICK, BEGIN, COMMA, COMMA_AT, DEFINE, DEFINE_SYNTAX, DOT, ELLIPSIS, IF, LAMBDA, LET_SYNTAX, LETREC_SYNTAX, LPAREN,
   RPAREN, SET,
@@ -34,21 +34,21 @@ import {
 } from "../parse/terminals";
 import {Identifier} from "../ast/identifier";
 import {isParserSensitiveId} from "../parse/rename_util";
-import {ProcCall} from "../runtime/proc_call";
+import {ProcCall} from "../eval/proc_call";
 import {List} from "../ast/list";
-import {VarargsUserDefinedProcedure} from "../runtime/varargs_user_defined_procedure";
-import {UserDefinedProcedure} from "../runtime/user_defined_procedure";
+import {VarargsUserDefinedProcedure} from "../eval/varargs_user_defined_procedure";
+import {UserDefinedProcedure} from "../eval/user_defined_procedure";
 import {CompoundDatum} from "../ast/compound_datum";
 import {SimpleDatum} from "../ast/simple_datum";
-import {TopLevelAssignment} from "../runtime/top_level_assignment";
+import {TopLevelAssignment} from "../eval/top_level_assignment";
 import {extractDefinition} from "../ast/util";
-import {Branch} from "../runtime/branch";
-import {Assignment} from "../runtime/assignment";
-import {Macro} from "../runtime/macro"; // TODO should be macro/macro, etc.
-import {ListLikeTransformer} from "../runtime/list_like_transformer";
-import {EllipsisTransformer} from "../runtime/ellipsis_transformer";
-import {MacroIdTransformer} from "../runtime/macro_id_transformer";
-import {TopLevelSyntaxAssignment} from "../runtime/top_level_syntax_assignment";
+import {Branch} from "../eval/branch";
+import {Assignment} from "../eval/assignment";
+import {Macro} from "../eval/macro"; // TODO should be macro/macro, etc.
+import {ListLikeTransformer} from "../eval/list_like_transformer";
+import {EllipsisTransformer} from "../eval/ellipsis_transformer";
+import {MacroIdTransformer} from "../eval/macro_id_transformer";
+import {TopLevelSyntaxAssignment} from "../eval/top_level_syntax_assignment";
 import {Vector} from "../ast/vector";
 import {RenameHelper} from "../ast/rename_helper";
 import {SiblingBuffer} from "../ast/sibling_buffer";

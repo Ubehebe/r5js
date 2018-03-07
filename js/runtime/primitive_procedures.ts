@@ -8,7 +8,7 @@ import {
   varargsAtLeast1, varargsRange
 } from "./procspec";
 import * as Types from "../ast/types";
-import {PortManager} from "../runtime/port_manager"; // TODO should be io/port_manager
+import {PortManager} from "../eval/port_manager"; // TODO should be io/port_manager
 import {Error} from "../error";
 import {String as StringNode} from "../ast/string";
 import {CompoundDatum} from "../ast/compound_datum";
@@ -23,7 +23,7 @@ import {Identifier} from "../ast/identifier";
 import {Character} from "../ast/character";
 import {Environment} from "./environment";
 import {Lambda} from "./lambda";
-import {ParserImpl} from "../runtime/parser_impl"; // TODO should be parse/parser_impl
+import {ParserImpl} from "../eval/parser_impl"; // TODO should be parse/parser_impl
 import {trampoline} from "./trampoline";
 import {isInputPortImpl} from "../io/input_port";
 import {isOutputPortImpl} from "../io/output_port";

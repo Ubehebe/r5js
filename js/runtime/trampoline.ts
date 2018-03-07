@@ -2,7 +2,7 @@ import {ProcCallLike} from "../ast/datum";
 import {OutputPort} from "../io/output_port";
 import {InputPort} from "../io/input_port";
 import {TrampolineHelper} from "./trampoline_helper";
-import {ParserImpl} from "../runtime/parser_impl"; // TODO should be parse/parser_impl
+import {ParserImpl} from "../eval/parser_impl"; // TODO should be parse/parser_impl
 
 /**
  * This is the main evaluation function.

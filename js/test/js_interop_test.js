@@ -1,18 +1,18 @@
 goog.module('r5js.test.JsInterop');
 goog.setTestOnly('r5js.test.JsInterop');
 
-const {InMemoryInputPort} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/in_memory_input_port');
+const {InMemoryInputPort} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/in_memory_input_port');
 const {InMemoryOutputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_output_port');
 const SchemeSources = goog.require('r5js.SchemeSources');
 const Throw = goog.require('Throw');
-const {argumentTypeError} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/errors');
+const {argumentTypeError} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/errors');
 const evalTo = goog.require('evalTo');
 const expect = goog.require('expect');
 const testSuite = goog.require('goog.testing.testSuite');
 const {Error, ErrorType} = require('/js/error_collect_es6_sources.es6/node_modules/__main__/js/error');
 const {InMemoryPortBuffer} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_port_buffer');
-const {LPAREN, RPAREN} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
-const {NUMBER, STRING} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/types');
+const {LPAREN, RPAREN} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/parse/terminals');
+const {NUMBER, STRING} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/types');
 const {boot} = goog.require('r5js.boot');
 const {output, setOutputPort} = goog.require('output');
 goog.require('goog.testing.jsunit');

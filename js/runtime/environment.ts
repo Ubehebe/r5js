@@ -1,6 +1,6 @@
 import {UserDefinedProcedure} from "./user_defined_procedure";
 import {Error} from "../error";
-import {Macro} from "../runtime/macro"; // TODO should be macro/macro
+import {Macro} from "../eval/macro"; // TODO should be macro/macro
 import {Procedure} from "./procedure";
 import {Continuation} from "./continuation";
 import {Lambda} from "./lambda";

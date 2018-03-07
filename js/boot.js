@@ -1,15 +1,15 @@
 goog.module('r5js.boot');
 
-const {Environment} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/environment');
+const {Environment} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/environment');
 const Evaluator = goog.require('r5js.Evaluator');
 const {InputPort, NULL_INPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
-const {ParserImpl} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/parser_impl');
-const Pipeline = goog.require('r5js.Pipeline');
-const {install} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/primitive_procedures');
-const {Reader} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/reader');
-const {TokenStream} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
-const {trampoline} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/runtime/trampoline');
-const {Datum, ProcCallLike} = require('/js/runtime/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
+const {ParserImpl} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/parser_impl');
+const {Pipeline} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/pipeline');
+const {install} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/primitive_procedures');
+const {Reader} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/reader');
+const {TokenStream} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/token_stream');
+const {trampoline} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/trampoline');
+const {Datum, ProcCallLike} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/ast/datum');
 const {OutputPort, NULL_OUTPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 
 /**
