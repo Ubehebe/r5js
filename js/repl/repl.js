@@ -1,6 +1,6 @@
 goog.module('r5js.Repl');
 
-const Evaluator = goog.require('r5js.Evaluator');
+const {Evaluator} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/evaluator');
 const Promise = goog.require('goog.Promise');
 const Terminal = goog.require('r5js.Terminal');
 const replutil = goog.require('r5js.replutil');

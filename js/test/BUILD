@@ -112,7 +112,7 @@ closure_js_library(
     deps = [
         "@closure_tdd//:closure-tdd",
         "@io_bazel_rules_closure//closure/library",
-        "//js/eval",
+        "//js/eval:shim",
         "//js/eval:impl",
         "//js/io",
         "//scm:NEGATIVE_TESTS",

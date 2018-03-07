@@ -1,7 +1,7 @@
 goog.module('r5js.boot');
 
 const {Environment} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/environment');
-const Evaluator = goog.require('r5js.Evaluator');
+const {Evaluator} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/evaluator');
 const {InputPort, NULL_INPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const {ParserImpl} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/parser_impl');
 const {Pipeline} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/pipeline');

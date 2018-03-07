@@ -63,7 +63,6 @@ closure_js_library(
     deps = [
         ":error",
         ":value",
-        "//js/eval",
         "//js/eval:shim",
         "//js/parse:rename_util",
         "//js/parse:terminals",

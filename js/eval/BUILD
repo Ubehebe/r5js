@@ -7,22 +7,6 @@ package(
     ],
 )
 
-closure_js_library(
-    name = "eval",
-    srcs = glob(["*.js"], exclude = ["async_evaluator.js"]),
-    deps = [
-        "@io_bazel_rules_closure//closure/library",
-        "//js:error",
-        "//js/io",
-        "//js/runtime:ienvironment",
-        "//js:value",
-        ":shim",
-    ],
-    suppress = [
-            "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-)
-
 # Workaround to avoid duplication of the AST classes in js/read execroot.
 # Instead of polluting the commit history by moving in_memory_input_port.ts into this package,
 # just copy it here temporarily via a genrule. TODO: remove.
@@ -133,6 +117,7 @@ ts_library(
         "eof.ts",
         "environment.ts",
         "errors.ts",
+        "evaluator.ts",
         "grammar.ts",
         "in_memory_input_port.ts",
         "lambda.ts",
@@ -199,7 +184,7 @@ closure_js_library(
     srcs = ["async_evaluator.js"],
     deps = [
         "@io_bazel_rules_closure//closure/library",
-        ":eval",
+        ":shim",
         "//js:boot",
         "//js:scheme_sources",
         "//js/io",
