@@ -1,16 +1,16 @@
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
 
 def scheme_source(name, src):
   base_name = src[:-4]
-  js_name = base_name + ".js"
+  ts_name = base_name + ".ts"
 
+  # TODO investigate using `template strings`. Would be nice to ship the sources non-mangled.
   native.genrule(
       name = name + "_src",
       srcs = [src],
-      outs = [js_name],
+      outs = [ts_name],
       cmd = "cat > $(@) << END\n"
-      + "goog.provide('" + name + "');\n"
-      + "/** @const */var " + name + " = \n"
+      + "export const " + name + " = \n"
       + "END\n"
       + "cat $(<)"
       # backslash-escape backslash
@@ -28,7 +28,7 @@ def scheme_source(name, src):
       + " >> $(@)",
   )
 
-  closure_js_library(
+  ts_library(
       name = name,
       srcs = [
           ":" + name + "_src",

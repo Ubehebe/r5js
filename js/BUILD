@@ -9,18 +9,26 @@ package(
 
 exports_files(["boot.ts"])
 
-closure_js_library(
-    name = "scheme_sources",
+ts_library(
+    name = "scheme_sources_ts",
     srcs = [
-        "scheme_sources.js",
-    ],
-    suppress = [
-        "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
+        "scheme_sources.ts",
     ],
     deps = [
         "//scm:PROCEDURES",
         "//scm:SYNTAX",
     ],
+)
+
+closure_ts_library(
+    name = "scheme_sources",
+    deps = [
+        ":scheme_sources_ts",
+    ],
+    suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+    ]
 )
 
 ts_library(

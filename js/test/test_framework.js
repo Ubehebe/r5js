@@ -8,7 +8,7 @@ const LogRecord = goog.require('tdd.LogRecord');
 const Logger = goog.require('goog.log.Logger');
 const Promise = goog.require('goog.Promise');
 const ResultStruct = goog.require('tdd.ResultStruct');
-const SchemeSources = goog.require('r5js.test.SchemeSources');
+const {SchemeSources} = require('/js/test/scheme_sources_collect_es6_sources.es6/node_modules/__main__/js/test/scheme_sources');
 
 class TestFramework {
   /** @param {!SchemeSources} sources */

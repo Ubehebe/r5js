@@ -3,7 +3,7 @@ goog.setTestOnly('r5js.test.JsInterop');
 
 const {InMemoryInputPort} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/in_memory_input_port');
 const {InMemoryOutputPort} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/in_memory_output_port');
-const SchemeSources = goog.require('r5js.SchemeSources');
+const {SchemeSources} = require('/js/scheme_sources_collect_es6_sources.es6/node_modules/__main__/js/scheme_sources');
 const Throw = goog.require('Throw');
 const {argumentTypeError} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/errors');
 const evalTo = goog.require('evalTo');

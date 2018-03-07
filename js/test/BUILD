@@ -1,4 +1,5 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure_js_test")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
 
 closure_js_test(
     name = "js_interop_test",
@@ -102,11 +103,35 @@ closure_js_test(
      ],
 )
 
+ts_library(
+    name = "scheme_sources_ts",
+    srcs = [
+        "scheme_sources.ts",
+    ],
+    deps = [
+        "//scm:NEGATIVE_TESTS",
+        "//scm:OTHER_TESTS",
+        "//scm:R5RS_TESTS",
+        "//scm:TEST_FRAMEWORK",
+        "//scm:TEST_FRAMEWORK_TESTS",
+    ],
+)
+
+closure_ts_library(
+    name = "scheme_sources",
+    deps = [
+        ":scheme_sources_ts",
+    ],
+    suppress = [
+        "CR_NOT_PROVIDED",
+        "JSC_INVALID_CLOSURE_CALL_ERROR",
+    ],
+)
+
 closure_js_library(
     name = "lib",
     testonly = 1,
     srcs = [
-        "scheme_sources.js",
         "test_framework.js",
     ],
     deps = [
@@ -115,14 +140,9 @@ closure_js_library(
         "//js/eval:shim",
         "//js/eval:impl",
         "//js/io",
-        "//scm:NEGATIVE_TESTS",
-        "//scm:OTHER_TESTS",
-        "//scm:R5RS_TESTS",
-        "//scm:TEST_FRAMEWORK",
-        "//scm:TEST_FRAMEWORK_TESTS",
+        ":scheme_sources",
     ],
     suppress = [
-            "JSC_INCORRECT_SHORTNAME_CAPITALIZATION",
             "JSC_TYPE_MISMATCH",
             "JSC_UNKNOWN_EXPR_TYPE",
     ]

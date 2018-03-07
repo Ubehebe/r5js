@@ -2,7 +2,7 @@ goog.module('r5js.async.Evaluator.Impl');
 
 const {InputPort, NULL_INPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/input_port');
 const Promise = goog.require('goog.Promise');
-const SchemeSources = goog.require('r5js.SchemeSources');
+const {SchemeSources} = require('/js/scheme_sources_collect_es6_sources.es6/node_modules/__main__/js/scheme_sources');
 const {OutputPort, NULL_OUTPUT_PORT} = require('/js/io/io_collect_es6_sources.es6/node_modules/__main__/js/io/output_port');
 const {boot} = require('/js/eval/shim_collect_es6_sources.es6/node_modules/__main__/js/eval/boot');
 
