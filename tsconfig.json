@@ -4,5 +4,11 @@
       "lib": [
         "es2016"
       ],
+      "typeRoots": [
+        "bazel-r5js/external/upstream_node_modules/node_modules/@types"
+      ],
+      "types": [
+        "jasmine"
+      ]
   }
 }

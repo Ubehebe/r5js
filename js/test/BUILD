@@ -1,5 +1,5 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure_js_test")
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library", "ts_web_test")
 
 closure_js_test(
     name = "js_interop_test",
@@ -53,28 +53,24 @@ closure_js_test(
     ],
 )
 
-closure_js_test(
-    name = "scanner_test",
+ts_library(
+    name = "scanner_test_lib",
     srcs = [
-        "scanner_test.js",
-    ],
-        defs = [
-            "--process_common_js_modules",
-        ],
-    entry_points = [
-        "goog:r5js.test.Scanner",
+        "scanner_test.ts",
+        "custom_matchers.d.ts",
     ],
     deps = [
-        "@closure_tdd//:closure-tdd",
-        "@io_bazel_rules_closure//closure/library:testing",
-        "//js:error",
-        "//js/eval:shim",
-        "//js/test/matchers",
+    "//js/ast:datum_ts",
+    "//js/scan:scan_ts",
     ],
-    suppress = [
-        "JSC_TYPE_MISMATCH",
-        "JSC_UNKNOWN_EXPR_TYPE",
-     ],
+    tsconfig = "//:tsconfig.json",
+)
+
+ts_web_test(
+    name = "scanner_test",
+    deps = [
+        ":scanner_test_lib",
+    ],
 )
 
 closure_js_test(

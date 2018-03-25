@@ -24,7 +24,7 @@ node_repositories(package_json = ["@build_bazel_rules_typescript//:package.json"
 
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "dd4169d3e1d6b8f6eda1d7c1f29fb9368542f16a",
+    commit = "e4d1367115806531752c4df406c0be8436a0d817",
     remote = "https://github.com/Ubehebe/rules_typescript.git",
 )
 
