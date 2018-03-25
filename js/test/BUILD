@@ -23,6 +23,7 @@ closure_js_test(
         "//js/test/matchers",
     ],
     suppress = [
+        "JSC_INEXISTENT_PROPERTY",
         "JSC_MISSING_RETURN_JSDOC",
         "JSC_UNKNOWN_EXPR_TYPE",
         "JSC_TYPE_MISMATCH",

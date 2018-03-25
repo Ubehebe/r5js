@@ -30,7 +30,11 @@ closure_ts_library(
     ],
     suppress = [
         "CR_NOT_PROVIDED",
+        "JSC_INEXISTENT_PROPERTY",
         "JSC_INVALID_CLOSURE_CALL_ERROR",
+        "JSC_JSDOC_MISSING_TYPE_WARNING",
         "JSC_UNKNOWN_EXPR_TYPE",
+        "JSC_UNKNOWN_OVERRIDE",
+        "JSC_UNRECOGNIZED_TYPE_ERROR",
     ],
 )

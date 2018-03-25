@@ -44,6 +44,9 @@ closure_ts_library(
     deps = [
         ":value_ts",
     ],
+    suppress = [
+        "JSC_INEXISTENT_PROPERTY",
+    ],
 )
 
 ts_library(
@@ -57,6 +60,7 @@ ts_library(
 closure_ts_library(
     name = "error",
     suppress = [
+        "JSC_INEXISTENT_PROPERTY",
         "JSC_UNKNOWN_EXPR_TYPE",
     ],
     deps = [
