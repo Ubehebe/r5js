@@ -30,26 +30,24 @@ closure_js_test(
     ]
 )
 
-closure_js_test(
-    name = "parser_test",
+ts_library(
+    name = "parser_test_lib",
     srcs = [
-        "parser_test.js",
-    ],
-        defs = [
-            "--process_common_js_modules",
-        ],
-    entry_points = [
-        "goog:r5js.test.Parser",
+        "parser_test.ts",
+        "custom_matchers.d.ts",
     ],
     deps = [
-        "@closure_tdd//:closure-tdd",
-        "@io_bazel_rules_closure//closure/library:testing",
-        "//js:error",
-        "//js/eval:shim",
-        "//js/test/matchers",
+        "//js/ast:datum_ts",
+        "//js/eval:eval_ts",
+        "//js/parse:nonterminals_ts",
+        "//js/scan:scan_ts",
     ],
-    suppress = [
-            "JSC_UNKNOWN_EXPR_TYPE",
+)
+
+ts_web_test(
+    name = "parser_test",
+    deps = [
+        ":parser_test_lib",
     ],
 )
 
