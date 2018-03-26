@@ -1,33 +1,28 @@
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure_js_test")
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library", "ts_web_test")
 
-closure_js_test(
-    name = "js_interop_test",
+ts_library(
+    name = "js_interop_test_lib",
     srcs = [
-        "js_interop_test.js",
-    ],
-    entry_points = [
-        "goog:r5js.test.JsInterop",
-    ],
-    defs = [
-        "--process_common_js_modules",
+        "js_interop_test.ts",
+        "custom_matchers.d.ts",
     ],
     deps = [
-        "@closure_tdd//:closure-tdd",
-        "@io_bazel_rules_closure//closure/library:testing",
-        "//js:error",
-        "//js/eval:shim",
-        "//js:scheme_sources",
-        "//js/io",
-        "//js/parse:terminals",
-        "//js/test/matchers",
+        "//js/ast:datum_ts",
+        "//js/ast:type_ts",
+        "//js/eval:eval_ts",
+        "//js/io:io_ts",
+        "//js/parse:terminals_ts",
+        "//js:error_ts",
+        "//js:scheme_sources_ts",
     ],
-    suppress = [
-        "JSC_INEXISTENT_PROPERTY",
-        "JSC_MISSING_RETURN_JSDOC",
-        "JSC_UNKNOWN_EXPR_TYPE",
-        "JSC_TYPE_MISMATCH",
-    ]
+)
+
+ts_web_test(
+    name = "js_interop_test",
+    deps = [
+        ":js_interop_test_lib",
+    ],
 )
 
 ts_library(
