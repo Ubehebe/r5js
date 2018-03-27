@@ -1,4 +1,4 @@
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
 
 package(
     default_visibility = [
@@ -59,34 +59,12 @@ genrule(
     cmd = "cp $(<) $(@)",
 )
 
-closure_ts_library(
-    name = "datum",
-    suppress = [
-        "CR_NOT_PROVIDED",
-        "JSC_INVALID_CLOSURE_CALL_ERROR",
-        "JSC_MISSING_MODULE_OR_PROVIDE",
-        "JSC_UNKNOWN_EXPR_TYPE",
-    ],
-    deps = [":datum_ts"],
-)
-
 ts_library(
     name = "rename_helper_ts",
     srcs = ["rename_helper.ts"],
     tsconfig = "//:tsconfig.json",
     deps = [
         "//js/parse:rename_util_ts",
-    ],
-)
-
-closure_ts_library(
-    name = "rename_helper",
-    suppress = [
-        "CR_NOT_PROVIDED",
-        "JSC_INVALID_CLOSURE_CALL_ERROR",
-    ],
-    deps = [
-        ":rename_helper_ts",
     ],
 )
 
@@ -97,9 +75,4 @@ ts_library(
         "types.ts",
     ],
     tsconfig = "//:tsconfig.json",
-)
-
-closure_ts_library(
-    name = "type",
-    deps = [":type_ts"],
 )

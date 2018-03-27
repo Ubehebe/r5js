@@ -1,5 +1,4 @@
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure_js_test")
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library", "ts_web_test")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "ts_web_test")
 
 ts_library(
     name = "js_interop_test_lib",
@@ -101,16 +100,5 @@ ts_library(
         "//scm:R5RS_TESTS",
         "//scm:TEST_FRAMEWORK",
         "//scm:TEST_FRAMEWORK_TESTS",
-    ],
-)
-
-closure_ts_library(
-    name = "scheme_sources",
-    deps = [
-        ":scheme_sources_ts",
-    ],
-    suppress = [
-        "CR_NOT_PROVIDED",
-        "JSC_INVALID_CLOSURE_CALL_ERROR",
     ],
 )

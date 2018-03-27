@@ -1,5 +1,4 @@
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
 
 package(
     default_visibility = [
@@ -28,13 +27,6 @@ ts_library(
     tsconfig = "//:tsconfig.json",
 )
 
-closure_ts_library(
-    name = "nonterminals",
-    deps = [
-        ":nonterminals_ts"
-    ],
-)
-
 ts_library(
     name = "rename_util_ts",
     srcs = [
@@ -46,28 +38,10 @@ ts_library(
     ],
 )
 
-closure_ts_library(
-    name = "rename_util",
-    suppress = [
-        "CR_NOT_PROVIDED",
-        "JSC_INVALID_CLOSURE_CALL_ERROR",
-    ],
-    deps = [
-        ":rename_util_ts",
-    ],
-)
-
 ts_library(
     name = "terminals_ts",
     srcs = [
         "terminals.ts",
     ],
     tsconfig = "//:tsconfig.json",
-)
-
-closure_ts_library(
-    name = "terminals",
-    deps = [
-        ":terminals_ts",
-    ],
 )

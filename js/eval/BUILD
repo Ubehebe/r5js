@@ -1,5 +1,4 @@
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
 
 package(
     default_visibility = [
@@ -167,26 +166,6 @@ ts_library(
     tsconfig = "//:tsconfig.json",
 )
 
-
-closure_ts_library(
-    name = "shim",
-    deps = [
-        ":eval_ts",
-    ],
-    suppress = [
-        "CR_NOT_PROVIDED",
-        "JSC_IMPLEMENTS_NON_INTERFACE",
-        "JSC_IMPLICITLY_NULLABLE_JSDOC",
-        "JSC_INEXISTENT_PROPERTY",
-        "JSC_INVALID_CLOSURE_CALL_ERROR",
-        "JSC_JSDOC_MISSING_TYPE_WARNING",
-        "JSC_NULLABLE_RETURN_WITH_NAME",
-        "JSC_UNKNOWN_EXPR_TYPE",
-        "JSC_UNKNOWN_OVERRIDE",
-        "JSC_UNRECOGNIZED_TYPE_ERROR",
-    ]
-)
-
 ts_library(
     name = "async_evaluator_ts",
     srcs = [
@@ -198,23 +177,4 @@ ts_library(
         "//js/io:io_ts",
     ],
     tsconfig = "//:tsconfig.json",
-)
-
-closure_ts_library(
-    name = "impl",
-    deps = [
-        ":async_evaluator_ts",
-    ],
-    suppress = [
-        "CR_NOT_PROVIDED",
-        "JSC_IMPLEMENTS_NON_INTERFACE",
-        "JSC_IMPLICITLY_NULLABLE_JSDOC",
-        "JSC_INEXISTENT_PROPERTY",
-        "JSC_INVALID_CLOSURE_CALL_ERROR",
-        "JSC_JSDOC_MISSING_TYPE_WARNING",
-        "JSC_NULLABLE_RETURN_WITH_NAME",
-        "JSC_UNKNOWN_EXPR_TYPE",
-        "JSC_UNKNOWN_OVERRIDE",
-        "JSC_UNRECOGNIZED_TYPE_ERROR",
-    ]
 )

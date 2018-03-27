@@ -1,5 +1,4 @@
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "closure_ts_library")
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
 
 package(
     default_visibility = [
@@ -39,12 +38,5 @@ ts_library(
     ],
     deps = [
         "//js:value_ts",
-    ],
-)
-
-closure_ts_library(
-    name = "ienvironment",
-    deps = [
-        ":ienvironment_ts",
     ],
 )
