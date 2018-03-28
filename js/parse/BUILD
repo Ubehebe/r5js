@@ -20,7 +20,7 @@ exports_files([
 ])
 
 ts_library(
-    name = "nonterminals_ts",
+    name = "nonterminals",
     srcs = [
         "nonterminals.ts",
     ],
@@ -28,18 +28,18 @@ ts_library(
 )
 
 ts_library(
-    name = "rename_util_ts",
+    name = "rename_util",
     srcs = [
         "rename_util.ts",
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
-        ":terminals_ts",
+        ":terminals",
     ],
 )
 
 ts_library(
-    name = "terminals_ts",
+    name = "terminals",
     srcs = [
         "terminals.ts",
     ],

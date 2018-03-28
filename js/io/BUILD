@@ -10,14 +10,14 @@ exports_files([
 ])
 
 ts_library(
-    name = "io_ts",
+    name = "io",
     srcs = glob(["*.ts"], exclude = [
         "in_memory_input_port.ts",
         "port_manager.ts",
     ]),
     deps = [
-        "//js/ast:datum_ts",
-        "//js:value_ts",
+        "//js/ast:datum",
+        "//js:value",
     ],
     tsconfig = "//:tsconfig.json",
 )

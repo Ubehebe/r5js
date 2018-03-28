@@ -7,7 +7,7 @@ package(
 )
 
 ts_library(
-    name = "datum_ts",
+    name = "datum",
     srcs = [
         "boolean.ts",
         "cdr_helper.ts",
@@ -35,13 +35,13 @@ ts_library(
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
-        ":rename_helper_ts",
-        "//js/parse:nonterminals_ts",
-        "//js/parse:rename_util_ts",
-        "//js/parse:terminals_ts",
-        "//js/runtime:ienvironment_ts",
-        "//js:error_ts",
-        "//js:value_ts",
+        ":rename_helper",
+        "//js/parse:nonterminals",
+        "//js/parse:rename_util",
+        "//js/parse:terminals",
+        "//js/runtime:ienvironment",
+        "//js:error",
+        "//js:value",
     ],
 )
 
@@ -60,16 +60,16 @@ genrule(
 )
 
 ts_library(
-    name = "rename_helper_ts",
+    name = "rename_helper",
     srcs = ["rename_helper.ts"],
     tsconfig = "//:tsconfig.json",
     deps = [
-        "//js/parse:rename_util_ts",
+        "//js/parse:rename_util",
     ],
 )
 
 ts_library(
-    name = "type_ts",
+    name = "type",
     srcs = [
         "type.ts",
         "types.ts",

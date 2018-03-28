@@ -7,13 +7,13 @@ ts_library(
         "custom_matchers.d.ts",
     ],
     deps = [
-        "//js/ast:datum_ts",
-        "//js/ast:type_ts",
-        "//js/eval:eval_ts",
-        "//js/io:io_ts",
-        "//js/parse:terminals_ts",
-        "//js:error_ts",
-        "//js:scheme_sources_ts",
+        "//js/ast:datum",
+        "//js/ast:type",
+        "//js/eval:eval",
+        "//js/io",
+        "//js/parse:terminals",
+        "//js:error",
+        "//js:scheme_sources",
     ],
     tsconfig = "//:tsconfig.json",
 )
@@ -32,10 +32,10 @@ ts_library(
         "custom_matchers.d.ts",
     ],
     deps = [
-        "//js/ast:datum_ts",
-        "//js/eval:eval_ts",
-        "//js/parse:nonterminals_ts",
-        "//js/scan:scan_ts",
+        "//js/ast:datum",
+        "//js/eval:eval",
+        "//js/parse:nonterminals",
+        "//js/scan",
     ],
     tsconfig = "//:tsconfig.json",
 )
@@ -54,8 +54,8 @@ ts_library(
         "custom_matchers.d.ts",
     ],
     deps = [
-    "//js/ast:datum_ts",
-    "//js/scan:scan_ts",
+    "//js/ast:datum",
+    "//js/scan",
     ],
     tsconfig = "//:tsconfig.json",
 )
@@ -74,10 +74,10 @@ ts_library(
         "test_framework.ts",
     ],
     deps = [
-        ":scheme_sources_ts",
-        "//js/eval:async_evaluator_ts",
-        "//js/eval:eval_ts",
-        "//js/io:io_ts",
+        ":scheme_sources",
+        "//js/eval:async_evaluator",
+        "//js/eval:eval",
+        "//js/io",
     ],
     tsconfig = "//:tsconfig.json",
 )
@@ -90,7 +90,7 @@ ts_web_test(
 )
 
 ts_library(
-    name = "scheme_sources_ts",
+    name = "scheme_sources",
     srcs = [
         "scheme_sources.ts",
     ],

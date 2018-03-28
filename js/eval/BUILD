@@ -105,7 +105,7 @@ genrule(
 )
 
 ts_library(
-    name = "eval_ts",
+    name = "eval",
     srcs = [
         "assignment.ts",
         "boot.ts",
@@ -153,28 +153,28 @@ ts_library(
         "varargs_user_defined_procedure.ts",
     ],
     deps = [
-        "//js:error_ts",
-        "//js/ast:datum_ts",
-        "//js/ast:rename_helper_ts",
-        "//js/ast:type_ts",
-        "//js/io:io_ts",
-        "//js/parse:nonterminals_ts",
-        "//js/parse:rename_util_ts",
-        "//js/parse:terminals_ts",
-        "//js/scan:scan_ts",
+        "//js:error",
+        "//js/ast:datum",
+        "//js/ast:rename_helper",
+        "//js/ast:type",
+        "//js/io",
+        "//js/parse:nonterminals",
+        "//js/parse:rename_util",
+        "//js/parse:terminals",
+        "//js/scan",
     ],
     tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
-    name = "async_evaluator_ts",
+    name = "async_evaluator",
     srcs = [
         "async_evaluator.ts",
     ],
     deps = [
-        ":eval_ts",
-        "//js:scheme_sources_ts",
-        "//js/io:io_ts",
+        ":eval",
+        "//js:scheme_sources",
+        "//js/io",
     ],
     tsconfig = "//:tsconfig.json",
 )

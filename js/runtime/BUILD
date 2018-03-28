@@ -31,12 +31,12 @@ exports_files([
 ])
 
 ts_library(
-    name = "ienvironment_ts",
+    name = "ienvironment",
     tsconfig = "//:tsconfig.json",
     srcs = [
         "ienvironment.ts",
     ],
     deps = [
-        "//js:value_ts",
+        "//js:value",
     ],
 )

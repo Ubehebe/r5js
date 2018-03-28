@@ -9,7 +9,7 @@ package(
 exports_files(["boot.ts"])
 
 ts_library(
-    name = "scheme_sources_ts",
+    name = "scheme_sources",
     srcs = [
         "scheme_sources.ts",
     ],
@@ -20,7 +20,7 @@ ts_library(
 )
 
 ts_library(
-    name = "value_ts",
+    name = "value",
     tsconfig = "//:tsconfig.json",
     srcs = [
         "value.ts",
@@ -28,7 +28,7 @@ ts_library(
 )
 
 ts_library(
-    name = "error_ts",
+    name = "error",
     srcs = [
         "error.ts",
     ],
