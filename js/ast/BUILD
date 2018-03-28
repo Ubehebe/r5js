@@ -27,7 +27,6 @@ ts_library(
         "sibling_buffer.ts",
         "simple_datum.ts",
         "string.ts",
-        "token_stream.ts",
         "unquote.ts",
         "unquote_splicing.ts",
         "util.ts",
@@ -43,20 +42,6 @@ ts_library(
         "//js:error",
         "//js:value",
     ],
-)
-
-# Workaround to avoid duplication of the AST classes in js/scan execroot.
-# Instead of polluting the commit history by moving token_stream.ts into this package,
-# just copy it here temporarily via a genrule. TODO: remove.
-genrule(
-    name = "ugh",
-    srcs = [
-        "//js/scan:token_stream.ts",
-    ],
-    outs = [
-        "token_stream.ts",
-    ],
-    cmd = "cp $(<) $(@)",
 )
 
 ts_library(
