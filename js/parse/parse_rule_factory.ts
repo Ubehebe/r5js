@@ -1,6 +1,6 @@
-import * as Terminals from "../parse/terminals";
+import * as Terminals from "./terminals";
 import {Grammar} from "./parse_grammar";
-import {Nonterminal} from "../parse/nonterminals";
+import {Nonterminal} from "./nonterminals";
 import {DesugarableRule} from "./desugarable_rule";
 import {Rule} from "./parse_rule";
 import {CompoundDatum} from "../ast/compound_datum";

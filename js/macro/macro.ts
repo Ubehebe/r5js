@@ -4,7 +4,7 @@ import {Identifier} from "../ast/identifier";
 import {CompoundDatum} from "../ast/compound_datum";
 import {PATTERN, TEMPLATE} from "../parse/nonterminals";
 import {TemplateBindings} from "./template_bindings";
-import {Parser} from "./parser"; // TODO
+import {Parser} from "../parse/parser";
 import {isParserSensitiveId, newCpsName} from "../parse/rename_util";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {List} from "../ast/list";

@@ -1,4 +1,4 @@
-import {Nonterminal, PROGRAM} from "../parse/nonterminals";
+import {Nonterminal, PROGRAM} from "./nonterminals";
 import {Datum} from "../ast/datum";
 
 export class /* TODO should be interface */ Parser {

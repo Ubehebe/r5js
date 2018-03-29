@@ -6,25 +6,58 @@ package(
     ],
 )
 
-exports_files([
-    "datum_stream.ts",
-    "desugarable_rule.ts",
-    "grammar.ts",
-    "parse_grammar.ts",
-    "parse_rule.ts",
-    "parse_rule_factory.ts",
-    "parser.ts",
-    "parser_impl.ts",
-    "reader.ts",
-    "rule.ts",
-])
-
 ts_library(
     name = "nonterminals",
     srcs = [
         "nonterminals.ts",
     ],
     tsconfig = "//:tsconfig.json",
+)
+
+ts_library(
+    name = "parse",
+    srcs = [
+        "datum_stream.ts",
+        "desugarable_rule.ts",
+        "parse_grammar.ts",
+        "parse_rule.ts",
+        "parse_rule_factory.ts",
+    ],
+    deps = [
+        ":nonterminals",
+        ":terminals",
+        "//js/ast:datum",
+    ]
+)
+
+ts_library(
+    name = "parser",
+    srcs = [
+        "parser.ts",
+    ],
+    deps = [
+        ":nonterminals",
+        "//js/ast:datum",
+    ],
+)
+
+ts_library(
+    name = "parser_impl",
+    srcs = [
+        "parser_impl.ts",
+    ],
+    deps = [
+        ":nonterminals",
+        ":parse",
+        ":parser",
+        ":rename_util",
+        ":terminals",
+        "//js/ast:datum",
+        "//js/ast:rename_helper",
+        "//js:error",
+        "//js/macro",
+        "//js/runtime",
+    ],
 )
 
 ts_library(

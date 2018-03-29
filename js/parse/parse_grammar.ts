@@ -1,4 +1,4 @@
-import {Nonterminal} from "../parse/nonterminals";
+import {Nonterminal} from "./nonterminals";
 import {Rule} from "./parse_rule";
 
 export class /* TODO should be interface */ Grammar {

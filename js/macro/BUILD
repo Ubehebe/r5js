@@ -4,13 +4,14 @@ package(
     default_visibility = ["//js:__subpackages__"],
 )
 
-exports_files([
-    "ellipsis_transformer.ts",
-    "list_like_transformer.ts",
-    "macro.ts",
-    "macro_id_transformer.ts",
-    "rename_helper.ts",
-    "subtransformer.ts",
-    "template_bindings.ts",
-    "transformer.ts",
-])
+ts_library(
+    name = "macro",
+    srcs = glob(["*.ts"]),
+    deps = [
+        "//js/ast:datum",
+        "//js/parse:nonterminals",
+        "//js/parse:parser",
+        "//js/parse:rename_util",
+        "//js:error",
+    ],
+)

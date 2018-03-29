@@ -7,27 +7,8 @@ package(
 )
 
 exports_files([
-    "assignment.ts",
-    "branch.ts",
-    "call_with_current_continuation.ts",
-    "continuation.ts",
-    "dynamic_wind_continuation.ts",
-    "environment.ts",
-    "eof.ts",
-    "errors.ts",
-    "lambda.ts",
-    "nil.ts",
     "primitive_procedures.ts",
-    "proc_call.ts",
-    "procedure.ts",
-    "procspec.ts",
-    "top_level_assignment.ts",
-    "top_level_syntax_assignment.ts",
     "trampoline.ts",
-    "trampoline_helper.ts",
-    "user_defined_procedure.ts",
-    "valutil.ts",
-    "varargs_user_defined_procedure.ts",
 ])
 
 ts_library(
@@ -38,5 +19,41 @@ ts_library(
     ],
     deps = [
         "//js:value",
+    ],
+)
+
+ts_library(
+    name = "runtime",
+    srcs = [
+        "assignment.ts",
+        "branch.ts",
+        "call_with_current_continuation.ts",
+        "continuation.ts",
+        "dynamic_wind_continuation.ts",
+        "environment.ts",
+        "eof.ts",
+        "errors.ts",
+        "lambda.ts",
+        "nil.ts",
+        "proc_call.ts",
+        "procedure.ts",
+        "procspec.ts",
+        "top_level_assignment.ts",
+        "top_level_syntax_assignment.ts",
+        "trampoline_helper.ts",
+        "user_defined_procedure.ts",
+        "valutil.ts",
+        "varargs_user_defined_procedure.ts",
+    ],
+    deps = [
+        "//js/ast:datum",
+        "//js/ast:type",
+        "//js/macro",
+        "//js:error",
+        "//js/io",
+        "//js/parse:nonterminals",
+        "//js/parse:rename_util",
+        "//js/parse:terminals",
+        "//js/parse:parser",
     ],
 )

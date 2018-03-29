@@ -9,10 +9,10 @@ import {Error} from "../error";
 import {ContinuableHelper} from "../ast/continuable_helper";
 import {Quasiquote} from "../ast/quasiquote";
 import {Procedure} from "./procedure";
-import {Macro} from "../eval/macro"; // TODO should be macro/macro
+import {Macro} from "../macro/macro";
 import {Continuation} from "./continuation";
 import {notAProcedure} from "./errors";
-import {Parser} from "../eval/parser"; // TODO should be parse/parser
+import {Parser} from "../parse/parser";
 import {Lambda} from "./lambda";
 
 export class ProcCall extends ProcCallLike {

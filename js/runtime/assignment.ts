@@ -1,10 +1,10 @@
 import {ProcCallLike, ProcCallResult, UNSPECIFIED_VALUE} from "../ast/datum";
 import {Identifier} from "../ast/identifier";
-import {Macro} from "../eval/macro"; // TODO should be macro/macro
+import {Macro} from "../macro/macro";
 import {Error} from "../error";
 import {SimpleDatum} from "../ast/simple_datum";
 import {SiblingBuffer} from "../ast/sibling_buffer";
-import {Parser} from "../eval/parser"; // TODO
+import {Parser} from "../parse/parser";
 
 export class Assignment extends ProcCallLike {
 

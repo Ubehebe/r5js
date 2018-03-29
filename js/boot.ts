@@ -1,10 +1,10 @@
 import {InputPort, NULL_INPUT_PORT} from "../io/input_port"; // TODO should be .
 import {NULL_OUTPUT_PORT, OutputPort} from "../io/output_port"; // TODO should be .
 import {Evaluator} from "../eval/evaluator"; // TODO should be .
-import {Environment} from "../eval/environment"; // TODO should be ./runtime/environment
+import {Environment} from "../runtime/environment"; // TODO should be .
 import {install} from "../eval/primitive_procedures"; // TODO should be ./runtime/primitive_procedures
 import {Pipeline} from "../eval/pipeline";
-import {ParserImpl} from "../eval/parser_impl"; // TODO should be ./parse/parser_impl
+import {ParserImpl} from "../parse/parser_impl";
 import {Reader} from "../eval/reader"; // TODO should be ./read/reader
 import {TokenStream} from "../scan/token_stream";
 import {trampoline} from "../eval/trampoline"; // TODO should be runtime/trampoline

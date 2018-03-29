@@ -21,7 +21,7 @@ import {
   VARIABLE
 } from "../parse/nonterminals";
 import {Reader} from "../eval/reader"; // TODO should be read/reader
-import {ParserImpl} from "../eval/parser_impl"; // TODO should be parse/parser_impl
+import {ParserImpl} from "../parse/parser_impl";
 import {Datum} from "../ast/datum";
 
 describe("parser", () => {

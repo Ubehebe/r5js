@@ -35,6 +35,7 @@ ts_library(
         "//js/ast:datum",
         "//js/eval:eval",
         "//js/parse:nonterminals",
+        "//js/parse:parser_impl",
         "//js/scan",
     ],
     tsconfig = "//:tsconfig.json",

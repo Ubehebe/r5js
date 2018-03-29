@@ -1,5 +1,5 @@
 import {getLastProcCallLike, ProcCallLike, ProcCallResult} from "../ast/datum";
-import {Parser} from "../eval/parser"; // TODO should be parse/parser
+import {Parser} from "../parse/parser";
 
 export class Branch extends ProcCallLike {
 
