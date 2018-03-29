@@ -13,6 +13,7 @@ ts_library(
         "//js/io",
         "//js/parse:terminals",
         "//js:error",
+        "//js/runtime",
         "//js:scheme_sources",
     ],
     tsconfig = "//:tsconfig.json",

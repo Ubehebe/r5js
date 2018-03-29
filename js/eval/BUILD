@@ -13,11 +13,9 @@ genrule(
     name = "ugh",
     srcs = [
         "//js:boot.ts",
-        "//js/runtime:errors.ts",
     ],
     outs = [
         "boot.ts",
-            "errors.ts",
     ],
     cmd = "cp $(SRCS) $(@D)",
 )
@@ -26,7 +24,6 @@ ts_library(
     name = "eval",
     srcs = [
         "boot.ts",
-        "errors.ts",
         "evaluator.ts",
         "pipeline.ts",
     ],

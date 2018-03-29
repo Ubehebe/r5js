@@ -8,7 +8,7 @@ import {LPAREN, RPAREN} from "../parse/terminals";
 import {ErrorType} from "../error"; // TODO should be ../boot
 import {Error} from "../error";
 import {NUMBER, STRING} from "../ast/types";
-import {argumentTypeError} from "../eval/errors"; // TODO should be ../runtime/errors
+import {argumentTypeError} from "../runtime/errors";
 
 let buffer;
 let stdin;
