@@ -2,7 +2,7 @@ import {InputPort, NULL_INPUT_PORT} from "../io/input_port"; // TODO should be .
 import {NULL_OUTPUT_PORT, OutputPort} from "../io/output_port"; // TODO should be .
 import {Evaluator} from "../eval/evaluator"; // TODO should be .
 import {Environment} from "../runtime/environment"; // TODO should be .
-import {install} from "../eval/primitive_procedures"; // TODO should be ./runtime/primitive_procedures
+import {install} from "../runtime/primitive_procedures"; // TODO should be .
 import {Pipeline} from "../eval/pipeline";
 import {ParserImpl} from "../parse/parser_impl";
 import {Reader} from "../read/reader"; // TODO should be .

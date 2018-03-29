@@ -6,7 +6,7 @@ import {
   ternary, ternaryWithSpecialEvalLogic, unary, unaryOrBinaryWithCurrentPorts, unaryWithSpecialEvalLogic,
   varargsAtLeast0,
   varargsAtLeast1, varargsRange
-} from "../runtime/procspec";
+} from "./procspec";
 import * as Types from "../ast/types";
 import {PortManager} from "../io/port_manager";
 import {Error} from "../error";
@@ -21,19 +21,19 @@ import {Boolean} from "../ast/boolean";
 import {Number} from "../ast/number";
 import {Identifier} from "../ast/identifier";
 import {Character} from "../ast/character";
-import {Environment} from "../runtime/environment";
-import {Lambda} from "../runtime/lambda";
+import {Environment} from "./environment";
+import {Lambda} from "./lambda";
 import {ParserImpl} from "../parse/parser_impl";
-import {trampoline} from "../runtime/trampoline";
+import {trampoline} from "./trampoline";
 import {isInputPortImpl} from "../io/input_port";
 import {isOutputPortImpl} from "../io/output_port";
-import {toDisplayString, toWriteString} from "../runtime/valutil";
-import {EOF} from "../runtime/eof";
+import {toDisplayString, toWriteString} from "./valutil";
+import {EOF} from "./eof";
 import {Quote} from "../ast/quote";
-import {ProcCall} from "../runtime/proc_call";
-import {DynamicWindContinuation} from "../runtime/dynamic_wind_continuation";
-import {Continuation} from "../runtime/continuation";
-import {CallWithCurrentContinuation} from "../runtime/call_with_current_continuation";
+import {ProcCall} from "./proc_call";
+import {DynamicWindContinuation} from "./dynamic_wind_continuation";
+import {Continuation} from "./continuation";
+import {CallWithCurrentContinuation} from "./call_with_current_continuation";
 
 let nullEnv: IEnvironment | null = null;
 let r5RSEnv: IEnvironment | null = null;

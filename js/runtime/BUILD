@@ -6,10 +6,6 @@ package(
     ],
 )
 
-exports_files([
-    "primitive_procedures.ts",
-])
-
 ts_library(
     name = "ienvironment",
     tsconfig = "//:tsconfig.json",
@@ -54,6 +50,22 @@ ts_library(
         "//js/parse:rename_util",
         "//js/parse:terminals",
         "//js/parse:parser",
+    ],
+)
+
+ts_library(
+    name = "primitive_procedures",
+    srcs = [
+        "primitive_procedures.ts",
+    ],
+    deps = [
+        ":runtime",
+        ":trampoline",
+        "//js/ast:type",
+        "//js/io",
+        "//js:error",
+        "//js/ast:datum",
+        "//js/parse:parser_impl",
     ],
 )
 

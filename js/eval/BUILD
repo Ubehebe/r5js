@@ -14,15 +14,10 @@ genrule(
     srcs = [
         "//js:boot.ts",
         "//js/runtime:errors.ts",
-        "//js/runtime:primitive_procedures.ts",
-        "//js/runtime:procedure.ts",
-        "//js/runtime:trampoline.ts",
     ],
     outs = [
         "boot.ts",
             "errors.ts",
-            "primitive_procedures.ts",
-            "procedure.ts",
     ],
     cmd = "cp $(SRCS) $(@D)",
 )
@@ -34,8 +29,6 @@ ts_library(
         "errors.ts",
         "evaluator.ts",
         "pipeline.ts",
-        "primitive_procedures.ts",
-        "procedure.ts",
     ],
     deps = [
         "//js:error",
@@ -50,6 +43,7 @@ ts_library(
         "//js/parse:terminals",
         "//js/read",
         "//js/runtime",
+        "//js/runtime:primitive_procedures",
         "//js/runtime:trampoline",
         "//js/scan",
     ],
