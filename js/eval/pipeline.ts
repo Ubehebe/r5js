@@ -2,7 +2,7 @@ import {Environment} from "../runtime/environment";
 import {Error} from "../error";
 import {TokenStream} from "../scan/token_stream";
 import {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
-import {Reader} from "../eval/reader"; // TODO should be read/reader
+import {Reader} from "../read/reader";
 import {ParserImpl} from "../parse/parser_impl";
 import {Nonterminal, PROGRAM} from "../parse/nonterminals";
 import {InputPort} from "../io/input_port";

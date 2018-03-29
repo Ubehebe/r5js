@@ -5,7 +5,7 @@ import {Environment} from "../runtime/environment"; // TODO should be .
 import {install} from "../eval/primitive_procedures"; // TODO should be ./runtime/primitive_procedures
 import {Pipeline} from "../eval/pipeline";
 import {ParserImpl} from "../parse/parser_impl";
-import {Reader} from "../eval/reader"; // TODO should be ./read/reader
+import {Reader} from "../read/reader"; // TODO should be .
 import {TokenStream} from "../scan/token_stream";
 import {trampoline} from "../eval/trampoline"; // TODO should be runtime/trampoline
 

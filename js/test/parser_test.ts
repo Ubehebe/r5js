@@ -20,7 +20,7 @@ import {
   TRANSFORMER_SPEC,
   VARIABLE
 } from "../parse/nonterminals";
-import {Reader} from "../eval/reader"; // TODO should be read/reader
+import {Reader} from "../read/reader";
 import {ParserImpl} from "../parse/parser_impl";
 import {Datum} from "../ast/datum";
 
