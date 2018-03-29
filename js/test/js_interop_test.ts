@@ -2,11 +2,10 @@ import {InMemoryPortBuffer} from "../io/in_memory_port_buffer";
 import {InMemoryInputPort} from "../io/in_memory_input_port";
 import {InMemoryOutputPort} from "../io/in_memory_output_port";
 import {SchemeSources} from "../scheme_sources";
-import {boot} from "../eval/boot";
+import {boot} from "../boot";
 import {OutputSavingPort} from "../io/output_saving_port";
 import {LPAREN, RPAREN} from "../parse/terminals";
-import {ErrorType} from "../error"; // TODO should be ../boot
-import {Error} from "../error";
+import {Error, ErrorType} from "../error";
 import {NUMBER, STRING} from "../ast/types";
 import {argumentTypeError} from "../runtime/errors";
 

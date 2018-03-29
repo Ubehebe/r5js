@@ -2,7 +2,7 @@ import {Error} from "../error";
 import {Macro as MacroDatum} from '../ast/macro';
 import {String} from "../ast/string";
 import {Parser} from "./parser";
-import {DatumStream} from "./datum_stream"; // TODO should be parse/datum_stream
+import {DatumStream} from "./datum_stream";
 import {
   Nonterminal,
   ALTERNATE,

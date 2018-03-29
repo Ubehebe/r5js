@@ -12,6 +12,7 @@ ts_library(
         "//js/eval:eval",
         "//js/io",
         "//js/parse:terminals",
+        "//js:boot",
         "//js:error",
         "//js/runtime",
         "//js:scheme_sources",

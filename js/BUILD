@@ -6,8 +6,6 @@ package(
     ],
 )
 
-exports_files(["boot.ts"])
-
 ts_library(
     name = "scheme_sources",
     srcs = [
@@ -33,4 +31,21 @@ ts_library(
         "error.ts",
     ],
     tsconfig = "//:tsconfig.json",
+)
+
+ts_library(
+    name = "boot",
+    srcs = [
+        "boot.ts",
+    ],
+    deps = [
+        "//js/io",
+        "//js/eval",
+        "//js/parse:parser_impl",
+        "//js/read",
+        "//js/runtime",
+        "//js/runtime:primitive_procedures",
+        "//js/runtime:trampoline",
+        "//js/scan",
+    ],
 )
