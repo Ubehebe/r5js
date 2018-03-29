@@ -7,7 +7,7 @@ import {ParserImpl} from "../parse/parser_impl";
 import {Nonterminal, PROGRAM} from "../parse/nonterminals";
 import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
-import {trampoline} from "../eval/trampoline";
+import {trampoline} from "../runtime/trampoline";
 
 export class Pipeline {
 

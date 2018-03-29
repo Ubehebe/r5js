@@ -8,7 +8,6 @@ package(
 
 exports_files([
     "primitive_procedures.ts",
-    "trampoline.ts",
 ])
 
 ts_library(
@@ -55,5 +54,18 @@ ts_library(
         "//js/parse:rename_util",
         "//js/parse:terminals",
         "//js/parse:parser",
+    ],
+)
+
+ts_library(
+    name = "trampoline",
+    srcs = [
+        "trampoline.ts",
+    ],
+    deps = [
+        "//js/ast:datum",
+        "//js/io",
+        "//js/parse:parser_impl",
+        ":runtime",
     ],
 )

@@ -1,7 +1,7 @@
 import {ProcCallLike} from "../ast/datum";
 import {OutputPort} from "../io/output_port";
 import {InputPort} from "../io/input_port";
-import {TrampolineHelper} from "../runtime/trampoline_helper";
+import {TrampolineHelper} from "./trampoline_helper";
 import {ParserImpl} from "../parse/parser_impl";
 
 /**

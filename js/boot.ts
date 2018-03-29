@@ -7,7 +7,7 @@ import {Pipeline} from "../eval/pipeline";
 import {ParserImpl} from "../parse/parser_impl";
 import {Reader} from "../read/reader"; // TODO should be .
 import {TokenStream} from "../scan/token_stream";
-import {trampoline} from "../eval/trampoline"; // TODO should be runtime/trampoline
+import {trampoline} from "../runtime/trampoline"; // TODO should be .
 
 /**
  * The main bootstrap function. Given Scheme source code for R5RS syntax and procedures, returns

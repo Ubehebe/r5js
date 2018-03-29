@@ -24,7 +24,7 @@ import {Character} from "../ast/character";
 import {Environment} from "../runtime/environment";
 import {Lambda} from "../runtime/lambda";
 import {ParserImpl} from "../parse/parser_impl";
-import {trampoline} from "./trampoline";
+import {trampoline} from "../runtime/trampoline";
 import {isInputPortImpl} from "../io/input_port";
 import {isOutputPortImpl} from "../io/output_port";
 import {toDisplayString, toWriteString} from "../runtime/valutil";
