@@ -8,7 +8,7 @@ import {
   varargsAtLeast1, varargsRange
 } from "../runtime/procspec";
 import * as Types from "../ast/types";
-import {PortManager} from "../eval/port_manager"; // TODO should be io/port_manager
+import {PortManager} from "../io/port_manager";
 import {Error} from "../error";
 import {String as StringNode} from "../ast/string";
 import {CompoundDatum} from "../ast/compound_datum";

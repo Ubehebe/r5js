@@ -4,19 +4,13 @@ package(
     default_visibility = ["//js:__subpackages__"],
 )
 
-exports_files([
-    "in_memory_input_port.ts",
-    "port_manager.ts",
-])
-
 ts_library(
     name = "io",
-    srcs = glob(["*.ts"], exclude = [
-        "in_memory_input_port.ts",
-        "port_manager.ts",
-    ]),
+    srcs = glob(["*.ts"]),
     deps = [
         "//js/ast:datum",
+        "//js/read",
+        "//js/scan",
         "//js:value",
     ],
     tsconfig = "//:tsconfig.json",

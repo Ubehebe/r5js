@@ -1,5 +1,5 @@
 import {InMemoryPortBuffer} from "../io/in_memory_port_buffer";
-import {InMemoryInputPort} from "../eval/in_memory_input_port"; // TODO should be io/in_memory_input_port
+import {InMemoryInputPort} from "../io/in_memory_input_port";
 import {InMemoryOutputPort} from "../io/in_memory_output_port";
 import {SchemeSources} from "../scheme_sources";
 import {boot} from "../eval/boot";
