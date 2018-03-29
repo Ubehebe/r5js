@@ -1,7 +1,11 @@
 import {InMemoryPortBuffer} from './in_memory_port_buffer';
-import {OutputSavingPort} from './output_saving_port';
+import {OutputPort} from "./output_port";
 
-export class InMemoryOutputPort extends OutputSavingPort {
+/**
+ * OutputPort that also saves calls to write to a buffer, where they can be
+ * {@link #dequeueOutput retrieved}.
+ */
+export class InMemoryOutputPort extends OutputPort {
 
   private readonly outputs: string[] = [];
 
@@ -14,7 +18,7 @@ export class InMemoryOutputPort extends OutputSavingPort {
     this.outputs.push(str);
   }
 
-  dequeueOutput() {
+  dequeueOutput(): string|null {
     return this.outputs.shift() || null;
   }
 }

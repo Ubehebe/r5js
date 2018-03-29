@@ -3,7 +3,6 @@ import {InMemoryInputPort} from "../io/in_memory_input_port";
 import {InMemoryOutputPort} from "../io/in_memory_output_port";
 import {SchemeSources} from "../scheme_sources";
 import {boot} from "../boot";
-import {OutputSavingPort} from "../io/output_saving_port";
 import {LPAREN, RPAREN} from "../parse/terminals";
 import {Error, ErrorType} from "../error";
 import {NUMBER, STRING} from "../ast/types";
@@ -14,7 +13,7 @@ let stdin;
 let stdout;
 let sources;
 let evaluator;
-let sharedOutputPort: OutputSavingPort | undefined;
+let sharedOutputPort: InMemoryOutputPort | undefined;
 
 describe("scheme<->js interop tests", () => {
   beforeEach(() => {
