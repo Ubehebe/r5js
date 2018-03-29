@@ -1,7 +1,11 @@
 import {Character} from '../ast/character';
 
-export class /* TODO should be interface */
-InputPort {
+/**
+ * This is not an interface because we need to do frequent runtime type detection.
+ * I wrote a type guard that checked for all the InputPort methods, but it caused
+ * the tests to take longer than the default Jasmine timeout (5 seconds).
+ */
+export class InputPort {
   isCharReady(): boolean {
     return false;
   }
@@ -26,23 +30,9 @@ InputPort {
   }
 }
 
-const IMPLEMENTED_BY_PROP_ = '$r5js.InputPort';
-
-export function isInputPortImpl(obj: any): boolean {
-  return !!(obj && obj[IMPLEMENTED_BY_PROP_]);
-}
-
-export function addInputPortImpl(ctor: any) {
-  ctor.prototype[IMPLEMENTED_BY_PROP_] = true;
+export function isInputPort(obj: any): obj is InputPort {
+  return obj instanceof InputPort;
 }
 
 /** An input port that has no available input. */
-class NullInputPort extends InputPort {
-  constructor() {
-    super();
-  }
-}
-
-addInputPortImpl(NullInputPort);
-
-export const NULL_INPUT_PORT: InputPort = new NullInputPort();
+export const NULL_INPUT_PORT: InputPort = new InputPort();

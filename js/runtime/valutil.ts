@@ -8,7 +8,7 @@ import {Character} from "../ast/character";
 import {String} from "../ast/string";
 import {Quote} from "../ast/quote";
 import {UserDefinedProcedure} from "./user_defined_procedure";
-import {isInputPortImpl} from "../io/input_port";
+import {isInputPort} from "../io/input_port";
 import {isOutputPortImpl} from "../io/output_port";
 
 /*
@@ -96,7 +96,7 @@ function toString(includeSigils: boolean, value: Value): string {
             includeSigils, value.getFirstChild()!);
       } else if (value instanceof UserDefinedProcedure) {
         return `<proc:${value.getName()}>`;
-      } else if (isInputPortImpl(value)) {
+      } else if (isInputPort(value)) {
         return '<input-port>';
       } else if (isOutputPortImpl(value)) {
         return '<output-port>';

@@ -25,7 +25,7 @@ import {Environment} from "./environment";
 import {Lambda} from "./lambda";
 import {ParserImpl} from "../parse/parser_impl";
 import {trampoline} from "./trampoline";
-import {isInputPortImpl} from "../io/input_port";
+import {isInputPort} from "../io/input_port";
 import {isOutputPortImpl} from "../io/output_port";
 import {toDisplayString, toWriteString} from "./valutil";
 import {EOF} from "./eof";
@@ -532,7 +532,7 @@ PrimitiveProcedures['will-eval?'] = binary(
 PrimitiveProcedures['char-ready?'] = nullaryOrUnaryWithCurrentPorts(
   (inputPort, outputPort, maybeUserSuppliedInputPort) => {
     const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-    if (!isInputPortImpl(inputPortToUse)) {
+    if (!isInputPort(inputPortToUse)) {
       throw argumentTypeError(
         inputPortToUse, 0, 'char-ready?', Types.INPUT_PORT,
         runtimeType(inputPortToUse));
@@ -583,7 +583,7 @@ PrimitiveProcedures['open-output-file'] = unary(datum =>
 PrimitiveProcedures['peek-char'] = nullaryOrUnaryWithCurrentPorts(
   (inputPort, outputPort, maybeUserSuppliedInputPort) => {
     const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-    if (!isInputPortImpl(inputPortToUse)) {
+    if (!isInputPort(inputPortToUse)) {
       throw argumentTypeError(
         inputPortToUse, 0, 'peek-char', Types.INPUT_PORT,
         runtimeType(inputPortToUse));
@@ -594,7 +594,7 @@ PrimitiveProcedures['peek-char'] = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures['read'] = nullaryOrUnaryWithCurrentPorts(
   (inputPort, outputPort, maybeUserSuppliedInputPort) => {
     const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-    if (!isInputPortImpl(inputPortToUse)) {
+    if (!isInputPort(inputPortToUse)) {
       throw argumentTypeError(
         inputPortToUse, 0, 'read', Types.INPUT_PORT,
         runtimeType(inputPortToUse));
@@ -605,7 +605,7 @@ PrimitiveProcedures['read'] = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures['read-char'] = nullaryOrUnaryWithCurrentPorts(
   (inputPort, outputPort, maybeUserSuppliedInputPort) => {
     const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-    if (!isInputPortImpl(inputPortToUse)) {
+    if (!isInputPort(inputPortToUse)) {
       throw argumentTypeError(
         inputPortToUse, 0, 'read-char', Types.INPUT_PORT,
         runtimeType(inputPortToUse));

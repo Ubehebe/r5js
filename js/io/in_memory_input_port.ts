@@ -1,5 +1,5 @@
-import {InMemoryPortBuffer} from "../io/in_memory_port_buffer";
-import {addInputPortImpl, InputPort} from "../io/input_port";
+import {InMemoryPortBuffer} from "./in_memory_port_buffer";
+import {InputPort} from "./input_port";
 import {Datum} from "../ast/datum";
 import {Reader} from "../read/reader";
 import {TokenStream} from "../scan/token_stream";
@@ -58,5 +58,3 @@ export class InMemoryInputPort extends InputPort {
     return c ? new Character(c) : null;
   }
 }
-
-addInputPortImpl(InMemoryInputPort);
