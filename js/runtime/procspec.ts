@@ -7,7 +7,7 @@ import {TrampolineHelper} from "./trampoline_helper";
 import {wrapValue} from "../ast/datum_util";
 import {Ref} from "../ast/ref";
 import {InputPort, isInputPort} from "../io/input_port";
-import {isOutputPortImpl, OutputPort} from "../io/output_port";
+import {isOutputPort, OutputPort} from "../io/output_port";
 import {Character} from "../ast/character";
 import {List} from "../ast/list";
 import {Lambda} from "./lambda";
@@ -306,10 +306,10 @@ Predicates['char?'] = unary(node => node instanceof Character);
 Predicates['input-port?'] = unary(port => isInputPort(port));
 Predicates['null?'] = unary(node => node instanceof List && !node.getFirstChild());
 Predicates['number?'] = unary(node => node instanceof Number);
-Predicates['output-port?'] = unary(port => isOutputPortImpl(port));
+Predicates['output-port?'] = unary(port => isOutputPort(port));
 // 3.2: (pair? '()) => #f
 Predicates['pair?'] = unary(node => isImplementedBy(node) && !!node.getFirstChild());
-Predicates['port?'] = unary(port => isInputPort(port) || isOutputPortImpl(port));
+Predicates['port?'] = unary(port => isInputPort(port) || isOutputPort(port));
 /* R5RS 6.4: "The procedure call-with-current-continuation
  packages up the current continuation as an "escape procedure"
  and passes it as an argument to proc." Thus a Continuation

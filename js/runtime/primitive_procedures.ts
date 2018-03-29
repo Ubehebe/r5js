@@ -26,7 +26,7 @@ import {Lambda} from "./lambda";
 import {ParserImpl} from "../parse/parser_impl";
 import {trampoline} from "./trampoline";
 import {isInputPort} from "../io/input_port";
-import {isOutputPortImpl} from "../io/output_port";
+import {isOutputPort} from "../io/output_port";
 import {toDisplayString, toWriteString} from "./valutil";
 import {EOF} from "./eof";
 import {Quote} from "../ast/quote";
@@ -563,7 +563,7 @@ PrimitiveProcedures['current-output-port'] =
 PrimitiveProcedures['display'] = unaryOrBinaryWithCurrentPorts(
   (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
     const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-    if (!isOutputPortImpl(outputPortToUse)) {
+    if (!isOutputPort(outputPortToUse)) {
       throw argumentTypeError(
         outputPortToUse, 1, 'display', Types.OUTPUT_PORT,
         runtimeType(outputPortToUse));
@@ -616,7 +616,7 @@ PrimitiveProcedures['read-char'] = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures['write'] = unaryOrBinaryWithCurrentPorts(
   (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
     const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-    if (!isOutputPortImpl(outputPortToUse)) {
+    if (!isOutputPort(outputPortToUse)) {
       throw argumentTypeError(
         outputPortToUse, 1, 'write', Types.OUTPUT_PORT,
         runtimeType(outputPortToUse));
@@ -633,7 +633,7 @@ PrimitiveProcedures['write-char'] = unaryOrBinaryWithCurrentPorts(
         runtimeType(charNode));
     }
     const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-    if (!isOutputPortImpl(outputPortToUse)) {
+    if (!isOutputPort(outputPortToUse)) {
       throw argumentTypeError(
         outputPortToUse, 1, 'write-char', Types.OUTPUT_PORT,
         runtimeType(outputPortToUse));

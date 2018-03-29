@@ -1,4 +1,4 @@
-import {OutputPort, addOutputPortImpl} from './output_port';
+import {OutputPort} from './output_port';
 
 export class CallbackBackedPort extends OutputPort {
   /** @param onOutput Callback that will be called whenever output is available. */
@@ -6,17 +6,10 @@ export class CallbackBackedPort extends OutputPort {
     super();
   }
 
-  /** @override */
   close() {
   }
 
-  /**
-   * @suppress {reportUnknownTypes}
-   * @override
-   */
   write(str) {
     this.onOutput(str);
   }
 }
-
-addOutputPortImpl(CallbackBackedPort);

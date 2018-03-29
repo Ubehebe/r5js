@@ -9,7 +9,7 @@ import {String} from "../ast/string";
 import {Quote} from "../ast/quote";
 import {UserDefinedProcedure} from "./user_defined_procedure";
 import {isInputPort} from "../io/input_port";
-import {isOutputPortImpl} from "../io/output_port";
+import {isOutputPort} from "../io/output_port";
 
 /*
  * Implementation note: a richer representation of Scheme values would
@@ -98,7 +98,7 @@ function toString(includeSigils: boolean, value: Value): string {
         return `<proc:${value.getName()}>`;
       } else if (isInputPort(value)) {
         return '<input-port>';
-      } else if (isOutputPortImpl(value)) {
+      } else if (isOutputPort(value)) {
         return '<output-port>';
       } else if (value instanceof Datum) {
         return toString(includeSigils, value.unwrap());

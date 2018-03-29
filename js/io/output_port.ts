@@ -12,36 +12,17 @@
  * to some suitable value in the target environment, which need not be
  * a string. This is what {@link r5js.OutputSavingPort} does, for example.
  */
-// TODO: this is logically an interface. Declaring as a class for now to work around
-// tsickle/closure compiler issues.
 export class OutputPort {
- write(str: string) {}
+  write(str: string) {}
 
- /** @see R5RS 6.6.1 */
- close() {}
+  /** @see R5RS 6.6.1 */
+  close() {}
 }
 
 /** TODO bl temporary shim. Remove. */
-export function isOutputPortImpl(obj: any): boolean {
-    return !!(obj && obj[IMPLEMENTED_BY_PROP_]);
+export function isOutputPort(obj: any): obj is OutputPort {
+  return obj instanceof OutputPort;
 }
-
-export function addOutputPortImpl(ctor: any) {
-    ctor.prototype[IMPLEMENTED_BY_PROP_] = true;
-}
-
-/** @const @private */
-const IMPLEMENTED_BY_PROP_ = '$r5js.OutputPort';
 
 /** An output port that discards its output. */
-class NullOutputPort extends OutputPort {
-    constructor() {
-        super();
-    }
- /** @override */ close() {}
- /** @override */ write() {}
-}
-addOutputPortImpl(NullOutputPort);
-
-/** @const {!OutputPort} */
-export const NULL_OUTPUT_PORT: OutputPort = new NullOutputPort();
+export const NULL_OUTPUT_PORT = new OutputPort();
