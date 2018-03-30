@@ -1,8 +1,7 @@
 import {Nonterminal} from "./nonterminals";
 import {Rule} from "./parse_rule";
 
-export class /* TODO should be interface */ Grammar {
-  ruleFor(nonterminal: Nonterminal): Rule {
-    return {} as Rule;
-  }
+/** TODO: this is almost the same as read/grammar.ts. Unify. */
+export interface Grammar {
+  ruleFor(nonterminal: Nonterminal): Rule;
 }

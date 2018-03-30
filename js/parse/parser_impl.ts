@@ -164,20 +164,7 @@ let fixParserSensitiveIds_: boolean = false;
 
 export const grammar: { [key: string]: Rule } = {};
 
-class GrammarImpl extends Grammar {
-
-  constructor() {
-    super();
-  }
-
-  /** @override */
-  ruleFor(nonterminal) {
-    return grammar[nonterminal as any];
-  }
-}
-
-/** @const {!RuleFactory} */
-const _ = new RuleFactory(new GrammarImpl());
+const _ = new RuleFactory({ruleFor: (nonterminal: Nonterminal): Rule => grammar[nonterminal as any]});
 
 /* <expression> -> <variable>
  | <literal>
