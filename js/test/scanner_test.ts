@@ -3,7 +3,7 @@ import {Character} from "../ast/character";
 import {Identifier} from "../ast/identifier";
 import {Number} from "../ast/number";
 import {String} from "../ast/string";
-import {TokenStream} from "../scan/token_stream";
+import {newTokenStream, TokenStream} from "../scan/token_stream";
 
 describe("scanner", () => {
   beforeEach(() => {
@@ -62,7 +62,7 @@ function toScanAs(util: jasmine.MatchersUtil, customEqualityTesters: jasmine.Cus
   return {
     compare(actual: any, expected: any): jasmine.CustomMatcherResult {
       try {
-        const scanner = TokenStream.forText(actual);
+        const scanner = newTokenStream(actual);
         const token = scanner.nextToken();
         // There should be exactly one token in the input. (For example, 1+2 should fail to scan as
         // one number token, even though the whole input scans.)

@@ -1,6 +1,6 @@
 import {Environment} from "../runtime/environment";
 import {Error} from "../error";
-import {TokenStream} from "../scan/token_stream";
+import {newTokenStream, TokenStream} from "../scan/token_stream";
 import {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
 import {Reader} from "../read/reader";
 import {ParserImpl} from "../parse/parser_impl";
@@ -18,7 +18,7 @@ export class Pipeline {
   }
 
   scan(string: string): TokenStream {
-    return TokenStream.forText(string);
+    return newTokenStream(string);
   }
 
   read(tokenStream: TokenStream): Datum {

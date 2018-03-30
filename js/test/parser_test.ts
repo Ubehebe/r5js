@@ -1,4 +1,4 @@
-import {TokenStream} from "../scan/token_stream";
+import {newTokenStream, TokenStream} from "../scan/token_stream";
 import {
   ASSIGNMENT,
   CONDITIONAL,
@@ -371,7 +371,7 @@ function toParseAs(util: jasmine.MatchersUtil, customEqualityTesters: jasmine.Cu
     compare(actual: any, expected: Nonterminal): jasmine.CustomMatcherResult {
       let datumRoot;
       try {
-        datumRoot = Reader.forTokenStream(TokenStream.forText(actual)).read();
+        datumRoot = Reader.forTokenStream(newTokenStream(actual)).read();
       } catch (e) {
         return {
           pass: false,

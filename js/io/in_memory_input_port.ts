@@ -2,7 +2,7 @@ import {InMemoryPortBuffer} from "./in_memory_port_buffer";
 import {InputPort} from "./input_port";
 import {Datum} from "../ast/datum";
 import {Reader} from "../read/reader";
-import {TokenStream} from "../scan/token_stream";
+import {newTokenStream, TokenStream} from "../scan/token_stream";
 import {Character} from "../ast/character";
 
 export class InMemoryInputPort extends InputPort {
@@ -33,7 +33,7 @@ export class InMemoryInputPort extends InputPort {
       return null;
     } else {
       const text = this.buffer.getAndClear();
-      this.leftoverDatum = Reader.forTokenStream(TokenStream.forText(text)).read();
+      this.leftoverDatum = Reader.forTokenStream(newTokenStream(text)).read();
       return this.read();
     }
   }

@@ -9,30 +9,25 @@ import {Error} from '../error';
 // export type Token = Datum | string; TODO
 // export type Checkpoint = number; TODO
 
-export class TokenStream /* TODO should be interface */ {
+export interface TokenStream {
   /** @return The next token, or null if there are no more. */
-  nextToken(): Datum | string | null {
-    return null;
-  }
+  nextToken(): Datum | string | null;
 
   /** Establishes a checkpoint that can be restored by {@link restore}. */
-  checkpoint(): number {
-    return -1;
-  }
+  checkpoint(): number;
 
   /** Restores the state of the token stream represented by {@code checkpoint}. */
-  restore(checkpoint: number) {
-  }
+  restore(checkpoint: number);
+}
 
-  static forText(text: string): TokenStream {
-    return new Scanner(text);
-  }
+export function newTokenStream(text: string): TokenStream {
+  return new Scanner(text);
 }
 
 const NUMBER_FUNNY_BUSINESS = /[esfdli#\/]/i;
 const NUMBER_FORBIDDEN = /[i@]/i;
 
-class Scanner extends TokenStream {
+class Scanner implements TokenStream {
 
   private start: number = 0;
   /**
@@ -49,9 +44,7 @@ class Scanner extends TokenStream {
   private readonly readyTokens: (Datum | string)[] = [];
   private nextTokenIndex: number = 0;
 
-  constructor(private readonly text: string) {
-    super();
-  }
+  constructor(private readonly text: string) {}
 
   private shouldMatchAgain(matchArray: string[] | null): boolean /* TODO explain */ {
     if (!matchArray) {
@@ -63,8 +56,8 @@ class Scanner extends TokenStream {
       const indexOfWhitespace = 7;
       this.start = this.tokenRegex.lastIndex;
       const ans = !!matchArray[indexOfWhitespace];
-      /* Whitespace counts as a delimiter, so if the previous token needed
-       a delimiter, we just found one. */
+      // Whitespace counts as a delimiter, so if the previous token needed a delimiter, we just
+      // found one.
       if (ans) {
         this.needDelimiter = false;
       }
