@@ -20,7 +20,7 @@ import {
   TRANSFORMER_SPEC,
   VARIABLE
 } from "../parse/nonterminals";
-import {Reader} from "../read/reader";
+import {newReader, Reader} from "../read/reader";
 import {ParserImpl} from "../parse/parser_impl";
 import {Datum} from "../ast/datum";
 
@@ -371,7 +371,7 @@ function toParseAs(util: jasmine.MatchersUtil, customEqualityTesters: jasmine.Cu
     compare(actual: any, expected: Nonterminal): jasmine.CustomMatcherResult {
       let datumRoot;
       try {
-        datumRoot = Reader.forTokenStream(newTokenStream(actual)).read();
+        datumRoot = newReader(newTokenStream(actual)).read();
       } catch (e) {
         return {
           pass: false,

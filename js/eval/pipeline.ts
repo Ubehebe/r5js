@@ -2,7 +2,7 @@ import {Environment} from "../runtime/environment";
 import {Error} from "../error";
 import {newTokenStream, TokenStream} from "../scan/token_stream";
 import {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
-import {Reader} from "../read/reader";
+import {newReader, Reader} from "../read/reader";
 import {ParserImpl} from "../parse/parser_impl";
 import {Nonterminal, PROGRAM} from "../parse/nonterminals";
 import {InputPort} from "../io/input_port";
@@ -22,7 +22,7 @@ export class Pipeline {
   }
 
   read(tokenStream: TokenStream): Datum {
-    return Reader.forTokenStream(tokenStream).read();
+    return newReader(tokenStream).read();
   }
 
   /** @param nonterminal The nonterminal that should be the root of the parse tree. */

@@ -5,7 +5,7 @@ import {Environment} from "./runtime/environment";
 import {install} from "./runtime/primitive_procedures";
 import {Pipeline} from "./eval/pipeline";
 import {ParserImpl} from "./parse/parser_impl";
-import {Reader} from "./read/reader";
+import {newReader, Reader} from "./read/reader";
 import {newTokenStream, TokenStream} from "./scan/token_stream";
 import {trampoline} from "./runtime/trampoline";
 
@@ -53,7 +53,7 @@ export function boot(
 
 function installSchemeSource(lib: string, env: IEnvironment) {
   const continuable = new ParserImpl(
-      Reader.forTokenStream(
+      newReader(
           newTokenStream(lib)).read()).parse()!.desugar(env);
   trampoline(continuable, env, NULL_INPUT_PORT, NULL_OUTPUT_PORT);
 }

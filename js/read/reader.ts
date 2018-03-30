@@ -1,4 +1,3 @@
-import {Grammar} from "./grammar";
 import {Number} from "../ast/number";
 import {String} from "../ast/string";
 import {RuleFactory} from "./rule_factory";
@@ -18,18 +17,16 @@ import {Datum} from "../ast/datum";
 import {TokenStream} from "../scan/token_stream";
 import {Rule} from "./rule";
 
-export class Reader /* TODO should be interface */ {
+export interface Reader {
   /**
    * @return The root of the datum tree.
    * @throws {Error} if reading the tokens into datums was unsuccessful.
    */
-  read(): Datum {
-    return {} as Datum;
-  }
+  read(): Datum;
+}
 
-  static forTokenStream(tokenStream: TokenStream): Reader {
-    return new Impl(tokenStream);
-  }
+export function newReader(tokenStream: TokenStream): Reader {
+  return new Impl(tokenStream);
 }
 
 const grammar: { [key: string]: Rule } = {};
@@ -87,12 +84,11 @@ grammar[DATUM.toString()] = _.choice(
 
 grammar[DATUMS.toString()] = _.zeroOrMore(DATUM);
 
-class Impl extends Reader {
+class Impl implements Reader {
 
   private readonly scanner_: TokenStream;
 
   constructor(tokenStream: TokenStream) {
-    super();
     this.scanner_ = tokenStream;
   }
 
