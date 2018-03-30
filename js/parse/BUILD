@@ -18,7 +18,6 @@ ts_library(
     name = "parse",
     srcs = [
         "datum_stream.ts",
-        "desugarable_rule.ts",
         "parse_grammar.ts",
         "parse_rule.ts",
         "parse_rule_factory.ts",

@@ -1,8 +1,7 @@
 import * as Terminals from "./terminals";
 import {Grammar} from "./parse_grammar";
 import {Nonterminal} from "./nonterminals";
-import {DesugarableRule} from "./desugarable_rule";
-import {Rule} from "./parse_rule";
+import {DesugarableRule, Rule} from "./parse_rule";
 import {CompoundDatum} from "../ast/compound_datum";
 import {Datum} from "../ast/datum";
 import {DatumStream} from "./datum_stream";
@@ -74,11 +73,9 @@ export class RuleFactory {
   }
 }
 
-class OneTerminal extends DesugarableRule<string> {
+class OneTerminal implements DesugarableRule<string> {
 
-  constructor(readonly terminal: string) {
-    super();
-  }
+  constructor(readonly terminal: string) {}
 
   /**
    * TODO: this class isn't really desugarable. It implements
@@ -87,7 +84,7 @@ class OneTerminal extends DesugarableRule<string> {
    * DesugarableRule.
    * @override
    */
-  desugar(desugarFunc): DesugarableRule<string> {
+  desugar(desugarFunc): this {
     return this;
   }
 
@@ -140,15 +137,13 @@ class OneTerminal extends DesugarableRule<string> {
   }
 }
 
-class OneNonterminal extends DesugarableRule<Nonterminal> {
+class OneNonterminal implements DesugarableRule<Nonterminal> {
 
   private desugarFunc: ((Datum, IEnvironment) => any) | null = null;
 
   constructor(
       private readonly nonterminal: Nonterminal,
-      private readonly grammar: Grammar) {
-    super();
-  }
+      private readonly grammar: Grammar) {}
 
   /** @override */
   desugar(desugarFunc) {
@@ -170,13 +165,12 @@ class OneNonterminal extends DesugarableRule<Nonterminal> {
   }
 }
 
-class AtLeast extends Rule {
+class AtLeast implements Rule {
 
   constructor(
       private readonly nonterminal: Nonterminal,
       private readonly minRepetitions: number,
       private readonly grammar: Grammar) {
-    super();
   }
 
   /** @override */
@@ -191,12 +185,10 @@ class AtLeast extends Rule {
   }
 }
 
-class MatchDatum extends Rule {
+class MatchDatum implements Rule {
 
   constructor(
-      private readonly predicate: (Datum) => boolean) {
-    super();
-  }
+      private readonly predicate: (Datum) => boolean) {}
 
   /** @override */
   match(datumStream) {
@@ -210,11 +202,9 @@ class MatchDatum extends Rule {
   }
 }
 
-class Choice extends Rule {
+class Choice implements Rule {
 
-  constructor(private readonly rules: Rule[]) {
-    super();
-  }
+  constructor(private readonly rules: Rule[]) {}
 
   /** @override */
   match(datumStream) {
@@ -229,13 +219,12 @@ class Choice extends Rule {
   }
 }
 
-class Seq extends DesugarableRule<CompoundDatum> {
+class Seq implements DesugarableRule<CompoundDatum> {
 
   private readonly rules: Rule[];
   private desugarFunc: ((CompoundDatum, IEnvironment) => any) | null = null;
 
   constructor(rules: Rule[]) {
-    super();
     this.rules = rewriteImproperList(rules);
   }
 
@@ -262,7 +251,7 @@ class Seq extends DesugarableRule<CompoundDatum> {
   }
 
   /** @override */
-  desugar(desugarFunc: (CompoundDatum, IEnvironment) => any): DesugarableRule<CompoundDatum> {
+  desugar(desugarFunc: (CompoundDatum, IEnvironment) => any): this {
     this.desugarFunc = desugarFunc;
     return this;
   }
