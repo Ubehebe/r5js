@@ -10,15 +10,9 @@ import {Quote} from "../ast/quote";
 import {Vector} from "../ast/vector";
 import {DottedList, List} from "../ast/list";
 
-export class ListLikeTransformer extends Subtransformer {
-
-  addSubtransformer(subtransformer: Subtransformer): ListLikeTransformer /* TODO polymorphic this */ {
-    return this;
-  }
-
-  getName(): string {
-    throw new Error("abstract");
-  }
+export interface ListLikeTransformer extends Subtransformer {
+  addSubtransformer(subtransformer: Subtransformer): this;
+  getName(): string;
 }
 
 export function list(): ListLikeTransformer {
@@ -37,16 +31,14 @@ export function vector(): ListLikeTransformer {
   return new VectorTransformer();
 }
 
-class Base extends ListLikeTransformer {
+class Base implements ListLikeTransformer {
 
   protected readonly subtransformers: Subtransformer[] = [];
 
-  constructor(private readonly ctor: new (Datum) => Datum) {
-    super();
-  }
+  constructor(private readonly ctor: new (Datum) => Datum) {}
 
   /** @override */
-  addSubtransformer(subtransformer: Subtransformer): ListLikeTransformer {
+  addSubtransformer(subtransformer: Subtransformer): this {
     this.subtransformers.push(subtransformer);
     return this;
   }

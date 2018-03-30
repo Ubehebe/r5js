@@ -4,11 +4,9 @@ import {TemplateBindings} from "./template_bindings";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {RenameHelper} from "./rename_helper";
 
-export class EllipsisTransformer extends Subtransformer {
+export class EllipsisTransformer implements Subtransformer {
 
-  constructor(private readonly subtransformer: Subtransformer) {
-    super();
-  }
+  constructor(private readonly subtransformer: Subtransformer) {}
 
   /** @override */
   matchInput(inputDatum: Datum,

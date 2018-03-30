@@ -5,11 +5,9 @@ import {Datum} from "../ast/datum";
 import {TemplateBindings} from "./template_bindings";
 import {RenameHelper} from "./rename_helper";
 
-export class MacroIdTransformer extends Subtransformer {
+export abstract class MacroIdTransformer implements Subtransformer {
 
-  constructor(protected readonly datum: SimpleDatum<any>) {
-    super();
-  }
+  constructor(protected readonly datum: SimpleDatum<any>) {}
 
   /** @override */
   matchInput(inputDatum: any /* TODO tighten */,
@@ -42,6 +40,8 @@ export class MacroIdTransformer extends Subtransformer {
       return true;
     }
   }
+
+  abstract collectNestingLevels(ellipsisLevel: number, renameHelper: RenameHelper);
 
   private datumsAreEqualAndUnbound(
       inputDatum: Identifier,
