@@ -45,7 +45,7 @@ import {extractDefinition} from "../ast/util";
 import {Branch} from "../runtime/branch";
 import {Assignment} from "../runtime/assignment";
 import {Macro} from "../macro/macro";
-import {ListLikeTransformer} from "../macro/list_like_transformer";
+import {dottedList, list, quote, vector} from "../macro/list_like_transformer";
 import {EllipsisTransformer} from "../macro/ellipsis_transformer";
 import {MacroIdTransformer} from "../macro/macro_id_transformer";
 import {TopLevelSyntaxAssignment} from "../runtime/top_level_syntax_assignment";
@@ -646,7 +646,7 @@ grammar[PATTERN as any] = _.choice(
     _.list(
         _.oneOrMore(PATTERN),
         _.one(ELLIPSIS)).desugar((node, env) => {
-      const ans = ListLikeTransformer.list();
+      const ans = list();
       for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -665,7 +665,7 @@ grammar[PATTERN as any] = _.choice(
     _.vector(
         _.oneOrMore(PATTERN),
         _.one(ELLIPSIS)).desugar((node, env) => {
-      const ans = ListLikeTransformer.vector();
+      const ans = vector();
       for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -683,7 +683,7 @@ grammar[PATTERN as any] = _.choice(
     _.one(PATTERN_IDENTIFIER).desugar(node =>
         MacroIdTransformer.pattern(node)),
     _.list(_.zeroOrMore(PATTERN)).desugar((node, env) => {
-      const ans = ListLikeTransformer.list();
+      const ans = list();
       for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -697,7 +697,7 @@ grammar[PATTERN as any] = _.choice(
         _.one(DOT),
         _.one(PATTERN),
         _.one(RPAREN)).desugar((node, env) => {
-      const ans = ListLikeTransformer.dottedList();
+      const ans = dottedList();
       for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -706,7 +706,7 @@ grammar[PATTERN as any] = _.choice(
       return ans;
     }),
     _.vector(_.zeroOrMore(PATTERN)).desugar((node, env) => {
-      const ans = ListLikeTransformer.vector();
+      const ans = vector();
       for (let cur = node.at(PATTERN);
            cur;
            cur = cur.getNextSibling()) {
@@ -753,7 +753,7 @@ grammar[TEMPLATE as any] = _.choice(
     _.dottedList(
         _.oneOrMore(TEMPLATE),
         _.one(TEMPLATE)).desugar((node, env) => {
-      const ans = ListLikeTransformer.dottedList();
+      const ans = dottedList();
       for (let cur = node.at(TEMPLATE);
            cur;
            cur = cur!.getNextSibling()) {
@@ -770,7 +770,7 @@ grammar[TEMPLATE as any] = _.choice(
       return ans;
     }),
     _.list(_.zeroOrMore(TEMPLATE)).desugar((node, env) => {
-      const ans = ListLikeTransformer.list();
+      const ans = list();
       for (let cur = node.at(TEMPLATE);
            cur;
            cur = cur!.getNextSibling()) {
@@ -787,7 +787,7 @@ grammar[TEMPLATE as any] = _.choice(
       return ans;
     }),
     _.vector(_.zeroOrMore(TEMPLATE)).desugar((node, env) => {
-      const ans = ListLikeTransformer.vector();
+      const ans = vector();
       for (let cur = node.at(TEMPLATE);
            cur;
            cur = cur!.getNextSibling()) {
@@ -805,9 +805,7 @@ grammar[TEMPLATE as any] = _.choice(
     _.seq(
         _.one(TICK),
         _.one(TEMPLATE)).desugar((node, env) => {
-      return ListLikeTransformer
-          .quote()
-          .addSubtransformer(node.at(TEMPLATE).desugar(env));
+      return quote().addSubtransformer(node.at(TEMPLATE).desugar(env));
     }));
 
 

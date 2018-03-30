@@ -19,22 +19,22 @@ export class ListLikeTransformer extends Subtransformer {
   getName(): string {
     throw new Error("abstract");
   }
+}
 
-  static dottedList(): ListLikeTransformer {
-    return new DottedListTransformer();
-  }
+export function list(): ListLikeTransformer {
+  return new ListTransformer();
+}
 
-  static list(): ListLikeTransformer {
-    return new ListTransformer();
-  }
+export function dottedList(): ListLikeTransformer {
+  return new DottedListTransformer();
+}
 
-  static quote(): ListLikeTransformer {
-    return new QuoteTransformer();
-  }
+export function quote(): ListLikeTransformer {
+  return new QuoteTransformer();
+}
 
-  static vector(): ListLikeTransformer {
-    return new VectorTransformer();
-  }
+export function vector(): ListLikeTransformer {
+  return new VectorTransformer();
 }
 
 class Base extends ListLikeTransformer {
