@@ -32,21 +32,9 @@ export class Reader /* TODO should be interface */ {
   }
 }
 
-class GrammarImpl extends Grammar {
-
-  constructor() {
-    super();
-  }
-
-  /** @override */
-  ruleFor(nonterminal: string): Rule {
-    return grammar[nonterminal];
-  }
-}
-
 const grammar: { [key: string]: Rule } = {};
 
-const _ = new RuleFactory(new GrammarImpl());
+const _ = new RuleFactory({ruleFor: (nonterminal: string): Rule => grammar[nonterminal]});
 
 // <datum> -> <simple datum> | <compound datum>
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
