@@ -2,7 +2,7 @@ import {Datum, getLastProcCallLike, ProcCallLike, ProcCallResult} from "../ast/d
 import {Transformer} from "./transformer";
 import {Identifier} from "../ast/identifier";
 import {CompoundDatum} from "../ast/compound_datum";
-import {PATTERN, TEMPLATE} from "../parse/nonterminals";
+import {PATTERN, PROGRAM, TEMPLATE} from "../parse/nonterminals";
 import {TemplateBindings} from "./template_bindings";
 import {Parser} from "../parse/parser";
 import {isParserSensitiveId, newCpsName} from "../parse/rename_util";
@@ -120,7 +120,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
         // this is a good place to see the TemplateBindings object
         // console.log(bindings.toString());
 
-        const newParseTree = parserProvider(newDatumTree).parse();
+        const newParseTree = parserProvider(newDatumTree).parse(PROGRAM);
 
         /* R5RS 4.3: "If a macro transformer inserts a binding for an identifier
          (variable or keyword), the identifier will in effect be renamed

@@ -124,13 +124,12 @@ import {SiblingBuffer} from "../ast/sibling_buffer";
 
  todo bl: implement the circularity-checking algorithm described
  in R6RS. */
-export class ParserImpl extends Parser {
+export class ParserImpl implements Parser {
 
   private readonly datumStream_: DatumStream;
 
   /** @param root The root of the tree to parse. */
   constructor(root: Datum) {
-    super();
     this.datumStream_ = DatumStream.create(root);
   }
 
