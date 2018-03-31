@@ -17,11 +17,11 @@ export class DynamicWindContinuation extends Continuation {
 
   /** @override */
   evaluate(arg: Value, procCallLike: ProcCallLike, resultStruct: ProcCallResult) {
-    procCallLike.getEnv()!.addBinding(this.lastResultName_, arg);
+    procCallLike.getEnv()!.addBinding(this.lastResultName, arg);
     resultStruct.setValue(arg);
     resultStruct.setNext(this.thunk);
-    if (this.nextContinuable_) {
-      appendProcCallLike(this.thunk, this.nextContinuable_);
+    if (this.nextContinuable) {
+      appendProcCallLike(this.thunk, this.nextContinuable);
     }
     Continuation.repairInfiniteLoop(procCallLike, resultStruct);
   }

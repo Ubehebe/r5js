@@ -6,32 +6,32 @@ import {Datum} from './datum';
  */
 export class SiblingBuffer {
 
-  private first_: Datum|null = null;
-  private last_: Datum|null = null;
+  private first: Datum|null = null;
+  private last: Datum|null = null;
 
     isEmpty(): boolean {
-        return !this.first_;
+        return !this.first;
     }
 
     appendSibling(node: Datum): SiblingBuffer /* for chaining. TODO use polymorphic `this` */ {
-        if (!this.first_) {
-            this.first_ = node;
-            this.last_ = node.lastSibling();
+        if (!this.first) {
+            this.first = node;
+            this.last = node.lastSibling();
         } else {
-            this.last_!.setNextSibling(node);
-            this.last_ = node.lastSibling();
+            this.last!.setNextSibling(node);
+            this.last = node.lastSibling();
         }
         return this;
     }
 
     toSiblings(): Datum|null {
-        return this.first_;
+        return this.first;
     }
 
     toList<T extends Datum>(ctor: new (datum: Datum) => T): T {
-        const ans = new ctor(this.first_!);
-        if (this.last_ && ans) {
-            this.last_.setParent(ans);
+        const ans = new ctor(this.first!);
+        if (this.last && ans) {
+            this.last.setParent(ans);
         }
         return ans;
     }

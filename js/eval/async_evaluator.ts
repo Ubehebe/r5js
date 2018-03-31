@@ -7,11 +7,11 @@ import {Evaluator} from "./evaluator";
 /** Wraps a synchronous evaluator in promises. */
 export class AsyncEvaluator {
 
-  private readonly evaluator_: Evaluator;
+  private readonly evaluator: Evaluator;
 
   constructor(inputPort: InputPort = NULL_INPUT_PORT, outputPort: OutputPort = NULL_OUTPUT_PORT) {
     const sources = new SchemeSources();
-    this.evaluator_ = boot(sources.syntax, sources.procedures, inputPort, outputPort);
+    this.evaluator = boot(sources.syntax, sources.procedures, inputPort, outputPort);
   }
 
   /**
@@ -23,7 +23,7 @@ export class AsyncEvaluator {
    */
   evaluate(input: string): Promise<string> {
     try {
-      return Promise.resolve(this.evaluator_.evaluate(input));
+      return Promise.resolve(this.evaluator.evaluate(input));
     } catch (e) {
       return Promise.reject(e);
     }

@@ -54,16 +54,16 @@ export class Identifier extends SimpleDatum<string> {
  */
 class IdShim extends ProcCallLike {
 
-  private readonly firstOperand_: Identifier;
+  private readonly firstOperand: Identifier;
 
   constructor(payload: Identifier, continuationName = undefined) {
     super(continuationName);
-    this.firstOperand_ = payload;
+    this.firstOperand = payload;
   }
 
   /** @override */
   evalAndAdvance(resultStruct: ProcCallResult, env: IEnvironment, parserProvider: (x: any) => any) {
-    const ans = this.tryIdentifier_(this.firstOperand_);
+    const ans = this.tryIdentifier_(this.firstOperand);
 
     if (ans !== null) {
       this.bindResult(ans);

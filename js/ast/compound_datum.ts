@@ -8,8 +8,8 @@ import {Datum} from "./datum";
 
 export class CompoundDatum extends Datum {
 
-  private firstChild_: Datum | null = null;
-  private cdrHelper_: CdrHelper | null = null;
+  private firstChild: Datum | null = null;
+  private cdrHelper: CdrHelper | null = null;
   protected qqLevel: number | undefined = undefined;
 
   constructor() {
@@ -17,11 +17,11 @@ export class CompoundDatum extends Datum {
   }
 
   getFirstChild(): Datum | null {
-    return this.firstChild_;
+    return this.firstChild;
   }
 
   setFirstChild(firstChild: Datum) {
-    this.firstChild_ = firstChild;
+    this.firstChild = firstChild;
   }
 
   getQQLevel(): number | undefined {
@@ -31,10 +31,10 @@ export class CompoundDatum extends Datum {
   /** @override */
   clone(parent: Datum | null): CompoundDatum {
     const ans = super.clone(parent) as CompoundDatum;
-    if (this.firstChild_) {
+    if (this.firstChild) {
       const buf = new SiblingBuffer();
       this.forEachChild(child => buf.appendSibling(child.clone(ans)));
-      ans.firstChild_ = buf.toSiblings();
+      ans.firstChild = buf.toSiblings();
     }
     return ans;
   }
@@ -45,7 +45,7 @@ export class CompoundDatum extends Datum {
    */
   isEqual(other: CompoundDatum): boolean {
     let thisChild, otherChild;
-    for (thisChild = this.firstChild_, otherChild = other.firstChild_;
+    for (thisChild = this.firstChild, otherChild = other.firstChild;
          thisChild && otherChild;
          thisChild = thisChild.getNextSibling(),
              otherChild = otherChild.getNextSibling()) {
@@ -66,7 +66,7 @@ export class CompoundDatum extends Datum {
     } else if (this.hasParse(DEFINITION)) {
       this.fixParserSensitiveIdsDef_(helper);
     } else {
-      for (let cur = this.firstChild_; cur; cur = cur.getNextSibling()) {
+      for (let cur = this.firstChild; cur; cur = cur.getNextSibling()) {
         cur.fixParserSensitiveIds(helper);
       }
     }
@@ -107,8 +107,8 @@ export class CompoundDatum extends Datum {
         maybeVar.setPayload(helper.addRenameBinding(id));
       }
     } else { // (define (foo x y) (+ x y))
-      const vars = this.firstChild_!.getNextSibling() as CompoundDatum;
-      const name = vars.firstChild_ as Identifier;
+      const vars = this.firstChild!.getNextSibling() as CompoundDatum;
+      const name = vars.firstChild as Identifier;
       const newHelper = new RenameHelper(helper);
       for (let cur = name.getNextSibling(); cur; cur = cur.getNextSibling()) {
         const curId = cur as Identifier;
@@ -126,7 +126,7 @@ export class CompoundDatum extends Datum {
   }
 
   at(type: Nonterminal): Datum | null {
-    for (let cur = this.firstChild_; cur; cur = cur.getNextSibling()) {
+    for (let cur = this.firstChild; cur; cur = cur.getNextSibling()) {
       if (cur.peekParse() === type) {
         return cur;
       }
@@ -135,19 +135,19 @@ export class CompoundDatum extends Datum {
   }
 
   setCdrHelper(cdrHelper: CdrHelper): CompoundDatum /* todo polymorphic this */ {
-    this.cdrHelper_ = cdrHelper;
+    this.cdrHelper = cdrHelper;
     return this;
   }
 
   getCdrHelper(): CdrHelper | null {
-    return this.cdrHelper_;
+    return this.cdrHelper;
   }
 
   /**
    * @return The first child of this datum that is itself a list, or null if no such datum exists.
    */
   firstSublist(): CompoundDatum | null {
-    for (let child = this.firstChild_; child; child = child.getNextSibling()) {
+    for (let child = this.firstChild; child; child = child.getNextSibling()) {
       if (child instanceof CompoundDatum) {
         return child;
       }
@@ -191,7 +191,7 @@ export class CompoundDatum extends Datum {
   replaceChildren(predicate: (Datum) => boolean,
                   transform: (Datum) => Datum | null): CompoundDatum /* for chaining TODO polymorphic this*/ {
 
-    for (let cur = this.firstChild_, prev;
+    for (let cur = this.firstChild, prev;
          cur;
          prev = cur, cur = cur!.getNextSibling()) {
       if (predicate(cur)) {
@@ -204,7 +204,7 @@ export class CompoundDatum extends Datum {
           if (prev) {
             prev.setNextSibling(cur);
           } else {
-            this.firstChild_ = cur;
+            this.firstChild = cur;
           }
 
           /* If cur suddenly has a sibling, it must have been inserted

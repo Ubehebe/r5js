@@ -126,16 +126,16 @@ import {SiblingBuffer} from "../ast/sibling_buffer";
  in R6RS. */
 export class ParserImpl implements Parser {
 
-  private readonly datumStream_: DatumStream;
+  private readonly datumStream: DatumStream;
 
   /** @param root The root of the tree to parse. */
   constructor(root: Datum) {
-    this.datumStream_ = DatumStream.create(root);
+    this.datumStream = DatumStream.create(root);
   }
 
   /** @override */
   parse(nonterminal = PROGRAM) {
-    const parsedRoot = grammar[nonterminal as any].match(this.datumStream_) as Datum | null;
+    const parsedRoot = grammar[nonterminal as any].match(this.datumStream) as Datum | null;
     if (parsedRoot) {
       /* Special case for non-vacuous but malformed programs.
        A "successful" parse of a nonvacuous program that has only
@@ -159,7 +159,7 @@ export class ParserImpl implements Parser {
   }
 }
 
-let fixParserSensitiveIds_: boolean = false;
+let fixParserSensitiveIds: boolean = false;
 
 export const grammar: { [key: string]: Rule } = {};
 
@@ -220,7 +220,7 @@ grammar[VARIABLE as any] = _.seq(
     _.matchDatum(datum => {
       const isIdentifier = datum instanceof Identifier;
       if (isIdentifier && isParserSensitiveId(datum.getPayload())) {
-        fixParserSensitiveIds_ = true;
+        fixParserSensitiveIds = true;
       }
       return isIdentifier;
     }));
@@ -872,10 +872,10 @@ function newAnonymousLambdaName(): string {
 }
 
 function maybeFixParserSensitiveIds(root: Datum | null): Datum | null {
-  if (!root || !fixParserSensitiveIds_) {
+  if (!root || !fixParserSensitiveIds) {
     return root;
   }
-  fixParserSensitiveIds_ = false;
+  fixParserSensitiveIds = false;
   const helper = new RenameHelper(null /* parent */);
   root.fixParserSensitiveIds(helper);
   return helper.wasUsed() ? new ParserImpl(root).parse() : root;

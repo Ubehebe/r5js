@@ -12,23 +12,23 @@ import {ProcCallLike, ProcCallResult} from "../ast/datum";
 
 export class Continuation {
 
-  protected readonly lastResultName_: string;
-  protected readonly nextContinuable_: ProcCallLike | null;
+  protected readonly lastResultName: string;
+  protected readonly nextContinuable: ProcCallLike | null;
 
   /**
    * @param resultName Optional name to use for the last result.
    *     If not given, a unique name will be created.
    */
   constructor(resultName: string, next: ProcCallLike | null) {
-    /** @const @protected */ this.lastResultName_ = resultName;
-    /** @const @protected */ this.nextContinuable_ = next;
+    this.lastResultName = resultName;
+    this.nextContinuable = next;
   }
 
   evaluate(arg: Value, procCallLike: ProcCallLike, resultStruct: ProcCallResult) {
-    procCallLike.getEnv()!.addBinding(this.lastResultName_, arg);
+    procCallLike.getEnv()!.addBinding(this.lastResultName, arg);
     resultStruct.setValue(arg);
-    if (this.nextContinuable_) {
-      resultStruct.setNext(this.nextContinuable_);
+    if (this.nextContinuable) {
+      resultStruct.setNext(this.nextContinuable);
     }
     Continuation.repairInfiniteLoop(procCallLike, resultStruct);
   }

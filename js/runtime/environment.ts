@@ -38,9 +38,9 @@ export class Environment implements IEnvironment {
 
     const cloned = new Environment(null /* enclosingEnv */);
 
-    for (let name_ in this.bindings) {
-      const val = this.bindings[name_];
-      cloned.bindings[name_] = val instanceof Macro
+    for (let name in this.bindings) {
+      const val = this.bindings[name];
+      cloned.bindings[name] = val instanceof Macro
           ? (val as Macro).clone(cloned)
           : val;
     }

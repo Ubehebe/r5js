@@ -11,10 +11,10 @@ import {trampoline} from "../runtime/trampoline";
 
 export class Pipeline {
 
-  private readonly env_: IEnvironment;
+  private readonly env: IEnvironment;
 
   constructor(rootEnv: IEnvironment) {
-    this.env_ = new Environment(rootEnv);
+    this.env = new Environment(rootEnv);
   }
 
   scan(string: string): TokenStream {
@@ -35,7 +35,7 @@ export class Pipeline {
   }
 
   desugar(root: Datum): ProcCallLike {
-    return /** @type {!ProcCallLike} */ (root.desugar(this.env_, false));
+    return /** @type {!ProcCallLike} */ (root.desugar(this.env, false));
   }
 
   Eval(continuable: ProcCallLike, inputPort: InputPort, outputPort: OutputPort): Value {
@@ -43,6 +43,6 @@ export class Pipeline {
     // a special case that I don't care.
     return continuable as any === VACUOUS_PROGRAM
       ? UNSPECIFIED_VALUE
-      : trampoline(continuable, this.env_, inputPort, outputPort);
+      : trampoline(continuable, this.env, inputPort, outputPort);
   }
 }

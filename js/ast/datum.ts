@@ -10,38 +10,38 @@ declare type DesugarFunc = (datum: Datum, env: IEnvironment) => any;
 */
 export class Datum implements ObjectValue {
 
-  private nextSibling_: Datum|null = null;
-  /** Only for last children */ private parent_: Datum|null = null;
-  private readonly nonterminals_: Nonterminal[] = [];
-  private readonly desugars_: DesugarFunc[] = [];
-  private nextDesugar_: number = -1;
-  private immutable_: boolean = false;
+  private nextSibling: Datum|null = null;
+  /** Only for last children */ private parent: Datum|null = null;
+  private readonly nonterminals: Nonterminal[] = [];
+  private readonly desugars: DesugarFunc[] = [];
+  private nextDesugar: number = -1;
+  private immutable: boolean = false;
 
   constructor() {}
 
   setImmutable(): Datum /* for chaining */ {
-    this.immutable_ = true;
+    this.immutable = true;
     return this;
   }
 
   getParent(): Datum|null {
-    return this.parent_;
+    return this.parent;
   }
 
   setParent(parent: Datum) {
-    this.parent_ = parent;
+    this.parent = parent;
   }
 
   getNextSibling(): Datum|null {
-    return this.nextSibling_;
+    return this.nextSibling;
   }
 
   setNextSibling(nextSibling: Datum|null /* TODO remove null */) {
-    this.nextSibling_ = nextSibling;
+    this.nextSibling = nextSibling;
   }
 
   isImmutable(): boolean {
-    return this.immutable_;
+    return this.immutable;
   }
 
   clone(parent: Datum|null): Datum {
@@ -53,40 +53,40 @@ export class Datum implements ObjectValue {
 
     const ans = new (<typeof Datum>this.constructor)();
 
-    if (this.parent_) {
-      ans.parent_ = this.parent_;
+    if (this.parent) {
+      ans.parent = this.parent;
     }
     // We only need the parent_ pointer on the last sibling.
-    if (!this.nextSibling_) {
-      ans.parent_ = parent;
+    if (!this.nextSibling) {
+      ans.parent = parent;
     }
-    if (this.immutable_) {
-      ans.immutable_ = true;
+    if (this.immutable) {
+      ans.immutable = true;
     }
 
     return ans;
   }
 
   setParse(type: Nonterminal) {
-    this.nonterminals_.push(type);
+    this.nonterminals.push(type);
   }
 
   setDesugar(desugarFunc: (datum: Datum, env: IEnvironment) => any /* TODO can't use DesguarFunc typedef */) {
-    this.desugars_.push(desugarFunc);
-    ++this.nextDesugar_;
+    this.desugars.push(desugarFunc);
+    ++this.nextDesugar;
   }
 
   peekParse(): Nonterminal|null {
-    const len = this.nonterminals_.length;
-    return len > 0 ? this.nonterminals_[len - 1] : null;
+    const len = this.nonterminals.length;
+    return len > 0 ? this.nonterminals[len - 1] : null;
   }
 
   /** @returns true iff this Datum parses as the given nonterminal. */
   protected hasParse(nonterminal: Nonterminal): boolean {
-    if (this.nonterminals_) {
-      const len = this.nonterminals_.length;
+    if (this.nonterminals) {
+      const len = this.nonterminals.length;
       for (let i = 0; i < len; ++i) {
-        if (this.nonterminals_[i] === nonterminal) {
+        if (this.nonterminals[i] === nonterminal) {
           return true;
         }
       }
@@ -108,8 +108,8 @@ export class Datum implements ObjectValue {
    * TODO bl: document why you would call this method.
    */
   resetDesugars() {
-    if (this.nextDesugar_ === -1) {
-      this.nextDesugar_ += this.desugars_.length;
+    if (this.nextDesugar === -1) {
+      this.nextDesugar += this.desugars.length;
     }
   }
 
@@ -118,8 +118,8 @@ export class Datum implements ObjectValue {
    * @return {!Datum|!ProcCallLike|!r5js.Subtransformer|!r5js.Macro|null} TODO update TypeScript type.
    */
   desugar(env: IEnvironment, forceContinuationWrapper:boolean=false): any {
-    const desugarFn = (this.nextDesugar_ >= 0)
-        ? this.desugars_[this.nextDesugar_--]
+    const desugarFn = (this.nextDesugar >= 0)
+        ? this.desugars[this.nextDesugar--]
         : null;
     let ans = desugarFn ? desugarFn(this, env) : this;
     if (forceContinuationWrapper && (ans instanceof Datum)) {
@@ -132,7 +132,7 @@ export class Datum implements ObjectValue {
     let first: ProcCallLike|undefined;
     let desugared;
     let curEnd: ProcCallLike|undefined;
-    for (let cur:Datum|null = this; cur; cur = cur.nextSibling_) {
+    for (let cur:Datum|null = this; cur; cur = cur.nextSibling) {
       if (desugared = cur.desugar(env)) {
 
         /* Nodes that have no desugar functions (for example, variables
@@ -190,13 +190,13 @@ export class Datum implements ObjectValue {
    * the last sibling.
    */
   lastSibling(): Datum {
-    return this.nextSibling_ ? this.nextSibling_.lastSibling() : this;
+    return this.nextSibling ? this.nextSibling.lastSibling() : this;
   }
 
   /** TODO bl: document what this method does. */
   fixParserSensitiveIds(helper: RenameHelper) {
-    if (this.nextSibling_) {
-      this.nextSibling_.fixParserSensitiveIds(helper);
+    if (this.nextSibling) {
+      this.nextSibling.fixParserSensitiveIds(helper);
     }
   }
 
@@ -215,14 +215,14 @@ export class Datum implements ObjectValue {
  */
 export abstract class ProcCallLike {
 
-  protected resultName_: string;
-  protected next_: ProcCallLike|null;
-  protected env_: IEnvironment|null;
+  protected resultName: string;
+  protected next: ProcCallLike|null;
+  protected env: IEnvironment|null;
 
   constructor(lastResultName:string=`@${counter++}`) {
-    this.resultName_ = lastResultName;
-    this.next_ = null;
-    this.env_ = null;
+    this.resultName = lastResultName;
+    this.next = null;
+    this.env = null;
   }
 
   /**
@@ -234,41 +234,41 @@ export abstract class ProcCallLike {
       parserProvider: (Datum) => any /* TODO should be Parser*/);
 
   getResultName(): string {
-    return this.resultName_;
+    return this.resultName;
   }
 
   /** TODO bl remove. */
   setResultName(resultName: string) {
-    this.resultName_ = resultName;
+    this.resultName = resultName;
   }
 
   setStartingEnv(env: IEnvironment) {
-    this.env_ = env;
+    this.env = env;
   }
 
   getEnv(): IEnvironment|null {
-    return this.env_;
+    return this.env;
   }
 
   /** Clears the current environment. TODO bl not well understood. */
   clearEnv() {
-    this.env_ = null;
+    this.env = null;
   }
 
   getNext(): ProcCallLike|null {
-    return this.next_;
+    return this.next;
   }
 
   setNext(next: ProcCallLike) {
-    this.next_ = next;
+    this.next = next;
   }
 
   bindResult(val: Value) {
     /* If the next procedure call already has an environment,
      bind the result there. Otherwise, bind it in the current
      environment; it will be carried forward by the EnvBuffer. */
-    const envToUse = (this.next_ && this.next_.getEnv && this.next_.getEnv()) || this.env_;
-    envToUse && envToUse.addBinding && envToUse.addBinding(this.resultName_, val);
+    const envToUse = (this.next && this.next.getEnv && this.next.getEnv()) || this.env;
+    envToUse && envToUse.addBinding && envToUse.addBinding(this.resultName, val);
   }
 }
 

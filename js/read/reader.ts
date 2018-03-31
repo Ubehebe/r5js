@@ -86,17 +86,17 @@ grammar[DATUMS.toString()] = _.zeroOrMore(DATUM);
 
 class Impl implements Reader {
 
-  private readonly scanner_: TokenStream;
+  private readonly scanner: TokenStream;
 
   constructor(tokenStream: TokenStream) {
-    this.scanner_ = tokenStream;
+    this.scanner = tokenStream;
   }
 
   /** @override */
   read(): Datum {
-    const ans = grammar[DATUMS.toString()].match(this.scanner_);
+    const ans = grammar[DATUMS.toString()].match(this.scanner);
     // All of the input tokens must be consumed for success.
-    const nextToken = this.scanner_.nextToken();
+    const nextToken = this.scanner.nextToken();
     if (nextToken) {
       throw new Error(ErrorType.READ, "read error: " + nextToken);
     }
