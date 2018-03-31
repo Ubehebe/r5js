@@ -1,6 +1,8 @@
 import {RenameHelper} from "./rename_helper";
 import {Datum} from "../ast/datum";
 import {TemplateBindings} from "./template_bindings";
+import {ObjectValue} from "../value";
+import {IEnvironment} from "../runtime/ienvironment";
 
 export interface Subtransformer extends ObjectValue /* TODO inappropriate */ {
   /** @param ellipsisLevel Nesting level of ellipses, passed as the last argument to the callback. */

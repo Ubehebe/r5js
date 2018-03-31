@@ -4,6 +4,8 @@ import {Error} from "../error";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {wrapValue} from "../ast/datum_util";
 import {List} from "../ast/list";
+import {IEnvironment} from "./ienvironment";
+import {Value} from "../value";
 
 export class VarargsUserDefinedProcedure extends UserDefinedProcedure {
   constructor(formalsArray: string[], bodyStart: CompoundDatum | null, env: IEnvironment, name: string) {

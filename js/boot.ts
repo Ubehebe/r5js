@@ -8,6 +8,7 @@ import {ParserImpl} from "./parse/parser_impl";
 import {newReader, Reader} from "./read/reader";
 import {newTokenStream, TokenStream} from "./scan/token_stream";
 import {trampoline} from "./runtime/trampoline";
+import {IEnvironment} from "./runtime/ienvironment";
 
 /**
  * The main bootstrap function. Given Scheme source code for R5RS syntax and procedures, returns

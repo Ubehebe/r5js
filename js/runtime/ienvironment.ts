@@ -28,7 +28,9 @@
  * wrapping and unwrapping.
  *
  */
-declare interface IEnvironment {
+import {Value} from "../value";
+
+export interface IEnvironment {
     addBinding(name: string, val: Value);
 
     /**

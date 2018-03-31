@@ -1,5 +1,6 @@
 import {DatumStream} from "./datum_stream";
 import {Datum} from "../ast/datum";
+import {IEnvironment} from "../runtime/ienvironment";
 
 export interface Rule {
   /** @return True iff the parse succeeded. */

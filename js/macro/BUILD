@@ -9,9 +9,11 @@ ts_library(
     srcs = glob(["*.ts"]),
     deps = [
         "//js/ast:datum",
+        "//js:error",
+        "//js:value",
         "//js/parse:nonterminals",
         "//js/parse:parser",
         "//js/parse:rename_util",
-        "//js:error",
+        "//js/runtime:ienvironment",
     ],
 )

@@ -9,6 +9,8 @@ import {isParserSensitiveId, newCpsName} from "../parse/rename_util";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {List} from "../ast/list";
 import {Error} from "../error";
+import {ObjectValue} from "../value";
+import {IEnvironment} from "../runtime/ienvironment";
 
 export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
 

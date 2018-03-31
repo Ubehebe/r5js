@@ -2,6 +2,7 @@ import {RenameHelper} from "./rename_helper";
 import {ListLikeTransformer} from "./list_like_transformer";
 import {Datum} from "../ast/datum";
 import {TemplateBindings} from "./template_bindings";
+import {IEnvironment} from "../runtime/ienvironment";
 
 export class Transformer {
 

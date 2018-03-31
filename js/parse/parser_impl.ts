@@ -52,6 +52,7 @@ import {TopLevelSyntaxAssignment} from "../runtime/top_level_syntax_assignment";
 import {Vector} from "../ast/vector";
 import {RenameHelper} from "../ast/rename_helper";
 import {SiblingBuffer} from "../ast/sibling_buffer";
+import {IEnvironment} from "../runtime/ienvironment";
 
 /* todo bl: this file should not exist.
 

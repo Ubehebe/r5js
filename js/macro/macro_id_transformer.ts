@@ -4,6 +4,7 @@ import {Identifier} from "../ast/identifier";
 import {Datum} from "../ast/datum";
 import {TemplateBindings} from "./template_bindings";
 import {RenameHelper} from "./rename_helper";
+import {IEnvironment} from "../runtime/ienvironment";
 
 export abstract class MacroIdTransformer implements Subtransformer {
 

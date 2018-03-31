@@ -9,6 +9,7 @@
  * c.nextContinuable is (g f' z ...)
  */
 import {ProcCallLike, ProcCallResult} from "../ast/datum";
+import {Value} from "../value";
 
 export class Continuation {
 

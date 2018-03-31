@@ -4,6 +4,7 @@ import {newCpsName} from "../parse/rename_util";
 import {Identifier} from "../ast/identifier";
 import {CompoundDatum} from "../ast/compound_datum";
 import {Error} from "../error";
+import {IEnvironment} from "../runtime/ienvironment";
 
 /**
  * My approach for supporting nested ellipses in macro transcriptions

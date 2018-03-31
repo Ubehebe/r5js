@@ -10,6 +10,7 @@ import {Quote} from "../ast/quote";
 import {UserDefinedProcedure} from "./user_defined_procedure";
 import {isInputPort} from "../io/input_port";
 import {isOutputPort} from "../io/output_port";
+import {Value} from "../value";
 
 /*
  * Implementation note: a richer representation of Scheme values would

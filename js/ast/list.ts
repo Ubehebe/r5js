@@ -4,6 +4,7 @@ import {Datum} from './datum';
 import {SiblingBuffer} from './sibling_buffer';
 import {addImplementation} from './ipair';
 import {Error} from '../error';
+import {Value} from "../value";
 
 export class List extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
 

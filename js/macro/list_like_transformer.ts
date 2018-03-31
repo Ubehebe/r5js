@@ -9,6 +9,7 @@ import {SiblingBuffer} from "../ast/sibling_buffer";
 import {Quote} from "../ast/quote";
 import {Vector} from "../ast/vector";
 import {DottedList, List} from "../ast/list";
+import {IEnvironment} from "../runtime/ienvironment";
 
 export interface ListLikeTransformer extends Subtransformer {
   addSubtransformer(subtransformer: Subtransformer): this;

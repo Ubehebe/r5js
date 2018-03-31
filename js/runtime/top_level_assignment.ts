@@ -2,6 +2,7 @@ import {Assignment} from "./assignment";
 import {Identifier} from "../ast/identifier";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {ProcCallLike} from "../ast/datum";
+import {Value} from "../value";
 
 export class TopLevelAssignment extends Assignment {
   constructor(firstOperand: Identifier) {

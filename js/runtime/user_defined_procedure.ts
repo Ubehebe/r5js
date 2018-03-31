@@ -11,6 +11,8 @@ import {DEFINE} from "../parse/terminals";
 import {extractDefinition} from "../ast/util";
 import {CompoundDatum} from "../ast/compound_datum";
 import {Quote} from "../ast/quote";
+import {IEnvironment} from "./ienvironment";
+import {Value} from "../value";
 
 export class UserDefinedProcedure extends Procedure {
 

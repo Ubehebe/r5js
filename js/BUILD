@@ -44,6 +44,7 @@ ts_library(
         "//js/parse:parser_impl",
         "//js/read",
         "//js/runtime",
+        "//js/runtime:ienvironment",
         "//js/runtime:primitive_procedures",
         "//js/runtime:trampoline",
         "//js/scan",

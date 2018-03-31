@@ -1,3 +1,5 @@
+import {ObjectValue, Value} from "../value";
+
 class Nil implements ObjectValue {
   eqv(other: Value): boolean {
     return this === other;

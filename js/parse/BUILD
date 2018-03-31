@@ -26,6 +26,7 @@ ts_library(
         ":nonterminals",
         ":terminals",
         "//js/ast:datum",
+        "//js/runtime:ienvironment",
     ]
 )
 
@@ -56,6 +57,7 @@ ts_library(
         "//js:error",
         "//js/macro",
         "//js/runtime",
+        "//js/runtime:ienvironment",
     ],
 )
 

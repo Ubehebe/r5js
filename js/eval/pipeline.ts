@@ -8,6 +8,8 @@ import {Nonterminal, PROGRAM} from "../parse/nonterminals";
 import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
 import {trampoline} from "../runtime/trampoline";
+import {IEnvironment} from "../runtime/ienvironment";
+import {Value} from "../value";
 
 export class Pipeline {
 

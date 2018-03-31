@@ -7,6 +7,7 @@ import {Unquote} from './unquote';
 import {UnquoteSplicing} from './unquote_splicing';
 import {EXPRESSION} from '../parse/nonterminals';
 import {COMMA, COMMA_AT} from '../parse/terminals';
+import {IEnvironment} from "../runtime/ienvironment";
 
 export class Quasiquote extends CompoundDatum {
   constructor(firstChild: Datum) {

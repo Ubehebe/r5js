@@ -4,6 +4,7 @@ import {Datum} from "../ast/datum";
 import {newReader, Reader} from "../read/reader";
 import {newTokenStream, TokenStream} from "../scan/token_stream";
 import {Character} from "../ast/character";
+import {Value} from "../value";
 
 export class InMemoryInputPort extends InputPort {
 

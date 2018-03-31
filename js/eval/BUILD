@@ -14,6 +14,7 @@ ts_library(
     ],
     deps = [
         "//js:error",
+        "//js:value",
         "//js/ast:datum",
         "//js/ast:rename_helper",
         "//js/ast:type",
@@ -25,6 +26,7 @@ ts_library(
         "//js/parse:terminals",
         "//js/read",
         "//js/runtime",
+        "//js/runtime:ienvironment",
         "//js/runtime:primitive_procedures",
         "//js/runtime:trampoline",
         "//js/scan",

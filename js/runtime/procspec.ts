@@ -19,6 +19,8 @@ import {String} from "../ast/string";
 import {Number} from "../ast/number";
 import {Boolean} from "../ast/boolean";
 import {Type} from "../ast/type";
+import {Value} from "../value";
+import {IEnvironment} from "./ienvironment";
 
 export interface NumArgChecker {
   checkNumArgs(numArgs: number, nameToShowInErrorMessage: string);

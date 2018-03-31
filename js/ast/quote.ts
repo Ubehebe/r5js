@@ -7,6 +7,8 @@ import {Error} from '../error';
 import {addImplementation as addPairImpl} from './ipair';
 import {List} from './list';
 import {QUOTE} from '../parse/terminals';
+import {Value} from "../value";
+import {IEnvironment} from "../runtime/ienvironment";
 
 export class Quote extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
   constructor(firstChild: Datum | null) {

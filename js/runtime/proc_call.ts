@@ -14,6 +14,8 @@ import {Continuation} from "./continuation";
 import {notAProcedure} from "./errors";
 import {Parser} from "../parse/parser";
 import {Lambda} from "./lambda";
+import {IEnvironment} from "./ienvironment";
+import {Value} from "../value";
 
 export class ProcCall extends ProcCallLike {
 

@@ -3,6 +3,8 @@ import {CPS_PREFIX, isParserSensitiveId} from "../parse/rename_util";
 import {RenameHelper} from "./rename_helper";
 import {ProcCallLike, ProcCallResult} from "./datum";
 import {COMMA} from "../parse/terminals";
+import {IEnvironment} from "../runtime/ienvironment";
+import {Value} from "../value";
 
 export class Identifier extends SimpleDatum<string> {
   constructor(name: string) {

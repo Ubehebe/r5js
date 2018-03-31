@@ -34,6 +34,8 @@ import {ProcCall} from "./proc_call";
 import {DynamicWindContinuation} from "./dynamic_wind_continuation";
 import {Continuation} from "./continuation";
 import {CallWithCurrentContinuation} from "./call_with_current_continuation";
+import {IEnvironment} from "./ienvironment";
+import {Value} from "../value";
 
 let nullEnv: IEnvironment | null = null;
 let r5RSEnv: IEnvironment | null = null;

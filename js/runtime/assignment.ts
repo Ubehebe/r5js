@@ -5,6 +5,8 @@ import {Error} from "../error";
 import {SimpleDatum} from "../ast/simple_datum";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {Parser} from "../parse/parser";
+import {IEnvironment} from "./ienvironment";
+import {Value} from "../value";
 
 export class Assignment extends ProcCallLike {
 

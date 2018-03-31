@@ -1,7 +1,9 @@
 import {Nonterminal} from '../parse/nonterminals';
 import {RenameHelper} from './rename_helper';
+import {IEnvironment} from "../runtime/ienvironment";
+import {ObjectValue, Value} from "../value";
 
-declare type DesugarFunc = (datum: Datum, env: IEnvironment) => any;
+type DesugarFunc = (datum: Datum, env: IEnvironment) => any;
 
 /**
  * TODO bl remove the "implements ObjectValue".

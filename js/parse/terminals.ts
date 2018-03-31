@@ -1,4 +1,4 @@
-declare type Terminal = string;
+export type Terminal = string;
 
 export const BACKTICK = '`';
 export const BEGIN = 'begin';

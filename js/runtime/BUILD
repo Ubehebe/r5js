@@ -41,10 +41,12 @@ ts_library(
         "varargs_user_defined_procedure.ts",
     ],
     deps = [
+        ":ienvironment",
         "//js/ast:datum",
         "//js/ast:type",
         "//js/macro",
         "//js:error",
+        "//js:value",
         "//js/io",
         "//js/parse:nonterminals",
         "//js/parse:rename_util",
@@ -59,8 +61,10 @@ ts_library(
         "primitive_procedures.ts",
     ],
     deps = [
+        ":ienvironment",
         ":runtime",
         ":trampoline",
+        "//js:value",
         "//js/ast:type",
         "//js/io",
         "//js:error",
@@ -75,9 +79,11 @@ ts_library(
         "trampoline.ts",
     ],
     deps = [
+        "//js:value",
         "//js/ast:datum",
         "//js/io",
         "//js/parse:parser_impl",
+        ":ienvironment",
         ":runtime",
     ],
 )

@@ -8,6 +8,8 @@ import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
 import {Ref} from "../ast/ref";
 import {notAProcedure} from "./errors";
 import {CPS_PREFIX} from "../parse/rename_util";
+import {IEnvironment} from "./ienvironment";
+import {Value} from "../value";
 
 export class Environment implements IEnvironment {
 

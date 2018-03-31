@@ -3,6 +3,7 @@ import {Datum} from './datum';
 import {Error} from "../error";
 import {Identifier} from './identifier';
 import {Number} from './number';
+import {Value} from "../value";
 
 /**
  * Environments bind names to values, and this implementation represents

@@ -3,6 +3,7 @@ import {Datum} from "../ast/datum";
 import {TemplateBindings} from "./template_bindings";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {RenameHelper} from "./rename_helper";
+import {IEnvironment} from "../runtime/ienvironment";
 
 export class EllipsisTransformer implements Subtransformer {
 

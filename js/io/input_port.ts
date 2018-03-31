@@ -1,4 +1,5 @@
 import {Character} from '../ast/character';
+import {Value} from "../value";
 
 /**
  * This is not an interface because we need to do frequent runtime type detection.

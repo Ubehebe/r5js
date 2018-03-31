@@ -4,9 +4,10 @@
  * type guards. We can't use that until all the callers of isImplementedBy are migrated to
  * TypeScript.
  */
+import {Value} from "../value";
+
 export interface IPair {
   car(): Value;
-
   cdr(): Value;
 }
 
