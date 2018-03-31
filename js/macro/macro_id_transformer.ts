@@ -33,11 +33,9 @@ export abstract class MacroIdTransformer implements Subtransformer {
           && (this.datumsAreEqualAndUnbound(inputDatum, definitionEnv, useEnv)
               || datumsHaveSameLexicalBinding(inputDatum, definitionEnv, useEnv));
     } else {
-      /* R5RS 4.3.2: "An input form F matches a pattern P if and only if
-       [...] P is a non-literal identifier [...]".
-       That is, non-literal identifiers match anything. */
-      bindings.addTemplateBinding(
-          /** @type {string} */ (this.datum.getPayload()), inputDatum);
+      // R5RS 4.3.2: "An input form F matches a pattern P if and only if [...] P is a non-literal
+      // identifier [...]". That is, non-literal identifiers match anything.
+      bindings.addTemplateBinding(this.datum.getPayload(), inputDatum);
       return true;
     }
   }

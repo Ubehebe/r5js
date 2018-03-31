@@ -37,7 +37,7 @@ export class Pipeline {
   }
 
   desugar(root: Datum): ProcCallLike {
-    return /** @type {!ProcCallLike} */ (root.desugar(this.env, false));
+    return root.desugar(this.env);
   }
 
   Eval(continuable: ProcCallLike, inputPort: InputPort, outputPort: OutputPort): Value {

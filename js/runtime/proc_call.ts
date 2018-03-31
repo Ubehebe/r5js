@@ -90,10 +90,9 @@ export class ProcCall extends ProcCallLike {
         throw Error.internalInterpreterError('TODO bl');
       } else if ((maybeContinuable = arg.desugar(this.getEnv()!)) instanceof ProcCallLike) {
         // TODO: is it an invariant violation to be a list and not to desugar to a Continuable?
-        const procCallLike = /** @type {!ProcCallLike} */ (maybeContinuable);
         finalArgs.appendSibling(
-            new Identifier(getLastProcCallLike(procCallLike).getResultName()));
-        newCallChain.appendProcCallLike(procCallLike);
+            new Identifier(getLastProcCallLike(maybeContinuable).getResultName()));
+        newCallChain.appendProcCallLike(maybeContinuable);
       } else {
         const clonedArg = arg.clone(null /* parent */);
         finalArgs.appendSibling(clonedArg);

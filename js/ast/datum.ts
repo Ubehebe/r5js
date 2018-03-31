@@ -136,23 +136,17 @@ export class Datum implements ObjectValue {
     let curEnd: ProcCallLike|undefined;
     for (let cur:Datum|null = this; cur; cur = cur.nextSibling) {
       if (desugared = cur.desugar(env)) {
-
-        /* Nodes that have no desugar functions (for example, variables
-         and literals) desugar as themselves. Sometimes this is OK
-         (for example in Datum.sequenceOperands), but here we need to be
-         able to connect the Continuable objects correctly, so we
-         wrap them. */
-        const desugaredProcCallLike = /** @type {!ProcCallLike} */ (
-            desugared instanceof Datum
-                ? desugared.toProcCallLike()
-                : desugared);
-
+        // Nodes that have no desugar functions (for example, variables and literals) desugar as
+        // themselves. Sometimes this is OK (for example in Datum.sequenceOperands), but here we need
+        // to be able to connect the Continuable objects correctly, so we wrap them.
+        const desugaredProcCallLike = desugared instanceof Datum
+            ? desugared.toProcCallLike()
+            : desugared;
         if (!first) {
           first = desugaredProcCallLike;
         } else if (curEnd) {
           curEnd.setNext(desugaredProcCallLike);
         }
-
         curEnd = getLastProcCallLike(desugaredProcCallLike);
       }
     }

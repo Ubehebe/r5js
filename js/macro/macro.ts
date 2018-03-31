@@ -196,7 +196,6 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
                 return node instanceof Identifier && toRename[node.getPayload()];
               },
               function (node) {
-                node = /** @type {!Identifier} */ (node);
                 node.setPayload(toRename[node.getPayload()]);
                 return node;
               }

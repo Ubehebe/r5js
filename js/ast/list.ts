@@ -156,9 +156,8 @@ export class CdrHelperImpl extends CdrHelper {
 
   /** @override */
   equals(cdrHelper) {
-    const asImpl = /** @type {!CdrHelperImpl} */ (cdrHelper);
-    return this.head === asImpl.head &&
-        this.startOfCdr === asImpl.startOfCdr;
+    const asImpl = cdrHelper;
+    return this.head === asImpl.head && this.startOfCdr === asImpl.startOfCdr;
   }
 
   /** @override */

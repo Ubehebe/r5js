@@ -117,7 +117,7 @@ export class TemplateBindings {
    */
   private maybeRenameId(datum: Datum) {
     if (datum instanceof Identifier) {
-      const id = /** @type {string} */ (datum.getPayload());
+      const id = datum.getPayload();
       if (this.templateRenameCandidates[id]) {
         this.renameInTemplate[id] = true;
       }
