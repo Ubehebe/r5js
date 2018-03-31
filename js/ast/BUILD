@@ -38,7 +38,7 @@ ts_library(
         "//js/parse:nonterminals",
         "//js/parse:rename_util",
         "//js/parse:terminals",
-        "//js/runtime:ienvironment",
+        "//js/runtime:environment",
         "//js:error",
         "//js:value",
     ],

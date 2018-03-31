@@ -21,7 +21,7 @@ import {Boolean} from "../ast/boolean";
 import {Number} from "../ast/number";
 import {Identifier} from "../ast/identifier";
 import {Character} from "../ast/character";
-import {Environment} from "./environment";
+import {EnvironmentImpl} from "./environment_impl";
 import {Lambda} from "./lambda";
 import {ParserImpl} from "../parse/parser_impl";
 import {trampoline} from "./trampoline";
@@ -34,11 +34,11 @@ import {ProcCall} from "./proc_call";
 import {DynamicWindContinuation} from "./dynamic_wind_continuation";
 import {Continuation} from "./continuation";
 import {CallWithCurrentContinuation} from "./call_with_current_continuation";
-import {IEnvironment} from "./ienvironment";
+import {Environment} from "./environment";
 import {Value} from "../value";
 
-let nullEnv: IEnvironment | null = null;
-let r5RSEnv: IEnvironment | null = null;
+let nullEnv: Environment | null = null;
+let r5RSEnv: Environment | null = null;
 let portManager: PortManager | null = null;
 
 const PrimitiveProcedures: { [key: string]: PrimitiveProcedure } = {};
@@ -474,7 +474,7 @@ PrimitiveProcedures['eval'] = binaryWithCurrentPorts(
     // is not helpful. Also, Types.SYMBOL is not right.
       throw argumentTypeError(
         expr, 0, 'eval', Types.SYMBOL, runtimeType(expr));
-    if (!(envSpec instanceof Environment)) {
+    if (!(envSpec instanceof EnvironmentImpl)) {
       throw argumentTypeError(
         envSpec, 1, 'eval', Types.ENVIRONMENT_SPECIFIER,
         runtimeType(envSpec));
@@ -898,7 +898,7 @@ PrimitiveProcedures['scheme-report-environment'] = unary(num => {
   return r5RSEnv!.child();
 }, Types.NUMBER);
 
-export function install(nullEnv_: IEnvironment, r5RSEnv_: IEnvironment) {
+export function install(nullEnv_: Environment, r5RSEnv_: Environment) {
   nullEnv = nullEnv_;
   r5RSEnv = r5RSEnv_;
   portManager = new PortManager();

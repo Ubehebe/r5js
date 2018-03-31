@@ -11,12 +11,12 @@ import {DEFINE} from "../parse/terminals";
 import {extractDefinition} from "../ast/util";
 import {CompoundDatum} from "../ast/compound_datum";
 import {Quote} from "../ast/quote";
-import {IEnvironment} from "./ienvironment";
+import {Environment} from "./environment";
 import {Value} from "../value";
 
 export class UserDefinedProcedure extends Procedure {
 
-  private readonly env: IEnvironment;
+  private readonly env: Environment;
   private body: ProcCallLike | null;
   private last: ProcCallLike | null;
 
@@ -24,7 +24,7 @@ export class UserDefinedProcedure extends Procedure {
   constructor(
       protected readonly formalsArray: string[],
       bodyStart: CompoundDatum | null,
-      env: IEnvironment,
+      env: Environment,
       private readonly name: string) {
     super();
     this.env = env.child();
@@ -48,7 +48,7 @@ export class UserDefinedProcedure extends Procedure {
     }
   }
 
-  cloneWithEnv(env: IEnvironment): UserDefinedProcedure {
+  cloneWithEnv(env: Environment): UserDefinedProcedure {
     const ans = new (<typeof UserDefinedProcedure> this.constructor)
     (this.formalsArray, null /* bodyStart */, env, `${cloneWithEnvNameCounter++}`);
     ans.env.setClosuresFrom(this.env); // non-cloning ok?
@@ -81,7 +81,7 @@ export class UserDefinedProcedure extends Procedure {
     return `proc:${this.name}`;
   }
 
-  private setEnv(env: IEnvironment) {
+  private setEnv(env: Environment) {
     if (this.body) {
       this.body.setStartingEnv(env);
     }
@@ -94,7 +94,7 @@ export class UserDefinedProcedure extends Procedure {
     }
   }
 
-  protected bindArgs(args: Value[], env: IEnvironment) {
+  protected bindArgs(args: Value[], env: Environment) {
     for (let i = 0; i < this.formalsArray.length; ++i) {
       env.addBinding(this.formalsArray[i], args[i]);
     }
@@ -126,7 +126,7 @@ export class UserDefinedProcedure extends Procedure {
    * (* 2 y [_0 (+ x _0 [foo' (+ 1 foo' [_2 ...])])])
    * @override
    */
-  evaluate(args: Value[], procCallLike: ProcCallLike, trampolineHelper: TrampolineHelper, env: IEnvironment) {
+  evaluate(args: Value[], procCallLike: ProcCallLike, trampolineHelper: TrampolineHelper, env: Environment) {
     const procCallEnv = procCallLike.getEnv()!;
 
     //If we're at a tail call we can reuse the existing environment.

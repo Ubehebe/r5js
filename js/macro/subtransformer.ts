@@ -2,7 +2,7 @@ import {RenameHelper} from "./rename_helper";
 import {Datum} from "../ast/datum";
 import {TemplateBindings} from "./template_bindings";
 import {ObjectValue} from "../value";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 export interface Subtransformer extends ObjectValue /* TODO inappropriate */ {
   /** @param ellipsisLevel Nesting level of ellipses, passed as the last argument to the callback. */
@@ -14,8 +14,8 @@ export interface Subtransformer extends ObjectValue /* TODO inappropriate */ {
    */
   matchInput(inputDatum: Datum,
              literalIds: { [key: string]: boolean },
-             definitionEnv: IEnvironment,
-             useEnv: IEnvironment,
+             definitionEnv: Environment,
+             useEnv: Environment,
              bindings: TemplateBindings): boolean;
 
   /** @return null if something failed. TODO: if what failed? */

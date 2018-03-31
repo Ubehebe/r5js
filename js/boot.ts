@@ -1,14 +1,14 @@
 import {InputPort, NULL_INPUT_PORT} from "./io/input_port";
 import {NULL_OUTPUT_PORT, OutputPort} from "./io/output_port";
 import {Evaluator} from "./eval/evaluator";
-import {Environment} from "./runtime/environment";
+import {EnvironmentImpl} from "./runtime/environment_impl";
 import {install} from "./runtime/primitive_procedures";
 import {Pipeline} from "./eval/pipeline";
 import {ParserImpl} from "./parse/parser_impl";
 import {newReader, Reader} from "./read/reader";
 import {newTokenStream, TokenStream} from "./scan/token_stream";
 import {trampoline} from "./runtime/trampoline";
-import {IEnvironment} from "./runtime/ienvironment";
+import {Environment} from "./runtime/environment";
 
 /**
  * The main bootstrap function. Given Scheme source code for R5RS syntax and procedures, returns
@@ -23,7 +23,7 @@ export function boot(
     procLib: string,
     inputPort: InputPort = NULL_INPUT_PORT,
     outputPort: OutputPort = NULL_OUTPUT_PORT): Evaluator {
-  const nullEnv = new Environment(null /* enclosingEnv */);
+  const nullEnv = new EnvironmentImpl(null /* enclosingEnv */);
   installSchemeSource(syntaxLib, nullEnv);
   nullEnv.seal();
 
@@ -52,7 +52,7 @@ export function boot(
 }
 
 
-function installSchemeSource(lib: string, env: IEnvironment) {
+function installSchemeSource(lib: string, env: Environment) {
   const continuable = new ParserImpl(
       newReader(
           newTokenStream(lib)).read()).parse()!.desugar(env);

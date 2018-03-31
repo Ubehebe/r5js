@@ -1,4 +1,4 @@
-import {Environment} from "../runtime/environment";
+import {EnvironmentImpl} from "../runtime/environment_impl";
 import {Error} from "../error";
 import {newTokenStream, TokenStream} from "../scan/token_stream";
 import {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
@@ -8,15 +8,15 @@ import {Nonterminal, PROGRAM} from "../parse/nonterminals";
 import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
 import {trampoline} from "../runtime/trampoline";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 import {Value} from "../value";
 
 export class Pipeline {
 
-  private readonly env: IEnvironment;
+  private readonly env: Environment;
 
-  constructor(rootEnv: IEnvironment) {
-    this.env = new Environment(rootEnv);
+  constructor(rootEnv: Environment) {
+    this.env = new EnvironmentImpl(rootEnv);
   }
 
   scan(string: string): TokenStream {

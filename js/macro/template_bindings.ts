@@ -4,7 +4,7 @@ import {newCpsName} from "../parse/rename_util";
 import {Identifier} from "../ast/identifier";
 import {CompoundDatum} from "../ast/compound_datum";
 import {Error} from "../error";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 /**
  * My approach for supporting nested ellipses in macro transcriptions
@@ -69,7 +69,7 @@ export class TemplateBindings {
   private readonly renameInTemplate: { [key: string]: any } = {};
 
   constructor(
-      private readonly letSyntaxEnv: IEnvironment,
+      private readonly letSyntaxEnv: Environment,
       private readonly patternIds: { [key: string]: number },
       private readonly templateRenameCandidates: { [key: string]: boolean }) {}
 

@@ -4,7 +4,7 @@ import {Identifier} from "../ast/identifier";
 import {Datum} from "../ast/datum";
 import {TemplateBindings} from "./template_bindings";
 import {RenameHelper} from "./rename_helper";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 export abstract class MacroIdTransformer implements Subtransformer {
 
@@ -13,8 +13,8 @@ export abstract class MacroIdTransformer implements Subtransformer {
   /** @override */
   matchInput(inputDatum: any /* TODO tighten */,
              literalIds: { [key: string]: boolean },
-             definitionEnv: IEnvironment,
-             useEnv: IEnvironment,
+             definitionEnv: Environment,
+             useEnv: Environment,
              bindings: TemplateBindings): boolean {
 
 
@@ -46,8 +46,8 @@ export abstract class MacroIdTransformer implements Subtransformer {
 
   private datumsAreEqualAndUnbound(
       inputDatum: Identifier,
-      definitionEnv: IEnvironment,
-      useEnv: IEnvironment): boolean {
+      definitionEnv: Environment,
+      useEnv: Environment): boolean {
     const name = inputDatum.getPayload();
     return name === this.datum.getPayload()
         && !definitionEnv.hasBindingRecursive(name)
@@ -100,8 +100,8 @@ class TemplateIdTransformer extends MacroIdTransformer {
 
 function datumsHaveSameLexicalBinding(
     inputDatum: Identifier,
-    definitionEnv: IEnvironment,
-    useEnv: IEnvironment): boolean {
+    definitionEnv: Environment,
+    useEnv: Environment): boolean {
   const name = inputDatum.getPayload();
   return definitionEnv.get(name) === useEnv.get(name);
 }

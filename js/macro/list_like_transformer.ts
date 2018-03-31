@@ -9,7 +9,7 @@ import {SiblingBuffer} from "../ast/sibling_buffer";
 import {Quote} from "../ast/quote";
 import {Vector} from "../ast/vector";
 import {DottedList, List} from "../ast/list";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 export interface ListLikeTransformer extends Subtransformer {
   addSubtransformer(subtransformer: Subtransformer): this;
@@ -71,8 +71,8 @@ class Base implements ListLikeTransformer {
   /** @override */
   matchInput(inputDatum: CompoundDatum,
              literalIds: { [key: string]: boolean },
-             definitionEnv: IEnvironment,
-             useEnv: IEnvironment,
+             definitionEnv: Environment,
+             useEnv: Environment,
              bindings: TemplateBindings) {
     const len = this.subtransformers.length;
     const maybeEllipsis = this.subtransformers[len - 1] instanceof EllipsisTransformer

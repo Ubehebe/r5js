@@ -7,7 +7,7 @@ import {Unquote} from './unquote';
 import {UnquoteSplicing} from './unquote_splicing';
 import {EXPRESSION} from '../parse/nonterminals';
 import {COMMA, COMMA_AT} from '../parse/terminals';
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 export class Quasiquote extends CompoundDatum {
   constructor(firstChild: Datum) {
@@ -37,7 +37,7 @@ export class Quasiquote extends CompoundDatum {
   }
 
   /** Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])]) */
-  processQuasiquote(env: IEnvironment, parserProvider: (Datum) => any /* TODO should be Parser */): ProcCallLike {
+  processQuasiquote(env: Environment, parserProvider: (Datum) => any /* TODO should be Parser */): ProcCallLike {
     const newCalls = new ContinuableHelper();
     const qqLevel = this.qqLevel;
 
@@ -90,7 +90,7 @@ class QuasiquoteShim extends ProcCallLike {
 
   /** @override */
   evalAndAdvance(resultStruct: ProcCallResult,
-                 env: IEnvironment,
+                 env: Environment,
                  parserProvider: (Datum) => any /* TODO should be Parser */) {
     const next = this.tryQuasiquote(this.firstOperand, parserProvider);
     if (next) {

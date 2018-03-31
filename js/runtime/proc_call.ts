@@ -14,7 +14,7 @@ import {Continuation} from "./continuation";
 import {notAProcedure} from "./errors";
 import {Parser} from "../parse/parser";
 import {Lambda} from "./lambda";
-import {IEnvironment} from "./ienvironment";
+import {Environment} from "./environment";
 import {Value} from "../value";
 
 export class ProcCall extends ProcCallLike {
@@ -116,7 +116,7 @@ export class ProcCall extends ProcCallLike {
   /** @override */
   evalAndAdvance(
       resultStruct: ProcCallResult,
-      env: IEnvironment,
+      env: Environment,
       parserProvider: (Datum) => Parser) {
     const proc = this.getEnv()!.getProcedure(this.operatorName.getPayload());
     if (proc instanceof Procedure) {

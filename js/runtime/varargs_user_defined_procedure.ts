@@ -4,11 +4,11 @@ import {Error} from "../error";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {wrapValue} from "../ast/datum_util";
 import {List} from "../ast/list";
-import {IEnvironment} from "./ienvironment";
+import {Environment} from "./environment";
 import {Value} from "../value";
 
 export class VarargsUserDefinedProcedure extends UserDefinedProcedure {
-  constructor(formalsArray: string[], bodyStart: CompoundDatum | null, env: IEnvironment, name: string) {
+  constructor(formalsArray: string[], bodyStart: CompoundDatum | null, env: Environment, name: string) {
     super(formalsArray, bodyStart, env, name);
   }
 
@@ -21,7 +21,7 @@ export class VarargsUserDefinedProcedure extends UserDefinedProcedure {
   }
 
   /** @override */
-  bindArgs(args: Value[], env: IEnvironment) {
+  bindArgs(args: Value[], env: Environment) {
     let name, i;
 
     for (i = 0; i < this.formalsArray.length - 1; ++i) {

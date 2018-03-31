@@ -3,7 +3,7 @@ import {CPS_PREFIX, isParserSensitiveId} from "../parse/rename_util";
 import {RenameHelper} from "./rename_helper";
 import {ProcCallLike, ProcCallResult} from "./datum";
 import {COMMA} from "../parse/terminals";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 import {Value} from "../value";
 
 export class Identifier extends SimpleDatum<string> {
@@ -64,7 +64,7 @@ class IdShim extends ProcCallLike {
   }
 
   /** @override */
-  evalAndAdvance(resultStruct: ProcCallResult, env: IEnvironment, parserProvider: (x: any) => any) {
+  evalAndAdvance(resultStruct: ProcCallResult, env: Environment, parserProvider: (x: any) => any) {
     const ans = this.tryIdentifier_(this.firstOperand);
 
     if (ans !== null) {

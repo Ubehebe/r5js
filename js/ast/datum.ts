@@ -1,9 +1,9 @@
 import {Nonterminal} from '../parse/nonterminals';
 import {RenameHelper} from './rename_helper';
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 import {ObjectValue, Value} from "../value";
 
-type DesugarFunc = (datum: Datum, env: IEnvironment) => any;
+type DesugarFunc = (datum: Datum, env: Environment) => any;
 
 /**
  * TODO bl remove the "implements ObjectValue".
@@ -73,7 +73,7 @@ export class Datum implements ObjectValue {
     this.nonterminals.push(type);
   }
 
-  setDesugar(desugarFunc: (datum: Datum, env: IEnvironment) => any /* TODO can't use DesguarFunc typedef */) {
+  setDesugar(desugarFunc: (datum: Datum, env: Environment) => any /* TODO can't use DesguarFunc typedef */) {
     this.desugars.push(desugarFunc);
     ++this.nextDesugar;
   }
@@ -119,7 +119,7 @@ export class Datum implements ObjectValue {
    * @param forceContinuationWrapper TODO bl document.
    * @return {!Datum|!ProcCallLike|!r5js.Subtransformer|!r5js.Macro|null} TODO update TypeScript type.
    */
-  desugar(env: IEnvironment, forceContinuationWrapper:boolean=false): any {
+  desugar(env: Environment, forceContinuationWrapper:boolean=false): any {
     const desugarFn = (this.nextDesugar >= 0)
         ? this.desugars[this.nextDesugar--]
         : null;
@@ -130,7 +130,7 @@ export class Datum implements ObjectValue {
     return ans;
   }
 
-  sequence(env: IEnvironment): ProcCallLike|undefined {
+  sequence(env: Environment): ProcCallLike|undefined {
     let first: ProcCallLike|undefined;
     let desugared;
     let curEnd: ProcCallLike|undefined;
@@ -219,7 +219,7 @@ export abstract class ProcCallLike {
 
   protected resultName: string;
   protected next: ProcCallLike|null;
-  protected env: IEnvironment|null;
+  protected env: Environment|null;
 
   constructor(lastResultName:string=`@${counter++}`) {
     this.resultName = lastResultName;
@@ -232,7 +232,7 @@ export abstract class ProcCallLike {
    */
   abstract evalAndAdvance(
       resultStruct: ProcCallResult /* TODO */,
-      env: IEnvironment,
+      env: Environment,
       parserProvider: (Datum) => any /* TODO should be Parser*/);
 
   getResultName(): string {
@@ -244,11 +244,11 @@ export abstract class ProcCallLike {
     this.resultName = resultName;
   }
 
-  setStartingEnv(env: IEnvironment) {
+  setStartingEnv(env: Environment) {
     this.env = env;
   }
 
-  getEnv(): IEnvironment|null {
+  getEnv(): Environment|null {
     return this.env;
   }
 
@@ -303,7 +303,7 @@ class DatumShim extends ProcCallLike {
   }
 
   /** @override */
-  evalAndAdvance(resultStruct: ProcCallResult, env: IEnvironment, parserProvider: (x: any) => any /* TODO */) {
+  evalAndAdvance(resultStruct: ProcCallResult, env: Environment, parserProvider: (x: any) => any /* TODO */) {
     this.bindResult(this.firstOperand);
     resultStruct.setValue(this.firstOperand);
     const nextContinuable = this.getNext();

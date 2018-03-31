@@ -3,7 +3,7 @@ import {OutputPort} from "../io/output_port";
 import {InputPort} from "../io/input_port";
 import {TrampolineHelper} from "./trampoline_helper";
 import {ParserImpl} from "../parse/parser_impl";
-import {IEnvironment} from "./ienvironment";
+import {Environment} from "./environment";
 import {Value} from "../value";
 
 /**
@@ -89,12 +89,12 @@ import {Value} from "../value";
  */
 export function trampoline(
   procCallLike: ProcCallLike,
-  startingEnv: IEnvironment,
+  startingEnv: Environment,
   inputPort: InputPort,
   outputPort: OutputPort): Value {
   let cur: ProcCallLike | null = procCallLike;
   const resultStruct = new TrampolineHelper(inputPort, outputPort);
-  let prevEnv: IEnvironment | null = startingEnv;
+  let prevEnv: Environment | null = startingEnv;
 
   while (cur) {
     let curEnv = cur.getEnv();

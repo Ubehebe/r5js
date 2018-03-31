@@ -1,6 +1,6 @@
 import {DatumStream} from "./datum_stream";
 import {Datum} from "../ast/datum";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 export interface Rule {
   /** @return True iff the parse succeeded. */
@@ -14,5 +14,5 @@ export interface Rule {
  * is the type of the datum passed to the desugar function.
  */
 export interface DesugarableRule<T> extends Rule {
-  desugar(desugarFn: (datum: T, env: IEnvironment) => any): this;
+  desugar(desugarFn: (datum: T, env: Environment) => any): this;
 }

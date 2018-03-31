@@ -3,7 +3,7 @@ import {Datum} from "../ast/datum";
 import {TemplateBindings} from "./template_bindings";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {RenameHelper} from "./rename_helper";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 export class EllipsisTransformer implements Subtransformer {
 
@@ -12,8 +12,8 @@ export class EllipsisTransformer implements Subtransformer {
   /** @override */
   matchInput(inputDatum: Datum,
              literalIds: { [key: string]: boolean },
-             definitionEnv: IEnvironment,
-             useEnv: IEnvironment,
+             definitionEnv: Environment,
+             useEnv: Environment,
              bindings: TemplateBindings): boolean {
 
     // We have to leave some evidence in the TemplateBindings object of  an empty match. Example:

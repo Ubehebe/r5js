@@ -1,6 +1,6 @@
 import {getLastProcCallLike, ProcCallLike, ProcCallResult} from "../ast/datum";
 import {Parser} from "../parse/parser";
-import {IEnvironment} from "./ienvironment";
+import {Environment} from "./environment";
 
 export class Branch extends ProcCallLike {
 
@@ -16,7 +16,7 @@ export class Branch extends ProcCallLike {
   }
 
   /** @override */
-  setStartingEnv(env: IEnvironment) {
+  setStartingEnv(env: Environment) {
     if (!this.consequent.getEnv()) {
       this.consequent.setStartingEnv(env);
     }
@@ -26,13 +26,13 @@ export class Branch extends ProcCallLike {
   }
 
   /** @override */
-  getEnv(): IEnvironment | null {
+  getEnv(): Environment | null {
     return null;
   }
 
   /** @override */
   evalAndAdvance(resultStruct: ProcCallResult,
-                 env: IEnvironment,
+                 env: Environment,
                  parserProvider: (Datum) => Parser) {
     // Branches always use the old environment left by the previous action on the trampoline.
     const testResult = env.get(this.testResultName);

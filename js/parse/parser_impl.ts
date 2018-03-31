@@ -52,7 +52,7 @@ import {TopLevelSyntaxAssignment} from "../runtime/top_level_syntax_assignment";
 import {Vector} from "../ast/vector";
 import {RenameHelper} from "../ast/rename_helper";
 import {SiblingBuffer} from "../ast/sibling_buffer";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 /* todo bl: this file should not exist.
 
@@ -900,7 +900,7 @@ function maybeFixParserSensitiveIds(root: Datum | null): Datum | null {
  * We just need to be sure that the SchemeMacro object inserted directly
  * into the parse tree plays well when the tree is transcribed and reparsed.
  */
-function desugarMacroBlock(datum: CompoundDatum, env: IEnvironment, operatorName: string): ProcCallLike {
+function desugarMacroBlock(datum: CompoundDatum, env: Environment, operatorName: string): ProcCallLike {
   const letBindings = new SiblingBuffer();
 
   datum.firstSublist()!.forEachChild(spec => {

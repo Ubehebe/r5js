@@ -8,7 +8,7 @@ import {addImplementation as addPairImpl} from './ipair';
 import {List} from './list';
 import {QUOTE} from '../parse/terminals';
 import {Value} from "../value";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 export class Quote extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
   constructor(firstChild: Datum | null) {
@@ -49,7 +49,7 @@ class QuoteShim extends ProcCallLike {
   }
 
   /** @override */
-  evalAndAdvance(resultStruct: ProcCallResult, env: IEnvironment, parserProvider: (x: any) => any /* TODO */) {
+  evalAndAdvance(resultStruct: ProcCallResult, env: Environment, parserProvider: (x: any) => any /* TODO */) {
     const ans = this.tryQuote(this.firstOperand);
     if (ans !== null) {
       this.bindResult(ans);

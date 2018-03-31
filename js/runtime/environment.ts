@@ -1,197 +1,129 @@
-import {UserDefinedProcedure} from "./user_defined_procedure";
-import {Error} from "../error";
-import {Macro} from "../macro/macro";
-import {Procedure} from "./procedure";
-import {Continuation} from "./continuation";
-import {Lambda} from "./lambda";
-import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
-import {Ref} from "../ast/ref";
-import {notAProcedure} from "./errors";
-import {CPS_PREFIX} from "../parse/rename_util";
-import {IEnvironment} from "./ienvironment";
+/**
+ * Interface abstracted from {@link r5js.Environment}.
+ *
+ * An Environment stores three common kinds of objects:
+ * - Datums (most Scheme values: numbers, identifiers, etc.)
+ * - SchemeProcedures (native Scheme procedures)
+ * - JavaScript functions ('primitive' Scheme procedures)
+ *
+ * There is a fourth kind of object, a Continuation, which can get stored
+ * when calling "magical" procedures like call/cc, where the current
+ * continuation is bound to a formal parameter.
+ *
+ * {@link IEnvironment#get} will only ever return Datums and Continuations;
+ * it will wrap SchemeProcedures and JavaScript functions in Datum
+ * wrappers before returning, to allow for things like
+ *
+ * (cons + (lambda () "hi!"))
+ *
+ * A drawback is that comparisons on stuff retrieved from an Environment
+ * may need to be unwrapped:
+ *
+ * let x = env.get('foo');
+ * let y = env.get('foo');
+ * x == y // false if foo is a SchemeProcedure or JavaScript function!
+ *
+ * If you know your key should retrieve a SchemeProcedure or JavaScript
+ * function, you can use {@link r5js.IEnvironment.getProcedure} to avoid the
+ * wrapping and unwrapping.
+ *
+ */
 import {Value} from "../value";
 
-export class Environment implements IEnvironment {
+export interface Environment {
+    addBinding(name: string, val: Value);
 
-  private readonly bindings: { [key: string]: Value } = {};
-  private closures: { [key: string]: UserDefinedProcedure } = {};
-  private redefsOk: boolean = false;
-  private sealed: boolean = false;
+    /**
+     * Used exclusively during desugaring of lambda expressions.
+     *
+     * Lambda expressions have much in common with procedure definitions,
+     * even though they don't introduce a new binding (in a programmer-visible
+     * way, at least). For example:
+     *
+     * (define (foo x) (define (bar y) (+ x y)) bar)
+     *
+     * (define (foo x) (lambda (y) (+ x y)))
+     *
+     * With either definition of foo, we must have
+     *
+     * ((foo 10) 11) => 22
+     *
+     * With internal definitions, this is easy. The grammar of Scheme says that
+     * all internal definitions must precede all expressions in a procedure body,
+     * so the {@link UserDefinedProcedure} constructor can intercept all the
+     * definitions and deal with them appropriately.
+     *
+     * Lambda expressions, however, can appear anywhere in a procedure's body,
+     * so we deal with them in a generic way here. Using the second definition of
+     * foo above as an example, here's what happens:
+     *
+     * - During parsing of foo, we create a new {@link IEnvironment}
+     *   for the procedure (say, fooEnv), and note all foo's lambdas in fooEnv,
+     *   using {@link IEnvironment#addClosure}.
+     * - Later, when we want to evaluate (foo 10), we create a new
+     *   {@link IEnvironment} hanging off fooEnv (say, tmp-fooEnv).
+     *   (We have to do this to support multiple active calls to the same
+     *   procedure.) We copy all of fooEnv's closures into tmp-fooEnv as actual
+     *   bound {@link UserDefinedProcedure}s, using
+     *   {@link r5js.Environment.addClosuresFrom}.
+     *   We also bind the arguments (in this case x = 10) in tmp-fooEnv,
+     *   then advance to foo's body.
+     *
+     * In this way, when we get to the body of the lambda expression, both x and y
+     * are already in scope. The key point is that the environment
+     * of (lambda (y) (+ x y)) points back to the environment representing the
+     * _execution_ of foo (tmp-fooEnv), not the Environment representing foo itself
+     * (fooEnv).
+     *
+     * TODO bl: consider renaming to addSchemeProcedure?
+     */
+    addClosure(name: string, proc: any /* TODO UserDefinedProcedure */);
 
-  constructor(private readonly enclosingEnv: IEnvironment | null) {}
+    /** @returns This environment, for chaining. */
+    addClosuresFrom(other: Environment): Environment;
 
-  /** @override */
-  seal() {
-    this.sealed = true;
-  }
+    /**
+     * @param otherEnv Environment whose closures this environment should use.
+     * TODO bl: this method is only used once. Can I eliminate it?
+     */
+    setClosuresFrom(otherEnv: Environment);
 
-  /** @override */
-  allowRedefs() {
-    this.redefsOk = true;
-    return this;
-  }
+    get(name: string): Value|null;
 
-  clone(): Environment {
-    if (this.enclosingEnv) {
-      throw Error.internalInterpreterError(
-          'clone should only be used during ' +
-          'interpreter bootstrapping');
-    }
+    getProcedure(name: string): Value|null;
 
-    const cloned = new Environment(null /* enclosingEnv */);
+    /**
+     * @returns true iff the environment, or any of its enclosing
+     * environments, has a binding for the name.
+     */
+    hasBindingRecursive(name: string): boolean;
 
-    for (let name in this.bindings) {
-      const val = this.bindings[name];
-      cloned.bindings[name] = val instanceof Macro
-          ? (val as Macro).clone(cloned)
-          : val;
-    }
+    /**
+     * R5RS 5.2.1: "At the top level of a program, a definition
+     *
+     * (define <variable> <expression>)
+     *
+     * has essentially the same effect as the assignment expression
+     *
+     * (set! <variable> <expression>)
+     *
+     * if <variable> is bound. If <variable> is not bound, however, then
+     * the definition will bind <variable> to a new location before performing
+     * the assignment, whereas it would be an error to perform a set! on
+     * an unbound variable."
+     *
+     * We use the isTopLevel parameter to perform the override mentioned.
+     */
+    mutate(name: string, newVal: Value, isTopLevel: boolean);
 
-    return cloned;
-  }
+    /**
+     * Just for environments defined in the standard; users shouldn't be able to
+     * add to them.
+     */
+    seal();
 
-  /** @override */
-  hasBindingRecursive(name) {
-    return name in this.bindings ||
-        (!!this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name));
-  }
+    child(): Environment;
 
-  /** @override */
-  get(name) {
-    if (name in this.bindings) {
-      const binding = this.bindings[name];
-      if (binding instanceof Environment && binding.hasBindingRecursive(name)) {
-        // Redirects for free ids in macro transcriptions
-        return binding.get(name);
-      } else if (binding instanceof Macro) {
-        return binding;
-      } else if (binding instanceof Continuation || binding instanceof Procedure) {
-        // We store primitive and non-primitive procedures unwrapped, but wrap them in a Datum
-        // if they are requested through get. (getProcedure, which is intended just for evaluating
-        // the operator on the trampoline, will return the unwrapped procedures.)
-        return new Lambda(name, binding);
-      } else if (binding === UNSPECIFIED_VALUE) {
-        return binding;
-      } else if (binding instanceof Datum) {
-        return new Ref(binding);
-      } else {
-        return binding;
-      }
-    } else if (name in this.closures) {
-      // I think this is only used for ProcCall.prototype.cpsify, where identifiers are used to keep
-      // track of things while the structure is changed. Semantic use of procedures should be gated
-      // by Environment.prototype.getProcedure, and since that doesn't check the closures map,
-      // there should be no danger of accidentally returning a closure.
-      return this.closures[name];
-    } else if (this.enclosingEnv) {
-      // If the current environment has no binding for the name, look one level up
-      return this.enclosingEnv.get(name);
-    } else {
-      throw Error.unboundVariable(name);
-    }
-  }
-
-  /** @override */
-  getProcedure(name: string) {
-    if (name in this.bindings) {
-      const binding = this.bindings[name];
-      if (binding instanceof Environment) {
-        return binding.getProcedure(name);
-      } else if (binding instanceof Continuation
-          || binding instanceof Macro
-          || binding instanceof Procedure) {
-        return binding;
-      } else if (binding instanceof Datum) {
-        throw notAProcedure(name);
-      } else {
-        throw Error.internalInterpreterError(
-            "getProcedure: don't know what to do with binding " + name);
-      }
-
-    } else if (this.enclosingEnv) {
-      return this.enclosingEnv.getProcedure(name);
-    } else {
-      return null;
-    }
-  }
-
-  /** @override */
-  addClosuresFrom(other: Environment) {
-    // todo bl: we have to clone the SchemeProcedures to prevent some kind of infinite loop.
-    // I'm not entirely clear about what loop, though, since SchemeProcedure.prototype.cloneWithEnv
-    // itself does not do a lot of copying.
-    for (const name in other.closures) {
-      this.addBinding(name, other.closures[name].cloneWithEnv(this));
-    }
-    return this;
-  }
-
-  /** @override */
-  addClosure(name, proc) {
-    if (this.sealed) {
-      throw Error.internalInterpreterError(`tried to bind ${name} in sealed environment`);
-    } else if (this.closures[name]) {
-      throw Error.internalInterpreterError('invariant incorrect');
-    } else {
-      this.closures[name] = proc;
-    }
-  }
-
-  private bindingIsAcceptable_(name: string): boolean {
-    return !(name in this.bindings)
-        || this.redefsOk
-        || name.charAt(0) === CPS_PREFIX;
-  }
-
-  /** @override */
-  addBinding(name: string, val: Value) {
-    if (this.sealed) {
-      throw Error.internalInterpreterError(
-          `tried to bind ${name} in sealed environment ${this}`);
-    }
-
-    if (!this.bindingIsAcceptable_(name)) {
-      throw Error.internalInterpreterError(`redefining ${name} in same env, not allowed`);
-    }
-
-    // Macros require a backlink to the environment they were defined in to resolve literal
-    // identifiers. todo bl: is there a better place to put this?
-    if (val instanceof Macro) {
-      (val as Macro).setDefinitionEnv(this);
-    }
-
-    this.bindings[name] = val instanceof Datum ? val.unwrap() : val;
-  }
-
-  /** @override */
-  mutate(name: string, newVal: Value, isTopLevel: boolean) {
-    const maybeBinding = this.bindings[name];
-    if (maybeBinding != null || isTopLevel) {
-      if (maybeBinding instanceof Environment) {
-        maybeBinding.mutate(name, newVal, isTopLevel);
-      } else {
-        delete this.bindings[name];
-        this.addBinding(name, newVal);
-      }
-    } else if (this.enclosingEnv) {
-      this.enclosingEnv.mutate(name, newVal, isTopLevel);
-    } else {
-      throw Error.unboundVariable(name);
-    }
-  }
-
-  /** @override */
-  setClosuresFrom(otherEnv: Environment) {
-    this.closures = otherEnv.closures;
-  }
-
-  /** @override */
-  child() {
-    return new Environment(this);
-  }
-
-  /** @override */
-  toString() {
-    return '<environment-specifier>';
-  }
+    /** @returns this object, for chaining. */
+    allowRedefs(): Environment;
 }

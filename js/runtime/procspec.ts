@@ -20,7 +20,7 @@ import {Number} from "../ast/number";
 import {Boolean} from "../ast/boolean";
 import {Type} from "../ast/type";
 import {Value} from "../value";
-import {IEnvironment} from "./ienvironment";
+import {Environment} from "./environment";
 
 export interface NumArgChecker {
   checkNumArgs(numArgs: number, nameToShowInErrorMessage: string);
@@ -170,7 +170,7 @@ export class PrimitiveProcedure extends Procedure {
    * to the next continuable ("...").
    * @override
    */
-  evaluate(args: Value[], procCallLike: ProcCallLike, resultStruct: ProcCallResult, env: IEnvironment) {
+  evaluate(args: Value[], procCallLike: ProcCallLike, resultStruct: ProcCallResult, env: Environment) {
     args = args.map(wrapValue);
     // todo bl document why we're doing this...
     for (let i = 0; i < args.length; ++i) {

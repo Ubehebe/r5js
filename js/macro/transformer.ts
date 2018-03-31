@@ -2,7 +2,7 @@ import {RenameHelper} from "./rename_helper";
 import {ListLikeTransformer} from "./list_like_transformer";
 import {Datum} from "../ast/datum";
 import {TemplateBindings} from "./template_bindings";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 export class Transformer {
 
@@ -24,8 +24,8 @@ export class Transformer {
   /** @return True iff the transformer is a match (?) */
   matchInput(inputDatum: Datum,
              literalIds: { [key: string]: boolean },
-             definitionEnv: IEnvironment,
-             useEnv: IEnvironment,
+             definitionEnv: Environment,
+             useEnv: Environment,
              bindings: TemplateBindings): boolean {
     return this.pattern.matchInput(
         inputDatum, literalIds, definitionEnv, useEnv, bindings);

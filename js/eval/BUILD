@@ -26,7 +26,7 @@ ts_library(
         "//js/parse:terminals",
         "//js/read",
         "//js/runtime",
-        "//js/runtime:ienvironment",
+        "//js/runtime:environment",
         "//js/runtime:primitive_procedures",
         "//js/runtime:trampoline",
         "//js/scan",

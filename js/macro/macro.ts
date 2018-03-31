@@ -10,7 +10,7 @@ import {SiblingBuffer} from "../ast/sibling_buffer";
 import {List} from "../ast/list";
 import {Error} from "../error";
 import {ObjectValue} from "../value";
-import {IEnvironment} from "../runtime/ienvironment";
+import {Environment} from "../runtime/environment";
 
 export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
 
@@ -19,7 +19,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
 
   constructor(literalIdentifiers: Datum | null,
               rules: Datum | null,
-              private definitionEnv: IEnvironment,
+              private definitionEnv: Environment,
               private readonly transformers: Transformer[] = []) {
 
     for (let curId = literalIdentifiers; curId; curId = curId.getNextSibling()) {
@@ -75,7 +75,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
     return this.isLetOrLetrecSyntax_;
   }
 
-  setDefinitionEnv(env: IEnvironment) {
+  setDefinitionEnv(env: Environment) {
     this.definitionEnv = env;
   }
 
@@ -83,7 +83,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
    * Should only be used during interpreter bootstrapping.
    * @return A clone of this macro.
    */
-  clone(newDefinitionEnv: IEnvironment): Macro {
+  clone(newDefinitionEnv: Environment): Macro {
     return new Macro(null, null, newDefinitionEnv, this.transformers);
   }
 
@@ -104,7 +104,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
    *     This is a hack to avoid instantiating a Parser directly in this file, which would cause
    *     a cyclic dependency between macro.js and parse.js.
    */
-  transcribe(datum: Datum, useEnv: IEnvironment, parserProvider: (Datum) => Parser) {
+  transcribe(datum: Datum, useEnv: Environment, parserProvider: (Datum) => Parser) {
     let transformer, bindings, newDatumTree;
     for (let i = 0; i < this.transformers.length; ++i) {
       transformer = this.transformers[i];

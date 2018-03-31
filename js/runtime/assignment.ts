@@ -5,7 +5,7 @@ import {Error} from "../error";
 import {SimpleDatum} from "../ast/simple_datum";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {Parser} from "../parse/parser";
-import {IEnvironment} from "./ienvironment";
+import {Environment} from "./environment";
 import {Value} from "../value";
 
 export class Assignment extends ProcCallLike {
@@ -17,7 +17,7 @@ export class Assignment extends ProcCallLike {
   /** @override */
   evalAndAdvance(
       resultStruct: ProcCallResult,
-      envBuffer: IEnvironment,
+      envBuffer: Environment,
       parserProvider: (Datum) => Parser) {
     const src = this.getEnv()!.get(
         (this.firstOperand.getNextSibling() as SimpleDatum<any>).getPayload())!;

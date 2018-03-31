@@ -7,10 +7,10 @@ package(
 )
 
 ts_library(
-    name = "ienvironment",
+    name = "environment",
     tsconfig = "//:tsconfig.json",
     srcs = [
-        "ienvironment.ts",
+        "environment.ts",
     ],
     deps = [
         "//js:value",
@@ -25,7 +25,7 @@ ts_library(
         "call_with_current_continuation.ts",
         "continuation.ts",
         "dynamic_wind_continuation.ts",
-        "environment.ts",
+        "environment_impl.ts",
         "eof.ts",
         "errors.ts",
         "lambda.ts",
@@ -41,7 +41,7 @@ ts_library(
         "varargs_user_defined_procedure.ts",
     ],
     deps = [
-        ":ienvironment",
+        ":environment",
         "//js/ast:datum",
         "//js/ast:type",
         "//js/macro",
@@ -61,7 +61,7 @@ ts_library(
         "primitive_procedures.ts",
     ],
     deps = [
-        ":ienvironment",
+        ":environment",
         ":runtime",
         ":trampoline",
         "//js:value",
@@ -83,7 +83,7 @@ ts_library(
         "//js/ast:datum",
         "//js/io",
         "//js/parse:parser_impl",
-        ":ienvironment",
+        ":environment",
         ":runtime",
     ],
 )

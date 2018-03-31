@@ -14,6 +14,6 @@ ts_library(
         "//js/parse:nonterminals",
         "//js/parse:parser",
         "//js/parse:rename_util",
-        "//js/runtime:ienvironment",
+        "//js/runtime:environment",
     ],
 )
