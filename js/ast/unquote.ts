@@ -8,7 +8,7 @@ export class Unquote extends CompoundDatum {
   }
 
   /** @override */
-  setQuasiquotationLevel(qqLevel: number): CompoundDatum {
+  setQuasiquotationLevel(qqLevel: number): this {
     this.qqLevel = qqLevel;
     return super.setQuasiquotationLevel(qqLevel - 1);
   }

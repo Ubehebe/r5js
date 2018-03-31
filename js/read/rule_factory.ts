@@ -135,7 +135,7 @@ export class Seq extends Rule {
     super();
   }
 
-  named(ctor: new (d: Datum) => Datum): Seq /* TODO polymorphic this */ {
+  named(ctor: new (d: Datum) => Datum): this {
     this.ctor = ctor;
     return this;
   }

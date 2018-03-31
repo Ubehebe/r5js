@@ -67,7 +67,7 @@ export class Quasiquote extends CompoundDatum {
   }
 
   /** @override */
-  setQuasiquotationLevel(qqLevel: number): CompoundDatum {
+  setQuasiquotationLevel(qqLevel: number): this {
     this.qqLevel = qqLevel + 1;
     return super.setQuasiquotationLevel(this.qqLevel);
   }

@@ -134,7 +134,7 @@ export class CompoundDatum extends Datum {
     return null;
   }
 
-  setCdrHelper(cdrHelper: CdrHelper): CompoundDatum /* todo polymorphic this */ {
+  setCdrHelper(cdrHelper: CdrHelper): this {
     this.cdrHelper = cdrHelper;
     return this;
   }
@@ -251,7 +251,7 @@ export class CompoundDatum extends Datum {
    *
    * @param qqLevel The level of quasiquotation.
    */
-  setQuasiquotationLevel(qqLevel: number): CompoundDatum /* for chaining TODO polymorphic this */ {
+  setQuasiquotationLevel(qqLevel: number): this {
     this.forEachChild(child => {
       if (child instanceof CompoundDatum) {
         child.setQuasiquotationLevel(qqLevel);

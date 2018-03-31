@@ -73,7 +73,7 @@ export class TemplateBindings {
       private readonly patternIds: { [key: string]: number },
       private readonly templateRenameCandidates: { [key: string]: boolean }) {}
 
-  resetCurChild(): TemplateBindings /* TODO polymorphic this */ {
+  resetCurChild(): this {
     this.curChild = 0;
     return this;
   }

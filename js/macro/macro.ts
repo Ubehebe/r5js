@@ -66,7 +66,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
    *
    * (let ((x let*)) x)
    */
-  setIsLetOrLetrecSyntax(): Macro /* TODO polymorphic this */ {
+  setIsLetOrLetrecSyntax(): this {
     this.isLetOrLetrecSyntax_ = true;
     return this;
   }
