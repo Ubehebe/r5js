@@ -21,7 +21,7 @@ export class Datum implements ObjectValue {
 
   constructor() {}
 
-  setImmutable(): Datum /* for chaining */ {
+  setImmutable(): this {
     this.immutable = true;
     return this;
   }

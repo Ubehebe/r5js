@@ -1,9 +1,6 @@
 import {Datum} from './datum';
 
-/**
- * Just a buffer to accumulate siblings without the client having to do
- * the pointer arithmetic.
- */
+/** A buffer to accumulate siblings without the client having to do the pointer arithmetic. */
 export class SiblingBuffer {
 
   private first: Datum|null = null;
@@ -13,7 +10,7 @@ export class SiblingBuffer {
         return !this.first;
     }
 
-    appendSibling(node: Datum): SiblingBuffer /* for chaining. TODO use polymorphic `this` */ {
+    appendSibling(node: Datum): this {
         if (!this.first) {
             this.first = node;
             this.last = node.lastSibling();

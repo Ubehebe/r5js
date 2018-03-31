@@ -188,8 +188,7 @@ export class CompoundDatum extends Datum {
    *     parameter.
    * @param transform Function that will transform children that pass the predicate.
    */
-  replaceChildren(predicate: (Datum) => boolean,
-                  transform: (Datum) => Datum | null): CompoundDatum /* for chaining TODO polymorphic this*/ {
+  replaceChildren(predicate: (Datum) => boolean, transform: (Datum) => Datum | null): this {
 
     for (let cur = this.firstChild, prev;
          cur;

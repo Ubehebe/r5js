@@ -1,3 +1,5 @@
+import {Value} from "../value";
+
 /**
  * Interface abstracted from {@link r5js.Environment}.
  *
@@ -28,8 +30,6 @@
  * wrapping and unwrapping.
  *
  */
-import {Value} from "../value";
-
 export interface Environment {
     addBinding(name: string, val: Value);
 
@@ -80,7 +80,7 @@ export interface Environment {
     addClosure(name: string, proc: any /* TODO UserDefinedProcedure */);
 
     /** @returns This environment, for chaining. */
-    addClosuresFrom(other: Environment): Environment;
+    addClosuresFrom(other: Environment): this;
 
     /**
      * @param otherEnv Environment whose closures this environment should use.
@@ -125,5 +125,5 @@ export interface Environment {
     child(): Environment;
 
     /** @returns this object, for chaining. */
-    allowRedefs(): Environment;
+    allowRedefs(): this;
 }
