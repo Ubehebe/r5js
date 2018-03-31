@@ -29,7 +29,7 @@ export class RuleFactory {
     return new AtLeast(nonterminal, 1, this.grammar);
   }
 
-  onePrimitive(ctor: new (any /* TODO should be generic */) => Datum): Rule {
+  onePrimitive<T>(ctor: new (payload: T) => SimpleDatum<T>): Rule {
     return new OnePrimitive(ctor);
   }
 
@@ -114,9 +114,9 @@ class AtLeast extends Rule {
   }
 }
 
-class OnePrimitive extends Rule {
+class OnePrimitive<T> extends Rule {
 
-  constructor(private readonly ctor: new (any) => Datum) {
+  constructor(private readonly ctor: new (payload: T) => SimpleDatum<T>) {
     super();
   }
 
