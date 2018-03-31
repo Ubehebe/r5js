@@ -29,7 +29,6 @@ ts_library(
         "eof.ts",
         "errors.ts",
         "lambda.ts",
-        "nil.ts",
         "proc_call.ts",
         "procedure.ts",
         "procspec.ts",
