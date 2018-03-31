@@ -17,4 +17,5 @@ ts_library(
         "//js:error",
         "//js/scan",
     ],
+    tsconfig = "//:tsconfig.json",
 )

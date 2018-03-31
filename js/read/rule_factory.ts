@@ -14,8 +14,7 @@ import {TokenStream} from '../scan/token_stream';
 
 export class RuleFactory {
 
-  constructor(private readonly grammar: Grammar) {
-  }
+  constructor(private readonly grammar: Grammar) {}
 
   one(terminalOrNonterminal: string | Nonterminal): Rule {
     return new One(terminalOrNonterminal, this.grammar);
@@ -44,19 +43,21 @@ export class RuleFactory {
 
 class One extends Rule {
 
-  private readonly type: string;
+  private readonly type: Nonterminal|string;
   private readonly grammar: Grammar;
 
   constructor(type: string | Nonterminal, grammar: Grammar) {
     super();
-    this.type = type.toString();
+    this.type = type;
     this.grammar = grammar;
   }
 
   /** @override */
   match(tokenStream: TokenStream): Datum | null {
     // The rule will be found in the grammar iff it is a nonterminal.
-    const rule = this.grammar.ruleFor(this.type);
+    const rule = this.type instanceof Nonterminal
+        ? this.grammar.ruleFor(this.type)
+        : null;
     return rule ? rule.match(tokenStream) : this.matchTerminal(tokenStream);
   }
 
@@ -78,15 +79,15 @@ const TERMINAL_SENTINEL = new Datum();
 
 class AtLeast extends Rule {
 
-  private readonly type: string;
+  private readonly type: Nonterminal;
   private readonly repetition: number;
 
   constructor(
-      type: string | Nonterminal,
+      type: Nonterminal,
       minRepetitions: number,
       private readonly grammar: Grammar) {
     super();
-    this.type = type.toString();
+    this.type = type;
     this.repetition = minRepetitions;
   }
 

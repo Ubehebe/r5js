@@ -2,7 +2,7 @@ import {Number} from "../ast/number";
 import {String} from "../ast/string";
 import {RuleFactory} from "./rule_factory";
 import {Boolean} from "../ast/boolean";
-import {DATUM, DATUMS} from "../parse/nonterminals";
+import {DATUM, DATUMS, Nonterminal} from "../parse/nonterminals";
 import {Identifier} from "../ast/identifier";
 import {Character} from "../ast/character";
 import {BACKTICK, COMMA, COMMA_AT, DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} from "../parse/terminals";
@@ -29,9 +29,9 @@ export function newReader(tokenStream: TokenStream): Reader {
   return new Impl(tokenStream);
 }
 
-const grammar: { [key: string]: Rule } = {};
+const grammar: Map<Nonterminal, Rule> = new Map();
 
-const _ = new RuleFactory({ruleFor: (nonterminal: string): Rule => grammar[nonterminal]});
+const _ = new RuleFactory({ruleFor: (nonterminal) => grammar.get(nonterminal)!});
 
 // <datum> -> <simple datum> | <compound datum>
 // <simple datum> -> <boolean> | <number> | <character> | <string> | <symbol>
@@ -41,7 +41,7 @@ const _ = new RuleFactory({ruleFor: (nonterminal: string): Rule => grammar[nonte
 // <vector> -> #(<datum>*)
 // <abbreviation> -> <abbrev prefix> <datum>
 // <abbrev prefix> -> ' | ` | , | ,@
-grammar[DATUM.toString()] = _.choice(
+grammar.set(DATUM, _.choice(
     _.onePrimitive(Identifier),
     _.onePrimitive(Boolean),
     _.onePrimitive(Number),
@@ -79,10 +79,10 @@ grammar[DATUM.toString()] = _.choice(
     _.seq(
         _.one(COMMA_AT),
         _.one(DATUM))
-        .named(UnquoteSplicing));
+        .named(UnquoteSplicing)));
 
 
-grammar[DATUMS.toString()] = _.zeroOrMore(DATUM);
+grammar.set(DATUMS, _.zeroOrMore(DATUM));
 
 class Impl implements Reader {
 
@@ -94,7 +94,7 @@ class Impl implements Reader {
 
   /** @override */
   read(): Datum {
-    const ans = grammar[DATUMS.toString()].match(this.scanner);
+    const ans = grammar.get(DATUMS)!.match(this.scanner);
     // All of the input tokens must be consumed for success.
     const nextToken = this.scanner.nextToken();
     if (nextToken) {

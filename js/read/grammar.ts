@@ -1,5 +1,6 @@
 import {Rule} from './rule';
+import {Nonterminal} from "../parse/nonterminals";
 
 export interface Grammar {
-  ruleFor(nonterminal: string /* TODO: should be Nonterminal*/): Rule;
+  ruleFor(nonterminal: Nonterminal): Rule;
 }
