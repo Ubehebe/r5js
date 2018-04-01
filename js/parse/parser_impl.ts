@@ -22,7 +22,7 @@ import {
   UNQUOTATION,
   VARIABLE, VECTOR_QQ_TEMPLATE
 } from "./nonterminals";
-import {Datum, getLastProcCallLike, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
+import {Datum, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
 import {Grammar} from "./parse_grammar";
 import {Rule} from "./parse_rule";
 import {RuleFactory} from "./parse_rule_factory";
@@ -53,6 +53,7 @@ import {Vector} from "../ast/vector";
 import {RenameHelper} from "../ast/rename_helper";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {Environment} from "../runtime/environment";
+import {getLastProcCallLike, ProcCallLike} from "../ast/proc_call_like";
 
 /* todo bl: this file should not exist.
 

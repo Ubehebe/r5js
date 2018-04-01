@@ -1,7 +1,7 @@
 import {EnvironmentImpl} from "../runtime/environment_impl";
 import {Error} from "../error";
 import {newTokenStream, TokenStream} from "../scan/token_stream";
-import {Datum, ProcCallLike, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
+import {Datum, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
 import {newReader, Reader} from "../read/reader";
 import {ParserImpl} from "../parse/parser_impl";
 import {Nonterminal, PROGRAM} from "../parse/nonterminals";
@@ -10,6 +10,7 @@ import {OutputPort} from "../io/output_port";
 import {trampoline} from "../runtime/trampoline";
 import {Environment} from "../runtime/environment";
 import {Value} from "../value";
+import {ProcCallLike} from "../ast/proc_call_like";
 
 export class Pipeline {
 

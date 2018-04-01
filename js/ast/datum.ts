@@ -2,6 +2,7 @@ import {Nonterminal} from '../parse/nonterminals';
 import {RenameHelper} from './rename_helper';
 import {Environment} from "../runtime/environment";
 import {ObjectValue, Value} from "../value";
+import {getLastProcCallLike, ProcCallLike} from "./proc_call_like";
 
 type DesugarFunc = (datum: Datum, env: Environment) => any;
 
@@ -199,84 +200,6 @@ export class Datum implements ObjectValue {
   toProcCallLike(): ProcCallLike {
     return new DatumShim(this);
   }
-}
-
-/**
- * TODO: this should be in its own module. It's lumped here to work around
- * a Closure Compiler optimization bug that was causing two (different) copies of ProcCallLike
- * to be written to the compiled output. See the commit description in the commit that added this
- * comment for more information.
- *
- * Hopefully, this will be obsolete once the TypeScript migration is finished.
- */
-export abstract class ProcCallLike {
-
-  protected resultName: string;
-  protected next: ProcCallLike|null;
-  protected env: Environment|null;
-
-  constructor(lastResultName:string=`@${counter++}`) {
-    this.resultName = lastResultName;
-    this.next = null;
-    this.env = null;
-  }
-
-  /**
-   * parserProvider Function that will return a new Parser for the given Datum when called.
-   */
-  abstract evalAndAdvance(
-      resultStruct: ProcCallResult /* TODO */,
-      env: Environment,
-      parserProvider: (Datum) => any /* TODO should be Parser*/);
-
-  getResultName(): string {
-    return this.resultName;
-  }
-
-  /** TODO bl remove. */
-  setResultName(resultName: string) {
-    this.resultName = resultName;
-  }
-
-  setStartingEnv(env: Environment) {
-    this.env = env;
-  }
-
-  getEnv(): Environment|null {
-    return this.env;
-  }
-
-  /** Clears the current environment. TODO bl not well understood. */
-  clearEnv() {
-    this.env = null;
-  }
-
-  getNext(): ProcCallLike|null {
-    return this.next;
-  }
-
-  setNext(next: ProcCallLike) {
-    this.next = next;
-  }
-
-  bindResult(val: Value) {
-    /* If the next procedure call already has an environment,
-     bind the result there. Otherwise, bind it in the current
-     environment; it will be carried forward by the EnvBuffer. */
-    const envToUse = (this.next && this.next.getEnv && this.next.getEnv()) || this.env;
-    envToUse && envToUse.addBinding && envToUse.addBinding(this.resultName, val);
-  }
-}
-
-let counter: number = 0;
-
-export function appendProcCallLike(procCallLike: ProcCallLike, next: ProcCallLike) {
-  getLastProcCallLike(procCallLike).setNext(next);
-}
-
-export function getLastProcCallLike(procCallLike: ProcCallLike): ProcCallLike {
-  const maybeNext = procCallLike.getNext();
-  return maybeNext ? getLastProcCallLike(maybeNext) : procCallLike;
 }
 
 export class ProcCallResult {

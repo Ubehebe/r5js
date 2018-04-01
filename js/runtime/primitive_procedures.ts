@@ -15,7 +15,7 @@ import {CompoundDatum} from "../ast/compound_datum";
 import {CdrHelperImpl, DottedList, List} from "../ast/list";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {argumentTypeError} from "./errors";
-import {appendProcCallLike, Datum, getLastProcCallLike, UNSPECIFIED_VALUE} from "../ast/datum";
+import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
 import {Vector} from "../ast/vector";
 import {Boolean} from "../ast/boolean";
 import {Number} from "../ast/number";
@@ -36,6 +36,7 @@ import {Continuation} from "./continuation";
 import {CallWithCurrentContinuation} from "./call_with_current_continuation";
 import {Environment} from "./environment";
 import {Value} from "../value";
+import {appendProcCallLike, getLastProcCallLike} from "../ast/proc_call_like";
 
 let nullEnv: Environment | null = null;
 let r5RSEnv: Environment | null = null;

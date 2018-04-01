@@ -1,5 +1,5 @@
 import {TopLevelAssignment} from "./top_level_assignment";
-import {ProcCallLike} from "../ast/datum";
+import {ProcCallLike} from "../ast/proc_call_like";
 import {Identifier} from "../ast/identifier";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 

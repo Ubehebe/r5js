@@ -1,7 +1,7 @@
 import {Error} from "../error";
 import * as Types from "../ast/types";
 import {argumentTypeError} from "./errors";
-import {Datum, ProcCallLike, ProcCallResult} from "../ast/datum";
+import {Datum, ProcCallResult} from "../ast/datum";
 import {Procedure} from "./procedure";
 import {TrampolineHelper} from "./trampoline_helper";
 import {wrapValue} from "../ast/datum_util";
@@ -21,6 +21,7 @@ import {Boolean} from "../ast/boolean";
 import {Type} from "../ast/type";
 import {Value} from "../value";
 import {Environment} from "./environment";
+import {ProcCallLike} from "../ast/proc_call_like";
 
 export interface NumArgChecker {
   checkNumArgs(numArgs: number, nameToShowInErrorMessage: string);

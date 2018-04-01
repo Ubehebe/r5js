@@ -1,4 +1,4 @@
-import {ProcCallLike, getLastProcCallLike} from './datum';
+import {getLastProcCallLike, ProcCallLike} from './proc_call_like';
 
 /**
  * A buffer to accumulate a Continuable-Continuation chain

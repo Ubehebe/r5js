@@ -1,5 +1,5 @@
 import {Procedure} from "./procedure";
-import {Datum, getLastProcCallLike, ProcCallLike} from "../ast/datum";
+import {Datum} from "../ast/datum";
 import {List} from "../ast/list";
 import {ProcCall} from "./proc_call";
 import {Identifier} from "../ast/identifier";
@@ -13,6 +13,7 @@ import {CompoundDatum} from "../ast/compound_datum";
 import {Quote} from "../ast/quote";
 import {Environment} from "./environment";
 import {Value} from "../value";
+import {getLastProcCallLike, ProcCallLike} from "../ast/proc_call_like";
 
 export class UserDefinedProcedure extends Procedure {
 

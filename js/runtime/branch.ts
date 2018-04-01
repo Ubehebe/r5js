@@ -1,6 +1,7 @@
-import {getLastProcCallLike, ProcCallLike, ProcCallResult} from "../ast/datum";
+import {ProcCallResult} from "../ast/datum";
 import {Parser} from "../parse/parser";
 import {Environment} from "./environment";
+import {getLastProcCallLike, ProcCallLike} from "../ast/proc_call_like";
 
 export class Branch extends ProcCallLike {
 

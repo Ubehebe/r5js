@@ -1,4 +1,4 @@
-import {Datum, getLastProcCallLike, ProcCallLike, ProcCallResult} from "../ast/datum";
+import {Datum, ProcCallResult} from "../ast/datum";
 import {Transformer} from "./transformer";
 import {Identifier} from "../ast/identifier";
 import {CompoundDatum} from "../ast/compound_datum";
@@ -11,6 +11,7 @@ import {List} from "../ast/list";
 import {Error} from "../error";
 import {ObjectValue} from "../value";
 import {Environment} from "../runtime/environment";
+import {getLastProcCallLike, ProcCallLike} from "../ast/proc_call_like";
 
 export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
 

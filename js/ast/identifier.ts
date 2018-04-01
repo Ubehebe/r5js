@@ -1,10 +1,11 @@
 import {SimpleDatum} from "./simple_datum";
 import {CPS_PREFIX, isParserSensitiveId} from "../parse/rename_util";
 import {RenameHelper} from "./rename_helper";
-import {ProcCallLike, ProcCallResult} from "./datum";
+import {ProcCallResult} from "./datum";
 import {COMMA} from "../parse/terminals";
 import {Environment} from "../runtime/environment";
 import {Value} from "../value";
+import {ProcCallLike} from "./proc_call_like";
 
 export class Identifier extends SimpleDatum<string> {
   constructor(name: string) {

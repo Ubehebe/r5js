@@ -21,6 +21,7 @@ ts_library(
         "list.ts",
         "macro.ts",
         "number.ts",
+        "proc_call_like.ts",
         "quasiquote.ts",
         "quote.ts",
         "ref.ts",

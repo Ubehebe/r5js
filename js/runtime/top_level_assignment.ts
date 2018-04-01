@@ -1,7 +1,7 @@
 import {Assignment} from "./assignment";
 import {Identifier} from "../ast/identifier";
 import {SiblingBuffer} from "../ast/sibling_buffer";
-import {ProcCallLike} from "../ast/datum";
+import {ProcCallLike} from "../ast/proc_call_like";
 import {Value} from "../value";
 
 export class TopLevelAssignment extends Assignment {
