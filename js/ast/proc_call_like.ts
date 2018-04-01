@@ -1,6 +1,11 @@
 import {Environment} from "../runtime/environment";
 import {Value} from "../value";
-import {ProcCallResult} from "./datum";
+
+export interface ProcCallResult {
+  setNext(procCallLike: ProcCallLike);
+  setValue(value: Value);
+  getNextProcCallLike(): ProcCallLike | null;
+}
 
 export abstract class ProcCallLike {
 

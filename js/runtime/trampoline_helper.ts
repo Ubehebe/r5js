@@ -1,10 +1,10 @@
-import {ProcCallResult, UNSPECIFIED_VALUE} from "../ast/datum";
+import {UNSPECIFIED_VALUE} from "../ast/datum";
 import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
 import {Value} from "../value";
-import {ProcCallLike} from "../ast/proc_call_like";
+import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 
-export class TrampolineHelper extends ProcCallResult {
+export class TrampolineHelper implements ProcCallResult {
 
   private beforeThunk: ProcCallLike | null = null;
   private nextContinuable: ProcCallLike | null = null;
@@ -12,9 +12,7 @@ export class TrampolineHelper extends ProcCallResult {
 
   constructor(
       private readonly inputPort: InputPort,
-      private readonly outputPort: OutputPort) {
-    super();
-  }
+      private readonly outputPort: OutputPort) {}
 
   /** Clears the object's state. TODO bl: not {@link beforeThunk}? */
   clear() {

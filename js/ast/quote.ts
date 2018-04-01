@@ -1,5 +1,5 @@
 import {CompoundDatum} from './compound_datum';
-import {Datum, ProcCallResult, UNSPECIFIED_VALUE} from './datum';
+import {Datum, UNSPECIFIED_VALUE} from './datum';
 import {Identifier} from './identifier';
 import {Ref} from './ref';
 import {wrapValue} from './datum_util';
@@ -9,7 +9,7 @@ import {List} from './list';
 import {QUOTE} from '../parse/terminals';
 import {Value} from "../value";
 import {Environment} from "../runtime/environment";
-import {ProcCallLike} from "./proc_call_like";
+import {ProcCallLike, ProcCallResult} from "./proc_call_like";
 
 export class Quote extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
   constructor(firstChild: Datum | null) {

@@ -1,6 +1,6 @@
 import {CompoundDatum} from './compound_datum';
 import {ContinuableHelper} from './continuable_helper';
-import {Datum, ProcCallResult} from './datum';
+import {Datum} from './datum';
 import {Identifier} from './identifier';
 import {Quote} from './quote';
 import {Unquote} from './unquote';
@@ -8,7 +8,7 @@ import {UnquoteSplicing} from './unquote_splicing';
 import {EXPRESSION} from '../parse/nonterminals';
 import {COMMA, COMMA_AT} from '../parse/terminals';
 import {Environment} from "../runtime/environment";
-import {appendProcCallLike, getLastProcCallLike, ProcCallLike} from "./proc_call_like";
+import {appendProcCallLike, getLastProcCallLike, ProcCallLike, ProcCallResult} from "./proc_call_like";
 
 export class Quasiquote extends CompoundDatum {
   constructor(firstChild: Datum) {

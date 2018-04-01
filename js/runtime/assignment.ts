@@ -1,4 +1,4 @@
-import {ProcCallResult, UNSPECIFIED_VALUE} from "../ast/datum";
+import {UNSPECIFIED_VALUE} from "../ast/datum";
 import {Identifier} from "../ast/identifier";
 import {Macro} from "../macro/macro";
 import {Error} from "../error";
@@ -7,7 +7,7 @@ import {SiblingBuffer} from "../ast/sibling_buffer";
 import {Parser} from "../parse/parser";
 import {Environment} from "./environment";
 import {Value} from "../value";
-import {ProcCallLike} from "../ast/proc_call_like";
+import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 
 export class Assignment extends ProcCallLike {
 

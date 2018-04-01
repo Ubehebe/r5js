@@ -1,4 +1,4 @@
-import {Datum, ProcCallResult, UNSPECIFIED_VALUE} from "../ast/datum";
+import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
 import {Identifier} from "../ast/identifier";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {List} from "../ast/list";
@@ -16,7 +16,7 @@ import {Parser} from "../parse/parser";
 import {Lambda} from "./lambda";
 import {Environment} from "./environment";
 import {Value} from "../value";
-import {getLastProcCallLike, ProcCallLike} from "../ast/proc_call_like";
+import {getLastProcCallLike, ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 
 export class ProcCall extends ProcCallLike {
 

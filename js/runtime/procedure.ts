@@ -1,4 +1,4 @@
-import {ProcCallResult} from "../ast/datum";
+import {ProcCallResult} from "../ast/proc_call_like";
 import {ObjectValue, Value} from "../value";
 import {Environment} from "./environment";
 import {ProcCallLike} from "../ast/proc_call_like";
