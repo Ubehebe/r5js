@@ -60,15 +60,15 @@ export abstract class ProcCallLike {
     const envToUse: Environment|null = (this.next && this.next.getEnv()) || this.env;
     envToUse && envToUse.addBinding(this.resultName, val);
   }
+
+  getLast(): ProcCallLike {
+    const maybeNext = this.getNext();
+    return maybeNext ? maybeNext.getLast() : this;
+  }
+
+  append(last: ProcCallLike) {
+    this.getLast().setNext(last);
+  }
 }
 
 let counter: number = 0;
-
-export function getLastProcCallLike(procCallLike: ProcCallLike): ProcCallLike {
-  const maybeNext = procCallLike.getNext();
-  return maybeNext ? getLastProcCallLike(maybeNext) : procCallLike;
-}
-
-export function appendProcCallLike(procCallLike: ProcCallLike, next: ProcCallLike) {
-  getLastProcCallLike(procCallLike).setNext(next);
-}

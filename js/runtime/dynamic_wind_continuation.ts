@@ -1,7 +1,7 @@
 import {Continuation} from "./continuation";
 import {ProcCallResult} from "../ast/proc_call_like";
 import {Value} from "../value";
-import {appendProcCallLike, ProcCallLike} from "../ast/proc_call_like";
+import {ProcCallLike} from "../ast/proc_call_like";
 
 /**
  * Just for call/ccs inside dynamic-winds.
@@ -23,7 +23,7 @@ export class DynamicWindContinuation extends Continuation {
     resultStruct.setValue(arg);
     resultStruct.setNext(this.thunk);
     if (this.nextContinuable) {
-      appendProcCallLike(this.thunk, this.nextContinuable);
+      this.thunk.append(this.nextContinuable);
     }
     Continuation.repairInfiniteLoop(procCallLike, resultStruct);
   }

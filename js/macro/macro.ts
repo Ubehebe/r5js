@@ -11,7 +11,7 @@ import {List} from "../ast/list";
 import {Error} from "../error";
 import {ObjectValue} from "../value";
 import {Environment} from "../runtime/environment";
-import {getLastProcCallLike, ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
+import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 
 export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
 
@@ -232,7 +232,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
         newParseTree.desugar(newEnv, true));
     newContinuable.setStartingEnv(newEnv);
 
-    const last = getLastProcCallLike(newContinuable);
+    const last = newContinuable.getLast();
     if (next) {
       last.setNext(next);
     }

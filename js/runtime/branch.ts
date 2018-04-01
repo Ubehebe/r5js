@@ -1,7 +1,7 @@
 import {ProcCallResult} from "../ast/proc_call_like";
 import {Parser} from "../parse/parser";
 import {Environment} from "./environment";
-import {getLastProcCallLike, ProcCallLike} from "../ast/proc_call_like";
+import {ProcCallLike} from "../ast/proc_call_like";
 
 export class Branch extends ProcCallLike {
 
@@ -12,8 +12,8 @@ export class Branch extends ProcCallLike {
               private readonly consequent: ProcCallLike,
               private readonly alternate: ProcCallLike) {
     super();
-    this.consequentLastContinuable = getLastProcCallLike(this.consequent);
-    this.alternateLastContinuable = getLastProcCallLike(this.alternate);
+    this.consequentLastContinuable = this.consequent.getLast();
+    this.alternateLastContinuable = this.alternate.getLast();
   }
 
   /** @override */

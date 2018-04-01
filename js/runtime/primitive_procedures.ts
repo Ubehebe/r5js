@@ -36,7 +36,6 @@ import {Continuation} from "./continuation";
 import {CallWithCurrentContinuation} from "./call_with_current_continuation";
 import {Environment} from "./environment";
 import {Value} from "../value";
-import {appendProcCallLike, getLastProcCallLike} from "../ast/proc_call_like";
 
 let nullEnv: Environment | null = null;
 let r5RSEnv: Environment | null = null;
@@ -755,14 +754,12 @@ PrimitiveProcedures['dynamic-wind'] = ternaryWithSpecialEvalLogic(
       procCall.getFirstOperand()!.getNextSibling() as Identifier,
       null /* no arguments */);
 
-    appendProcCallLike(
-      procCallAfter,
+    procCallAfter.append(
       new Identifier(procCallThunk.getResultName()).toProcCallLike());
-    getLastProcCallLike(procCallAfter).setNext(procCallLike.getNext()!);
+    procCallAfter.getLast().setNext(procCallLike.getNext()!);
 
-
-    appendProcCallLike(procCallThunk, procCallAfter);
-    appendProcCallLike(procCallBefore, procCallThunk);
+    procCallThunk.append(procCallAfter);
+    procCallBefore.append(procCallThunk);
 
     resultStruct.setNext(procCallBefore);
     /* We use the TrampolineResultStruct to store the thunk.

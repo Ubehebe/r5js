@@ -13,7 +13,7 @@ import {CompoundDatum} from "../ast/compound_datum";
 import {Quote} from "../ast/quote";
 import {Environment} from "./environment";
 import {Value} from "../value";
-import {getLastProcCallLike, ProcCallLike} from "../ast/proc_call_like";
+import {ProcCallLike} from "../ast/proc_call_like";
 
 export class UserDefinedProcedure extends Procedure {
 
@@ -30,7 +30,7 @@ export class UserDefinedProcedure extends Procedure {
     super();
     this.env = env.child();
     this.body = bodyStart && this.setupBody(bodyStart) ;
-    this.last = this.body && getLastProcCallLike(this.body);
+    this.last = this.body && this.body.getLast();
   }
 
   getName(): string {

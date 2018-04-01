@@ -2,7 +2,7 @@ import {Nonterminal} from '../parse/nonterminals';
 import {RenameHelper} from './rename_helper';
 import {Environment} from "../runtime/environment";
 import {ObjectValue} from "../value";
-import {getLastProcCallLike, ProcCallLike, ProcCallResult} from "./proc_call_like";
+import {ProcCallLike, ProcCallResult} from "./proc_call_like";
 
 type DesugarFunc = (datum: Datum, env: Environment) => any;
 
@@ -148,7 +148,7 @@ export class Datum implements ObjectValue {
         } else if (curEnd) {
           curEnd.setNext(desugaredProcCallLike);
         }
-        curEnd = getLastProcCallLike(desugaredProcCallLike);
+        curEnd = desugaredProcCallLike.getLast();
       }
     }
 

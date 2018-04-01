@@ -1,4 +1,4 @@
-import {getLastProcCallLike, ProcCallLike} from './proc_call_like';
+import {ProcCallLike} from './proc_call_like';
 
 /**
  * A buffer to accumulate a Continuable-Continuation chain
@@ -15,7 +15,7 @@ export class ContinuableHelper {
     } else {
       this.lastProcCallLike!.setNext(procCallLike);
     }
-    this.lastProcCallLike = getLastProcCallLike(procCallLike);
+    this.lastProcCallLike = procCallLike.getLast();
   }
 
   toContinuable(): ProcCallLike | null {

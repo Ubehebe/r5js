@@ -8,7 +8,7 @@ import {UnquoteSplicing} from './unquote_splicing';
 import {EXPRESSION} from '../parse/nonterminals';
 import {COMMA, COMMA_AT} from '../parse/terminals';
 import {Environment} from "../runtime/environment";
-import {appendProcCallLike, getLastProcCallLike, ProcCallLike, ProcCallResult} from "./proc_call_like";
+import {ProcCallLike, ProcCallResult} from "./proc_call_like";
 
 export class Quasiquote extends CompoundDatum {
   constructor(firstChild: Datum) {
@@ -55,7 +55,7 @@ export class Quasiquote extends CompoundDatum {
           const name = (node instanceof Unquote
               ? COMMA
               : COMMA_AT) + '' + counter++;
-          const last = getLastProcCallLike(asContinuable);
+          const last = asContinuable.getLast();
           last.setResultName(name);
           newCalls.appendProcCallLike(asContinuable);
           return new Identifier(name);
@@ -103,7 +103,7 @@ class QuasiquoteShim extends ProcCallLike {
     const continuable = quasiquote.processQuasiquote(this.getEnv()!, parserProvider);
     const next = this.getNext();
     if (next) {
-      appendProcCallLike(continuable, next);
+      continuable.append(next);
     }
     return continuable;
   }

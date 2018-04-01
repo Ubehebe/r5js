@@ -53,7 +53,7 @@ import {Vector} from "../ast/vector";
 import {RenameHelper} from "../ast/rename_helper";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {Environment} from "../runtime/environment";
-import {getLastProcCallLike, ProcCallLike} from "../ast/proc_call_like";
+import {ProcCallLike} from "../ast/proc_call_like";
 
 /* todo bl: this file should not exist.
 
@@ -275,8 +275,8 @@ grammar[PROCEDURE_CALL as any] = _.list(
 
   // Example: ((f x) y) => (f x [_0 (_0 y [_1 ...])])
   else {
-    const desugaredOp = operatorNode!.desugar(env);
-    const last = getLastProcCallLike(desugaredOp);
+    const desugaredOp: ProcCallLike = operatorNode!.desugar(env);
+    const last = desugaredOp.getLast();
     const opName = last.getResultName();
     last.setNext(new ProcCall(
         new Identifier(opName), operands));
@@ -387,8 +387,8 @@ grammar[DEFINITION as any] = _.choice(
       // and rewritten as letrec bindings, so they never get here.
       // todo bl: make this flow of control explicit.
       const variable = node.at(VARIABLE) as SimpleDatum<string>;
-      const desugaredExpr = variable.getNextSibling()!.desugar(env, true);
-      const last = getLastProcCallLike(desugaredExpr);
+      const desugaredExpr: ProcCallLike = variable.getNextSibling()!.desugar(env, true);
+      const last = desugaredExpr.getLast();
       const cpsName = last.getResultName();
       last.setNext(
           TopLevelAssignment.of(variable.getPayload(), cpsName));
@@ -455,10 +455,10 @@ grammar[CONDITIONAL as any] = _.choice(
         _.one(TEST),
         _.one(CONSEQUENT),
         _.one(ALTERNATE)).desugar((node, env) => {
-      const test = node.at(TEST)!.desugar(env, true);
+      const test: ProcCallLike = node.at(TEST)!.desugar(env, true);
       const consequent = node.at(CONSEQUENT)!.desugar(env, true);
       const alternate = node.at(ALTERNATE)!.desugar(env, true);
-      const testEndpoint = getLastProcCallLike(test);
+      const testEndpoint = test.getLast();
       const branch = new Branch(testEndpoint.getResultName(),
           consequent, alternate);
       testEndpoint.setNext(branch);
@@ -468,9 +468,9 @@ grammar[CONDITIONAL as any] = _.choice(
         _.one(IF),
         _.one(TEST),
         _.one(CONSEQUENT)).desugar((node, env) => {
-      const test = node.at(TEST)!.desugar(env, true);
+      const test: ProcCallLike = node.at(TEST)!.desugar(env, true);
       const consequent = node.at(CONSEQUENT)!.desugar(env, true);
-      const testEndpoint = getLastProcCallLike(test);
+      const testEndpoint = test.getLast();
       const branch = new Branch(
           testEndpoint.getResultName(),
           consequent,
@@ -499,8 +499,8 @@ grammar[ASSIGNMENT as any] = _.list(
     _.one(EXPRESSION)).desugar((node, env) => {
   // (set! x (+ y z)) => (+ y z [_0 (set! x _0 ...)])
   const variable = node.at(VARIABLE) as SimpleDatum<string>;
-  const desugaredExpr = variable.getNextSibling()!.desugar(env, true);
-  const lastContinuable = getLastProcCallLike(desugaredExpr);
+  const desugaredExpr: ProcCallLike = variable.getNextSibling()!.desugar(env, true);
+  const lastContinuable = desugaredExpr.getLast();
   const cpsName = lastContinuable.getResultName();
   lastContinuable.setNext(
       Assignment.create(variable.getPayload(), cpsName));

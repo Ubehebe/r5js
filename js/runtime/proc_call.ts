@@ -16,7 +16,7 @@ import {Parser} from "../parse/parser";
 import {Lambda} from "./lambda";
 import {Environment} from "./environment";
 import {Value} from "../value";
-import {getLastProcCallLike, ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
+import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 
 export class ProcCall extends ProcCallLike {
 
@@ -84,15 +84,14 @@ export class ProcCall extends ProcCallLike {
       } else if (arg instanceof Quasiquote) {
         maybeContinuable = arg.processQuasiquote(this.getEnv()!, parserProvider);
         finalArgs.appendSibling(
-            new Identifier(getLastProcCallLike(
-                maybeContinuable).getResultName()));
+            new Identifier(maybeContinuable.getLast().getResultName()));
         newCallChain.appendProcCallLike(maybeContinuable);
       } else if (arg.isImproperList()) {
         throw Error.internalInterpreterError('TODO bl');
       } else if ((maybeContinuable = arg.desugar(this.getEnv()!)) instanceof ProcCallLike) {
         // TODO: is it an invariant violation to be a list and not to desugar to a Continuable?
         finalArgs.appendSibling(
-            new Identifier(getLastProcCallLike(maybeContinuable).getResultName()));
+            new Identifier(maybeContinuable.getLast().getResultName()));
         newCallChain.appendProcCallLike(maybeContinuable);
       } else {
         const clonedArg = arg.clone(null /* parent */);
@@ -104,7 +103,7 @@ export class ProcCall extends ProcCallLike {
         new ProcCall(this.operatorName, finalArgs.toSiblings()));
 
     const ans = newCallChain.toContinuable()!;
-    const lastContinuable = getLastProcCallLike(ans);
+    const lastContinuable = ans.getLast();
     const next = this.getNext();
     if (next) {
       lastContinuable.setNext(next);
