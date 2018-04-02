@@ -8,26 +8,25 @@ export class Error {
 
     static unboundVariable(name: string) {
         return new Error(
-            ErrorType.UNBOUND_VARIABLE,
-            name + ' is not defined');
+            ErrorType.UNBOUND_VARIABLE, `${name} is not defined`);
     }
 
     static tooFewVarargs(name: string, minNumArgs: number, actualNumArgs: number) {
         return new Error(
             ErrorType.TOO_FEW_VARARGS,
-            name + ': want >= ' + minNumArgs + ' args, got ' + actualNumArgs);
+            `${name}: want >= ${minNumArgs} args, got ${actualNumArgs}`);
     }
 
     static tooManyVarargs(name: string, maxNumArgs: number, actualNumArgs: number) {
         return new Error(
             ErrorType.TOO_MANY_VARARGS,
-            name + ': want <= ' + maxNumArgs + ' args, got ' + actualNumArgs);
+            `${name}: want <= ${maxNumArgs} args, got ${actualNumArgs}`);
     }
 
     static incorrectNumArgs(name: string, expectedNumArgs: number, actualNumArgs: number) {
         return new Error(
             ErrorType.INCORRECT_NUM_ARGS,
-            name + ': want ' + expectedNumArgs + ' args, got ' + actualNumArgs);
+            `${name}: want ${expectedNumArgs} args, got ${actualNumArgs}`);
     }
 
     static internalInterpreterError(msg: string) {
@@ -35,15 +34,11 @@ export class Error {
     }
 
     static macro(keyword: string, msg: string) {
-        return new Error(
-            ErrorType.MACRO,
-            'macro ' + keyword + ': ' + msg);
+        return new Error(ErrorType.MACRO, `macro ${keyword}: ${msg}`);
     }
 
     static unimplementedOption(what: string) {
-        return new Error(
-            ErrorType.UNIMPLEMENTED_OPTION,
-            'unimplemented: ' + what);
+        return new Error(ErrorType.UNIMPLEMENTED_OPTION, `unimplemented: ${what}`);
     }
 
     static quasiquote(what: string) {
@@ -55,7 +50,7 @@ export class Error {
     }
 
     static parse(what: any) {
-        return new Error(ErrorType.PARSE, 'parse error: ' + what);
+        return new Error(ErrorType.PARSE, `parse error: ${what}`);
     }
 
     static immutable(what: string) {
@@ -63,7 +58,7 @@ export class Error {
     }
 
     static scan(what: string) {
-        return new Error(ErrorType.SCAN, 'scan error: ' + what);
+        return new Error(ErrorType.SCAN, `scan error: ${what}`);
     }
 }
 
