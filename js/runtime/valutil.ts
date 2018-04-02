@@ -11,6 +11,7 @@ import {UserDefinedProcedure} from "./user_defined_procedure";
 import {isInputPort} from "../io/input_port";
 import {isOutputPort} from "../io/output_port";
 import {Value} from "../value";
+import {SimpleDatum} from "../ast/simple_datum";
 
 /*
  * Implementation note: a richer representation of Scheme values would
@@ -101,8 +102,10 @@ function toString(includeSigils: boolean, value: Value): string {
         return '<input-port>';
       } else if (isOutputPort(value)) {
         return '<output-port>';
-      } else if (value instanceof Datum) {
+      } else if (value instanceof SimpleDatum) {
         return toString(includeSigils, value.unwrap());
+      } else if (value instanceof Datum) {
+        return toString(includeSigils, value);
       } else {
         return value.toString();
       }

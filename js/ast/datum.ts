@@ -165,24 +165,6 @@ export class Datum implements ObjectValue {
   }
 
   /**
-   * Datums representing identifiers, strings, and characters
-   * all have payloads of type string. If they all unwrapped as JavaScript
-   * strings, it would be impossible to re-wrap them correctly
-   * (noninjective mapping). We choose to store identifiers unwrapped
-   * because they're expected to be more common than the other two.
-   *
-   * Environment specifiers cannot be unwrapped to their Environment
-   * payloads because Environment values in Environments already have
-   * a meaning, namely, a redirect to look up the name in some other
-   * Environment.
-   *
-   * Finally, the vector stuff may need to be overhauled.
-   */
-  unwrap(): any /* TODO */ {
-    return this;
-  }
-
-  /**
    * @returns the last sibling of this Datum, or this Datum if it's
    * the last sibling.
    */

@@ -22,6 +22,7 @@ import {Type} from "../ast/type";
 import {Value} from "../value";
 import {Environment} from "./environment";
 import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
+import {SimpleDatum} from "../ast/simple_datum";
 
 export interface NumArgChecker {
   checkNumArgs(numArgs: number, nameToShowInErrorMessage: string);
@@ -92,7 +93,7 @@ class ArgumentTypeCheckerAndUnwrapperImpl implements ArgumentTypeCheckerAndUnwra
         const actualType = runtimeType(arg);
         throw argumentTypeError(arg, i, nameToShowInErrorMessage, expectedType, actualType);
       }
-      unwrappedArgs.push(arg instanceof Datum ? arg.unwrap() : arg);
+      unwrappedArgs.push(arg instanceof SimpleDatum ? arg.unwrap() : arg);
     }
     return unwrappedArgs;
   }
@@ -119,7 +120,7 @@ class AllArgsOfType implements ArgumentTypeCheckerAndUnwrapper {
         throw argumentTypeError(
             arg, i, nameToShowInErrorMessage, argtype, runtimeType(arg));
       }
-      return arg instanceof Datum ? arg.unwrap() : arg;
+      return arg instanceof SimpleDatum ? arg.unwrap() : arg;
     });
   }
 }

@@ -10,6 +10,7 @@ import {notAProcedure} from "./errors";
 import {CPS_PREFIX} from "../parse/rename_util";
 import {Environment} from "./environment";
 import {Value} from "../value";
+import {SimpleDatum} from "../ast/simple_datum";
 
 export class EnvironmentImpl implements Environment {
 
@@ -160,7 +161,7 @@ export class EnvironmentImpl implements Environment {
       (val as Macro).setDefinitionEnv(this);
     }
 
-    this.bindings[name] = val instanceof Datum ? val.unwrap() : val;
+    this.bindings[name] = val instanceof SimpleDatum ? val.unwrap() : val;
   }
 
   /** @override */
