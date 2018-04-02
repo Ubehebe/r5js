@@ -27,7 +27,8 @@ ts_library(
         ":terminals",
         "//js/ast:datum",
         "//js/runtime:environment",
-    ]
+    ],
+    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
@@ -39,6 +40,7 @@ ts_library(
         ":nonterminals",
         "//js/ast:datum",
     ],
+    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
@@ -59,6 +61,7 @@ ts_library(
         "//js/runtime",
         "//js/runtime:environment",
     ],
+    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
