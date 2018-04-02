@@ -68,7 +68,6 @@ export enum ErrorType {
     IMMUTABLE = 'immutable error',
     INCORRECT_NUM_ARGS = 'incorrect number of args',
     INTERNAL_INTERPRETER_ERROR = 'internal interpreter error',
-    IO = 'I/O error',
     MACRO = 'macro error',
     NOT_A_PROCEDURE = 'not a procedure',
     PARSE = 'parse error',
