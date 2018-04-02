@@ -4,14 +4,14 @@ import {Identifier} from './identifier';
 import {Ref} from './ref';
 import {wrapValue} from './datum_util';
 import {Error} from '../error';
-import {addImplementation as addPairImpl} from './ipair';
+import {Pair} from './pair';
 import {List} from './list';
 import {QUOTE} from '../parse/terminals';
 import {Value} from "../value";
 import {Environment} from "../runtime/environment";
 import {ProcCallLike, ProcCallResult} from "./proc_call_like";
 
-export class Quote extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
+export class Quote extends Pair {
   constructor(firstChild: Datum | null) {
     super();
     firstChild && this.setFirstChild(firstChild.setImmutable());
@@ -34,8 +34,6 @@ export class Quote extends CompoundDatum /* implicitly implements IPair (structu
     return new QuoteShim(this);
   }
 }
-
-addPairImpl(Quote);
 
 const CAR = new Identifier(QUOTE);
 

@@ -2,11 +2,11 @@ import {CdrHelper} from './cdr_helper';
 import {CompoundDatum} from './compound_datum';
 import {Datum} from './datum';
 import {SiblingBuffer} from './sibling_buffer';
-import {addImplementation} from './ipair';
+import {Pair} from './pair';
 import {Error} from '../error';
 import {Value} from "../value";
 
-export class List extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
+export class List extends Pair {
 
   private dirty: boolean = false;
   private dotted: boolean = false;
@@ -84,9 +84,7 @@ export class List extends CompoundDatum /* implicitly implements IPair (structur
   }
 }
 
-addImplementation(List);
-
-export class DottedList extends CompoundDatum /* implicitly implements IPair (structural interface) */ {
+export class DottedList extends Pair {
   constructor(firstChild: Datum | null) {
     super();
     firstChild && this.setFirstChild(firstChild);
@@ -121,8 +119,6 @@ export class DottedList extends CompoundDatum /* implicitly implements IPair (st
     }
   }
 }
-
-addImplementation(DottedList);
 
 export class CdrHelperImpl extends CdrHelper {
 

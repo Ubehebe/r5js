@@ -17,7 +17,7 @@ ts_library(
         "datum.ts",
         "datum_util.ts",
         "identifier.ts",
-        "ipair.ts",
+        "pair.ts",
         "list.ts",
         "macro.ts",
         "number.ts",

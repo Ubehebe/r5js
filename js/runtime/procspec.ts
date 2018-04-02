@@ -14,7 +14,7 @@ import {Lambda} from "./lambda";
 import {Continuation} from "./continuation";
 import {Vector} from "../ast/vector";
 import {Identifier} from "../ast/identifier";
-import {isImplementedBy} from "../ast/ipair";
+import {Pair} from "../ast/pair";
 import {String} from "../ast/string";
 import {Number} from "../ast/number";
 import {Boolean} from "../ast/boolean";
@@ -312,7 +312,7 @@ Predicates['null?'] = unary(node => node instanceof List && !node.getFirstChild(
 Predicates['number?'] = unary(node => node instanceof Number);
 Predicates['output-port?'] = unary(port => isOutputPort(port));
 // 3.2: (pair? '()) => #f
-Predicates['pair?'] = unary(node => isImplementedBy(node) && !!node.getFirstChild());
+Predicates['pair?'] = unary(node => node instanceof Pair && !!node.getFirstChild());
 Predicates['port?'] = unary(port => isInputPort(port) || isOutputPort(port));
 /* R5RS 6.4: "The procedure call-with-current-continuation
  packages up the current continuation as an "escape procedure"
