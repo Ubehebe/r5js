@@ -51,7 +51,7 @@ import {Environment} from "../runtime/environment";
  * 8. Transcribe x with child1.child1 => e
  * 9. Transcribe x with [no more children] => false. Reset cur child.
  * 10. Transcribe y with child1.child0 => d
- * 11. Transcribe y with chid1.child1 => f
+ * 11. Transcribe y with child1.child1 => f
  * 12. Transcribe y with [no more children] => false. Reset cur child.
  * [6 completes as ((c e) (d f))]
  * 13. Transcribe ((x ...) (y ...)) with [no more children] => false.
@@ -66,12 +66,12 @@ export class TemplateBindings {
   private readonly bindings: { [key: string]: Datum } = {};
   private readonly children: TemplateBindings[] = [];
   private curChild: number = 0;
-  private readonly renameInTemplate: { [key: string]: any } = {};
+  private readonly renameInTemplate: Set<string> = new Set();
 
   constructor(
       private readonly letSyntaxEnv: Environment,
       private readonly patternIds: { [key: string]: number },
-      private readonly templateRenameCandidates: { [key: string]: boolean }) {}
+      private readonly templateRenameCandidates: Set<string>) {}
 
   resetCurChild(): this {
     this.curChild = 0;
@@ -118,8 +118,8 @@ export class TemplateBindings {
   private maybeRenameId(datum: Datum) {
     if (datum instanceof Identifier) {
       const id = datum.getPayload();
-      if (this.templateRenameCandidates[id]) {
-        this.renameInTemplate[id] = true;
+      if (this.templateRenameCandidates.has(id)) {
+        this.renameInTemplate.add(id);
       }
     } else if (datum instanceof CompoundDatum) {
       datum.forEachChild(this.maybeRenameId, this);
@@ -210,12 +210,12 @@ export class TemplateBindings {
     return this.patternIds;
   }
 
-  getTemplateRenameCandidates(): { [key: string]: boolean } {
+  getTemplateRenameCandidates(): Set<string> {
     return this.templateRenameCandidates;
   }
 
-  wasRenamed(id: string): any {
-    return this.renameInTemplate[id];
+  wasRenamed(id: string): boolean {
+    return this.renameInTemplate.has(id);
   }
 }
 

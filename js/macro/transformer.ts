@@ -8,7 +8,7 @@ export class Transformer {
 
   private readonly name: string;
   private readonly patternIds: { [key: string]: number };
-  private readonly templateRenameCandidates: { [key: string]: boolean };
+  private readonly templateRenameCandidates: Set<string>;
 
   constructor(
       private readonly pattern: ListLikeTransformer,
@@ -44,7 +44,7 @@ export class Transformer {
     return this.patternIds;
   }
 
-  getTemplateRenameCandidates(): { [key: string]: boolean } {
+  getTemplateRenameCandidates(): Set<string> {
     return this.templateRenameCandidates;
   }
 }

@@ -16,4 +16,5 @@ ts_library(
         "//js/parse:rename_util",
         "//js/runtime:environment",
     ],
+    tsconfig = "//:tsconfig.json",
 )

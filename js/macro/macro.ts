@@ -154,7 +154,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
          macro definition, which is the most complex case I've tried so far. */
         const toRename = {};
         const candidates = transformer.getTemplateRenameCandidates();
-        for (const id in candidates) {
+        for (const id of candidates.keys()) {
           if (this.definitionEnv.hasBindingRecursive(id)) {
             // TODO: this is deeply weird. Because of this line,
             // IEnvironment has to extend ObjectValue. Which it shouldn't.

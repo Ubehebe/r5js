@@ -4,7 +4,7 @@ import {Error} from "../error";
 export class RenameHelper {
 
   private readonly namesToEllipsisLevels: { [key: string]: number } = {};
-  private readonly renameCandidates: { [key: string]: boolean } = {};
+  private readonly renameCandidates: Set<string> = new Set();
 
   constructor(private readonly transformerName: string) {}
 
@@ -18,25 +18,20 @@ export class RenameHelper {
     const maybeInPattern = name in this.namesToEllipsisLevels
         ? this.namesToEllipsisLevels[name]
         : -1;
-    // An identifier in a template is a candidate for being  renamed during transcription if it
+    // An identifier in a template is a candidate for being renamed during transcription if it
     // doesn't occur in the pattern and is not the name of the macro. I've also thrown in a check
     // that it's not a parser-sensititive identifier so we don't accidentally break the parser,
     // but this may be buggy. The right thing to do is to remove the parser altogether. See comments
     // at the top of Parser.
     if (maybeInPattern === -1 && name !== this.transformerName) {
       if (!isParserSensitiveId(name)) {
-        this.renameCandidates[name] = true;
+        this.renameCandidates.add(name);
       }
     } else if (maybeInPattern !== ellipsisLevel && name !== this.transformerName) {
       throw Error.macro(
           this.transformerName,
-          name +
-          ' is at ellipsis level ' +
-          maybeInPattern +
-          ' in pattern ' +
-          ' but at ellipsis level ' +
-          ellipsisLevel +
-          ' in template ');
+          `${name} is at ellipsis level ${maybeInPattern} in pattern `
+          + `but at ellipsis level ${ellipsisLevel} in template`);
     }
   }
 
@@ -44,7 +39,7 @@ export class RenameHelper {
     return this.namesToEllipsisLevels;
   }
 
-  getRenameCandidates(): { [key: string]: boolean } {
+  getRenameCandidates(): Set<string> {
     return this.renameCandidates;
   }
 }
