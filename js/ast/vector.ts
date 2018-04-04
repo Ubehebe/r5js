@@ -59,7 +59,7 @@ export class Vector extends CompoundDatum {
    * be bugs involving the lost child/sibling pointers.
    */
   private convertVectorToArrayBacked() {
-    this.forEachChild(child => this.array.push(child), this);
+    this.forEachChild(child => this.array.push(child));
     this.isArrayBacked = true;
   }
 }

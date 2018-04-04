@@ -161,23 +161,22 @@ export class CompoundDatum extends Datum {
     this.forEachChild(child => child.resetDesugars());
   }
 
-  forEachChild(callback: (Datum) => void, context:any = undefined) {
+  forEachChild(callback: (Datum) => void) {
     for (let cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
-      callback.call(context, cur);
+      callback(cur);
     }
   }
 
   /**
-   * Map isn't the best word, since the function returns an array
-   * but the children are represented as a linked list.
+   * Map isn't the best word, since the function returns an array but the children are represented
+   * as a linked list.
    * @param f Function for transforming an individual child.
-   * @param context Optional receiver for f.
    * @return Array of transformed children.
    */
-  mapChildren<T>(f: (Datum) => T, context = undefined): T[] {
+  mapChildren<T>(f: (Datum) => T): T[] {
     const ans: T[] = [];
     for (let cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
-      ans.push(f.call(context, cur));
+      ans.push(f(cur));
     }
     return ans;
   }

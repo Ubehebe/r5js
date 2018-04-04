@@ -174,7 +174,7 @@ class LetrecBindingsHelper {
           firstChild.getPayload() === DEFINE) {
         this.bindings.appendSibling(extractDefinition(cur));
       } else {
-        cur.forEachChild(this.collectLetrecBindingsForChild, this);
+        cur.forEachChild(child => this.collectLetrecBindingsForChild(child));
       }
     }
     this.last = cur;
@@ -193,7 +193,7 @@ class LetrecBindingsHelper {
         && firstChild.getPayload() === DEFINE) {
       this.bindings.appendSibling(extractDefinition(node));
     } else if (node instanceof CompoundDatum) {
-      node.forEachChild(this.collectLetrecBindingsForChild, this);
+      node.forEachChild(child => this.collectLetrecBindingsForChild(child));
     }
   }
 

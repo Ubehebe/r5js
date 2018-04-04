@@ -93,7 +93,7 @@ export class TemplateBindings {
     if (val instanceof Identifier) {
       this.maybeRenameId(val);
     } else if (val instanceof CompoundDatum) {
-      val.forEachChild(this.maybeRenameId, this);
+      val.forEachChild(child => this.maybeRenameId(child));
     }
   }
 
@@ -122,7 +122,7 @@ export class TemplateBindings {
         this.renameInTemplate.add(id);
       }
     } else if (datum instanceof CompoundDatum) {
-      datum.forEachChild(this.maybeRenameId, this);
+      datum.forEachChild(child => this.maybeRenameId(child));
     }
   }
 
