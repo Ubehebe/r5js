@@ -12,7 +12,7 @@ export abstract class MacroIdTransformer implements Subtransformer {
 
   /** @override */
   matchInput(inputDatum: any /* TODO tighten */,
-             literalIds: { [key: string]: boolean },
+             literalIds: Set<string>,
              definitionEnv: Environment,
              useEnv: Environment,
              bindings: TemplateBindings): boolean {
@@ -24,33 +24,18 @@ export abstract class MacroIdTransformer implements Subtransformer {
       return inputDatum.isEqual(this.datum);
     }
 
+    // TODO: there used to be logic here for the following situation:
     // R5RS 4.3.2: "A subform in the input matches a literal identifier if and only if it is an
     // identifier and either both its occurrence in the macro expression and its occurrence in the
     // macro definition have the same lexical binding, or the two identifiers are equal and both
     // have no lexical binding."
-    if (this.datum.getPayload() in literalIds) {
-      return inputDatum instanceof Identifier
-          && (this.datumsAreEqualAndUnbound(inputDatum, definitionEnv, useEnv)
-              || datumsHaveSameLexicalBinding(inputDatum, definitionEnv, useEnv));
-    } else {
-      // R5RS 4.3.2: "An input form F matches a pattern P if and only if [...] P is a non-literal
-      // identifier [...]". That is, non-literal identifiers match anything.
-      bindings.addTemplateBinding(this.datum.getPayload(), inputDatum);
-      return true;
-    }
+    // I deleted this code when a refactoring I was doing (changing literalIds from a plain object
+    // to a Set) proved that the code was dead. This probably means I need to add tests.
+    bindings.addTemplateBinding(this.datum.getPayload(), inputDatum);
+    return true;
   }
 
   abstract collectNestingLevels(ellipsisLevel: number, renameHelper: RenameHelper);
-
-  private datumsAreEqualAndUnbound(
-      inputDatum: Identifier,
-      definitionEnv: Environment,
-      useEnv: Environment): boolean {
-    const name = inputDatum.getPayload();
-    return name === this.datum.getPayload()
-        && !definitionEnv.hasBindingRecursive(name)
-        && !useEnv.hasBindingRecursive(name);
-  }
 
   /** @override */
   toDatum(bindings: TemplateBindings): Datum | null {
@@ -94,12 +79,4 @@ class TemplateIdTransformer extends MacroIdTransformer {
       renameHelper.recordTemplateId(this.datum.getPayload(), ellipsisLevel);
     }
   }
-}
-
-function datumsHaveSameLexicalBinding(
-    inputDatum: Identifier,
-    definitionEnv: Environment,
-    useEnv: Environment): boolean {
-  const name = inputDatum.getPayload();
-  return definitionEnv.get(name) === useEnv.get(name);
 }

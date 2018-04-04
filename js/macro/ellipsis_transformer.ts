@@ -11,7 +11,7 @@ export class EllipsisTransformer implements Subtransformer {
 
   /** @override */
   matchInput(inputDatum: Datum,
-             literalIds: { [key: string]: boolean },
+             literalIds: Set<string>,
              definitionEnv: Environment,
              useEnv: Environment,
              bindings: TemplateBindings): boolean {

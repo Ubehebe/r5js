@@ -15,7 +15,7 @@ import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 
 export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
 
-  private readonly literalIdentifiers_: { [key: string]: boolean } = {};
+  private readonly literalIdentifiers: Set<string> = new Set();
   private isLetOrLetrecSyntax_: boolean = false;
 
   constructor(literalIdentifiers: Datum | null,
@@ -24,7 +24,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
               private readonly transformers: Transformer[] = []) {
 
     for (let curId = literalIdentifiers; curId; curId = curId.getNextSibling()) {
-      this.literalIdentifiers_[(curId as Identifier).getPayload()] = true;
+      this.literalIdentifiers.add((curId as Identifier).getPayload());
     }
 
     if (!transformers.length) {
@@ -115,7 +115,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
           transformer.getTemplateRenameCandidates());
       if (transformer.matchInput(
               datum,
-              this.literalIdentifiers_,
+              this.literalIdentifiers,
               this.definitionEnv,
               useEnv,
               bindings) &&

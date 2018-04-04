@@ -70,7 +70,7 @@ class Base implements ListLikeTransformer {
 
   /** @override */
   matchInput(inputDatum: CompoundDatum,
-             literalIds: { [key: string]: boolean },
+             literalIds: Set<string>,
              definitionEnv: Environment,
              useEnv: Environment,
              bindings: TemplateBindings) {

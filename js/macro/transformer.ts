@@ -23,7 +23,7 @@ export class Transformer {
 
   /** @return True iff the transformer is a match (?) */
   matchInput(inputDatum: Datum,
-             literalIds: { [key: string]: boolean },
+             literalIds: Set<string>,
              definitionEnv: Environment,
              useEnv: Environment,
              bindings: TemplateBindings): boolean {

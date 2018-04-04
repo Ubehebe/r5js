@@ -13,7 +13,7 @@ export interface Subtransformer extends ObjectValue /* TODO inappropriate */ {
    * TODO bl: what is the use of the value type in the literalIds dictionary?
    */
   matchInput(inputDatum: Datum,
-             literalIds: { [key: string]: boolean },
+             literalIds: Set<string>,
              definitionEnv: Environment,
              useEnv: Environment,
              bindings: TemplateBindings): boolean;
