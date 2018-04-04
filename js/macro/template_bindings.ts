@@ -126,7 +126,7 @@ export class TemplateBindings {
     }
   }
 
-  addChildBindings(child: TemplateBindings): TemplateBindings /* TODO polymorphic this */ {
+  addChildBindings(child: TemplateBindings): this {
     this.children.push(child);
     return this;
   }
@@ -144,11 +144,11 @@ export class TemplateBindings {
    * Try to incorporate the child's bindings in an existing child
    * if there's room, otherwise just tack the child on to the parent.
    */
-  addOrIncorporateChild(child: TemplateBindings): TemplateBindings {
+  addOrIncorporateChild(child: TemplateBindings): this {
     return this.incorporateChild(child) || this.addChildBindings(child);
   }
 
-  incorporateChild(child: TemplateBindings): TemplateBindings | null {
+  incorporateChild(child: TemplateBindings): this | null {
     // We only incorporate flat TemplateBindings objects.
     if (child.children.length > 0) {
       return null;
@@ -183,8 +183,7 @@ export class TemplateBindings {
   /** TODO bl document what this does. */
   resolveDatum(datum: Datum): Datum | boolean {
     if (datum instanceof Identifier) {
-      const name = /** @type {string} */(datum.getPayload());
-
+      const name = datum.getPayload();
       const maybe = this.bindings[name];
       if (maybe) {
         return maybe.clone(null /* parent */);
