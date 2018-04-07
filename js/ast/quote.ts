@@ -68,7 +68,7 @@ class QuoteShim extends ProcCallLike {
     const ans = quote.replaceChildren(
         (node) => node instanceof Identifier && node.shouldUnquote(),
         (node) => {
-          const result: Value | null = env!.get(node.getPayload());
+          const result: Value | null = env!.get((node as Identifier).getPayload());
           let ans: Datum | null = (result === null)
               ? UNSPECIFIED_VALUE
               : wrapValue(result);

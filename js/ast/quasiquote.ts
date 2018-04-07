@@ -46,7 +46,7 @@ export class Quasiquote extends CompoundDatum {
         node => (node instanceof Unquote || node instanceof UnquoteSplicing)
               && node.getQQLevel() === qqLevel,
         node => {
-          const asContinuable = parserProvider(node.getFirstChild())
+          const asContinuable = parserProvider((node as CompoundDatum).getFirstChild())
               .parse(EXPRESSION)
               .desugar(env, true);
           /* Throw out the last result name and replace it with another

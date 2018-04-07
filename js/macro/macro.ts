@@ -193,11 +193,10 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
               .appendSibling(newParseTree)
               .toList(List);
           fake.replaceChildren(
-              function (node) {
-                return node instanceof Identifier && toRename[node.getPayload()];
-              },
-              function (node) {
-                node.setPayload(toRename[node.getPayload()]);
+              (node) => node instanceof Identifier && node.getPayload() in toRename,
+              (node) => {
+                const id = (node as Identifier);
+                id.setPayload(toRename[id.getPayload()]);
                 return node;
               }
           );

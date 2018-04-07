@@ -5,6 +5,7 @@ import {DEFINITION, FORMALS, LAMBDA_EXPRESSION, Nonterminal, VARIABLE} from "../
 import {Identifier} from "./identifier";
 import {isParserSensitiveId} from "../parse/rename_util";
 import {Datum} from "./datum";
+import {SimpleDatum} from "./simple_datum";
 
 export class CompoundDatum extends Datum {
 
@@ -86,9 +87,10 @@ export class CompoundDatum extends Datum {
     } else { // (lambda (x y) ...) or (lambda (x . y) ...)
       (formalRoot as CompoundDatum).forEachChild(
           child => {
-            let id = child.getPayload();
+            let formal = child as SimpleDatum<string>;
+            let id = formal.getPayload();
             if (isParserSensitiveId(id)) {
-              child.setPayload(newHelper.addRenameBinding(id));
+              formal.setPayload(newHelper.addRenameBinding(id));
             }
           });
     }
@@ -161,7 +163,7 @@ export class CompoundDatum extends Datum {
     this.forEachChild(child => child.resetDesugars());
   }
 
-  forEachChild(callback: (Datum) => void) {
+  forEachChild(callback: (datum: Datum) => void) {
     for (let cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
       callback(cur);
     }
@@ -173,7 +175,7 @@ export class CompoundDatum extends Datum {
    * @param f Function for transforming an individual child.
    * @return Array of transformed children.
    */
-  mapChildren<T>(f: (Datum) => T): T[] {
+  mapChildren<T>(f: (datum: Datum) => T): T[] {
     const ans: T[] = [];
     for (let cur = this.getFirstChild(); cur; cur = cur.getNextSibling()) {
       ans.push(f(cur));
@@ -187,9 +189,11 @@ export class CompoundDatum extends Datum {
    *     parameter.
    * @param transform Function that will transform children that pass the predicate.
    */
-  replaceChildren(predicate: (Datum) => boolean, transform: (Datum) => Datum | null): this {
+  replaceChildren(
+      predicate: (datum: Datum) => boolean,
+      transform: (datum: Datum) => Datum | null): this {
 
-    for (let cur = this.firstChild, prev;
+    for (let cur = this.firstChild, prev: Datum|null = null;
          cur;
          prev = cur, cur = cur!.getNextSibling()) {
       if (predicate(cur)) {
@@ -228,7 +232,7 @@ export class CompoundDatum extends Datum {
         /* If transform returned null, that means the current node
          should be spliced out of the list. */
         else {
-          prev.setNextSibling(tmp);
+          prev!.setNextSibling(tmp);
           cur = prev;
         }
       } else if (cur instanceof CompoundDatum) {

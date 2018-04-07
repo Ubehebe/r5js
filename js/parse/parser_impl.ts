@@ -221,7 +221,7 @@ grammar[EXPRESSION as any] =
 grammar[VARIABLE as any] = _.seq(
     _.matchDatum(datum => {
       const isIdentifier = datum instanceof Identifier;
-      if (isIdentifier && isParserSensitiveId(datum.getPayload())) {
+      if (isIdentifier && isParserSensitiveId((datum as Identifier).getPayload())) {
         fixParserSensitiveIds = true;
       }
       return isIdentifier;
@@ -306,13 +306,13 @@ grammar[LAMBDA_EXPRESSION as any] = _.list(
 
   // (lambda (x y) ...)
   if (formalRoot instanceof List) {
-    formals = formalRoot.mapChildren(child => child.getPayload());
+    formals = formalRoot.mapChildren(child => (child as SimpleDatum<string>).getPayload());
   }
 
   // (lambda (x y z . w) ...)
   else if (formalRoot.isImproperList()) {
     formals = (formalRoot as CompoundDatum)
-        .mapChildren(child => child.getPayload());
+        .mapChildren(child => (child as SimpleDatum<string>).getPayload());
     treatAsDotted = true;
   }
 
@@ -407,7 +407,7 @@ grammar[DEFINITION as any] = _.choice(
       const name = def.getFirstChild() as SimpleDatum<string>;
       const lambda = name.getNextSibling() as CompoundDatum;
       const formalRoot = lambda.getFirstChild()!.getNextSibling() as CompoundDatum;
-      const formals = formalRoot.mapChildren(child => child.getPayload());
+      const formals = formalRoot.mapChildren(child => (child as SimpleDatum<string>).getPayload());
       const anonymousName = newAnonymousLambdaName();
       env.addBinding(
           anonymousName,
@@ -431,7 +431,7 @@ grammar[DEFINITION as any] = _.choice(
       const lambda = name.getNextSibling() as CompoundDatum;
       const formalRoot = lambda.getFirstChild()!.getNextSibling()!;
       const formals = formalRoot instanceof CompoundDatum
-          ? formalRoot.mapChildren(child => child.getPayload())
+          ? formalRoot.mapChildren(child => (child as SimpleDatum<string>).getPayload())
           : [(formalRoot as SimpleDatum<string>).getPayload()];
       const anonymousName = newAnonymousLambdaName();
       env.addBinding(
@@ -905,8 +905,8 @@ function desugarMacroBlock(datum: CompoundDatum, env: Environment, operatorName:
   const letBindings = new SiblingBuffer();
 
   datum.firstSublist()!.forEachChild(spec => {
-    const kw = spec.at(KEYWORD).clone(null /* parent */);
-    const macro = spec.at(TRANSFORMER_SPEC).desugar(env);
+    const kw = (spec as CompoundDatum).at(KEYWORD)!.clone(null /* parent */);
+    const macro = (spec as CompoundDatum).at(TRANSFORMER_SPEC)!.desugar(env);
     const buf = new SiblingBuffer();
     // We have to wrap the SchemeMacro object in a Datum to get it into the parse tree.
     buf.appendSibling(kw);
