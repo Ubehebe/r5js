@@ -68,7 +68,7 @@ export class RuleFactory {
     return new Seq(newRules);
   }
 
-  matchDatum(predicate: (Datum) => boolean): Rule {
+  matchDatum(predicate: (datum: Datum) => boolean): Rule {
     return new MatchDatum(predicate);
   }
 }
@@ -92,7 +92,7 @@ class OneTerminal implements DesugarableRule<string> {
    * @override
    * TODO bl put the instanceof checks into the Datum subclasses
    */
-  match(datumStream) {
+  match(datumStream: DatumStream) {
     if (this.terminal === Terminals.RPAREN) {
       return datumStream.maybeAdvanceToNextSiblingOfParent();
     }
@@ -152,14 +152,14 @@ class OneNonterminal implements DesugarableRule<Nonterminal> {
   }
 
   /** @override */
-  match(datumStream) {
+  match(datumStream: DatumStream) {
     const parsed = this.grammar.ruleFor(this.nonterminal).match(datumStream);
     if (parsed instanceof Datum) {
       parsed.setParse(this.nonterminal);
       if (this.desugarFunc) {
         parsed.setDesugar(this.desugarFunc);
       }
-      datumStream.advanceTo(parsed.getNextSibling());
+      datumStream.advanceTo(parsed.getNextSibling()!);
     }
     return parsed;
   }
@@ -174,7 +174,7 @@ class AtLeast implements Rule {
   }
 
   /** @override */
-  match(datumStream) {
+  match(datumStream: DatumStream) {
     let numParsed = 0;
     let parsed;
     while (parsed = this.grammar.ruleFor(this.nonterminal).match(datumStream)) {
@@ -188,10 +188,10 @@ class AtLeast implements Rule {
 class MatchDatum implements Rule {
 
   constructor(
-      private readonly predicate: (Datum) => boolean) {}
+      private readonly predicate: (datum: Datum) => boolean) {}
 
   /** @override */
-  match(datumStream) {
+  match(datumStream: DatumStream) {
     const next = datumStream.getNextDatum();
     if (next && this.predicate(next)) {
       datumStream.advanceToNextSibling();
@@ -207,7 +207,7 @@ class Choice implements Rule {
   constructor(private readonly rules: Rule[]) {}
 
   /** @override */
-  match(datumStream) {
+  match(datumStream: DatumStream) {
     let parsed;
     for (let i = 0; i < this.rules.length; ++i) {
       const rule = this.rules[i];
@@ -265,7 +265,7 @@ class Seq implements DesugarableRule<CompoundDatum> {
  * linked lists; the only difference is the type ('(' vs. '.('). So we rewrite
  * the parse rules to conform to the reader's knowledge.
  */
-function rewriteImproperList(rules: any /* TODO should be Rule[] */): Rule[] {
+function rewriteImproperList(rules: Rule[]): Rule[] {
   // example: (define (x . y) 1) => (define .( x . ) 1)
   /* No RHS in the grammar has more than one dot.
    This will break if such a rule is added. */
