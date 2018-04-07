@@ -1,9 +1,10 @@
 import {Environment} from "../runtime/environment";
 import {Value} from "../value";
+import {Datum} from "./datum";
 
 export interface ProcCallResult {
-  setNext(procCallLike: ProcCallLike);
-  setValue(value: Value);
+  setNext(procCallLike: ProcCallLike): void;
+  setValue(value: Value): void;
   getNextProcCallLike(): ProcCallLike | null;
 }
 
@@ -22,7 +23,7 @@ export abstract class ProcCallLike {
   /**@param parserProvider Function that will return a new Parser for the given Datum when called. */
   abstract evalAndAdvance(resultStruct: ProcCallResult /* TODO */,
                           env: Environment,
-                          parserProvider: (Datum) => any /* TODO should be Parser*/);
+                          parserProvider: (datum: Datum) => any /* TODO should be Parser*/): void;
 
   getResultName(): string {
     return this.resultName;

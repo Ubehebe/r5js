@@ -1,4 +1,5 @@
 import {SimpleDatum} from './simple_datum';
+import {Datum} from "./datum";
 
 export class String extends SimpleDatum<string> {
 
@@ -11,7 +12,7 @@ export class String extends SimpleDatum<string> {
    * @see R5RS 6.1
    * @override
    */
-  eqv(other): boolean {
+  eqv(other: Datum): boolean {
     return this === other;
   }
 

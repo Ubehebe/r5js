@@ -38,7 +38,7 @@ export class Quasiquote extends CompoundDatum {
   }
 
   /** Example: `(1 ,(+ 2 3)) should desugar as (+ 2 3 [_0 (id (1 _0) [_2 ...])]) */
-  processQuasiquote(env: Environment, parserProvider: (Datum) => any /* TODO should be Parser */): ProcCallLike {
+  processQuasiquote(env: Environment, parserProvider: (datum: Datum) => any /* TODO should be Parser */): ProcCallLike {
     const newCalls = new ContinuableHelper();
     const qqLevel = this.qqLevel;
 
@@ -46,7 +46,7 @@ export class Quasiquote extends CompoundDatum {
         node => (node instanceof Unquote || node instanceof UnquoteSplicing)
               && node.getQQLevel() === qqLevel,
         node => {
-          const asContinuable = parserProvider((node as CompoundDatum).getFirstChild())
+          const asContinuable = parserProvider((node as CompoundDatum).getFirstChild()!)
               .parse(EXPRESSION)
               .desugar(env, true);
           /* Throw out the last result name and replace it with another
@@ -92,14 +92,14 @@ class QuasiquoteShim extends ProcCallLike {
   /** @override */
   evalAndAdvance(resultStruct: ProcCallResult,
                  env: Environment,
-                 parserProvider: (Datum) => any /* TODO should be Parser */) {
+                 parserProvider: (datum: Datum) => any /* TODO should be Parser */) {
     const next = this.tryQuasiquote(this.firstOperand, parserProvider);
     if (next) {
       resultStruct.setNext(next);
     }
   }
 
-  private tryQuasiquote(quasiquote: Quasiquote, parserProvider: (Datum) => any /* TODO Parser */): ProcCallLike {
+  private tryQuasiquote(quasiquote: Quasiquote, parserProvider: (datum: Datum) => any /* TODO Parser */): ProcCallLike {
     const continuable = quasiquote.processQuasiquote(this.getEnv()!, parserProvider);
     const next = this.getNext();
     if (next) {

@@ -30,7 +30,7 @@ export class List extends Pair {
   }
 
   /** @override */
-  eqv(other) {
+  eqv(other: Datum): boolean {
     if (this.dotted) {
       return this === other;
     }
@@ -127,7 +127,7 @@ export class CdrHelperImpl extends CdrHelper {
   }
 
   /** @override */
-  setCar(car) {
+  setCar(car: Datum) {
     if (this.head.isImmutable()) {
       throw Error.immutable(this.head.toString());
     }
@@ -135,7 +135,7 @@ export class CdrHelperImpl extends CdrHelper {
   }
 
   /** @override */
-  setCdr(cdr) {
+  setCdr(cdr: Datum) {
     if (this.head.isImmutable()) {
       throw Error.immutable(this.head.toString());
     }
@@ -151,17 +151,17 @@ export class CdrHelperImpl extends CdrHelper {
   }
 
   /** @override */
-  equals(cdrHelper) {
-    const asImpl = cdrHelper;
+  equals(cdrHelper: CdrHelper): boolean {
+    const asImpl = cdrHelper as CdrHelperImpl;
     return this.head === asImpl.head && this.startOfCdr === asImpl.startOfCdr;
   }
 
   /** @override */
-  resolvesTo(datum) {
+  resolvesTo(datum: Datum) {
     if (!datum) {
       return false;
     } else if (this.head === datum) {
-      return this.startOfCdr === datum.getFirstChild();
+      return this.startOfCdr === (datum as CompoundDatum).getFirstChild();
     } else {
       return false;
     }

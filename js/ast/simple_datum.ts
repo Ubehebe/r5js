@@ -13,7 +13,7 @@ export class SimpleDatum<T> extends Datum {
    * Booleans, characters, and numbers have value equality semantics.
    * @override
    */
-  eqv(other) {
+  eqv(other: Datum): boolean {
     return other instanceof SimpleDatum
         && this.payload === other.payload;
   }
