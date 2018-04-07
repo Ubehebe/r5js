@@ -19,6 +19,7 @@ ts_library(
 
 ts_library(
     name = "runtime",
+    tsconfig = "//:tsconfig.json",
     srcs = [
         "assignment.ts",
         "branch.ts",
@@ -56,6 +57,7 @@ ts_library(
 
 ts_library(
     name = "primitive_procedures",
+    tsconfig = "//:tsconfig.json",
     srcs = [
         "primitive_procedures.ts",
     ],
@@ -74,6 +76,7 @@ ts_library(
 
 ts_library(
     name = "trampoline",
+    tsconfig = "//:tsconfig.json",
     srcs = [
         "trampoline.ts",
     ],
