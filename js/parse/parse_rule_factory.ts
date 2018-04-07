@@ -3,7 +3,7 @@ import {Grammar} from "./parse_grammar";
 import {Nonterminal} from "./nonterminals";
 import {DesugarableRule, Rule} from "./parse_rule";
 import {CompoundDatum} from "../ast/compound_datum";
-import {Datum} from "../ast/datum";
+import {Datum, DesugarFunc} from "../ast/datum";
 import {DatumStream} from "./datum_stream";
 import {DottedList, List} from "../ast/list";
 import {Vector} from "../ast/vector";
@@ -84,7 +84,7 @@ class OneTerminal implements DesugarableRule<string> {
    * DesugarableRule.
    * @override
    */
-  desugar(desugarFunc): this {
+  desugar(desugarFunc: DesugarFunc<string>): this {
     return this;
   }
 
@@ -139,14 +139,14 @@ class OneTerminal implements DesugarableRule<string> {
 
 class OneNonterminal implements DesugarableRule<Nonterminal> {
 
-  private desugarFunc: ((Datum, IEnvironment) => any) | null = null;
+  private desugarFunc: DesugarFunc<Nonterminal>|null = null;
 
   constructor(
       private readonly nonterminal: Nonterminal,
       private readonly grammar: Grammar) {}
 
   /** @override */
-  desugar(desugarFunc) {
+  desugar(desugarFunc: DesugarFunc<Nonterminal>) {
     this.desugarFunc = desugarFunc;
     return this;
   }
@@ -157,7 +157,7 @@ class OneNonterminal implements DesugarableRule<Nonterminal> {
     if (parsed instanceof Datum) {
       parsed.setParse(this.nonterminal);
       if (this.desugarFunc) {
-        parsed.setDesugar(this.desugarFunc);
+        parsed.setDesugar(this.desugarFunc as any); // TODO suspicious
       }
       datumStream.advanceTo(parsed.getNextSibling()!);
     }
@@ -178,7 +178,7 @@ class AtLeast implements Rule {
     let numParsed = 0;
     let parsed;
     while (parsed = this.grammar.ruleFor(this.nonterminal).match(datumStream)) {
-      parsed.setParse(this.nonterminal);
+      (parsed as Datum).setParse(this.nonterminal); // TODO suspicious cast
       ++numParsed;
     }
     return numParsed >= this.minRepetitions;
@@ -222,7 +222,7 @@ class Choice implements Rule {
 class Seq implements DesugarableRule<CompoundDatum> {
 
   private readonly rules: Rule[];
-  private desugarFunc: ((CompoundDatum, IEnvironment) => any) | null = null;
+  private desugarFunc: DesugarFunc<CompoundDatum>|null = null;
 
   constructor(rules: Rule[]) {
     this.rules = rewriteImproperList(rules);
@@ -244,14 +244,14 @@ class Seq implements DesugarableRule<CompoundDatum> {
     datumStream.advanceTo(nextSibling);
 
     if (root instanceof Datum && this.desugarFunc) {
-      root.setDesugar(this.desugarFunc);
+      root.setDesugar(this.desugarFunc as DesugarFunc<Datum>); // TODO suspicious
     }
 
     return root || false;
   }
 
   /** @override */
-  desugar(desugarFunc: (CompoundDatum, IEnvironment) => any): this {
+  desugar(desugarFunc: DesugarFunc<CompoundDatum>): this {
     this.desugarFunc = desugarFunc;
     return this;
   }

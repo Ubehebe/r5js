@@ -4,7 +4,12 @@ import {Environment} from "../runtime/environment";
 import {ObjectValue} from "../value";
 import {ProcCallLike, ProcCallResult} from "./proc_call_like";
 
-type DesugarFunc = (datum: Datum, env: Environment) => any;
+/**
+ * TODO: `T` should be `T extends Datum`. But there are a couple crazy implementations:
+ * a DesugarFunc<string> (OneTerminal) and a DesugarFunc<Nonterminal> (OneNonterminal).
+ * These should be investigated and removed.
+ */
+export type DesugarFunc<T> = (datum: T, env: Environment) => any /* TODO tighten return type */;
 
 /**
  * TODO bl remove the "implements ObjectValue".
@@ -16,7 +21,7 @@ export class Datum implements ObjectValue {
   private nextSibling: Datum|null = null;
   /** Only for last children */ private parent: Datum|null = null;
   private readonly nonterminals: Nonterminal[] = [];
-  private readonly desugars: DesugarFunc[] = [];
+  private readonly desugars: DesugarFunc<Datum>[] = [];
   private nextDesugar: number = -1;
   private immutable: boolean = false;
 
