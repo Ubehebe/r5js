@@ -11,4 +11,5 @@ ts_library(
         "//js/parse:terminals",
     ],
     visibility = ["//js:__subpackages__"],
+    tsconfig = "//:tsconfig.json",
 )

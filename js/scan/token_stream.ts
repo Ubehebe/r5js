@@ -17,7 +17,7 @@ export interface TokenStream {
   checkpoint(): number;
 
   /** Restores the state of the token stream represented by {@code checkpoint}. */
-  restore(checkpoint: number);
+  restore(checkpoint: number): void;
 }
 
 export function newTokenStream(text: string): TokenStream {
@@ -92,7 +92,7 @@ class Scanner implements TokenStream {
    * that would do this automatically.
    * @override
    */
-  restore(checkpoint) {
+  restore(checkpoint: number) {
     for (let i = checkpoint + 1; i < this.readyTokens.length; ++i) {
       const token = this.readyTokens[i];
       if (token instanceof Datum) {
