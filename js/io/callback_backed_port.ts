@@ -9,7 +9,7 @@ export class CallbackBackedPort extends OutputPort {
   close() {
   }
 
-  write(str) {
+  write(str: string) {
     this.onOutput(str);
   }
 }

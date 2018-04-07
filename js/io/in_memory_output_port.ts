@@ -13,7 +13,7 @@ export class InMemoryOutputPort extends OutputPort {
     super();
   }
 
-  write(str) {
+  write(str: string) {
     this.buffer.append(str);
     this.outputs.push(str);
   }
