@@ -35,7 +35,7 @@ export abstract class MacroIdTransformer implements Subtransformer {
     return true;
   }
 
-  abstract collectNestingLevels(ellipsisLevel: number, renameHelper: RenameHelper);
+  abstract collectNestingLevels(ellipsisLevel: number, renameHelper: RenameHelper): void;
 
   /** @override */
   toDatum(bindings: TemplateBindings): Datum | null {

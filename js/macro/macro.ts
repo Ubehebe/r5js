@@ -105,7 +105,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
    *     This is a hack to avoid instantiating a Parser directly in this file, which would cause
    *     a cyclic dependency between macro.js and parse.js.
    */
-  transcribe(datum: Datum, useEnv: Environment, parserProvider: (Datum) => Parser) {
+  transcribe(datum: Datum, useEnv: Environment, parserProvider: (datum: Datum) => Parser) {
     let transformer, bindings, newDatumTree;
     for (let i = 0; i < this.transformers.length; ++i) {
       transformer = this.transformers[i];
@@ -152,7 +152,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
 
          I don't think this is correct, but it works for the letrec
          macro definition, which is the most complex case I've tried so far. */
-        const toRename = {};
+        const toRename: {[key: string]: string} = {};
         const candidates = transformer.getTemplateRenameCandidates();
         for (const id of candidates.keys()) {
           if (this.definitionEnv.hasBindingRecursive(id)) {
@@ -215,7 +215,7 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
       rawDatum: Datum,
       procCallLike: ProcCallLike,
       resultStruct: ProcCallResult,
-      parserProvider: (Datum) => Parser) {
+      parserProvider: (datum: Datum) => Parser) {
     const oldEnv = procCallLike.getEnv()!;
     const newEnv = oldEnv.child();
     const newParseTree = this.transcribe(rawDatum, newEnv, parserProvider);

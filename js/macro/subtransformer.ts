@@ -6,7 +6,7 @@ import {Environment} from "../runtime/environment";
 
 export interface Subtransformer extends ObjectValue /* TODO inappropriate */ {
   /** @param ellipsisLevel Nesting level of ellipses, passed as the last argument to the callback. */
-  collectNestingLevels(ellipsisLevel: number, renameHelper: RenameHelper);
+  collectNestingLevels(ellipsisLevel: number, renameHelper: RenameHelper): void;
 
   /**
    * @return True iff the transformer is a match (?)

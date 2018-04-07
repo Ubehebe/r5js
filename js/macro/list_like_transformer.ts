@@ -36,7 +36,7 @@ class Base implements ListLikeTransformer {
 
   protected readonly subtransformers: Subtransformer[] = [];
 
-  constructor(private readonly ctor: new (Datum) => Datum) {}
+  constructor(private readonly ctor: new (datum: Datum) => Datum) {}
 
   /** @override */
   addSubtransformer(subtransformer: Subtransformer): this {
@@ -161,7 +161,7 @@ class VectorTransformer extends Base {
   }
 
   /** @override */
-  couldMatch(inputDatum) {
+  couldMatch(inputDatum: Datum) {
     // Vector patterns match only vector inputs
     return inputDatum instanceof Vector;
   }
@@ -173,7 +173,7 @@ class ListTransformer extends Base {
   }
 
   /** @override */
-  couldMatch(inputDatum) {
+  couldMatch(inputDatum: Datum) {
     // Proper list patterns can match only proper list inputs
     return inputDatum instanceof List;
   }
@@ -185,13 +185,18 @@ class DottedListTransformer extends Base {
   }
 
   /** @override */
-  couldMatch(inputDatum) {
+  couldMatch(inputDatum: Datum) {
     // Dotted list patterns can match proper or dotted list inputs
     return inputDatum instanceof List || inputDatum.isImproperList();
   }
 
   /** @override */
-  matchInput(inputDatum, literalIds, definitionEnv, useEnv, bindings) {
+  matchInput(
+      inputDatum: CompoundDatum,
+      literalIds: Set<string>,
+      definitionEnv: Environment,
+      useEnv: Environment,
+      bindings: TemplateBindings) {
     const len = this.subtransformers.length;
     let maybeEllipsis =
         this.subtransformers[len - 1] instanceof EllipsisTransformer
@@ -241,22 +246,21 @@ class DottedListTransformer extends Base {
        an empty input like () cannot match a pattern like (x y ...) */
       return (!inputDatum.getFirstChild() && len > 1) ?
           false :
-          maybeEllipsis.matchInput(subinput, literalIds, definitionEnv, useEnv, bindings);
+          maybeEllipsis.matchInput(subinput!, literalIds, definitionEnv, useEnv, bindings);
     } else {
       // Dotted-list patterns cannot end in ellipses.
-      let toMatchAgainst;
+      let toMatchAgainst: Datum|null = null;
 
       if (inputDatum instanceof List) {
-        toMatchAgainst = new SiblingBuffer().appendSibling(subinput).toList(List);
+        toMatchAgainst = new SiblingBuffer().appendSibling(subinput!).toList(List);
       } else if (inputDatum.isImproperList()) {
-        toMatchAgainst = subinput.getNextSibling()
-            ? new SiblingBuffer().appendSibling(subinput).toList(DottedList)
+        toMatchAgainst = subinput!.getNextSibling()
+            ? new SiblingBuffer().appendSibling(subinput!).toList(DottedList)
             : subinput;
       }
 
       return this.subtransformers[i].matchInput(
-          toMatchAgainst,
-          literalIds, definitionEnv, useEnv, bindings);
+          toMatchAgainst!, literalIds, definitionEnv, useEnv, bindings);
     }
   }
 }
