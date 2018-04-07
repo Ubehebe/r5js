@@ -38,7 +38,7 @@ function resultIsExpected(result: ResultStruct): boolean {
  * Parses a Scheme test framework output like this: `(foo-tests (3 tests) (1 failed))` into a
  * ResultStruct, returning null if the parse failed.
  */
-export function stringToResultStruct(str): ResultStruct | null {
+export function stringToResultStruct(str: string): ResultStruct | null {
   const regex = /\((.+) \((\d+) tests\) \((\d+) failed\)\)/;
   const matches = regex.exec(str);
   if (!matches) {

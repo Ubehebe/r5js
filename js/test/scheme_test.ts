@@ -56,7 +56,7 @@ describe("pure scheme tests", () => {
   });
 });
 
-function handleWriteFromScheme(str) {
+function handleWriteFromScheme(str: string) {
   let result: ResultStruct | string | null = stringToResultStruct(str);
   if (result) {
     const success = result.numFailed === 0;

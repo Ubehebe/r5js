@@ -7,12 +7,13 @@ import {LPAREN, RPAREN} from "../parse/terminals";
 import {Error, ErrorType} from "../error";
 import {NUMBER, STRING} from "../ast/types";
 import {argumentTypeError} from "../runtime/errors";
+import {Evaluator} from "../eval/evaluator";
 
 let buffer;
 let stdin;
 let stdout;
 let sources;
-let evaluator;
+let evaluator: Evaluator;
 let sharedOutputPort: InMemoryOutputPort | undefined;
 
 describe("scheme<->js interop tests", () => {
