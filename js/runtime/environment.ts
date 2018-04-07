@@ -31,7 +31,7 @@ import {Value} from "../value";
  *
  */
 export interface Environment {
-    addBinding(name: string, val: Value);
+    addBinding(name: string, val: Value): void;
 
     /**
      * Used exclusively during desugaring of lambda expressions.
@@ -77,7 +77,7 @@ export interface Environment {
      *
      * TODO bl: consider renaming to addSchemeProcedure?
      */
-    addClosure(name: string, proc: any /* TODO UserDefinedProcedure */);
+    addClosure(name: string, proc: any /* TODO UserDefinedProcedure */): void;
 
     /** @returns This environment, for chaining. */
     addClosuresFrom(other: Environment): this;
@@ -86,7 +86,7 @@ export interface Environment {
      * @param otherEnv Environment whose closures this environment should use.
      * TODO bl: this method is only used once. Can I eliminate it?
      */
-    setClosuresFrom(otherEnv: Environment);
+    setClosuresFrom(otherEnv: Environment): void;
 
     get(name: string): Value|null;
 
@@ -114,13 +114,13 @@ export interface Environment {
      *
      * We use the isTopLevel parameter to perform the override mentioned.
      */
-    mutate(name: string, newVal: Value, isTopLevel: boolean);
+    mutate(name: string, newVal: Value, isTopLevel: boolean): void;
 
     /**
      * Just for environments defined in the standard; users shouldn't be able to
      * add to them.
      */
-    seal();
+    seal(): void;
 
     child(): Environment;
 
