@@ -1,4 +1,4 @@
-import {UNSPECIFIED_VALUE} from "../ast/datum";
+import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
 import {Identifier} from "../ast/identifier";
 import {Macro} from "../macro/macro";
 import {Error} from "../error";
@@ -19,7 +19,7 @@ export class Assignment extends ProcCallLike {
   evalAndAdvance(
       resultStruct: ProcCallResult,
       envBuffer: Environment,
-      parserProvider: (Datum) => Parser) {
+      parserProvider: (datum: Datum) => Parser) {
     const src = this.getEnv()!.get(
         (this.firstOperand.getNextSibling() as SimpleDatum<any>).getPayload())!;
     this.checkForImproperSyntaxAssignment(src);

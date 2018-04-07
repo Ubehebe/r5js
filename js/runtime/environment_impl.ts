@@ -52,13 +52,13 @@ export class EnvironmentImpl implements Environment {
   }
 
   /** @override */
-  hasBindingRecursive(name) {
+  hasBindingRecursive(name: string): boolean {
     return name in this.bindings ||
         (!!this.enclosingEnv && this.enclosingEnv.hasBindingRecursive(name));
   }
 
   /** @override */
-  get(name) {
+  get(name: string): Value|null {
     if (name in this.bindings) {
       const binding = this.bindings[name];
       if (binding instanceof EnvironmentImpl && binding.hasBindingRecursive(name)) {
@@ -93,7 +93,7 @@ export class EnvironmentImpl implements Environment {
   }
 
   /** @override */
-  getProcedure(name: string) {
+  getProcedure(name: string): Value|null {
     if (name in this.bindings) {
       const binding = this.bindings[name];
       if (binding instanceof EnvironmentImpl) {
@@ -128,7 +128,7 @@ export class EnvironmentImpl implements Environment {
   }
 
   /** @override */
-  addClosure(name, proc) {
+  addClosure(name: string, proc: any) {
     if (this.sealed) {
       throw Error.internalInterpreterError(`tried to bind ${name} in sealed environment`);
     } else if (this.closures[name]) {
@@ -187,7 +187,7 @@ export class EnvironmentImpl implements Environment {
   }
 
   /** @override */
-  child() {
+  child(): Environment {
     return new EnvironmentImpl(this);
   }
 

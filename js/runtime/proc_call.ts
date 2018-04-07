@@ -72,7 +72,7 @@ export class ProcCall extends ProcCallLike {
    * (We do _not_ do this if the operator resolves as a macro. Macros
    * get their arguments as unevaluated datums.)
    */
-  private cpsify(resultStruct: ProcCallResult, parserProvider: (Datum) => Parser) {
+  private cpsify(resultStruct: ProcCallResult, parserProvider: (datum: Datum) => Parser) {
     const newCallChain = new ContinuableHelper();
     const finalArgs = new SiblingBuffer();
     let maybeContinuable;
@@ -116,7 +116,7 @@ export class ProcCall extends ProcCallLike {
   evalAndAdvance(
       resultStruct: ProcCallResult,
       env: Environment,
-      parserProvider: (Datum) => Parser) {
+      parserProvider: (datum: Datum) => Parser) {
     const proc = this.getEnv()!.getProcedure(this.operatorName.getPayload());
     if (proc instanceof Procedure) {
       if (!this.operandsInContinuationPassingStyle()) {

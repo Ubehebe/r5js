@@ -2,6 +2,7 @@ import {ProcCallResult} from "../ast/proc_call_like";
 import {Parser} from "../parse/parser";
 import {Environment} from "./environment";
 import {ProcCallLike} from "../ast/proc_call_like";
+import {Datum} from "../ast/datum";
 
 export class Branch extends ProcCallLike {
 
@@ -34,7 +35,7 @@ export class Branch extends ProcCallLike {
   /** @override */
   evalAndAdvance(resultStruct: ProcCallResult,
                  env: Environment,
-                 parserProvider: (Datum) => Parser) {
+                 parserProvider: (datum: Datum) => Parser) {
     // Branches always use the old environment left by the previous action on the trampoline.
     const testResult = env.get(this.testResultName);
     if (testResult === false) {
