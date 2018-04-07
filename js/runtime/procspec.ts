@@ -25,7 +25,7 @@ import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 import {SimpleDatum} from "../ast/simple_datum";
 
 export interface NumArgChecker {
-  checkNumArgs(numArgs: number, nameToShowInErrorMessage: string);
+  checkNumArgs(numArgs: number, nameToShowInErrorMessage: string): void;
 }
 
 class Exactly implements NumArgChecker {
@@ -224,7 +224,7 @@ class HasSpecialEvalLogic extends PrimitiveProcedure {
 }
 
 /** TODO bl: make the template type mean something */
-export function unary<T>(fn: (T) => any, argtype: Type | undefined = undefined): PrimitiveProcedure {
+export function unary<T>(fn: (arg: T) => any, argtype: Type | undefined = undefined): PrimitiveProcedure {
   return new PrimitiveProcedure(
       fn,
       EXACTLY_1_ARG,
@@ -234,7 +234,10 @@ export function unary<T>(fn: (T) => any, argtype: Type | undefined = undefined):
 }
 
 /** TODO bl: make the template types mean something */
-export function binary<T1, T2>(fn: (T1, T2) => any, argtype1: Type | undefined = undefined, argtype2: Type | undefined = undefined): PrimitiveProcedure {
+export function binary<T1, T2>(
+    fn: (arg1: T1, arg2: T2) => any,
+    argtype1: Type | undefined = undefined,
+    argtype2: Type | undefined = undefined): PrimitiveProcedure {
   const argtypes: Type[] = [];
   argtype1 && argtypes.push(argtype1);
   argtype2 && argtypes.push(argtype2);
@@ -245,10 +248,11 @@ export function binary<T1, T2>(fn: (T1, T2) => any, argtype1: Type | undefined =
 }
 
 /** TODO bl make the template types mean something */
-export function ternary<T1, T2, T3>(fn: (T1, T2, T3) => any,
-                                    argtype1: Type | undefined = undefined,
-                                    argtype2: Type | undefined = undefined,
-                                    argtype3: Type | undefined = undefined): PrimitiveProcedure {
+export function ternary<T1, T2, T3>(
+    fn: (arg1: T1, arg2: T2, arg3: T3) => any,
+    argtype1: Type | undefined = undefined,
+    argtype2: Type | undefined = undefined,
+    argtype3: Type | undefined = undefined): PrimitiveProcedure {
   const argtypes: Type[] = [];
   argtype1 && argtypes.push(argtype1);
   argtype2 && argtypes.push(argtype2);
@@ -324,8 +328,9 @@ Predicates['symbol?'] = unary(node => node instanceof Identifier);
 Predicates['vector?'] = unary(node => node instanceof Vector);
 
 export function runtimeType(arg: Datum): Type {
-  for (const key in Types) {
-    const type = Types[key];
+  const types = (Types as any); // TODO iterating over imports is weird
+  for (const typeName in types) {
+    const type = types[typeName];
     const predicateName = type.getName() + '?';
     if (predicateName in Predicates
         && !!Predicates[predicateName].fn.call(null, arg)) {
