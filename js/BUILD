@@ -15,6 +15,7 @@ ts_library(
         "//scm:PROCEDURES",
         "//scm:SYNTAX",
     ],
+    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
@@ -49,4 +50,5 @@ ts_library(
         "//js/runtime:trampoline",
         "//js/scan",
     ],
+    tsconfig = "//:tsconfig.json",
 )

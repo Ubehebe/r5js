@@ -105,4 +105,5 @@ ts_library(
         "//scm:TEST_FRAMEWORK",
         "//scm:TEST_FRAMEWORK_TESTS",
     ],
+    tsconfig = "//:tsconfig.json",
 )

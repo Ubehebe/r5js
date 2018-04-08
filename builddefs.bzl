@@ -30,6 +30,7 @@ def scheme_source(name, src):
 
   ts_library(
       name = name,
+      tsconfig = "//:tsconfig.json",
       srcs = [
           ":" + name + "_src",
       ],
