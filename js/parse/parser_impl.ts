@@ -905,7 +905,7 @@ function desugarMacroBlock(datum: CompoundDatum, env: Environment, operatorName:
   const letBindings = new SiblingBuffer();
 
   datum.firstSublist()!.forEachChild(spec => {
-    const kw = (spec as CompoundDatum).at(KEYWORD)!.clone(null /* parent */);
+    const kw = (spec as CompoundDatum).at(KEYWORD)!.clone();
     const macro = (spec as CompoundDatum).at(TRANSFORMER_SPEC)!.desugar(env);
     const buf = new SiblingBuffer();
     // We have to wrap the SchemeMacro object in a Datum to get it into the parse tree.

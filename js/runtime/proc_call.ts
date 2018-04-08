@@ -80,7 +80,7 @@ export class ProcCall extends ProcCallLike {
     for (let arg = this.firstOperand; arg; arg = arg.getNextSibling()) {
       arg.resetDesugars();
       if (arg instanceof Quote) {
-        finalArgs.appendSibling(arg.clone(null /* parent */));
+        finalArgs.appendSibling(arg.clone());
       } else if (arg instanceof Quasiquote) {
         maybeContinuable = arg.processQuasiquote(this.getEnv()!, parserProvider);
         finalArgs.appendSibling(
@@ -94,7 +94,7 @@ export class ProcCall extends ProcCallLike {
             new Identifier(maybeContinuable.getLast().getResultName()));
         newCallChain.appendProcCallLike(maybeContinuable);
       } else {
-        const clonedArg = arg.clone(null /* parent */);
+        const clonedArg = arg.clone();
         finalArgs.appendSibling(clonedArg);
       }
     }
@@ -166,7 +166,7 @@ export class ProcCall extends ProcCallLike {
       } else if (cur instanceof Lambda) {
         args.push(cur);
       } else if (cur instanceof Datum) {
-        args.push(cur.clone(null /* parent */));
+        args.push(cur.clone());
       } else {
         throw Error.internalInterpreterError('unexpected datum ' + cur);
       }

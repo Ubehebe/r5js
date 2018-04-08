@@ -293,8 +293,8 @@ PrimitiveProcedures['cdr'] = unary((p: Pair) => {
 
 PrimitiveProcedures['cons'] = binary((car: Pair, cdr: Pair) => {
   // todo bl this is really expensive! can we cut down on the copying?
-  const realCar = car.clone(null);
-  const realCdr = cdr.clone(null);
+  const realCar = car.clone();
+  const realCdr = cdr.clone();
   // Since cdr already has a "head of list" node, reuse that. Convoluted eh?
   if (realCdr instanceof List || realCdr.isImproperList()) {
     const oldFirstChild = realCdr.getFirstChild();
@@ -373,7 +373,7 @@ PrimitiveProcedures['make-vector'] = varargsRange((numberNode: Number, fillNode:
   fillNode = fillNode || new Boolean(false);
   const buf: Datum[] = [];
   for (let i = 0; i < n; ++i) {
-    buf.push(fillNode.clone(null));
+    buf.push(fillNode.clone());
   }
   return new Vector(buf);
 }, 1, 2);

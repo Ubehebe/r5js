@@ -186,7 +186,7 @@ export class TemplateBindings {
       const name = datum.getPayload();
       const maybe = this.bindings[name];
       if (maybe) {
-        return maybe.clone(null /* parent */);
+        return maybe.clone();
       } else if (this.patternIds[name] !== undefined) {
         // It's important to return false here, instead of some other "falsey" value like null.
         // This value is immediately returned by IdOrLiteralTransformer.prototype.matchInput.
@@ -197,11 +197,11 @@ export class TemplateBindings {
         // something different. Static types would be useful here.
         return false;
       } else {
-        return datum.clone(null /* parent */);
+        return datum.clone();
       }
 
     } else {
-      return datum.clone(null /* parent */);
+      return datum.clone();
     }
   }
 

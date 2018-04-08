@@ -30,7 +30,7 @@ export class CompoundDatum extends Datum {
   }
 
   /** @override */
-  clone(parent: Datum | null): CompoundDatum {
+  clone(parent: Datum | undefined = undefined): CompoundDatum {
     const ans = super.clone(parent) as CompoundDatum;
     if (this.firstChild) {
       const buf = new SiblingBuffer();

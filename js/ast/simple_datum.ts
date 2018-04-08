@@ -27,7 +27,7 @@ export class SimpleDatum<T> extends Datum {
   }
 
   /** @override */
-  clone(parent: Datum | null): Datum {
+  clone(parent: Datum | undefined = undefined): Datum {
     const clone = super.clone(parent) as SimpleDatum<T>;
     clone.setPayload(this.payload);
     return clone;

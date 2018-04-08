@@ -52,12 +52,11 @@ export class Datum implements ObjectValue {
     return this.immutable;
   }
 
-  clone(parent: Datum|null): Datum {
+  clone(parent: Datum | undefined = undefined): Datum {
 
-    /* Invariant: although cyclical Datum structures can be created by
-     the programmer (through set-cdr!, etc.), they will never be cloned.
-     They are created by mutation, i.e. once a value is already bound in an
-     Environment, and once that happens, we never clone it again. */
+    // Invariant: although cyclical Datum structures can be created by the programmer
+    // (through set-cdr!, etc.), they will never be cloned. They are created by mutation, i.e. once
+    // a value is already bound in an Environment, and once that happens, we never clone it again.
 
     const ans = new (<typeof Datum>this.constructor)();
 
@@ -65,7 +64,7 @@ export class Datum implements ObjectValue {
       ans.parent = this.parent;
     }
     // We only need the parent_ pointer on the last sibling.
-    if (!this.nextSibling) {
+    if (!this.nextSibling && parent) {
       ans.parent = parent;
     }
     if (this.immutable) {
