@@ -61,16 +61,15 @@ export class ProcCall extends ProcCallLike {
   }
 
   /**
-   * If the operator resolves as a primitive or non-primitive procedure,
-   * check that the operands are simple. If they're not, rearrange the flow
-   * of control to compute them first.
+   * If the operator resolves as a primitive or non-primitive procedure, check that the operands are
+   * simple. If they're not, rearrange the flow of control to compute them first.
    *
    * Example: (+ (* 2 3) (/ 4 5)) will need to be turned into something like
    *
    * (* 2 3 [_0 (/ 4 5 [_1 (+ _0 _1 [...])])])
    *
-   * (We do _not_ do this if the operator resolves as a macro. Macros
-   * get their arguments as unevaluated datums.)
+   * (We do *not* do this if the operator resolves as a macro. Macros get their arguments as
+   * unevaluated datums.)
    */
   private cpsify(resultStruct: ProcCallResult, parserProvider: (datum: Datum) => Parser) {
     const newCallChain = new ContinuableHelper();

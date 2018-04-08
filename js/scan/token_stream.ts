@@ -80,16 +80,15 @@ class Scanner implements TokenStream {
   }
 
   /**
-   * Previously, the scanner created immutable Token objects that had
-   * toDatum methods. When the reader failed to read a particular form,
-   * all this method had to do was reset {@link nextTokenIndex}; toDatum
-   * would be called anew during the next round of reading.
+   * Previously, the scanner created immutable Token objects that had toDatum methods. When the
+   * reader failed to read a particular form, all this method had to do was reset
+   * {@link nextTokenIndex}; toDatum would be called anew during the next round of reading.
    *
-   * But now the Token abstraction is gone; the scanner creates (mutable) Datums
-   * directly. This saves some token instantiation, but the price is that
-   * this method has to remember to restore the state of the rejected datums.
-   * TODO bl: investigate creating a {@link r5js.SiblingBuffer} subclass
-   * that would do this automatically.
+   * But now the Token abstraction is gone; the scanner creates (mutable) Datums directly. This
+   * saves some token instantiation, but the price is that this method has to remember to restore
+   * the state of the rejected datums.
+   * TODO bl: investigate creating a {@link SiblingBuffer} subclass that would do this
+   * automatically.
    * @override
    */
   restore(checkpoint: number) {
@@ -181,8 +180,7 @@ function normalizeCharacterPayload(payload: string): string {
   const afterSlash = payload.substr(2);
   if (afterSlash.length === 1) {
     return afterSlash;
-    /* R5RS 6.3.4: "Case is significant in #\<character>, but not in
-     #\<character name>.*/
+    // R5RS 6.3.4: "Case is significant in #\<character>, but not in #\<character name>."
   } else if (afterSlash.toLowerCase() === 'space') {
     return ' ';
   } else if (afterSlash.toLowerCase() === 'newline') {
@@ -214,19 +212,18 @@ function parseNumericPayload(payload: string): number {
     base = 2;
   }
 
-  /* Get rid of all lone hashes. The lone hashes appear in the <decimal 10>
-   rule, but don't appear to have any semantic significance. */
+  // Get rid of all lone hashes. The lone hashes appear in the <decimal 10> rule, but don't appear
+  // to have any semantic significance.
   payload = payload.replace('#', '');
 
   const maybeRational = payload.split('/');
   if (maybeRational.length === 2) {
     return parseInt(maybeRational[0], base) / parseInt(maybeRational[1], base);
   } else {
-    /* If the base is 10, it could have additional features like an exponent
-     or a decimal point. ([sfdl] are precision annotations for exponents,
-     which we ignore.) If the base is not 10, it can't have any features
-     other than a base annotation (like "#x") and a division sign, both of
-     which have already been taken care of. */
+    // If the base is 10, it could have additional features like an exponent or a decimal point.
+    // ([sfdl] are precision annotations for exponents, which we ignore.) If the base is not 10,
+    // it can't have any features other than a base annotation (like "#x") and a division sign, both
+    // of which have already been taken care of.
     return base === 10 ?
         parseFloat(payload.replace(/[sfdl]/i, 'e')) :
         parseInt(payload, base);

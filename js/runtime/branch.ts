@@ -42,17 +42,13 @@ export class Branch extends ProcCallLike {
       this.alternateLastContinuable.setNext(this.getNext()! /* TODO: incorrect? */);
       this.alternateLastContinuable.setResultName(this.getResultName());
       resultStruct.setNext(this.alternate);
-      // We must clear the environment off the non-taken branch. See comment at
-      // {@link r5js.Continuation.rememberEnv}. TODO bl: clearEnv is defined only on
-      // {@link r5js.ProcCall}, yet all of the tests pass. This suggests either test coverage is
-      // insufficient or that I don't understand the type of subtype.
+      // Clear the environment off the non-taken branch.
       this.consequent.clearEnv();
     } else {
       this.consequentLastContinuable.setNext(this.getNext()!);
       this.consequentLastContinuable.setResultName(this.getResultName());
       resultStruct.setNext(this.consequent);
-      // We must clear the environment off the non-taken branch. See comment at
-      // {@link r5js.Continuation.rememberEnv}, and above.
+      // Clear the environment off the non-taken branch.
       this.alternate.clearEnv();
     }
   }

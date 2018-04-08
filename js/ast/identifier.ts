@@ -21,8 +21,8 @@ export class Identifier extends SimpleDatum<string> {
   }
 
   /**
-   * This is a subcase of shouldUnquote, because unquotes and unquote-splicings
-   * have pretty much the same logic.
+   * This is a subcase of shouldUnquote, because unquotes and unquote-splicings have pretty much the
+   * same logic.
    * @return {boolean} TODO bl.
    */
   shouldUnquoteSplice(): boolean {
