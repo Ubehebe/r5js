@@ -120,11 +120,11 @@ export class DottedList extends Pair {
   }
 }
 
-export class CdrHelperImpl extends CdrHelper {
+export class CdrHelperImpl implements CdrHelper {
 
-  constructor(private head: CompoundDatum, private startOfCdr: Datum) {
-    super();
-  }
+  constructor(
+      private readonly head: CompoundDatum,
+      private readonly startOfCdr: Datum) {}
 
   /** @override */
   setCar(car: Datum) {
