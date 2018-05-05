@@ -1,13 +1,6 @@
-# TODO: where is this being used??
-git_repository(
-    name = "io_bazel_rules_closure",
-    commit = "08039ba8ca59f64248bb3b6ae016460fe9c9914f",
-    remote = "https://github.com/bazelbuild/rules_closure.git",
-)
-
 git_repository(
     name = "build_bazel_rules_nodejs",
-    commit = "ff1a9caecb6b11ff34f2d1975aafe6c812014c63",
+    tag = "0.8.0",
     remote = "https://github.com/bazelbuild/rules_nodejs.git",
 )
 
@@ -16,8 +9,8 @@ node_repositories(package_json = ["@build_bazel_rules_typescript//:package.json"
 
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "e4d1367115806531752c4df406c0be8436a0d817",
-    remote = "https://github.com/Ubehebe/rules_typescript.git",
+    tag = "0.12.3",
+    remote = "https://github.com/bazelbuild/rules_typescript.git",
 )
 
 npm_install(
