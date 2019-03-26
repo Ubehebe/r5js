@@ -7,3 +7,8 @@ buildifier(
     lint_mode = "fix",
     mode = "fix",
 )
+
+buildifier(
+    name = "buildifier_pre_commit",
+    mode = "check",
+)
