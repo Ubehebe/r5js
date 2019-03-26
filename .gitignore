@@ -3,4 +3,5 @@
 bazel-*
 *.iml
 /compiler.jar
+node_modules/
 .idea/
