@@ -6,16 +6,15 @@ package(
     ],
 )
 
-
 ts_library(
     name = "read",
     srcs = glob(["*.ts"]),
+    tsconfig = "//:tsconfig.json",
     deps = [
+        "//js:error",
         "//js/ast:datum",
         "//js/parse:nonterminals",
         "//js/parse:terminals",
-        "//js:error",
         "//js/scan",
     ],
-    tsconfig = "//:tsconfig.json",
 )

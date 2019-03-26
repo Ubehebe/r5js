@@ -17,10 +17,10 @@ ts_library(
         "datum.ts",
         "datum_util.ts",
         "identifier.ts",
-        "pair.ts",
         "list.ts",
         "macro.ts",
         "number.ts",
+        "pair.ts",
         "proc_call_like.ts",
         "quasiquote.ts",
         "quote.ts",
@@ -36,12 +36,12 @@ ts_library(
     tsconfig = "//:tsconfig.json",
     deps = [
         ":rename_helper",
+        "//js:error",
+        "//js:value",
         "//js/parse:nonterminals",
         "//js/parse:rename_util",
         "//js/parse:terminals",
         "//js/runtime:environment",
-        "//js:error",
-        "//js:value",
     ],
 )
 

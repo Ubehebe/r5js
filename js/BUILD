@@ -11,19 +11,19 @@ ts_library(
     srcs = [
         "scheme_sources.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         "//scm:PROCEDURES",
         "//scm:SYNTAX",
     ],
-    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
     name = "value",
-    tsconfig = "//:tsconfig.json",
     srcs = [
         "value.ts",
     ],
+    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
@@ -39,9 +39,10 @@ ts_library(
     srcs = [
         "boot.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
-        "//js/io",
         "//js/eval",
+        "//js/io",
         "//js/parse:parser_impl",
         "//js/read",
         "//js/runtime",
@@ -50,5 +51,4 @@ ts_library(
         "//js/runtime:trampoline",
         "//js/scan",
     ],
-    tsconfig = "//:tsconfig.json",
 )

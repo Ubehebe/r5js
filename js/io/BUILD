@@ -7,11 +7,11 @@ package(
 ts_library(
     name = "io",
     srcs = glob(["*.ts"]),
+    tsconfig = "//:tsconfig.json",
     deps = [
+        "//js:value",
         "//js/ast:datum",
         "//js/read",
         "//js/scan",
-        "//js:value",
     ],
-    tsconfig = "//:tsconfig.json",
 )

@@ -8,10 +8,10 @@ package(
 
 ts_library(
     name = "environment",
-    tsconfig = "//:tsconfig.json",
     srcs = [
         "environment.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         "//js:value",
     ],
@@ -19,7 +19,6 @@ ts_library(
 
 ts_library(
     name = "runtime",
-    tsconfig = "//:tsconfig.json",
     srcs = [
         "assignment.ts",
         "branch.ts",
@@ -40,52 +39,53 @@ ts_library(
         "valutil.ts",
         "varargs_user_defined_procedure.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         ":environment",
-        "//js/ast:datum",
-        "//js/ast:type",
-        "//js/macro",
         "//js:error",
         "//js:value",
+        "//js/ast:datum",
+        "//js/ast:type",
         "//js/io",
+        "//js/macro",
         "//js/parse:nonterminals",
+        "//js/parse:parser",
         "//js/parse:rename_util",
         "//js/parse:terminals",
-        "//js/parse:parser",
     ],
 )
 
 ts_library(
     name = "primitive_procedures",
-    tsconfig = "//:tsconfig.json",
     srcs = [
         "primitive_procedures.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         ":environment",
         ":runtime",
         ":trampoline",
+        "//js:error",
         "//js:value",
+        "//js/ast:datum",
         "//js/ast:type",
         "//js/io",
-        "//js:error",
-        "//js/ast:datum",
         "//js/parse:parser_impl",
     ],
 )
 
 ts_library(
     name = "trampoline",
-    tsconfig = "//:tsconfig.json",
     srcs = [
         "trampoline.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
+        ":environment",
+        ":runtime",
         "//js:value",
         "//js/ast:datum",
         "//js/io",
         "//js/parse:parser_impl",
-        ":environment",
-        ":runtime",
     ],
 )

@@ -4,22 +4,22 @@ load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 ts_library(
     name = "js_interop_test_lib",
     srcs = [
-        "js_interop_test.ts",
         "custom_matchers.d.ts",
-    ],
-    deps = [
-        "//js/ast:datum",
-        "//js/ast:type",
-        "//js/eval:eval",
-        "//js/io",
-        "//js/parse:terminals",
-        "//js:boot",
-        "//js:error",
-        "//js/runtime",
-        "//js:scheme_sources",
-        "@npm//@types/jasmine",
+        "js_interop_test.ts",
     ],
     tsconfig = "//:tsconfig.json",
+    deps = [
+        "//js:boot",
+        "//js:error",
+        "//js:scheme_sources",
+        "//js/ast:datum",
+        "//js/ast:type",
+        "//js/eval",
+        "//js/io",
+        "//js/parse:terminals",
+        "//js/runtime",
+        "@npm//@types/jasmine",
+    ],
 )
 
 jasmine_node_test(
@@ -32,19 +32,19 @@ jasmine_node_test(
 ts_library(
     name = "parser_test_lib",
     srcs = [
-        "parser_test.ts",
         "custom_matchers.d.ts",
+        "parser_test.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         "//js/ast:datum",
-        "//js/eval:eval",
+        "//js/eval",
         "//js/parse:nonterminals",
         "//js/parse:parser_impl",
         "//js/read",
         "//js/scan",
         "@npm//@types/jasmine",
     ],
-    tsconfig = "//:tsconfig.json",
 )
 
 jasmine_node_test(
@@ -57,15 +57,15 @@ jasmine_node_test(
 ts_library(
     name = "scanner_test_lib",
     srcs = [
-        "scanner_test.ts",
         "custom_matchers.d.ts",
-    ],
-    deps = [
-    "//js/ast:datum",
-    "//js/scan",
-    "@npm//@types/jasmine",
+        "scanner_test.ts",
     ],
     tsconfig = "//:tsconfig.json",
+    deps = [
+        "//js/ast:datum",
+        "//js/scan",
+        "@npm//@types/jasmine",
+    ],
 )
 
 jasmine_node_test(
@@ -81,14 +81,14 @@ ts_library(
         "scheme_test.ts",
         "test_framework.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         ":scheme_sources",
+        "//js/eval",
         "//js/eval:async_evaluator",
-        "//js/eval:eval",
         "//js/io",
         "@npm//@types/jasmine",
     ],
-    tsconfig = "//:tsconfig.json",
 )
 
 jasmine_node_test(
@@ -103,6 +103,7 @@ ts_library(
     srcs = [
         "scheme_sources.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         "//scm:NEGATIVE_TESTS",
         "//scm:OTHER_TESTS",
@@ -110,5 +111,4 @@ ts_library(
         "//scm:TEST_FRAMEWORK",
         "//scm:TEST_FRAMEWORK_TESTS",
     ],
-    tsconfig = "//:tsconfig.json",
 )

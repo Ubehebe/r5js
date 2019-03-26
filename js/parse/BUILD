@@ -22,13 +22,13 @@ ts_library(
         "parse_rule.ts",
         "parse_rule_factory.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         ":nonterminals",
         ":terminals",
         "//js/ast:datum",
         "//js/runtime:environment",
     ],
-    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
@@ -36,11 +36,11 @@ ts_library(
     srcs = [
         "parser.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         ":nonterminals",
         "//js/ast:datum",
     ],
-    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
@@ -48,20 +48,20 @@ ts_library(
     srcs = [
         "parser_impl.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         ":nonterminals",
         ":parse",
         ":parser",
         ":rename_util",
         ":terminals",
+        "//js:error",
         "//js/ast:datum",
         "//js/ast:rename_helper",
-        "//js:error",
         "//js/macro",
         "//js/runtime",
         "//js/runtime:environment",
     ],
-    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(

@@ -12,6 +12,7 @@ ts_library(
         "evaluator.ts",
         "pipeline.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         "//js:error",
         "//js:value",
@@ -31,7 +32,6 @@ ts_library(
         "//js/runtime:trampoline",
         "//js/scan",
     ],
-    tsconfig = "//:tsconfig.json",
 )
 
 ts_library(
@@ -39,11 +39,11 @@ ts_library(
     srcs = [
         "async_evaluator.ts",
     ],
+    tsconfig = "//:tsconfig.json",
     deps = [
         ":eval",
         "//js:boot",
         "//js:scheme_sources",
         "//js/io",
     ],
-    tsconfig = "//:tsconfig.json",
 )

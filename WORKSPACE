@@ -25,11 +25,12 @@ buildifier_dependencies()
 
 git_repository(
     name = "build_bazel_rules_nodejs",
-    tag = "0.27.8",
     remote = "https://github.com/bazelbuild/rules_nodejs.git",
+    tag = "0.27.8",
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install", "node_repositories")
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+
 yarn_install(
     name = "npm",
     package_json = "//:package.json",

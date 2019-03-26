@@ -5,11 +5,11 @@ ts_library(
     srcs = [
         "token_stream.ts",
     ],
+    tsconfig = "//:tsconfig.json",
+    visibility = ["//js:__subpackages__"],
     deps = [
         "//js:error",
         "//js/ast:datum",
         "//js/parse:terminals",
     ],
-    visibility = ["//js:__subpackages__"],
-    tsconfig = "//:tsconfig.json",
 )

@@ -7,14 +7,14 @@ package(
 ts_library(
     name = "macro",
     srcs = glob(["*.ts"]),
+    tsconfig = "//:tsconfig.json",
     deps = [
-        "//js/ast:datum",
         "//js:error",
         "//js:value",
+        "//js/ast:datum",
         "//js/parse:nonterminals",
         "//js/parse:parser",
         "//js/parse:rename_util",
         "//js/runtime:environment",
     ],
-    tsconfig = "//:tsconfig.json",
 )
