@@ -1,0 +1,8 @@
+# The bazel action cache should be reused by every tool that invokes bazel.
+# Different tools invoke bazel with different PATHs, notably git, which prepends git --exec-path
+# to the PATH when running a hook script. Instead of ensuring that all the PATHs in all the invoking
+# tools are identical, use --incompatible_strict_action_env to tell bazel not to inherit PATHs from
+# clients.
+# This flag used to be on by default, but was turned off in bazel 0.23 due to issues I don't care
+# about. See https://github.com/bazelbuild/bazel/issues/7026.
+build --incompatible_strict_action_env
