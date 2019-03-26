@@ -3,5 +3,4 @@
 bazel-*
 *.iml
 /compiler.jar
-.*
-!.gitignore
+.idea/
