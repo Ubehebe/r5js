@@ -1,4 +1,4 @@
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
+load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 def scheme_source(name, src):
   base_name = src[:-4]
