@@ -1,15 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # (ln -s this file to .git/hooks/pre-commit.)
-#echo 'linting...'
-#eval 'make lint'
-#ret_code=$?
-#if [ $ret_code != 0 ]; then
-#    echo 'lint errors, aborting commit'
-#    exit $ret_code
-#fi
-eval 'bazel build //... && bazel test //... --test_output streamed'
-ret_code=$?
-if [ $ret_code != 0 ]; then
-    echo 'failure(s) in tests, aborting commit'
-    exit $ret_code
-fi
+set -e
+bazel test ... # exit code propagated by set -e
