@@ -14,7 +14,7 @@ import {Type} from "../ast/type";
 import * as Types from "../ast/types";
 import {Vector} from "../ast/vector";
 import {Error} from "../error";
-import {InputPort, isInputPort} from "../io/input_port";
+import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
 import {Value} from "../value";
 import {Continuation} from "./continuation";
@@ -311,13 +311,13 @@ const Predicates: { [key: string]: PrimitiveProcedure } = {};
 
 Predicates['boolean?'] = unary(node => node instanceof Boolean);
 Predicates['char?'] = unary(node => node instanceof Character);
-Predicates['input-port?'] = unary(port => isInputPort(port));
+Predicates['input-port?'] = unary(port => port instanceof InputPort);
 Predicates['null?'] = unary(node => node instanceof List && !node.getFirstChild());
 Predicates['number?'] = unary(node => node instanceof Number);
 Predicates['output-port?'] = unary(port => port instanceof OutputPort);
 // 3.2: (pair? '()) => #f
 Predicates['pair?'] = unary(node => node instanceof Pair && !!node.getFirstChild());
-Predicates['port?'] = unary(port => isInputPort(port) || port instanceof OutputPort);
+Predicates['port?'] = unary(port => port instanceof InputPort || port instanceof OutputPort);
 /* R5RS 6.4: "The procedure call-with-current-continuation
  packages up the current continuation as an "escape procedure"
  and passes it as an argument to proc." Thus a Continuation

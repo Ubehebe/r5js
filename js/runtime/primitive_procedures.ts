@@ -12,7 +12,7 @@ import {String as StringNode} from "../ast/string";
 import * as Types from "../ast/types";
 import {Vector} from "../ast/vector";
 import {Error} from "../error";
-import {InputPort, isInputPort} from "../io/input_port";
+import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
 import {PortManager} from "../io/port_manager";
 import {ParserImpl} from "../parse/parser_impl";
@@ -555,7 +555,7 @@ PrimitiveProcedures['will-eval?'] = binary(
 PrimitiveProcedures['char-ready?'] = nullaryOrUnaryWithCurrentPorts(
   (inputPort, outputPort, maybeUserSuppliedInputPort) => {
     const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-    if (!isInputPort(inputPortToUse)) {
+    if (!(inputPortToUse instanceof InputPort)) {
       throw argumentTypeError(
         inputPortToUse, 0, 'char-ready?', Types.INPUT_PORT,
         runtimeType(inputPortToUse));
@@ -606,7 +606,7 @@ PrimitiveProcedures['open-output-file'] = unary((datum: StringNode) =>
 PrimitiveProcedures['peek-char'] = nullaryOrUnaryWithCurrentPorts(
   (inputPort, outputPort, maybeUserSuppliedInputPort) => {
     const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-    if (!isInputPort(inputPortToUse)) {
+    if (!(inputPortToUse instanceof InputPort)) {
       throw argumentTypeError(
         inputPortToUse, 0, 'peek-char', Types.INPUT_PORT,
         runtimeType(inputPortToUse));
@@ -617,7 +617,7 @@ PrimitiveProcedures['peek-char'] = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures.read = nullaryOrUnaryWithCurrentPorts(
   (inputPort, outputPort, maybeUserSuppliedInputPort) => {
     const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-    if (!isInputPort(inputPortToUse)) {
+    if (!(inputPortToUse instanceof InputPort)) {
       throw argumentTypeError(
         inputPortToUse, 0, 'read', Types.INPUT_PORT,
         runtimeType(inputPortToUse));
@@ -628,7 +628,7 @@ PrimitiveProcedures.read = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures['read-char'] = nullaryOrUnaryWithCurrentPorts(
   (inputPort, outputPort, maybeUserSuppliedInputPort) => {
     const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
-    if (!isInputPort(inputPortToUse)) {
+    if (!(inputPortToUse instanceof InputPort)) {
       throw argumentTypeError(
         inputPortToUse, 0, 'read-char', Types.INPUT_PORT,
         runtimeType(inputPortToUse));

@@ -31,9 +31,5 @@ export class InputPort {
   }
 }
 
-export function isInputPort(obj: any): obj is InputPort {
-  return obj instanceof InputPort;
-}
-
 /** An input port that has no available input. */
 export const NULL_INPUT_PORT: InputPort = new InputPort();
