@@ -41,13 +41,12 @@ export class RuleFactory {
   }
 }
 
-class One extends Rule {
+class One implements Rule {
 
   private readonly type: Nonterminal|string;
   private readonly grammar: Grammar;
 
   constructor(type: string | Nonterminal, grammar: Grammar) {
-    super();
     this.type = type;
     this.grammar = grammar;
   }
@@ -77,7 +76,7 @@ class One extends Rule {
  */
 const TERMINAL_SENTINEL = new Datum();
 
-class AtLeast extends Rule {
+class AtLeast implements Rule {
 
   private readonly type: Nonterminal;
   private readonly repetition: number;
@@ -86,7 +85,6 @@ class AtLeast extends Rule {
       type: Nonterminal,
       minRepetitions: number,
       private readonly grammar: Grammar) {
-    super();
     this.type = type;
     this.repetition = minRepetitions;
   }
@@ -115,11 +113,9 @@ class AtLeast extends Rule {
   }
 }
 
-class OnePrimitive<T> extends Rule {
+class OnePrimitive<T> implements Rule {
 
-  constructor(private readonly ctor: new (payload: T) => SimpleDatum<T>) {
-    super();
-  }
+  constructor(private readonly ctor: new (payload: T) => SimpleDatum<T>) {}
 
   /** @override */
   match(tokenStream: TokenStream): Datum | null {
@@ -128,13 +124,11 @@ class OnePrimitive<T> extends Rule {
   }
 }
 
-export class Seq extends Rule {
+export class Seq implements Rule {
 
   private ctor: (new (d: Datum) => Datum) | null = null;
 
-  constructor(private readonly rules: Rule[]) {
-    super();
-  }
+  constructor(private readonly rules: Rule[]) {}
 
   named(ctor: new (d: Datum) => Datum): this {
     this.ctor = ctor;
@@ -193,11 +187,9 @@ function maybeCanonicalize(datum: Datum): Datum {
   }
 }
 
-class Choice extends Rule {
+class Choice implements Rule {
 
-  constructor(private readonly rules: Rule[]) {
-    super();
-  }
+  constructor(private readonly rules: Rule[]) {}
 
   /** @override */
   match(tokenStream: TokenStream): Datum | null {
