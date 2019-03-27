@@ -20,3 +20,27 @@ filegroup(
         "css/r5rs.css",
     ]
 )
+
+genrule(
+    name = "index_desktop",
+    srcs = [
+        "xsl/desktop.xsl",
+        "src/index.html",
+    ],
+    outs = [
+        "index_desktop.html",
+    ],
+    cmd = "xsltproc $(SRCS) > $(@)",
+)
+
+genrule(
+    name = "index_mobile",
+    srcs = [
+        "xsl/mobile.xsl",
+        "src/index.html",
+    ],
+    outs = [
+        "index_mobile.html",
+    ],
+    cmd = "xsltproc $(SRCS) > $(@)",
+)
