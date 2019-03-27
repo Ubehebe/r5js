@@ -1,4 +1,4 @@
-load("//:rules/builddefs.bzl", "scheme_source")
+load("//:rules/scheme_source.bzl", "scheme_source")
 
 scheme_source(
     name = "SYNTAX",
