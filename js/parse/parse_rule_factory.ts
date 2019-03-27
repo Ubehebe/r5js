@@ -1,17 +1,17 @@
-import * as Terminals from "./terminals";
-import {Grammar} from "./parse_grammar";
-import {Nonterminal} from "./nonterminals";
-import {DesugarableRule, Rule} from "./parse_rule";
 import {CompoundDatum} from "../ast/compound_datum";
 import {Datum, DesugarFunc} from "../ast/datum";
-import {DatumStream} from "./datum_stream";
 import {DottedList, List} from "../ast/list";
-import {Vector} from "../ast/vector";
-import {Quote} from "../ast/quote";
 import {Quasiquote} from "../ast/quasiquote";
+import {Quote} from "../ast/quote";
 import {SimpleDatum} from "../ast/simple_datum";
-import {UnquoteSplicing} from "../ast/unquote_splicing";
 import {Unquote} from "../ast/unquote";
+import {UnquoteSplicing} from "../ast/unquote_splicing";
+import {Vector} from "../ast/vector";
+import {DatumStream} from "./datum_stream";
+import {Nonterminal} from "./nonterminals";
+import {Grammar} from "./parse_grammar";
+import {DesugarableRule, Rule} from "./parse_rule";
+import * as Terminals from "./terminals";
 
 export class RuleFactory {
 

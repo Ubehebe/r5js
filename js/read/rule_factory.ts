@@ -1,16 +1,16 @@
 import {Datum, VACUOUS_PROGRAM} from '../ast/datum';
-import {SimpleDatum} from '../ast/simple_datum';
-import {Grammar} from './grammar';
+import {List} from '../ast/list';
 import {Quasiquote} from '../ast/quasiquote';
 import {Quote} from '../ast/quote';
-import {Rule} from './rule';
 import {SiblingBuffer} from '../ast/sibling_buffer';
+import {SimpleDatum} from '../ast/simple_datum';
 import {Unquote} from '../ast/unquote';
 import {UnquoteSplicing} from '../ast/unquote_splicing';
-import {List} from '../ast/list';
 import {Nonterminal} from '../parse/nonterminals';
 import {QUASIQUOTE, QUOTE, UNQUOTE, UNQUOTE_SPLICING} from '../parse/terminals';
 import {TokenStream} from '../scan/token_stream';
+import {Grammar} from './grammar';
+import {Rule} from './rule';
 
 export class RuleFactory {
 

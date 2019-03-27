@@ -1,8 +1,8 @@
 import {Nonterminal} from '../parse/nonterminals';
-import {RenameHelper} from './rename_helper';
 import {Environment} from "../runtime/environment";
 import {ObjectValue} from "../value";
 import {ProcCallLike, ProcCallResult} from "./proc_call_like";
+import {RenameHelper} from './rename_helper';
 
 /**
  * TODO: `T` should be `T extends Datum`. But there are a couple crazy implementations:
@@ -22,8 +22,8 @@ export class Datum implements ObjectValue {
   /** Only for last children */ private parent: Datum|null = null;
   private readonly nonterminals: Nonterminal[] = [];
   private readonly desugars: DesugarFunc<Datum>[] = [];
-  private nextDesugar: number = -1;
-  private immutable: boolean = false;
+  private nextDesugar = -1;
+  private immutable = false;
 
   constructor() {}
 
@@ -124,7 +124,7 @@ export class Datum implements ObjectValue {
    * @param forceContinuationWrapper TODO bl document.
    * @return {!Datum|!ProcCallLike|!r5js.Subtransformer|!r5js.Macro|null} TODO update TypeScript type.
    */
-  desugar(env: Environment, forceContinuationWrapper:boolean=false): any {
+  desugar(env: Environment, forceContinuationWrapper=false): any {
     const desugarFn = (this.nextDesugar >= 0)
         ? this.desugars[this.nextDesugar--]
         : null;
@@ -216,4 +216,3 @@ class DatumShim extends ProcCallLike {
 export const VACUOUS_PROGRAM = new Datum();
 
 export const UNSPECIFIED_VALUE: Datum = new Datum();
-

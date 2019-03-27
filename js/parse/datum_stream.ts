@@ -1,5 +1,5 @@
-import {Datum} from "../ast/datum";
 import {CompoundDatum} from "../ast/compound_datum";
+import {Datum} from "../ast/datum";
 
 export class DatumStream {
 

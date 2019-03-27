@@ -1,7 +1,7 @@
-import {ProcCall} from "./proc_call";
 import {Identifier} from "../ast/identifier";
-import {Continuation} from "./continuation";
 import {Value} from "../value";
+import {Continuation} from "./continuation";
+import {ProcCall} from "./proc_call";
 
 export class CallWithCurrentContinuation extends ProcCall {
 

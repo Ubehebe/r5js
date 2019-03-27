@@ -1,7 +1,7 @@
-import {TopLevelAssignment} from "./top_level_assignment";
-import {ProcCallLike} from "../ast/proc_call_like";
 import {Identifier} from "../ast/identifier";
+import {ProcCallLike} from "../ast/proc_call_like";
 import {SiblingBuffer} from "../ast/sibling_buffer";
+import {TopLevelAssignment} from "./top_level_assignment";
 
 export class TopLevelSyntaxAssignment extends TopLevelAssignment {
   constructor(firstOperand: Identifier) {

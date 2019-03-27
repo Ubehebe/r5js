@@ -1,9 +1,9 @@
-import {Subtransformer} from "./subtransformer";
 import {Datum} from "../ast/datum";
-import {TemplateBindings} from "./template_bindings";
 import {SiblingBuffer} from "../ast/sibling_buffer";
-import {RenameHelper} from "./rename_helper";
 import {Environment} from "../runtime/environment";
+import {RenameHelper} from "./rename_helper";
+import {Subtransformer} from "./subtransformer";
+import {TemplateBindings} from "./template_bindings";
 
 export class EllipsisTransformer implements Subtransformer {
 

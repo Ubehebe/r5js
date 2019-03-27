@@ -1,15 +1,15 @@
-import {Subtransformer} from "./subtransformer";
+import {CompoundDatum} from "../ast/compound_datum";
 import {Datum} from "../ast/datum";
+import {DottedList, List} from "../ast/list";
+import {Quote} from "../ast/quote";
+import {SiblingBuffer} from "../ast/sibling_buffer";
+import {Vector} from "../ast/vector";
+import {Environment} from "../runtime/environment";
+import {EllipsisTransformer} from "./ellipsis_transformer";
 import {MacroIdTransformer} from "./macro_id_transformer";
 import {RenameHelper} from "./rename_helper";
+import {Subtransformer} from "./subtransformer";
 import {TemplateBindings} from "./template_bindings";
-import {EllipsisTransformer} from "./ellipsis_transformer";
-import {CompoundDatum} from "../ast/compound_datum";
-import {SiblingBuffer} from "../ast/sibling_buffer";
-import {Quote} from "../ast/quote";
-import {Vector} from "../ast/vector";
-import {DottedList, List} from "../ast/list";
-import {Environment} from "../runtime/environment";
 
 export interface ListLikeTransformer extends Subtransformer {
   addSubtransformer(subtransformer: Subtransformer): this;
@@ -198,7 +198,7 @@ class DottedListTransformer extends Base {
       useEnv: Environment,
       bindings: TemplateBindings) {
     const len = this.subtransformers.length;
-    let maybeEllipsis =
+    const maybeEllipsis =
         this.subtransformers[len - 1] instanceof EllipsisTransformer
         && this.subtransformers[len - 1];
 

@@ -1,5 +1,5 @@
-import {SimpleDatum} from './simple_datum';
 import {Datum} from "./datum";
+import {SimpleDatum} from './simple_datum';
 
 export class String extends SimpleDatum<string> {
 

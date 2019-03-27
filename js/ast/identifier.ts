@@ -1,11 +1,11 @@
-import {SimpleDatum} from "./simple_datum";
 import {CPS_PREFIX, isParserSensitiveId} from "../parse/rename_util";
-import {RenameHelper} from "./rename_helper";
-import {ProcCallResult} from "./proc_call_like";
 import {COMMA} from "../parse/terminals";
 import {Environment} from "../runtime/environment";
 import {Value} from "../value";
+import {ProcCallResult} from "./proc_call_like";
 import {ProcCallLike} from "./proc_call_like";
+import {RenameHelper} from "./rename_helper";
+import {SimpleDatum} from "./simple_datum";
 
 export class Identifier extends SimpleDatum<string> {
   constructor(name: string) {
@@ -81,7 +81,7 @@ class IdShim extends ProcCallLike {
   }
 
   tryIdentifier_(id: Identifier): Value | null {
-    let env = this.getEnv();
+    const env = this.getEnv();
     return env && env.get(id.getPayload());
   }
 }

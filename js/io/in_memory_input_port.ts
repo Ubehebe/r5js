@@ -1,10 +1,10 @@
-import {InMemoryPortBuffer} from "./in_memory_port_buffer";
-import {InputPort} from "./input_port";
+import {Character} from "../ast/character";
 import {Datum} from "../ast/datum";
 import {newReader, Reader} from "../read/reader";
 import {newTokenStream, TokenStream} from "../scan/token_stream";
-import {Character} from "../ast/character";
 import {Value} from "../value";
+import {InMemoryPortBuffer} from "./in_memory_port_buffer";
+import {InputPort} from "./input_port";
 
 export class InMemoryInputPort extends InputPort {
 

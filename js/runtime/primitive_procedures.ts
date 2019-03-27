@@ -1,3 +1,31 @@
+import {Boolean} from "../ast/boolean";
+import {Character} from "../ast/character";
+import {CompoundDatum} from "../ast/compound_datum";
+import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
+import {Identifier} from "../ast/identifier";
+import {CdrHelperImpl, DottedList, List} from "../ast/list";
+import {Number} from "../ast/number";
+import {Pair} from "../ast/pair";
+import {Quote} from "../ast/quote";
+import {SiblingBuffer} from "../ast/sibling_buffer";
+import {String as StringNode} from "../ast/string";
+import * as Types from "../ast/types";
+import {Vector} from "../ast/vector";
+import {Error} from "../error";
+import {InputPort, isInputPort} from "../io/input_port";
+import {isOutputPort, OutputPort} from "../io/output_port";
+import {PortManager} from "../io/port_manager";
+import {ParserImpl} from "../parse/parser_impl";
+import {Value} from "../value";
+import {CallWithCurrentContinuation} from "./call_with_current_continuation";
+import {Continuation} from "./continuation";
+import {DynamicWindContinuation} from "./dynamic_wind_continuation";
+import {Environment} from "./environment";
+import {EnvironmentImpl} from "./environment_impl";
+import {EOF} from "./eof";
+import {argumentTypeError} from "./errors";
+import {Lambda} from "./lambda";
+import {ProcCall} from "./proc_call";
 import {
   atLeastNWithSpecialEvalLogic,
   binary, binaryWithCurrentPorts, binaryWithSpecialEvalLogic, installPredicates, nullaryOrUnaryWithCurrentPorts,
@@ -7,36 +35,8 @@ import {
   varargsAtLeast0,
   varargsAtLeast1, varargsRange
 } from "./procspec";
-import * as Types from "../ast/types";
-import {PortManager} from "../io/port_manager";
-import {Error} from "../error";
-import {String as StringNode} from "../ast/string";
-import {CompoundDatum} from "../ast/compound_datum";
-import {CdrHelperImpl, DottedList, List} from "../ast/list";
-import {SiblingBuffer} from "../ast/sibling_buffer";
-import {argumentTypeError} from "./errors";
-import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
-import {Vector} from "../ast/vector";
-import {Boolean} from "../ast/boolean";
-import {Number} from "../ast/number";
-import {Identifier} from "../ast/identifier";
-import {Character} from "../ast/character";
-import {EnvironmentImpl} from "./environment_impl";
-import {Lambda} from "./lambda";
-import {ParserImpl} from "../parse/parser_impl";
 import {trampoline} from "./trampoline";
-import {InputPort, isInputPort} from "../io/input_port";
-import {isOutputPort, OutputPort} from "../io/output_port";
 import {toDisplayString, toWriteString} from "./valutil";
-import {EOF} from "./eof";
-import {Quote} from "../ast/quote";
-import {ProcCall} from "./proc_call";
-import {DynamicWindContinuation} from "./dynamic_wind_continuation";
-import {Continuation} from "./continuation";
-import {CallWithCurrentContinuation} from "./call_with_current_continuation";
-import {Environment} from "./environment";
-import {Value} from "../value";
-import {Pair} from "../ast/pair";
 
 let nullEnv: Environment | null = null;
 let r5RSEnv: Environment | null = null;
@@ -69,8 +69,9 @@ PrimitiveProcedures['/'] = varargsAtLeast1((...args: number[]) => {
     return 1 / args[0];
   } else { // varargs: (x1 / x2) / x3 etc
     let ans = args[0];
-    for (let i = 1; i < args.length; ++i)
+    for (let i = 1; i < args.length; ++i) {
       ans /= args[i];
+    }
     return ans;
   }
 }, Types.NUMBER);
@@ -139,15 +140,15 @@ PrimitiveProcedures['<'] = varargsAtLeast0((...args: number[]) => {
   return true;
 }, Types.NUMBER);
 
-PrimitiveProcedures['angle'] = unary(z => {
+PrimitiveProcedures.angle = unary(z => {
   throw Error.unimplementedOption('angle');
 }, Types.NUMBER);
 
-PrimitiveProcedures['acos'] = unary(Math.acos, Types.NUMBER);
+PrimitiveProcedures.acos = unary(Math.acos, Types.NUMBER);
 
-PrimitiveProcedures['asin'] = unary(Math.asin, Types.NUMBER);
+PrimitiveProcedures.asin = unary(Math.asin, Types.NUMBER);
 
-PrimitiveProcedures['atan'] = varargsAtLeast1((...args: number[]) => {
+PrimitiveProcedures.atan = varargsAtLeast1((...args: number[]) => {
   /* Oddly, R5RS overloads atan for both one and two arguments,
              rather than having a separate atan2. */
   switch (args.length) {
@@ -160,11 +161,11 @@ PrimitiveProcedures['atan'] = varargsAtLeast1((...args: number[]) => {
   }
 }, Types.NUMBER);
 
-PrimitiveProcedures['ceiling'] = unary(Math.ceil, Types.NUMBER);
+PrimitiveProcedures.ceiling = unary(Math.ceil, Types.NUMBER);
 
 PrimitiveProcedures['complex?'] = unary(node => node instanceof Number);
 
-PrimitiveProcedures['cos'] = unary(Math.cos, Types.NUMBER);
+PrimitiveProcedures.cos = unary(Math.cos, Types.NUMBER);
 
 // In JavaScript every number is a double.
 PrimitiveProcedures['exact?'] = unary(x => false, Types.NUMBER);
@@ -172,11 +173,11 @@ PrimitiveProcedures['exact?'] = unary(x => false, Types.NUMBER);
 // In JavaScript every number is inexact
 PrimitiveProcedures['exact->inexact'] = unary(x => x, Types.NUMBER);
 
-PrimitiveProcedures['exp'] = unary(Math.exp, Types.NUMBER);
+PrimitiveProcedures.exp = unary(Math.exp, Types.NUMBER);
 
-PrimitiveProcedures['expt'] = binary(Math.pow, Types.NUMBER, Types.NUMBER);
+PrimitiveProcedures.expt = binary(Math.pow, Types.NUMBER, Types.NUMBER);
 
-PrimitiveProcedures['floor'] = unary(Math.floor, Types.NUMBER);
+PrimitiveProcedures.floor = unary(Math.floor, Types.NUMBER);
 
 PrimitiveProcedures['imag-part'] = unary((z) => {
   throw Error.unimplementedOption('imag-part');
@@ -186,7 +187,7 @@ PrimitiveProcedures['inexact?'] = unary(x => true, Types.NUMBER);
 
 PrimitiveProcedures['inexact->exact'] = unary(x => x /* TODO bl */, Types.NUMBER);
 
-PrimitiveProcedures['magnitude'] = unary(z => {
+PrimitiveProcedures.magnitude = unary(z => {
   throw Error.unimplementedOption('magnitude');
 }, Types.NUMBER);
 
@@ -203,9 +204,9 @@ PrimitiveProcedures['number->string'] = unary(x => new StringNode(x + ''), Types
 PrimitiveProcedures['integer?'] = unary(node =>
   node instanceof Number && Math.round(node.getPayload()) === node.getPayload());
 
-PrimitiveProcedures['log'] = unary(Math.log, Types.NUMBER);
+PrimitiveProcedures.log = unary(Math.log, Types.NUMBER);
 
-PrimitiveProcedures['modulo'] = binary((p: number, q: number) => {
+PrimitiveProcedures.modulo = binary((p: number, q: number) => {
   const remainder = p % q;
   const sign = p * q;
   let ans = remainder;
@@ -215,8 +216,9 @@ PrimitiveProcedures['modulo'] = binary((p: number, q: number) => {
   } else if (p > 0) {
     /* If p is positive and q is negative,
                  remainder will be positive and modulo will be negative */
-    while (ans > 0)
+    while (ans > 0) {
       ans += q;
+    }
     return ans;
   } else {
     /* If p is negative and q is positive,
@@ -228,7 +230,7 @@ PrimitiveProcedures['modulo'] = binary((p: number, q: number) => {
   }
 }, Types.NUMBER, Types.NUMBER);
 
-PrimitiveProcedures['quotient'] = binary((p: number, q: number) => {
+PrimitiveProcedures.quotient = binary((p: number, q: number) => {
   // In Scheme, quotient rounds towards zero, which is unfortunately not what JavaScript's
   // Math.round() does.
   const unrounded = p / q;
@@ -244,10 +246,10 @@ PrimitiveProcedures['real-part'] = unary(z => {
 }, Types.NUMBER);
 
 // The JavaScript % semantics are precisely the Scheme remainder semantics.
-PrimitiveProcedures['remainder'] = binary(
+PrimitiveProcedures.remainder = binary(
     (p: number, q: number) => p % q, Types.NUMBER, Types.NUMBER);
 
-PrimitiveProcedures['round'] = unary((x: number) => {
+PrimitiveProcedures.round = unary((x: number) => {
   /* R5RS 6.2.5: "Round returns the closest integer to x,
              rounding to even when x is halfway between two integers." */
   const down = Math.floor(x);
@@ -264,24 +266,24 @@ PrimitiveProcedures['round'] = unary((x: number) => {
   }
 }, Types.NUMBER);
 
-PrimitiveProcedures['sin'] = unary(Math.sin, Types.NUMBER);
+PrimitiveProcedures.sin = unary(Math.sin, Types.NUMBER);
 
-PrimitiveProcedures['sqrt'] = unary(Math.sqrt, Types.NUMBER);
+PrimitiveProcedures.sqrt = unary(Math.sqrt, Types.NUMBER);
 
 PrimitiveProcedures['string->number'] = unary(parseFloat, Types.STRING);
 
-PrimitiveProcedures['tan'] = unary(Math.tan, Types.NUMBER);
+PrimitiveProcedures.tan = unary(Math.tan, Types.NUMBER);
 
 // R5RS 6.2.5: "Truncate returns the integer closest to x whose absolute value is not larger than
 // the absolute value of x."
-PrimitiveProcedures['truncate'] = unary(
+PrimitiveProcedures.truncate = unary(
     (x: number) => x > 0 ? Math.floor(x) : Math.ceil(x), Types.NUMBER);
 
 // Pair-related procedures
 
-PrimitiveProcedures['car'] = unary((p: Pair) => p.car(), Types.PAIR);
+PrimitiveProcedures.car = unary((p: Pair) => p.car(), Types.PAIR);
 
-PrimitiveProcedures['cdr'] = unary((p: Pair) => {
+PrimitiveProcedures.cdr = unary((p: Pair) => {
   const cdr = p.cdr();
   // TODO bl bug city. I have no idea what this code path does, and it only seems to be triggered
   // intermittently, when I'm working on unrelated stuff.
@@ -291,7 +293,7 @@ PrimitiveProcedures['cdr'] = unary((p: Pair) => {
   return cdr;
 }, Types.PAIR);
 
-PrimitiveProcedures['cons'] = binary((car: Pair, cdr: Pair) => {
+PrimitiveProcedures.cons = binary((car: Pair, cdr: Pair) => {
   // todo bl this is really expensive! can we cut down on the copying?
   const realCar = car.clone();
   const realCdr = cdr.clone();
@@ -474,13 +476,14 @@ PrimitiveProcedures['string-set!'] = ternary(
 
 // Evaluation-related procedures
 
-PrimitiveProcedures['eval'] = binaryWithCurrentPorts(
+PrimitiveProcedures.eval = binaryWithCurrentPorts(
   function (inputPort, outputPort, expr, envSpec) {
-    if (!(expr instanceof Datum))
+    if (!(expr instanceof Datum)) {
     // TODO bl how could this not be a datum? The type signature of binaryWithCurrentPorts
     // is not helpful. Also, Types.SYMBOL is not right.
       throw argumentTypeError(
         expr, 0, 'eval', Types.SYMBOL, runtimeType(expr));
+    }
     if (!(envSpec instanceof EnvironmentImpl)) {
       throw argumentTypeError(
         envSpec, 1, 'eval', Types.ENVIRONMENT_SPECIFIER,
@@ -502,8 +505,9 @@ it would not know what to do with it and parsing would fail.
 todo bl: are there any other cases where a procedure can
 escape into the parser? */
 
-    if (expr instanceof Lambda)
+    if (expr instanceof Lambda) {
       return new Identifier(expr.getName());
+    }
 
     else {
       /* Call the parse/desugar/eval portions of the interpreter pipeline
@@ -529,7 +533,7 @@ escape into the parser? */
 PrimitiveProcedures['will-eval?'] = binary(
   /** @suppress {accessControls} */function (expr) {
     try {
-      PrimitiveProcedures['eval'].fn.call(null, expr);
+      PrimitiveProcedures.eval.fn.call(null, expr);
       return true;
     } catch (e) {
       return false;
@@ -569,7 +573,7 @@ PrimitiveProcedures['current-output-port'] =
      procedure. Since the only non-library output routine is write-char,
      display would presumably have to be written in terms of write-char.
      That's not too efficient, so I decided to write it in JavaScript. */
-PrimitiveProcedures['display'] = unaryOrBinaryWithCurrentPorts(
+PrimitiveProcedures.display = unaryOrBinaryWithCurrentPorts(
   (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
     const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
     if (!isOutputPort(outputPortToUse)) {
@@ -600,7 +604,7 @@ PrimitiveProcedures['peek-char'] = nullaryOrUnaryWithCurrentPorts(
     return inputPortToUse.peekChar() || EOF;
   });
 
-PrimitiveProcedures['read'] = nullaryOrUnaryWithCurrentPorts(
+PrimitiveProcedures.read = nullaryOrUnaryWithCurrentPorts(
   (inputPort, outputPort, maybeUserSuppliedInputPort) => {
     const inputPortToUse = maybeUserSuppliedInputPort || inputPort;
     if (!isInputPort(inputPortToUse)) {
@@ -622,7 +626,7 @@ PrimitiveProcedures['read-char'] = nullaryOrUnaryWithCurrentPorts(
     return inputPortToUse.readChar() || EOF;
   });
 
-PrimitiveProcedures['write'] = unaryOrBinaryWithCurrentPorts(
+PrimitiveProcedures.write = unaryOrBinaryWithCurrentPorts(
   (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
     const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
     if (!isOutputPort(outputPortToUse)) {
@@ -653,13 +657,12 @@ PrimitiveProcedures['write-char'] = unaryOrBinaryWithCurrentPorts(
 
 // Control flow related procedures
 
-
 /**
  * R5RS 6.4: (apply proc arg1 ... args)
  * "Proc must be a procedure and args must be a list. Calls proc with the elements of the list
  * (append (list arg1 ...) args) as the actual arguments."
  */
-PrimitiveProcedures['apply'] = atLeastNWithSpecialEvalLogic(2, (...args: any[] /* TODO */) => {
+PrimitiveProcedures.apply = atLeastNWithSpecialEvalLogic(2, (...args: any[] /* TODO */) => {
   const mustBeProc = args[0];
   if (!(mustBeProc instanceof Lambda)) {
     throw argumentTypeError(
@@ -683,8 +686,9 @@ PrimitiveProcedures['apply'] = atLeastNWithSpecialEvalLogic(2, (...args: any[] /
   if (lastRealArgIndex === 1) {
     const newArgs = new SiblingBuffer();
     // todo bl document why we are quoting the arguments
-    for (let arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling())
+    for (let arg = mustBeList.getFirstChild(); arg; arg = arg.getNextSibling()) {
       newArgs.appendSibling(new Quote(arg));
+    }
     const actualProcCall = new ProcCall(
       procName, newArgs.toSiblings());
     actualProcCall.setNext(procCallLike.getNext());
@@ -708,7 +712,6 @@ PrimitiveProcedures['apply'] = atLeastNWithSpecialEvalLogic(2, (...args: any[] /
 
   return UNSPECIFIED_VALUE;
 });
-
 
 /**
  * Semantics of dynamic-wind (as I understand it):
@@ -778,7 +781,6 @@ PrimitiveProcedures['dynamic-wind'] = ternaryWithSpecialEvalLogic(
     return UNSPECIFIED_VALUE;
   });
 
-
 /**
  * R5RS 6.4: (call-with-values producer consumer)
  * "Calls its producer argument with no values and a continuation that,
@@ -799,7 +801,6 @@ PrimitiveProcedures['call-with-values'] = binaryWithSpecialEvalLogic(
     resultStruct.setNext(producerCall);
     return UNSPECIFIED_VALUE;
   });
-
 
 /**
  * Semantics of call/cc:
@@ -844,9 +845,8 @@ PrimitiveProcedures['call-with-current-continuation'] =
     return UNSPECIFIED_VALUE;
   });
 
-
 // TODO bl: This can be implemented as a macro. See R5RS p. 34.
-PrimitiveProcedures['values'] = atLeastNWithSpecialEvalLogic(1, (...args: any[] /* TODO */) => {
+PrimitiveProcedures.values = atLeastNWithSpecialEvalLogic(1, (...args: any[] /* TODO */) => {
   // Varargs procedures that also have special eval logic are a pain.
   const resultStruct = args[args.length - 1];
   const procCallLike = args[args.length - 2];
@@ -882,7 +882,6 @@ PrimitiveProcedures['values'] = atLeastNWithSpecialEvalLogic(1, (...args: any[] 
   resultStruct.setNext(nextContinuable);
   return UNSPECIFIED_VALUE;
 });
-
 
 // Environment-related procedures
 

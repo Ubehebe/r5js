@@ -8,9 +8,8 @@
  * c.lastResultName is f'
  * c.nextContinuable is (g f' z ...)
  */
-import {ProcCallResult} from "../ast/proc_call_like";
+import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 import {Value} from "../value";
-import {ProcCallLike} from "../ast/proc_call_like";
 
 export class Continuation {
 

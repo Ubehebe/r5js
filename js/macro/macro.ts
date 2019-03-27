@@ -1,22 +1,22 @@
-import {Datum} from "../ast/datum";
-import {Transformer} from "./transformer";
-import {Identifier} from "../ast/identifier";
 import {CompoundDatum} from "../ast/compound_datum";
+import {Datum} from "../ast/datum";
+import {Identifier} from "../ast/identifier";
+import {List} from "../ast/list";
+import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
+import {SiblingBuffer} from "../ast/sibling_buffer";
+import {Error} from "../error";
 import {PATTERN, PROGRAM, TEMPLATE} from "../parse/nonterminals";
-import {TemplateBindings} from "./template_bindings";
 import {Parser} from "../parse/parser";
 import {isParserSensitiveId, newCpsName} from "../parse/rename_util";
-import {SiblingBuffer} from "../ast/sibling_buffer";
-import {List} from "../ast/list";
-import {Error} from "../error";
-import {ObjectValue} from "../value";
 import {Environment} from "../runtime/environment";
-import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
+import {ObjectValue} from "../value";
+import {TemplateBindings} from "./template_bindings";
+import {Transformer} from "./transformer";
 
 export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
 
   private readonly literalIdentifiers: Set<string> = new Set();
-  private isLetOrLetrecSyntax_: boolean = false;
+  private isLetOrLetrecSyntax_ = false;
 
   constructor(literalIdentifiers: Datum | null,
               rules: Datum | null,

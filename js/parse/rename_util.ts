@@ -3,7 +3,7 @@ import * as Terminals from './terminals';
 /** Not a valid identifier prefix so we can easily tell these apart. */
 export const CPS_PREFIX = '@';
 
-let cpsCounter: number = 0;
+let cpsCounter = 0;
 
 export function newCpsName(): string {
     return CPS_PREFIX + cpsCounter++;

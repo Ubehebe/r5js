@@ -1,21 +1,21 @@
-import {Number} from "../ast/number";
-import {String} from "../ast/string";
-import {RuleFactory} from "./rule_factory";
 import {Boolean} from "../ast/boolean";
-import {DATUM, DATUMS, Nonterminal} from "../parse/nonterminals";
-import {Identifier} from "../ast/identifier";
 import {Character} from "../ast/character";
-import {BACKTICK, COMMA, COMMA_AT, DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} from "../parse/terminals";
+import {Datum} from "../ast/datum";
+import {Identifier} from "../ast/identifier";
 import {DottedList, List} from "../ast/list";
-import {Vector} from "../ast/vector";
-import {Quote} from "../ast/quote";
+import {Number} from "../ast/number";
 import {Quasiquote} from "../ast/quasiquote";
+import {Quote} from "../ast/quote";
+import {String} from "../ast/string";
 import {Unquote} from "../ast/unquote";
 import {UnquoteSplicing} from "../ast/unquote_splicing";
+import {Vector} from "../ast/vector";
 import {Error, ErrorType} from "../error";
-import {Datum} from "../ast/datum";
+import {DATUM, DATUMS, Nonterminal} from "../parse/nonterminals";
+import {BACKTICK, COMMA, COMMA_AT, DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} from "../parse/terminals";
 import {TokenStream} from "../scan/token_stream";
 import {Rule} from "./rule";
+import {RuleFactory} from "./rule_factory";
 
 export interface Reader {
   /**
@@ -80,7 +80,6 @@ grammar.set(DATUM, _.choice(
         _.one(COMMA_AT),
         _.one(DATUM))
         .named(UnquoteSplicing)));
-
 
 grammar.set(DATUMS, _.zeroOrMore(DATUM));
 

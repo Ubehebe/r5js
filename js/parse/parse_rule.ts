@@ -1,6 +1,6 @@
-import {DatumStream} from "./datum_stream";
 import {Datum} from "../ast/datum";
 import {Environment} from "../runtime/environment";
+import {DatumStream} from "./datum_stream";
 
 export interface Rule {
   /** @return True iff the parse succeeded. */

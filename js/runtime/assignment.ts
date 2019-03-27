@@ -1,13 +1,13 @@
 import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
 import {Identifier} from "../ast/identifier";
-import {Macro} from "../macro/macro";
-import {Error} from "../error";
-import {SimpleDatum} from "../ast/simple_datum";
-import {SiblingBuffer} from "../ast/sibling_buffer";
-import {Parser} from "../parse/parser";
-import {Environment} from "./environment";
-import {Value} from "../value";
 import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
+import {SiblingBuffer} from "../ast/sibling_buffer";
+import {SimpleDatum} from "../ast/simple_datum";
+import {Error} from "../error";
+import {Macro} from "../macro/macro";
+import {Parser} from "../parse/parser";
+import {Value} from "../value";
+import {Environment} from "./environment";
 
 export class Assignment extends ProcCallLike {
 

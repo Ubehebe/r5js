@@ -1,7 +1,7 @@
+import {boot} from "../boot";
 import {InputPort, NULL_INPUT_PORT} from "../io/input_port";
 import {NULL_OUTPUT_PORT, OutputPort} from "../io/output_port";
 import {SchemeSources} from "../scheme_sources";
-import {boot} from "../boot";
 import {Evaluator} from "./evaluator";
 
 /** Wraps a synchronous evaluator in promises. */

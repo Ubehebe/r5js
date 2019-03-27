@@ -1,6 +1,6 @@
 export class InMemoryPortBuffer {
 
-    private buffer: string = '';
+    private buffer = '';
 
     isEmpty(): boolean {
         return !this.buffer.length;

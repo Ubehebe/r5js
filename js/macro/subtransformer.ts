@@ -1,8 +1,8 @@
-import {RenameHelper} from "./rename_helper";
 import {Datum} from "../ast/datum";
-import {TemplateBindings} from "./template_bindings";
-import {ObjectValue} from "../value";
 import {Environment} from "../runtime/environment";
+import {ObjectValue} from "../value";
+import {RenameHelper} from "./rename_helper";
+import {TemplateBindings} from "./template_bindings";
 
 export interface Subtransformer extends ObjectValue /* TODO inappropriate */ {
   /** @param ellipsisLevel Nesting level of ellipses, passed as the last argument to the callback. */
@@ -21,4 +21,3 @@ export interface Subtransformer extends ObjectValue /* TODO inappropriate */ {
   /** @return null if something failed. TODO: if what failed? */
   toDatum(bindings: TemplateBindings): Datum | null;
 }
-

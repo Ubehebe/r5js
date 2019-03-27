@@ -1,10 +1,10 @@
+import {EXPRESSION, VARIABLE} from '../parse/nonterminals';
+import {LAMBDA} from '../parse/terminals';
 import {CompoundDatum} from './compound_datum';
 import {Datum} from './datum';
 import {Identifier} from './identifier';
-import {SiblingBuffer} from './sibling_buffer';
 import {List} from './list';
-import {EXPRESSION, VARIABLE} from '../parse/nonterminals';
-import {LAMBDA} from '../parse/terminals';
+import {SiblingBuffer} from './sibling_buffer';
 
 /**
  * Munges definitions to get them in a form suitable for let-type bindings.

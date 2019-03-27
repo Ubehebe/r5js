@@ -1,17 +1,17 @@
-import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
-import {EOF} from "./eof";
-import {Ref} from "../ast/ref";
-import {DottedList, List} from "../ast/list";
-import {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} from "../parse/terminals";
-import {Vector} from "../ast/vector";
 import {Character} from "../ast/character";
-import {String} from "../ast/string";
+import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
+import {DottedList, List} from "../ast/list";
 import {Quote} from "../ast/quote";
-import {UserDefinedProcedure} from "./user_defined_procedure";
+import {Ref} from "../ast/ref";
+import {SimpleDatum} from "../ast/simple_datum";
+import {String} from "../ast/string";
+import {Vector} from "../ast/vector";
 import {isInputPort} from "../io/input_port";
 import {isOutputPort} from "../io/output_port";
+import {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} from "../parse/terminals";
 import {Value} from "../value";
-import {SimpleDatum} from "../ast/simple_datum";
+import {EOF} from "./eof";
+import {UserDefinedProcedure} from "./user_defined_procedure";
 
 /*
  * Implementation note: a richer representation of Scheme values would
@@ -36,7 +36,6 @@ import {SimpleDatum} from "../ast/simple_datum";
  * mapping these to the JavaScript undefined value, and this didn't feel
  * satisfactory.
  */
-
 
 export function toDisplayString(value: Value): string {
   return toString(false /* includeSigils */, value);

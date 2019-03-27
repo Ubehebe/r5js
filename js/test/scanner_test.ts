@@ -3,7 +3,7 @@ import {Character} from "../ast/character";
 import {Identifier} from "../ast/identifier";
 import {Number} from "../ast/number";
 import {String} from "../ast/string";
-import {newTokenStream, TokenStream} from "../scan/token_stream";
+import {newTokenStream} from "../scan/token_stream";
 
 describe("scanner", () => {
   beforeEach(() => {
@@ -129,4 +129,3 @@ function getValidNumberSuffixes(): string[] {
   }
   return suffixes;
 }
-

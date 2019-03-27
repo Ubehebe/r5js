@@ -1,10 +1,10 @@
-import {Subtransformer} from "./subtransformer";
-import {SimpleDatum} from "../ast/simple_datum";
-import {Identifier} from "../ast/identifier";
 import {Datum} from "../ast/datum";
-import {TemplateBindings} from "./template_bindings";
-import {RenameHelper} from "./rename_helper";
+import {Identifier} from "../ast/identifier";
+import {SimpleDatum} from "../ast/simple_datum";
 import {Environment} from "../runtime/environment";
+import {RenameHelper} from "./rename_helper";
+import {Subtransformer} from "./subtransformer";
+import {TemplateBindings} from "./template_bindings";
 
 export abstract class MacroIdTransformer implements Subtransformer {
 
@@ -16,7 +16,6 @@ export abstract class MacroIdTransformer implements Subtransformer {
              definitionEnv: Environment,
              useEnv: Environment,
              bindings: TemplateBindings): boolean {
-
 
     // R5RS 4.3.2: "An input form F matches a pattern P if and only if [...] P is a datum and F
     // is equal to P in the sense of the equal? procedure."

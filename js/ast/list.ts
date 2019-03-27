@@ -1,15 +1,15 @@
+import {Error} from '../error';
+import {Value} from "../value";
 import {CdrHelper} from './cdr_helper';
 import {CompoundDatum} from './compound_datum';
 import {Datum} from './datum';
-import {SiblingBuffer} from './sibling_buffer';
 import {Pair} from './pair';
-import {Error} from '../error';
-import {Value} from "../value";
+import {SiblingBuffer} from './sibling_buffer';
 
 export class List extends Pair {
 
-  private dirty: boolean = false;
-  private dotted: boolean = false;
+  private dirty = false;
+  private dotted = false;
 
   constructor(firstChild: Datum | null) {
     super();
@@ -47,7 +47,7 @@ export class List extends Pair {
     }
 
     const thisHelper = this.getCdrHelper();
-    let otherHelper = other.getCdrHelper();
+    const otherHelper = other.getCdrHelper();
     if (thisHelper && otherHelper) {
       return thisHelper.equals(otherHelper);
     } else if (thisHelper && other instanceof CompoundDatum) {

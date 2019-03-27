@@ -1,8 +1,8 @@
-import {RenameHelper} from "./rename_helper";
-import {ListLikeTransformer} from "./list_like_transformer";
 import {Datum} from "../ast/datum";
-import {TemplateBindings} from "./template_bindings";
 import {Environment} from "../runtime/environment";
+import {ListLikeTransformer} from "./list_like_transformer";
+import {RenameHelper} from "./rename_helper";
+import {TemplateBindings} from "./template_bindings";
 
 export class Transformer {
 

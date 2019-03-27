@@ -1,9 +1,9 @@
-import {Datum} from "../ast/datum";
-import {Macro} from "../ast/macro";
-import {newCpsName} from "../parse/rename_util";
-import {Identifier} from "../ast/identifier";
 import {CompoundDatum} from "../ast/compound_datum";
+import {Datum} from "../ast/datum";
+import {Identifier} from "../ast/identifier";
+import {Macro} from "../ast/macro";
 import {Error} from "../error";
+import {newCpsName} from "../parse/rename_util";
 import {Environment} from "../runtime/environment";
 
 /**
@@ -65,7 +65,7 @@ export class TemplateBindings {
 
   private readonly bindings: { [key: string]: Datum } = {};
   private readonly children: TemplateBindings[] = [];
-  private curChild: number = 0;
+  private curChild = 0;
   private readonly renameInTemplate: Set<string> = new Set();
 
   constructor(
@@ -217,4 +217,3 @@ export class TemplateBindings {
     return this.renameInTemplate.has(id);
   }
 }
-

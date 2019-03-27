@@ -1,16 +1,37 @@
-import {Error} from "../error";
+import {CompoundDatum} from "../ast/compound_datum";
+import {Datum, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
+import {Identifier} from "../ast/identifier";
+import {List} from "../ast/list";
 import {Macro as MacroDatum} from '../ast/macro';
+import {ProcCallLike} from "../ast/proc_call_like";
+import {RenameHelper} from "../ast/rename_helper";
+import {SiblingBuffer} from "../ast/sibling_buffer";
+import {SimpleDatum} from "../ast/simple_datum";
 import {String} from "../ast/string";
-import {Parser} from "./parser";
+import {extractDefinition} from "../ast/util";
+import {Vector} from "../ast/vector";
+import {Error} from "../error";
+import {EllipsisTransformer} from "../macro/ellipsis_transformer";
+import {dottedList, list, quote, vector} from "../macro/list_like_transformer";
+import {Macro} from "../macro/macro";
+import {MacroIdTransformer} from "../macro/macro_id_transformer";
+import {Assignment} from "../runtime/assignment";
+import {Branch} from "../runtime/branch";
+import {Environment} from "../runtime/environment";
+import {ProcCall} from "../runtime/proc_call";
+import {TopLevelAssignment} from "../runtime/top_level_assignment";
+import {TopLevelSyntaxAssignment} from "../runtime/top_level_syntax_assignment";
+import {UserDefinedProcedure} from "../runtime/user_defined_procedure";
+import {VarargsUserDefinedProcedure} from "../runtime/varargs_user_defined_procedure";
 import {DatumStream} from "./datum_stream";
 import {
-  Nonterminal,
   ALTERNATE,
-  ASSIGNMENT, COMMAND, COMMAND_OR_DEFINITION, CONDITIONAL, CONSEQUENT, DATUM, DEFINITION, EXPRESSION, FORMALS, KEYWORD,
-  LAMBDA_EXPRESSION,
+  ASSIGNMENT,
+  COMMAND, COMMAND_OR_DEFINITION, CONDITIONAL, CONSEQUENT, DATUM, DEFINITION, EXPRESSION, FORMALS, KEYWORD, LAMBDA_EXPRESSION,
   LIST_QQ_TEMPLATE,
-  LITERAL, MACRO_BLOCK,
-  MACRO_USE,
+  LITERAL,
+  MACRO_BLOCK, MACRO_USE,
+  Nonterminal,
   OPERAND,
   OPERATOR, PATTERN, PATTERN_DATUM, PATTERN_IDENTIFIER,
   PROCEDURE_CALL,
@@ -22,38 +43,17 @@ import {
   UNQUOTATION,
   VARIABLE, VECTOR_QQ_TEMPLATE
 } from "./nonterminals";
-import {Datum, UNSPECIFIED_VALUE, VACUOUS_PROGRAM} from "../ast/datum";
 import {Grammar} from "./parse_grammar";
 import {Rule} from "./parse_rule";
 import {RuleFactory} from "./parse_rule_factory";
+import {Parser} from "./parser";
+import {isParserSensitiveId} from "./rename_util";
 import {
   BACKTICK, BEGIN, COMMA, COMMA_AT, DEFINE, DEFINE_SYNTAX, DOT, ELLIPSIS, IF, LAMBDA, LET_SYNTAX, LETREC_SYNTAX, LPAREN,
   RPAREN, SET,
   SYNTAX_RULES,
   TICK
 } from "./terminals";
-import {Identifier} from "../ast/identifier";
-import {isParserSensitiveId} from "./rename_util";
-import {ProcCall} from "../runtime/proc_call";
-import {List} from "../ast/list";
-import {VarargsUserDefinedProcedure} from "../runtime/varargs_user_defined_procedure";
-import {UserDefinedProcedure} from "../runtime/user_defined_procedure";
-import {CompoundDatum} from "../ast/compound_datum";
-import {SimpleDatum} from "../ast/simple_datum";
-import {TopLevelAssignment} from "../runtime/top_level_assignment";
-import {extractDefinition} from "../ast/util";
-import {Branch} from "../runtime/branch";
-import {Assignment} from "../runtime/assignment";
-import {Macro} from "../macro/macro";
-import {dottedList, list, quote, vector} from "../macro/list_like_transformer";
-import {EllipsisTransformer} from "../macro/ellipsis_transformer";
-import {MacroIdTransformer} from "../macro/macro_id_transformer";
-import {TopLevelSyntaxAssignment} from "../runtime/top_level_syntax_assignment";
-import {Vector} from "../ast/vector";
-import {RenameHelper} from "../ast/rename_helper";
-import {SiblingBuffer} from "../ast/sibling_buffer";
-import {Environment} from "../runtime/environment";
-import {ProcCallLike} from "../ast/proc_call_like";
 
 /* todo bl: this file should not exist.
 
@@ -161,7 +161,7 @@ export class ParserImpl implements Parser {
   }
 }
 
-let fixParserSensitiveIds: boolean = false;
+let fixParserSensitiveIds = false;
 
 export const grammar: { [key: string]: Rule } = {};
 
@@ -232,7 +232,6 @@ grammar[LITERAL as any] = _.choice(
     _.one(SELF_EVALUATING),
     _.one(QUOTATION));
 
-
 // <quotation> -> '<datum> | (quote <datum>)
 grammar[QUOTATION as any] = _.seq(
     // Terminals.QUOTE has already been canonicalized as Terminals.TICK
@@ -240,10 +239,8 @@ grammar[QUOTATION as any] = _.seq(
     _.one(TICK),
     _.one(DATUM));
 
-
 grammar[DATUM as any] = _.seq(
     _.matchDatum(datum => true));
-
 
 // <self-evaluating> -> <boolean> | <number> | <character> | <string>
 grammar[SELF_EVALUATING as any] = _.seq(
@@ -257,7 +254,6 @@ grammar[SELF_EVALUATING as any] = _.seq(
       }
       return ans;
     }));
-
 
 // <procedure call> -> (<operator> <operand>*)
 // <operator> -> <expression>
@@ -284,12 +280,9 @@ grammar[PROCEDURE_CALL as any] = _.list(
   }
 });
 
-
 grammar[OPERATOR as any] = _.one(EXPRESSION);
 
-
 grammar[OPERAND as any] = _.one(EXPRESSION);
-
 
 // <lambda expression> -> (lambda <formals> <body>)
 // <body> -> <definition>* <sequence>
@@ -336,7 +329,6 @@ grammar[LAMBDA_EXPRESSION as any] = _.list(
   return new Identifier(name).toProcCallLike();
 });
 
-
 /* Why are there no <body> or <sequence> nonterminals?
  Because there is no datum associated with those nonterminals.
  For example, in (lambda () (define x 1) x), the text of <body>
@@ -369,7 +361,6 @@ grammar[FORMALS as any] = _.choice(
     _.dottedList(
         _.oneOrMore(VARIABLE),
         _.one(VARIABLE)));
-
 
 /**
  * <definition> -> (define <variable> <expression>)
@@ -447,7 +438,6 @@ grammar[DEFINITION as any] = _.choice(
       return def && def.sequence(env);
     }));
 
-
 // <conditional> -> (if <test> <consequent> <alternate>)
 grammar[CONDITIONAL as any] = _.choice(
     _.list(
@@ -479,18 +469,14 @@ grammar[CONDITIONAL as any] = _.choice(
       return test;
     }));
 
-
 // <test> -> <expression>
 grammar[TEST as any] = _.one(EXPRESSION);
-
 
 // <consequent> -> <expression>
 grammar[CONSEQUENT as any] = _.one(EXPRESSION);
 
-
 // <alternate> -> <expression> | <empty>
 grammar[ALTERNATE as any] = _.one(EXPRESSION);
-
 
 // <assignment> -> (set! <variable> <expression>)
 grammar[ASSIGNMENT as any] = _.list(
@@ -507,7 +493,6 @@ grammar[ASSIGNMENT as any] = _.list(
   return desugaredExpr;
 });
 
-
 // <quasiquotation> -> <quasiquotation 1>
 // <quasiquotation D> -> `<qq template D> | (quasiquote <qq template D>)
 grammar[QUASIQUOTATION as any] = _.seq(
@@ -515,7 +500,6 @@ grammar[QUASIQUOTATION as any] = _.seq(
     // Terminals.BACKTICK (see read.bnf.Seq_#maybeCanonicalize)
     _.one(BACKTICK),
     _.one(QQ_TEMPLATE));
-
 
 /* <qq template 0> -> <expression>
  <qq template D> -> <simple datum>
@@ -528,7 +512,6 @@ grammar[QQ_TEMPLATE as any] = _.choice(
     _.one(LIST_QQ_TEMPLATE),
     _.one(VECTOR_QQ_TEMPLATE),
     _.one(UNQUOTATION));
-
 
 /*<list qq template D> -> (<qq template or splice D>*)
  | (<qq template or splice D>+ . <qq template D>)
@@ -545,12 +528,10 @@ grammar[LIST_QQ_TEMPLATE as any] = _.choice(
         _.one(QQ_TEMPLATE)),
     _.one(QUASIQUOTATION));
 
-
 // <vector qq template D> -> #(<qq template or splice D>*)
 grammar[VECTOR_QQ_TEMPLATE as any] =
     _.vector(
         _.zeroOrMore(QQ_TEMPLATE_OR_SPLICE));
-
 
 // <unquotation D> -> ,<qq template D-1> | (unquote <qq template D-1>)
 grammar[UNQUOTATION as any] = _.seq(
@@ -559,12 +540,10 @@ grammar[UNQUOTATION as any] = _.seq(
     _.one(COMMA),
     _.one(QQ_TEMPLATE));
 
-
 // <qq template or splice D> -> <qq template D> | <splicing unquotation D>
 grammar[QQ_TEMPLATE_OR_SPLICE as any] = _.choice(
     _.seq(_.one(QQ_TEMPLATE)), // TODO bl one-element sequence
     _.one(SPLICING_UNQUOTATION));
-
 
 /* <splicing unquotation D> -> ,@<qq template D-1>
  | (unquote-splicing <qq template D-1>)
@@ -586,11 +565,9 @@ grammar[MACRO_USE as any] = _.list(
   return new ProcCall(node.at(KEYWORD) as Identifier, node.at(DATUM));
 });
 
-
 // <keyword> -> <identifier>
 grammar[KEYWORD as any] = _.seq(
     _.matchDatum(datum => datum instanceof Identifier));
-
 
 /* <macro block> -> (let-syntax (<syntax spec>*) <body>)
  | (letrec-syntax (<syntax-spec>*) <body>) */
@@ -606,12 +583,10 @@ grammar[MACRO_BLOCK as any] = _.choice(
         _.zeroOrMore(DEFINITION),
         _.oneOrMore(EXPRESSION)).desugar((node, env) => desugarMacroBlock(node, env, 'letrec')));
 
-
 // <syntax spec> -> (<keyword> <transformer spec>)
 grammar[SYNTAX_SPEC as any] = _.list(
     _.one(KEYWORD),
     _.one(TRANSFORMER_SPEC));
-
 
 // <transformer spec> -> (syntax-rules (<identifier>*) <syntax rule>*)
 grammar[TRANSFORMER_SPEC as any] = _.list(
@@ -628,12 +603,10 @@ grammar[TRANSFORMER_SPEC as any] = _.list(
   return new Macro(ids, rules, env);
 });
 
-
 // <syntax rule> -> (<pattern> <template>)
 grammar[SYNTAX_RULE as any] = _.list(
     _.one(PATTERN),
     _.one(TEMPLATE));
-
 
 /* <pattern> -> <pattern identifier>
  | (<pattern>*)
@@ -722,7 +695,6 @@ grammar[PATTERN as any] = _.choice(
 grammar[PATTERN_DATUM as any] = _.seq(
     _.matchDatum(datum => datum instanceof SimpleDatum && !(datum instanceof Identifier)));
 
-
 /* <template> -> <pattern identifier>
  | (<template element>*)
  | (<template element>+ . <template>)
@@ -809,16 +781,13 @@ grammar[TEMPLATE as any] = _.choice(
       return quote().addSubtransformer(node.at(TEMPLATE).desugar(env));
     }));
 
-
 // <template datum> -> <pattern datum>
 grammar[TEMPLATE_DATUM as any] = _.one(
     PATTERN_DATUM);
 
-
 // <pattern identifier> -> <any identifier except ...>
 grammar[PATTERN_IDENTIFIER as any] = _.seq(
     _.matchDatum(datum => datum instanceof Identifier && datum.getPayload() !== ELLIPSIS));
-
 
 // <program> -> <command or definition>*
 grammar[PROGRAM as any] = _.seq(
@@ -826,7 +795,6 @@ grammar[PROGRAM as any] = _.seq(
     // VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of a
     // special case that I don't care.
     node === VACUOUS_PROGRAM ? node : node.sequence(env));
-
 
 /* <command or definition> -> <command>
  | <definition>
@@ -846,11 +814,9 @@ grammar[COMMAND_OR_DEFINITION as any] = _.choice(
     }),
     _.one(COMMAND));
 
-
 // <command> -> <expression>
 grammar[COMMAND as any] = _.one(
     EXPRESSION);
-
 
 // <syntax definition> -> (define-syntax <keyword> <transformer-spec>)
 grammar[SYNTAX_DEFINITION as any] = _.list(
@@ -859,15 +825,15 @@ grammar[SYNTAX_DEFINITION as any] = _.list(
     _.one(TRANSFORMER_SPEC)).desugar((node, env) => {
   const kw = (node.at(KEYWORD) as Identifier).getPayload();
   const macro = node.at(TRANSFORMER_SPEC)!.desugar(env);
-  if (!macro.allPatternsBeginWith(kw))
+  if (!macro.allPatternsBeginWith(kw)) {
     throw Error.macro(kw, 'all patterns must begin with ' + kw);
+  }
   const anonymousName = newAnonymousLambdaName();
   env.addBinding(anonymousName, macro);
   return TopLevelSyntaxAssignment.of(kw, anonymousName);
 });
 
-
-let lambdaCounter: number = 0;
+let lambdaCounter = 0;
 
 function newAnonymousLambdaName(): string {
   return `proc${lambdaCounter++}`;

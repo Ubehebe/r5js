@@ -1,19 +1,19 @@
-import {Procedure} from "./procedure";
+import {CompoundDatum} from "../ast/compound_datum";
 import {Datum} from "../ast/datum";
-import {List} from "../ast/list";
-import {ProcCall} from "./proc_call";
 import {Identifier} from "../ast/identifier";
-import {Error} from "../error";
-import {TrampolineHelper} from "./trampoline_helper";
+import {List} from "../ast/list";
+import {ProcCallLike} from "../ast/proc_call_like";
+import {Quote} from "../ast/quote";
 import {SiblingBuffer} from "../ast/sibling_buffer";
+import {extractDefinition} from "../ast/util";
+import {Error} from "../error";
 import {DEFINITION} from "../parse/nonterminals";
 import {DEFINE} from "../parse/terminals";
-import {extractDefinition} from "../ast/util";
-import {CompoundDatum} from "../ast/compound_datum";
-import {Quote} from "../ast/quote";
-import {Environment} from "./environment";
 import {Value} from "../value";
-import {ProcCallLike} from "../ast/proc_call_like";
+import {Environment} from "./environment";
+import {ProcCall} from "./proc_call";
+import {Procedure} from "./procedure";
+import {TrampolineHelper} from "./trampoline_helper";
 
 export class UserDefinedProcedure extends Procedure {
 
@@ -74,7 +74,9 @@ export class UserDefinedProcedure extends Procedure {
       // a good place to see if tail recursion is actually working :)
       // console.log('TAIL RECURSION!!!');
       return true;
-    } else return false;
+    } else {
+      return false;
+    }
   }
 
   /** @override */
@@ -154,7 +156,7 @@ export class UserDefinedProcedure extends Procedure {
   }
 }
 
-let cloneWithEnvNameCounter: number = 0;
+let cloneWithEnvNameCounter = 0;
 
 class LetrecBindingsHelper {
 

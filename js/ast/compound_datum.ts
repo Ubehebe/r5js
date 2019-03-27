@@ -1,10 +1,10 @@
-import {CdrHelper} from "./cdr_helper";
-import {SiblingBuffer} from "./sibling_buffer";
-import {RenameHelper} from "./rename_helper";
 import {DEFINITION, FORMALS, LAMBDA_EXPRESSION, Nonterminal, VARIABLE} from "../parse/nonterminals";
-import {Identifier} from "./identifier";
 import {isParserSensitiveId} from "../parse/rename_util";
+import {CdrHelper} from "./cdr_helper";
 import {Datum} from "./datum";
+import {Identifier} from "./identifier";
+import {RenameHelper} from "./rename_helper";
+import {SiblingBuffer} from "./sibling_buffer";
 import {SimpleDatum} from "./simple_datum";
 
 export class CompoundDatum extends Datum {
@@ -80,15 +80,15 @@ export class CompoundDatum extends Datum {
     const newHelper = new RenameHelper(helper);
 
     if (formalRoot instanceof Identifier) { // (lambda x ...)
-      let id = formalRoot.getPayload();
+      const id = formalRoot.getPayload();
       if (isParserSensitiveId(id)) {
         formalRoot.setPayload(newHelper.addRenameBinding(id));
       }
     } else { // (lambda (x y) ...) or (lambda (x . y) ...)
       (formalRoot as CompoundDatum).forEachChild(
           child => {
-            let formal = child as SimpleDatum<string>;
-            let id = formal.getPayload();
+            const formal = child as SimpleDatum<string>;
+            const id = formal.getPayload();
             if (isParserSensitiveId(id)) {
               formal.setPayload(newHelper.addRenameBinding(id));
             }

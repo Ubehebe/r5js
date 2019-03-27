@@ -1,4 +1,4 @@
-import {newTokenStream, TokenStream} from "../scan/token_stream";
+import {Datum} from "../ast/datum";
 import {
   ASSIGNMENT,
   CONDITIONAL,
@@ -20,9 +20,9 @@ import {
   TRANSFORMER_SPEC,
   VARIABLE
 } from "../parse/nonterminals";
-import {newReader, Reader} from "../read/reader";
 import {ParserImpl} from "../parse/parser_impl";
-import {Datum} from "../ast/datum";
+import {newReader} from "../read/reader";
+import {newTokenStream} from "../scan/token_stream";
 
 describe("parser", () => {
 

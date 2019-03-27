@@ -1,23 +1,23 @@
-import {UserDefinedProcedure} from "./user_defined_procedure";
-import {Error} from "../error";
-import {Macro} from "../macro/macro";
-import {Procedure} from "./procedure";
-import {Continuation} from "./continuation";
-import {Lambda} from "./lambda";
 import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
 import {Ref} from "../ast/ref";
-import {notAProcedure} from "./errors";
-import {CPS_PREFIX} from "../parse/rename_util";
-import {Environment} from "./environment";
-import {Value} from "../value";
 import {SimpleDatum} from "../ast/simple_datum";
+import {Error} from "../error";
+import {Macro} from "../macro/macro";
+import {CPS_PREFIX} from "../parse/rename_util";
+import {Value} from "../value";
+import {Continuation} from "./continuation";
+import {Environment} from "./environment";
+import {notAProcedure} from "./errors";
+import {Lambda} from "./lambda";
+import {Procedure} from "./procedure";
+import {UserDefinedProcedure} from "./user_defined_procedure";
 
 export class EnvironmentImpl implements Environment {
 
   private readonly bindings: { [key: string]: Value } = {};
   private closures: { [key: string]: UserDefinedProcedure } = {};
-  private redefsOk: boolean = false;
-  private sealed: boolean = false;
+  private redefsOk = false;
+  private sealed = false;
 
   constructor(private readonly enclosingEnv: Environment | null) {}
 
@@ -41,7 +41,7 @@ export class EnvironmentImpl implements Environment {
 
     const cloned = new EnvironmentImpl(null /* enclosingEnv */);
 
-    for (let name in this.bindings) {
+    for (const name in this.bindings) {
       const val = this.bindings[name];
       cloned.bindings[name] = val instanceof Macro
           ? (val as Macro).clone(cloned)

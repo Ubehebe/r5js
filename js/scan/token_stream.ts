@@ -29,7 +29,7 @@ const NUMBER_FORBIDDEN = /[i@]/i;
 
 class Scanner implements TokenStream {
 
-  private start: number = 0;
+  private start = 0;
   /**
    * This cannot be static because JavaScript regular expressions are stateful, storing the indices
    * of the last successful match.
@@ -40,9 +40,9 @@ class Scanner implements TokenStream {
    * (identifiers, numbers, characters, and dot) may be terminated
    * by any delimiter, but not necessarily by anything else."
    */
-  private needDelimiter: boolean = false;
+  private needDelimiter = false;
   private readonly readyTokens: (Datum | string)[] = [];
-  private nextTokenIndex: number = 0;
+  private nextTokenIndex = 0;
 
   constructor(private readonly text: string) {}
 
@@ -172,7 +172,7 @@ class Scanner implements TokenStream {
           ? parseNumericPayload(payload)
           : parseFloat(payload);
       return new Number(numericPayload);
-    } else throw Error.internalInterpreterError('invariant incorrect');
+    } else { throw Error.internalInterpreterError('invariant incorrect'); }
   }
 }
 

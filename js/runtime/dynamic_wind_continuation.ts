@@ -1,7 +1,6 @@
-import {Continuation} from "./continuation";
-import {ProcCallResult} from "../ast/proc_call_like";
+import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 import {Value} from "../value";
-import {ProcCallLike} from "../ast/proc_call_like";
+import {Continuation} from "./continuation";
 
 /**
  * Just for call/ccs inside dynamic-winds.

@@ -1,28 +1,28 @@
-import {Error} from "../error";
-import * as Types from "../ast/types";
-import {argumentTypeError} from "./errors";
+import {Boolean} from "../ast/boolean";
+import {Character} from "../ast/character";
 import {Datum} from "../ast/datum";
-import {Procedure} from "./procedure";
-import {TrampolineHelper} from "./trampoline_helper";
 import {wrapValue} from "../ast/datum_util";
+import {Identifier} from "../ast/identifier";
+import {List} from "../ast/list";
+import {Number} from "../ast/number";
+import {Pair} from "../ast/pair";
+import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 import {Ref} from "../ast/ref";
+import {SimpleDatum} from "../ast/simple_datum";
+import {String} from "../ast/string";
+import {Type} from "../ast/type";
+import * as Types from "../ast/types";
+import {Vector} from "../ast/vector";
+import {Error} from "../error";
 import {InputPort, isInputPort} from "../io/input_port";
 import {isOutputPort, OutputPort} from "../io/output_port";
-import {Character} from "../ast/character";
-import {List} from "../ast/list";
-import {Lambda} from "./lambda";
-import {Continuation} from "./continuation";
-import {Vector} from "../ast/vector";
-import {Identifier} from "../ast/identifier";
-import {Pair} from "../ast/pair";
-import {String} from "../ast/string";
-import {Number} from "../ast/number";
-import {Boolean} from "../ast/boolean";
-import {Type} from "../ast/type";
 import {Value} from "../value";
+import {Continuation} from "./continuation";
 import {Environment} from "./environment";
-import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
-import {SimpleDatum} from "../ast/simple_datum";
+import {argumentTypeError} from "./errors";
+import {Lambda} from "./lambda";
+import {Procedure} from "./procedure";
+import {TrampolineHelper} from "./trampoline_helper";
 
 export interface NumArgChecker {
   checkNumArgs(numArgs: number, nameToShowInErrorMessage: string): void;
@@ -127,7 +127,7 @@ class AllArgsOfType implements ArgumentTypeCheckerAndUnwrapper {
 
 export class PrimitiveProcedure extends Procedure {
 
-  protected debugName: string = '';
+  protected debugName = '';
 
   constructor(
       readonly fn: any /* TODO narrow */,

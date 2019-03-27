@@ -14,7 +14,7 @@ export abstract class ProcCallLike {
   protected next: ProcCallLike | null;
   protected env: Environment | null;
 
-  constructor(lastResultName: string = `@${counter++}`) {
+  constructor(lastResultName = `@${counter++}`) {
     this.resultName = lastResultName;
     this.next = null;
     this.env = null;
@@ -72,4 +72,4 @@ export abstract class ProcCallLike {
   }
 }
 
-let counter: number = 0;
+let counter = 0;

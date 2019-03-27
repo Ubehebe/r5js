@@ -1,7 +1,7 @@
-import {Pipeline} from "./pipeline";
 import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
 import {toWriteString} from "../runtime/valutil";
+import {Pipeline} from "./pipeline";
 
 export class Evaluator {
 

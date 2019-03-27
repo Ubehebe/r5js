@@ -1,15 +1,15 @@
+import {Error} from '../error';
+import {QUOTE} from '../parse/terminals';
+import {Environment} from "../runtime/environment";
+import {Value} from "../value";
 import {CompoundDatum} from './compound_datum';
 import {Datum, UNSPECIFIED_VALUE} from './datum';
-import {Identifier} from './identifier';
-import {Ref} from './ref';
 import {wrapValue} from './datum_util';
-import {Error} from '../error';
-import {Pair} from './pair';
+import {Identifier} from './identifier';
 import {List} from './list';
-import {QUOTE} from '../parse/terminals';
-import {Value} from "../value";
-import {Environment} from "../runtime/environment";
+import {Pair} from './pair';
 import {ProcCallLike, ProcCallResult} from "./proc_call_like";
+import {Ref} from './ref';
 
 export class Quote extends Pair {
   constructor(firstChild: Datum | null) {
@@ -83,7 +83,9 @@ class QuoteShim extends ProcCallLike {
               } else { // `(1 ,@(list) 2) => (1 2)
                 ans = null;
               }
-            } else throw Error.quasiquote(ans + ' is not a list');
+            } else {
+              throw Error.quasiquote(ans + ' is not a list');
+            }
           }
           return ans;
         });

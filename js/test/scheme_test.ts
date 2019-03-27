@@ -1,7 +1,7 @@
-import {SchemeSources} from "./scheme_sources";
 import {AsyncEvaluator} from "../eval/async_evaluator";
-import {NULL_INPUT_PORT} from "../io/input_port";
 import {CallbackBackedPort} from "../io/callback_backed_port";
+import {NULL_INPUT_PORT} from "../io/input_port";
+import {SchemeSources} from "./scheme_sources";
 import {ResultStruct, stringToResultStruct, TestFramework} from "./test_framework";
 
 const sources = SchemeSources.get();

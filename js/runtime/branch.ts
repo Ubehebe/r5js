@@ -1,8 +1,8 @@
+import {Datum} from "../ast/datum";
 import {ProcCallResult} from "../ast/proc_call_like";
+import {ProcCallLike} from "../ast/proc_call_like";
 import {Parser} from "../parse/parser";
 import {Environment} from "./environment";
-import {ProcCallLike} from "../ast/proc_call_like";
-import {Datum} from "../ast/datum";
 
 export class Branch extends ProcCallLike {
 
@@ -53,4 +53,3 @@ export class Branch extends ProcCallLike {
     }
   }
 }
-

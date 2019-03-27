@@ -1,10 +1,10 @@
 import {ProcCallLike} from "../ast/proc_call_like";
-import {OutputPort} from "../io/output_port";
 import {InputPort} from "../io/input_port";
-import {TrampolineHelper} from "./trampoline_helper";
+import {OutputPort} from "../io/output_port";
 import {ParserImpl} from "../parse/parser_impl";
-import {Environment} from "./environment";
 import {Value} from "../value";
+import {Environment} from "./environment";
+import {TrampolineHelper} from "./trampoline_helper";
 
 /**
  * This is the main evaluation function.

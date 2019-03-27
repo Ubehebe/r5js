@@ -1,11 +1,11 @@
-import {UserDefinedProcedure} from "./user_defined_procedure";
 import {CompoundDatum} from "../ast/compound_datum";
-import {Error} from "../error";
-import {SiblingBuffer} from "../ast/sibling_buffer";
 import {wrapValue} from "../ast/datum_util";
 import {List} from "../ast/list";
-import {Environment} from "./environment";
+import {SiblingBuffer} from "../ast/sibling_buffer";
+import {Error} from "../error";
 import {Value} from "../value";
+import {Environment} from "./environment";
+import {UserDefinedProcedure} from "./user_defined_procedure";
 
 export class VarargsUserDefinedProcedure extends UserDefinedProcedure {
   constructor(formalsArray: string[], bodyStart: CompoundDatum | null, env: Environment, name: string) {
@@ -32,7 +32,7 @@ export class VarargsUserDefinedProcedure extends UserDefinedProcedure {
     if (this.formalsArray.length > 0) {
       name = this.formalsArray[i];
       // Roll up the remaining arguments into a list
-      let siblingBuffer = new SiblingBuffer();
+      const siblingBuffer = new SiblingBuffer();
       for (let j = i; j < args.length; ++j) {
         siblingBuffer.appendSibling(wrapValue(args[j]));
       }
