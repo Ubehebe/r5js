@@ -168,7 +168,8 @@ class LetrecBindingsHelper {
    * converted into a completely equivalent letrec expression."
    */
   collectLetrecBindings(bodyStart: CompoundDatum): SiblingBuffer {
-    for (var cur: CompoundDatum | null = bodyStart;
+    let cur: CompoundDatum| null;
+    for (cur = bodyStart;
          cur && cur.peekParse() === DEFINITION;
          cur = cur.getNextSibling() as CompoundDatum) {
       const firstChild = cur.getFirstChild();

@@ -93,9 +93,9 @@ class Base implements ListLikeTransformer {
     // - P is of the form #(P1 ... Pn Pn+1 <ellipsis>) where <ellipsis> is the identifier ... and F
     //   is a vector of n or more forms the first n of which match P1 through Pn, respectively,
     //   and each remaining element of F matches Pn+1".
-    for (var subinput: Datum | null = inputDatum.getFirstChild(), i = 0;
-         subinput;
-         subinput = subinput.getNextSibling(), ++i) {
+    let subinput: Datum|null;
+    let i = 0;
+    for (subinput = inputDatum.getFirstChild(); subinput; subinput = subinput.getNextSibling(), ++i) {
 
       if (i === len - 1 && maybeEllipsis) {
         // If there's an ellipsis in the pattern, break out to deal with it.
@@ -222,7 +222,9 @@ class DottedListTransformer extends Base {
      the identifier ... and F is a vector of n or more forms the first n
      of which match P1 through Pn, respectively, and each remaining element
      of F matches Pn+1" */
-    for (var subinput = inputDatum.getFirstChild(), i = 0;
+    let subinput;
+    let i = 0;
+    for (subinput = inputDatum.getFirstChild();
          subinput;
          subinput = subinput.getNextSibling(), ++i) {
 
