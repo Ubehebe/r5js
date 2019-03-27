@@ -1,5 +1,5 @@
 /build
 /compiler.jar
-.*
-!.gitignore
+bazel-*
+.idea
 /*.conf
