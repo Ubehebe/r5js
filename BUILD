@@ -1,3 +1,16 @@
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+
+buildifier(
+    name = "buildifier",
+    lint_mode = "fix",
+    mode = "fix",
+)
+
+buildifier(
+    name = "buildifier_pre_commit",
+    mode = "check",
+)
+
 genrule(
     name = "spec_xhtml",
     srcs = ["@spec//:r5rs.html"],
@@ -44,7 +57,9 @@ _COMMON_SRCS = [
 
 filegroup(
     name = "website_desktop",
-    srcs = ["index_desktop.html"] + _COMMON_SRCS,
+    srcs = [
+        "index_desktop.html",
+    ] + _COMMON_SRCS,
 )
 
 filegroup(
