@@ -10,17 +10,6 @@ genrule(
 cat $(<) >> $(@)""",
 )
 
-filegroup(
-    name = "spec",
-    srcs = [
-        "r5rs.xhtml",
-        "robots.txt",
-        "rotary_nav.js",
-        "@spec//:images",
-        "css/r5rs.css",
-    ]
-)
-
 genrule(
     name = "index_desktop",
     srcs = [
@@ -43,4 +32,25 @@ genrule(
         "index_mobile.html",
     ],
     cmd = "xsltproc $(SRCS) > $(@)",
+)
+
+_COMMON_SRCS = [
+    "r5rs.xhtml",
+    "robots.txt",
+    "rotary_nav.js",
+    "@spec//:images",
+    "//js",
+    "css/r5rs.css",
+]
+
+filegroup(
+    name = "website_desktop",
+    srcs = ["index_desktop.html"] + _COMMON_SRCS,
+)
+
+filegroup(
+    name = "website_mobile",
+    srcs = [
+        "index_mobile.html",
+    ] + _COMMON_SRCS,
 )
