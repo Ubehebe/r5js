@@ -52,7 +52,7 @@ export class Datum implements ObjectValue {
     return this.immutable;
   }
 
-  clone(parent: Datum | undefined = undefined): Datum {
+  clone(parent?: Datum): Datum {
 
     // Invariant: although cyclical Datum structures can be created by the programmer
     // (through set-cdr!, etc.), they will never be cloned. They are created by mutation, i.e. once

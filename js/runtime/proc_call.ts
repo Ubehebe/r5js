@@ -27,7 +27,7 @@ export class ProcCall extends ProcCallLike {
   constructor(
       private readonly operatorName: Identifier,
       private readonly firstOperand: Datum | null,
-      lastResultName: string | undefined = undefined) {
+      lastResultName?: string) {
     super(lastResultName);
   }
 

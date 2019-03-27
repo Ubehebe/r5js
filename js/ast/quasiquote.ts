@@ -84,7 +84,7 @@ class QuasiquoteShim extends ProcCallLike {
 
   private readonly firstOperand: Quasiquote;
 
-  constructor(payload: Quasiquote, continuationName: string | undefined = undefined) {
+  constructor(payload: Quasiquote, continuationName?: string) {
     super(continuationName);
     this.firstOperand = payload;
   }

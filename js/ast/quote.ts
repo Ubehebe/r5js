@@ -42,7 +42,7 @@ class QuoteShim extends ProcCallLike {
 
   private readonly firstOperand: Quote;
 
-  constructor(payload: Quote, continuationName: string | undefined = undefined) {
+  constructor(payload: Quote, continuationName?: string) {
     super(continuationName);
     this.firstOperand = payload;
   }

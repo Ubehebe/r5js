@@ -59,7 +59,7 @@ class IdShim extends ProcCallLike {
 
   private readonly firstOperand: Identifier;
 
-  constructor(payload: Identifier, continuationName = undefined) {
+  constructor(payload: Identifier, continuationName?: string) {
     super(continuationName);
     this.firstOperand = payload;
   }

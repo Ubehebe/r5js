@@ -224,7 +224,7 @@ class HasSpecialEvalLogic extends PrimitiveProcedure {
 }
 
 /** TODO bl: make the template type mean something */
-export function unary<T>(fn: (arg: T) => any, argtype: Type | undefined = undefined): PrimitiveProcedure {
+export function unary<T>(fn: (arg: T) => any, argtype?: Type): PrimitiveProcedure {
   return new PrimitiveProcedure(
       fn,
       EXACTLY_1_ARG,
@@ -236,8 +236,8 @@ export function unary<T>(fn: (arg: T) => any, argtype: Type | undefined = undefi
 /** TODO bl: make the template types mean something */
 export function binary<T1, T2>(
     fn: (arg1: T1, arg2: T2) => any,
-    argtype1: Type | undefined = undefined,
-    argtype2: Type | undefined = undefined): PrimitiveProcedure {
+    argtype1?: Type,
+    argtype2?: Type): PrimitiveProcedure {
   const argtypes: Type[] = [];
   argtype1 && argtypes.push(argtype1);
   argtype2 && argtypes.push(argtype2);
@@ -250,9 +250,9 @@ export function binary<T1, T2>(
 /** TODO bl make the template types mean something */
 export function ternary<T1, T2, T3>(
     fn: (arg1: T1, arg2: T2, arg3: T3) => any,
-    argtype1: Type | undefined = undefined,
-    argtype2: Type | undefined = undefined,
-    argtype3: Type | undefined = undefined): PrimitiveProcedure {
+    argtype1?: Type,
+    argtype2?: Type,
+    argtype3?: Type): PrimitiveProcedure {
   const argtypes: Type[] = [];
   argtype1 && argtypes.push(argtype1);
   argtype2 && argtypes.push(argtype2);

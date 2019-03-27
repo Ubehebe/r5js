@@ -16,6 +16,6 @@ export function argumentTypeError(
 }
 
 /** @param name Error message. */
-export function notAProcedure(name: string, actualType: Type | undefined = undefined): Error {
+export function notAProcedure(name: string, actualType?: Type): Error {
   return new Error(ErrorType.NOT_A_PROCEDURE, name, /*actualType TODO re-enable */);
 }
