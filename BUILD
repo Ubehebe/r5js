@@ -1,3 +1,4 @@
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 
 buildifier(
@@ -55,16 +56,24 @@ _COMMON_SRCS = [
     "css/r5rs.css",
 ]
 
-filegroup(
+pkg_tar(
     name = "website_desktop",
     srcs = [
         "index_desktop.html",
     ] + _COMMON_SRCS,
+    extension = "tar.gz",
+    remap_paths = {
+        "index_desktop.html": "index.html",
+    },
 )
 
-filegroup(
+pkg_tar(
     name = "website_mobile",
     srcs = [
         "index_mobile.html",
     ] + _COMMON_SRCS,
+    extension = "tar.gz",
+    remap_paths = {
+        "index_mobile.html": "index.html",
+    },
 )
