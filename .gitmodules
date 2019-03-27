@@ -1,9 +1,3 @@
 [submodule "gay-lisp"]
 	path = gay-lisp
 	url = https://github.com/Ubehebe/Gay-Lisp.git
-[submodule "spec"]
-	path = spec
-	url = ../Dropbox/r5rs-html5/
-[submodule "rotary-nav"]
-	path = rotary-nav
-	url = ../Dropbox/radial-nav/
