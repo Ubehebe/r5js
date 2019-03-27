@@ -13,7 +13,7 @@ import * as Types from "../ast/types";
 import {Vector} from "../ast/vector";
 import {Error} from "../error";
 import {InputPort, isInputPort} from "../io/input_port";
-import {isOutputPort, OutputPort} from "../io/output_port";
+import {OutputPort} from "../io/output_port";
 import {PortManager} from "../io/port_manager";
 import {ParserImpl} from "../parse/parser_impl";
 import {Value} from "../value";
@@ -28,12 +28,22 @@ import {Lambda} from "./lambda";
 import {ProcCall} from "./proc_call";
 import {
   atLeastNWithSpecialEvalLogic,
-  binary, binaryWithCurrentPorts, binaryWithSpecialEvalLogic, installPredicates, nullaryOrUnaryWithCurrentPorts,
+  binary,
+  binaryWithCurrentPorts,
+  binaryWithSpecialEvalLogic,
+  installPredicates,
+  nullaryOrUnaryWithCurrentPorts,
   nullaryWithCurrentPorts,
-  PrimitiveProcedure, runtimeType,
-  ternary, ternaryWithSpecialEvalLogic, unary, unaryOrBinaryWithCurrentPorts, unaryWithSpecialEvalLogic,
+  PrimitiveProcedure,
+  runtimeType,
+  ternary,
+  ternaryWithSpecialEvalLogic,
+  unary,
+  unaryOrBinaryWithCurrentPorts,
+  unaryWithSpecialEvalLogic,
   varargsAtLeast0,
-  varargsAtLeast1, varargsRange
+  varargsAtLeast1,
+  varargsRange
 } from "./procspec";
 import {trampoline} from "./trampoline";
 import {toDisplayString, toWriteString} from "./valutil";
@@ -576,7 +586,7 @@ PrimitiveProcedures['current-output-port'] =
 PrimitiveProcedures.display = unaryOrBinaryWithCurrentPorts(
   (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
     const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-    if (!isOutputPort(outputPortToUse)) {
+    if (!(outputPortToUse instanceof OutputPort)) {
       throw argumentTypeError(
         outputPortToUse, 1, 'display', Types.OUTPUT_PORT,
         runtimeType(outputPortToUse));
@@ -629,7 +639,7 @@ PrimitiveProcedures['read-char'] = nullaryOrUnaryWithCurrentPorts(
 PrimitiveProcedures.write = unaryOrBinaryWithCurrentPorts(
   (inputPort, outputPort, datum, maybeUserSuppliedOutputPort) => {
     const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-    if (!isOutputPort(outputPortToUse)) {
+    if (!(outputPortToUse instanceof OutputPort)) {
       throw argumentTypeError(
         outputPortToUse, 1, 'write', Types.OUTPUT_PORT,
         runtimeType(outputPortToUse));
@@ -646,7 +656,7 @@ PrimitiveProcedures['write-char'] = unaryOrBinaryWithCurrentPorts(
         runtimeType(charNode));
     }
     const outputPortToUse = maybeUserSuppliedOutputPort || outputPort;
-    if (!isOutputPort(outputPortToUse)) {
+    if (!(outputPortToUse instanceof OutputPort)) {
       throw argumentTypeError(
         outputPortToUse, 1, 'write-char', Types.OUTPUT_PORT,
         runtimeType(outputPortToUse));

@@ -7,7 +7,7 @@ import {SimpleDatum} from "../ast/simple_datum";
 import {String} from "../ast/string";
 import {Vector} from "../ast/vector";
 import {isInputPort} from "../io/input_port";
-import {isOutputPort} from "../io/output_port";
+import {OutputPort} from "../io/output_port";
 import {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} from "../parse/terminals";
 import {Value} from "../value";
 import {EOF} from "./eof";
@@ -99,7 +99,7 @@ function toString(includeSigils: boolean, value: Value): string {
         return `<proc:${value.getName()}>`;
       } else if (isInputPort(value)) {
         return '<input-port>';
-      } else if (isOutputPort(value)) {
+      } else if (value instanceof OutputPort) {
         return '<output-port>';
       } else if (value instanceof SimpleDatum) {
         return toString(includeSigils, value.unwrap());

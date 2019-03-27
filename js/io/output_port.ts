@@ -19,10 +19,5 @@ export class OutputPort {
   close() {}
 }
 
-/** TODO bl temporary shim. Remove. */
-export function isOutputPort(obj: any): obj is OutputPort {
-  return obj instanceof OutputPort;
-}
-
 /** An output port that discards its output. */
 export const NULL_OUTPUT_PORT = new OutputPort();
