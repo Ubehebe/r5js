@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "align": [true, "statements"],
+    "arrow-return-shorthand": true,
+    "callable-types": true,
+    "curly": true,
+    "indent": [true, "spaces", 2],
+    "ordered-imports": true,
+    "no-consecutive-blank-lines": true,
+    "no-inferrable-types": true,
+    "no-internal-module": true,
+    "no-return-await": true,
+    "no-sparse-arrays": true,
+    "no-string-literal": true,
+    "no-string-throw": true,
+    "no-trailing-whitespace": true,
+    "no-unnecessary-initializer": true,
+    "no-var-keyword": true,
+    "prefer-const": true,
+    "prefer-method-signature": true,
+    "trailing-comma": [true]
+  }
+}
