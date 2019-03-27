@@ -12,9 +12,8 @@ def scheme_source(name, src):
         cmd = "cat > $(@) << END\n" +
               "export const " + name + " = \n" +
               "END\n" +
-              "cat $(<)" +
               # backslash-escape backslash
-              " | sed -e 's/\\\\/\\\\\\\\/g'" +
+              "< $(<) sed -e 's/\\\\/\\\\\\\\/g'" +
               # backslash-escape double quotes
               " | sed -e 's/\"/\\\\\"/g'" +
               # newline => \n (two characters)
