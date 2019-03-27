@@ -1,4 +1,10 @@
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "new_git_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
+
+git_repository(
+    name = "r5js",
+    remote = "https://github.com/Ubehebe/r5js.git",
+    commit = "76434f25863273adf62f415f1a31dd3f7f80669a",
+)
 
 new_git_repository(
     name = "spec",
