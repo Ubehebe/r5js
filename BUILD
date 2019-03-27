@@ -37,7 +37,6 @@ genrule(
 _COMMON_SRCS = [
     "r5rs.xhtml",
     "robots.txt",
-    "rotary_nav.js",
     "@spec//:images",
     "//js",
     "css/r5rs.css",
