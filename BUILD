@@ -18,3 +18,11 @@ tslint(
     name = "tslint",
     config = "tslint.json",
 )
+
+filegroup(
+    name = "repl",
+    srcs = [
+        "//ui",
+        "@mockterm",
+    ],
+)
