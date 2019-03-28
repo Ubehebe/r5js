@@ -4,5 +4,6 @@ ts_library(
     name = "tutorial",
     srcs = [
         "tutorial.ts",
+        "tutorial_data.ts",
     ],
 )

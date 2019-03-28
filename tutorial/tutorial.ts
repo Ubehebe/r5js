@@ -7,7 +7,7 @@
  primitive procedure "on-event" that wraps up the state of the trampoline in
  a closure, and halts it, so that it can be restarted from a JavaScript callback. */
 
-class Step {
+export class Step {
 
   congratulate = true;
   pause = 0;
@@ -15,7 +15,7 @@ class Step {
   constructor(
       readonly questionArray: any[],
       private readonly advanceWhen: (input: string) => boolean,
-      readonly explanationArray: any[],
+      readonly explanationArray: any[] = [],
   ) {}
 
   disableRandomCongrat(): this {
@@ -42,8 +42,8 @@ export class Tutorial {
   private curStep = 0;
   private localVars: {[key: string]: any /* TODO tighten? */} = {};
   private congratulations: ReadonlyArray<string> = [];
-  private errorMessage = "";
-  private goodbye = "";
+  private errorMessageFormatter: (badInput: string) => string = x => x;
+  private goodbye: ReadonlyArray<string> = [];
 
   constructor() {
   }
@@ -52,12 +52,12 @@ export class Tutorial {
     return this.steps[0].questionArray;
   }
 
-  setErrorMessage(errorMessage: string): this {
-    this.errorMessage = errorMessage;
+  setErrorMessage(errorMessage: (badInput: string) => string): this {
+    this.errorMessageFormatter = errorMessage;
     return this;
   }
 
-  setGoodbye(goodbye: string): this {
+  setGoodbye(goodbye: string[]): this {
     this.goodbye = goodbye;
     return this;
   }
@@ -88,7 +88,7 @@ export class Tutorial {
 
    tut.withLocalVar("foo", function(foo) { return "you entered: " + foo; })
    */
-  withLocalVar(name: string, cb: (x: string) => void): (x: string) => void {
+  withLocalVar(name: string, cb: (x: string) => string /* TODO: generic */): (x: string) => string {
     return () => cb(this.localVars[name] || '');
   }
 
@@ -126,7 +126,7 @@ export class Tutorial {
 
         return ' '; // todo bl eliminate
       } else {
-        terminal.println(this.errorMessage);
+        terminal.println(this.errorMessageFormatter);
         return ' '; // todo bl eliminate
       }
     } else {
