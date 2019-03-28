@@ -58,7 +58,7 @@ web_test_repositories()
 
 new_git_repository(
     name = "mockterm",
-    build_file = "//:BUILD.mockterm",
+    build_file = "//:misc/BUILD.mockterm",
     commit = "fe5664ebb51d285a048300ac15909b16d22caa17",
     remote = "https://github.com/Ubehebe/term.js.git",
 )
