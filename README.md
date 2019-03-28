@@ -14,6 +14,6 @@ r5js is built using [Bazel](https://bazel.build) version 0.24+. To build, instal
 repository, and run `bazel build ...`.
 
 ## Running
-`bazel run repl` brings up an r5js interpreter using node.
+`bazel run node:repl` brings up an r5js interpreter in the console.
 
 TODO: expose a target for running in the browser.

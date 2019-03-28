@@ -1,3 +1,4 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 ts_library(
@@ -7,9 +8,6 @@ ts_library(
         "terminal.ts",
     ],
     tsconfig = "//:tsconfig.json",
-    visibility = [
-        "//visibility:public",
-    ],
     deps = [
         "//eval",
         "//eval:boot",
@@ -19,4 +17,12 @@ ts_library(
         "//scm",
         "@npm//@types/node",
     ],
+)
+
+nodejs_binary(
+    name = "repl",
+    data = [
+        ":node",
+    ],
+    entry_point = "r5js/node/repl.js",
 )

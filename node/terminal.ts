@@ -1,5 +1,5 @@
 import {Interface} from "readline";
-import {Terminal as TerminalInterface} from '../../repl/terminal';
+import {Terminal as TerminalInterface} from '../repl/terminal';
 
 const readline = require('readline');
 
