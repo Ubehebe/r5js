@@ -7,6 +7,9 @@ ts_library(
         "terminal.ts",
     ],
     tsconfig = "//:tsconfig.json",
+    visibility = [
+        "//visibility:public",
+    ],
     deps = [
         "//js/eval",
         "//js/io",

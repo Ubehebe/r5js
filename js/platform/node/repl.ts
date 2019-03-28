@@ -14,3 +14,5 @@ export function repl() {
     const evaluator = new Evaluator(new Pipeline(new EnvironmentImpl(null)), stdin, stdout);
     new Repl(terminal, evaluator).start();
 }
+
+repl();
