@@ -10,8 +10,10 @@ the language's facilities.
 r5js is free software, licensed under [GPLv3](http://www.gnu.org/copyleft/gpl.html).
 
 ## Building
-r5js is built using [Bazel](https://bazel.build) version 0.13+. To build, install Bazel and run
-`git clone https://github.com/Ubehebe/r5js && bazel build //...`.
+r5js is built using [Bazel](https://bazel.build) version 0.24+. To build, install Bazel, clone this
+repository, and run `bazel build ...`.
 
 ## Running
-TODO: expose bazel targets for this
+`bazel run repl` brings up an r5js interpreter using node.
+
+TODO: expose a target for running in the browser.
