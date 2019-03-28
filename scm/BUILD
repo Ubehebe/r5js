@@ -40,13 +40,27 @@ ts_library(
     name = "scm",
     srcs = [
         "scheme_sources.ts",
+        ":PROCEDURES",
+        ":SYNTAX",
     ],
     tsconfig = "//:tsconfig.json",
     visibility = [
         "//visibility:public",
     ],
-    deps = [
-        ":PROCEDURES",
-        ":SYNTAX",
+)
+
+ts_library(
+    name = "test_sources",
+    srcs = [
+        "test_sources.ts",
+        ":NEGATIVE_TESTS",
+        ":OTHER_TESTS",
+        ":R5RS_TESTS",
+        ":TEST_FRAMEWORK",
+        ":TEST_FRAMEWORK_TESTS",
+    ],
+    tsconfig = "//:tsconfig.json",
+    visibility = [
+        "//test:__pkg__",
     ],
 )

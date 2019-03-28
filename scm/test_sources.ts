@@ -1,8 +1,8 @@
-import {NEGATIVE_TESTS} from '../scm/negative-tests';
-import {OTHER_TESTS} from '../scm/other-tests';
-import {R5RS_TESTS} from '../scm/r5rs-tests';
-import {TEST_FRAMEWORK} from '../scm/unit-test';
-import {TEST_FRAMEWORK_TESTS} from '../scm/unit-test-tests';
+import {NEGATIVE_TESTS} from './negative-tests';
+import {OTHER_TESTS} from './other-tests';
+import {R5RS_TESTS} from './r5rs-tests';
+import {TEST_FRAMEWORK} from './unit-test';
+import {TEST_FRAMEWORK_TESTS} from './unit-test-tests';
 
 export class SchemeSources {
 

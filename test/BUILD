@@ -83,10 +83,10 @@ ts_library(
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
-        ":scheme_sources",
         "//eval",
         "//eval:async_evaluator",
         "//io",
+        "//scm:test_sources",
         "@npm//@types/jasmine",
     ],
 )
@@ -95,20 +95,5 @@ jasmine_node_test(
     name = "scheme_test",
     deps = [
         ":scheme_test_lib",
-    ],
-)
-
-ts_library(
-    name = "scheme_sources",
-    srcs = [
-        "scheme_sources.ts",
-    ],
-    tsconfig = "//:tsconfig.json",
-    deps = [
-        "//scm:NEGATIVE_TESTS",
-        "//scm:OTHER_TESTS",
-        "//scm:R5RS_TESTS",
-        "//scm:TEST_FRAMEWORK",
-        "//scm:TEST_FRAMEWORK_TESTS",
     ],
 )
