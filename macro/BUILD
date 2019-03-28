@@ -9,9 +9,9 @@ ts_library(
     srcs = glob(["*.ts"]),
     tsconfig = "//:tsconfig.json",
     deps = [
-        "//:error",
-        "//:value",
         "//ast:datum",
+        "//base:error",
+        "//base:value",
         "//parse:nonterminals",
         "//parse:parser",
         "//parse:rename_util",

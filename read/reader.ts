@@ -10,7 +10,7 @@ import {String} from "../ast/string";
 import {Unquote} from "../ast/unquote";
 import {UnquoteSplicing} from "../ast/unquote_splicing";
 import {Vector} from "../ast/vector";
-import {Error, ErrorType} from "../error";
+import {Error, ErrorType} from "../base/error";
 import {DATUM, DATUMS, Nonterminal} from "../parse/nonterminals";
 import {BACKTICK, COMMA, COMMA_AT, DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} from "../parse/terminals";
 import {TokenStream} from "../scan/token_stream";

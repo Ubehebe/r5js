@@ -1,6 +1,6 @@
+import {ObjectValue} from "../base/value";
 import {Nonterminal} from '../parse/nonterminals';
 import {Environment} from "../runtime/environment";
-import {ObjectValue} from "../value";
 import {ProcCallLike, ProcCallResult} from "./proc_call_like";
 import {RenameHelper} from './rename_helper';
 

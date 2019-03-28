@@ -1,8 +1,8 @@
 import {ProcCallLike} from "../ast/proc_call_like";
+import {Value} from "../base/value";
 import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
 import {ParserImpl} from "../parse/parser_impl";
-import {Value} from "../value";
 import {Environment} from "./environment";
 import {TrampolineHelper} from "./trampoline_helper";
 

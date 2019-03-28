@@ -3,10 +3,10 @@ import {Identifier} from "../ast/identifier";
 import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 import {SiblingBuffer} from "../ast/sibling_buffer";
 import {SimpleDatum} from "../ast/simple_datum";
-import {Error} from "../error";
+import {Error} from "../base/error";
+import {Value} from "../base/value";
 import {Macro} from "../macro/macro";
 import {Parser} from "../parse/parser";
-import {Value} from "../value";
 import {Environment} from "./environment";
 
 export class Assignment extends ProcCallLike {

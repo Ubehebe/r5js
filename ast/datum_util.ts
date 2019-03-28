@@ -1,5 +1,5 @@
-import {Error} from "../error";
-import {Value} from "../value";
+import {Error} from "../base/error";
+import {Value} from "../base/value";
 import {Boolean} from './boolean';
 import {Datum} from './datum';
 import {Identifier} from './identifier';

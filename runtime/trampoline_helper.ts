@@ -1,8 +1,8 @@
 import {UNSPECIFIED_VALUE} from "../ast/datum";
 import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
+import {Value} from "../base/value";
 import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
-import {Value} from "../value";
 
 export class TrampolineHelper implements ProcCallResult {
 

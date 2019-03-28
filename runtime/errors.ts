@@ -1,7 +1,7 @@
 import {Type} from "../ast/type";
-import {ErrorType} from "../error";
-import {Error} from "../error";
-import {Value} from "../value";
+import {ErrorType} from "../base/error";
+import {Error} from "../base/error";
+import {Value} from "../base/value";
 
 /** @param argIndex The position of the argument in the argument list (zero-indexed). */
 export function argumentTypeError(

@@ -1,4 +1,4 @@
-import {Value} from "../value";
+import {Value} from "../base/value";
 import {CompoundDatum} from "./compound_datum";
 
 /**

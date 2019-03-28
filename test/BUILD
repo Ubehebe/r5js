@@ -9,15 +9,15 @@ ts_library(
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
-        "//:boot",
-        "//:error",
-        "//:scheme_sources",
         "//ast:datum",
         "//ast:type",
+        "//base:error",
         "//eval",
+        "//eval:boot",
         "//io",
         "//parse:terminals",
         "//runtime",
+        "//scm",
         "@npm//@types/jasmine",
     ],
 )

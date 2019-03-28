@@ -1,5 +1,5 @@
 import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
-import {ObjectValue, Value} from "../value";
+import {ObjectValue, Value} from "../base/value";
 import {Environment} from "./environment";
 
 export class /* TODO interface */ Procedure implements ObjectValue {

@@ -7,14 +7,17 @@ package(
 )
 
 ts_library(
-    name = "read",
-    srcs = glob(["*.ts"]),
-    tsconfig = "//:tsconfig.json",
-    deps = [
-        "//ast:datum",
-        "//base:error",
-        "//parse:nonterminals",
-        "//parse:terminals",
-        "//scan",
+    name = "value",
+    srcs = [
+        "value.ts",
     ],
+    tsconfig = "//:tsconfig.json",
+)
+
+ts_library(
+    name = "error",
+    srcs = [
+        "error.ts",
+    ],
+    tsconfig = "//:tsconfig.json",
 )

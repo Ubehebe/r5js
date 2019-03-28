@@ -1,7 +1,7 @@
+import {Value} from "../base/value";
 import {CPS_PREFIX, isParserSensitiveId} from "../parse/rename_util";
 import {COMMA} from "../parse/terminals";
 import {Environment} from "../runtime/environment";
-import {Value} from "../value";
 import {ProcCallResult} from "./proc_call_like";
 import {ProcCallLike} from "./proc_call_like";
 import {RenameHelper} from "./rename_helper";

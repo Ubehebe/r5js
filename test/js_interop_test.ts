@@ -1,13 +1,13 @@
 import {NUMBER, STRING} from "../ast/types";
-import {boot} from "../boot";
-import {Error, ErrorType} from "../error";
+import {Error, ErrorType} from "../base/error";
+import {boot} from "../eval/boot";
 import {Evaluator} from "../eval/evaluator";
 import {InMemoryInputPort} from "../io/in_memory_input_port";
 import {InMemoryOutputPort} from "../io/in_memory_output_port";
 import {InMemoryPortBuffer} from "../io/in_memory_port_buffer";
 import {LPAREN, RPAREN} from "../parse/terminals";
 import {argumentTypeError} from "../runtime/errors";
-import {SchemeSources} from "../scheme_sources";
+import {SchemeSources} from "../scm/scheme_sources";
 
 let buffer;
 let stdin;

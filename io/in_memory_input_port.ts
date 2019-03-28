@@ -1,8 +1,8 @@
 import {Character} from "../ast/character";
 import {Datum} from "../ast/datum";
+import {Value} from "../base/value";
 import {newReader, Reader} from "../read/reader";
 import {newTokenStream, TokenStream} from "../scan/token_stream";
-import {Value} from "../value";
 import {InMemoryPortBuffer} from "./in_memory_port_buffer";
 import {InputPort} from "./input_port";
 

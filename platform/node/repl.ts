@@ -1,8 +1,8 @@
-import {boot} from "../../boot";
+import {boot} from "../../eval/boot";
 import {CallbackBackedPort} from '../../io/callback_backed_port';
 import {NULL_INPUT_PORT} from '../../io/input_port';
 import {Repl} from '../../repl/repl';
-import {SchemeSources} from "../../scheme_sources";
+import {SchemeSources} from "../../scm/scheme_sources";
 import {Terminal} from './terminal';
 
 /** The main REPL method. */

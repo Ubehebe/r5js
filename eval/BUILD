@@ -14,11 +14,11 @@ ts_library(
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
-        "//:error",
-        "//:value",
         "//ast:datum",
         "//ast:rename_helper",
         "//ast:type",
+        "//base:error",
+        "//base:value",
         "//io",
         "//parse:nonterminals",
         "//parse:parser",
@@ -35,15 +35,34 @@ ts_library(
 )
 
 ts_library(
+    name = "boot",
+    srcs = [
+        "boot.ts",
+    ],
+    tsconfig = "//:tsconfig.json",
+    deps = [
+        ":eval",
+        "//io",
+        "//parse:parser_impl",
+        "//read",
+        "//runtime",
+        "//runtime:environment",
+        "//runtime:primitive_procedures",
+        "//runtime:trampoline",
+        "//scan",
+    ],
+)
+
+ts_library(
     name = "async_evaluator",
     srcs = [
         "async_evaluator.ts",
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
+        ":boot",
         ":eval",
-        "//:boot",
-        "//:scheme_sources",
         "//io",
+        "//scm",
     ],
 )

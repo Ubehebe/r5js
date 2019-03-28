@@ -1,14 +1,14 @@
-import {Evaluator} from "./eval/evaluator";
-import {Pipeline} from "./eval/pipeline";
-import {InputPort, NULL_INPUT_PORT} from "./io/input_port";
-import {NULL_OUTPUT_PORT, OutputPort} from "./io/output_port";
-import {ParserImpl} from "./parse/parser_impl";
-import {newReader} from "./read/reader";
-import {Environment} from "./runtime/environment";
-import {EnvironmentImpl} from "./runtime/environment_impl";
-import {install} from "./runtime/primitive_procedures";
-import {trampoline} from "./runtime/trampoline";
-import {newTokenStream} from "./scan/token_stream";
+import {InputPort, NULL_INPUT_PORT} from "../io/input_port";
+import {NULL_OUTPUT_PORT, OutputPort} from "../io/output_port";
+import {ParserImpl} from "../parse/parser_impl";
+import {newReader} from "../read/reader";
+import {Environment} from "../runtime/environment";
+import {EnvironmentImpl} from "../runtime/environment_impl";
+import {install} from "../runtime/primitive_procedures";
+import {trampoline} from "../runtime/trampoline";
+import {newTokenStream} from "../scan/token_stream";
+import {Evaluator} from "./evaluator";
+import {Pipeline} from "./pipeline";
 
 /**
  * The main bootstrap function. Given Scheme source code for R5RS syntax and procedures, returns

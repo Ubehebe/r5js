@@ -1,4 +1,5 @@
 load("//:rules/scheme_source.bzl", "scheme_source")
+load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 scheme_source(
     name = "SYNTAX",
@@ -33,4 +34,19 @@ scheme_source(
 scheme_source(
     name = "OTHER_TESTS",
     src = "other-tests.scm",
+)
+
+ts_library(
+    name = "scm",
+    srcs = [
+        "scheme_sources.ts",
+    ],
+    tsconfig = "//:tsconfig.json",
+    visibility = [
+        "//visibility:public",
+    ],
+    deps = [
+        ":PROCEDURES",
+        ":SYNTAX",
+    ],
 )

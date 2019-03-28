@@ -4,7 +4,7 @@ import {Datum} from '../ast/datum';
 import {Identifier} from '../ast/identifier';
 import {Number} from '../ast/number';
 import {String} from '../ast/string';
-import {Error} from '../error';
+import {Error} from '../base/error';
 
 // export type Token = Datum | string; TODO
 // export type Checkpoint = number; TODO

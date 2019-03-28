@@ -13,7 +13,7 @@ ts_library(
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
-        "//:value",
+        "//base:value",
     ],
 )
 
@@ -42,10 +42,10 @@ ts_library(
     tsconfig = "//:tsconfig.json",
     deps = [
         ":environment",
-        "//:error",
-        "//:value",
         "//ast:datum",
         "//ast:type",
+        "//base:error",
+        "//base:value",
         "//io",
         "//macro",
         "//parse:nonterminals",
@@ -65,10 +65,10 @@ ts_library(
         ":environment",
         ":runtime",
         ":trampoline",
-        "//:error",
-        "//:value",
         "//ast:datum",
         "//ast:type",
+        "//base:error",
+        "//base:value",
         "//io",
         "//parse:parser_impl",
     ],
@@ -83,8 +83,8 @@ ts_library(
     deps = [
         ":environment",
         ":runtime",
-        "//:value",
         "//ast:datum",
+        "//base:value",
         "//io",
         "//parse:parser_impl",
     ],

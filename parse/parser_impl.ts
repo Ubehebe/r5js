@@ -10,7 +10,7 @@ import {SimpleDatum} from "../ast/simple_datum";
 import {String} from "../ast/string";
 import {extractDefinition} from "../ast/util";
 import {Vector} from "../ast/vector";
-import {Error} from "../error";
+import {Error} from "../base/error";
 import {EllipsisTransformer} from "../macro/ellipsis_transformer";
 import {dottedList, list, quote, vector} from "../macro/list_like_transformer";
 import {Macro} from "../macro/macro";

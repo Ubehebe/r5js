@@ -1,5 +1,5 @@
+import {Value} from "../base/value";
 import {Environment} from "../runtime/environment";
-import {Value} from "../value";
 import {Datum} from "./datum";
 
 export interface ProcCallResult {

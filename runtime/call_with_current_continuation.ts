@@ -1,5 +1,5 @@
 import {Identifier} from "../ast/identifier";
-import {Value} from "../value";
+import {Value} from "../base/value";
 import {Continuation} from "./continuation";
 import {ProcCall} from "./proc_call";
 

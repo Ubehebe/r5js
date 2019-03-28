@@ -1,4 +1,4 @@
-import {Error} from "../error";
+import {Error} from "../base/error";
 import {isParserSensitiveId} from "../parse/rename_util";
 
 export class RenameHelper {

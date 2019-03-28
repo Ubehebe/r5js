@@ -4,12 +4,12 @@ import {Identifier} from "../ast/identifier";
 import {List} from "../ast/list";
 import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
 import {SiblingBuffer} from "../ast/sibling_buffer";
-import {Error} from "../error";
+import {Error} from "../base/error";
+import {ObjectValue} from "../base/value";
 import {PATTERN, PROGRAM, TEMPLATE} from "../parse/nonterminals";
 import {Parser} from "../parse/parser";
 import {isParserSensitiveId, newCpsName} from "../parse/rename_util";
 import {Environment} from "../runtime/environment";
-import {ObjectValue} from "../value";
 import {TemplateBindings} from "./template_bindings";
 import {Transformer} from "./transformer";
 

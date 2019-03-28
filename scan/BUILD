@@ -8,8 +8,8 @@ ts_library(
     tsconfig = "//:tsconfig.json",
     visibility = ["//:__subpackages__"],
     deps = [
-        "//:error",
         "//ast:datum",
+        "//base:error",
         "//parse:terminals",
     ],
 )

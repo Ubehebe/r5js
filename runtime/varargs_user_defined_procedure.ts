@@ -2,8 +2,8 @@ import {CompoundDatum} from "../ast/compound_datum";
 import {wrapValue} from "../ast/datum_util";
 import {List} from "../ast/list";
 import {SiblingBuffer} from "../ast/sibling_buffer";
-import {Error} from "../error";
-import {Value} from "../value";
+import {Error} from "../base/error";
+import {Value} from "../base/value";
 import {Environment} from "./environment";
 import {UserDefinedProcedure} from "./user_defined_procedure";
 

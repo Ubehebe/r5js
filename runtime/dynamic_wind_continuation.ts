@@ -1,5 +1,5 @@
 import {ProcCallLike, ProcCallResult} from "../ast/proc_call_like";
-import {Value} from "../value";
+import {Value} from "../base/value";
 import {Continuation} from "./continuation";
 
 /**

@@ -1,4 +1,4 @@
-import {Value} from "../value";
+import {Value} from "../base/value";
 
 /**
  * Interface abstracted from {@link r5js.Environment}.

@@ -1,6 +1,6 @@
 import {Datum} from "../ast/datum";
+import {ObjectValue} from "../base/value";
 import {Environment} from "../runtime/environment";
-import {ObjectValue} from "../value";
 import {RenameHelper} from "./rename_helper";
 import {TemplateBindings} from "./template_bindings";
 

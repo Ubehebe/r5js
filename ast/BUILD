@@ -36,8 +36,8 @@ ts_library(
     tsconfig = "//:tsconfig.json",
     deps = [
         ":rename_helper",
-        "//:error",
-        "//:value",
+        "//base:error",
+        "//base:value",
         "//parse:nonterminals",
         "//parse:rename_util",
         "//parse:terminals",

@@ -1,5 +1,5 @@
-import {Error} from '../error';
-import {Value} from "../value";
+import {Error} from '../base/error';
+import {Value} from "../base/value";
 import {CdrHelper} from './cdr_helper';
 import {CompoundDatum} from './compound_datum';
 import {Datum} from './datum';

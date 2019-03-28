@@ -1,7 +1,7 @@
-import {Error} from '../error';
+import {Error} from '../base/error';
+import {Value} from "../base/value";
 import {QUOTE} from '../parse/terminals';
 import {Environment} from "../runtime/environment";
-import {Value} from "../value";
 import {CompoundDatum} from './compound_datum';
 import {Datum, UNSPECIFIED_VALUE} from './datum';
 import {wrapValue} from './datum_util';

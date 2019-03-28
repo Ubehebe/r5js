@@ -6,10 +6,10 @@ import {Ref} from "../ast/ref";
 import {SimpleDatum} from "../ast/simple_datum";
 import {String} from "../ast/string";
 import {Vector} from "../ast/vector";
+import {Value} from "../base/value";
 import {InputPort} from "../io/input_port";
 import {OutputPort} from "../io/output_port";
 import {DOT, LPAREN, LPAREN_VECTOR, RPAREN, TICK} from "../parse/terminals";
-import {Value} from "../value";
 import {EOF} from "./eof";
 import {UserDefinedProcedure} from "./user_defined_procedure";
 

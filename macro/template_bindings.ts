@@ -2,7 +2,7 @@ import {CompoundDatum} from "../ast/compound_datum";
 import {Datum} from "../ast/datum";
 import {Identifier} from "../ast/identifier";
 import {Macro} from "../ast/macro";
-import {Error} from "../error";
+import {Error} from "../base/error";
 import {newCpsName} from "../parse/rename_util";
 import {Environment} from "../runtime/environment";
 

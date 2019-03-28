@@ -1,10 +1,10 @@
 import {Datum, UNSPECIFIED_VALUE} from "../ast/datum";
 import {Ref} from "../ast/ref";
 import {SimpleDatum} from "../ast/simple_datum";
-import {Error} from "../error";
+import {Error} from "../base/error";
+import {Value} from "../base/value";
 import {Macro} from "../macro/macro";
 import {CPS_PREFIX} from "../parse/rename_util";
-import {Value} from "../value";
 import {Continuation} from "./continuation";
 import {Environment} from "./environment";
 import {notAProcedure} from "./errors";

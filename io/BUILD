@@ -9,8 +9,8 @@ ts_library(
     srcs = glob(["*.ts"]),
     tsconfig = "//:tsconfig.json",
     deps = [
-        "//:value",
         "//ast:datum",
+        "//base:value",
         "//read",
         "//scan",
     ],
