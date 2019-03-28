@@ -20,11 +20,14 @@ export class Repl {
         if (isLineComplete(this.awaitingEval += inputLine + ' ')) {
             const toEval = this.awaitingEval;
             this.awaitingEval = '';
-            const val = this.evaluator.evaluate(toEval);
-            this.terminal.print(val);
+            try {
+                const val = this.evaluator.evaluate(toEval);
+                this.terminal.print(val);
+            } catch (e) {
+                this.terminal.error(e);
+            }
         }
         const next = await this.terminal.getNextLineOfInput();
         await this.handleInputLine(next);
-        // TODO: print errors
     }
 }
