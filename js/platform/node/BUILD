@@ -3,11 +3,15 @@ load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 ts_library(
     name = "node",
     srcs = [
+        "repl.ts",
         "terminal.ts",
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
+        "//js/eval",
+        "//js/io",
         "//js/repl",
+        "//js/runtime",
         "@npm//@types/node",
     ],
 )
