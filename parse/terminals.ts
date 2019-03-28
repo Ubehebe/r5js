@@ -1,5 +1,3 @@
-export type Terminal = string;
-
 export const BACKTICK = '`';
 export const BEGIN = 'begin';
 export const COMMA = ',';

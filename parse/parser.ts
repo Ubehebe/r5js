@@ -1,5 +1,5 @@
 import {Datum} from "../ast/datum";
-import {Nonterminal, PROGRAM} from "./nonterminals";
+import {Nonterminal} from "./nonterminals";
 
 export interface Parser {
   /** @return The root of the parse tree, or null if parsing was unsuccessful. */
