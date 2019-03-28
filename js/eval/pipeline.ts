@@ -42,8 +42,7 @@ export class Pipeline {
   }
 
   Eval(continuable: ProcCallLike, inputPort: InputPort, outputPort: OutputPort): Value {
-    // VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of
-    // a special case that I don't care.
+    // VACUOUS_PROGRAM isn't a ProcCallLike, but this is enough of a special case that I don't care.
     return continuable as any === VACUOUS_PROGRAM
       ? UNSPECIFIED_VALUE
       : trampoline(continuable, this.env, inputPort, outputPort);
