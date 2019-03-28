@@ -2,7 +2,7 @@ load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 package(
     default_visibility = [
-        "//js:__subpackages__",
+        "//:__subpackages__",
     ],
 )
 
@@ -13,7 +13,7 @@ ts_library(
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
-        "//js:value",
+        "//:value",
     ],
 )
 
@@ -42,16 +42,16 @@ ts_library(
     tsconfig = "//:tsconfig.json",
     deps = [
         ":environment",
-        "//js:error",
-        "//js:value",
-        "//js/ast:datum",
-        "//js/ast:type",
-        "//js/io",
-        "//js/macro",
-        "//js/parse:nonterminals",
-        "//js/parse:parser",
-        "//js/parse:rename_util",
-        "//js/parse:terminals",
+        "//:error",
+        "//:value",
+        "//ast:datum",
+        "//ast:type",
+        "//io",
+        "//macro",
+        "//parse:nonterminals",
+        "//parse:parser",
+        "//parse:rename_util",
+        "//parse:terminals",
     ],
 )
 
@@ -65,12 +65,12 @@ ts_library(
         ":environment",
         ":runtime",
         ":trampoline",
-        "//js:error",
-        "//js:value",
-        "//js/ast:datum",
-        "//js/ast:type",
-        "//js/io",
-        "//js/parse:parser_impl",
+        "//:error",
+        "//:value",
+        "//ast:datum",
+        "//ast:type",
+        "//io",
+        "//parse:parser_impl",
     ],
 )
 
@@ -83,9 +83,9 @@ ts_library(
     deps = [
         ":environment",
         ":runtime",
-        "//js:value",
-        "//js/ast:datum",
-        "//js/io",
-        "//js/parse:parser_impl",
+        "//:value",
+        "//ast:datum",
+        "//io",
+        "//parse:parser_impl",
     ],
 )

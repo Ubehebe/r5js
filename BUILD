@@ -1,4 +1,3 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 load("//:rules/tslint.bzl", "tslint")
 
@@ -28,10 +27,57 @@ filegroup(
     ],
 )
 
-nodejs_binary(
-    name = "repl",
-    data = [
-        "//js/platform/node",
+load("@npm_bazel_typescript//:defs.bzl", "ts_library")
+
+package(
+    default_visibility = [
+        "//:__subpackages__",
     ],
-    entry_point = "r5js/js/platform/node/repl.js",
+)
+
+ts_library(
+    name = "scheme_sources",
+    srcs = [
+        "scheme_sources.ts",
+    ],
+    tsconfig = "//:tsconfig.json",
+    deps = [
+        "//scm:PROCEDURES",
+        "//scm:SYNTAX",
+    ],
+)
+
+ts_library(
+    name = "value",
+    srcs = [
+        "value.ts",
+    ],
+    tsconfig = "//:tsconfig.json",
+)
+
+ts_library(
+    name = "error",
+    srcs = [
+        "error.ts",
+    ],
+    tsconfig = "//:tsconfig.json",
+)
+
+ts_library(
+    name = "boot",
+    srcs = [
+        "boot.ts",
+    ],
+    tsconfig = "//:tsconfig.json",
+    deps = [
+        "//eval",
+        "//io",
+        "//parse:parser_impl",
+        "//read",
+        "//runtime",
+        "//runtime:environment",
+        "//runtime:primitive_procedures",
+        "//runtime:trampoline",
+        "//scan",
+    ],
 )

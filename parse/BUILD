@@ -2,7 +2,7 @@ load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 package(
     default_visibility = [
-        "//js:__subpackages__",
+        "//:__subpackages__",
     ],
 )
 
@@ -26,8 +26,8 @@ ts_library(
     deps = [
         ":nonterminals",
         ":terminals",
-        "//js/ast:datum",
-        "//js/runtime:environment",
+        "//ast:datum",
+        "//runtime:environment",
     ],
 )
 
@@ -39,7 +39,7 @@ ts_library(
     tsconfig = "//:tsconfig.json",
     deps = [
         ":nonterminals",
-        "//js/ast:datum",
+        "//ast:datum",
     ],
 )
 
@@ -55,12 +55,12 @@ ts_library(
         ":parser",
         ":rename_util",
         ":terminals",
-        "//js:error",
-        "//js/ast:datum",
-        "//js/ast:rename_helper",
-        "//js/macro",
-        "//js/runtime",
-        "//js/runtime:environment",
+        "//:error",
+        "//ast:datum",
+        "//ast:rename_helper",
+        "//macro",
+        "//runtime",
+        "//runtime:environment",
     ],
 )
 

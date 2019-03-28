@@ -1,7 +1,7 @@
 load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 package(
-    default_visibility = ["//js:__subpackages__"],
+    default_visibility = ["//:__subpackages__"],
 )
 
 ts_library(
@@ -9,9 +9,9 @@ ts_library(
     srcs = glob(["*.ts"]),
     tsconfig = "//:tsconfig.json",
     deps = [
-        "//js:value",
-        "//js/ast:datum",
-        "//js/read",
-        "//js/scan",
+        "//:value",
+        "//ast:datum",
+        "//read",
+        "//scan",
     ],
 )

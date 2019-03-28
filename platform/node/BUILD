@@ -11,12 +11,12 @@ ts_library(
         "//visibility:public",
     ],
     deps = [
-        "//js:boot",
-        "//js:scheme_sources",
-        "//js/eval",
-        "//js/io",
-        "//js/repl",
-        "//js/runtime",
+        "//:boot",
+        "//:scheme_sources",
+        "//eval",
+        "//io",
+        "//repl",
+        "//runtime",
         "@npm//@types/node",
     ],
 )

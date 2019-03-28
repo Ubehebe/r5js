@@ -6,10 +6,10 @@ ts_library(
         "token_stream.ts",
     ],
     tsconfig = "//:tsconfig.json",
-    visibility = ["//js:__subpackages__"],
+    visibility = ["//:__subpackages__"],
     deps = [
-        "//js:error",
-        "//js/ast:datum",
-        "//js/parse:terminals",
+        "//:error",
+        "//ast:datum",
+        "//parse:terminals",
     ],
 )

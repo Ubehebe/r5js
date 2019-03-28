@@ -2,7 +2,7 @@ load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 package(
     default_visibility = [
-        "//js:__subpackages__",
+        "//:__subpackages__",
     ],
 )
 
@@ -36,12 +36,12 @@ ts_library(
     tsconfig = "//:tsconfig.json",
     deps = [
         ":rename_helper",
-        "//js:error",
-        "//js:value",
-        "//js/parse:nonterminals",
-        "//js/parse:rename_util",
-        "//js/parse:terminals",
-        "//js/runtime:environment",
+        "//:error",
+        "//:value",
+        "//parse:nonterminals",
+        "//parse:rename_util",
+        "//parse:terminals",
+        "//runtime:environment",
     ],
 )
 
@@ -50,7 +50,7 @@ ts_library(
     srcs = ["rename_helper.ts"],
     tsconfig = "//:tsconfig.json",
     deps = [
-        "//js/parse:rename_util",
+        "//parse:rename_util",
     ],
 )
 
