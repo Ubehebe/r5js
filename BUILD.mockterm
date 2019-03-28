@@ -1,0 +1,10 @@
+filegroup(
+    name = "mockterm",
+    srcs = [
+        "mockterm.js",
+        "async_queue.js",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)
