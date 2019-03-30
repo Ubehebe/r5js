@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Terminal Test</title>
+    <style>
+        .answer {
+            background-color: green;
+            color: white;
+        }
+
+        .echo {
+            background-color: #00008b;
+            color: white;
+            text-align: right;
+        }
+    </style>
+    <script src="async_queue.js"></script>
+    <script src="mockterm.js"></script>
+    <script src="blockterm.js"></script>
+    <script>
+
+        window.addEventListener
+                ? addEventListener('load', main, false)
+                : attachEvent('onload', main);
+
+        function main() {
+
+            setupBlockTerm();
+            setupMockTerm();
+
+            function setupBlockTerm() {
+                var answerTemplate = document.createElement('p');
+                answerTemplate.className = 'answer';
+                var echoTemplate = document.createElement('p');
+                echoTemplate.className = 'echo';
+
+                new BlockTerm(
+                        document.getElementById('blockterm-input'),
+                        document.getElementById('blockterm-output'))
+                        .setOutputTemplate(answerTemplate)
+                        .setEchoTemplate(echoTemplate)
+                        .pushInterpreter(echo);
+            }
+
+            function setupMockTerm() {
+                new MockTerminal(document.getElementById('mockterm-input'), 80, 5, 500)
+                    .println('This simulates a terminal with prompts and latency.')
+                    .setPrompt('$ ')
+                    .pushInterpreter(echo)
+                    .setInputCompleteHandler(function(input) { return true; })
+                    .start();
+            }
+
+            function echo(input) {
+                return 'You typed: ' + input;
+            }
+        }
+    </script>
+</head>
+<body>
+<section id="mockterm">
+    <h1>MockTerm test</h1>
+    <textarea id="mockterm-input" cols="80" rows="10"></textarea>
+</section>
+<section>
+    <h1>BlockTerm test</h1>
+    <h2>This uses an SMS-like UI. May be more appropriate for mobile devices.</h2>
+    <div id="blockterm-output"></div>
+    <input type="text" id="blockterm-input" style="position: relative; width: 100%" />
+</section>
+
+</body>
+</html>
