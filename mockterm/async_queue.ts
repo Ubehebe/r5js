@@ -4,7 +4,7 @@ export class AsyncQueue {
   private running = false;
 
   // TODO: a more flexible design would be to specify a latency for every object enqueued.
-  constructor(private readonly latency: number) {}
+  constructor(readonly latency: number) {}
 
   isRunning(): boolean {
     return this.running;
