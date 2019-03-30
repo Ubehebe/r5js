@@ -1,26 +1,23 @@
 import {AsyncQueue} from "./async_queue";
 
-/* This is a very quick-and-dirty "terminal emulator" that sits on top
- of an HTML textarea. It's called MockTerminal to make it clear that it
- doesn't provide any actual network connectivity etc., just terminal-like
- styling.
-
- Before writing this, I tried the existing popular JavaScript "terminal
- emulators" like termlib.js and the jQuery Terminal plugin, but they
- were both dead in the water on the iPad -- you couldn't bring up
- the keyboard.
-
- todo: This is clearly full of bugs. There are two main reasons:
- (1) the horrible state of keydown API and (2) implementing a character
- device (a terminal) on top of what is essentially a block device
- (the textarea, which was meant to provide snapshots of completed strings
- to the server through forms). Hopefully, once the DOM Level 3 Events
- spec is standardized, we can rewrite this using the proposed textinput event
- or the proposed "key" property of the existing keydown event. */
-
 const INPUT_KEY = '\r'.charCodeAt(0);
 const BACKSPACE = '\b'.charCodeAt(0);
 
+/**
+ * This is a very quick-and-dirty "terminal emulator" that sits on top of an HTML textarea. It's
+ * called MockTerminal to make it clear that it doesn't provide any actual network connectivity
+ * etc., just terminal-like styling.
+ *
+ * Before writing this, I tried the existing popular JavaScript "terminal emulators" like termlib.js
+ * and the jQuery Terminal plugin, but they were both dead in the water on the iPad -- you couldn't
+ * bring up the keyboard.
+ *
+ * TODO: This is clearly full of bugs. There are two main reasons: (1) the horrible state of keydown
+ * API and (2) implementing a character device (a terminal) on top of what is essentially a block
+ * device (the textarea, which was meant to provide snapshots of completed strings to the server
+ * through forms). Hopefully, once the DOM Level 3 Events spec is standardized, we can rewrite this
+ * using the proposed textinput event or the proposed "key" property of the existing keydown event.
+ */
 export class MockTerminal {
 
   private prompt = "";
@@ -80,7 +77,7 @@ export class MockTerminal {
     } else if (cur < this.lineStart) {
       // If the caret is strictly before the current line, we disallow anything that would mutate that
       // text.
-      return this.willMutateText(keydownEvent);
+      return willMutateText(keydownEvent);
     } else if (cur === this.lineStart) {
       // If the caret is right at the beginning of the current line, we allow it unless they're
       // trying to backspace.
@@ -95,68 +92,6 @@ export class MockTerminal {
       // point of the missing else clause in onKeyDown: we don't know what the action would have
       // been, but we're pretty sure it's OK, and we let the browser do it.)
       return this.printQueue.isRunning();
-    }
-  }
-
-  willMutateText(e: KeyboardEvent): boolean {
-    // These are just heuristics. It's hard to know in general if a keypress will change the
-    // contents of a text input; the OS is the proper owner of that information. (For example,
-    // someone could conceivably map shift-X/C/V to cut/copy/paste instead of the usual ctrl-X/C/V.)
-    // We also don't want to get in the way of useful browser bindings like ctrl-T to open a new
-    // tab.
-    return (e.altKey || e.metaKey || e.ctrlKey)
-        ? false
-        : !this.isHarmlessKeyCode(e.keyCode);
-  }
-
-  /* This is taken from Example 17-8 of "JavaScript: The Definitive Guide",
-   6th ed. (page 488). The comment to that source code reads:
-   "The legacy keyCode property of the keydown event object is not standardized.
-   But the following values seem to work for most browsers and OSes." */
-  isHarmlessKeyCode(keyCode: number): boolean {
-    switch (keyCode) {
-      case 16: // shift
-      case 17: // control
-      case 18: // alt
-      case 19: // pause
-      case 20: // caps lock
-      case 27: // escape
-      case 33: // page up
-      case 34: // page down
-      case 35: // end
-      case 36: // home
-      case 37: // left
-      case 38: // up
-      case 39: // right
-      case 40: // down
-      case 45: // insert
-      case 112: // F1
-      case 113: // F2
-      case 114: // F3
-      case 115: // F4
-      case 116: // F5
-      case 117: // F6
-      case 118: // F7
-      case 119: // F8
-      case 120: // F9
-      case 121: // F10
-      case 122: // F11
-      case 123: // F12
-      case 124: // F13
-      case 125: // F14
-      case 126: // F15
-      case 127: // F16
-      case 128: // F17
-      case 129: // F18
-      case 130: // F19
-      case 131: // F20
-      case 132: // F21
-      case 133: // F22
-      case 134: // F23
-      case 135: // F24
-        return true;
-      default:
-        return false;
     }
   }
 
@@ -327,5 +262,68 @@ class StrWrapper {
 
   next(): string {
     return this.str.charAt(this.offset++);
+  }
+}
+
+function willMutateText(e: KeyboardEvent): boolean {
+  // These are just heuristics. It's hard to know in general if a keypress will change the
+  // contents of a text input; the OS is the proper owner of that information. (For example,
+  // someone could conceivably map shift-X/C/V to cut/copy/paste instead of the usual ctrl-X/C/V.)
+  // We also don't want to get in the way of useful browser bindings like ctrl-T to open a new
+  // tab.
+  return (e.altKey || e.metaKey || e.ctrlKey)
+      ? false
+      : !isHarmlessKeyCode(e.keyCode);
+}
+
+/**
+ * This is taken from Example 17-8 of "JavaScript: The Definitive Guide", 6th ed. (page 488). The
+ * comment to that source code reads: "The legacy keyCode property of the keydown event object is
+ * not standardized. But the following values seem to work for most browsers and OSes."
+ */
+function isHarmlessKeyCode(keyCode: number): boolean {
+  switch (keyCode) {
+    case 16: // shift
+    case 17: // control
+    case 18: // alt
+    case 19: // pause
+    case 20: // caps lock
+    case 27: // escape
+    case 33: // page up
+    case 34: // page down
+    case 35: // end
+    case 36: // home
+    case 37: // left
+    case 38: // up
+    case 39: // right
+    case 40: // down
+    case 45: // insert
+    case 112: // F1
+    case 113: // F2
+    case 114: // F3
+    case 115: // F4
+    case 116: // F5
+    case 117: // F6
+    case 118: // F7
+    case 119: // F8
+    case 120: // F9
+    case 121: // F10
+    case 122: // F11
+    case 123: // F12
+    case 124: // F13
+    case 125: // F14
+    case 126: // F15
+    case 127: // F16
+    case 128: // F17
+    case 129: // F18
+    case 130: // F19
+    case 131: // F20
+    case 132: // F21
+    case 133: // F22
+    case 134: // F23
+    case 135: // F24
+      return true;
+    default:
+      return false;
   }
 }
