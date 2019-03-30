@@ -22,7 +22,7 @@ tslint(
 filegroup(
     name = "web_repl",
     srcs = [
+        "//mockterm",
         "//ui",
-        "@mockterm",
     ],
 )

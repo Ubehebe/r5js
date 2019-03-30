@@ -3,7 +3,7 @@ workspace(name = "r5js")
 # enforced by check_bazel_version below
 BAZEL_VERSION = "0.24.0"
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # Needed to build buildifier.
 git_repository(
@@ -55,10 +55,3 @@ rules_karma_dependencies()
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 
 web_test_repositories()
-
-new_git_repository(
-    name = "mockterm",
-    build_file = "//:misc/BUILD.mockterm",
-    commit = "fe5664ebb51d285a048300ac15909b16d22caa17",
-    remote = "https://github.com/Ubehebe/term.js.git",
-)
