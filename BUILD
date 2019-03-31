@@ -1,5 +1,8 @@
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+load(":tslint.bzl", "tslint")
+
+exports_files(["tsconfig.json"])
 
 buildifier(
     name = "buildifier",
@@ -10,6 +13,11 @@ buildifier(
 buildifier(
     name = "buildifier_pre_commit",
     mode = "check",
+)
+
+tslint(
+    name = "tslint",
+    config = "tslint.json",
 )
 
 genrule(

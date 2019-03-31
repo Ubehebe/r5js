@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "strict": true,
+      "lib": [
+        "dom", // TODO used only for console.log in test_framework.ts. Remove.
+        "es2016"
+      ]
+    }
+}
