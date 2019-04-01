@@ -1,7 +1,10 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
-exports_files(["index.html"])
+exports_files([
+    "index.html",
+    "css/r5rs.css",
+])
 
 ts_library(
     name = "ui",

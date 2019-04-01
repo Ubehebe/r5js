@@ -36,7 +36,7 @@ _COMMON_SRCS = [
     "r5rs.xhtml",
     "robots.txt",
     "@spec//:images",
-    "css/r5rs.css",
+    "//ui:css/r5rs.css",
 ]
 
 pkg_tar(
