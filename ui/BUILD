@@ -15,6 +15,6 @@ ts_library(
     name = "mockterm",
     srcs = glob(["*.ts"]),
     visibility = [
-        "//:__pkg__",
+        "//visibility:public",
     ],
 )
