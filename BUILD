@@ -36,7 +36,7 @@ genrule(
     name = "index_desktop",
     srcs = [
         "xsl/desktop.xsl",
-        "src/index.html",
+        "//ui:index.html",
     ],
     outs = [
         "index_desktop.html",
@@ -48,7 +48,7 @@ genrule(
     name = "index_mobile",
     srcs = [
         "xsl/mobile.xsl",
-        "src/index.html",
+        "//ui:index.html",
     ],
     outs = [
         "index_mobile.html",
