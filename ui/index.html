@@ -1,30 +1,15 @@
 <!DOCTYPE html>
-<!-- This file is the common semantic source of the desktop and mobile
-        websites. The intent is to use XSLT to generate the two websites. This
-        file could be any well-formed XML, but I have chosen to make it
-        HTML5 just so it doesn't look foreign. -->
+<!-- This file is the common semantic source of the desktop and mobile websites. The intent is to
+use XSLT to generate the two websites. This file could be any well-formed XML, but I have chosen to
+make it HTML5 just so it doesn't look foreign. -->
 <html lang="en">
     <head>
-        <title>Gay Lisp</title>
+        <title>r5js</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-
-        <!--According to Google in 2011/12, the only meta tag they really look at. -->
-        <meta name="description" content="The first standards-compliant Scheme that runs in the browser" />
-
-        <!--Open Graph metadata (Facebook). Note that "property" is not an
-        attribute of <meta>, so these cause the page to be invalid HTML5.
-        Thanks, Facebook. -->
-        <meta property="og:description" content="The first standards-compliant Scheme that runs in the browser" />
-        <meta property="og:title" content="Gay Lisp"/>
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="http://gay-lisp.org"/>
-        <script>var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-30719856-1']);_gaq.push(['_setDomainName', 'gay-lisp.org']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);})();</script>
     </head>
     <body>
-
-        <header id="header"><h1>Gay Lisp</h1>This is Gay Lisp, the first standards-compliant Scheme that runs in the browser.</header>
-
+        <header id="header"><h1>r5js</h1>This is r5js, the first standards-compliant Scheme that runs in the browser.</header>
         <nav>
             <ul>
                 <li>
@@ -41,49 +26,23 @@
                 </li>
             </ul>
         </nav>
-
-        <div id="social">
-            <iframe class="tw"
-                    src="//platform.twitter.com/widgets/tweet_button.html?hashtags=lisp,scheme&amp;url=http%3A%2F%2Fgay-lisp.org&amp;count=none&amp;text=Introducing%20Gay%20Lisp%2C%20the%20first%20standards-compliant%20Scheme%20that%20runs%20in%20the%20browser&amp;related=br_nd_n">
-            </iframe>
-            <iframe class="fb"
-                    src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fgay-lisp.org&amp;send=false&amp;layout=button_count&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;appId=370148103029666">
-            </iframe>
-        </div>
-
         <section id="play">
             <h1>Play</h1>
             <!--This section will contain a terminal, an SMS-like UI, etc. -->
         </section>
-
-        <section id="join"><h1>Join</h1>
-            <p>We need your help! Can you:</p>
-        <ul>
-            <li>Make the <a href="https://github.com/Ubehebe/term.js">terminal</a> UI run in Internet Explorer 8 so we don’t have to redirect to the mobile site?</li>
-            <li>Replace the <a href="https://github.com/Ubehebe/Gay-Lisp/blob/master/src/js/trampoline.js">trampoline</a> with a JavaScript code generator?</li>
-            <li>Eliminate the <a href="https://github.com/Ubehebe/Gay-Lisp/blob/master/src/js/parse.js">parser</a>?</li>
-            <li>Write better <a href="https://github.com/Ubehebe/Gay-Lisp/blob/master/src/js/errors.js">error messages</a>?</li>
-        </ul>
-        <p>Check out the <a href="https://github.com/Ubehebe/Gay-Lisp/blob/master/TODO">TODO</a> for more ideas.</p>
-        </section>
-
         <section id="about">
             <h1>About</h1>
-            <!--As of early 2012, decorating the DOM with this itemscope stuff
-            is preferred by search engines to microdata. -->
-            <dl itemscope="" itemtype="http://schema.org/CreativeWork">
+            <dl>
                 <dt>What is Lisp/Scheme?</dt>
                 <dd>
                     <p>Lisp is one of the oldest and most influential programming languages. Kind of like Latin is to European languages.</p>
                     <p>Scheme is a modern dialect of Lisp, renowned for its beauty but seldom used in the real world. Kind of like Italian.</p>
                 </dd>
-                <dt>What is <span itemprop="name">Gay Lisp</span>?</dt>
-                <dd itemprop="description"><p>An interpreter for <a href="r5rs.html">R<sup>5</sup>RS Scheme </a> that runs in the browser, no plugins or downloads required. You can also run it on a server, using <a href="http://nodejs.org">Node</a>.</p></dd>
-                <dt>What do I need to run Gay Lisp?</dt>
+                <dt>What is r5js?</dt>
+                <dd><p>An interpreter for <a href="r5rs.html">R<sup>5</sup>RS Scheme </a> that runs in the browser, no plugins or downloads required. You can also run it on a server, using <a href="http://nodejs.org">Node</a>.</p></dd>
+                <dt>What do I need to run r5js?</dt>
                 <dd>
-                    <p>If you are reading this, Gay Lisp is <a href="#play">probably running</a> on your device.</p>
-                    <p>Gay Lisp is written in an unfancy version of JavaScript that has been included in browsers for more than a decade, so it should work in most browsers as long as JavaScript is not disabled.</p>
-                    <p>This website, however, uses some more recent bells and whistles, so an up-to-date browser is recommended.</p>
+                    <p>If you are reading this, r5js is <a href="#play">probably running</a> on your device.</p>
                 </dd>
                 <dt>How does it work?</dt>
                 <dd>
@@ -92,39 +51,6 @@
                     <p>Primitive Scheme values are implemented by their primitive JavaScript counterparts as much as practical; in particular, the semantics of numerical operations are mostly those of JavaScript, while still complying with the Scheme standard.</p>
                     <p>All the non-primitive syntax and procedures are written in Scheme and loaded at boot time.</p>
                 </dd>
-                <dt>Really the first?</dt>
-                <dd>
-                    <p>Yes. Gay Lisp is the first standards-compliant Scheme that runs in the browser.</p>
-                    <p>Most JavaScript Scheme implementations provide a useful subset of Scheme without aiming for compliance with any standard. Typically, this means standard features that significantly complicate the implementation are omittted:</p>
-                    <ul>
-                        <li><a href="http://www.biwascheme.org/">BiwaScheme</a> lacks macros.</li>
-                        <li><a href="http://fargo.jcoglan.com/">Fargo</a> has incomplete library support (no <code>dynamic-wind</code>, <code>call-with-values</code>, etc.)</li>
-                        <li><a href="http://www.bluishcoder.co.nz/jsscheme/">jsScheme</a> does not support nested ellipses in macro transformers. This means the implementation cannot provide the <a href="r5rs.html">canonical definition of <code>do</code></a>.</li>
-                    </ul>
-                    <p>By contrast, Gay Lisp aims for complete compliance with R<sup>5</sup>RS. You can jump between the <a href="r5rs.html">specification</a> and the <a href="#play">implementation</a> in order to test features. And you can run every example in the specification straight from the specification.</p>
-                </dd>
-                <dt>Why R<sup>5</sup>RS instead of R<sup>6</sup>RS?</dt>
-                <dd><p>As of early 2012, the status of <a href="http://www.r6rs.org">R<sup>6</sup>RS</a> as a community standard is in doubt. There is <a href="http://scheme-reports.org/2009/position-statement.html">talk of splitting standarization efforts into two tracks</a>, one of which could abrogate features introduced by R<sup>6</sup>RS.</p></dd>
-                <dt>Is this useful for anything?</dt>
-                <dd><p>There is some experimental DOM interoperability:</p><dl class="ex">
-                        <dt>((window 'alert) "hello from Scheme!")</dt>
-                        <dd>"hello from Scheme!"</dd>
-                    </dl>
-                    <p>A medium-term <a href="#join">goal</a> is to replace the interpreter with a JavaScript code generator. When this is done, Scheme will be able to be included in HTML pages in the same manner as <a href="http://coffeescript.org/">CoffeeScript</a>.</p>
-                </dd>
-                <dt>Why?</dt>
-                <dd><p><em>[Channeling George Mallory and George Costanza]</em> Because it's there.</p></dd>
-                <dt>I don’t get the pun.</dt>
-                <dd><p>The penis <code>oo===D</code> is bound to Turing’s normal-order <a href="http://en.wikipedia.org/wiki/Y_combinator">Y combinator</a>. It allows useful things like</p>
-                <dl class="ex"><dt>(define g
-  (lambda (f)
-    (lambda (n)
-      (if (= n 0)
-	  1
-	  (* n ((force f) (- n 1)))))))
-((oo===D g) 10)</dt>
-                <dd>3628800</dd></dl>
-                <p>This combinator is usually provided in an applicative-order variant in other languages, but Scheme’s macro facility allows the normal-order definition.</p></dd>
             </dl>
         </section>
     </body>
