@@ -138,24 +138,13 @@ class TransformHelper {
     return this;
   }
 
-// The UI would look silly if we took the "long way" around the dial.
-  normalizeAngle(angle: number): number {
-    while (angle < -180) {
-      angle += 360;
-    }
-    while (angle > 180) {
-      angle -= 360;
-    }
-    return angle;
-  }
-
   setRot(rot: number) {
-    this.rot = this.normalizeAngle(rot);
+    this.rot = normalizeAngle(rot);
     return this.reapply();
   }
 
   incRot(delta: number) {
-    this.rot += this.normalizeAngle(delta);
+    this.rot += normalizeAngle(delta);
     return this.reapply();
   }
 
@@ -168,4 +157,15 @@ class TransformHelper {
     this.element.classList && this.element.classList.remove(cssClass);
     return this;
   }
+}
+
+/** The UI would look silly if we took the "long way" around the dial. */
+function normalizeAngle(angle: number): number {
+  while (angle < -180) {
+    angle += 360;
+  }
+  while (angle > 180) {
+    angle -= 360;
+  }
+  return angle;
 }
