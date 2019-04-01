@@ -13,9 +13,6 @@
 //     || window.attachEvent)
 //     location.replace('//m.gay-lisp.org');
 //
-// document.addEventListener
-//     ? document.addEventListener('DOMContentLoaded', main, false)
-//     : window.attachEvent('onload', main);
 
 import {boot} from "../eval/boot";
 import {isLineComplete} from "../repl/replutil";
@@ -27,7 +24,9 @@ import {RotaryNav} from "./rotary_nav";
 import {TextResizer} from "./text_resizer";
 import {VisibilityManager} from "./visibility_manager";
 
-export function main() {
+document.addEventListener('DOMContentLoaded', main, false);
+
+function main() {
   asyncLoadSpec();
   setupTerminal();
   setupColors();

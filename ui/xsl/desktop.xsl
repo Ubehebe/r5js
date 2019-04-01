@@ -46,7 +46,7 @@
         <head>
             <xsl:apply-templates/>
             <link rel="stylesheet" href="r5rs.css"/>
-            <script src="all.js">
+            <script src="rollup.min.js">
             </script>
         </head>
     </xsl:template>

@@ -1,12 +1,12 @@
 package(default_visibility = [
-    "//:__pkg__",
+    "//:__subpackages__",
 ])
 
 genrule(
     name = "index_desktop",
     srcs = [
         "desktop.xsl",
-        "//ui:index.html",
+        "index.html",
     ],
     outs = [
         "index_desktop.html",
@@ -18,7 +18,7 @@ genrule(
     name = "index_mobile",
     srcs = [
         "mobile.xsl",
-        "//ui:index.html",
+        "index.html",
     ],
     outs = [
         "index_mobile.html",
