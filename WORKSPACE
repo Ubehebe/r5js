@@ -43,7 +43,7 @@ install_bazel_dependencies()
 
 git_repository(
     name = "r5js",
-    commit = "76434f25863273adf62f415f1a31dd3f7f80669a",
+    commit = "b7f0ca443452b1bac9c13d677fbe06d1c0e35f2c",
     remote = "https://github.com/Ubehebe/r5js.git",
 )
 
