@@ -1,0 +1,411 @@
+#nav {
+    position: fixed;
+    z-index: 10;
+    top: 10%;
+    right: 10%;
+}
+
+iframe {
+    display: block;
+    background-color: transparent;
+    overflow: hidden;
+    border: 0;
+    padding-bottom: 5px;
+}
+
+iframe.fb {
+    height: 20px;
+    width: 90px;
+}
+
+iframe.tw {
+    height: 20px;
+    width: 130px;
+}
+
+#about > dl > dt {
+    font-style: italic;
+}
+
+#nav li {
+    font-family: sans-serif;
+    text-transform: uppercase;
+    line-height: .75;
+    padding: 5px;
+    font-size: 0.75em;
+    list-style: none;
+    border-radius: 15%;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    background: -webkit-linear-gradient(black, gray);
+    background: -moz-linear-gradient(black, gray);
+    background: -o-linear-gradient(black, gray);
+    background: linear-gradient(black, gray);
+    box-shadow:rgba(192,192,192,0.75) 0px 0px 10px;
+    opacity: 0.8;
+}
+
+.selected {
+    text-decoration: underline;
+}
+
+#nav li a {
+    color: white;
+}
+
+#logo {
+    font-size: 2em;
+    /* A black outline around the letters so we can see them on a dark and a light background */
+    text-shadow: 0 0 3px black;
+    /* As of early 2012, the only current browser that requires a vendor prefix
+    for box-shadow is the Android browser (-webkit-). */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+    border-radius: 100%;
+    font-style: italic;
+    -webkit-transition: background-color 10s ease-in-out;
+    -moz-transition: background-color 10s ease-in-out;
+    -o-transition: background-color 10s ease-in-out;
+    -ms-transition: background-color 10s ease-in-out;
+    transition: background-color 10s ease-in-out;
+    padding: 0.8em;
+    color: white;
+    background-color: transparent;
+}
+
+#hero-top {
+    font-family: 'Futura', 'Ubuntu Condensed', sans-serif;
+    display: block;
+    font-weight: normal;
+    margin: 0;
+    text-align: center;
+    /* The effect we're aiming for is a whole phrase on one line.
+    For this to happen we have to tell the browser to disable line breaking. */
+    white-space: nowrap;
+    color: rgba(0,0,0,0.75);
+}
+
+#hero-top sup {
+    background-color: rgba(255,255,0,0.25);
+    border-radius: 100%;
+    box-shadow:rgba(255,255,0,0.95) 0 0 50px;
+}
+
+.shiny {
+    white-space: nowrap;
+    line-height: 0.9;
+    text-align: center;
+    font-family: 'Futura', 'Ubuntu Condensed', sans-serif;
+    display: block;
+    font-weight: normal;
+    margin: 0;
+    color: rgba(0,0,0,0.75);
+    text-shadow: 0 0.1em 0.1em gray;
+}
+
+.terminal {
+    font-family: 'Ubuntu Mono', monospace;
+    background-color: black;
+    color: #adff2f;
+    outline: none;
+}
+
+#play {
+    width: 100%;
+    height: 80%;
+    padding-bottom: 20%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+#social {
+    position: fixed;
+    top: 2%;
+    left: 2%;
+    opacity: 0.75;
+    z-index: 100;
+}
+
+body {
+    font-family: 'Georgia', serif;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    /* todo bl: i'm not sure why we would get any overflow here,
+    but at very small widths we do get horizontal scrollbars (even though
+    they aren't necessary to read any text). I'm probably missing a detail
+    of the box model. */
+    overflow-x: hidden;
+    /*font-size: 1.2em;*/
+    /*line-height: 1;*/
+}
+
+/* The "back to top" links inserted via script */
+h1+a {
+    font-size: 0.75em;
+    color: #a9a9a9;
+}
+
+h1+a:hover, h1+a :active {
+    text-decoration: none;
+}
+
+h1 {
+    line-height: 2.0;
+    margin: 0;
+    font-weight: normal;
+}
+
+#notice {
+    padding: 2em 0 2em;
+    text-align: center;
+}
+
+#notice a {
+    font-family: 'Futura', 'Ubuntu Condensed', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    padding: 1px 4px 2px;
+    color: white;
+    background-color: #3a87ad;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -o-border-radius: 3px;
+}
+
+body > section {
+    position: absolute;
+    top: 0;
+    visibility: hidden;
+    width: 100%;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0 1% 0 1%;
+}
+
+section > h1, footer > h1, nav > h1 {
+    display: inline;
+    font-family: 'Futura', 'Ubuntu Condensed', sans-serif;
+    text-transform: uppercase;
+    color: gray;
+}
+
+a {
+    text-decoration: none;
+    color: #08c;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+code, pre {
+    color: #d14;
+    overflow: auto;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    font-family: monospace;
+}
+
+.meta {
+    font-family: 'Futura', 'Ubuntu Condensed', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    padding: 1px 4px 2px;
+    color: white;
+    background-color: #3a87ad;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -o-border-radius: 3px;
+}
+
+.ex em, .ex dd em {
+    font-family: 'Futura', 'Ubuntu Condensed', sans-serif;
+    color: black;
+}
+
+.ex dd {
+    text-align: right;
+}
+
+.error {
+    padding: 1px 4px 2px;
+    font-style: normal;
+    font-family: 'Futura', 'Ubuntu Condensed', sans-serif;
+    color: white;
+    background-color: #b94a48;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -o-border-radius: 3px;
+}
+
+.nobullet {
+    list-style: none;
+}
+
+.entry h1 {
+    color: #d14;
+    font-family: monospace;
+    display: inline;
+    font-size: 1.2em;
+}
+
+br {
+    line-height: 3.0;
+}
+
+.entry h2 {
+    font-family: 'Futura', 'Ubuntu Condensed', sans-serif;
+    line-height: 100%;
+    color: #a9a9a9;
+    vertical-align: middle;
+    font-size: 0.75em;
+    font-weight: normal;
+    text-transform: uppercase;
+    text-align: right;
+}
+
+.oneline li, .oneline dt {
+    display: inline;
+}
+
+.note {
+}
+
+time {
+    display: inline;
+    color: gray;
+    font-variant: small-caps;
+}
+
+.flipped {
+    transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+}
+
+.ex {
+    color: #d14;
+    background-color: #f7f7f9;
+    font-family: monospace;
+}
+
+.ex dt {
+    white-space: pre;
+    font-weight: normal;
+    background-color: white;
+    overflow: auto;
+}
+
+/* The context-free grammar. */
+.grammar dt:after {
+	 content: ' →';
+}
+
+.grammar dd+dt {
+    padding-top: 2em;
+}
+
+.grammar dd+dd:before {
+	 content: '| ';
+}
+
+#references > p {
+    text-indent: -2em;
+    margin-left: 2em;
+}
+
+/* To prevent sups and subs from messing with the line height.
+Not sure why this hack works. */
+sup {
+    vertical-align: super;
+    line-height: 0;
+}
+
+sub {
+    vertical-align: sub;
+    line-height: 0;
+}
+
+.title {
+    padding: 20% 0 20%; /* so that the nav thing doesn't obscure the hero text */
+    text-transform: uppercase;
+    background-size: 20px 20px; /* Controls the size of the stripes */
+
+    background-color: #ffebcd;
+    background-image: -webkit-gradient(linear, 0 200%, 100% 0,
+    color-stop(.25, rgba(255, 255, 255, .2)), color-stop(.25, transparent),
+    color-stop(.5, transparent), color-stop(.5, rgba(255, 255, 255, .2)),
+    color-stop(.75, rgba(255, 255, 255, .2)), color-stop(.75, transparent),
+    to(transparent));
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+    background-image: -moz-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+    background-image: -ms-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+}
+
+.editors, .contributors {
+    display: inline;
+    color: gray;
+}
+
+.editors dt, .contributors dt {
+    display: inline;
+    font-variant: small-caps;
+}
+
+.editors dt:after, .contributors dt:after {
+    content: ' ·';
+}
+
+.editors dd, .contributors dd {
+    display: inline;
+    font-style: italic;
+    margin-left: 0;
+}
+
+.editors dd:after, .contributors dd:after {
+    content: ' ·';
+}
+
+.dedication {
+    color: gray;
+}
+
+.dedicatee {
+    font-style: normal;
+    font-variant: small-caps;
+}
+
+.dedicatee:after {
+    content: ' ·';
+}
+
+#about-hero+h2 {
+    text-transform: none;
+    text-align: center;
+}
+
+.title dl {
+    text-transform: none;
+}
+
+

@@ -3,7 +3,7 @@ workspace(name = "r5js")
 # enforced by check_bazel_version below
 BAZEL_VERSION = "0.24.0"
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 
 # Needed to build buildifier.
 git_repository(
@@ -55,3 +55,10 @@ rules_karma_dependencies()
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 
 web_test_repositories()
+
+new_git_repository(
+    name = "spec",
+    build_file = "//:BUILD.spec",
+    commit = "b9fe77910e60519491097f66e7e7b1bcd2ce0764",
+    remote = "https://github.com/Ubehebe/r5rs-html5.git",
+)

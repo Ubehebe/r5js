@@ -1,0 +1,154 @@
+/* This file is based on the style of the jQuery Mobile docs,
+specifically version 1.1.0rc2 (http://jquerymobile.com/demos/1.1.0-rc.2/).
+After looking at the framework, I couldn't figure out how the docs achieved
+the responsive nav effect (iPad: nav to left of content;
+iPhone: nav below content). I realized it was undocumented CSS completely
+separate from the framework. Hopefully this will become an actual feature of
+jQuery Mobile soon. */
+
+.type-interior .content-secondary {
+    border-left: 0;
+    margin: 10px -15px 0;
+    background: #fff;
+    border-top: 1px solid #ccc;
+}
+
+.content-secondary .ui-collapsible {
+    padding: 0 15px 10px;
+
+}
+.content-secondary .ui-collapsible-content {
+    padding: 0;
+    background: none;
+    border-bottom: none;
+}
+.content-secondary .ui-listview {
+    margin: 0;
+}
+
+.content-secondary li {
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+@media all and (min-width: 650px){
+
+
+    .content-secondary {
+        text-align: left;
+        float: left;
+        width: 45%;
+        background: none;
+    }
+    .content-secondary,
+    .type-interior .content-secondary {
+        margin: 30px 0 20px 2%;
+        padding: 20px 4% 0 0;
+        background: none;
+        border-top: none;
+    }
+    .type-index .content-secondary {
+        padding: 0;
+    }
+    .content-secondary .ui-collapsible {
+        margin: 0;
+        padding: 0;
+    }
+    .content-secondary .ui-collapsible-content {
+        border: none;
+    }
+    .type-index .content-secondary .ui-listview {
+        margin: 0;
+    }
+
+    .content-primary {
+        width: 45%;
+        float: right;
+        margin-top: 30px;
+        margin-right: 1%;
+        padding-right: 1%;
+    }
+    .content-primary ul:first-child {
+        margin-top: 0;
+    }
+    .content-secondary h2 {
+        position: absolute;
+        left: -9999px;
+    }
+    .type-interior .content-primary {
+        padding: 1.5em 6% 3em 0;
+        margin: 0;
+    }
+    .type-interior .content-secondary {
+        margin: 0;
+        padding: 0;
+    }
+
+}
+@media all and (min-width: 750px){
+    .content-secondary {
+        width: 34%;
+    }
+    .content-primary {
+        width: 56%;
+        padding-right: 1%;
+    }
+}
+
+@media all and (min-width: 1200px){
+    .content-secondary {
+        width: 30%;
+        padding-right:6%;
+        margin: 30px 0 20px 5%;
+    }
+    .type-interior .content-secondary {
+        margin: 0;
+        padding: 0;
+    }
+    .content-primary {
+        width: 50%;
+        margin-right: 5%;
+        padding-right: 3%;
+    }
+    .type-interior .content-primary {
+        width: 60%;
+    }
+}
+
+.echo {
+    /* As of early 2012, the only current browser that requires a vendor prefix
+    for box-shadow is the Android browser (-webkit-). */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+    border-radius: 5%;
+    padding: 0.8em;
+    background-color: #f0f8ff;
+}
+
+.output {
+    /* As of early 2012, the only current browser that requires a vendor prefix
+    for box-shadow is the Android browser (-webkit-). */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+    border-radius: 5%;
+    padding: 0.8em;
+    background-color: #c7ffd9;
+}
+
+iframe {
+    display: block;
+    background-color: transparent;
+    overflow: hidden;
+    border: 0;
+    padding-top: 5px;
+}
+
+iframe.fb {
+    height: 20px;
+    width: 90px;
+}
+
+iframe.tw {
+    height: 20px;
+    width: 130px;
+}

@@ -11,10 +11,13 @@ filegroup(
     ],
 )
 
+exports_files(["index.html"])
+
 ts_library(
     name = "mockterm",
     srcs = glob(["*.ts"]),
+    tsconfig = "//:tsconfig.json",
     visibility = [
-        "//visibility:public",
+        "//:__pkg__",
     ],
 )
