@@ -17,7 +17,11 @@
 //     ? document.addEventListener('DOMContentLoaded', main, false)
 //     : window.attachEvent('onload', main);
 
+import {boot} from "../eval/boot";
 import {isLineComplete} from "../repl/replutil";
+import {Terminal} from "../repl/terminal";
+import {SchemeSources} from "../scm/scheme_sources";
+import {tut} from "../tutorial/tutorial_data";
 import {MockTerminal} from "./mockterm";
 import {RotaryNav} from "./rotary_nav";
 import {TextResizer} from "./text_resizer";
@@ -58,13 +62,15 @@ function setupTerminal() {
     textArea.style.paddingBottom = '0';
     textArea.style.height = '100%';
   }
+  const sources = new SchemeSources();
+  const evaluator = boot(sources.syntax, sources.procedures);
   new MockTerminal(textArea, 80, 5, 500)
       // .println(GayLisp.getMetadata().banner)
       .println(';; Type (tutorial) (with the parentheses) and press enter for an interactive tutorial.')
       .setPrompt('>> ')
-      // .pushInterpreter((string: string, terminal: any /* TODO */ ) =>
-      //     GayLisp.repl(string, (sideEffect: string) =>terminal.println(sideEffect)))
-      // .pushInterpreter(tutorial)
+      // TODO print to terminal somehow
+      .pushInterpreter((string: string, terminal: Terminal) => evaluator.evaluate(string))
+      .pushInterpreter(tut)
       .setInputCompleteHandler(isLineComplete)
       .start();
 }

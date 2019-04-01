@@ -6,4 +6,7 @@ ts_library(
         "tutorial.ts",
         "tutorial_data.ts",
     ],
+    visibility = [
+        "//visibility:public",
+    ],
 )

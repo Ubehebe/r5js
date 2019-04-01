@@ -21,6 +21,9 @@ ts_library(
         "//:__pkg__",
     ],
     deps = [
+        "//eval:boot",
         "//repl",
+        "//scm",
+        "//tutorial",
     ],
 )
