@@ -41,7 +41,7 @@ _COMMON_SRCS = [
 pkg_tar(
     name = "website_desktop",
     srcs = [
-        "//xsl:index_desktop",
+        "//ui/xsl:index_desktop",
     ] + _COMMON_SRCS,
     extension = "tar.gz",
     remap_paths = {
@@ -52,7 +52,7 @@ pkg_tar(
 pkg_tar(
     name = "website_mobile",
     srcs = [
-        "//xsl:index_mobile",
+        "//ui/xsl:index_mobile",
     ] + _COMMON_SRCS,
     extension = "tar.gz",
     remap_paths = {
