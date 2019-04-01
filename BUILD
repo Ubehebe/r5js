@@ -32,30 +32,6 @@ genrule(
 cat $(<) >> $(@)""",
 )
 
-genrule(
-    name = "index_desktop",
-    srcs = [
-        "xsl/desktop.xsl",
-        "//ui:index.html",
-    ],
-    outs = [
-        "index_desktop.html",
-    ],
-    cmd = "xsltproc $(SRCS) > $(@)",
-)
-
-genrule(
-    name = "index_mobile",
-    srcs = [
-        "xsl/mobile.xsl",
-        "//ui:index.html",
-    ],
-    outs = [
-        "index_mobile.html",
-    ],
-    cmd = "xsltproc $(SRCS) > $(@)",
-)
-
 _COMMON_SRCS = [
     "r5rs.xhtml",
     "robots.txt",
@@ -66,7 +42,7 @@ _COMMON_SRCS = [
 pkg_tar(
     name = "website_desktop",
     srcs = [
-        "index_desktop.html",
+        "//xsl:index_desktop",
     ] + _COMMON_SRCS,
     extension = "tar.gz",
     remap_paths = {
@@ -77,7 +53,7 @@ pkg_tar(
 pkg_tar(
     name = "website_mobile",
     srcs = [
-        "index_mobile.html",
+        "//xsl:index_mobile",
     ] + _COMMON_SRCS,
     extension = "tar.gz",
     remap_paths = {
