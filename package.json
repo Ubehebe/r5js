@@ -1,5 +1,7 @@
 {
   "devDependencies": {
+    "@bazel/jasmine": "^0.27.9",
+    "@bazel/karma": "^0.27.9",
     "@bazel/typescript": "^0.27.8",
     "@types/jasmine": "^3.3.12",
     "@types/node": "^11.12.0",
