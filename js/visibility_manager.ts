@@ -19,7 +19,7 @@ export class VisibilityManager {
         addEventListener('hashchange', cb, false);
     }
 
-    registerAnchors(array: any[]): this {
+    registerAnchors(array: NodeListOf<HTMLAnchorElement>): this {
         for (let i = 0; i < array.length; ++i) {
             this.pushAnchor(array[i]);
         }
@@ -44,7 +44,7 @@ export class VisibilityManager {
         return this;
     }
 
-    bringToFront(element: HTMLElement) {
+    bringToFront(element: Element) {
         for (let i = 0; i < this.elements.length; ++i) {
             this.elements[i].style.visibility = (this.elements[i] === element)
                 ? 'visible'
