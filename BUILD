@@ -34,7 +34,6 @@ cat $(<) >> $(@)""",
 
 _COMMON_SRCS = [
     "r5rs.xhtml",
-    "robots.txt",
     "@spec//:images",
     "//ui:css/r5rs.css",
 ]
