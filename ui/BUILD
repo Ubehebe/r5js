@@ -1,29 +1,24 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 load("@npm_bazel_typescript//:defs.bzl", "ts_library")
-
-filegroup(
-    name = "ui",
-    srcs = [
-        "index.html",
-        "repl.css",
-    ],
-    visibility = [
-        "//:__pkg__",
-    ],
-)
 
 exports_files(["index.html"])
 
 ts_library(
-    name = "mockterm",
+    name = "ui",
     srcs = glob(["*.ts"]),
     tsconfig = "//:tsconfig.json",
-    visibility = [
-        "//:__pkg__",
-    ],
     deps = [
         "//eval:boot",
         "//repl",
         "//scm",
         "//tutorial",
+    ],
+)
+
+rollup_bundle(
+    name = "rollup",
+    entry_point = "ui/main",
+    deps = [
+        ":ui",
     ],
 )

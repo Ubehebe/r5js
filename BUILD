@@ -20,13 +20,6 @@ tslint(
     config = "tslint.json",
 )
 
-filegroup(
-    name = "web_repl",
-    srcs = [
-        "//ui",
-    ],
-)
-
 genrule(
     name = "spec_xhtml",
     srcs = ["@spec//:r5rs.html"],
@@ -67,7 +60,6 @@ _COMMON_SRCS = [
     "r5rs.xhtml",
     "robots.txt",
     "@spec//:images",
-    "//ui",
     "css/r5rs.css",
 ]
 
