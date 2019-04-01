@@ -17,6 +17,7 @@
 //     ? document.addEventListener('DOMContentLoaded', main, false)
 //     : window.attachEvent('onload', main);
 
+import {isLineComplete} from "../repl/replutil";
 import {MockTerminal} from "./mockterm";
 import {RotaryNav} from "./rotary_nav";
 import {TextResizer} from "./text_resizer";
@@ -64,7 +65,7 @@ function setupTerminal() {
       // .pushInterpreter((string: string, terminal: any /* TODO */ ) =>
       //     GayLisp.repl(string, (sideEffect: string) =>terminal.println(sideEffect)))
       // .pushInterpreter(tutorial)
-      // .setInputCompleteHandler(GayLisp.willParse)
+      .setInputCompleteHandler(isLineComplete)
       .start();
 }
 

@@ -29,7 +29,7 @@ export class MockTerminal {
   private lineEnd = 0;
   private lineBuf: string|null = "";
   private charHtoW = 0;
-  private inputCompleteHandler: any; // TODO
+  private inputCompleteHandler: ((_: string) => boolean) | undefined;
 
   constructor(
       private readonly textArea: HTMLTextAreaElement,
@@ -171,7 +171,7 @@ export class MockTerminal {
     return this.interpreters.pop();
   }
 
-  setInputCompleteHandler(inputCompleteHandler: any /* TODO */): this {
+  setInputCompleteHandler(inputCompleteHandler: (_: string) => boolean): this {
     this.inputCompleteHandler = inputCompleteHandler;
     return this;
   }

@@ -20,4 +20,7 @@ ts_library(
     visibility = [
         "//:__pkg__",
     ],
+    deps = [
+        "//repl",
+    ],
 )
