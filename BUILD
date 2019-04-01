@@ -60,7 +60,7 @@ _COMMON_SRCS = [
     "r5rs.xhtml",
     "robots.txt",
     "@spec//:images",
-    "//js",
+    "//ui",
     "css/r5rs.css",
 ]
 
