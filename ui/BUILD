@@ -9,7 +9,6 @@ ts_library(
         "//eval:boot",
         "//repl",
         "//scm",
-        "//tutorial",
     ],
 )
 

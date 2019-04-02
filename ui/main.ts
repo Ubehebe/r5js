@@ -17,7 +17,6 @@
 import {boot} from "../eval/boot";
 import {isLineComplete} from "../repl/replutil";
 import {SchemeSources} from "../scm/scheme_sources";
-import {tut} from "../tutorial/tutorial_data";
 import {MockTerminal} from "./mockterm";
 import {RotaryNav} from "./rotary_nav";
 import {TextResizer} from "./text_resizer";
@@ -37,22 +36,9 @@ function setupTerminal() {
   const sources = new SchemeSources();
   const evaluator = boot(sources.syntax, sources.procedures);
   new MockTerminal(textArea, 80, 5, 500)
-      // .println(GayLisp.getMetadata().banner)
-      .println(';; Type (tutorial) (with the parentheses) and press enter for an interactive tutorial.')
+      .println(";; r5js") // TODO display banner
       .setPrompt('>> ')
       .pushInterpreter((string: string, terminal: MockTerminal) => evaluator.evaluate(string))
-      .pushInterpreter((string: string, terminal: MockTerminal) => {
-        if (string === '(tutorial)') {
-          terminal
-              .reset()
-              .println(tut.getIntroMessage())
-              .popInterpreter();
-          terminal.pushInterpreter((string: string, terminal: MockTerminal) => tut.Eval(string, terminal));
-          return ' ';
-        } else {
-          return null;
-        }
-      })
       .setInputCompleteHandler(isLineComplete)
       .start();
 }
@@ -92,18 +78,6 @@ function setupNav() {
   rotaryNav.rotateToFront(startOn);
 }
 
-function setupBackLinks() {
-  const h1s = document.querySelectorAll('#spec section > h1');
-
-  // Decorate the major headings with links back to the top
-  for (const h1 of h1s) {
-    const a = document.createElement('a');
-    a.href = '#contents';
-    a.appendChild(document.createTextNode('⬆'));
-    h1.parentElement!.insertBefore(a, h1.nextElementSibling);
-  }
-}
-
 function setupColors() {
 
   // Make the logo in the rotary nav thing change colors intermittently.
@@ -129,45 +103,6 @@ function setupColors() {
   };
 
   setTimeout(changeColor, 10000, 0);
-}
-
-function setupHeroText() {
-  const heroes = document.getElementsByClassName('hero');
-  for (const hero of heroes) {
-    new TextResizer(hero as HTMLElement);
-  }
-}
-
-function setupSpecExamples() {
-
-  // Replace the answers in the spec with buttons to call the interpreter
-  const qs = document.querySelectorAll('.ex dt');
-
-  for (const question of qs) {
-    const input = question.textContent!;
-    const answer = question.nextElementSibling!; // <dd>
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'evalButton';
-    button.setAttribute('data-input', input);
-
-    const cb = (e: Event) => {
-      const targetElement = e.target as Element;
-      let output;
-      try {
-        output = ""; // TODO re-enable GayLisp.repl(targetElement.getAttribute('data-input'));
-      } catch (x) {
-        output = x.toString();
-      }
-
-      targetElement.parentElement!.replaceChild(
-          document.createTextNode('⇒ ' + output),
-          targetElement);
-    };
-    button.addEventListener('click', cb, false);
-    button.appendChild(document.createTextNode('eval'));
-    answer.replaceChild(button, answer.firstChild!);
-  }
 }
 
 function manualResize() {
