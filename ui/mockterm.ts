@@ -3,6 +3,8 @@ import {AsyncQueue} from "./async_queue";
 const INPUT_KEY = '\r'.charCodeAt(0);
 const BACKSPACE = '\b'.charCodeAt(0);
 
+export type Interpreter = (input: string, terminal: MockTerminal) => string|null;
+
 /**
  * This is a very quick-and-dirty "terminal emulator" that sits on top of an HTML textarea. It's
  * called MockTerminal to make it clear that it doesn't provide any actual network connectivity
@@ -21,7 +23,7 @@ const BACKSPACE = '\b'.charCodeAt(0);
 export class MockTerminal {
 
   private prompt = "";
-  private readonly interpreters: any[] = [];
+  private readonly interpreters: Interpreter[] = [];
   private readonly printQueue: AsyncQueue;
 
   // Properties set by setters
@@ -162,12 +164,12 @@ export class MockTerminal {
         this.lineEnd - this.lineStart + 1);
   }
 
-  pushInterpreter(interpreter: any /* TODO */): this {
+  pushInterpreter(interpreter: Interpreter): this {
     this.interpreters.push(interpreter);
     return this;
   }
 
-  popInterpreter(): any /* TODO */ {
+  popInterpreter(): Interpreter|undefined {
     return this.interpreters.pop();
   }
 
@@ -188,8 +190,8 @@ export class MockTerminal {
       const input = this.lineBuf;
       this.lineBuf = null;
       try {
-        /* Go back down the stack of interpreters. The most recently
-         pushed interpreter is the one we should consult first. */
+        // Go back down the stack of interpreters. The most recently pushed interpreter is the one
+        // we should consult first.
         for (let i = this.interpreters.length - 1; i >= 0; --i) {
           const result = this.interpreters[i](input, this);
           if (result) {

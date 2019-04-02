@@ -67,9 +67,19 @@ function setupTerminal() {
       // .println(GayLisp.getMetadata().banner)
       .println(';; Type (tutorial) (with the parentheses) and press enter for an interactive tutorial.')
       .setPrompt('>> ')
-      // TODO print to terminal somehow
-      .pushInterpreter((string: string, terminal: Terminal) => evaluator.evaluate(string))
-      .pushInterpreter(tut)
+      .pushInterpreter((string: string, terminal: MockTerminal) => evaluator.evaluate(string))
+      .pushInterpreter((string: string, terminal: MockTerminal) => {
+        if (string === '(tutorial)') {
+          terminal
+              .reset()
+              .println(tut.getIntroMessage())
+              .popInterpreter();
+          terminal.pushInterpreter((string: string, terminal: MockTerminal) => tut.Eval(string, terminal));
+          return ' ';
+        } else {
+          return null;
+        }
+      })
       .setInputCompleteHandler(isLineComplete)
       .start();
 }
