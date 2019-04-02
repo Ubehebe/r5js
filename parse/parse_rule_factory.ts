@@ -42,9 +42,7 @@ export class RuleFactory {
   list(...rules: Rule[]): DesugarableRule<CompoundDatum> {
     const newRules: Rule[] = [];
     newRules.push(new OneTerminal(Terminals.LPAREN));
-    for (let i = 0; i < rules.length; ++i) {
-      newRules.push(rules[i]);
-    }
+    newRules.push(...rules);
     newRules.push(new OneTerminal(Terminals.RPAREN));
     return new Seq(newRules);
   }
@@ -61,9 +59,7 @@ export class RuleFactory {
   vector(...rules: Rule[]): DesugarableRule<CompoundDatum> {
     const newRules: Rule[] = [];
     newRules.push(new OneTerminal(Terminals.LPAREN_VECTOR));
-    for (let i = 0; i < rules.length; ++i) {
-      newRules.push(rules[i]);
-    }
+    newRules.push(...rules);
     newRules.push(new OneTerminal(Terminals.RPAREN));
     return new Seq(newRules);
   }
@@ -209,8 +205,7 @@ class Choice implements Rule {
   /** @override */
   match(datumStream: DatumStream) {
     let parsed;
-    for (let i = 0; i < this.rules.length; ++i) {
-      const rule = this.rules[i];
+    for (const rule of this.rules) {
       if (parsed = rule.match(datumStream)) {
         return parsed;
       }
@@ -232,8 +227,8 @@ class Seq implements DesugarableRule<CompoundDatum> {
   match(datumStream: DatumStream): boolean | Datum {
     const root = datumStream.getNextDatum()!;
 
-    for (let i = 0; i < this.rules.length; ++i) {
-      if (!this.rules[i].match(datumStream)) {
+    for (const rule of this.rules) {
+      if (!rule.match(datumStream)) {
         datumStream.advanceTo(root);
         return false;
       }

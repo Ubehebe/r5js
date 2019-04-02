@@ -91,9 +91,8 @@ export class Datum implements ObjectValue {
   /** @returns true iff this Datum parses as the given nonterminal. */
   protected hasParse(nonterminal: Nonterminal): boolean {
     if (this.nonterminals) {
-      const len = this.nonterminals.length;
-      for (let i = 0; i < len; ++i) {
-        if (this.nonterminals[i] === nonterminal) {
+      for (const nt of this.nonterminals) {
+        if (nt === nonterminal) {
           return true;
         }
       }

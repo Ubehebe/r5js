@@ -139,8 +139,7 @@ export class Seq implements Rule {
   match(tokenStream: TokenStream): Datum | null {
     const siblingBuffer = new SiblingBuffer();
     const checkpoint = tokenStream.checkpoint();
-    for (let i = 0; i < this.rules.length; ++i) {
-      const rule = this.rules[i];
+    for (const rule of this.rules) {
       const parsed = rule.match(tokenStream);
       if (parsed === TERMINAL_SENTINEL) {
         continue;
@@ -193,10 +192,10 @@ class Choice implements Rule {
 
   /** @override */
   match(tokenStream: TokenStream): Datum | null {
-    for (let i = 0; i < this.rules.length; ++i) {
+    for (const rule of this.rules) {
       const checkpoint = tokenStream.checkpoint();
       let newDatum;
-      if (newDatum = this.rules[i].match(tokenStream)) {
+      if (newDatum = rule.match(tokenStream)) {
         return newDatum;
       } else {
         tokenStream.restore(checkpoint);

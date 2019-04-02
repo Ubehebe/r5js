@@ -19,10 +19,8 @@ export class VisibilityManager {
         addEventListener('hashchange', cb, false);
     }
 
-    registerAnchors(array: NodeListOf<HTMLAnchorElement>): this {
-        for (let i = 0; i < array.length; ++i) {
-            this.pushAnchor(array[i]);
-        }
+    registerAnchors(anchors: NodeListOf<HTMLAnchorElement>): this {
+        anchors.forEach(anchor => this.pushAnchor(anchor));
         return this;
     }
 
@@ -35,8 +33,8 @@ export class VisibilityManager {
     }
 
     pushIfAbsent(element: HTMLElement): this {
-        for (let i = 0; i < this.elements.length; ++i) {
-            if (this.elements[i] === element) {
+        for (const e of this.elements) {
+            if (e === element) {
                 return this;
             }
         }
@@ -45,10 +43,8 @@ export class VisibilityManager {
     }
 
     bringToFront(element: Element) {
-        for (let i = 0; i < this.elements.length; ++i) {
-            this.elements[i].style.visibility = (this.elements[i] === element)
-                ? 'visible'
-                : 'hidden';
+        for (const e of this.elements) {
+            e.style.visibility = (e === element) ? 'visible' : 'hidden';
         }
     }
 }

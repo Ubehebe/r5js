@@ -158,8 +158,7 @@ export class TemplateBindings {
      have any of the bindings.
 
      todo bl: i have no idea why this heuristic seems to work. */
-    for (let i = 0; i < this.children.length; ++i) {
-      const candidate = this.children[i];
+    for (const candidate of this.children) {
       if (candidate.hasNoneOf(child)) {
         for (const name in child.bindings) {
           candidate.addTemplateBinding(name, child.bindings[name]);

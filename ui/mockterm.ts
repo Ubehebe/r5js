@@ -101,8 +101,8 @@ export class MockTerminal {
     // If line is an array, that means we should print out each element separately. Just for
     // convenience so clients don't have to insert newlines manually.
     if (line instanceof Array) {
-      for (let i = 0; i < line.length; ++i) {
-        this.println(line[i]).println('').pause(this.lineLatency);
+      for (const l of line) {
+        this.println(l).println('').pause(this.lineLatency);
       }
     } else if (typeof line === 'function') {
       this.println(line());
@@ -133,7 +133,7 @@ export class MockTerminal {
   private print(string: string) {
     const wrapped = new StrWrapper(string);
 
-    for (let i = 0; i < string.length; ++i) {
+    for (const s of string) {
       this.printQueue.enqueue(() => {
         this.textArea.value += wrapped.next();
         // Make sure we don't have to scroll down to see the latest output. Not sure how portable
@@ -242,11 +242,9 @@ export class MockTerminal {
 
   resize() {
     const width = this.textArea.getBoundingClientRect().width;
-//    console.log('width ' + width);
     const charWidth = width / this.numColumns;
     const charHeight = charWidth * this.charHtoW;
     this.textArea.style.fontSize = `${charHeight}px`;
-//    console.log('each char should be ' + charHeight);
   }
 
   setPrompt(prompt: string): this {

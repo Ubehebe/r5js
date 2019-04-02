@@ -90,8 +90,8 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
 
   /** @return True iff all of the macro's patterns begin with kw. */
   allPatternsBeginWith(kw: string): boolean {
-    for (let i = 0; i < this.transformers.length; ++i) {
-      if (this.transformers[i].getName() !== kw) {
+    for (const transformer of this.transformers) {
+      if (transformer.getName() !== kw) {
         return false;
       }
     }
@@ -106,9 +106,8 @@ export class Macro implements ObjectValue /* TODO bl almost certainly wrong */ {
    *     a cyclic dependency between macro.js and parse.js.
    */
   transcribe(datum: Datum, useEnv: Environment, parserProvider: (datum: Datum) => Parser) {
-    let transformer, bindings, newDatumTree;
-    for (let i = 0; i < this.transformers.length; ++i) {
-      transformer = this.transformers[i];
+    let bindings, newDatumTree;
+    for (const transformer of this.transformers) {
       bindings = new TemplateBindings(
           useEnv,
           transformer.getPatternIds(),

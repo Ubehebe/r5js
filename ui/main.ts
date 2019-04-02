@@ -101,8 +101,8 @@ function setupNav() {
       .setSelectClass('selected');
 
   const lis = document.getElementById('navlist')!.children;
-  for (let i = 0; i < lis.length; ++i) {
-    rotaryNav.push(lis[i] as HTMLElement, lis[i].getElementsByTagName('a')[0].hash);
+  for (const li of lis) {
+    rotaryNav.push(li as HTMLElement, li.getElementsByTagName('a')[0].hash);
   }
 
   rotaryNav.rotateToFront(startOn);
@@ -112,11 +112,11 @@ function setupBackLinks() {
   const h1s = document.querySelectorAll('#spec section > h1');
 
   // Decorate the major headings with links back to the top
-  for (let i = 0; i < h1s.length; ++i) {
+  for (const h1 of h1s) {
     const a = document.createElement('a');
     a.href = '#contents';
     a.appendChild(document.createTextNode('⬆'));
-    h1s[i].parentElement!.insertBefore(a, h1s[i].nextElementSibling);
+    h1.parentElement!.insertBefore(a, h1.nextElementSibling);
   }
 }
 
@@ -149,8 +149,8 @@ function setupColors() {
 
 function setupHeroText() {
   const heroes = document.getElementsByClassName('hero');
-  for (let i = 0; i < heroes.length; ++i) {
-    new TextResizer(heroes[i] as HTMLElement);
+  for (const hero of heroes) {
+    new TextResizer(hero as HTMLElement);
   }
 }
 
@@ -159,8 +159,7 @@ function setupSpecExamples() {
   // Replace the answers in the spec with buttons to call the interpreter
   const qs = document.querySelectorAll('.ex dt');
 
-  for (let i = 0; i < qs.length; ++i) {
-    const question = qs[i];
+  for (const question of qs) {
     const input = question.textContent!;
     const answer = question.nextElementSibling!; // <dd>
     const button = document.createElement('button');

@@ -53,9 +53,7 @@ class Base implements ListLikeTransformer {
 
   /** @override */
   collectNestingLevels(ellipsisLevel: number, renameHelper: RenameHelper) {
-    for (let i = 0; i < this.subtransformers.length; ++i) {
-      this.subtransformers[i].collectNestingLevels(ellipsisLevel, renameHelper);
-    }
+    this.subtransformers.forEach(st => st.collectNestingLevels(ellipsisLevel, renameHelper));
   }
 
   couldMatch(inputDatum: Datum): boolean {
@@ -127,10 +125,9 @@ class Base implements ListLikeTransformer {
 
   private toSiblingBuffer(bindings: TemplateBindings): SiblingBuffer | null {
     const buf = new SiblingBuffer();
-    const len = this.subtransformers.length;
 
-    for (let i = 0; i < len; ++i) {
-      const success = this.subtransformers[i].toDatum(bindings) as (Datum|boolean);
+    for (const subtransformer of this.subtransformers) {
+      const success = subtransformer.toDatum(bindings) as (Datum|boolean);
       if (success === false) {
         return null;
       } else if (success) {
