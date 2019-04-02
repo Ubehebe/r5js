@@ -16,7 +16,6 @@
 
 import {boot} from "../eval/boot";
 import {isLineComplete} from "../repl/replutil";
-import {Terminal} from "../repl/terminal";
 import {SchemeSources} from "../scm/scheme_sources";
 import {tut} from "../tutorial/tutorial_data";
 import {MockTerminal} from "./mockterm";
@@ -51,16 +50,6 @@ function asyncLoadSpec() {
 
 function setupTerminal() {
   const textArea = document.getElementById('play')! as HTMLTextAreaElement;
-  // The CSS assigns padding-bottom: 20% to the textarea, so there is always a nice buffer between
-  // the command line and the bottom of the screen. Unfortunately, as of early 2012 Firefox applies
-  // padding to textareas incorrectly, on the outside instead of the inside. The result is the
-  // terminal scrolls below the bottom of the screen and is unusable. This bug
-  // (https://bugzilla.mozilla.org/show_bug.cgi?id=157846) has been open since 2002. We sniff the
-  // userAgent string and get rid of the padding if we're on Firefox.
-  if (navigator && navigator.userAgent.search(/Firefox/) !== -1) {
-    textArea.style.paddingBottom = '0';
-    textArea.style.height = '100%';
-  }
   const sources = new SchemeSources();
   const evaluator = boot(sources.syntax, sources.procedures);
   new MockTerminal(textArea, 80, 5, 500)
