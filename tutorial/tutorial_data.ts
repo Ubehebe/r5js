@@ -30,7 +30,7 @@ tut.setErrorMessage(
     tut.withLocalVar('name', (name) => `Sorry ${name}, that's not quite what I had in mind.`));
 
 tut.addStep(new Step([
-      'Welcome to Gay Lisp! To get started, please type your name in double quotes, like this: "Cordelia"'],
+      'Welcome to r5js! To get started, please type your name in double quotes, like this: "Cordelia"'],
     (input) => {
       tut.setLocalVar('tutStart', new Date());
       const ans = evalTrue('(string? ' + input + ')');
@@ -41,7 +41,7 @@ tut.addStep(new Step([
     },
     [tut.withLocalVar(
         'name',
-        (name) => `Hey ${name}, welcome! Gay Lisp is a program that understands the language Scheme. It's so much fun. You're going to love it.`)]
+        (name) => `Hey ${name}, welcome! r5js is a program that understands the language Scheme. It's so much fun. You're going to love it.`)]
     ).disableRandomCongrat()
 ).addStep(new Step([
       "We've already covered how to enter strings -- you just put them between double quotes.",
@@ -215,16 +215,3 @@ tut.addStep(new Step([
       }
     }).disableRandomCongrat()
 );
-
-// return function(string, terminal) {
-//     if (string === '(tutorial)') {
-//         terminal.reset()
-//             .println(tut.getIntroMessage(), true)
-//             .popInterpreter();
-//         terminal.pushInterpreter(function(string, terminal) {
-//             return tut.Eval(string, terminal);
-//         });
-//         return ' ';
-//     } else return null;
-// }
-// }());
