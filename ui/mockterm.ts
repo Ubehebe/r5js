@@ -47,7 +47,7 @@ export class MockTerminal {
     addEventListener('resize', () => this.resize(), false);
   }
 
-  onKeyDown(e: KeyboardEvent) {
+  private onKeyDown(e: KeyboardEvent) {
     if (this.shouldSuppress(e)) {
       e.preventDefault();
     } else if (this.shouldEndLine(e)) {
@@ -67,7 +67,7 @@ export class MockTerminal {
     }
   }
 
-  shouldSuppress(keydownEvent: KeyboardEvent): boolean {
+  private shouldSuppress(keydownEvent: KeyboardEvent): boolean {
     // The current caret of the textarea, before this event makes it to the textarea.
     const cur = this.textArea.selectionEnd;
 
@@ -98,9 +98,8 @@ export class MockTerminal {
   }
 
   println(line: any): this {
-    /* If line is an array, that means we should print out each element
-     separately. Just for convenience so clients don't have to insert
-     newlines manually. */
+    // If line is an array, that means we should print out each element separately. Just for
+    // convenience so clients don't have to insert newlines manually.
     if (line instanceof Array) {
       for (let i = 0; i < line.length; ++i) {
         this.println(line[i]).println('').pause(this.lineLatency);
@@ -108,8 +107,8 @@ export class MockTerminal {
     } else if (typeof line === 'function') {
       this.println(line());
     } else if (line.bannerToString) {
-      /* If line is an object that has a bannerToString() function, use that
-       because MockTerminal supports displaying of banners. */
+      // If line is an object that has a bannerToString() function, use that because MockTerminal
+      // supports displaying banners.
       this.println(line.bannerToString());
     } else if (typeof line !== 'string' && line.toString) {
       this.println(line.toString());
@@ -119,7 +118,7 @@ export class MockTerminal {
     return this;
   }
 
-  pause(ms: number): this {
+  private pause(ms: number): this {
     const periodsToPause = Math.floor(Math.abs(ms / this.printQueue.latency));
     for (let i = 0; i < periodsToPause; ++i) {
       this.printQueue.enqueue(() => {});
@@ -131,7 +130,7 @@ export class MockTerminal {
    * In order to achieve the "crappy high latency terminal" effect, this function is asynchronous,
    * though it presents a synchronous interface to the programmer.
    */
-  print(string: string) {
+  private print(string: string) {
     const wrapped = new StrWrapper(string);
 
     for (let i = 0; i < string.length; ++i) {
@@ -147,7 +146,7 @@ export class MockTerminal {
     return this;
   }
 
-  shouldEndLine(e: KeyboardEvent): boolean {
+  private shouldEndLine(e: KeyboardEvent): boolean {
     const lineEnd = this.textArea.selectionEnd;
 
     if (lineEnd < this.lineStart) {
@@ -158,7 +157,7 @@ export class MockTerminal {
     }
   }
 
-  getCurLine(): string {
+  private getCurLine(): string {
     return this.textArea.value.substr(
         this.lineStart,
         this.lineEnd - this.lineStart + 1);
@@ -178,7 +177,7 @@ export class MockTerminal {
     return this;
   }
 
-  maybeInterpret(string: string): any {
+  private maybeInterpret(string: string): any {
     this.lineBuf = this.lineBuf
         ? this.lineBuf + '\n' + string
         : string;
@@ -230,7 +229,7 @@ export class MockTerminal {
     return this;
   }
 
-  recordCharWidth() {
+  private recordCharWidth() {
     // Note that this assumes that the font style of the newly created span will be identical to the
     // textarea's font style. May want to document.
     const charSandbox = document.createElement('span');
