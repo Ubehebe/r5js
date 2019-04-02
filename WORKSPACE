@@ -55,10 +55,3 @@ rules_karma_dependencies()
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 
 web_test_repositories()
-
-new_git_repository(
-    name = "spec",
-    build_file = "//:BUILD.spec",
-    commit = "b9fe77910e60519491097f66e7e7b1bcd2ce0764",
-    remote = "https://github.com/Ubehebe/r5rs-html5.git",
-)

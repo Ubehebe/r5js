@@ -86,10 +86,4 @@
         </a>
     </xsl:template>
 
-    <xsl:template match="a[@href='r5rs.html']">
-        <a href="#spec" class="vis-manager">
-            <xsl:apply-templates/>
-        </a>
-    </xsl:template>
-
 </xsl:stylesheet>

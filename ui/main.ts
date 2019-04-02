@@ -26,26 +26,10 @@ import {VisibilityManager} from "./visibility_manager";
 document.addEventListener('DOMContentLoaded', main, false);
 
 function main() {
-  asyncLoadSpec();
+  setupNav();
+  manualResize();  // get the nav and hero text looking good
   setupTerminal();
   setupColors();
-}
-
-function asyncLoadSpec() {
-  const req = new XMLHttpRequest();
-  req.open('GET', 'r5rs.xhtml');
-  req.onreadystatechange = () => {
-    if (req.readyState === 4 && req.status === 200) {
-      document.body.appendChild(req.responseXML!.getElementById('spec')!);
-      setupSpecExamples();
-      setupBackLinks();
-      setupHeroText();
-      setupNav();
-      // To get the nav and hero text looking good
-      manualResize();
-    }
-  };
-  req.send();
 }
 
 function setupTerminal() {

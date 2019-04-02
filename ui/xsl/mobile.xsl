@@ -84,14 +84,6 @@
         <input type="text" class='terminal' id='blockterm-input'/>
     </xsl:template>
 
-    <!--For the mobile site, the spec is a different file. Make sure
-    jQuery doesn't try to ajax it into the DOM. -->
-    <xsl:template match='a[@href="r5rs.html"]'>
-        <a href="{@href}" data-ajax="false">
-            <xsl:apply-templates/>
-        </a>
-    </xsl:template>
-
     <!--Transform sections into annoying jQuery Mobile markup.-->
     <xsl:template match="section|header">
         <div id="{@id}" data-role="page" class="type-interior">
