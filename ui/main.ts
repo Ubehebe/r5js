@@ -14,7 +14,12 @@ function setupTerminal() {
   const sources = new SchemeSources();
   const evaluator = boot(sources.syntax, sources.procedures);
   new MockTerminal({
-    textArea: document.getElementById('play')! as HTMLTextAreaElement,
+    // Attach the MockTerminal to the first <textarea> in the document.
+    // TODO: this is brittle. If the caller was vanilla JS, we could require the caller to pass in
+    // the textarea element (dependency injection). But main() has no caller; it is executed as a
+    // side effect of loading this module. Revisit this once the project's ES module infrastructure
+    // is more mature.
+    textArea: document.getElementsByTagName('textarea')[0] as HTMLTextAreaElement,
     interpreter: (string: string, terminal: MockTerminal) => evaluator.evaluate(string),
     prompt: '>> ',
     inputCompleteHandler: isLineComplete,
