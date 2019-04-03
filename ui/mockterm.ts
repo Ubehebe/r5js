@@ -1,5 +1,3 @@
-import {AsyncQueue} from "./async_queue";
-
 const INPUT_KEY = '\r'.charCodeAt(0);
 const BACKSPACE = '\b'.charCodeAt(0);
 
@@ -27,8 +25,8 @@ export class MockTerminal {
   private readonly inputCompleteHandler: (_: string) => boolean;
   private readonly prompt: string;
   private readonly numColumns: number;
-  private readonly printQueue: AsyncQueue;
   private readonly lineLatency: number;
+  private readonly charLatency: number;
 
   private lineStart = 0;
   private lineEnd = 0;
@@ -52,14 +50,14 @@ export class MockTerminal {
     lineLatency: number,
   }) {
     // TODO: surprisingly, TypeScript doesn't have better syntax for destructuring ctor params into
-    //  instance fields. See https://github.com/Microsoft/TypeScript/issues/5326.
+    // instance fields. See https://github.com/Microsoft/TypeScript/issues/5326.
     this.textArea = textArea;
     this.interpreter = interpreter;
     this.numColumns = numColumns;
     this.lineLatency = lineLatency;
     this.prompt = prompt;
     this.inputCompleteHandler = inputCompleteHandler;
-    this.printQueue = new AsyncQueue(charLatency);
+    this.charLatency = charLatency;
     this.recordCharWidth();
     this.resize();
 
@@ -67,23 +65,21 @@ export class MockTerminal {
     addEventListener('resize', () => this.resize(), false);
   }
 
-  private onKeyDown(e: KeyboardEvent) {
+  private async onKeyDown(e: KeyboardEvent) {
     if (this.shouldSuppress(e)) {
       e.preventDefault();
     } else if (this.shouldEndLine(e)) {
       // The default behavior here would be to print a newline. But it would happen after this
-      // handler completes, so the prompt  would have a stray newline after it. So we disable that
+      // handler completes, so the prompt would have a stray newline after it. So we disable that
       // behavior.
       e.preventDefault();
       const input = this.getCurLine();
       const output = this.maybeInterpret(input);
-      this.print('\n' + (output || '') + '\n\n' + this.prompt);
-      // The above print call is asynchronous, so we have to update the various offsets in the
-      // future, not the present.
-      this.printQueue.enqueue(() => this.lineStart
+      await this.print('\n' + (output || '') + '\n\n' + this.prompt);
+      this.lineStart
           = this.lineEnd
           = this.textArea.selectionEnd
-          = this.textArea.value.length);
+          = this.textArea.value.length;
     }
   }
 
@@ -113,49 +109,53 @@ export class MockTerminal {
       // good way to figure out "what the action would have been" from the keydown API. That's the
       // point of the missing else clause in onKeyDown: we don't know what the action would have
       // been, but we're pretty sure it's OK, and we let the browser do it.)
-      return this.printQueue.isRunning();
+      return false; // TODO re-enable
     }
   }
 
-  println(line: string|string[]): this {
+  async println(line: string|string[]): Promise<this> {
     // If line is an array, that means we should print out each element separately. Just for
     // convenience so clients don't have to insert newlines manually.
     if (line instanceof Array) {
       for (const l of line) {
-        this.println(l).println('').pause(this.lineLatency);
+        await this.println(l);
+        await this.println('');
+        await this.pause(this.lineLatency);
       }
     } else {
-      this.print('\n' + line);
+      await this.print('\n' + line);
     }
     return this;
   }
 
-  private pause(ms: number): this {
-    const periodsToPause = Math.floor(Math.abs(ms / this.printQueue.latency));
+  private async pause(ms: number) {
+    const periodsToPause = Math.floor(Math.abs(ms / this.charLatency));
     for (let i = 0; i < periodsToPause; ++i) {
-      this.printQueue.enqueue(() => {});
+      await this.delay();
     }
-    return this;
+  }
+
+  private async delay(): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, this.charLatency));
   }
 
   /**
    * In order to achieve the "crappy high latency terminal" effect, this function is asynchronous,
    * though it presents a synchronous interface to the programmer.
    */
-  private print(string: string) {
+  private async print(string: string) {
     const wrapped = new StrWrapper(string);
 
     for (const s of string) {
-      this.printQueue.enqueue(() => {
-        this.textArea.value += wrapped.next();
-        // Make sure we don't have to scroll down to see the latest output. Not sure how portable
-        // this is.
-        this.textArea.scrollTop = this.textArea.scrollHeight;
-      });
+      await this.delay();
+      this.textArea.value += wrapped.next();
+      // Make sure we don't have to scroll down to see the latest output. Not sure how portable this
+      // is.
+      this.textArea.scrollTop = this.textArea.scrollHeight;
     }
 
-    this.printQueue.enqueue(() => this.textArea.selectionEnd = this.textArea.value.length);
-    return this;
+    await this.delay();
+    this.textArea.selectionEnd = this.textArea.value.length;
   }
 
   private shouldEndLine(e: KeyboardEvent): boolean {
@@ -170,18 +170,13 @@ export class MockTerminal {
   }
 
   private getCurLine(): string {
-    return this.textArea.value.substr(
-        this.lineStart,
-        this.lineEnd - this.lineStart + 1);
+    return this.textArea.value.substr(this.lineStart, this.lineEnd - this.lineStart + 1);
   }
 
   private maybeInterpret(string: string): any {
-    this.lineBuf = this.lineBuf
-        ? this.lineBuf + '\n' + string
-        : string;
+    this.lineBuf = this.lineBuf ? this.lineBuf + '\n' + string : string;
 
-    if (this.inputCompleteHandler
-        && !this.inputCompleteHandler(this.lineBuf)) {
+    if (this.inputCompleteHandler && !this.inputCompleteHandler(this.lineBuf)) {
       return '...';
     } else {
       const input = this.lineBuf;
@@ -197,30 +192,25 @@ export class MockTerminal {
     }
   }
 
-  start(): this {
-    this.println(this.prompt);
-    this.printQueue.enqueue(() => {
-      this.lineStart
-          = this.textArea.selectionStart
-          = this.textArea.selectionEnd
-          = this.textArea.value.length;
-      this.lineEnd = this.lineStart + 1;
-      this.lineBuf = null;
-    });
-    return this;
+  async start() {
+    await this.println(this.prompt);
+    this.lineStart
+        = this.textArea.selectionStart
+        = this.textArea.selectionEnd
+        = this.textArea.value.length;
+    this.lineEnd = this.lineStart + 1;
+    this.lineBuf = null;
   }
 
-  reset(): this {
-    this.printQueue.enqueue(() => {
-      this.textArea.value = '';
-      this.lineStart
+  async reset() {
+    await this.delay();
+    this.textArea.value = '';
+    this.lineStart
           = this.textArea.selectionStart
           = this.textArea.selectionEnd
           = this.textArea.value.length;
-      this.lineEnd = this.lineStart + 1;
-      this.lineBuf = null;
-    });
-    return this;
+    this.lineEnd = this.lineStart + 1;
+    this.lineBuf = null;
   }
 
   private recordCharWidth() {

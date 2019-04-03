@@ -5,10 +5,10 @@ import {MockTerminal} from "./mockterm";
 
 document.addEventListener('DOMContentLoaded', main, false);
 
-function main() {
+async function main() {
   const sources = new SchemeSources();
   const evaluator = boot(sources.syntax, sources.procedures);
-  new MockTerminal({
+  const terminal = new MockTerminal({
     // Attach the MockTerminal to the first <textarea> in the document.
     // TODO: this is brittle. If the caller was vanilla JS, we could require the caller to pass in
     // the textarea element (dependency injection). But main() has no caller; it is executed as a
@@ -19,9 +19,9 @@ function main() {
     prompt: '>> ',
     inputCompleteHandler: isLineComplete,
     numColumns: 80,
-    charLatency: 5,
+    charLatency: 20,
     lineLatency: 500,
-  })
-      .println(";; r5js") // TODO display banner
-      .start();
+  });
+  await terminal.println(";; r5js"); // TODO display banner
+  await terminal.start();
 }
