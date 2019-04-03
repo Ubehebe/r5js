@@ -1,5 +1,5 @@
-import {PROCEDURES} from './r5rs-procedures';
-import {SYNTAX} from './r5rs-syntax';
+import {PROCEDURES} from './PROCEDURES';
+import {SYNTAX} from './SYNTAX';
 
 export class SchemeSources {
   readonly syntax: string = SYNTAX;
