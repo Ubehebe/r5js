@@ -11,10 +11,9 @@ export class Terminal implements TerminalInterface {
     this.readline_ = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
+      prompt: '>> ',
       terminal: true,
-      completer: () => {}
     });
-    this.readline_.setPrompt('>> ');
     this.readline_.on('close', () => process.exit(0));
     this.readline_.prompt();
   }
