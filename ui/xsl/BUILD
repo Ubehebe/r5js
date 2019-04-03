@@ -13,15 +13,3 @@ genrule(
     ],
     cmd = "xsltproc $(SRCS) > $(@)",
 )
-
-genrule(
-    name = "index_mobile",
-    srcs = [
-        "mobile.xsl",
-        "index.html",
-    ],
-    outs = [
-        "index_mobile.html",
-    ],
-    cmd = "xsltproc $(SRCS) > $(@)",
-)

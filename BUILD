@@ -30,14 +30,3 @@ pkg_tar(
         "index_desktop.html": "index.html",
     },
 )
-
-pkg_tar(
-    name = "website_mobile",
-    srcs = [
-        "//ui/xsl:index_mobile",
-    ],
-    extension = "tar.gz",
-    remap_paths = {
-        "index_mobile.html": "index.html",
-    },
-)
