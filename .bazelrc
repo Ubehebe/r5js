@@ -6,3 +6,8 @@
 # This flag used to be on by default, but was turned off in bazel 0.23 due to issues I don't care
 # about. See https://github.com/bazelbuild/bazel/issues/7026.
 build --incompatible_strict_action_env
+
+# Write git HEAD to bazel-out/stable-status.txt, where
+# arbitrary actions can depend on it for stamping (though none do currently); see
+# https://docs.bazel.build/versions/master/user-manual.html#workspace_status.
+build --workspace_status_command 'echo "STABLE_HEAD $(git rev-parse HEAD)"'
