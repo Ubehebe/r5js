@@ -1,6 +1,5 @@
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 load("//:rules/tslint.bzl", "tslint")
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 exports_files(["tsconfig.json"])
 
@@ -18,15 +17,4 @@ buildifier(
 tslint(
     name = "tslint",
     config = "tslint.json",
-)
-
-pkg_tar(
-    name = "website_desktop",
-    srcs = [
-        "//ui/xsl:index_desktop",
-    ],
-    extension = "tar.gz",
-    remap_paths = {
-        "index_desktop.html": "index.html",
-    },
 )

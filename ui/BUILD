@@ -20,17 +20,6 @@ rollup_bundle(
     ],
 )
 
-genrule(
-    name = "index",
-    srcs = [
-        "//ui/xsl:index_desktop",
-    ],
-    outs = [
-        "index.html",
-    ],
-    cmd = "cp $(<) $(@)",
-)
-
 http_server(
     name = "devserver",
     data = [
