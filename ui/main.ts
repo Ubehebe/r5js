@@ -2,6 +2,7 @@ import {boot} from "../eval/boot";
 import {isLineComplete} from "../repl/replutil";
 import {SchemeSources} from "../scm/scheme_sources";
 import {MockTerminal} from "./mockterm";
+import {banner} from "./banner";
 
 document.addEventListener('DOMContentLoaded', main, false);
 
@@ -19,9 +20,9 @@ async function main() {
     prompt: '>> ',
     inputCompleteHandler: isLineComplete,
     numColumns: 80,
-    charLatency: 20,
+    charLatency: 10,
     lineLatency: 500,
   });
-  await terminal.println(";; r5js"); // TODO display banner
+  await terminal.println(banner);
   await terminal.start();
 }

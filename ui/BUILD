@@ -29,6 +29,7 @@ ts_library(
         "//:__pkg__",
     ],
     deps = [
+        ":banner_lib",
         "//eval:boot",
         "//repl",
         "//scm",
