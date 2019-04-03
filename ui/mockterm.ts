@@ -117,21 +117,13 @@ export class MockTerminal {
     }
   }
 
-  println(line: any): this {
+  println(line: string|string[]): this {
     // If line is an array, that means we should print out each element separately. Just for
     // convenience so clients don't have to insert newlines manually.
     if (line instanceof Array) {
       for (const l of line) {
         this.println(l).println('').pause(this.lineLatency);
       }
-    } else if (typeof line === 'function') {
-      this.println(line());
-    } else if (line.bannerToString) {
-      // If line is an object that has a bannerToString() function, use that because MockTerminal
-      // supports displaying banners.
-      this.println(line.bannerToString());
-    } else if (typeof line !== 'string' && line.toString) {
-      this.println(line.toString());
     } else {
       this.print('\n' + line);
     }
