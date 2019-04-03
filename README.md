@@ -1,4 +1,10 @@
+<!--hello-->
+<link rel="stylesheet" href="r5rs.css"/>
+<script src="rollup.min.js"></script>
+
 # r5js
+<textarea class='terminal' id='play' rows="20" spellcheck="false" autofocus="autofocus"></textarea>
+
 r5js is an interpreter for the [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))
 programming language. It is written in TypeScript.
 

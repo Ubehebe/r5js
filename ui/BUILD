@@ -20,6 +20,17 @@ rollup_bundle(
     ],
 )
 
+genrule(
+    name = "index",
+    srcs = [
+        "//:index.html",
+    ],
+    outs = [
+        "index.html",
+    ],
+    cmd = "cp $(<) $(@)",
+)
+
 http_server(
     name = "devserver",
     data = [

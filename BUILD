@@ -18,3 +18,20 @@ tslint(
     name = "tslint",
     config = "tslint.json",
 )
+
+genrule(
+    name = "gen_index",
+    srcs = [
+        "README.md",
+    ],
+    outs = [
+        "index.html",
+    ],
+    cmd = "< $(<) $(location @npm//commonmark/bin:commonmark) > $(@)",
+    tools = [
+        "@npm//commonmark/bin:commonmark",
+    ],
+    visibility = [
+        "//ui:__pkg__",
+    ],
+)
