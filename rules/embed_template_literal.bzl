@@ -32,7 +32,7 @@ where NAME is the name of this embed_template_literal target.""",
     attrs = {
         "src": attr.label(
             mandatory = True,
-            allow_single_file = [".scm"],
+            allow_single_file = True,
         ),
     },
     outputs = {
