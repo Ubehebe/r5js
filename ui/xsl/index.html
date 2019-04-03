@@ -14,28 +14,5 @@ make it HTML5 just so it doesn't look foreign. -->
             <h1>Play</h1>
             <!--This section will contain a terminal, an SMS-like UI, etc. -->
         </section>
-        <section id="about">
-            <h1>About</h1>
-            <dl>
-                <dt>What is Lisp/Scheme?</dt>
-                <dd>
-                    <p>Lisp is one of the oldest and most influential programming languages. Kind of like Latin is to European languages.</p>
-                    <p>Scheme is a modern dialect of Lisp, renowned for its beauty but seldom used in the real world. Kind of like Italian.</p>
-                </dd>
-                <dt>What is r5js?</dt>
-                <dd><p>An interpreter for <a href="https://www.schemers.org/Documents/Standards/R5RS/HTML">R<sup>5</sup>RS Scheme </a> that runs in the browser, no plugins or downloads required. You can also run it on a server, using <a href="https://nodejs.org">Node</a>.</p></dd>
-                <dt>What do I need to run r5js?</dt>
-                <dd>
-                    <p>If you are reading this, r5js is <a href="#play">probably running</a> on your device.</p>
-                </dd>
-                <dt>How does it work?</dt>
-                <dd>
-                    <p>There is a regex-based scanner and a recursive descent parser, both handwritten.</p>
-                    <p>Programs are incrementally transformed into continuation-passing style and evaluated on a trampoline.</p>
-                    <p>Primitive Scheme values are implemented by their primitive JavaScript counterparts as much as practical; in particular, the semantics of numerical operations are mostly those of JavaScript, while still complying with the Scheme standard.</p>
-                    <p>All the non-primitive syntax and procedures are written in Scheme and loaded at boot time.</p>
-                </dd>
-            </dl>
-        </section>
     </body>
 </html>
