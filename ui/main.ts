@@ -14,10 +14,14 @@ function setupTerminal() {
   const textArea = document.getElementById('play')! as HTMLTextAreaElement;
   const sources = new SchemeSources();
   const evaluator = boot(sources.syntax, sources.procedures);
-  new MockTerminal(textArea, 80, 5, 500)
+  new MockTerminal(
+      textArea,
+      (string: string, terminal: MockTerminal) => evaluator.evaluate(string),
+      80,
+      5,
+      500)
       .println(";; r5js") // TODO display banner
       .setPrompt('>> ')
-      .pushInterpreter((string: string, terminal: MockTerminal) => evaluator.evaluate(string))
       .setInputCompleteHandler(isLineComplete)
       .start();
 }

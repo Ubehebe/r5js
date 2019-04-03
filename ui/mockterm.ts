@@ -23,7 +23,6 @@ export type Interpreter = (input: string, terminal: MockTerminal) => string|null
 export class MockTerminal {
 
   private prompt = "";
-  private readonly interpreters: Interpreter[] = [];
   private readonly printQueue: AsyncQueue;
 
   // Properties set by setters
@@ -35,6 +34,7 @@ export class MockTerminal {
 
   constructor(
       private readonly textArea: HTMLTextAreaElement,
+      private readonly interpreter: Interpreter,
       private readonly numColumns = 80,
       charLatency = 0,
       private readonly lineLatency = 0) {
@@ -163,15 +163,6 @@ export class MockTerminal {
         this.lineEnd - this.lineStart + 1);
   }
 
-  pushInterpreter(interpreter: Interpreter): this {
-    this.interpreters.push(interpreter);
-    return this;
-  }
-
-  popInterpreter(): Interpreter|undefined {
-    return this.interpreters.pop();
-  }
-
   setInputCompleteHandler(inputCompleteHandler: (_: string) => boolean): this {
     this.inputCompleteHandler = inputCompleteHandler;
     return this;
@@ -189,13 +180,9 @@ export class MockTerminal {
       const input = this.lineBuf;
       this.lineBuf = null;
       try {
-        // Go back down the stack of interpreters. The most recently pushed interpreter is the one
-        // we should consult first.
-        for (let i = this.interpreters.length - 1; i >= 0; --i) {
-          const result = this.interpreters[i](input, this);
-          if (result) {
-            return result;
-          }
+        const result = this.interpreter(input, this);
+        if (result) {
+          return result;
         }
       } catch (e) {
         return e.toString();
