@@ -15,6 +15,7 @@ ts_library(
         "//repl",
         "//runtime",
         "//scm",
+        "//ui:banner_lib",
         "@npm//@types/node",
     ],
 )

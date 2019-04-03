@@ -15,7 +15,6 @@ export class Terminal implements TerminalInterface {
       terminal: true,
     });
     this.readline_.on('close', () => process.exit(0));
-    this.readline_.prompt();
   }
 
   /** @override */

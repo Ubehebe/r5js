@@ -4,6 +4,7 @@ import {NULL_INPUT_PORT} from '../io/input_port';
 import {Repl} from '../repl/repl';
 import {SchemeSources} from "../scm/scheme_sources";
 import {Terminal} from './terminal';
+import {banner} from '../ui/banner';
 
 /** The main REPL method. */
 export function repl() {
@@ -12,6 +13,7 @@ export function repl() {
     const stdout = new CallbackBackedPort(output => terminal.print(output));
     const sources = new SchemeSources();
     const evaluator = boot(sources.syntax, sources.procedures, stdin, stdout);
+    terminal.print(banner);
     new Repl(terminal, evaluator).start();
 }
 
