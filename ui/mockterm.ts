@@ -22,23 +22,43 @@ export type Interpreter = (input: string, terminal: MockTerminal) => string|null
  */
 export class MockTerminal {
 
-  private prompt = "";
+  private readonly textArea: HTMLTextAreaElement;
+  private readonly interpreter: Interpreter;
+  private readonly inputCompleteHandler: (_: string) => boolean;
+  private readonly prompt: string;
+  private readonly numColumns: number;
   private readonly printQueue: AsyncQueue;
+  private readonly lineLatency: number;
 
-  // Properties set by setters
   private lineStart = 0;
   private lineEnd = 0;
   private lineBuf: string|null = "";
   private charHtoW = 0;
-  private inputCompleteHandler: ((_: string) => boolean) | undefined;
 
-  constructor(
-      private readonly textArea: HTMLTextAreaElement,
-      private readonly interpreter: Interpreter,
-      private readonly numColumns = 80,
-      charLatency = 0,
-      private readonly lineLatency = 0) {
-
+  constructor({
+                textArea,
+                interpreter,
+                inputCompleteHandler,
+                prompt,
+                numColumns,
+                charLatency,
+                lineLatency}: {
+    textArea: HTMLTextAreaElement,
+    interpreter: Interpreter,
+    inputCompleteHandler(_: string): boolean;
+    prompt: string,
+    numColumns: number,
+    charLatency: number,
+    lineLatency: number,
+  }) {
+    // TODO: surprisingly, TypeScript doesn't have better syntax for destructuring ctor params into
+    //  instance fields. See https://github.com/Microsoft/TypeScript/issues/5326.
+    this.textArea = textArea;
+    this.interpreter = interpreter;
+    this.numColumns = numColumns;
+    this.lineLatency = lineLatency;
+    this.prompt = prompt;
+    this.inputCompleteHandler = inputCompleteHandler;
     this.printQueue = new AsyncQueue(charLatency);
     this.recordCharWidth();
     this.resize();
@@ -163,11 +183,6 @@ export class MockTerminal {
         this.lineEnd - this.lineStart + 1);
   }
 
-  setInputCompleteHandler(inputCompleteHandler: (_: string) => boolean): this {
-    this.inputCompleteHandler = inputCompleteHandler;
-    return this;
-  }
-
   private maybeInterpret(string: string): any {
     this.lineBuf = this.lineBuf
         ? this.lineBuf + '\n' + string
@@ -232,11 +247,6 @@ export class MockTerminal {
     const charWidth = width / this.numColumns;
     const charHeight = charWidth * this.charHtoW;
     this.textArea.style.fontSize = `${charHeight}px`;
-  }
-
-  setPrompt(prompt: string): this {
-    this.prompt = prompt;
-    return this;
   }
 }
 

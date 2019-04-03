@@ -11,18 +11,17 @@ function main() {
 }
 
 function setupTerminal() {
-  const textArea = document.getElementById('play')! as HTMLTextAreaElement;
   const sources = new SchemeSources();
   const evaluator = boot(sources.syntax, sources.procedures);
-  new MockTerminal(
-      textArea,
-      (string: string, terminal: MockTerminal) => evaluator.evaluate(string),
-      80,
-      5,
-      500)
+  new MockTerminal({
+    textArea: document.getElementById('play')! as HTMLTextAreaElement,
+    interpreter: (string: string, terminal: MockTerminal) => evaluator.evaluate(string),
+    prompt: '>> ',
+    inputCompleteHandler: isLineComplete,
+    numColumns: 80,
+    charLatency: 5,
+    lineLatency: 500})
       .println(";; r5js") // TODO display banner
-      .setPrompt('>> ')
-      .setInputCompleteHandler(isLineComplete)
       .start();
 }
 
