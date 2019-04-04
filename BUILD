@@ -59,11 +59,18 @@ rollup_bundle(
     ],
 )
 
+filegroup(
+    name = "website",
+    srcs = [
+        ":index",
+        ":rollup",
+        "//ui:r5rs.css",
+    ],
+)
+
 http_server(
     name = "devserver",
     data = [
-        "index.html",
-        ":rollup",
-        "//ui:r5rs.css",
+        ":website",
     ],
 )
