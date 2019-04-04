@@ -11,9 +11,15 @@ genrule(
     outs = [
         "banner_stamped.txt",
     ],
+    # The custom --workspace_status_command in .bazelrc dumps STABLE_HEAD and STABLE_DATE to
+    # bazel-out/stable-status.txt on each build. Parse them out of stable-status.txt (which this
+    # genrule has access to by virtue of stamp = True) and append them to the banner.
+    # See https://docs.bazel.build/versions/master/user-manual.html#flag--workspace_status_command.
     cmd = """cp $(<) $(@)
-echo "\n;; built at $$(grep ^STABLE_HEAD bazel-out/stable-status.txt | cut -c 13-19)" >> $(@)""",
-    stamp = True,  # provides access to bazel-out/stable-status.txt
+HEAD=$$(grep ^STABLE_HEAD bazel-out/stable-status.txt | cut -c 13-19)
+DATE=$$(grep ^STABLE_DATE bazel-out/stable-status.txt | cut -d' ' -f2)
+echo "\n;; built at $$HEAD ($$DATE)" >> $(@)""",
+    stamp = True,
 )
 
 embed_template_literal(
