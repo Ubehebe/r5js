@@ -1,7 +1,10 @@
 load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 load("//:rules/embed_template_literals.bzl", "embed_template_literals")
 
-exports_files(["r5rs.css"])
+exports_files([
+    "r5rs.css",
+    "template.html",
+])
 
 genrule(
     name = "banner_stamped",
