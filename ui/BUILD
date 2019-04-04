@@ -24,7 +24,7 @@ echo "\n;; built at $$HEAD ($$DATE)" >> $(@)""",
 
 embed_template_literal(
     name = "banner",
-    src = "banner_stamped",
+    srcs = ["banner_stamped"],
 )
 
 # If the banner was only used in :ui below, it could be a src of that target.

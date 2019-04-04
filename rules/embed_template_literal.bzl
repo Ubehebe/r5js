@@ -1,15 +1,34 @@
 def _embed_template_literal(ctx):
+    tmp_outputs = []
+
+    # Transform each input blah.txt to a TypeScript file containing a single binding,
+    # export const BLAH = `<file>`;
+    # TODO: this will fail (at tsc compilation time) if inputs differ only in their extension.
+    for src in ctx.files.srcs:
+        tmp_out = ctx.actions.declare_file(src.basename + ".tmp")
+        var_name = src.basename[:-len(src.extension) - 1].upper().replace("-", "_")
+        ctx.actions.run_shell(
+            inputs = [src],
+            outputs = [tmp_out],
+            tools = [ctx.executable._embed_template_literal],
+            command = "< %s %s %s > %s" % (
+                src.path,
+                ctx.executable._embed_template_literal.path,
+                var_name,
+                tmp_out.path,
+            ),
+            progress_message = "embedding %s into template literal" % src,
+        )
+        tmp_outputs.append(tmp_out)
+
+    # Now cat all the bindings together to form the final output.
     ctx.actions.run_shell(
-        inputs = [ctx.file.src],
+        inputs = tmp_outputs,
         outputs = [ctx.outputs.ts],
-        tools = [ctx.executable._embed_template_literal],
-        command = "< %s %s %s > %s" % (
-            ctx.file.src.path,
-            ctx.executable._embed_template_literal.path,
-            ctx.attr.name,
+        command = "cat %s > %s" % (
+            " ".join([tmp.path for tmp in tmp_outputs]),
             ctx.outputs.ts.path,
         ),
-        progress_message = "embedding %s into template literal" % ctx.file.src,
     )
 
     return [DefaultInfo()]
@@ -23,9 +42,9 @@ export const NAME = `
 `;
 where NAME is the name of this embed_template_literal target.""",
     attrs = {
-        "src": attr.label(
-            mandatory = True,
-            allow_single_file = True,
+        "srcs": attr.label_list(
+            allow_empty = False,
+            allow_files = True,
         ),
         "_embed_template_literal": attr.label(
             default = "//scripts:embed_template_literal",

@@ -4,7 +4,7 @@ import {NULL_INPUT_PORT} from '../io/input_port';
 import {Repl} from '../repl/repl';
 import {SchemeSources} from "../scm/scheme_sources";
 import {Terminal} from './terminal';
-import {banner} from '../ui/banner';
+import {BANNER_STAMPED as banner} from '../ui/banner';
 
 /** The main REPL method. */
 export function repl() {

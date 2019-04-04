@@ -1,8 +1,10 @@
-import {NEGATIVE_TESTS} from './NEGATIVE_TESTS';
-import {OTHER_TESTS} from './OTHER_TESTS';
-import {R5RS_TESTS} from './R5RS_TESTS';
-import {TEST_FRAMEWORK} from './TEST_FRAMEWORK';
-import {TEST_FRAMEWORK_TESTS} from './TEST_FRAMEWORK_TESTS';
+import {
+  NEGATIVE_TESTS,
+  OTHER_TESTS,
+  R5RS_TESTS,
+  UNIT_TEST as TEST_FRAMEWORK,
+  UNIT_TEST_TESTS as TEST_FRAMEWORK_TESTS
+} from './tests';
 
 export class SchemeSources {
 

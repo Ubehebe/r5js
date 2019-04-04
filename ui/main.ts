@@ -2,7 +2,7 @@ import {boot} from "../eval/boot";
 import {isLineComplete} from "../repl/replutil";
 import {SchemeSources} from "../scm/scheme_sources";
 import {MockTerminal} from "./mockterm";
-import {banner} from "./banner";
+import {BANNER_STAMPED as banner} from "./banner";
 
 document.addEventListener('DOMContentLoaded', main, false);
 
