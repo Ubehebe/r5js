@@ -1,0 +1,7 @@
+.terminal {
+    font-family: monospace;
+    background-color: black;
+    color: #adff2f;
+    outline: none; /* disable outline around textarea (it detracts from terminal effect) */
+    width: 100%;
+}

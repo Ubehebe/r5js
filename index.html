@@ -1,6 +1,23 @@
-<html>
-  <head>
-    <title>test</title>
-  </head>
-  <body>This is a test for the gh-pages publishing flow.</body>
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>r5js</title>
+  <link rel="stylesheet" href="ui/r5rs.css"/>
+  <script src="rollup.min.js"></script>
+</head>
+<body>
+<h1>r5js</h1>
+<textarea class='terminal' rows="20" spellcheck="false" autofocus="autofocus"></textarea>
+<h2>What is this?</h2>
+<p>r5js is an interpreter for the <a href="https://en.wikipedia.org/wiki/Scheme_(programming_language)">Scheme</a> programming language that runs in the browser. It aims to support all of the <a href="https://www.schemers.org/Documents/Standards/R5RS/HTML/">R5RS</a> specification, including advanced features (hygienic macros, first-class continuations, proper tail recursion) that tend to be overlooked in hobbyist implementations.</p>
+<p>I wrote r5js in 2011–2012. I give it a fresh coat of paint occasionally, adopting a new technology or improving its software engineering process. As time goes on, the technical challenges of building an interpreter are less interesting to me than the practicalities of evolving a codebase over many years. Over its lifetime, the project has been implemented in three different languages (plain JavaScript, Closure-style JavaScript, now TypeScript) and used as many build systems (Make, Maven, now Bazel).</p>
+<h2>What this is not</h2>
+<p>It is rare for technical projects to draw attention to their flaws. Being able to read between the lines to understand the risks of using technology, when no one is willing to come out and tell you, is an important skill. I wish this weren't the case; documentation should be expository writing, not marketing.</p>
+<p>In this spirit, r5js has many significant problems.</p>
+<ul>
+<li>It has no practical use. Scheme is fundamentally no more powerful than other general-purpose programming languages. Choosing to program in Scheme does not magically make the work of software engineering easier. It is likely to make it harder; the language and its ecosystem lack many of the affordances of modern software development.</li>
+<li>It has no community. It's just me. The project will only evolve in directions that I want it to.</li>
+</ul> 
+</body>
 </html>
