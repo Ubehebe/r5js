@@ -4,7 +4,8 @@ r5js is an interpreter for the [Scheme](https://en.wikipedia.org/wiki/Scheme_(pr
 programming language that runs in the browser. It aims to support all of the
 [R5RS](https://www.schemers.org/Documents/Standards/R5RS/HTML/) specification, including advanced
 features (hygienic macros, first-class continuations, proper tail recursion) that tend to be
-overlooked in hobbyist implementations.
+overlooked in hobbyist implementations. There is a [separate page](https://github.com/Ubehebe/r5js/blob/master/dev.md)
+for technical details.
 
 I wrote r5js in 2011–2012. I give it a fresh coat of paint occasionally, adopting a new technology
 or improving its software engineering process. As time goes on, the technical challenges of building
