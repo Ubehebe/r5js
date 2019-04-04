@@ -37,6 +37,12 @@ genrule(
     ],
 )
 
+# TODO: this makes local development slow. Every time a source file changes, the whole bundle has to
+# be rebuilt. Ideally, we could serve the sources unbundled, so that each source file change
+# would only require recompiling its ts_library and any downstream deps. The rules_typescript
+# ts_devserver rule does something like this. However, as of 2019, bundling is still the way to go
+# in production. There is value in having our devserver be very similar to the production setup,
+# even if it is a bit slow.
 rollup_bundle(
     name = "rollup",
     entry_point = "ui/main",
