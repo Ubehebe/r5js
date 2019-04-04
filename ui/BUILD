@@ -1,5 +1,5 @@
 load("@npm_bazel_typescript//:defs.bzl", "ts_library")
-load("//:rules/embed_template_literal.bzl", "embed_template_literal")
+load("//:rules/embed_template_literals.bzl", "embed_template_literals")
 
 exports_files(["r5rs.css"])
 
@@ -22,7 +22,7 @@ echo "\n;; built at $$HEAD ($$DATE)" >> $(@)""",
     stamp = True,
 )
 
-embed_template_literal(
+embed_template_literals(
     name = "banner",
     srcs = ["banner_stamped"],
 )

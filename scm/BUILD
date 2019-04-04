@@ -1,7 +1,7 @@
-load("//:rules/embed_template_literal.bzl", "embed_template_literal")
+load("//:rules/embed_template_literals.bzl", "embed_template_literals")
 load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
-embed_template_literal(
+embed_template_literals(
     name = "r5rs",
     srcs = [
         "r5rs-procedures.scm",
@@ -21,7 +21,7 @@ ts_library(
     ],
 )
 
-embed_template_literal(
+embed_template_literals(
     name = "tests",
     srcs = [
         "negative-tests.scm",

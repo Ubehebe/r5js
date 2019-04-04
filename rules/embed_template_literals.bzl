@@ -1,4 +1,4 @@
-def _embed_template_literal(ctx):
+def _embed_template_literals(ctx):
     tmp_outputs = []
 
     # Transform each input blah.txt to a TypeScript file containing a single binding,
@@ -33,14 +33,11 @@ def _embed_template_literal(ctx):
 
     return [DefaultInfo()]
 
-embed_template_literal = rule(
-    implementation = _embed_template_literal,
-    doc = """embeds an entire file inside a JavaScript template literal.
-The output is a valid TypeScript file that looks like this:
-export const NAME = `
-<file contents>
-`;
-where NAME is the name of this embed_template_literal target.""",
+embed_template_literals = rule(
+    implementation = _embed_template_literals,
+    doc = """embeds arbitrary files into JavaScript template literals.
+The output is a single TypeScript file containing one exported binding for each source file.
+A source file blah.whatever generates a binding like this: export const BLAH = `<contents>`.""",
     attrs = {
         "srcs": attr.label_list(
             allow_empty = False,
