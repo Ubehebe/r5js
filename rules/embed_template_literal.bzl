@@ -1,21 +1,14 @@
 def _embed_template_literal(ctx):
-    args = ctx.actions.args()
-    args.add(ctx.file.src)
-    args.add(ctx.outputs.ts)
-
-    # TODO: make this an external shell script.
     ctx.actions.run_shell(
         inputs = [ctx.file.src],
         outputs = [ctx.outputs.ts],
-        command = "cat > $2 << END\n" +
-                  "export const " + ctx.attr.name + " = \`\n" +
-                  "END\n" +
-                  # backslash-escape backslash
-                  "< $1 sed -e 's/\\\\/\\\\\\\\/g'" +
-                  # backslash-escape backticks
-                  " | sed -e 's/`/\\\\`/g'" +
-                  " >> $2; echo '`;' >> $2",
-        arguments = [args],
+        tools = [ctx.executable._embed_template_literal],
+        command = "< %s %s %s > %s" % (
+            ctx.file.src.path,
+            ctx.executable._embed_template_literal.path,
+            ctx.attr.name,
+            ctx.outputs.ts.path,
+        ),
         progress_message = "embedding %s into template literal" % ctx.file.src,
     )
 
@@ -33,6 +26,11 @@ where NAME is the name of this embed_template_literal target.""",
         "src": attr.label(
             mandatory = True,
             allow_single_file = True,
+        ),
+        "_embed_template_literal": attr.label(
+            default = "//scripts:embed_template_literal",
+            executable = True,
+            cfg = "host",
         ),
     },
     outputs = {
