@@ -55,3 +55,13 @@ rules_karma_dependencies()
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 
 web_test_repositories()
+
+git_repository(
+    name = "bazel_pandoc",
+    remote = "https://github.com/ProdriveTechnologies/bazel-pandoc.git",
+    tag = "v0.2",
+)
+
+load("@bazel_pandoc//:repositories.bzl", "pandoc_repositories")
+
+pandoc_repositories()

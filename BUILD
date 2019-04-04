@@ -1,6 +1,7 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 load("//:rules/tslint.bzl", "tslint")
+load("@bazel_pandoc//:pandoc.bzl", "pandoc")
 
 exports_files(["tsconfig.json"])
 
@@ -20,21 +21,11 @@ tslint(
     config = "tslint.json",
 )
 
-genrule(
-    name = "gen_index",
-    srcs = [
-        "README.md",
-    ],
-    outs = [
-        "index.html",
-    ],
-    cmd = "< $(<) $(location @npm//commonmark/bin:commonmark) > $(@)",
-    tools = [
-        "@npm//commonmark/bin:commonmark",
-    ],
-    visibility = [
-        "//ui:__pkg__",
-    ],
+pandoc(
+    name = "index",
+    src = "README.md",
+    from_format = "commonmark",
+    to_format = "html",
 )
 
 # TODO: this makes local development slow. Every time a source file changes, the whole bundle has to
