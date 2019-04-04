@@ -21,10 +21,27 @@ tslint(
     config = "tslint.json",
 )
 
+filegroup(
+    name = "pandoc_inputs",
+    srcs = [
+        # README.md must be listed first due to the way the pandoc rule is implemented. See
+        # https://github.com/ProdriveTechnologies/bazel-pandoc/blob/b69f8591d55f1a80bf22df0009f4f959e57511e1/pandoc.bzl#L13.
+        "README.md",
+        "//ui:template.html",
+    ],
+)
+
+# Run pandoc on README.md, producing index.html.
 pandoc(
     name = "index",
-    src = "README.md",
+    src = ":pandoc_inputs",
     from_format = "commonmark",
+    # Surround the generated HTML with content from ui/template.html.
+    # The filegroup is required as a hack to make ui/template.html available to the action.
+    options = [
+        "--standalone",
+        "--template=ui/template.html",
+    ],
     to_format = "html",
 )
 

@@ -1,10 +1,3 @@
-<!--hello!-->
-<link rel="stylesheet" href="ui/r5rs.css"/>
-<script src="rollup.min.js"></script>
-
-# r5js
-<textarea class='terminal' rows="20" spellcheck="false" autofocus="autofocus"></textarea>
-
 ## What is this?
 
 r5js is an interpreter for the [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))
@@ -13,12 +6,12 @@ programming language that runs in the browser. It aims to support all of the
 features (hygienic macros, first-class continuations, proper tail recursion) that tend to be
 overlooked in hobbyist implementations.
 
-I wrote r5js in 2011–2012. I return to give it a fresh coat of paint occasionally, to take advantage
-of new technology or to improve software engineering practices. As time goes on, the technical
-challenges of building an interpreter are less interesting to me than the practicalities of evolving
-a codebase over many years. Over its lifetime, the project has been implemented in three different
-languages (plain JavaScript, Closure-style JavaScript, now TypeScript) and used as many build
-systems (Make, Maven, now Bazel).
+I wrote r5js in 2011–2012. I give it a fresh coat of paint occasionally, adopting a new technology
+or improving its software engineering process. As time goes on, the technical challenges of building
+an interpreter are less interesting to me than the practicalities of evolving a codebase over many
+years. Over its lifetime, the project has been implemented in three different languages (plain
+JavaScript, Closure-style JavaScript, now TypeScript) and used as many build systems (Make, Maven,
+now Bazel).
 
 ## What this is not
 
